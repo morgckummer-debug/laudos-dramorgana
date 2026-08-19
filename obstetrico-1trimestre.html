@@ -8,23 +8,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f3f1f9;
+    --bg:#f9f5f9;
     --panel:#ffffff;
     --ink:#2b2b2e;
-    --ink-soft:#8b859c;
-    --rose:#8d7ec8;
-    --rose-dark:#5b4b8f;
-    --rose-light:#ece7f7;
-    --sage:#5b4b8f;
-    --sage-light:#ece7f7;
+    --ink-soft:#9a7e95;
+    --rose:#ae5ba0;
+    --rose-dark:#6d3263;
+    --rose-light:#f7e9f4;
+    --rose-darker:#4d2346;
+    --sage:#6d3263;
+    --sage-light:#f7e9f4;
     --amber:#c05a34;
     --amber-light:#fce7dc;
-    --line:#e8e5f0;
-    --line-soft:#f3f1f9;
+    --line:#ebe0e9;
+    --line-soft:#f9f5f9;
     --radius-lg:26px;
     --radius-md:16px;
     --radius-sm:10px;
-    --shadow: 0 14px 34px rgba(91,75,143,0.14);
+    --shadow: 0 14px 34px rgba(109,50,99,0.14);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -57,14 +58,14 @@
   .btn-ghost:hover{background:rgba(255,255,255,.26);}
   .btn-primary{background:#fff;color:var(--rose-dark);}
   .btn-primary:hover{opacity:.9;}
-  .laudo-switch{
-    background:rgba(255,255,255,.16) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.25 7.5L10 12.25L14.75 7.5' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
+  .laudo-switch, .medico-switch{
+    background:var(--rose-darker) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.25 7.5L10 12.25L14.75 7.5' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
     background-size:14px;color:#fff;border:none;border-radius:999px;
     font-family:'Poppins',sans-serif;cursor:pointer;font-size:13px;font-weight:600;
     padding:9px 32px 9px 18px;-webkit-appearance:none;appearance:none;
   }
-  .laudo-switch:hover{background-color:rgba(255,255,255,.26);}
-  .laudo-switch option{color:var(--ink);background:#fff;}
+  .laudo-switch:hover, .medico-switch:hover{filter:brightness(1.18);}
+  .laudo-switch option, .medico-switch option{color:var(--ink);background:#fff;}
 
   .layout{
     display:grid;grid-template-columns: 1.15fr 1fr;gap:22px;
@@ -265,6 +266,13 @@
     </div>
   </div>
   <div class="topbar-actions">
+    <select class="medico-switch" id="medicoExecutante" title="Médico executante do exame">
+      <option value="morgana">Dra. Morgana Kummer</option>
+      <option value="barbara">Dra. Bárbara R. Moreira</option>
+      <option value="paulo">Dr. Paulo M. Gontijo Junior</option>
+      <option value="carolina">Dra. Carolina P. Martins</option>
+      <option value="outro">Outro (digitar manualmente)</option>
+    </select>
     <select class="laudo-switch" id="laudoSwitch" onchange="if(this.value) location.href=this.value;" title="Trocar de laudo">
       <option value="index.html">Todos os laudos</option>
       <option value="transvaginal.html">Transvaginal</option>
@@ -992,6 +1000,40 @@
     render();
   });
 
+  // ---------- Médico executante: quick-select among the clinic's doctors —
+  // 4-6 people share 3 rooms here, so who's signing changes exam to exam.
+  // Picking a name overwrites the signature fields below; storage key isn't
+  // laudo-prefixed since who's on shift right now isn't laudo-specific.
+  // "Outro" leaves VR untouched and just opens the panel for a one-off edit
+  // (a visiting doctor, or a quick correction) without touching this roster. ----------
+  const EXECUTANTES = {
+    morgana: {nome:'Dra. Morgana Fialho Caldas Kummer', qual1:'Especialista em Ultrassonografia Geral pelo CBR.', qual2:'Pós-Graduação em Medicina Fetal pela FCMMG.', crm:'CRMMG: 45.304 - RQE: 39.156'},
+    barbara: {nome:'Dra. Bárbara Rodrigues Moreira', qual1:'Especialista em Ultrassonografia Geral pelo CBR.', qual2:'', crm:'CRMMG: 66.451 - RQE: 51.530'},
+    paulo: {nome:'Dr. Paulo Moreira Gontijo Junior', qual1:'', qual2:'', crm:'CRMMG: 76.670'},
+    carolina: {nome:'Dra. Carolina Piedade Martins', qual1:'', qual2:'', crm:'CRMMG: 75.163'}
+  };
+  function applyExecutante(id){
+    const d = EXECUTANTES[id];
+    if(!d) return;
+    VR = Object.assign({}, VR, {medicoNome:d.nome, medicoQual1:d.qual1, medicoQual2:d.qual2, medicoCRM:d.crm});
+    applyVRToInputs();
+    render();
+  }
+  $('medicoExecutante').addEventListener('change', e=>{
+    kvStore.set('medico-executante-selecionado', e.target.value);
+    if(e.target.value === 'outro'){
+      $('settingsPanel').classList.add('show');
+    } else {
+      applyExecutante(e.target.value);
+    }
+  });
+  async function loadExecutanteSelecionado(){
+    const saved = await kvStore.get('medico-executante-selecionado');
+    const sel = $('medicoExecutante');
+    sel.value = (saved && (saved==='outro' || EXECUTANTES[saved])) ? saved : 'morgana';
+    if(sel.value !== 'outro') applyExecutante(sel.value);
+  }
+
   // ---------- Conditional field visibility ----------
   function toggle(id, show){ const el=$(id); if(!el) return; el.classList.toggle('show', show); }
 
@@ -1146,7 +1188,7 @@
       if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
       const row = document.createElement('label');
       row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
-      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#5b4b8f;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#6d3263;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
       row.querySelector('input').addEventListener('change', e=>{
         checkedState[it.key] = e.target.checked;
         render();
@@ -1668,7 +1710,7 @@
   }
   setDefaultDataExame();
 
-  loadPhrases().then(()=> loadVR().then(()=> addSaco()));
+  loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> addSaco())));
 })();
 </script>
 </body>
