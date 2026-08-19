@@ -349,13 +349,13 @@
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">A impressão reserva 3,5 cm em branco no topo para a folha timbrada; o cabeçalho de identificação abaixo entra logo após esse espaço.</p>
         <div class="field-row">
           <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
+          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
         </div>
         <div class="field-row">
           <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
         </div>
         <div class="field-row">
-          <div class="field"><label>DUM (data da última menstruação)</label><input type="text" id="dum" placeholder="dd/mm/aaaa"></div>
+          <div class="field"><label>DUM (data da última menstruação)</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
           <div class="field"><label>Cronologia</label><input type="text" id="cronologia" placeholder="calculada automaticamente" readonly></div>
         </div>
         <div class="field-row">
@@ -364,7 +364,7 @@
           </div>
         </div>
         <div class="field-row conditional" id="wrap_usgDatacao">
-          <div class="field"><label>Data do 1º ultrassom</label><input type="text" id="usgDataDatacao" placeholder="dd/mm/aaaa"></div>
+          <div class="field"><label>Data do 1º ultrassom</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
           <div class="field"><label>IG no 1º ultrassom — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
           <div class="field"><label>IG no 1º ultrassom — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
         </div>
@@ -455,13 +455,13 @@
           </div>
         </div>
         <div class="field-row">
-          <div class="field"><label>DPP (data provável do parto)</label><input type="text" id="dpp" placeholder="dd/mm/aaaa"></div>
+          <div class="field"><label>DPP (data provável do parto)</label><input type="text" id="dpp" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
         </div>
         <hr class="sep">
         <div class="toggle-line"><input type="checkbox" id="chkRecomendacao" checked><label for="chkRecomendacao">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
         <div class="field-row conditional" id="wrap_recomendacao">
-          <div class="field"><label>Período recomendado — início</label><input type="text" id="dataInicioMorfo" placeholder="dd/mm/aaaa"></div>
-          <div class="field"><label>Período recomendado — fim</label><input type="text" id="dataFimMorfo" placeholder="dd/mm/aaaa"></div>
+          <div class="field"><label>Período recomendado — início</label><input type="text" id="dataInicioMorfo" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+          <div class="field"><label>Período recomendado — fim</label><input type="text" id="dataFimMorfo" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
         </div>
         <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
@@ -1151,6 +1151,24 @@
   function v(id){ const el = $(id); return el ? el.value.trim() : ''; }
   function num(id){ const x = parseFloat(v(id).replace(',', '.')); return isNaN(x) ? null : x; }
   function vNoDot(id){ return v(id).replace(/\.+\s*$/, ''); }
+
+  // ---------- Date mask: auto-inserts dots as digits are typed (dd.mm.aaaa),
+  // so the doctor never has to type a separator — attached before the generic
+  // #formCol listeners below so the field already holds the formatted value
+  // by the time render() reads it. ----------
+  function wireDateMask(id){
+    const el = $(id);
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      const digits = el.value.replace(/\D/g, '').slice(0, 8);
+      let out = digits;
+      if(digits.length > 4) out = digits.slice(0,2)+'.'+digits.slice(2,4)+'.'+digits.slice(4);
+      else if(digits.length > 2) out = digits.slice(0,2)+'.'+digits.slice(2);
+      el.value = out;
+      try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
+    });
+  }
+  ['dataExame','dum','usgDataDatacao','dpp','dataInicioMorfo','dataFimMorfo'].forEach(wireDateMask);
 
   // ---------- Cronologia: auto-computed IG at exam date, from DUM or from a
   // dating ultrasound (IG informed on that exam + days elapsed since then). ----------
