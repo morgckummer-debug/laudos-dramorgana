@@ -8,23 +8,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#eef1ef;
+    --bg:#f3f1f9;
     --panel:#ffffff;
     --ink:#2b2b2e;
-    --ink-soft:#8d9391;
-    --rose:#6fae93;
-    --rose-dark:#3f7a63;
-    --rose-light:#e2efe9;
-    --sage:#3f7a63;
-    --sage-light:#e2efe9;
+    --ink-soft:#8b859c;
+    --rose:#8d7ec8;
+    --rose-dark:#5b4b8f;
+    --rose-light:#ece7f7;
+    --sage:#5b4b8f;
+    --sage-light:#ece7f7;
     --amber:#c05a34;
     --amber-light:#fce7dc;
-    --line:#e7e9e7;
-    --line-soft:#eef1ef;
+    --line:#e8e5f0;
+    --line-soft:#f3f1f9;
     --radius-lg:26px;
     --radius-md:16px;
     --radius-sm:10px;
-    --shadow: 0 14px 34px rgba(63,90,79,0.10);
+    --shadow: 0 14px 34px rgba(91,75,143,0.14);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -1800,7 +1800,7 @@
       if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
       const row = document.createElement('label');
       row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
-      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#3f7a63;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#5b4b8f;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
       row.querySelector('input').addEventListener('change', e=>{
         checkedState[it.key] = e.target.checked;
         render();
@@ -2260,7 +2260,7 @@
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
-    clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
+    clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8b859c'; el.style.margin='0'; });
 
     // Word's HTML renderer doesn't support flexbox — the side-by-side rows
     // below (patient/date, and the footnote-left/signature-right footer)

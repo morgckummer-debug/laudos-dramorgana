@@ -3,28 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laudo de Ultrassonografia Obstétrica — 1º Trimestre — Dra. Morgana Kummer</title>
+<title>Laudo de Ultrassom Obstétrico do 1º Trimestre — Dra. Morgana Kummer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#eef1ef;
+    --bg:#f3f1f9;
     --panel:#ffffff;
     --ink:#2b2b2e;
-    --ink-soft:#8d9391;
-    --rose:#6fae93;
-    --rose-dark:#3f7a63;
-    --rose-light:#e2efe9;
-    --sage:#3f7a63;
-    --sage-light:#e2efe9;
+    --ink-soft:#8b859c;
+    --rose:#8d7ec8;
+    --rose-dark:#5b4b8f;
+    --rose-light:#ece7f7;
+    --sage:#5b4b8f;
+    --sage-light:#ece7f7;
     --amber:#c05a34;
     --amber-light:#fce7dc;
-    --line:#e7e9e7;
-    --line-soft:#eef1ef;
+    --line:#e8e5f0;
+    --line-soft:#f3f1f9;
     --radius-lg:26px;
     --radius-md:16px;
     --radius-sm:10px;
-    --shadow: 0 14px 34px rgba(63,90,79,0.10);
+    --shadow: 0 14px 34px rgba(91,75,143,0.14);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -79,7 +79,7 @@
   .card-head{
     display:flex;align-items:center;justify-content:space-between;
     padding:14px 20px;border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg, #F5F8F6, #FFFFFF);
+    background:linear-gradient(180deg, #F7F5FB, #FFFFFF);
   }
   .card-head h2{
     font-family:'Poppins',sans-serif;font-size:14px;letter-spacing:.2px;
@@ -112,7 +112,7 @@
   .subgroup{
     border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
   }
-  .feto-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .saco-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
   .conditional{display:none;}
   .conditional.show{display:block;}
 
@@ -147,7 +147,7 @@
     width:calc(17cm + 72px);max-width:100%;margin:0 auto;
   }
   .pg-break-marker{
-    margin:18px 0;padding-top:8px;border-top:1.5px dashed #c7a2ab;
+    margin:18px 0;padding-top:8px;border-top:1.5px dashed #b39ddb;
     text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink-soft);user-select:none;
@@ -169,6 +169,8 @@
   }
   .paper p.linha{margin:0 0 16px;}
   .paper p.linha strong{font-weight:700;}
+  .paper p.linha.tight{margin-bottom:2px;}
+  .paper p.recomendacao{text-align:center;font-style:italic;margin:16px 0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -253,7 +255,7 @@
 
 <div class="topbar">
   <div>
-    <h1>Ultrassonografia Obstétrica — 1º Trimestre</h1>
+    <h1>Ultrassom Obstétrico do 1º Trimestre</h1>
     <div class="sub">Dra. Morgana Kummer · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
   </div>
   <div class="topbar-actions">
@@ -262,7 +264,7 @@
       <option value="transvaginal.html">Transvaginal</option>
       <option value="obstetrico-1trimestre.html" selected>Obstétrico — 1º Trimestre</option>
     </select>
-    <button class="btn-ghost" id="btnSettings">Valores de referência</button>
+    <button class="btn-ghost" id="btnSettings">Assinatura do laudo</button>
     <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
     <button class="btn-ghost" id="btnReset">Limpar</button>
   </div>
@@ -276,14 +278,8 @@
     <div class="field"><label>Qualificação (linha 2)</label><input type="text" id="vr_medicoQual2" value="Pós-Graduação em Medicina Fetal pela FCMMG."></div>
     <div class="field"><label>CRM / RQE</label><input type="text" id="vr_medicoCRM" value="CRMMG: 45.304 - RQE: 39.156"></div>
   </div>
-  <hr class="sep">
-  <h3>Valor de referência — translucência nucal (TN)</h3>
-  <div class="settings-grid">
-    <div class="field"><label>TN — valor de referência máximo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_tnMax" value="2,5"></div>
-  </div>
-  <p style="font-size:11px;color:var(--ink-soft);margin:8px 0 0;">Valor fixo simplificado, usado apenas para sinalizar o campo — não substitui o cálculo de risco individualizado por percentil, CCN e idade materna quando este for indicado.</p>
   <div class="save-row">
-    <button class="btn-copy" id="btnSaveVR">Salvar valores de referência</button>
+    <button class="btn-copy" id="btnSaveVR">Salvar</button>
     <span class="saved-msg" id="vrSavedMsg">Salvo ✓</span>
   </div>
 </div>
@@ -292,60 +288,29 @@
   <h3>Personalizar frases do laudo</h3>
   <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases usadas automaticamente conforme o que você marca no formulário. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui.</p>
 
-  <h3>Gestação</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação única</label><textarea id="ph_gestacaoIntroUnica" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {AMNIONICIDADE}, {SINAL} e {NSACOS}</label><textarea id="ph_gestacaoIntroGemelar" rows="3"></textarea></div>
+  <h3>Bexiga / útero / anexos</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Bexiga — normal</label><textarea id="ph_bexigaNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero — use {POSICAO}, {MEDIDA} e {VOLUME}</label><textarea id="ph_utero" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Regiões anexiais — normais</label><textarea id="ph_anexosNormais" rows="2"></textarea></div>
 
   <hr class="sep">
-  <h3>Feto — vitalidade e biometria</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Batimentos cardíacos ausentes — use {ROTULO}</label><textarea id="ph_fetoBCFAusente" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Frequência cardíaca fetal — use {FC}</label><textarea id="ph_fetoFC" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Biometria (CCN/IG/DPP) — use {CCN}, {IG} e {DPP}</label><textarea id="ph_fetoBiometria" rows="2"></textarea></div>
+  <h3>Saco gestacional e biometria</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Saco gestacional — use {INSERCAO}</label><textarea id="ph_sacoGestacional" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Frequência cardíaca fetal — use {FC}</label><textarea id="ph_fcf" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ausência de batimentos cardíacos</label><textarea id="ph_fcfAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Embrião — óbito embrionário</label><textarea id="ph_embriaoObito" rows="2"></textarea></div>
 
   <hr class="sep">
-  <h3>Marcadores de aneuploidia</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Translucência nucal — use {TN} e {VR}</label><textarea id="ph_fetoTN" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Osso nasal presente</label><textarea id="ph_fetoOssoNasalPresente" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Osso nasal ausente</label><textarea id="ph_fetoOssoNasalAusente" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ducto venoso — onda A normal</label><textarea id="ph_fetoDuctoVenosoNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ducto venoso — onda A ausente/reversa</label><textarea id="ph_fetoDuctoVenosoAlterado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Regurgitação tricúspide — ausente</label><textarea id="ph_fetoRegurgAusente" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Regurgitação tricúspide — presente</label><textarea id="ph_fetoRegurgPresente" rows="2"></textarea></div>
-
-  <hr class="sep">
-  <h3>Anatomia precoce, placenta e líquido amniótico</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Avaliação anatômica precoce — normal</label><textarea id="ph_fetoAnatomiaNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Avaliação anatômica precoce — alterada (frase fixa) — use {DESCRICAO}</label><textarea id="ph_fetoAnatomiaAlterada" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Placenta — use {LOCAL} e {IMPLANTACAO}</label><textarea id="ph_fetoPlacenta" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Placenta — complemento de implantação baixa — use {MEDIDA}</label><textarea id="ph_fetoPlacentaImplantacaoBaixa" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — normal</label><textarea id="ph_fetoLiquidoNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aumentado</label><textarea id="ph_fetoLiquidoAumentado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — diminuído</label><textarea id="ph_fetoLiquidoDiminuido" rows="2"></textarea></div>
-
-  <hr class="sep">
-  <h3>Útero, colo e anexos maternos</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Miométrio — normal</label><textarea id="ph_uteroMiometrioNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Miométrio — mioma — use {LOCAL} e {MEDIDA}</label><textarea id="ph_uteroMiometrioMioma" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Colo uterino — normal — use {MEDIDA}</label><textarea id="ph_coloNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Colo uterino — afunilado — use {MEDIDA}</label><textarea id="ph_coloAfunilado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ovários não caracterizados</label><textarea id="ph_anexosNaoCaracterizados" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ovários normais</label><textarea id="ph_anexosNormais" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ovário com cisto — use {LADO} e {MEDIDA}</label><textarea id="ph_anexosCisto" rows="2"></textarea></div>
-
-  <hr class="sep">
-  <h3>Impressão diagnóstica</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação única — sem alterações</label><textarea id="ph_impGestacaoUnicaNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — sem alterações — use {CORIONICIDADE} e {AMNIONICIDADE}</label><textarea id="ph_impGestacaoGemelarNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Óbito embrionário/fetal — use {ROTULO}</label><textarea id="ph_impObitoEmbrionario" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>TN aumentada — use {ROTULO}</label><textarea id="ph_impTNAumentada" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Osso nasal ausente — use {ROTULO}</label><textarea id="ph_impOssoNasalAusente" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ducto venoso alterado — use {ROTULO}</label><textarea id="ph_impDuctoVenosoAlterado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Regurgitação tricúspide — use {ROTULO}</label><textarea id="ph_impRegurgTricuspide" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Anatomia alterada — use {ROTULO} e {DESCRICAO}</label><textarea id="ph_impAnatomiaAlterada" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico alterado — use {ROTULO} e {DESCRICAO}</label><textarea id="ph_impLiquidoAlterado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Mioma</label><textarea id="ph_impMioma" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Colo afunilado</label><textarea id="ph_impColoAfunilado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ovário alterado — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
+  <h3>Impressões diagnósticas</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação única — use {SEMANAS}, {DIAS} e {CONCORDANCIA}</label><textarea id="ph_impGestacaoUnica" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {SEMANAS}, {DIAS} e {CONCORDANCIA}</label><textarea id="ph_impGestacaoGemelar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Óbito embrionário — impressão</label><textarea id="ph_impObito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>DPP — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Bexiga alterada — use {DESCRICAO}</label><textarea id="ph_impBexigaAlterada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Anexos alterados — use {DESCRICAO}</label><textarea id="ph_impAnexosAlterados" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Recomendação de morfológico de 1º trimestre — use {DATA_INICIO} e {DATA_FIM}</label><textarea id="ph_recomendacaoMorfologico" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Rodapé</h3>
@@ -376,14 +341,14 @@
         </div>
         <div class="field-row">
           <div class="field"><label>DUM (data da última menstruação)</label><input type="text" id="dum" placeholder="dd/mm/aaaa"></div>
-          <div class="field"><label>IG pela DUM</label><input type="text" id="igDum" placeholder="ex: 12s4d"></div>
+          <div class="field"><label>Cronologia (IG pela DUM)</label><input type="text" id="cronologia" placeholder="ex: 8 semanas"></div>
         </div>
         <div class="field-row">
           <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
           <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
         </div>
-        <div class="field"><label>Motivo do exame ("Relato de...")</label><textarea id="motivoExame" rows="2" placeholder="ex: datação gestacional; rastreio de aneuploidias no primeiro trimestre..."></textarea></div>
+        <div class="field"><label>Motivo do exame ("Relato de...") — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: datação gestacional; sangramento vaginal..."></textarea></div>
       </div>
     </div>
 
@@ -391,64 +356,89 @@
       <div class="card-head"><h2>Gestação</h2></div>
       <div class="card-body">
         <div class="field-row">
-          <div class="field"><label>Número de fetos</label>
-            <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">3 ou mais</option></select>
+          <div class="field"><label>Número de sacos gestacionais / embriões</label>
+            <select id="numeroEmbrioes"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">3 ou mais</option></select>
           </div>
-        </div>
-        <div class="field-row conditional" id="wrap_corionicidade">
-          <div class="field"><label>Corionicidade</label>
+          <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade</label>
             <select id="corionicidade"><option value="dicorionica">Dicoriônica</option><option value="monocorionica">Monocoriônica</option></select>
           </div>
-          <div class="field"><label>Amnionicidade</label>
-            <select id="amnionicidade"><option value="diamniotica">Diamniótica</option><option value="monoamniotica">Monoamniótica</option></select>
-          </div>
         </div>
       </div>
     </div>
 
-    <div id="fetosContainer"></div>
-    <button type="button" class="btn-clear" id="btnAddFeto" style="margin:-8px 0 22px;">+ Adicionar feto</button>
+    <div id="sacosContainer"></div>
+    <button type="button" class="btn-clear" id="btnAddSaco" style="margin:-8px 0 22px;">+ Adicionar saco gestacional</button>
 
     <div class="card">
-      <div class="card-head"><h2>Útero, colo e anexos maternos</h2></div>
+      <div class="card-head"><h2>Bexiga</h2></div>
       <div class="card-body">
         <div class="field-row">
-          <div class="field"><label>Miométrio</label>
-            <select id="miometrioAspecto"><option value="homogeneo">Textura homogênea, sem nódulos</option><option value="mioma">Nódulo sólido (mioma)</option></select>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_miomaCampos">
-          <div class="field"><label>Localização</label><input type="text" id="miomaLocal" placeholder="ex: parede anterior"></div>
-          <div class="field"><label>Medida (mm)</label><input type="text" id="miomaMedida" placeholder="mm"></div>
-        </div>
-        <hr class="sep">
-        <div class="field-row">
-          <div class="field"><label>Colo uterino — comprimento (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="coloMedida" placeholder="mm"></div>
           <div class="field"><label>Aspecto</label>
-            <select id="coloAspecto"><option value="fechado">Fechado, sem afunilamento</option><option value="afunilado">Com afunilamento</option></select>
+            <select id="bexigaAspecto"><option value="normal">Normal (vazia durante o exame)</option><option value="alterado">Alterado (descrever)</option></select>
           </div>
         </div>
-        <hr class="sep">
-        <div class="field-row">
-          <div class="field"><label>Ovários</label>
-            <select id="anexosCaracterizados"><option value="nao">Não caracterizados (interposição uterina)</option><option value="sim">Caracterizados</option></select>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_anexosCampos">
-          <div class="field"><label>Aspecto</label>
-            <select id="anexosAspecto"><option value="normal">Normal</option><option value="cisto">Cisto (descrever)</option></select>
-          </div>
-          <div class="field conditional" id="wrap_anexosLado"><label>Lado</label>
-            <select id="anexosLado"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
-          </div>
-          <div class="field conditional" id="wrap_anexosMedida"><label>Medida (mm)</label><input type="text" id="anexosMedida" placeholder="mm"></div>
+        <div class="field conditional" id="wrap_bexigaDescricao">
+          <label>Descreva o achado</label>
+          <textarea id="bexigaDescricao" rows="2" placeholder="ex: conteúdo ecogênico em suspensão..."></textarea>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Impressão diagnóstica</h2></div>
+      <div class="card-head"><h2>Útero</h2></div>
       <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Posição uterina</label>
+            <select id="uteroPosicao">
+              <option value="avf_intermediaria">Antevertido, em posição intermediária</option>
+              <option value="avf">Antevertido</option>
+              <option value="intermediaria">Em posição intermediária</option>
+              <option value="retro">Retrovertido</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Medida (cm)</label><input type="text" id="uteroMedida" placeholder="ex: 9,4 x 6,7 x 7,2"></div>
+          <div class="field"><label>Volume estimado (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder="cm³"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Regiões anexiais</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Aspecto</label>
+            <select id="anexosAspecto"><option value="normal">Sem alterações</option><option value="alterado">Alterado (descrever)</option></select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_anexosDescricao">
+          <label>Descreva o achado</label>
+          <textarea id="anexosDescricao" rows="2" placeholder="ex: cisto simples em ovário direito..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Impressões diagnósticas</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Idade gestacional pela USG — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 7"></div>
+          <div class="field"><label>Idade gestacional pela USG — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 2"></div>
+          <div class="field"><label>DUM</label>
+            <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>DPP (data provável do parto)</label><input type="text" id="dpp" placeholder="dd/mm/aaaa"></div>
+        </div>
+        <hr class="sep">
+        <div class="toggle-line"><input type="checkbox" id="chkRecomendacao" checked><label for="chkRecomendacao">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
+        <div class="field-row conditional" id="wrap_recomendacao">
+          <div class="field"><label>Período recomendado — início</label><input type="text" id="dataInicioMorfo" placeholder="dd/mm/aaaa"></div>
+          <div class="field"><label>Período recomendado — fim</label><input type="text" id="dataFimMorfo" placeholder="dd/mm/aaaa"></div>
+        </div>
+        <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
       </div>
@@ -878,49 +868,24 @@
 
   // ---------- Customizable report phrases ----------
   const PHRASE_DEFAULTS = {
-    gestacaoIntroUnica: 'Gestação tópica, única, caracterizada por saco gestacional intrauterino, com embrião/feto único, vivo, apresentando batimentos cardíacos fetais.',
-    gestacaoIntroGemelar: 'Gestação tópica, gemelar, {CORIONICIDADE} e {AMNIONICIDADE}, com sinal do "{SINAL}" identificado à ultrassonografia, caracterizada por {NSACOS}, cada qual contendo feto vivo, apresentando batimentos cardíacos fetais.',
+    bexigaNormal: 'de topografia usual, vazia durante o exame.',
+    utero: '{POSICAO}, de configuração globosa e contornos regulares, medindo {MEDIDA} cm, com volume estimado em {VOLUME} cm³.',
+    anexosNormais: 'Regiões anexiais sem alterações.',
 
-    fetoBCFAusente: '{ROTULO}, sem batimentos cardíacos identificados ao exame.',
-    fetoFC: 'Frequência cardíaca fetal de {FC} bpm.',
-    fetoBiometria: 'Comprimento cabeça-nádega (CCN) de {CCN} mm, compatível com idade gestacional de {IG}, com data provável do parto (DPP) estimada para {DPP}.',
+    sacoGestacional: 'Saco gestacional identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos regulares e reação decidual habitual.',
+    fcf: 'Frequência cardíaca fetal (FCF): {FC} bpm.',
+    fcfAusente: 'Ausência de batimentos cardíacos identificados ao exame.',
+    embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
+    embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
 
-    fetoTN: 'Translucência nucal (TN): {TN} mm (valor de referência: até {VR} mm).',
-    fetoOssoNasalPresente: 'Osso nasal presente.',
-    fetoOssoNasalAusente: 'Osso nasal não identificado/ausente.',
-    fetoDuctoVenosoNormal: 'Ducto venoso com onda A de morfologia normal.',
-    fetoDuctoVenosoAlterado: 'Ducto venoso com onda A ausente/reversa.',
-    fetoRegurgAusente: 'Ausência de regurgitação na valva tricúspide.',
-    fetoRegurgPresente: 'Presença de regurgitação na valva tricúspide.',
-
-    fetoAnatomiaNormal: 'Avaliação anatômica precoce sem alterações — calota craniana íntegra, parede abdominal com inserção normal do cordão umbilical, bexiga identificada, membros presentes e com movimentação, coluna vertebral íntegra.',
-    fetoAnatomiaAlterada: '{DESCRICAO}.',
-    fetoPlacenta: 'Placenta {LOCAL}{IMPLANTACAO}, de textura habitual.',
-    fetoPlacentaImplantacaoBaixa: ', de implantação baixa, distando {MEDIDA} mm do orifício interno do colo',
-    fetoLiquidoNormal: 'Líquido amniótico em volume normal para a idade gestacional.',
-    fetoLiquidoAumentado: 'Líquido amniótico em volume aumentado para a idade gestacional.',
-    fetoLiquidoDiminuido: 'Líquido amniótico em volume reduzido para a idade gestacional.',
-
-    uteroMiometrioNormal: 'Miométrio de textura homogênea, sem nódulos.',
-    uteroMiometrioMioma: 'Miométrio com nódulo sólido hipoecoico (mioma) em {LOCAL}, medindo {MEDIDA} mm, sem sinais de interferência na gestação no momento do exame.',
-    coloNormal: 'Colo uterino de comprimento normal, medindo {MEDIDA} mm, com orifício interno fechado, sem afunilamento.',
-    coloAfunilado: 'Colo uterino medindo {MEDIDA} mm, com afunilamento do orifício interno.',
-    anexosNaoCaracterizados: 'Ovários não caracterizados no presente estudo, devido à interposição do útero gravídico.',
-    anexosNormais: 'Ovários de aspecto habitual, sem lesões expansivas.',
-    anexosCisto: 'Ovário {LADO} apresentando imagem cística, medindo {MEDIDA} mm.',
-
-    impGestacaoUnicaNormal: 'Gestação tópica única, com concepto vivo, biometria compatível com a idade gestacional pela CCN.',
-    impGestacaoGemelarNormal: 'Gestação tópica gemelar, {CORIONICIDADE} e {AMNIONICIDADE}, com ambos os fetos vivos, biometria compatível com a idade gestacional pela CCN.',
-    impObitoEmbrionario: '{ROTULO}: ausência de batimentos cardíacos — sugestivo de óbito embrionário/fetal. Recomenda-se correlação clínica e reavaliação.',
-    impTNAumentada: '{ROTULO}: translucência nucal aumentada — risco elevado para aneuploidias/cardiopatias. Recomenda-se investigação adicional (ecocardiograma fetal e/ou teste genético).',
-    impOssoNasalAusente: '{ROTULO}: ausência de osso nasal — marcador de risco para aneuploidias. Recomenda-se investigação adicional.',
-    impDuctoVenosoAlterado: '{ROTULO}: ducto venoso com onda A ausente/reversa — marcador de risco para aneuploidias/cardiopatias.',
-    impRegurgTricuspide: '{ROTULO}: regurgitação na valva tricúspide — marcador de risco para aneuploidias/cardiopatias.',
-    impAnatomiaAlterada: '{ROTULO}: {DESCRICAO}.',
-    impLiquidoAlterado: '{ROTULO}: líquido amniótico {DESCRICAO} para a idade gestacional.',
-    impMioma: 'Nódulo miometrial sugestivo de mioma.',
-    impColoAfunilado: 'Colo uterino curto/com afunilamento — recomenda-se acompanhamento especializado.',
-    impOvarioAlterado: 'Ovário {LADO}: {DESCRICAO}.',
+    impGestacaoUnica: 'Gestação única, eutópica, compatível com {SEMANAS} semanas e {DIAS} dias (DUM {CONCORDANCIA}).',
+    impGestacaoGemelar: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias (DUM {CONCORDANCIA}).',
+    impBoaEvolucao: 'Boa evolução até o momento.',
+    impObito: 'Ausência de batimentos cardíacos — sugestivo de óbito embrionário. Recomenda-se correlação clínica e reavaliação.',
+    impDPP: 'DPP: {DATA}.',
+    impBexigaAlterada: 'Alteração vesical: {DESCRICAO}.',
+    impAnexosAlterados: 'Achado em região anexial: {DESCRICAO}.',
+    recomendacaoMorfologico: 'Sugere-se a realização do Morfológico do 1º Trimestre para rastreamento de cromossomopatias e malformações fetais entre {DATA_INICIO} e {DATA_FIM}.',
 
     footerImagens: 'Imagens em anexo.'
   };
@@ -928,7 +893,7 @@
 
   async function loadPhrases(){
     try{
-      const val = await kvStore.get('ob1t-phrase-templates');
+      const val = await kvStore.get('ob1t-phrase-templates-v2');
       if(val){
         const parsed = JSON.parse(val);
         PHRASES = Object.assign({}, PHRASE_DEFAULTS, parsed);
@@ -967,7 +932,7 @@
     });
     PHRASES = updated;
     try{
-      await kvStore.set('ob1t-phrase-templates', JSON.stringify(PHRASES));
+      await kvStore.set('ob1t-phrase-templates-v2', JSON.stringify(PHRASES));
       const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
     }catch(e){ /* storage unavailable — values still apply for this session */ }
     render();
@@ -976,22 +941,21 @@
     if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
     PHRASES = Object.assign({}, PHRASE_DEFAULTS);
     applyPhrasesToInputs();
-    try{ await kvStore.set('ob1t-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
+    try{ await kvStore.set('ob1t-phrase-templates-v2', JSON.stringify(PHRASES)); }catch(e){}
     render();
   });
 
-  // ---------- Reference values ----------
+  // ---------- Médico (assinatura) ----------
   let VR = {
     medicoNome:'Dra. Morgana Fialho Caldas Kummer',
     medicoQual1:'Especialista em Ultrassonografia Geral pelo CBR.',
     medicoQual2:'Pós-Graduação em Medicina Fetal pela FCMMG.',
-    medicoCRM:'CRMMG: 45.304 - RQE: 39.156',
-    tnMax:2.5
+    medicoCRM:'CRMMG: 45.304 - RQE: 39.156'
   };
 
   async function loadVR(){
     try{
-      const val = await kvStore.get('ob1t-vr-settings');
+      const val = await kvStore.get('ob1t-vr-settings-v2');
       if(val){
         const parsed = JSON.parse(val);
         VR = Object.assign(VR, parsed);
@@ -1004,25 +968,19 @@
     $('vr_medicoQual1').value = VR.medicoQual1;
     $('vr_medicoQual2').value = VR.medicoQual2;
     $('vr_medicoCRM').value = VR.medicoCRM;
-    $('vr_tnMax').value = VR.tnMax.toString().replace('.',',');
   }
   $('btnSettings').addEventListener('click', ()=>{
     $('settingsPanel').classList.toggle('show');
   });
-  function pf(id, fallback){
-    const x = parseFloat(($(id).value||'').replace(',', '.'));
-    return isNaN(x) ? fallback : x;
-  }
   $('btnSaveVR').addEventListener('click', async ()=>{
     VR = {
       medicoNome: $('vr_medicoNome').value || VR.medicoNome,
       medicoQual1: $('vr_medicoQual1').value || VR.medicoQual1,
       medicoQual2: $('vr_medicoQual2').value || VR.medicoQual2,
-      medicoCRM: $('vr_medicoCRM').value || VR.medicoCRM,
-      tnMax: pf('vr_tnMax', 2.5)
+      medicoCRM: $('vr_medicoCRM').value || VR.medicoCRM
     };
     try{
-      await kvStore.set('ob1t-vr-settings', JSON.stringify(VR));
+      await kvStore.set('ob1t-vr-settings-v2', JSON.stringify(VR));
       const m = $('vrSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
     }catch(e){ /* storage unavailable — values still apply for this session */ }
     render();
@@ -1031,136 +989,102 @@
   // ---------- Conditional field visibility ----------
   function toggle(id, show){ const el=$(id); if(!el) return; el.classList.toggle('show', show); }
 
-  function updateMiometrioWrap(){ toggle('wrap_miomaCampos', $('miometrioAspecto').value==='mioma'); }
-  $('miometrioAspecto').addEventListener('change', updateMiometrioWrap);
-  updateMiometrioWrap();
-
-  function updateAnexosWraps(){
-    const caracterizados = $('anexosCaracterizados').value==='sim';
-    toggle('wrap_anexosCampos', caracterizados);
-    const aspecto = $('anexosAspecto').value;
-    toggle('wrap_anexosLado', caracterizados && aspecto==='cisto');
-    toggle('wrap_anexosMedida', caracterizados && aspecto==='cisto');
-  }
-  $('anexosCaracterizados').addEventListener('change', updateAnexosWraps);
-  $('anexosAspecto').addEventListener('change', updateAnexosWraps);
-  updateAnexosWraps();
+  $('bexigaAspecto').addEventListener('change', e=> toggle('wrap_bexigaDescricao', e.target.value==='alterado'));
+  $('anexosAspecto').addEventListener('change', e=> toggle('wrap_anexosDescricao', e.target.value==='alterado'));
+  $('chkRecomendacao').addEventListener('change', e=> toggle('wrap_recomendacao', e.target.checked));
+  toggle('wrap_recomendacao', $('chkRecomendacao').checked);
 
   function updateGestacaoWrap(){
-    toggle('wrap_corionicidade', $('numeroFetos').value !== '1');
+    toggle('wrap_corionicidade', $('numeroEmbrioes').value !== '1');
   }
-  $('numeroFetos').addEventListener('change', e=>{
+  $('numeroEmbrioes').addEventListener('change', e=>{
     updateGestacaoWrap();
-    setFetoCount(Math.min(Math.max(parseInt(e.target.value,10)||1, 1), 3));
+    setSacoCount(Math.min(Math.max(parseInt(e.target.value,10)||1, 1), 3));
   });
 
-  // ---------- Feto(s): dynamic list, mirrors the myoma-nodule pattern in
-  // transvaginal.html — each fetus keeps a stable uid once created, so
+  // ---------- Saco(s) gestacional(is): dynamic list, mirrors the myoma-nodule
+  // pattern in transvaginal.html — each keeps a stable uid once created, so
   // removing one mid-list never disturbs the others' field ids/listeners. ----------
-  let fetoNextUid = 1;
-  function fetoCardHTML(uid){
+  let sacoNextUid = 1;
+  function sacoCardHTML(uid){
     return ''
-      +'<div class="card" id="wrap_feto'+uid+'">'
-      +'<div class="card-head"><h2><span class="feto-label"></span></h2></div>'
+      +'<div class="card" id="wrap_saco'+uid+'">'
+      +'<div class="card-head"><h2><span class="saco-label"></span></h2></div>'
       +'<div class="card-body">'
       +'<div class="field-row">'
-      +'<div class="field"><label>Vitalidade</label><select id="feto'+uid+'Vitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'FC"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" id="feto'+uid+'FC" placeholder="bpm"></div>'
+      +'<div class="field"><label>Inserção do saco gestacional</label><select id="saco'+uid+'Insercao"><option value="fúndica">Fúndica</option><option value="corporal anterior">Corporal anterior</option><option value="corporal posterior">Corporal posterior</option><option value="ístmica">Ístmica</option></select></div>'
       +'</div>'
       +'<div class="field-row">'
-      +'<div class="field"><label>CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CCN" placeholder="mm"></div>'
-      +'<div class="field"><label>IG estimada pelo CCN</label><input type="text" id="feto'+uid+'IG" placeholder="ex: 12s3d"></div>'
-      +'<div class="field"><label>DPP estimada</label><input type="text" id="feto'+uid+'DPP" placeholder="dd/mm/aaaa"></div>'
+      +'<div class="field"><label>Diâmetro médio do saco gestacional — DMSG (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'DMSG" placeholder="mm"></div>'
+      +'<div class="field"><label>Vesícula vitelínica — VV (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'VV" placeholder="mm"></div>'
       +'</div>'
-      +'<hr class="sep">'
       +'<div class="field-row">'
-      +'<div class="field"><label>Translucência nucal — TN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'TN" placeholder="mm"><span class="flag-note" id="flag_feto'+uid+'TN">Acima do valor de referência</span></div>'
-      +'<div class="field"><label>Osso nasal</label><select id="feto'+uid+'OssoNasal"><option value="presente">Presente</option><option value="ausente">Ausente</option></select></div>'
+      +'<div class="field"><label>Comprimento cabeça-nádega — CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'CCN" placeholder="mm"></div>'
+      +'<div class="field"><label>Vitalidade</label><select id="saco'+uid+'Vitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>'
       +'</div>'
-      +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'ChkMarcadores"><label for="feto'+uid+'ChkMarcadores">Avaliar ducto venoso e regurgitação tricúspide</label></div>'
-      +'<div class="field-row conditional" id="wrap_feto'+uid+'Marcadores">'
-      +'<div class="field"><label>Ducto venoso</label><select id="feto'+uid+'DuctoVenoso"><option value="normal">Onda A normal</option><option value="alterado">Onda A ausente/reversa</option></select></div>'
-      +'<div class="field"><label>Regurgitação tricúspide</label><select id="feto'+uid+'Regurg"><option value="ausente">Ausente</option><option value="presente">Presente</option></select></div>'
+      +'<div class="field-row conditional" id="wrap_saco'+uid+'FC">'
+      +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" id="saco'+uid+'FC" placeholder="bpm"></div>'
       +'</div>'
-      +'<hr class="sep">'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Avaliação anatômica precoce</label><select id="feto'+uid+'Anatomia"><option value="normal">Sem alterações</option><option value="alterada">Alterada (descrever)</option></select></div>'
-      +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'AnatomiaDescricao"><label>Descreva o achado</label><textarea id="feto'+uid+'AnatomiaDescricao" rows="2"></textarea></div>'
-      +'<hr class="sep">'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Placenta — localização</label><select id="feto'+uid+'PlacentaLocal"><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="fúndica">Fúndica</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option></select></div>'
-      +'<div class="field"><label>Líquido amniótico</label><select id="feto'+uid+'Liquido"><option value="normal">Volume normal</option><option value="aumentado">Aumentado</option><option value="diminuido">Diminuído</option></select></div>'
-      +'</div>'
-      +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'ChkPlacentaBaixa"><label for="feto'+uid+'ChkPlacentaBaixa">Placenta de implantação baixa</label></div>'
-      +'<div class="field-row conditional" id="wrap_feto'+uid+'PlacentaBaixa">'
-      +'<div class="field"><label>Distância ao orifício interno (mm)</label><input type="text" id="feto'+uid+'PlacentaBaixaMedida" placeholder="mm"></div>'
-      +'</div>'
-      +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
+      +'<button type="button" class="saco-remove" data-uid="'+uid+'">Remover</button>'
       +'</div>'
       +'</div>';
   }
-  function updateFetoWraps(uid){
-    toggle('wrap_feto'+uid+'FC', $('feto'+uid+'Vitalidade').value==='presente');
-    toggle('wrap_feto'+uid+'Marcadores', $('feto'+uid+'ChkMarcadores').checked);
-    toggle('wrap_feto'+uid+'AnatomiaDescricao', $('feto'+uid+'Anatomia').value==='alterada');
-    toggle('wrap_feto'+uid+'PlacentaBaixa', $('feto'+uid+'ChkPlacentaBaixa').checked);
+  function updateSacoWraps(uid){
+    toggle('wrap_saco'+uid+'FC', $('saco'+uid+'Vitalidade').value==='presente');
   }
-  function fetoLabel(idx, total){
-    if(total<=1) return 'Feto único';
-    return 'Feto '+String.fromCharCode(65+idx);
+  function sacoLabel(idx, total){
+    if(total<=1) return 'Saco gestacional / embrião';
+    return 'Saco gestacional '+String.fromCharCode(65+idx);
   }
-  function renumberFetos(){
-    const container = $('fetosContainer');
+  function renumberSacos(){
+    const container = $('sacosContainer');
     const cards = Array.from(container.children);
     cards.forEach((el, idx)=>{
-      const label = el.querySelector('.feto-label');
-      if(label) label.textContent = fetoLabel(idx, cards.length);
-      const removeBtn = el.querySelector('.feto-remove');
+      const label = el.querySelector('.saco-label');
+      if(label) label.textContent = sacoLabel(idx, cards.length);
+      const removeBtn = el.querySelector('.saco-remove');
       if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
     });
-    $('numeroFetos').value = String(Math.min(Math.max(cards.length, 1), 3));
+    $('numeroEmbrioes').value = String(Math.min(Math.max(cards.length, 1), 3));
     updateGestacaoWrap();
   }
-  function wireFetoCard(uid){
-    const el = $('wrap_feto'+uid);
+  function wireSacoCard(uid){
+    const el = $('wrap_saco'+uid);
     el.querySelectorAll('input, select, textarea').forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
     });
     wireDecimalInputs();
-    ['Vitalidade','ChkMarcadores','Anatomia','ChkPlacentaBaixa'].forEach(key=>{
-      $('feto'+uid+key).addEventListener('change', ()=> updateFetoWraps(uid));
-    });
-    updateFetoWraps(uid);
-    el.querySelector('.feto-remove').addEventListener('click', ()=>{
+    $('saco'+uid+'Vitalidade').addEventListener('change', ()=> updateSacoWraps(uid));
+    updateSacoWraps(uid);
+    el.querySelector('.saco-remove').addEventListener('click', ()=>{
       el.remove();
-      renumberFetos();
+      renumberSacos();
       render();
     });
   }
-  function addFeto(){
-    const uid = fetoNextUid++;
-    $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
-    wireFetoCard(uid);
-    renumberFetos();
+  function addSaco(){
+    const uid = sacoNextUid++;
+    $('sacosContainer').insertAdjacentHTML('beforeend', sacoCardHTML(uid));
+    wireSacoCard(uid);
+    renumberSacos();
     render();
   }
-  $('btnAddFeto').addEventListener('click', addFeto);
-  function fetoUids(){
-    return Array.from($('fetosContainer').children).map(el=> el.id.replace('wrap_feto',''));
+  $('btnAddSaco').addEventListener('click', addSaco);
+  function sacoUids(){
+    return Array.from($('sacosContainer').children).map(el=> el.id.replace('wrap_saco',''));
   }
-  function setFetoCount(n){
-    const container = $('fetosContainer');
-    while(container.children.length < n){ addFeto(); }
+  function setSacoCount(n){
+    const container = $('sacosContainer');
+    while(container.children.length < n){ addSaco(); }
     while(container.children.length > n){ container.lastElementChild.remove(); }
-    renumberFetos();
+    renumberSacos();
     render();
   }
-  // Seeding the first fetus is deferred to the loadPhrases/loadVR chain at the
+  // Seeding the first saco is deferred to the loadPhrases/loadVR chain at the
   // bottom of this script, for the same reason as transvaginal.html's mioma
   // nodule: render() reads state declared with `let` further down, so calling
-  // addFeto() (and so render()) here would hit its temporal dead zone.
+  // addSaco() (and so render()) here would hit its temporal dead zone.
 
   // ---------- Helpers ----------
   function v(id){ const el = $(id); return el ? el.value.trim() : ''; }
@@ -1176,55 +1100,32 @@
   function escapeHtml(s){
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
-  function flag(id, isAbnormal){
-    const el = $(id), note = $('flag_'+id);
-    if(!el) return;
-    el.classList.toggle('flag-abnormal', !!isAbnormal);
-    if(note) note.classList.toggle('show', !!isAbnormal);
-  }
+
+  const UTERO_POSICAO_TEXTO = {
+    avf_intermediaria: 'Útero antevertido, em posição intermediária',
+    avf: 'Útero antevertido',
+    intermediaria: 'Útero em posição intermediária',
+    retro: 'Útero retrovertido'
+  };
 
   // ---------- Build impression checklist ----------
   function buildImpressao(state){
     const items = [];
 
     if(!state.isMultiple){
-      items.push({key:'gestacao-base', label:phraseRaw('impGestacaoUnicaNormal'), auto:true});
+      items.push({key:'gestacao', label:phraseRaw('impGestacaoUnica', {SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia}), auto:true});
     } else {
-      items.push({key:'gestacao-base', label:phraseRaw('impGestacaoGemelarNormal', {CORIONICIDADE:state.corTxt, AMNIONICIDADE:state.amnTxt}), auto:true});
+      items.push({key:'gestacao', label:phraseRaw('impGestacaoGemelar', {CORIONICIDADE:state.corTxt, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia}), auto:true});
     }
 
-    state.fetos.forEach(f=>{
-      if(f.vitalidade==='ausente'){
-        items.push({key:'obito-'+f.uid, label:phraseRaw('impObitoEmbrionario', {ROTULO:f.rotulo}), auto:true});
-      }
-      if(f.tnAcima){
-        items.push({key:'tn-'+f.uid, label:phraseRaw('impTNAumentada', {ROTULO:f.rotulo}), auto:true});
-      }
-      if(f.ossoNasal==='ausente'){
-        items.push({key:'osso-'+f.uid, label:phraseRaw('impOssoNasalAusente', {ROTULO:f.rotulo}), auto:true});
-      }
-      if(f.chkMarcadores && f.ductoVenoso==='alterado'){
-        items.push({key:'ducto-'+f.uid, label:phraseRaw('impDuctoVenosoAlterado', {ROTULO:f.rotulo}), auto:true});
-      }
-      if(f.chkMarcadores && f.regurg==='presente'){
-        items.push({key:'regurg-'+f.uid, label:phraseRaw('impRegurgTricuspide', {ROTULO:f.rotulo}), auto:true});
-      }
-      if(f.anatomia==='alterada' && f.anatomiaDescricao){
-        items.push({key:'anatomia-'+f.uid, label:phraseRaw('impAnatomiaAlterada', {ROTULO:f.rotulo, DESCRICAO:f.anatomiaDescricao}), auto:true});
-      }
-      if(f.liquido!=='normal'){
-        items.push({key:'liquido-'+f.uid, label:phraseRaw('impLiquidoAlterado', {ROTULO:f.rotulo, DESCRICAO: f.liquido==='aumentado'?'aumentado':'reduzido'}), auto:true});
-      }
-    });
+    items.push({key:'evolucao', label: state.algumObito ? phraseRaw('impObito') : phraseRaw('impBoaEvolucao'), auto:true});
+    items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
 
-    if(state.miometrioAspecto==='mioma'){
-      items.push({key:'mioma', label:phraseRaw('impMioma'), auto:true});
+    if(state.bexigaAspecto==='alterado' && state.bexigaDescricao){
+      items.push({key:'bexiga-alterada', label:phraseRaw('impBexigaAlterada', {DESCRICAO:state.bexigaDescricao}), auto:true});
     }
-    if(state.coloAspecto==='afunilado'){
-      items.push({key:'colo', label:phraseRaw('impColoAfunilado'), auto:true});
-    }
-    if(state.anexosCaracterizados==='sim' && state.anexosAspecto==='cisto'){
-      items.push({key:'anexo', label:phraseRaw('impOvarioAlterado', {LADO:state.anexosLado, DESCRICAO:'imagem cística, medindo '+(state.anexosMedida||'____')+' mm'}), auto:true});
+    if(state.anexosAspecto==='alterado' && state.anexosDescricao){
+      items.push({key:'anexos-alterado', label:phraseRaw('impAnexosAlterados', {DESCRICAO:state.anexosDescricao}), auto:true});
     }
 
     return items;
@@ -1239,7 +1140,7 @@
       if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
       const row = document.createElement('label');
       row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
-      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#3f7a63;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#5b4b8f;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
       row.querySelector('input').addEventListener('change', e=>{
         checkedState[it.key] = e.target.checked;
         render();
@@ -1347,66 +1248,54 @@
     const dataExame = v('dataExame');
     const medicoSolicitante = v('medicoSolicitante');
     const dum = v('dum');
-    const igDum = v('igDum');
+    const cronologia = v('cronologia');
     const gpaG = v('gpaG');
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
     const motivoExame = vNoDot('motivoExame');
 
-    const numeroFetosVal = v('numeroFetos');
-    const isMultiple = numeroFetosVal !== '1';
+    const numeroEmbrioesVal = v('numeroEmbrioes');
+    const isMultiple = numeroEmbrioesVal !== '1';
     const corionicidade = v('corionicidade');
-    const amnionicidade = v('amnionicidade');
     const corTxt = corionicidade==='monocorionica' ? 'monocoriônica' : 'dicoriônica';
-    const amnTxt = amnionicidade==='monoamniotica' ? 'monoamniótica' : 'diamniótica';
-    const sinal = corionicidade==='monocorionica' ? 'T' : 'lambda';
-    const nsacos = amnionicidade==='monoamniotica' ? 'saco gestacional único, compartilhado pelos fetos' : 'dois sacos gestacionais individualizados';
 
-    const uids = fetoUids();
-    const fetos = uids.map((uid, idx)=>{
-      const rotulo = fetoLabel(idx, uids.length);
-      const vitalidade = v('feto'+uid+'Vitalidade');
-      const fc = blankOrValue(reqIf('feto'+uid+'FC', vitalidade==='presente'));
-      const ccn = blankOrValue(req('feto'+uid+'CCN'));
-      const ig = blankOrValue(req('feto'+uid+'IG'));
-      const dpp = blankOrValue(req('feto'+uid+'DPP'));
-      const tnNum = num('feto'+uid+'TN'); req('feto'+uid+'TN');
-      const tn = blankOrValue(v('feto'+uid+'TN'));
-      const tnAcima = tnNum!==null && tnNum > VR.tnMax;
-      flag('feto'+uid+'TN', tnAcima);
-      const ossoNasal = v('feto'+uid+'OssoNasal');
-      const chkMarcadores = $('feto'+uid+'ChkMarcadores').checked;
-      const ductoVenoso = v('feto'+uid+'DuctoVenoso');
-      const regurg = v('feto'+uid+'Regurg');
-      const anatomia = v('feto'+uid+'Anatomia');
-      const anatomiaDescricao = vNoDot('feto'+uid+'AnatomiaDescricao');
-      reqIf('feto'+uid+'AnatomiaDescricao', anatomia==='alterada');
-      const placentaLocal = v('feto'+uid+'PlacentaLocal');
-      const liquido = v('feto'+uid+'Liquido');
-      const chkPlacentaBaixa = $('feto'+uid+'ChkPlacentaBaixa').checked;
-      const placentaBaixaMedida = blankOrValue(reqIf('feto'+uid+'PlacentaBaixaMedida', chkPlacentaBaixa));
-      return {uid, rotulo, vitalidade, fc, ccn, ig, dpp, tn, tnNum, tnAcima, ossoNasal, chkMarcadores, ductoVenoso, regurg, anatomia, anatomiaDescricao, placentaLocal, liquido, chkPlacentaBaixa, placentaBaixaMedida};
+    const uids = sacoUids();
+    const sacos = uids.map((uid, idx)=>{
+      const label = sacoLabel(idx, uids.length);
+      const insercao = v('saco'+uid+'Insercao');
+      const dmsg = blankOrValue(req('saco'+uid+'DMSG'));
+      const vv = blankOrValue(req('saco'+uid+'VV'));
+      const ccn = blankOrValue(req('saco'+uid+'CCN'));
+      const vitalidade = v('saco'+uid+'Vitalidade');
+      const fc = blankOrValue(reqIf('saco'+uid+'FC', vitalidade==='presente'));
+      return {uid, label, insercao, dmsg, vv, ccn, vitalidade, fc};
     });
+    const algumObito = sacos.some(s=> s.vitalidade==='ausente');
 
-    const miometrioAspecto = v('miometrioAspecto');
-    const miomaLocal = v('miomaLocal');
-    const miomaMedida = reqIf('miomaMedida', miometrioAspecto==='mioma');
-    const coloMedida = blankOrValue(req('coloMedida'));
-    const coloAspecto = v('coloAspecto');
-    const anexosCaracterizados = v('anexosCaracterizados');
+    const bexigaAspecto = v('bexigaAspecto');
+    const bexigaDescricao = vNoDot('bexigaDescricao');
+
+    const uteroPosicao = v('uteroPosicao');
+    const uteroMedida = blankOrValue(req('uteroMedida'));
+    const uteroVolume = blankOrValue(req('uteroVolume'));
+
     const anexosAspecto = v('anexosAspecto');
-    const anexosLado = v('anexosLado')==='esquerdo' ? 'esquerdo' : 'direito';
-    const anexosMedida = reqIf('anexosMedida', anexosCaracterizados==='sim' && anexosAspecto==='cisto');
+    const anexosDescricao = vNoDot('anexosDescricao');
+
+    const impSemanas = req('impSemanas');
+    const impDias = req('impDias');
+    const dumConcordancia = v('dumConcordancia')==='discordante' ? 'discordante' : 'concordante';
+    const dpp = req('dpp');
+
+    const chkRecomendacao = $('chkRecomendacao').checked;
+    const dataInicioMorfo = blankOrValue(reqIf('dataInicioMorfo', chkRecomendacao));
+    const dataFimMorfo = blankOrValue(reqIf('dataFimMorfo', chkRecomendacao));
 
     // ----- Impressão -----
     const state = {
-      isMultiple, corTxt, amnTxt,
-      fetos: fetos.map(f=>({
-        uid:f.uid, rotulo:f.rotulo, vitalidade:f.vitalidade, tnAcima:f.tnAcima, ossoNasal:f.ossoNasal,
-        chkMarcadores:f.chkMarcadores, ductoVenoso:f.ductoVenoso, regurg:f.regurg,
-        anatomia:f.anatomia, anatomiaDescricao:f.anatomiaDescricao, liquido:f.liquido
-      })),
-      miometrioAspecto, coloAspecto, anexosCaracterizados, anexosAspecto, anexosLado, anexosMedida
+      isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', concordancia: dumConcordancia,
+      algumObito, dpp,
+      bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
@@ -1417,49 +1306,36 @@
     html += '<div class="id-card">';
     html += '<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>';
     html += '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>';
-    html += '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp; <strong>IG (DUM):</strong> '+span(blankOrValue(igDum))+'</span></div>';
     html += '<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>';
+    html += '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+'</span><span><strong>Cronologia:</strong> '+span(blankOrValue(cronologia))+'</span></div>';
     html += '</div>';
-    html += '<h3 class="doctitle">ULTRASSONOGRAFIA OBSTÉTRICA — PRIMEIRO TRIMESTRE</h3>';
+    html += '<h3 class="doctitle">ULTRASSOM OBSTÉTRICO DO 1º TRIMESTRE</h3>';
     if(motivoExame){
       html += '<p class="relato">Relato de '+escapeHtml(motivoExame.charAt(0).toLowerCase()+motivoExame.slice(1))+'.</p>';
     }
     html += '<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>';
 
-    html += '<p class="linha">'+(isMultiple ? phrase('gestacaoIntroGemelar', {CORIONICIDADE:corTxt, AMNIONICIDADE:amnTxt, SINAL:sinal, NSACOS:nsacos}) : phrase('gestacaoIntroUnica'))+'</p>';
+    const bexigaTexto = (bexigaAspecto==='alterado' && bexigaDescricao) ? escapeHtml(bexigaDescricao) : phrase('bexigaNormal');
+    html += '<p class="linha">Bexiga '+bexigaTexto+'</p>';
 
-    fetos.forEach(f=>{
+    html += '<p class="linha">'+phraseRaw('utero', {POSICAO: UTERO_POSICAO_TEXTO[uteroPosicao], MEDIDA: span(uteroMedida), VOLUME: span(uteroVolume)})+'</p>';
+
+    sacos.forEach(s=>{
       if(uids.length>1){
-        html += '<h4 class="sec">'+escapeHtml(f.rotulo.toUpperCase())+'</h4>';
+        html += '<h4 class="sec">'+escapeHtml(s.label.toUpperCase())+'</h4>';
       }
-      if(f.vitalidade==='ausente'){
-        html += '<p class="linha">'+phraseRaw('fetoBCFAusente', {ROTULO:f.rotulo})+'</p>';
-      } else {
-        html += '<p class="linha">'+phraseRaw('fetoFC', {FC:span(f.fc)})+'</p>';
-      }
-      html += '<p class="linha">'+phraseRaw('fetoBiometria', {CCN:span(f.ccn), IG:span(f.ig), DPP:span(f.dpp)})+'</p>';
-      html += '<p class="linha">'+phraseRaw('fetoTN', {TN:span(f.tn), VR:VR.tnMax.toString().replace('.',',')})+'</p>';
-      html += '<p class="linha">'+(f.ossoNasal==='ausente' ? phrase('fetoOssoNasalAusente') : phrase('fetoOssoNasalPresente'))+'</p>';
-      if(f.chkMarcadores){
-        html += '<p class="linha">'+(f.ductoVenoso==='alterado' ? phrase('fetoDuctoVenosoAlterado') : phrase('fetoDuctoVenosoNormal'))+' '+(f.regurg==='presente' ? phrase('fetoRegurgPresente') : phrase('fetoRegurgAusente'))+'</p>';
-      }
-      html += '<p class="linha">'+((f.anatomia==='alterada' && f.anatomiaDescricao) ? phraseRaw('fetoAnatomiaAlterada', {DESCRICAO:escapeHtml(f.anatomiaDescricao)}) : phrase('fetoAnatomiaNormal'))+'</p>';
-
-      const implantacao = f.chkPlacentaBaixa ? phraseRaw('fetoPlacentaImplantacaoBaixa', {MEDIDA: span(f.placentaBaixaMedida)}) : '';
-      html += '<p class="linha">'+phraseRaw('fetoPlacenta', {LOCAL: escapeHtml(f.placentaLocal), IMPLANTACAO: implantacao})+'</p>';
-      html += '<p class="linha">'+(f.liquido==='aumentado' ? phrase('fetoLiquidoAumentado') : f.liquido==='diminuido' ? phrase('fetoLiquidoDiminuido') : phrase('fetoLiquidoNormal'))+'</p>';
+      html += '<p class="linha">'+phraseRaw('sacoGestacional', {INSERCAO: s.insercao})+'</p>';
+      html += '<p class="linha tight"><strong>Parâmetros biométricos:</strong></p>';
+      html += '<p class="linha tight">Diâmetro médio do saco gestacional (DMSG): '+span(s.dmsg)+' mm.</p>';
+      html += '<p class="linha tight">Vesícula vitelínica (VV): '+span(s.vv)+' mm.</p>';
+      html += '<p class="linha tight">Comprimento cabeça-nádega (CCN): '+span(s.ccn)+' mm.</p>';
+      html += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('fcfAusente') : phraseRaw('fcf', {FC: span(s.fc)}))+'</p>';
+      html += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('embriaoObito') : phrase('embriaoNormal'))+'</p>';
     });
 
-    html += '<h4 class="sec">ÚTERO, COLO E ANEXOS MATERNOS</h4>';
-    html += '<p class="linha">'+(miometrioAspecto==='mioma' ? phraseRaw('uteroMiometrioMioma', {LOCAL: escapeHtml(miomaLocal||'____'), MEDIDA: escapeHtml(miomaMedida||'____')}) : phrase('uteroMiometrioNormal'))+'</p>';
-    html += '<p class="linha">'+(coloAspecto==='afunilado' ? phraseRaw('coloAfunilado', {MEDIDA: span(coloMedida)}) : phraseRaw('coloNormal', {MEDIDA: span(coloMedida)}))+'</p>';
-    if(anexosCaracterizados==='sim'){
-      html += '<p class="linha">'+(anexosAspecto==='cisto' ? phraseRaw('anexosCisto', {LADO: anexosLado, MEDIDA: escapeHtml(anexosMedida||'____')}) : phrase('anexosNormais'))+'</p>';
-    } else {
-      html += '<p class="linha">'+phrase('anexosNaoCaracterizados')+'</p>';
-    }
+    html += '<p class="linha">'+(anexosAspecto==='alterado' && anexosDescricao ? escapeHtml(anexosDescricao) : phrase('anexosNormais'))+'</p>';
 
-    html += '<h4 class="sec">IMPRESSÃO:</h4><ul class="impressao">';
+    html += '<h4 class="sec">IMPRESSÕES DIAGNÓSTICAS:</h4><ul class="impressao">';
     if(checkedItems.length===0){
       html += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
     } else {
@@ -1469,6 +1345,10 @@
       });
     }
     html += '</ul>';
+
+    if(chkRecomendacao){
+      html += '<p class="recomendacao">('+phraseRaw('recomendacaoMorfologico', {DATA_INICIO: span(dataInicioMorfo), DATA_FIM: span(dataFimMorfo)})+')</p>';
+    }
 
     html += '<div class="rodape-final">';
     html += '<p class="footnote">'+phrase('footerImagens')+'</p>';
@@ -1515,6 +1395,7 @@
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.padding='10px 16px'; el.style.marginBottom='20px'; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
@@ -1550,10 +1431,10 @@
     return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";\">"+clone.innerHTML+'</div>';
   }
 
-  // ---------- Print pagination: pins "Continua…" and the signature to the
-  // bottom-right corner of the physical page, at print time only. See
-  // transvaginal.html for the full rationale behind every choice below —
-  // this is the same pipeline, unchanged. ----------
+  // ---------- Print pagination: pins the signature to the bottom-right corner
+  // of the physical page, at print time only. See transvaginal.html for the
+  // full rationale behind every choice below — this is the same pipeline,
+  // unchanged. ----------
   function paginateForPrint(){
     const paperEl = $('paper');
     paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
@@ -1757,17 +1638,19 @@
     if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
     document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
     document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
-    document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
+    document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=true);
+    $('chkRecomendacao').checked = true;
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
-    $('fetosContainer').innerHTML = '';
+    $('sacosContainer').innerHTML = '';
     checkedState = {};
     impressaoOverrides = {};
     printAttempted = false;
     $('printAlert').classList.remove('show');
     setDefaultDataExame();
-    addFeto();
+    toggle('wrap_recomendacao', true);
+    addSaco();
   });
 
   function setDefaultDataExame(){
@@ -1779,7 +1662,7 @@
   }
   setDefaultDataExame();
 
-  loadPhrases().then(()=> loadVR().then(()=> addFeto()));
+  loadPhrases().then(()=> loadVR().then(()=> addSaco()));
 })();
 </script>
 </body>
