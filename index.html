@@ -28,7 +28,7 @@
     -webkit-font-smoothing:antialiased;
   }
   .topbar{
-    display:flex;align-items:center;justify-content:space-between;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
     padding:18px 28px;background:var(--rose-dark);color:#fff;
     box-shadow: var(--shadow);
     position:sticky;top:0;z-index:50;
@@ -58,14 +58,20 @@
     border:1px dashed var(--rose-dark);
   }
   h3.section{font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:0;}
+  .topbar-brand{display:flex;align-items:center;gap:16px;}
+  .logo-badge{background:#fff;border-radius:14px;padding:6px 14px;display:flex;align-items:center;box-shadow:0 6px 16px rgba(0,0,0,0.12);}
+  .logo-badge img{height:38px;width:auto;display:block;}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div>
-    <h1>Laudos — Dra. Morgana Kummer</h1>
-    <div class="sub">Escolha o laudo que deseja preencher</div>
+  <div class="topbar-brand">
+    <div class="logo-badge"><img src="logo.png" alt="Clínica de Ultrassom — Dra. Morgana Kummer"></div>
+    <div>
+      <h1>Laudos — Dra. Morgana Kummer</h1>
+      <div class="sub">Escolha o laudo que deseja preencher</div>
+    </div>
   </div>
 </div>
 

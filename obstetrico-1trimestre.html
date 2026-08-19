@@ -35,11 +35,14 @@
     -webkit-font-smoothing:antialiased;
   }
   .topbar{
-    display:flex;align-items:center;justify-content:space-between;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
     padding:18px 28px;background:var(--rose-dark);color:#fff;
     box-shadow: var(--shadow);
     position:sticky;top:0;z-index:50;
   }
+  .topbar-brand{display:flex;align-items:center;gap:16px;}
+  .logo-badge{background:#fff;border-radius:14px;padding:6px 14px;display:flex;align-items:center;box-shadow:0 6px 16px rgba(0,0,0,0.12);flex:0 0 auto;}
+  .logo-badge img{height:38px;width:auto;display:block;}
   .topbar h1{
     font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;margin:0;letter-spacing:.1px;
   }
@@ -254,9 +257,12 @@
 <body>
 
 <div class="topbar">
-  <div>
-    <h1>Ultrassom Obstétrico do 1º Trimestre</h1>
-    <div class="sub">Dra. Morgana Kummer · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
+  <div class="topbar-brand">
+    <div class="logo-badge"><img src="logo.png" alt="Clínica de Ultrassom — Dra. Morgana Kummer"></div>
+    <div>
+      <h1>Ultrassom Obstétrico do 1º Trimestre</h1>
+      <div class="sub">Dra. Morgana Kummer · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
+    </div>
   </div>
   <div class="topbar-actions">
     <select class="laudo-switch" id="laudoSwitch" onchange="if(this.value) location.href=this.value;" title="Trocar de laudo">
