@@ -6,6 +6,7 @@ Cada laudo é um arquivo HTML autônomo (sem build, abre direto no navegador). `
 
 ## Laudos disponíveis
 - `transvaginal.html` — Ultrassonografia Transvaginal
+- `obstetrico-1trimestre.html` — Ultrassonografia Obstétrica de 1º Trimestre (translucência nucal)
 
 ## Adicionando um novo laudo
 1. Copie um laudo existente (ex: `transvaginal.html`) como ponto de partida, para manter cabeçalho, fontes, espaçamento e regras de impressão consistentes.

@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laudo de Ultrassonografia Obstétrica — 1º Trimestre — Dra. Morgana Kummer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef1ef;
+    --panel:#ffffff;
+    --ink:#2b2b2e;
+    --ink-soft:#8d9391;
+    --rose:#6fae93;
+    --rose-dark:#3f7a63;
+    --rose-light:#e2efe9;
+    --sage:#3f7a63;
+    --sage-light:#e2efe9;
+    --amber:#c05a34;
+    --amber-light:#fce7dc;
+    --line:#e7e9e7;
+    --line-soft:#eef1ef;
+    --radius-lg:26px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --shadow: 0 14px 34px rgba(63,90,79,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;background:var(--rose-dark);color:#fff;
+    box-shadow: var(--shadow);
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar h1{
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;margin:0;letter-spacing:.1px;
+  }
+  .topbar .sub{font-size:12px;opacity:.85;margin-top:2px;font-weight:400;}
+  .topbar-actions{display:flex;gap:8px;align-items:center;}
+  button{
+    font-family:'Poppins',sans-serif;cursor:pointer;border:none;border-radius:999px;
+    font-size:13px;font-weight:600;padding:9px 18px;transition:transform .06s ease, opacity .15s ease;
+  }
+  button:active{transform:scale(.97);}
+  .btn-ghost{background:rgba(255,255,255,.16);color:#fff;}
+  .btn-ghost:hover{background:rgba(255,255,255,.26);}
+  .btn-primary{background:#fff;color:var(--rose-dark);}
+  .btn-primary:hover{opacity:.9;}
+  .laudo-switch{
+    background:rgba(255,255,255,.16) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.25 7.5L10 12.25L14.75 7.5' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
+    background-size:14px;color:#fff;border:none;border-radius:999px;
+    font-family:'Poppins',sans-serif;cursor:pointer;font-size:13px;font-weight:600;
+    padding:9px 32px 9px 18px;-webkit-appearance:none;appearance:none;
+  }
+  .laudo-switch:hover{background-color:rgba(255,255,255,.26);}
+  .laudo-switch option{color:var(--ink);background:#fff;}
+
+  .layout{
+    display:grid;grid-template-columns: 1.15fr 1fr;gap:22px;
+    max-width:1440px;margin:0 auto;padding:22px 28px 80px;
+    align-items:start;
+  }
+  @media (max-width: 980px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-lg);
+    box-shadow:var(--shadow); margin-bottom:22px; overflow:hidden;
+  }
+  .card-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, #F5F8F6, #FFFFFF);
+  }
+  .card-head h2{
+    font-family:'Poppins',sans-serif;font-size:14px;letter-spacing:.2px;
+    color:var(--rose-dark);margin:0;font-weight:600;
+  }
+  .card-body{padding:18px 20px 20px;}
+
+  .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:14px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:12px;color:var(--ink-soft);font-weight:500;}
+  .field .vr{font-size:11px;color:var(--sage);font-weight:500;}
+  .field input[type=text], .field input[type=number], .field select, .field textarea{
+    font-family:'Inter',sans-serif;font-size:13.5px;color:var(--ink);
+    padding:10px 14px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);
+    outline:none;width:100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);
+  }
+  .field input.flag-abnormal{border-color:var(--amber);background:var(--amber-light);}
+  .field input.format-error{border-color:#B4432F;background:#FBEAE6;}
+  .field input.field-missing{border-color:#B4432F;}
+  .format-warning{font-size:11px;color:#B4432F;font-weight:600;display:block;margin-top:3px;}
+  .field .flag-note{font-size:11px;color:var(--amber);font-weight:600;display:none;}
+  .field .flag-note.show{display:block;}
+
+  .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
+  .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
+
+  .subgroup{
+    border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
+  }
+  .feto-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .conditional{display:none;}
+  .conditional.show{display:block;}
+
+  /* Custom combobox for "Médico solicitante" — see transvaginal.html for the
+     full rationale (a plain <datalist> doesn't show its suggestion popup at
+     all on iOS Safari, so the list is rendered by hand here instead). */
+  .combo-list{
+    display:none;position:fixed;z-index:1000;
+    background:var(--panel);border:1.5px solid var(--line);border-radius:var(--radius-sm);
+    box-shadow:var(--shadow);max-height:220px;overflow-y:auto;
+  }
+  .combo-list.show{display:block;}
+  .combo-list .combo-option{
+    padding:10px 14px;font-size:13.5px;color:var(--ink);cursor:pointer;
+  }
+  .combo-list .combo-option:hover, .combo-list .combo-option.active{background:var(--rose-light);}
+  .combo-list .combo-empty{padding:10px 14px;font-size:12.5px;color:var(--ink-soft);}
+
+  hr.sep{border:none;border-top:1px dashed var(--line);margin:14px 0;}
+
+  /* Preview / laudo pane */
+  .preview-wrap{position:sticky;top:88px;}
+  .paper-table{width:100%;border-collapse:collapse;}
+  .paper-table thead td, .paper-table tfoot td{padding:0;border:none;height:0;}
+  .paper-table tbody td{padding:0;border:none;}
+  .paper{
+    background:#FEFCFE;border:1px solid var(--line);border-radius:4px;
+    box-shadow:var(--shadow);
+    padding:34px 36px 40px;
+    font-family:'Times New Roman', Times, serif;font-size:12pt;line-height:1.15;color:var(--ink);
+    max-height:calc(100vh - 150px);overflow-y:auto;
+    width:calc(17cm + 72px);max-width:100%;margin:0 auto;
+  }
+  .pg-break-marker{
+    margin:18px 0;padding-top:8px;border-top:1.5px dashed #c7a2ab;
+    text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-soft);user-select:none;
+  }
+  .paper .id-card{
+    background:#ffffff;border:1.5px solid #2b2b2e;border-radius:10px;padding:10px 16px;margin:0 0 20px;
+    font-weight:700;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  .paper .id-card-row{display:flex;justify-content:space-between;gap:16px;font-size:12pt;}
+  .paper .id-card-row + .id-card-row{margin-top:2px;}
+  .paper h3.doctitle{
+    text-align:center;text-decoration:underline;font-size:16pt;letter-spacing:.5px;
+    margin:0 0 24px;font-weight:700;
+  }
+  .paper .relato{color:#C0392B;font-weight:700;margin:0 0 12px;}
+  .paper h4.sec{
+    text-decoration:underline;font-size:13px;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
+  }
+  .paper p.linha{margin:0 0 16px;}
+  .paper p.linha strong{font-weight:700;}
+  .paper .blank{color:#B4432F;font-weight:600;}
+  .paper .filled{color:var(--ink);}
+  .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
+  .paper ul.impressao li{margin-bottom:2px;font-weight:700;}
+  .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
+  .paper .footnote{font-style:italic;font-size:9pt;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
+  .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
+  .paper .assinatura p{margin:0;}
+  .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:3px 14px 0;margin-bottom:2px!important;}
+  .paper .assinatura-info{font-size:9.5pt;color:var(--ink-soft);}
+
+  .preview-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .preview-actions button{flex:1;min-width:110px;}
+  .btn-copy{background:var(--rose);color:#fff;}
+  .btn-copy:hover{background:var(--rose-dark);}
+  .btn-print{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  .btn-clear{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+
+  .format-toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+  .format-toolbar .fmt-btn{
+    width:34px;height:32px;padding:0;border-radius:8px;border:1.5px solid var(--line);background:#fff;color:var(--ink);
+    font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .format-toolbar .fmt-btn svg{display:block;}
+  .format-toolbar .fmt-btn:hover{border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-btn.active{background:var(--rose-light);border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-sep{width:1px;height:22px;background:var(--line);margin:0 4px;}
+  .format-toolbar label{font-size:12px;color:var(--ink-soft);}
+  .format-toolbar select{
+    border:1.5px solid var(--line);border-radius:8px;padding:5px 8px;font-size:12.5px;color:var(--ink);
+    background:#fff;cursor:pointer;
+  }
+
+  .status-pill{
+    font-size:11px;font-weight:600;padding:4px 12px;border-radius:999px;background:var(--sage-light);color:var(--rose-dark);
+    display:inline-block;margin-bottom:10px;
+  }
+  .status-pill.pending{background:var(--amber-light);color:var(--amber);}
+  .status-pill + .status-pill{margin-left:6px;}
+
+  .print-alert{
+    display:none;background:#B4432F;color:#fff;font-weight:600;font-size:13px;
+    padding:10px 14px;border-radius:10px;margin-bottom:10px;
+  }
+  .print-alert.show{display:block;}
+
+  .settings-panel{display:none;background:var(--rose-light);border-radius:var(--radius-md);padding:16px 18px;margin:0 28px 22px;max-width:1440px;}
+  .settings-panel.show{display:block;margin:0 auto 22px;}
+  .settings-panel h3{font-family:'Poppins',sans-serif;font-size:14px;margin:0 0 10px;color:var(--rose-dark);font-weight:600;}
+  .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
+  .settings-grid .field label{font-size:12px;}
+  .settings-panel .save-row{margin-top:12px;display:flex;gap:8px;align-items:center;}
+  .settings-panel .saved-msg{font-size:12px;color:var(--sage);font-weight:600;display:none;}
+
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;}
+
+  @page{
+    size: A4;
+    margin: 0;
+  }
+  @media print{
+    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert{display:none !important;}
+    .pg-break-marker{display:none !important;}
+    .layout{display:block;padding:0;margin:0;max-width:none;}
+    .preview-wrap{position:static;}
+    .paper-table thead td{height:3.5cm;}
+    .paper-table tfoot td{height:2cm;}
+    .paper-table tbody td{padding:0 2cm;}
+    .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
+
+    .paper p.linha, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
+    .paper h4.sec{page-break-after:avoid;}
+
+    .paper .print-page + .print-page{page-break-before:always;}
+    .paper .continua{font-style:italic;font-size:10pt;text-align:right;margin:0;}
+    .paper .print-page .rodape-final{margin-top:0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>Ultrassonografia Obstétrica — 1º Trimestre</h1>
+    <div class="sub">Dra. Morgana Kummer · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
+  </div>
+  <div class="topbar-actions">
+    <select class="laudo-switch" id="laudoSwitch" onchange="if(this.value) location.href=this.value;" title="Trocar de laudo">
+      <option value="index.html">Todos os laudos</option>
+      <option value="transvaginal.html">Transvaginal</option>
+      <option value="obstetrico-1trimestre.html" selected>Obstétrico — 1º Trimestre</option>
+    </select>
+    <button class="btn-ghost" id="btnSettings">Valores de referência</button>
+    <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
+    <button class="btn-ghost" id="btnReset">Limpar</button>
+  </div>
+</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <h3>Identificação do médico (assinatura do laudo)</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Nome do médico (assinatura)</label><input type="text" id="vr_medicoNome" value="Dra. Morgana Fialho Caldas Kummer"></div>
+    <div class="field"><label>Qualificação (linha 1)</label><input type="text" id="vr_medicoQual1" value="Especialista em Ultrassonografia Geral pelo CBR."></div>
+    <div class="field"><label>Qualificação (linha 2)</label><input type="text" id="vr_medicoQual2" value="Pós-Graduação em Medicina Fetal pela FCMMG."></div>
+    <div class="field"><label>CRM / RQE</label><input type="text" id="vr_medicoCRM" value="CRMMG: 45.304 - RQE: 39.156"></div>
+  </div>
+  <hr class="sep">
+  <h3>Valor de referência — translucência nucal (TN)</h3>
+  <div class="settings-grid">
+    <div class="field"><label>TN — valor de referência máximo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_tnMax" value="2,5"></div>
+  </div>
+  <p style="font-size:11px;color:var(--ink-soft);margin:8px 0 0;">Valor fixo simplificado, usado apenas para sinalizar o campo — não substitui o cálculo de risco individualizado por percentil, CCN e idade materna quando este for indicado.</p>
+  <div class="save-row">
+    <button class="btn-copy" id="btnSaveVR">Salvar valores de referência</button>
+    <span class="saved-msg" id="vrSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="settings-panel" id="phrasesPanel">
+  <h3>Personalizar frases do laudo</h3>
+  <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases usadas automaticamente conforme o que você marca no formulário. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui.</p>
+
+  <h3>Gestação</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação única</label><textarea id="ph_gestacaoIntroUnica" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {AMNIONICIDADE}, {SINAL} e {NSACOS}</label><textarea id="ph_gestacaoIntroGemelar" rows="3"></textarea></div>
+
+  <hr class="sep">
+  <h3>Feto — vitalidade e biometria</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Batimentos cardíacos ausentes — use {ROTULO}</label><textarea id="ph_fetoBCFAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Frequência cardíaca fetal — use {FC}</label><textarea id="ph_fetoFC" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Biometria (CCN/IG/DPP) — use {CCN}, {IG} e {DPP}</label><textarea id="ph_fetoBiometria" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Marcadores de aneuploidia</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Translucência nucal — use {TN} e {VR}</label><textarea id="ph_fetoTN" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Osso nasal presente</label><textarea id="ph_fetoOssoNasalPresente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Osso nasal ausente</label><textarea id="ph_fetoOssoNasalAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ducto venoso — onda A normal</label><textarea id="ph_fetoDuctoVenosoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ducto venoso — onda A ausente/reversa</label><textarea id="ph_fetoDuctoVenosoAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Regurgitação tricúspide — ausente</label><textarea id="ph_fetoRegurgAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Regurgitação tricúspide — presente</label><textarea id="ph_fetoRegurgPresente" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Anatomia precoce, placenta e líquido amniótico</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Avaliação anatômica precoce — normal</label><textarea id="ph_fetoAnatomiaNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Avaliação anatômica precoce — alterada (frase fixa) — use {DESCRICAO}</label><textarea id="ph_fetoAnatomiaAlterada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta — use {LOCAL} e {IMPLANTACAO}</label><textarea id="ph_fetoPlacenta" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta — complemento de implantação baixa — use {MEDIDA}</label><textarea id="ph_fetoPlacentaImplantacaoBaixa" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — normal</label><textarea id="ph_fetoLiquidoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aumentado</label><textarea id="ph_fetoLiquidoAumentado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — diminuído</label><textarea id="ph_fetoLiquidoDiminuido" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Útero, colo e anexos maternos</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Miométrio — normal</label><textarea id="ph_uteroMiometrioNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Miométrio — mioma — use {LOCAL} e {MEDIDA}</label><textarea id="ph_uteroMiometrioMioma" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo uterino — normal — use {MEDIDA}</label><textarea id="ph_coloNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo uterino — afunilado — use {MEDIDA}</label><textarea id="ph_coloAfunilado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovários não caracterizados</label><textarea id="ph_anexosNaoCaracterizados" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovários normais</label><textarea id="ph_anexosNormais" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com cisto — use {LADO} e {MEDIDA}</label><textarea id="ph_anexosCisto" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Impressão diagnóstica</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação única — sem alterações</label><textarea id="ph_impGestacaoUnicaNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — sem alterações — use {CORIONICIDADE} e {AMNIONICIDADE}</label><textarea id="ph_impGestacaoGemelarNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Óbito embrionário/fetal — use {ROTULO}</label><textarea id="ph_impObitoEmbrionario" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>TN aumentada — use {ROTULO}</label><textarea id="ph_impTNAumentada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Osso nasal ausente — use {ROTULO}</label><textarea id="ph_impOssoNasalAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ducto venoso alterado — use {ROTULO}</label><textarea id="ph_impDuctoVenosoAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Regurgitação tricúspide — use {ROTULO}</label><textarea id="ph_impRegurgTricuspide" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Anatomia alterada — use {ROTULO} e {DESCRICAO}</label><textarea id="ph_impAnatomiaAlterada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico alterado — use {ROTULO} e {DESCRICAO}</label><textarea id="ph_impLiquidoAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mioma</label><textarea id="ph_impMioma" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo afunilado</label><textarea id="ph_impColoAfunilado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário alterado — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Rodapé</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Nota final</label><textarea id="ph_footerImagens" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <div class="save-row">
+    <button class="btn-copy" id="btnSavePhrases">Salvar frases</button>
+    <button class="btn-clear" id="btnResetPhrases">Restaurar padrão</button>
+    <span class="saved-msg" id="phrasesSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- FORM COLUMN -->
+  <div id="formCol">
+
+    <div class="card">
+      <div class="card-head"><h2>Dados do exame</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">A impressão reserva 3,5 cm em branco no topo para a folha timbrada; o cabeçalho de identificação abaixo entra logo após esse espaço.</p>
+        <div class="field-row">
+          <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>DUM (data da última menstruação)</label><input type="text" id="dum" placeholder="dd/mm/aaaa"></div>
+          <div class="field"><label>IG pela DUM</label><input type="text" id="igDum" placeholder="ex: 12s4d"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
+          <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
+          <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+        </div>
+        <div class="field"><label>Motivo do exame ("Relato de...")</label><textarea id="motivoExame" rows="2" placeholder="ex: datação gestacional; rastreio de aneuploidias no primeiro trimestre..."></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Gestação</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Número de fetos</label>
+            <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">3 ou mais</option></select>
+          </div>
+        </div>
+        <div class="field-row conditional" id="wrap_corionicidade">
+          <div class="field"><label>Corionicidade</label>
+            <select id="corionicidade"><option value="dicorionica">Dicoriônica</option><option value="monocorionica">Monocoriônica</option></select>
+          </div>
+          <div class="field"><label>Amnionicidade</label>
+            <select id="amnionicidade"><option value="diamniotica">Diamniótica</option><option value="monoamniotica">Monoamniótica</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="fetosContainer"></div>
+    <button type="button" class="btn-clear" id="btnAddFeto" style="margin:-8px 0 22px;">+ Adicionar feto</button>
+
+    <div class="card">
+      <div class="card-head"><h2>Útero, colo e anexos maternos</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Miométrio</label>
+            <select id="miometrioAspecto"><option value="homogeneo">Textura homogênea, sem nódulos</option><option value="mioma">Nódulo sólido (mioma)</option></select>
+          </div>
+        </div>
+        <div class="field-row conditional" id="wrap_miomaCampos">
+          <div class="field"><label>Localização</label><input type="text" id="miomaLocal" placeholder="ex: parede anterior"></div>
+          <div class="field"><label>Medida (mm)</label><input type="text" id="miomaMedida" placeholder="mm"></div>
+        </div>
+        <hr class="sep">
+        <div class="field-row">
+          <div class="field"><label>Colo uterino — comprimento (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="coloMedida" placeholder="mm"></div>
+          <div class="field"><label>Aspecto</label>
+            <select id="coloAspecto"><option value="fechado">Fechado, sem afunilamento</option><option value="afunilado">Com afunilamento</option></select>
+          </div>
+        </div>
+        <hr class="sep">
+        <div class="field-row">
+          <div class="field"><label>Ovários</label>
+            <select id="anexosCaracterizados"><option value="nao">Não caracterizados (interposição uterina)</option><option value="sim">Caracterizados</option></select>
+          </div>
+        </div>
+        <div class="field-row conditional" id="wrap_anexosCampos">
+          <div class="field"><label>Aspecto</label>
+            <select id="anexosAspecto"><option value="normal">Normal</option><option value="cisto">Cisto (descrever)</option></select>
+          </div>
+          <div class="field conditional" id="wrap_anexosLado"><label>Lado</label>
+            <select id="anexosLado"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
+          </div>
+          <div class="field conditional" id="wrap_anexosMedida"><label>Medida (mm)</label><input type="text" id="anexosMedida" placeholder="mm"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Impressão diagnóstica</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
+        <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PREVIEW COLUMN -->
+  <div class="preview-wrap">
+    <span class="status-pill" id="statusPill">0 campos pendentes</span>
+    <span class="status-pill" id="pageCountPill">1 página</span>
+    <div class="print-alert" id="printAlert">⚠ Ainda há campos não preenchidos — corrija antes de imprimir.</div>
+    <div class="format-toolbar" id="formatToolbar">
+      <button type="button" class="fmt-btn" id="fmtBold" title="Negrito (Ctrl+B)"><b>N</b></button>
+      <button type="button" class="fmt-btn" id="fmtItalic" title="Itálico (Ctrl+I)"><i>I</i></button>
+      <button type="button" class="fmt-btn" id="fmtUnderline" title="Sublinhado (Ctrl+U)"><u>S</u></button>
+      <span class="fmt-sep"></span>
+      <button type="button" class="fmt-btn" id="fmtAlignLeft" title="Alinhar à esquerda">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="10" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="10" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignCenter" title="Centralizar">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="3.5" y1="6.5" x2="12.5" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="3.5" y1="13.5" x2="12.5" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignRight" title="Alinhar à direita">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="6" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="6" y1="13.5" x2="15" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignJustify" title="Justificar">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="15" y2="13.5"/></svg>
+      </button>
+      <span class="fmt-sep"></span>
+      <label for="fmtLineHeight">Espaçamento entre linhas</label>
+      <select id="fmtLineHeight" title="Espaçamento entre linhas">
+        <option value="1">Mínimo</option>
+        <option value="1.15" selected>Compacto</option>
+        <option value="1.35">Estreito</option>
+        <option value="1.5">Normal</option>
+        <option value="1.8">Largo</option>
+      </select>
+      <span class="fmt-sep"></span>
+      <label for="fmtFontSize">Tamanho da fonte</label>
+      <select id="fmtFontSize" title="Tamanho da fonte">
+        <option value="10.5">10,5 pt</option>
+        <option value="11">11 pt</option>
+        <option value="11.5">11,5 pt</option>
+        <option value="12" selected>12 pt (padrão)</option>
+        <option value="12.5">12,5 pt</option>
+        <option value="13">13 pt</option>
+        <option value="14">14 pt</option>
+        <option value="15">15 pt</option>
+        <option value="16">16 pt</option>
+        <option value="17">17 pt</option>
+        <option value="18">18 pt</option>
+      </select>
+    </div>
+    <table class="paper-table">
+      <thead><tr><td></td></tr></thead>
+      <tfoot><tr><td></td></tr></tfoot>
+      <tbody><tr><td><div class="paper" id="paper" contenteditable="true" spellcheck="false"></div></td></tr></tbody>
+    </table>
+    <div class="preview-actions">
+      <button class="btn-print" id="btnPrint">Imprimir / PDF</button>
+      <button class="btn-clear" id="btnDownloadWord">Baixar Word</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+
+  // ---------- Storage: uses Claude's window.storage when available (in-chat preview),
+  // falls back to the browser's own localStorage everywhere else. ----------
+  const kvStore = {
+    async get(key){
+      try{
+        if(window.storage && typeof window.storage.get === 'function'){
+          const r = await window.storage.get(key, false);
+          return r ? r.value : null;
+        }
+      }catch(e){ /* fall through to localStorage */ }
+      try{ return localStorage.getItem(key); }catch(e){ return null; }
+    },
+    async set(key, value){
+      try{
+        if(window.storage && typeof window.storage.set === 'function'){
+          await window.storage.set(key, value, false);
+          return;
+        }
+      }catch(e){ /* fall through to localStorage */ }
+      try{ localStorage.setItem(key, value); }catch(e){ /* storage unavailable this session */ }
+    },
+    async remove(key){
+      try{
+        if(window.storage && typeof window.storage.remove === 'function'){
+          await window.storage.remove(key);
+          return;
+        }
+      }catch(e){ /* fall through to localStorage */ }
+      try{ localStorage.removeItem(key); }catch(e){ /* storage unavailable this session */ }
+    }
+  };
+
+  let titleFontSize = null;
+  let impressaoOverrides = {};
+
+  // ---------- Format toolbar: bold/italic/underline/align + line-height + font-size ----------
+  (function(){
+    const paperEl = $('paper');
+    const btnBold = $('fmtBold');
+    const btnItalic = $('fmtItalic');
+    const btnUnderline = $('fmtUnderline');
+    const lineHeightSel = $('fmtLineHeight');
+    const alignButtons = [
+      [$('fmtAlignLeft'), 'justifyLeft'],
+      [$('fmtAlignCenter'), 'justifyCenter'],
+      [$('fmtAlignRight'), 'justifyRight'],
+      [$('fmtAlignJustify'), 'justifyFull'],
+    ];
+
+    function updateFormatButtons(){
+      try{
+        btnBold.classList.toggle('active', document.queryCommandState('bold'));
+        btnItalic.classList.toggle('active', document.queryCommandState('italic'));
+        btnUnderline.classList.toggle('active', document.queryCommandState('underline'));
+        alignButtons.forEach(([btn, cmd])=>btn.classList.toggle('active', document.queryCommandState(cmd)));
+      }catch(e){ /* queryCommandState unsupported */ }
+    }
+    function applyFormat(cmd){
+      paperEl.focus();
+      document.execCommand(cmd, false, null);
+      updateFormatButtons();
+    }
+    const allFmtButtons = [btnBold, btnItalic, btnUnderline, ...alignButtons.map(([btn])=>btn)];
+    allFmtButtons.forEach(btn=>btn.addEventListener('mousedown', e=>e.preventDefault()));
+    btnBold.addEventListener('click', ()=>applyFormat('bold'));
+    btnItalic.addEventListener('click', ()=>applyFormat('italic'));
+    btnUnderline.addEventListener('click', ()=>applyFormat('underline'));
+    alignButtons.forEach(([btn, cmd])=>btn.addEventListener('click', ()=>applyFormat(cmd)));
+    paperEl.addEventListener('keyup', updateFormatButtons);
+    paperEl.addEventListener('mouseup', updateFormatButtons);
+    paperEl.addEventListener('keydown', e=>{
+      const mod = e.ctrlKey || e.metaKey;
+      if(!mod) return;
+      if(e.key === 'b' || e.key === 'B'){ e.preventDefault(); applyFormat('bold'); }
+      else if(e.key === 'i' || e.key === 'I'){ e.preventDefault(); applyFormat('italic'); }
+      else if(e.key === 'u' || e.key === 'U'){ e.preventDefault(); applyFormat('underline'); }
+    });
+
+    function captureSelectionInPaper(){
+      const sel = window.getSelection();
+      if(sel && sel.rangeCount && !sel.isCollapsed && paperEl.contains(sel.anchorNode) && paperEl.contains(sel.focusNode)){
+        return sel.getRangeAt(0).cloneRange();
+      }
+      return null;
+    }
+    function wrapSelectionInStyledSpan(range, applyStyle){
+      const span = document.createElement('span');
+      applyStyle(span.style);
+      try{
+        range.surroundContents(span);
+      }catch(e){
+        const contents = range.extractContents();
+        span.appendChild(contents);
+        range.insertNode(span);
+      }
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      const newRange = document.createRange();
+      newRange.selectNodeContents(span);
+      sel.addRange(newRange);
+    }
+
+    let savedLineHeightRange = null;
+    lineHeightSel.addEventListener('mousedown', ()=>{ savedLineHeightRange = captureSelectionInPaper(); });
+    lineHeightSel.addEventListener('change', ()=>{
+      if(savedLineHeightRange){
+        wrapSelectionInStyledSpan(savedLineHeightRange, style=>{ style.lineHeight = lineHeightSel.value; });
+        savedLineHeightRange = null;
+      } else {
+        paperEl.style.lineHeight = lineHeightSel.value;
+        kvStore.set('paper-line-height', lineHeightSel.value);
+      }
+    });
+    kvStore.get('paper-line-height').then(saved=>{
+      if(!saved) return;
+      lineHeightSel.value = saved;
+      paperEl.style.lineHeight = saved;
+    });
+
+    const fontSizeSel = $('fmtFontSize');
+    let savedFontSizeRange = null;
+    fontSizeSel.addEventListener('mousedown', ()=>{ savedFontSizeRange = captureSelectionInPaper(); });
+    fontSizeSel.addEventListener('change', ()=>{
+      const size = fontSizeSel.value;
+      const titleEl = paperEl.querySelector('h3.doctitle');
+      if(savedFontSizeRange && titleEl && titleEl.contains(savedFontSizeRange.commonAncestorContainer)){
+        titleFontSize = size;
+        kvStore.set('title-font-size', size);
+        titleEl.style.fontSize = size + 'pt';
+        savedFontSizeRange = null;
+      } else if(savedFontSizeRange){
+        wrapSelectionInStyledSpan(savedFontSizeRange, style=>{ style.fontSize = size + 'pt'; });
+        savedFontSizeRange = null;
+      } else {
+        paperEl.style.fontSize = size + 'pt';
+        kvStore.set('paper-font-size', size);
+      }
+    });
+    document.addEventListener('selectionchange', ()=>{
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount) return;
+      const node = sel.anchorNode;
+      if(!node || !paperEl.contains(node)) return;
+      const el = node.nodeType === 3 ? node.parentElement : node;
+      if(!el) return;
+      const px = parseFloat(getComputedStyle(el).fontSize);
+      if(isNaN(px)) return;
+      const pt = px / (96/72);
+      let closest = null, closestDiff = Infinity;
+      Array.from(fontSizeSel.options).forEach(o=>{
+        const diff = Math.abs(parseFloat(o.value) - pt);
+        if(diff < closestDiff){ closest = o; closestDiff = diff; }
+      });
+      if(closest && closestDiff < 0.4) fontSizeSel.value = closest.value;
+    });
+    (async function initFontSizePrefs(){
+      const migrated = await kvStore.get('font-size-defaults-reset-v1');
+      if(!migrated){
+        await kvStore.remove('paper-font-size');
+        await kvStore.remove('title-font-size');
+        await kvStore.set('font-size-defaults-reset-v1', '1');
+      }
+      const savedPaper = await kvStore.get('paper-font-size');
+      if(savedPaper){
+        fontSizeSel.value = savedPaper;
+        paperEl.style.fontSize = savedPaper + 'pt';
+      }
+      const savedTitle = await kvStore.get('title-font-size');
+      if(savedTitle){
+        titleFontSize = savedTitle;
+        const titleEl = paperEl.querySelector('h3.doctitle');
+        if(titleEl) titleEl.style.fontSize = savedTitle + 'pt';
+      }
+    })();
+  })();
+
+  // ---------- Médico solicitante: hand-rolled combobox (shared list across laudos) ----------
+  (function(){
+    const DEFAULT_MEDICOS = [
+      'Dra. Alice Maciel F. e Santos',
+      'Dra. Aline Torres Alves',
+      'Dra. Ana Rita de Paiva Toledo',
+      'Dr. Antônio José Lobo Ribeiro',
+      'Dr. Carlos Alberto F. Silva',
+      'Dra. Cíntia Aparecida S. Oliveira',
+      'Dra. Cristiane M. Gontijo Campos',
+      'Dra. Daniela Cristina M. Tameirão',
+      'Dr. Enilton Barbosa de Araújo',
+      'Dr. Flávio Pimenta Silveira',
+      'Dra. Galia Marichal Manso',
+      'Dr. Gilton de Menezes',
+      'Dra. Iasmine Corrêa Lanza',
+      'Dr. Jahir Richard de Oliveira',
+      'Dr. João Alberto de B. Ribeiro',
+      'Dr. Kleyton W. Pereira Tomaz',
+      'Dra. Lorenza Rafaela F. Magnago',
+      'Dra. Luciane Lopes F. Sader',
+      'Dra. Luciene Ferreira Calazans',
+      'Dra. Marcela Fernanda F. Cólen',
+      'Dra. Maria Soeli Lanza Meirelles',
+      'Dra. Mayana Lobo de Almeida',
+      'Dra. Patrícia J. Schwenck de Carvalho',
+      'Dra. Priscila R. Baleeiro Marcos',
+      'Dra. Rejane Márcia de Abreu',
+      'Dr. Robson Gonçalves',
+      'Dr. Rogério Vicente de L. Ferreira',
+      'Dr. Samir de P. Abdo Zacarias',
+      'Dr. Samuel Conrado de O. Mourão',
+      'Dra. Samyle O. Vasconcelos Marino',
+      'Dra. Tatiane Ventura Gonçalves',
+      'Dr. Wagner Pinheiro P. Villafort'
+    ];
+    const input = $('medicoSolicitante');
+    const listEl = $('medicosComboList');
+    let customMedicos = [];
+    let currentMatches = [];
+    let activeIndex = -1;
+
+    document.body.appendChild(listEl);
+
+    function allMedicos(){ return DEFAULT_MEDICOS.concat(customMedicos); }
+
+    function positionList(){
+      const r = input.getBoundingClientRect();
+      listEl.style.left = r.left + 'px';
+      listEl.style.top = (r.bottom + 4) + 'px';
+      listEl.style.width = r.width + 'px';
+    }
+
+    function highlight(idx){
+      activeIndex = idx;
+      Array.from(listEl.children).forEach((el, i)=> el.classList.toggle('active', i===activeIndex));
+    }
+
+    function renderList(){
+      const q = input.value.trim().toLowerCase();
+      currentMatches = q ? allMedicos().filter(n=> n.toLowerCase().includes(q)) : allMedicos();
+      activeIndex = -1;
+      listEl.innerHTML = currentMatches.length
+        ? currentMatches.map((n, i)=> '<div class="combo-option" data-idx="'+i+'">'+escapeHtml(n)+'</div>').join('')
+        : '<div class="combo-empty">Nenhum nome encontrado — o que você digitar será salvo.</div>';
+    }
+
+    function showList(){
+      renderList();
+      positionList();
+      listEl.classList.add('show');
+    }
+    function hideList(){ listEl.classList.remove('show'); }
+    function repositionIfVisible(){ if(listEl.classList.contains('show')) positionList(); }
+
+    function selectValue(val){
+      input.value = val;
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+      input.dispatchEvent(new Event('change', {bubbles:true}));
+      hideList();
+    }
+
+    input.addEventListener('focus', showList);
+    input.addEventListener('input', showList);
+    input.addEventListener('blur', ()=>{ setTimeout(hideList, 150); });
+    input.addEventListener('keydown', e=>{
+      if(!listEl.classList.contains('show') || !currentMatches.length) return;
+      if(e.key === 'ArrowDown'){ e.preventDefault(); highlight(Math.min(activeIndex+1, currentMatches.length-1)); }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); highlight(Math.max(activeIndex-1, 0)); }
+      else if(e.key === 'Enter'){ if(activeIndex>=0){ e.preventDefault(); selectValue(currentMatches[activeIndex]); } }
+      else if(e.key === 'Escape'){ hideList(); }
+    });
+    listEl.addEventListener('mousedown', e=> e.preventDefault());
+    listEl.addEventListener('click', e=>{
+      const opt = e.target.closest('.combo-option');
+      if(!opt) return;
+      selectValue(currentMatches[Number(opt.dataset.idx)]);
+    });
+    window.addEventListener('resize', repositionIfVisible);
+    window.addEventListener('scroll', repositionIfVisible, true);
+
+    kvStore.get('custom-medicos').then(saved=>{
+      if(!saved) return;
+      try{ customMedicos = JSON.parse(saved); }catch(e){ customMedicos = []; }
+    });
+
+    input.addEventListener('change', ()=>{
+      const val = input.value.trim();
+      if(!val) return;
+      const exists = allMedicos().some(n=> n.toLowerCase()===val.toLowerCase());
+      if(!exists){
+        customMedicos.push(val);
+        kvStore.set('custom-medicos', JSON.stringify(customMedicos));
+      }
+    });
+  })();
+
+  // ---------- Numeric format rules: digit required before comma, max N decimal places ----------
+  function showFormatWarning(el, show, message){
+    let msg = el.parentElement.querySelector('.format-warning');
+    if(show){
+      el.classList.add('format-error');
+      if(!msg){
+        msg = document.createElement('span');
+        msg.className = 'format-warning';
+        el.insertAdjacentElement('afterend', msg);
+      }
+      msg.textContent = message;
+    } else {
+      el.classList.remove('format-error');
+      if(msg) msg.remove();
+    }
+  }
+  function sanitizeChars(el){
+    const cleaned = el.value.replace(/[^0-9,.]/g, '');
+    if(cleaned !== el.value) el.value = cleaned;
+  }
+  function decimalFormatOk(el){
+    const maxDecimals = parseInt(el.dataset.decimals || '0', 10);
+    const maxInt = parseInt(el.dataset.maxint || '0', 10);
+    const normalized = el.value.replace(/\./g, ',');
+    if(normalized === '') return true;
+    const intPart = maxInt > 0 ? ('\\d{1,'+maxInt+'}') : '\\d+';
+    return maxDecimals <= 0
+      ? new RegExp('^'+intPart+'$').test(normalized)
+      : new RegExp('^'+intPart+'(,\\d{1,'+maxDecimals+'})?$').test(normalized);
+  }
+  function isValidDecimal(el){
+    if(!decimalFormatOk(el)) return false;
+    const normalized = el.value.replace(/\./g, ',');
+    if(normalized === '' || el.dataset.max === undefined) return true;
+    const num = parseFloat(normalized.replace(',', '.'));
+    return isNaN(num) || num <= parseFloat(el.dataset.max);
+  }
+  function checkDecimalFormat(el){
+    sanitizeChars(el);
+    const maxDecimals = parseInt(el.dataset.decimals || '0', 10);
+    const maxInt = parseInt(el.dataset.maxint || '0', 10);
+    let message = maxDecimals <= 0
+      ? 'Revise o número — apenas dígitos, sem vírgula.'
+      : (maxInt > 0
+        ? 'Revise o número — até '+maxInt+' algarismo'+(maxInt>1?'s':'')+' antes da vírgula e '+maxDecimals+' depois (ex: '+('9'.repeat(maxInt))+',0).'
+        : 'Revise o número — precisa de um algarismo antes da vírgula (ex: 1,2).');
+    if(decimalFormatOk(el) && el.dataset.max !== undefined){
+      message = 'Revise o número — valor máximo aceito: '+el.dataset.max.replace('.',',')+'.';
+    }
+    showFormatWarning(el, !isValidDecimal(el), message);
+  }
+  function wireDecimalInputs(){
+    document.querySelectorAll('input[data-decimals]').forEach(el=>{
+      if(el.dataset.decimalsWired) return;
+      el.dataset.decimalsWired = '1';
+      el.addEventListener('input', ()=>{
+        sanitizeChars(el);
+        if(isValidDecimal(el)) showFormatWarning(el, false);
+      });
+      el.addEventListener('blur', ()=> checkDecimalFormat(el));
+    });
+  }
+  wireDecimalInputs();
+
+  // ---------- Customizable report phrases ----------
+  const PHRASE_DEFAULTS = {
+    gestacaoIntroUnica: 'Gestação tópica, única, caracterizada por saco gestacional intrauterino, com embrião/feto único, vivo, apresentando batimentos cardíacos fetais.',
+    gestacaoIntroGemelar: 'Gestação tópica, gemelar, {CORIONICIDADE} e {AMNIONICIDADE}, com sinal do "{SINAL}" identificado à ultrassonografia, caracterizada por {NSACOS}, cada qual contendo feto vivo, apresentando batimentos cardíacos fetais.',
+
+    fetoBCFAusente: '{ROTULO}, sem batimentos cardíacos identificados ao exame.',
+    fetoFC: 'Frequência cardíaca fetal de {FC} bpm.',
+    fetoBiometria: 'Comprimento cabeça-nádega (CCN) de {CCN} mm, compatível com idade gestacional de {IG}, com data provável do parto (DPP) estimada para {DPP}.',
+
+    fetoTN: 'Translucência nucal (TN): {TN} mm (valor de referência: até {VR} mm).',
+    fetoOssoNasalPresente: 'Osso nasal presente.',
+    fetoOssoNasalAusente: 'Osso nasal não identificado/ausente.',
+    fetoDuctoVenosoNormal: 'Ducto venoso com onda A de morfologia normal.',
+    fetoDuctoVenosoAlterado: 'Ducto venoso com onda A ausente/reversa.',
+    fetoRegurgAusente: 'Ausência de regurgitação na valva tricúspide.',
+    fetoRegurgPresente: 'Presença de regurgitação na valva tricúspide.',
+
+    fetoAnatomiaNormal: 'Avaliação anatômica precoce sem alterações — calota craniana íntegra, parede abdominal com inserção normal do cordão umbilical, bexiga identificada, membros presentes e com movimentação, coluna vertebral íntegra.',
+    fetoAnatomiaAlterada: '{DESCRICAO}.',
+    fetoPlacenta: 'Placenta {LOCAL}{IMPLANTACAO}, de textura habitual.',
+    fetoPlacentaImplantacaoBaixa: ', de implantação baixa, distando {MEDIDA} mm do orifício interno do colo',
+    fetoLiquidoNormal: 'Líquido amniótico em volume normal para a idade gestacional.',
+    fetoLiquidoAumentado: 'Líquido amniótico em volume aumentado para a idade gestacional.',
+    fetoLiquidoDiminuido: 'Líquido amniótico em volume reduzido para a idade gestacional.',
+
+    uteroMiometrioNormal: 'Miométrio de textura homogênea, sem nódulos.',
+    uteroMiometrioMioma: 'Miométrio com nódulo sólido hipoecoico (mioma) em {LOCAL}, medindo {MEDIDA} mm, sem sinais de interferência na gestação no momento do exame.',
+    coloNormal: 'Colo uterino de comprimento normal, medindo {MEDIDA} mm, com orifício interno fechado, sem afunilamento.',
+    coloAfunilado: 'Colo uterino medindo {MEDIDA} mm, com afunilamento do orifício interno.',
+    anexosNaoCaracterizados: 'Ovários não caracterizados no presente estudo, devido à interposição do útero gravídico.',
+    anexosNormais: 'Ovários de aspecto habitual, sem lesões expansivas.',
+    anexosCisto: 'Ovário {LADO} apresentando imagem cística, medindo {MEDIDA} mm.',
+
+    impGestacaoUnicaNormal: 'Gestação tópica única, com concepto vivo, biometria compatível com a idade gestacional pela CCN.',
+    impGestacaoGemelarNormal: 'Gestação tópica gemelar, {CORIONICIDADE} e {AMNIONICIDADE}, com ambos os fetos vivos, biometria compatível com a idade gestacional pela CCN.',
+    impObitoEmbrionario: '{ROTULO}: ausência de batimentos cardíacos — sugestivo de óbito embrionário/fetal. Recomenda-se correlação clínica e reavaliação.',
+    impTNAumentada: '{ROTULO}: translucência nucal aumentada — risco elevado para aneuploidias/cardiopatias. Recomenda-se investigação adicional (ecocardiograma fetal e/ou teste genético).',
+    impOssoNasalAusente: '{ROTULO}: ausência de osso nasal — marcador de risco para aneuploidias. Recomenda-se investigação adicional.',
+    impDuctoVenosoAlterado: '{ROTULO}: ducto venoso com onda A ausente/reversa — marcador de risco para aneuploidias/cardiopatias.',
+    impRegurgTricuspide: '{ROTULO}: regurgitação na valva tricúspide — marcador de risco para aneuploidias/cardiopatias.',
+    impAnatomiaAlterada: '{ROTULO}: {DESCRICAO}.',
+    impLiquidoAlterado: '{ROTULO}: líquido amniótico {DESCRICAO} para a idade gestacional.',
+    impMioma: 'Nódulo miometrial sugestivo de mioma.',
+    impColoAfunilado: 'Colo uterino curto/com afunilamento — recomenda-se acompanhamento especializado.',
+    impOvarioAlterado: 'Ovário {LADO}: {DESCRICAO}.',
+
+    footerImagens: 'Imagens em anexo.'
+  };
+  let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
+
+  async function loadPhrases(){
+    try{
+      const val = await kvStore.get('ob1t-phrase-templates');
+      if(val){
+        const parsed = JSON.parse(val);
+        PHRASES = Object.assign({}, PHRASE_DEFAULTS, parsed);
+      }
+    }catch(e){ /* no saved phrases yet — use defaults */ }
+    applyPhrasesToInputs();
+  }
+  function applyPhrasesToInputs(){
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      if(el) el.value = PHRASES[key];
+    });
+  }
+  function phrase(key, repl){
+    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    if(repl){
+      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
+    }
+    return escapeHtml(t).replace(/\n/g, '<br>');
+  }
+  function phraseRaw(key, repl){
+    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    if(repl){
+      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
+    }
+    return t;
+  }
+  $('btnPhrases').addEventListener('click', ()=>{
+    $('phrasesPanel').classList.toggle('show');
+  });
+  $('btnSavePhrases').addEventListener('click', async ()=>{
+    const updated = {};
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      updated[key] = el ? el.value : PHRASE_DEFAULTS[key];
+    });
+    PHRASES = updated;
+    try{
+      await kvStore.set('ob1t-phrase-templates', JSON.stringify(PHRASES));
+      const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
+    }catch(e){ /* storage unavailable — values still apply for this session */ }
+    render();
+  });
+  $('btnResetPhrases').addEventListener('click', async ()=>{
+    if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
+    PHRASES = Object.assign({}, PHRASE_DEFAULTS);
+    applyPhrasesToInputs();
+    try{ await kvStore.set('ob1t-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
+    render();
+  });
+
+  // ---------- Reference values ----------
+  let VR = {
+    medicoNome:'Dra. Morgana Fialho Caldas Kummer',
+    medicoQual1:'Especialista em Ultrassonografia Geral pelo CBR.',
+    medicoQual2:'Pós-Graduação em Medicina Fetal pela FCMMG.',
+    medicoCRM:'CRMMG: 45.304 - RQE: 39.156',
+    tnMax:2.5
+  };
+
+  async function loadVR(){
+    try{
+      const val = await kvStore.get('ob1t-vr-settings');
+      if(val){
+        const parsed = JSON.parse(val);
+        VR = Object.assign(VR, parsed);
+      }
+    }catch(e){ /* no saved settings yet — use defaults */ }
+    applyVRToInputs();
+  }
+  function applyVRToInputs(){
+    $('vr_medicoNome').value = VR.medicoNome;
+    $('vr_medicoQual1').value = VR.medicoQual1;
+    $('vr_medicoQual2').value = VR.medicoQual2;
+    $('vr_medicoCRM').value = VR.medicoCRM;
+    $('vr_tnMax').value = VR.tnMax.toString().replace('.',',');
+  }
+  $('btnSettings').addEventListener('click', ()=>{
+    $('settingsPanel').classList.toggle('show');
+  });
+  function pf(id, fallback){
+    const x = parseFloat(($(id).value||'').replace(',', '.'));
+    return isNaN(x) ? fallback : x;
+  }
+  $('btnSaveVR').addEventListener('click', async ()=>{
+    VR = {
+      medicoNome: $('vr_medicoNome').value || VR.medicoNome,
+      medicoQual1: $('vr_medicoQual1').value || VR.medicoQual1,
+      medicoQual2: $('vr_medicoQual2').value || VR.medicoQual2,
+      medicoCRM: $('vr_medicoCRM').value || VR.medicoCRM,
+      tnMax: pf('vr_tnMax', 2.5)
+    };
+    try{
+      await kvStore.set('ob1t-vr-settings', JSON.stringify(VR));
+      const m = $('vrSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
+    }catch(e){ /* storage unavailable — values still apply for this session */ }
+    render();
+  });
+
+  // ---------- Conditional field visibility ----------
+  function toggle(id, show){ const el=$(id); if(!el) return; el.classList.toggle('show', show); }
+
+  function updateMiometrioWrap(){ toggle('wrap_miomaCampos', $('miometrioAspecto').value==='mioma'); }
+  $('miometrioAspecto').addEventListener('change', updateMiometrioWrap);
+  updateMiometrioWrap();
+
+  function updateAnexosWraps(){
+    const caracterizados = $('anexosCaracterizados').value==='sim';
+    toggle('wrap_anexosCampos', caracterizados);
+    const aspecto = $('anexosAspecto').value;
+    toggle('wrap_anexosLado', caracterizados && aspecto==='cisto');
+    toggle('wrap_anexosMedida', caracterizados && aspecto==='cisto');
+  }
+  $('anexosCaracterizados').addEventListener('change', updateAnexosWraps);
+  $('anexosAspecto').addEventListener('change', updateAnexosWraps);
+  updateAnexosWraps();
+
+  function updateGestacaoWrap(){
+    toggle('wrap_corionicidade', $('numeroFetos').value !== '1');
+  }
+  $('numeroFetos').addEventListener('change', e=>{
+    updateGestacaoWrap();
+    setFetoCount(Math.min(Math.max(parseInt(e.target.value,10)||1, 1), 3));
+  });
+
+  // ---------- Feto(s): dynamic list, mirrors the myoma-nodule pattern in
+  // transvaginal.html — each fetus keeps a stable uid once created, so
+  // removing one mid-list never disturbs the others' field ids/listeners. ----------
+  let fetoNextUid = 1;
+  function fetoCardHTML(uid){
+    return ''
+      +'<div class="card" id="wrap_feto'+uid+'">'
+      +'<div class="card-head"><h2><span class="feto-label"></span></h2></div>'
+      +'<div class="card-body">'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Vitalidade</label><select id="feto'+uid+'Vitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'FC"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" id="feto'+uid+'FC" placeholder="bpm"></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CCN" placeholder="mm"></div>'
+      +'<div class="field"><label>IG estimada pelo CCN</label><input type="text" id="feto'+uid+'IG" placeholder="ex: 12s3d"></div>'
+      +'<div class="field"><label>DPP estimada</label><input type="text" id="feto'+uid+'DPP" placeholder="dd/mm/aaaa"></div>'
+      +'</div>'
+      +'<hr class="sep">'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Translucência nucal — TN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'TN" placeholder="mm"><span class="flag-note" id="flag_feto'+uid+'TN">Acima do valor de referência</span></div>'
+      +'<div class="field"><label>Osso nasal</label><select id="feto'+uid+'OssoNasal"><option value="presente">Presente</option><option value="ausente">Ausente</option></select></div>'
+      +'</div>'
+      +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'ChkMarcadores"><label for="feto'+uid+'ChkMarcadores">Avaliar ducto venoso e regurgitação tricúspide</label></div>'
+      +'<div class="field-row conditional" id="wrap_feto'+uid+'Marcadores">'
+      +'<div class="field"><label>Ducto venoso</label><select id="feto'+uid+'DuctoVenoso"><option value="normal">Onda A normal</option><option value="alterado">Onda A ausente/reversa</option></select></div>'
+      +'<div class="field"><label>Regurgitação tricúspide</label><select id="feto'+uid+'Regurg"><option value="ausente">Ausente</option><option value="presente">Presente</option></select></div>'
+      +'</div>'
+      +'<hr class="sep">'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Avaliação anatômica precoce</label><select id="feto'+uid+'Anatomia"><option value="normal">Sem alterações</option><option value="alterada">Alterada (descrever)</option></select></div>'
+      +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'AnatomiaDescricao"><label>Descreva o achado</label><textarea id="feto'+uid+'AnatomiaDescricao" rows="2"></textarea></div>'
+      +'<hr class="sep">'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Placenta — localização</label><select id="feto'+uid+'PlacentaLocal"><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="fúndica">Fúndica</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option></select></div>'
+      +'<div class="field"><label>Líquido amniótico</label><select id="feto'+uid+'Liquido"><option value="normal">Volume normal</option><option value="aumentado">Aumentado</option><option value="diminuido">Diminuído</option></select></div>'
+      +'</div>'
+      +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'ChkPlacentaBaixa"><label for="feto'+uid+'ChkPlacentaBaixa">Placenta de implantação baixa</label></div>'
+      +'<div class="field-row conditional" id="wrap_feto'+uid+'PlacentaBaixa">'
+      +'<div class="field"><label>Distância ao orifício interno (mm)</label><input type="text" id="feto'+uid+'PlacentaBaixaMedida" placeholder="mm"></div>'
+      +'</div>'
+      +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
+      +'</div>'
+      +'</div>';
+  }
+  function updateFetoWraps(uid){
+    toggle('wrap_feto'+uid+'FC', $('feto'+uid+'Vitalidade').value==='presente');
+    toggle('wrap_feto'+uid+'Marcadores', $('feto'+uid+'ChkMarcadores').checked);
+    toggle('wrap_feto'+uid+'AnatomiaDescricao', $('feto'+uid+'Anatomia').value==='alterada');
+    toggle('wrap_feto'+uid+'PlacentaBaixa', $('feto'+uid+'ChkPlacentaBaixa').checked);
+  }
+  function fetoLabel(idx, total){
+    if(total<=1) return 'Feto único';
+    return 'Feto '+String.fromCharCode(65+idx);
+  }
+  function renumberFetos(){
+    const container = $('fetosContainer');
+    const cards = Array.from(container.children);
+    cards.forEach((el, idx)=>{
+      const label = el.querySelector('.feto-label');
+      if(label) label.textContent = fetoLabel(idx, cards.length);
+      const removeBtn = el.querySelector('.feto-remove');
+      if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
+    });
+    $('numeroFetos').value = String(Math.min(Math.max(cards.length, 1), 3));
+    updateGestacaoWrap();
+  }
+  function wireFetoCard(uid){
+    const el = $('wrap_feto'+uid);
+    el.querySelectorAll('input, select, textarea').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    wireDecimalInputs();
+    ['Vitalidade','ChkMarcadores','Anatomia','ChkPlacentaBaixa'].forEach(key=>{
+      $('feto'+uid+key).addEventListener('change', ()=> updateFetoWraps(uid));
+    });
+    updateFetoWraps(uid);
+    el.querySelector('.feto-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberFetos();
+      render();
+    });
+  }
+  function addFeto(){
+    const uid = fetoNextUid++;
+    $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
+    wireFetoCard(uid);
+    renumberFetos();
+    render();
+  }
+  $('btnAddFeto').addEventListener('click', addFeto);
+  function fetoUids(){
+    return Array.from($('fetosContainer').children).map(el=> el.id.replace('wrap_feto',''));
+  }
+  function setFetoCount(n){
+    const container = $('fetosContainer');
+    while(container.children.length < n){ addFeto(); }
+    while(container.children.length > n){ container.lastElementChild.remove(); }
+    renumberFetos();
+    render();
+  }
+  // Seeding the first fetus is deferred to the loadPhrases/loadVR chain at the
+  // bottom of this script, for the same reason as transvaginal.html's mioma
+  // nodule: render() reads state declared with `let` further down, so calling
+  // addFeto() (and so render()) here would hit its temporal dead zone.
+
+  // ---------- Helpers ----------
+  function v(id){ const el = $(id); return el ? el.value.trim() : ''; }
+  function num(id){ const x = parseFloat(v(id).replace(',', '.')); return isNaN(x) ? null : x; }
+  function vNoDot(id){ return v(id).replace(/\.+\s*$/, ''); }
+  function blankOrValue(val, suffix){
+    if(val === '' || val === null || val === undefined) return {text:'____', filled:false};
+    return {text: val + (suffix||''), filled:true};
+  }
+  function span(obj){
+    return '<span class="'+(obj.filled?'filled':'blank')+'">'+escapeHtml(obj.text)+'</span>';
+  }
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function flag(id, isAbnormal){
+    const el = $(id), note = $('flag_'+id);
+    if(!el) return;
+    el.classList.toggle('flag-abnormal', !!isAbnormal);
+    if(note) note.classList.toggle('show', !!isAbnormal);
+  }
+
+  // ---------- Build impression checklist ----------
+  function buildImpressao(state){
+    const items = [];
+
+    if(!state.isMultiple){
+      items.push({key:'gestacao-base', label:phraseRaw('impGestacaoUnicaNormal'), auto:true});
+    } else {
+      items.push({key:'gestacao-base', label:phraseRaw('impGestacaoGemelarNormal', {CORIONICIDADE:state.corTxt, AMNIONICIDADE:state.amnTxt}), auto:true});
+    }
+
+    state.fetos.forEach(f=>{
+      if(f.vitalidade==='ausente'){
+        items.push({key:'obito-'+f.uid, label:phraseRaw('impObitoEmbrionario', {ROTULO:f.rotulo}), auto:true});
+      }
+      if(f.tnAcima){
+        items.push({key:'tn-'+f.uid, label:phraseRaw('impTNAumentada', {ROTULO:f.rotulo}), auto:true});
+      }
+      if(f.ossoNasal==='ausente'){
+        items.push({key:'osso-'+f.uid, label:phraseRaw('impOssoNasalAusente', {ROTULO:f.rotulo}), auto:true});
+      }
+      if(f.chkMarcadores && f.ductoVenoso==='alterado'){
+        items.push({key:'ducto-'+f.uid, label:phraseRaw('impDuctoVenosoAlterado', {ROTULO:f.rotulo}), auto:true});
+      }
+      if(f.chkMarcadores && f.regurg==='presente'){
+        items.push({key:'regurg-'+f.uid, label:phraseRaw('impRegurgTricuspide', {ROTULO:f.rotulo}), auto:true});
+      }
+      if(f.anatomia==='alterada' && f.anatomiaDescricao){
+        items.push({key:'anatomia-'+f.uid, label:phraseRaw('impAnatomiaAlterada', {ROTULO:f.rotulo, DESCRICAO:f.anatomiaDescricao}), auto:true});
+      }
+      if(f.liquido!=='normal'){
+        items.push({key:'liquido-'+f.uid, label:phraseRaw('impLiquidoAlterado', {ROTULO:f.rotulo, DESCRICAO: f.liquido==='aumentado'?'aumentado':'reduzido'}), auto:true});
+      }
+    });
+
+    if(state.miometrioAspecto==='mioma'){
+      items.push({key:'mioma', label:phraseRaw('impMioma'), auto:true});
+    }
+    if(state.coloAspecto==='afunilado'){
+      items.push({key:'colo', label:phraseRaw('impColoAfunilado'), auto:true});
+    }
+    if(state.anexosCaracterizados==='sim' && state.anexosAspecto==='cisto'){
+      items.push({key:'anexo', label:phraseRaw('impOvarioAlterado', {LADO:state.anexosLado, DESCRICAO:'imagem cística, medindo '+(state.anexosMedida||'____')+' mm'}), auto:true});
+    }
+
+    return items;
+  }
+
+  let checkedState = {};
+
+  function renderChecklist(items){
+    const box = $('impressaoChecklist');
+    box.innerHTML = '';
+    items.forEach(it=>{
+      if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
+      const row = document.createElement('label');
+      row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#3f7a63;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
+      row.querySelector('input').addEventListener('change', e=>{
+        checkedState[it.key] = e.target.checked;
+        render();
+      });
+      box.appendChild(row);
+    });
+  }
+
+  $('paper').addEventListener('input', ()=>{
+    const sel = window.getSelection();
+    if(!sel || !sel.anchorNode) return;
+    const node = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
+    const li = node && node.closest ? node.closest('ul.impressao li[data-key]') : null;
+    if(li) impressaoOverrides[li.dataset.key] = li.textContent;
+  });
+
+  // ---------- Live page-count preview ----------
+  function updatePagePreview(){
+    const paperEl = $('paper');
+    paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+
+    const children = Array.from(paperEl.children);
+    const pill = $('pageCountPill');
+    if(!children.length){ if(pill){ pill.textContent='1 página'; pill.classList.remove('pending'); } return; }
+
+    const ref = document.createElement('div');
+    ref.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:0;width:0;height:24.2cm;';
+    document.body.appendChild(ref);
+    const pageHeightPx = ref.getBoundingClientRect().height;
+    document.body.removeChild(ref);
+    const packBudgetPx = pageHeightPx - 38;
+
+    const originalLineHeight = paperEl.style.lineHeight;
+    const baseLineHeight = parseFloat(originalLineHeight) || 1.15;
+
+    function packAt(lineHeight){
+      paperEl.style.lineHeight = lineHeight;
+      const paddingTop = parseFloat(getComputedStyle(paperEl).paddingTop) || 0;
+      const paperTop = paperEl.getBoundingClientRect().top + paddingTop;
+      const boxes = children.map(el=>{
+        const r = el.getBoundingClientRect();
+        return {top: r.top - paperTop, bottom: r.bottom - paperTop, node: el};
+      });
+      const pages = [[]];
+      let pageStart = boxes[0].top;
+      boxes.forEach(box=>{
+        if((box.bottom - pageStart) > packBudgetPx && pages[pages.length-1].length > 0){
+          pages.push([]);
+          pageStart = box.top;
+        }
+        pages[pages.length-1].push(box);
+      });
+      return pages;
+    }
+
+    let pages = packAt(baseLineHeight);
+    if(pages.length > 1){
+      for(let lh = baseLineHeight - 0.03; lh >= 1.0 - 1e-9; lh -= 0.03){
+        const attempt = packAt(lh);
+        if(attempt.length === 1){ pages = attempt; break; }
+      }
+    }
+    paperEl.style.lineHeight = originalLineHeight;
+
+    if(pill){
+      pill.textContent = pages.length===1 ? '1 página' : pages.length+' páginas';
+      pill.classList.toggle('pending', pages.length > 1);
+    }
+    for(let p=0; p<pages.length-1; p++){
+      const marker = document.createElement('div');
+      marker.className = 'pg-break-marker';
+      marker.contentEditable = 'false';
+      marker.textContent = 'Fim da página ' + (p+1);
+      paperEl.insertBefore(marker, pages[p+1][0].node);
+    }
+  }
+  let pagePreviewTimer = null;
+  function schedulePagePreview(){
+    clearTimeout(pagePreviewTimer);
+    pagePreviewTimer = setTimeout(updatePagePreview, 250);
+  }
+  $('paper').addEventListener('input', schedulePagePreview);
+  window.addEventListener('resize', schedulePagePreview);
+
+  // ---------- Main render ----------
+  let pendingCount = 0;
+  let printAttempted = false;
+
+  function render(){
+    pendingCount = 0;
+    function req(id){
+      const val = v(id);
+      const empty = val === '';
+      const el = $(id);
+      if(el) el.classList.toggle('field-missing', printAttempted && empty);
+      if(empty) pendingCount++;
+      return val;
+    }
+    function reqIf(id, cond){
+      if(!cond) return v(id);
+      return req(id);
+    }
+
+    const nomePaciente = v('nomePaciente');
+    const dataExame = v('dataExame');
+    const medicoSolicitante = v('medicoSolicitante');
+    const dum = v('dum');
+    const igDum = v('igDum');
+    const gpaG = v('gpaG');
+    const gpaP = v('gpaP');
+    const gpaA = v('gpaA');
+    const motivoExame = vNoDot('motivoExame');
+
+    const numeroFetosVal = v('numeroFetos');
+    const isMultiple = numeroFetosVal !== '1';
+    const corionicidade = v('corionicidade');
+    const amnionicidade = v('amnionicidade');
+    const corTxt = corionicidade==='monocorionica' ? 'monocoriônica' : 'dicoriônica';
+    const amnTxt = amnionicidade==='monoamniotica' ? 'monoamniótica' : 'diamniótica';
+    const sinal = corionicidade==='monocorionica' ? 'T' : 'lambda';
+    const nsacos = amnionicidade==='monoamniotica' ? 'saco gestacional único, compartilhado pelos fetos' : 'dois sacos gestacionais individualizados';
+
+    const uids = fetoUids();
+    const fetos = uids.map((uid, idx)=>{
+      const rotulo = fetoLabel(idx, uids.length);
+      const vitalidade = v('feto'+uid+'Vitalidade');
+      const fc = blankOrValue(reqIf('feto'+uid+'FC', vitalidade==='presente'));
+      const ccn = blankOrValue(req('feto'+uid+'CCN'));
+      const ig = blankOrValue(req('feto'+uid+'IG'));
+      const dpp = blankOrValue(req('feto'+uid+'DPP'));
+      const tnNum = num('feto'+uid+'TN'); req('feto'+uid+'TN');
+      const tn = blankOrValue(v('feto'+uid+'TN'));
+      const tnAcima = tnNum!==null && tnNum > VR.tnMax;
+      flag('feto'+uid+'TN', tnAcima);
+      const ossoNasal = v('feto'+uid+'OssoNasal');
+      const chkMarcadores = $('feto'+uid+'ChkMarcadores').checked;
+      const ductoVenoso = v('feto'+uid+'DuctoVenoso');
+      const regurg = v('feto'+uid+'Regurg');
+      const anatomia = v('feto'+uid+'Anatomia');
+      const anatomiaDescricao = vNoDot('feto'+uid+'AnatomiaDescricao');
+      reqIf('feto'+uid+'AnatomiaDescricao', anatomia==='alterada');
+      const placentaLocal = v('feto'+uid+'PlacentaLocal');
+      const liquido = v('feto'+uid+'Liquido');
+      const chkPlacentaBaixa = $('feto'+uid+'ChkPlacentaBaixa').checked;
+      const placentaBaixaMedida = blankOrValue(reqIf('feto'+uid+'PlacentaBaixaMedida', chkPlacentaBaixa));
+      return {uid, rotulo, vitalidade, fc, ccn, ig, dpp, tn, tnNum, tnAcima, ossoNasal, chkMarcadores, ductoVenoso, regurg, anatomia, anatomiaDescricao, placentaLocal, liquido, chkPlacentaBaixa, placentaBaixaMedida};
+    });
+
+    const miometrioAspecto = v('miometrioAspecto');
+    const miomaLocal = v('miomaLocal');
+    const miomaMedida = reqIf('miomaMedida', miometrioAspecto==='mioma');
+    const coloMedida = blankOrValue(req('coloMedida'));
+    const coloAspecto = v('coloAspecto');
+    const anexosCaracterizados = v('anexosCaracterizados');
+    const anexosAspecto = v('anexosAspecto');
+    const anexosLado = v('anexosLado')==='esquerdo' ? 'esquerdo' : 'direito';
+    const anexosMedida = reqIf('anexosMedida', anexosCaracterizados==='sim' && anexosAspecto==='cisto');
+
+    // ----- Impressão -----
+    const state = {
+      isMultiple, corTxt, amnTxt,
+      fetos: fetos.map(f=>({
+        uid:f.uid, rotulo:f.rotulo, vitalidade:f.vitalidade, tnAcima:f.tnAcima, ossoNasal:f.ossoNasal,
+        chkMarcadores:f.chkMarcadores, ductoVenoso:f.ductoVenoso, regurg:f.regurg,
+        anatomia:f.anatomia, anatomiaDescricao:f.anatomiaDescricao, liquido:f.liquido
+      })),
+      miometrioAspecto, coloAspecto, anexosCaracterizados, anexosAspecto, anexosLado, anexosMedida
+    };
+    const impressaoItems = buildImpressao(state);
+    renderChecklist(impressaoItems);
+    const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
+
+    // ----- Assemble laudo HTML -----
+    let html = '';
+    html += '<div class="id-card">';
+    html += '<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>';
+    html += '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>';
+    html += '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp; <strong>IG (DUM):</strong> '+span(blankOrValue(igDum))+'</span></div>';
+    html += '<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>';
+    html += '</div>';
+    html += '<h3 class="doctitle">ULTRASSONOGRAFIA OBSTÉTRICA — PRIMEIRO TRIMESTRE</h3>';
+    if(motivoExame){
+      html += '<p class="relato">Relato de '+escapeHtml(motivoExame.charAt(0).toLowerCase()+motivoExame.slice(1))+'.</p>';
+    }
+    html += '<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>';
+
+    html += '<p class="linha">'+(isMultiple ? phrase('gestacaoIntroGemelar', {CORIONICIDADE:corTxt, AMNIONICIDADE:amnTxt, SINAL:sinal, NSACOS:nsacos}) : phrase('gestacaoIntroUnica'))+'</p>';
+
+    fetos.forEach(f=>{
+      if(uids.length>1){
+        html += '<h4 class="sec">'+escapeHtml(f.rotulo.toUpperCase())+'</h4>';
+      }
+      if(f.vitalidade==='ausente'){
+        html += '<p class="linha">'+phraseRaw('fetoBCFAusente', {ROTULO:f.rotulo})+'</p>';
+      } else {
+        html += '<p class="linha">'+phraseRaw('fetoFC', {FC:span(f.fc)})+'</p>';
+      }
+      html += '<p class="linha">'+phraseRaw('fetoBiometria', {CCN:span(f.ccn), IG:span(f.ig), DPP:span(f.dpp)})+'</p>';
+      html += '<p class="linha">'+phraseRaw('fetoTN', {TN:span(f.tn), VR:VR.tnMax.toString().replace('.',',')})+'</p>';
+      html += '<p class="linha">'+(f.ossoNasal==='ausente' ? phrase('fetoOssoNasalAusente') : phrase('fetoOssoNasalPresente'))+'</p>';
+      if(f.chkMarcadores){
+        html += '<p class="linha">'+(f.ductoVenoso==='alterado' ? phrase('fetoDuctoVenosoAlterado') : phrase('fetoDuctoVenosoNormal'))+' '+(f.regurg==='presente' ? phrase('fetoRegurgPresente') : phrase('fetoRegurgAusente'))+'</p>';
+      }
+      html += '<p class="linha">'+((f.anatomia==='alterada' && f.anatomiaDescricao) ? phraseRaw('fetoAnatomiaAlterada', {DESCRICAO:escapeHtml(f.anatomiaDescricao)}) : phrase('fetoAnatomiaNormal'))+'</p>';
+
+      const implantacao = f.chkPlacentaBaixa ? phraseRaw('fetoPlacentaImplantacaoBaixa', {MEDIDA: span(f.placentaBaixaMedida)}) : '';
+      html += '<p class="linha">'+phraseRaw('fetoPlacenta', {LOCAL: escapeHtml(f.placentaLocal), IMPLANTACAO: implantacao})+'</p>';
+      html += '<p class="linha">'+(f.liquido==='aumentado' ? phrase('fetoLiquidoAumentado') : f.liquido==='diminuido' ? phrase('fetoLiquidoDiminuido') : phrase('fetoLiquidoNormal'))+'</p>';
+    });
+
+    html += '<h4 class="sec">ÚTERO, COLO E ANEXOS MATERNOS</h4>';
+    html += '<p class="linha">'+(miometrioAspecto==='mioma' ? phraseRaw('uteroMiometrioMioma', {LOCAL: escapeHtml(miomaLocal||'____'), MEDIDA: escapeHtml(miomaMedida||'____')}) : phrase('uteroMiometrioNormal'))+'</p>';
+    html += '<p class="linha">'+(coloAspecto==='afunilado' ? phraseRaw('coloAfunilado', {MEDIDA: span(coloMedida)}) : phraseRaw('coloNormal', {MEDIDA: span(coloMedida)}))+'</p>';
+    if(anexosCaracterizados==='sim'){
+      html += '<p class="linha">'+(anexosAspecto==='cisto' ? phraseRaw('anexosCisto', {LADO: anexosLado, MEDIDA: escapeHtml(anexosMedida||'____')}) : phrase('anexosNormais'))+'</p>';
+    } else {
+      html += '<p class="linha">'+phrase('anexosNaoCaracterizados')+'</p>';
+    }
+
+    html += '<h4 class="sec">IMPRESSÃO:</h4><ul class="impressao">';
+    if(checkedItems.length===0){
+      html += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
+    } else {
+      checkedItems.forEach(it=>{
+        const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
+        html += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
+      });
+    }
+    html += '</ul>';
+
+    html += '<div class="rodape-final">';
+    html += '<p class="footnote">'+phrase('footerImagens')+'</p>';
+    html += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
+    if(VR.medicoQual1) html += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
+    if(VR.medicoQual2) html += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
+    html += '<p class="assinatura-info">'+escapeHtml(VR.medicoCRM)+'</p></div>';
+    html += '</div>';
+
+    $('paper').innerHTML = html;
+    if(titleFontSize){
+      const titleEl = $('paper').querySelector('h3.doctitle');
+      if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
+    }
+
+    const pill = $('statusPill');
+    if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
+    else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
+    updatePagePreview();
+  }
+
+  // ---------- Wire up live updates ----------
+  document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
+    el.addEventListener('input', render);
+    el.addEventListener('change', render);
+  });
+
+  // ---------- Actions ----------
+  function buildReportHtml(){
+    const clone = $('paper').cloneNode(true);
+    clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    clone.querySelectorAll('ul.impressao').forEach(ul=>{
+      const div = document.createElement('div');
+      Array.from(ul.children).forEach(li=>{
+        const p = document.createElement('p');
+        p.style.margin = '0 0 6px';
+        p.style.fontWeight = '700';
+        p.innerHTML = li.innerHTML;
+        div.appendChild(p);
+      });
+      ul.replaceWith(div);
+    });
+    clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
+    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.padding='10px 16px'; el.style.marginBottom='20px'; el.style.fontWeight='700'; });
+    clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
+    clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
+    clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
+    clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
+    clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
+    clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
+
+    clone.querySelectorAll('.id-card-row').forEach(el=>{
+      el.style.fontSize = '12pt';
+      if(el.children.length !== 2) return;
+      const [left, right] = el.children;
+      const table = document.createElement('table');
+      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;');
+      table.innerHTML = '<tr>'
+        + '<td style="border:none;padding:0;text-align:left;">'+left.innerHTML+'</td>'
+        + '<td style="border:none;padding:0;text-align:right;">'+right.innerHTML+'</td>'
+        + '</tr>';
+      el.replaceWith(table);
+    });
+    clone.querySelectorAll('.rodape-final').forEach(el=>{
+      const footnote = el.querySelector('.footnote');
+      const assinatura = el.querySelector('.assinatura');
+      const table = document.createElement('table');
+      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin-top:16px;');
+      table.innerHTML = '<tr>'
+        + '<td style="border:none;padding:0;vertical-align:bottom;text-align:left;">'+(footnote ? footnote.outerHTML : '')+'</td>'
+        + '<td style="border:none;padding:0;vertical-align:bottom;text-align:right;width:1%;white-space:nowrap;">'+(assinatura ? assinatura.outerHTML : '')+'</td>'
+        + '</tr>';
+      el.replaceWith(table);
+    });
+
+    const lineHeight = $('paper').style.lineHeight || '1.15';
+    const fontSize = $('paper').style.fontSize || '12pt';
+    return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";\">"+clone.innerHTML+'</div>';
+  }
+
+  // ---------- Print pagination: pins "Continua…" and the signature to the
+  // bottom-right corner of the physical page, at print time only. See
+  // transvaginal.html for the full rationale behind every choice below —
+  // this is the same pipeline, unchanged. ----------
+  function paginateForPrint(){
+    const paperEl = $('paper');
+    paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    const originalHTML = paperEl.innerHTML;
+    const originalLineHeight = paperEl.style.lineHeight;
+
+    const ref = document.createElement('div');
+    ref.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:0;width:0;height:24.2cm;';
+    document.body.appendChild(ref);
+    const pageHeightPx = ref.getBoundingClientRect().height;
+    document.body.removeChild(ref);
+    const SAFETY_PX = 38;
+    const packBudgetPx = pageHeightPx - SAFETY_PX;
+
+    function packAtLineHeight(lineHeight){
+      const measure = document.createElement('div');
+      measure.className = 'paper';
+      measure.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;width:17cm;max-height:none;overflow:visible;background:none;border:none;box-shadow:none;padding:0;margin:0;';
+      measure.style.lineHeight = lineHeight;
+      if(paperEl.style.fontSize) measure.style.fontSize = paperEl.style.fontSize;
+      measure.innerHTML = originalHTML;
+      document.body.appendChild(measure);
+
+      const continuaP = document.createElement('p');
+      continuaP.className = 'continua';
+      continuaP.textContent = 'Continua…';
+      measure.appendChild(continuaP);
+      const continuaHeight = continuaP.getBoundingClientRect().height;
+      measure.removeChild(continuaP);
+      const continuaHtml = continuaP.outerHTML;
+
+      const measureRect = measure.getBoundingClientRect();
+      const realTop = Array.from(paperEl.children);
+      const measureTop = Array.from(measure.children);
+      const boxes = [];
+      realTop.forEach((realChild, idx)=>{
+        const measureChild = measureTop[idx];
+        if(realChild.tagName==='UL' && realChild.classList.contains('impressao')){
+          const realLis = Array.from(realChild.children);
+          const measureLis = Array.from(measureChild.children);
+          realLis.forEach((li, i)=>{
+            const r = measureLis[i].getBoundingClientRect();
+            boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:'li', html: li.outerHTML});
+          });
+        } else {
+          const r = measureChild.getBoundingClientRect();
+          boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:(realChild.tagName==='H4' ? 'heading' : 'block'), html: realChild.outerHTML});
+        }
+      });
+      document.body.removeChild(measure);
+
+      const pages = [[]];
+      let pageStart = boxes.length ? boxes[0].top : 0;
+      boxes.forEach(box=>{
+        if((box.bottom - pageStart) > packBudgetPx && pages[pages.length-1].length > 0){
+          pages.push([]);
+          pageStart = box.top;
+        }
+        pages[pages.length-1].push(box);
+      });
+      for(let p=0; p<pages.length-1; p++){
+        const pg = pages[p];
+        if(pg.length && pg[pg.length-1].kind==='heading'){
+          pages[p+1].unshift(pg.pop());
+        }
+      }
+      return {pages, continuaHtml, continuaHeight};
+    }
+
+    const baseLineHeight = parseFloat(paperEl.style.lineHeight) || 1.15;
+    const MIN_LINE_HEIGHT = 1.0;
+    const LINE_HEIGHT_STEP = 0.03;
+    let packed = packAtLineHeight(baseLineHeight);
+    let usedLineHeight = baseLineHeight;
+    if(packed.pages.length > 1){
+      for(let lh = baseLineHeight - LINE_HEIGHT_STEP; lh >= MIN_LINE_HEIGHT - 1e-9; lh -= LINE_HEIGHT_STEP){
+        const attempt = packAtLineHeight(lh);
+        if(attempt.pages.length === 1){
+          packed = attempt;
+          usedLineHeight = lh;
+          break;
+        }
+      }
+    }
+    if(usedLineHeight !== baseLineHeight) paperEl.style.lineHeight = usedLineHeight;
+
+    const {pages, continuaHtml, continuaHeight} = packed;
+
+    const wrap = document.createElement('div');
+    pages.forEach((pageBoxes, pageIdx)=>{
+      const isLast = pageIdx === pages.length - 1;
+      const pinned = isLast ? pageBoxes[pageBoxes.length - 1] : null;
+      const contentBoxes = isLast ? pageBoxes.slice(0, -1) : pageBoxes;
+
+      const pageEl = document.createElement('div');
+      pageEl.className = 'print-page';
+      let i = 0;
+      while(i < contentBoxes.length){
+        if(contentBoxes[i].kind === 'li'){
+          const ul = document.createElement('ul');
+          ul.className = 'impressao';
+          while(i < contentBoxes.length && contentBoxes[i].kind === 'li'){ ul.insertAdjacentHTML('beforeend', contentBoxes[i].html); i++; }
+          pageEl.appendChild(ul);
+        } else {
+          pageEl.insertAdjacentHTML('beforeend', contentBoxes[i].html);
+          i++;
+        }
+      }
+      const contentHeight = contentBoxes.length ? (contentBoxes[contentBoxes.length-1].bottom - contentBoxes[0].top) : 0;
+
+      const pinnedHtml = isLast ? (pinned ? pinned.html : '') : continuaHtml;
+      const pinnedHeight = isLast ? (pinned ? (pinned.bottom - pinned.top) : 0) : continuaHeight;
+      if(pinnedHtml){
+        const spacerPx = Math.max(0, packBudgetPx - contentHeight - pinnedHeight);
+        const spacer = document.createElement('div');
+        spacer.style.height = spacerPx + 'px';
+        pageEl.appendChild(spacer);
+        pageEl.insertAdjacentHTML('beforeend', pinnedHtml);
+      }
+      wrap.appendChild(pageEl);
+    });
+    paperEl.innerHTML = wrap.innerHTML;
+
+    return function restore(){
+      paperEl.innerHTML = originalHTML;
+      paperEl.style.lineHeight = originalLineHeight;
+      updatePagePreview();
+    };
+  }
+
+  let printRestore = null;
+  window.addEventListener('beforeprint', ()=>{
+    if(printRestore) return;
+    printRestore = paginateForPrint();
+  });
+  window.addEventListener('afterprint', ()=>{
+    if(printRestore){ printRestore(); printRestore = null; }
+  });
+
+  $('btnPrint').addEventListener('click', ()=>{
+    if(pendingCount > 0){
+      printAttempted = true;
+      render();
+      const alertEl = $('printAlert');
+      alertEl.classList.add('show');
+      alertEl.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    try{
+      window.print();
+    }catch(e){
+      alert('Não foi possível abrir a impressão automaticamente. Use "Baixar Word" e imprima a partir de lá.');
+    }
+  });
+
+  function sanitizeFilenamePart(s){
+    return s.replace(/[\\/:*?"<>|]/g, '').trim();
+  }
+  async function saveBlobAs(blob, suggestedName){
+    if(window.showSaveFilePicker){
+      try{
+        const handle = await window.showSaveFilePicker({
+          suggestedName,
+          types: [{description:'Documento Word', accept:{'application/msword':['.doc']}}]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return;
+      }catch(e){
+        if(e && e.name === 'AbortError') return;
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = suggestedName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  }
+  $('btnDownloadWord').addEventListener('click', async ()=>{
+    try{
+      const html = buildReportHtml();
+      const docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
+        + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
+        + 'xmlns="http://www.w3.org/TR/REC-html40">'
+        + '<head><meta charset="utf-8"><title>Laudo</title>'
+        + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
+        + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
+        + '</head><body>' + html + '</body></html>';
+      const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
+      const paciente = sanitizeFilenamePart(v('nomePaciente')) || 'Laudo';
+      await saveBlobAs(blob, paciente+' - Obstetrico 1o Trimestre.doc');
+    }catch(e){
+      alert('Não foi possível baixar o arquivo Word neste navegador.');
+    }
+  });
+
+  $('btnReset').addEventListener('click', ()=>{
+    if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
+    document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
+    document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
+    document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
+    document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
+    document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
+    document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
+    $('fetosContainer').innerHTML = '';
+    checkedState = {};
+    impressaoOverrides = {};
+    printAttempted = false;
+    $('printAlert').classList.remove('show');
+    setDefaultDataExame();
+    addFeto();
+  });
+
+  function setDefaultDataExame(){
+    const el = $('dataExame');
+    if(!el || el.value) return;
+    const pad = n => String(n).padStart(2, '0');
+    const d = new Date();
+    el.value = pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear();
+  }
+  setDefaultDataExame();
+
+  loadPhrases().then(()=> loadVR().then(()=> addFeto()));
+})();
+</script>
+</body>
+</html>
