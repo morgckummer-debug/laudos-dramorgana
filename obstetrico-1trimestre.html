@@ -103,6 +103,7 @@
   .field input:focus, .field select:focus, .field textarea:focus{
     border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);
   }
+  .field input[readonly]{background:var(--line-soft);color:var(--ink-soft);cursor:not-allowed;}
   .field input.flag-abnormal{border-color:var(--amber);background:var(--amber-light);}
   .field input.format-error{border-color:#B4432F;background:#FBEAE6;}
   .field input.field-missing{border-color:#B4432F;}
@@ -355,7 +356,17 @@
         </div>
         <div class="field-row">
           <div class="field"><label>DUM (data da última menstruação)</label><input type="text" id="dum" placeholder="dd/mm/aaaa"></div>
-          <div class="field"><label>Cronologia (IG pela DUM)</label><input type="text" id="cronologia" placeholder="ex: 8 semanas"></div>
+          <div class="field"><label>Cronologia</label><input type="text" id="cronologia" placeholder="calculada automaticamente" readonly></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Cronologia calculada com base em</label>
+            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option></select>
+          </div>
+        </div>
+        <div class="field-row conditional" id="wrap_usgDatacao">
+          <div class="field"><label>Data do 1º ultrassom</label><input type="text" id="usgDataDatacao" placeholder="dd/mm/aaaa"></div>
+          <div class="field"><label>IG no 1º ultrassom — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
+          <div class="field"><label>IG no 1º ultrassom — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
         </div>
         <div class="field-row">
           <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
@@ -1041,6 +1052,8 @@
   $('anexosAspecto').addEventListener('change', e=> toggle('wrap_anexosDescricao', e.target.value==='alterado'));
   $('chkRecomendacao').addEventListener('change', e=> toggle('wrap_recomendacao', e.target.checked));
   toggle('wrap_recomendacao', $('chkRecomendacao').checked);
+  $('cronologiaMetodo').addEventListener('change', e=> toggle('wrap_usgDatacao', e.target.value==='usg'));
+  toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
 
   function updateGestacaoWrap(){
     toggle('wrap_corionicidade', $('numeroEmbrioes').value !== '1');
@@ -1138,6 +1151,43 @@
   function v(id){ const el = $(id); return el ? el.value.trim() : ''; }
   function num(id){ const x = parseFloat(v(id).replace(',', '.')); return isNaN(x) ? null : x; }
   function vNoDot(id){ return v(id).replace(/\.+\s*$/, ''); }
+
+  // ---------- Cronologia: auto-computed IG at exam date, from DUM or from a
+  // dating ultrasound (IG informed on that exam + days elapsed since then). ----------
+  function parseDateBR(str){
+    const m = (str||'').trim().match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);
+    if(!m) return null;
+    let d = parseInt(m[1],10), mo = parseInt(m[2],10), y = parseInt(m[3],10);
+    if(y < 100) y += 2000;
+    const dt = new Date(y, mo-1, d);
+    if(dt.getFullYear()!==y || dt.getMonth()!==mo-1 || dt.getDate()!==d) return null;
+    return dt;
+  }
+  function formatIG(totalDays){
+    const semanas = Math.floor(totalDays/7);
+    const dias = totalDays % 7;
+    const semanasTxt = semanas + (semanas===1 ? ' semana' : ' semanas');
+    return dias>0 ? (semanasTxt+' e '+dias+(dias===1?' dia':' dias')) : semanasTxt;
+  }
+  function computeCronologia(metodo, dataExameStr){
+    const dataExameDt = parseDateBR(dataExameStr);
+    if(!dataExameDt) return '';
+    const MS = 24*60*60*1000;
+    let totalDays = null;
+    if(metodo === 'usg'){
+      const usgDt = parseDateBR(v('usgDataDatacao'));
+      const semanas = parseInt(v('usgSemanasDatacao'), 10);
+      const dias = parseInt(v('usgDiasDatacao'), 10);
+      if(usgDt && !isNaN(semanas)){
+        const igNoUsg = semanas*7 + (isNaN(dias) ? 0 : dias);
+        totalDays = igNoUsg + Math.round((dataExameDt - usgDt)/MS);
+      }
+    } else {
+      const dumDt = parseDateBR(v('dum'));
+      if(dumDt) totalDays = Math.round((dataExameDt - dumDt)/MS);
+    }
+    return (totalDays !== null && totalDays >= 0) ? formatIG(totalDays) : '';
+  }
   function blankOrValue(val, suffix){
     if(val === '' || val === null || val === undefined) return {text:'____', filled:false};
     return {text: val + (suffix||''), filled:true};
@@ -1296,7 +1346,13 @@
     const dataExame = v('dataExame');
     const medicoSolicitante = v('medicoSolicitante');
     const dum = v('dum');
-    const cronologia = v('cronologia');
+    const cronologiaMetodo = v('cronologiaMetodo')==='usg' ? 'usg' : 'dum';
+    reqIf('usgDataDatacao', cronologiaMetodo==='usg');
+    reqIf('usgSemanasDatacao', cronologiaMetodo==='usg');
+    reqIf('usgDiasDatacao', cronologiaMetodo==='usg');
+    const cronologia = computeCronologia(cronologiaMetodo, dataExame);
+    const cronologiaEl = $('cronologia');
+    if(cronologiaEl) cronologiaEl.value = cronologia;
     const gpaG = v('gpaG');
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
