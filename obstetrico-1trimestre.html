@@ -627,12 +627,21 @@
       else if(e.key === 'u' || e.key === 'U'){ e.preventDefault(); applyFormat('underline'); }
     });
 
-    function captureSelectionInPaper(){
+    // Tracked continuously via selectionchange rather than captured on the
+    // select's mousedown — mousedown-timing relative to the browser's own
+    // focus-shift/selection-collapse on click isn't consistent across
+    // browsers/OSes, which made the selection scoping unreliable.
+    let lastPaperSelectionRange = null;
+    document.addEventListener('selectionchange', ()=>{
       const sel = window.getSelection();
       if(sel && sel.rangeCount && !sel.isCollapsed && paperEl.contains(sel.anchorNode) && paperEl.contains(sel.focusNode)){
-        return sel.getRangeAt(0).cloneRange();
+        lastPaperSelectionRange = sel.getRangeAt(0).cloneRange();
       }
-      return null;
+    });
+    function captureSelectionInPaper(){
+      const range = lastPaperSelectionRange;
+      lastPaperSelectionRange = null;
+      return range;
     }
     function wrapSelectionInStyledSpan(range, applyStyle){
       const span = document.createElement('span');
@@ -651,13 +660,16 @@
       sel.addRange(newRange);
     }
 
-    let savedLineHeightRange = null;
-    lineHeightSel.addEventListener('mousedown', ()=>{ savedLineHeightRange = captureSelectionInPaper(); });
     lineHeightSel.addEventListener('change', ()=>{
-      if(savedLineHeightRange){
-        wrapSelectionInStyledSpan(savedLineHeightRange, style=>{ style.lineHeight = lineHeightSel.value; });
-        savedLineHeightRange = null;
+      const range = captureSelectionInPaper();
+      if(range){
+        wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
       } else {
+        // Sem seleção: limpa overrides de trechos selecionados antes, senão ficam "presos" e não acompanham a mudança geral.
+        paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
+          el.style.lineHeight = '';
+          if(!el.getAttribute('style')) el.removeAttribute('style');
+        });
         paperEl.style.lineHeight = lineHeightSel.value;
         kvStore.set('paper-line-height', lineHeightSel.value);
       }
@@ -669,19 +681,16 @@
     });
 
     const fontSizeSel = $('fmtFontSize');
-    let savedFontSizeRange = null;
-    fontSizeSel.addEventListener('mousedown', ()=>{ savedFontSizeRange = captureSelectionInPaper(); });
     fontSizeSel.addEventListener('change', ()=>{
       const size = fontSizeSel.value;
+      const range = captureSelectionInPaper();
       const titleEl = paperEl.querySelector('h3.doctitle');
-      if(savedFontSizeRange && titleEl && titleEl.contains(savedFontSizeRange.commonAncestorContainer)){
+      if(range && titleEl && titleEl.contains(range.commonAncestorContainer)){
         titleFontSize = size;
         kvStore.set('title-font-size', size);
         titleEl.style.fontSize = size + 'pt';
-        savedFontSizeRange = null;
-      } else if(savedFontSizeRange){
-        wrapSelectionInStyledSpan(savedFontSizeRange, style=>{ style.fontSize = size + 'pt'; });
-        savedFontSizeRange = null;
+      } else if(range){
+        wrapSelectionInStyledSpan(range, style=>{ style.fontSize = size + 'pt'; });
       } else {
         paperEl.style.fontSize = size + 'pt';
         kvStore.set('paper-font-size', size);
