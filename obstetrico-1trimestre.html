@@ -1554,7 +1554,9 @@
         +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
         +'<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
         +'<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>'
-        +(s.vitalidade==='ausente' ? '' : '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(s.fc)+' bpm</td></tr>')
+        +(s.vitalidade==='ausente'
+          ? '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">Ausente</span></td></tr>'
+          : '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(s.fc)+' bpm</td></tr>')
         +'</table>';
       if(s.isgPequeno){
         html += '<p class="linha tight">'+phraseRaw('isgPequeno', {ISG: span(blankOrValue(s.isgValor))})+'</p>';
