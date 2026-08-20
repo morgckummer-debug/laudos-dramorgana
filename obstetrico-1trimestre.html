@@ -176,6 +176,9 @@
   .paper p.linha{margin:0 0 16px;}
   .paper p.linha strong{font-weight:700;}
   .paper p.linha.tight{margin-bottom:2px;}
+  .paper table.biometria{border-collapse:collapse;margin:0 0 12px;}
+  .paper table.biometria td{border:none;padding:0 20px 2px 0;vertical-align:top;}
+  .paper table.biometria td:first-child{white-space:nowrap;}
   .paper p.recomendacao{text-align:center;font-style:italic;margin:16px 0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
@@ -248,7 +251,7 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
+    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -1494,9 +1497,11 @@
       }
       html += '<p class="linha">'+phraseRaw('sacoGestacional', {INSERCAO: s.insercao})+'</p>';
       html += '<p class="linha tight"><strong>Parâmetros biométricos:</strong></p>';
-      html += '<p class="linha tight">Diâmetro médio do saco gestacional (DMSG): '+span(s.dmsg)+' mm.</p>';
-      html += '<p class="linha tight">Vesícula vitelínica (VV): '+span(s.vv)+' mm.</p>';
-      html += '<p class="linha tight">Comprimento cabeça-nádega (CCN): '+span(s.ccn)+' mm.</p>';
+      html += '<table class="biometria">'
+        +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
+        +'<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
+        +'<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>'
+        +'</table>';
       html += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('fcfAusente') : phraseRaw('fcf', {FC: span(s.fc)}))+'</p>';
       html += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('embriaoObito') : phrase('embriaoNormal'))+'</p>';
     });
