@@ -395,7 +395,7 @@
             <select id="numeroEmbrioes"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">3 ou mais</option></select>
           </div>
           <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade</label>
-            <select id="corionicidade"><option value="dicorionica">Dicoriônica</option><option value="monocorionica">Monocoriônica</option></select>
+            <select id="corionicidade"><option value="dicorionica_diamniotica">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica">Monocoriônica e monoamniótica</option></select>
           </div>
         </div>
       </div>
@@ -1469,7 +1469,12 @@
     const numeroEmbrioesVal = v('numeroEmbrioes');
     const isMultiple = numeroEmbrioesVal !== '1';
     const corionicidade = v('corionicidade');
-    const corTxt = corionicidade==='monocorionica' ? 'monocoriônica' : 'dicoriônica';
+    const corTxtMap = {
+      dicorionica_diamniotica: 'dicoriônica e diamniótica',
+      monocorionica_diamniotica: 'monocoriônica e diamniótica',
+      monocorionica_monoamniotica: 'monocoriônica e monoamniótica'
+    };
+    const corTxt = corTxtMap[corionicidade] || 'dicoriônica e diamniótica';
 
     const uids = sacoUids();
     const sacos = uids.map((uid, idx)=>{
