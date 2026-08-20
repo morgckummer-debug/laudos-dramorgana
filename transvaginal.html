@@ -909,13 +909,6 @@
   // to the freshly-built h3.doctitle every time.
   let titleFontSize = null;
 
-  // Same idea for the gap between the identification header (.id-card) and
-  // the title right below it: this is a single element's margin-bottom, not
-  // one of the p.linha paragraphs the line-height <select> normally scopes
-  // to — without tracking it separately, selecting the header or the title
-  // and picking a spacing would have no independent effect there.
-  let idCardGapMargin = null;
-
   // Same problem, worse consequence: text edited directly inside an
   // "IMPRESSÃO" item (e.g. correcting the auto-generated "DIU
   // normoposicionado" to describe a perforating IUD for this patient) lives
@@ -1067,17 +1060,7 @@
     lineHeightSel.addEventListener('change', ()=>{
       const range = captureSelectionInPaper();
       const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '16px';
-      const titleEl = paperEl.querySelector('h3.doctitle');
-      const idCardEl = paperEl.querySelector('.id-card');
-      if(range && ((titleEl && titleEl.contains(range.commonAncestorContainer)) || (idCardEl && idCardEl.contains(range.commonAncestorContainer)))){
-        // Seleção está no título ou no cabeçalho de identificação: a médica
-        // está ajustando só o espaço ENTRE os dois, não o laudo inteiro —
-        // aplica apenas na margin do cabeçalho, igual ao tamanho de fonte do
-        // título, sem tocar na margin dos parágrafos do corpo.
-        idCardGapMargin = margin;
-        kvStore.set('idcard-gap-margin', margin);
-        if(idCardEl) idCardEl.style.marginBottom = margin;
-      } else if(range){
+      if(range){
         const paragraphs = Array.from(paperEl.querySelectorAll('p.linha')).filter(el=> range.intersectsNode(el));
         if(paragraphs.length > 1){
           // Seleção cruza mais de um parágrafo: aplica direto em cada um, em
@@ -1096,9 +1079,6 @@
           if(!el.getAttribute('style')) el.removeAttribute('style');
         });
         paperEl.querySelectorAll('p.linha').forEach(el=>{ el.style.marginBottom = ''; });
-        idCardGapMargin = null;
-        kvStore.remove('idcard-gap-margin');
-        if(idCardEl) idCardEl.style.marginBottom = '';
         paperEl.style.lineHeight = lineHeightSel.value;
         paperEl.style.setProperty('--linha-margin', margin);
         kvStore.set('paper-line-height', lineHeightSel.value);
@@ -1124,12 +1104,6 @@
         paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[val] || '20px');
         kvStore.set('idcard-gap', val);
       }
-    });
-    kvStore.get('idcard-gap-margin').then(saved=>{
-      if(!saved) return;
-      idCardGapMargin = saved;
-      const idCardEl = paperEl.querySelector('.id-card');
-      if(idCardEl) idCardEl.style.marginBottom = saved;
     });
 
     (async function initLineSpacingPrefs(){
@@ -2418,10 +2392,6 @@
     if(titleFontSize){
       const titleEl = $('paper').querySelector('h3.doctitle');
       if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
-    }
-    if(idCardGapMargin){
-      const idCardEl = $('paper').querySelector('.id-card');
-      if(idCardEl) idCardEl.style.marginBottom = idCardGapMargin;
     }
 
     const pill = $('statusPill');
