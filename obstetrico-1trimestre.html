@@ -1844,7 +1844,7 @@
         + '</head><body>' + html + '</body></html>';
       const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
       const paciente = sanitizeFilenamePart(v('nomePaciente')) || 'Laudo';
-      await saveBlobAs(blob, paciente+' - Obstetrico 1o Trimestre.doc');
+      await saveBlobAs(blob, paciente+' - Obstétrico do 1º trimestre.doc');
     }catch(e){
       alert('Não foi possível baixar o arquivo Word neste navegador.');
     }
