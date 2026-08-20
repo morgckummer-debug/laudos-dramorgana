@@ -1129,7 +1129,7 @@
   }
   function sacoLabel(idx, total){
     if(total<=1) return 'Saco gestacional / embrião';
-    return 'Saco gestacional '+String.fromCharCode(65+idx);
+    return 'Saco gestacional '+(idx+1);
   }
   function renumberSacos(){
     const container = $('sacosContainer');
