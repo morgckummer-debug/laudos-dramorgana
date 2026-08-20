@@ -1002,6 +1002,29 @@
       else if(e.key === 'u' || e.key === 'U'){ e.preventDefault(); applyFormat('underline'); }
     });
 
+    // Enter inside the title splits <h3 class="doctitle"> into two separate
+    // <h3> elements (standard contenteditable behavior for Enter inside a
+    // heading) — the browser clones the tag's attributes onto both halves,
+    // so both end up carrying data-blk="doctitle". renderBlocks() then finds
+    // two nodes for the same block id: it always leaves both alone (the
+    // title's generated HTML never changes between renders, so the
+    // reconciliation check never fires) and never cleans up the extra one,
+    // so the "second line" becomes a permanent stray element instead of
+    // part of the title. Forcing a plain line break inside the same element
+    // keeps the doctor's ability to wrap the title visually without
+    // splitting the block in two.
+    paperEl.addEventListener('keydown', e=>{
+      if(e.key !== 'Enter') return;
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount) return;
+      const anchorNode = sel.anchorNode;
+      const anchorEl = anchorNode ? (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement) : null;
+      if(anchorEl && anchorEl.closest('h3.doctitle')){
+        e.preventDefault();
+        document.execCommand('insertLineBreak');
+      }
+    });
+
     // Both selects below act on whatever's selected inside #paper, same as
     // bold/italic — with nothing selected they fall back to the whole
     // report. By the time 'change' fires on the <select> (after an option is
