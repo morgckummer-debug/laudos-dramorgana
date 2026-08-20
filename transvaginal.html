@@ -170,7 +170,7 @@
     color:var(--ink-soft);user-select:none;
   }
   .paper .id-card{
-    background:#ffffff;border:1.5px solid #2b2b2e;border-radius:10px;padding:10px 16px;margin:0 0 var(--linha-margin, 20px);
+    background:#ffffff;border:1.5px solid #2b2b2e;border-radius:10px;padding:10px 16px;margin:0 0 var(--idcard-gap, 20px);
     font-weight:700;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
@@ -829,6 +829,16 @@
         <option value="1.8">Largo</option>
       </select>
       <span class="fmt-sep"></span>
+      <label for="fmtIdCardGap">Espaço acima do título</label>
+      <select id="fmtIdCardGap" title="Espaço acima do título">
+        <option value="default" selected>Padrão</option>
+        <option value="1">Mínimo</option>
+        <option value="1.15">Compacto</option>
+        <option value="1.35">Estreito</option>
+        <option value="1.5">Normal</option>
+        <option value="1.8">Largo</option>
+      </select>
+      <span class="fmt-sep"></span>
       <label for="fmtFontSize">Tamanho da fonte</label>
       <select id="fmtFontSize" title="Tamanho da fonte">
         <option value="10.5">10,5 pt</option>
@@ -1094,11 +1104,26 @@
         kvStore.set('paper-line-height', lineHeightSel.value);
       }
     });
-    kvStore.get('paper-line-height').then(saved=>{
-      if(!saved) return;
-      lineHeightSel.value = saved;
-      paperEl.style.lineHeight = saved;
-      paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '16px');
+
+    // Espaço entre o cabeçalho de identificação (.id-card) e o título logo
+    // abaixo: um controle dedicado e sempre visível, em vez de depender de
+    // selecionar texto no título/cabeçalho para "escopar" o seletor de
+    // espaçamento entre linhas — essa seleção é fácil de não acontecer de
+    // verdade (um clique sem arrastar já basta), e quando isso acontecia o
+    // valor caía no modo "sem seleção" do outro seletor, mudando o laudo
+    // inteiro E salvando aquele valor como padrão global — exatamente o bug
+    // relatado. Este controle nunca afeta os parágrafos do corpo.
+    const idCardGapSel = $('fmtIdCardGap');
+    const IDCARD_GAP_MARGIN = {'default':'20px', '1':'1mm', '1.15':'2mm', '1.35':'3mm', '1.5':'4mm', '1.8':'6mm'};
+    idCardGapSel.addEventListener('change', ()=>{
+      const val = idCardGapSel.value;
+      if(val === 'default'){
+        paperEl.style.removeProperty('--idcard-gap');
+        kvStore.remove('idcard-gap');
+      } else {
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[val] || '20px');
+        kvStore.set('idcard-gap', val);
+      }
     });
     kvStore.get('idcard-gap-margin').then(saved=>{
       if(!saved) return;
@@ -1106,6 +1131,32 @@
       const idCardEl = paperEl.querySelector('.id-card');
       if(idCardEl) idCardEl.style.marginBottom = saved;
     });
+
+    (async function initLineSpacingPrefs(){
+      // Uma tentativa anterior de escopar o espaço acima do título (via
+      // seleção de texto) podia cair sem querer no modo global e gravar
+      // "Mínimo" como o espaçamento padrão do laudo inteiro — zera esse
+      // resíduo uma vez para quem já tinha essa preferência salva por
+      // engano; uma escolha deliberada feita depois disso volta a ser
+      // respeitada normalmente.
+      const migrated = await kvStore.get('line-spacing-defaults-reset-v1');
+      if(!migrated){
+        await kvStore.remove('paper-line-height');
+        await kvStore.remove('idcard-gap-margin');
+        await kvStore.set('line-spacing-defaults-reset-v1', '1');
+      }
+      const saved = await kvStore.get('paper-line-height');
+      if(saved){
+        lineHeightSel.value = saved;
+        paperEl.style.lineHeight = saved;
+        paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '16px');
+      }
+      const savedGap = await kvStore.get('idcard-gap');
+      if(savedGap){
+        idCardGapSel.value = savedGap;
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[savedGap] || '20px');
+      }
+    })();
 
     // Font size: if the user has text selected inside #paper (e.g. just the
     // title), wrap only that selection in a sized span. With nothing
