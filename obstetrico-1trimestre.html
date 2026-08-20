@@ -658,6 +658,11 @@
         wrapSelectionInStyledSpan(savedLineHeightRange, style=>{ style.lineHeight = lineHeightSel.value; });
         savedLineHeightRange = null;
       } else {
+        // Sem seleção: limpa overrides de trechos selecionados antes, senão ficam "presos" e não acompanham a mudança geral.
+        paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
+          el.style.lineHeight = '';
+          if(!el.getAttribute('style')) el.removeAttribute('style');
+        });
         paperEl.style.lineHeight = lineHeightSel.value;
         kvStore.set('paper-line-height', lineHeightSel.value);
       }
