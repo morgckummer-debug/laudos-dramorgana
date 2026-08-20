@@ -216,6 +216,12 @@
   .format-toolbar .fmt-btn:hover{border-color:var(--rose);color:var(--rose-dark);}
   .format-toolbar .fmt-btn.active{background:var(--rose-light);border-color:var(--rose);color:var(--rose-dark);}
   .format-toolbar .fmt-sep{width:1px;height:22px;background:var(--line);margin:0 4px;}
+  /* Keeps each label glued to its own <select> when the toolbar wraps at
+     narrow widths — before this, flex-wrap could break the line between a
+     label and its select (they were separate flex items), leaving a select
+     stranded on the next row with no visible label, easy to mistake for a
+     different control. */
+  .format-toolbar .fmt-group{display:inline-flex;align-items:center;gap:6px;}
   .format-toolbar label{font-size:12px;color:var(--ink-soft);}
   .format-toolbar select{
     border:1.5px solid var(--line);border-radius:8px;padding:5px 8px;font-size:12.5px;color:var(--ink);
@@ -820,39 +826,45 @@
         <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="15" y2="13.5"/></svg>
       </button>
       <span class="fmt-sep"></span>
-      <label for="fmtLineHeight">Espaçamento entre linhas</label>
-      <select id="fmtLineHeight" title="Espaçamento entre linhas">
-        <option value="1">Mínimo</option>
-        <option value="1.15" selected>Compacto</option>
-        <option value="1.35">Estreito</option>
-        <option value="1.5">Normal</option>
-        <option value="1.8">Largo</option>
-      </select>
+      <span class="fmt-group">
+        <label for="fmtLineHeight">Espaçamento entre linhas (todo o laudo)</label>
+        <select id="fmtLineHeight" title="Espaçamento entre linhas (todo o laudo)">
+          <option value="1">Mínimo</option>
+          <option value="1.15" selected>Compacto</option>
+          <option value="1.35">Estreito</option>
+          <option value="1.5">Normal</option>
+          <option value="1.8">Largo</option>
+        </select>
+      </span>
       <span class="fmt-sep"></span>
-      <label for="fmtIdCardGap">Espaço acima do título</label>
-      <select id="fmtIdCardGap" title="Espaço acima do título">
-        <option value="default" selected>Padrão</option>
-        <option value="1">Mínimo</option>
-        <option value="1.15">Compacto</option>
-        <option value="1.35">Estreito</option>
-        <option value="1.5">Normal</option>
-        <option value="1.8">Largo</option>
-      </select>
+      <span class="fmt-group">
+        <label for="fmtIdCardGap">Espaço só acima do título</label>
+        <select id="fmtIdCardGap" title="Espaço só acima do título">
+          <option value="default" selected>Padrão</option>
+          <option value="1">Bem pequeno</option>
+          <option value="1.15">Pequeno</option>
+          <option value="1.35">Médio-pequeno</option>
+          <option value="1.5">Médio</option>
+          <option value="1.8">Grande</option>
+        </select>
+      </span>
       <span class="fmt-sep"></span>
-      <label for="fmtFontSize">Tamanho da fonte</label>
-      <select id="fmtFontSize" title="Tamanho da fonte">
-        <option value="10.5">10,5 pt</option>
-        <option value="11">11 pt</option>
-        <option value="11.5">11,5 pt</option>
-        <option value="12" selected>12 pt (padrão)</option>
-        <option value="12.5">12,5 pt</option>
-        <option value="13">13 pt</option>
-        <option value="14">14 pt</option>
-        <option value="15">15 pt</option>
-        <option value="16">16 pt</option>
-        <option value="17">17 pt</option>
-        <option value="18">18 pt</option>
-      </select>
+      <span class="fmt-group">
+        <label for="fmtFontSize">Tamanho da fonte</label>
+        <select id="fmtFontSize" title="Tamanho da fonte">
+          <option value="10.5">10,5 pt</option>
+          <option value="11">11 pt</option>
+          <option value="11.5">11,5 pt</option>
+          <option value="12" selected>12 pt (padrão)</option>
+          <option value="12.5">12,5 pt</option>
+          <option value="13">13 pt</option>
+          <option value="14">14 pt</option>
+          <option value="15">15 pt</option>
+          <option value="16">16 pt</option>
+          <option value="17">17 pt</option>
+          <option value="18">18 pt</option>
+        </select>
+      </span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
