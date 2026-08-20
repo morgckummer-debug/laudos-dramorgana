@@ -361,7 +361,7 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Cronologia calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option></select>
+            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="exame">1ª Ecografia</option></select>
           </div>
         </div>
         <div class="field-row conditional" id="wrap_usgDatacao">
@@ -369,6 +369,7 @@
           <div class="field"><label>IG no 1º ultrassom — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
           <div class="field"><label>IG no 1º ultrassom — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
         </div>
+        <p class="conditional" id="wrap_exameInfo" style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">Sem DUM nem ultrassom anterior: a idade gestacional usada será a informada em <strong>"Idade gestacional pela USG"</strong>, mais abaixo em Impressões diagnósticas.</p>
         <div class="field-row">
           <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
           <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
@@ -456,13 +457,13 @@
           </div>
         </div>
         <div class="field-row">
-          <div class="field"><label>DPP (data provável do parto)</label><input type="text" id="dpp" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+          <div class="field"><label>DPP (data provável do parto)</label><input type="text" id="dpp" placeholder="calculada automaticamente" readonly></div>
         </div>
         <hr class="sep">
         <div class="toggle-line"><input type="checkbox" id="chkRecomendacao" checked><label for="chkRecomendacao">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
         <div class="field-row conditional" id="wrap_recomendacao">
-          <div class="field"><label>Período recomendado — início</label><input type="text" id="dataInicioMorfo" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>Período recomendado — fim</label><input type="text" id="dataFimMorfo" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+          <div class="field"><label>Período recomendado — início</label><input type="text" id="dataInicioMorfo" placeholder="calculada automaticamente" readonly></div>
+          <div class="field"><label>Período recomendado — fim</label><input type="text" id="dataFimMorfo" placeholder="calculada automaticamente" readonly></div>
         </div>
         <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
@@ -911,7 +912,7 @@
     impDPP: 'DPP: {DATA}.',
     impBexigaAlterada: 'Alteração vesical: {DESCRICAO}.',
     impAnexosAlterados: 'Achado em região anexial: {DESCRICAO}.',
-    recomendacaoMorfologico: 'Sugere-se a realização do Morfológico do 1º Trimestre para rastreamento de cromossomopatias e malformações fetais entre {DATA_INICIO} e {DATA_FIM}.',
+    recomendacaoMorfologico: 'Sugere-se a realização do Morfológico do 1º Trimestre para rastreamento de aneuploidias e pré-eclâmpsia entre {DATA_INICIO} a {DATA_FIM}.',
 
     footerImagens: 'Imagens em anexo.'
   };
@@ -1053,8 +1054,12 @@
   $('anexosAspecto').addEventListener('change', e=> toggle('wrap_anexosDescricao', e.target.value==='alterado'));
   $('chkRecomendacao').addEventListener('change', e=> toggle('wrap_recomendacao', e.target.checked));
   toggle('wrap_recomendacao', $('chkRecomendacao').checked);
-  $('cronologiaMetodo').addEventListener('change', e=> toggle('wrap_usgDatacao', e.target.value==='usg'));
+  $('cronologiaMetodo').addEventListener('change', e=>{
+    toggle('wrap_usgDatacao', e.target.value==='usg');
+    toggle('wrap_exameInfo', e.target.value==='exame');
+  });
   toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
+  toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame');
 
   function updateGestacaoWrap(){
     toggle('wrap_corionicidade', $('numeroEmbrioes').value !== '1');
@@ -1074,7 +1079,7 @@
       +'<div class="card-head"><h2><span class="saco-label"></span></h2></div>'
       +'<div class="card-body">'
       +'<div class="field-row">'
-      +'<div class="field"><label>Inserção do saco gestacional</label><select id="saco'+uid+'Insercao"><option value="fúndica">Fúndica</option><option value="corporal anterior">Corporal anterior</option><option value="corporal posterior">Corporal posterior</option><option value="ístmica">Ístmica</option></select></div>'
+      +'<div class="field"><label>Inserção do saco gestacional</label><select id="saco'+uid+'Insercao"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option><option value="ístmica">Ístmica</option></select></div>'
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Diâmetro médio do saco gestacional — DMSG (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'DMSG" placeholder="mm"></div>'
@@ -1085,7 +1090,7 @@
       +'<div class="field"><label>Vitalidade</label><select id="saco'+uid+'Vitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>'
       +'</div>'
       +'<div class="field-row conditional" id="wrap_saco'+uid+'FC">'
-      +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" id="saco'+uid+'FC" placeholder="bpm"></div>'
+      +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" maxlength="3" id="saco'+uid+'FC" placeholder="bpm"></div>'
       +'</div>'
       +'<button type="button" class="saco-remove" data-uid="'+uid+'">Remover</button>'
       +'</div>'
@@ -1112,6 +1117,7 @@
   }
   function wireSacoCard(uid){
     const el = $('wrap_saco'+uid);
+    wireDigitsOnlyInput('saco'+uid+'FC', 3);
     el.querySelectorAll('input, select, textarea').forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
@@ -1169,10 +1175,27 @@
       try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
     });
   }
-  ['dataExame','dum','usgDataDatacao','dpp','dataInicioMorfo','dataFimMorfo'].forEach(wireDateMask);
+  ['dataExame','dum','usgDataDatacao'].forEach(wireDateMask);
 
-  // ---------- Cronologia: auto-computed IG at exam date, from DUM or from a
-  // dating ultrasound (IG informed on that exam + days elapsed since then). ----------
+  // ---------- Digits-only input, capped at a fixed length (e.g. FC in bpm: max 3 digits) ----------
+  function wireDigitsOnlyInput(id, maxLen){
+    const el = $(id);
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      const digits = el.value.replace(/\D/g, '').slice(0, maxLen);
+      if(digits !== el.value) el.value = digits;
+    });
+  }
+
+  // ---------- Cronologia / DPP / período do morfológico: all derived from a
+  // single "data base" (equivalente à DUM) — a data em que a gestação
+  // começaria a contar zero, deduzida conforme o método escolhido:
+  //   - DUM: a própria DUM informada.
+  //   - 1º Ultrassom: data do ultrassom menos a IG constatada nele.
+  //   - 1ª Ecografia (sem DUM nem ultrassom anterior): data do exame atual
+  //     menos a IG informada em "Idade gestacional pela USG" (impSemanas/impDias).
+  // A partir dessa data base, tudo é aritmética de dias. ----------
+  const MS_DIA = 24*60*60*1000;
   function parseDateBR(str){
     const m = (str||'').trim().match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);
     if(!m) return null;
@@ -1182,30 +1205,46 @@
     if(dt.getFullYear()!==y || dt.getMonth()!==mo-1 || dt.getDate()!==d) return null;
     return dt;
   }
+  function addDays(date, days){ return new Date(date.getTime() + days*MS_DIA); }
+  function formatDateBR(date){
+    const pad = n => String(n).padStart(2,'0');
+    return pad(date.getDate())+'.'+pad(date.getMonth()+1)+'.'+date.getFullYear();
+  }
   function formatIG(totalDays){
     const semanas = Math.floor(totalDays/7);
     const dias = totalDays % 7;
     const semanasTxt = semanas + (semanas===1 ? ' semana' : ' semanas');
     return dias>0 ? (semanasTxt+' e '+dias+(dias===1?' dia':' dias')) : semanasTxt;
   }
-  function computeCronologia(metodo, dataExameStr){
-    const dataExameDt = parseDateBR(dataExameStr);
-    if(!dataExameDt) return '';
-    const MS = 24*60*60*1000;
-    let totalDays = null;
+  function computeDataBase(metodo){
+    if(metodo === 'exame'){
+      const dataExameDt = parseDateBR(v('dataExame'));
+      const semanas = parseInt(v('impSemanas'), 10);
+      const dias = parseInt(v('impDias'), 10);
+      if(!dataExameDt || isNaN(semanas)) return null;
+      return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
+    }
     if(metodo === 'usg'){
       const usgDt = parseDateBR(v('usgDataDatacao'));
       const semanas = parseInt(v('usgSemanasDatacao'), 10);
       const dias = parseInt(v('usgDiasDatacao'), 10);
-      if(usgDt && !isNaN(semanas)){
-        const igNoUsg = semanas*7 + (isNaN(dias) ? 0 : dias);
-        totalDays = igNoUsg + Math.round((dataExameDt - usgDt)/MS);
-      }
-    } else {
-      const dumDt = parseDateBR(v('dum'));
-      if(dumDt) totalDays = Math.round((dataExameDt - dumDt)/MS);
+      if(!usgDt || isNaN(semanas)) return null;
+      return addDays(usgDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
     }
-    return (totalDays !== null && totalDays >= 0) ? formatIG(totalDays) : '';
+    return parseDateBR(v('dum'));
+  }
+  function computeCronologia(dataBase, dataExameStr){
+    const dataExameDt = parseDateBR(dataExameStr);
+    if(!dataBase || !dataExameDt) return '';
+    const totalDays = Math.round((dataExameDt - dataBase)/MS_DIA);
+    return totalDays >= 0 ? formatIG(totalDays) : '';
+  }
+  function computeDPP(dataBase){
+    return dataBase ? formatDateBR(addDays(dataBase, 280)) : '';
+  }
+  function computeMorfoPeriodo(dataBase){
+    if(!dataBase) return {inicio:'', fim:''};
+    return { inicio: formatDateBR(addDays(dataBase, 84)), fim: formatDateBR(addDays(dataBase, 97)) };
   }
   function blankOrValue(val, suffix){
     if(val === '' || val === null || val === undefined) return {text:'____', filled:false};
@@ -1365,11 +1404,13 @@
     const dataExame = v('dataExame');
     const medicoSolicitante = v('medicoSolicitante');
     const dum = v('dum');
-    const cronologiaMetodo = v('cronologiaMetodo')==='usg' ? 'usg' : 'dum';
+    const cronologiaMetodoRaw = v('cronologiaMetodo');
+    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame') ? cronologiaMetodoRaw : 'dum';
     reqIf('usgDataDatacao', cronologiaMetodo==='usg');
     reqIf('usgSemanasDatacao', cronologiaMetodo==='usg');
     reqIf('usgDiasDatacao', cronologiaMetodo==='usg');
-    const cronologia = computeCronologia(cronologiaMetodo, dataExame);
+    const dataBase = computeDataBase(cronologiaMetodo);
+    const cronologia = computeCronologia(dataBase, dataExame);
     const cronologiaEl = $('cronologia');
     if(cronologiaEl) cronologiaEl.value = cronologia;
     const gpaG = v('gpaG');
@@ -1408,11 +1449,15 @@
     const impSemanas = req('impSemanas');
     const impDias = req('impDias');
     const dumConcordancia = v('dumConcordancia')==='discordante' ? 'discordante' : 'concordante';
-    const dpp = req('dpp');
+    const dpp = computeDPP(dataBase);
+    $('dpp').value = dpp;
 
     const chkRecomendacao = $('chkRecomendacao').checked;
-    const dataInicioMorfo = blankOrValue(reqIf('dataInicioMorfo', chkRecomendacao));
-    const dataFimMorfo = blankOrValue(reqIf('dataFimMorfo', chkRecomendacao));
+    const morfoPeriodo = computeMorfoPeriodo(dataBase);
+    $('dataInicioMorfo').value = morfoPeriodo.inicio;
+    $('dataFimMorfo').value = morfoPeriodo.fim;
+    const dataInicioMorfo = blankOrValue(morfoPeriodo.inicio);
+    const dataFimMorfo = blankOrValue(morfoPeriodo.fim);
 
     // ----- Impressão -----
     const state = {
