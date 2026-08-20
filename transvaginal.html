@@ -180,6 +180,15 @@
     text-align:center;text-decoration:underline;font-size:16pt;letter-spacing:.5px;
     margin:0 0 24px;font-weight:700;
   }
+  /* Dar Enter no COMEÇO do título (a forma intuitiva de "empurrar o título
+     para baixo") deixava um <br> solto na frente do texto — uma linha vazia
+     com a altura da fonte do título, 16pt. Esse espaço não é margin, então
+     o seletor "Espaço acima do título" não conseguia encolhê-lo, e a
+     impressão era de que o controle não funcionava. Anulando a linha vazia
+     inicial, o seletor volta a ser o único responsável por esse espaço — e
+     passa a mandar nele de verdade. Um <br> no MEIO do título (para quebrá-lo
+     em duas linhas de propósito) não é afetado, só o do começo. */
+  .paper h3.doctitle > br:first-child{display:none;}
   .paper .relato{color:#C0392B;font-weight:700;margin:0 0 12px;}
   .paper h4.sec{
     text-decoration:underline;font-size:13px;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
@@ -845,13 +854,16 @@
       <span class="fmt-sep"></span>
       <span class="fmt-group">
         <label for="fmtIdCardGap">Espaço só acima do título</label>
-        <select id="fmtIdCardGap" title="Espaço só acima do título">
-          <option value="default" selected>Padrão</option>
-          <option value="1">Bem pequeno</option>
-          <option value="1.15">Pequeno</option>
-          <option value="1.35">Médio-pequeno</option>
-          <option value="1.5">Médio</option>
-          <option value="1.8">Grande</option>
+        <select id="fmtIdCardGap" title="Espaço só acima do título (não mexe no resto do laudo)">
+          <option value="0">Nenhum</option>
+          <option value="1">1 mm</option>
+          <option value="2">2 mm</option>
+          <option value="3">3 mm</option>
+          <option value="default" selected>5 mm (padrão)</option>
+          <option value="8">8 mm</option>
+          <option value="12">12 mm</option>
+          <option value="16">16 mm</option>
+          <option value="20">20 mm</option>
         </select>
       </span>
       <span class="fmt-sep"></span>
@@ -873,7 +885,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.20-a</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.20-b</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -1138,7 +1150,10 @@
     // inteiro E salvando aquele valor como padrão global — exatamente o bug
     // relatado. Este controle nunca afeta os parágrafos do corpo.
     const idCardGapSel = $('fmtIdCardGap');
-    const IDCARD_GAP_MARGIN = {'default':'20px', '1':'1mm', '1.15':'2mm', '1.35':'3mm', '1.5':'4mm', '1.8':'6mm'};
+    // Valores explícitos em mm: o alcance vai de zero até bem folgado, para
+    // este seletor dar conta sozinho tanto de reduzir quanto de aumentar o
+    // espaço acima do título — sem ninguém precisar recorrer ao Enter.
+    const IDCARD_GAP_MARGIN = {'default':'20px', '0':'0mm', '1':'1mm', '2':'2mm', '3':'3mm', '8':'8mm', '12':'12mm', '16':'16mm', '20':'20mm'};
     idCardGapSel.addEventListener('change', ()=>{
       const val = idCardGapSel.value;
       if(val === 'default'){
