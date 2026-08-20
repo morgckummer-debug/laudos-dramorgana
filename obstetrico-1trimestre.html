@@ -315,6 +315,7 @@
   <hr class="sep">
   <h3>Saco gestacional e biometria</h3>
   <div class="field" style="margin-bottom:8px;"><label>Saco gestacional — use {INSERCAO}</label><textarea id="ph_sacoGestacional" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>ISG pequeno — use {ISG}</label><textarea id="ph_isgPequeno" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Frequência cardíaca fetal — use {FC}</label><textarea id="ph_fcf" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ausência de batimentos cardíacos</label><textarea id="ph_fcfAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
@@ -903,6 +904,7 @@
     anexosNormais: 'Regiões anexiais sem alterações.',
 
     sacoGestacional: 'Saco gestacional identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos regulares e reação decidual habitual.',
+    isgPequeno: 'Índice do saco gestacional (ISG): {ISG} mm (VR > 5 mm).',
     fcf: 'Frequência cardíaca fetal (FCF): {FC} bpm.',
     fcfAusente: 'Ausência de batimentos cardíacos identificados ao exame.',
     embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
@@ -1095,6 +1097,7 @@
       +'<div class="field-row conditional" id="wrap_saco'+uid+'FC">'
       +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" maxlength="3" id="saco'+uid+'FC" placeholder="bpm"></div>'
       +'</div>'
+      +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'ISG"><label for="saco'+uid+'ISG">ISG pequeno (índice do saco gestacional)</label></div>'
       +'<button type="button" class="saco-remove" data-uid="'+uid+'">Remover</button>'
       +'</div>'
       +'</div>';
@@ -1435,7 +1438,14 @@
       const ccn = blankOrValue(req('saco'+uid+'CCN'));
       const vitalidade = v('saco'+uid+'Vitalidade');
       const fc = blankOrValue(reqIf('saco'+uid+'FC', vitalidade==='presente'));
-      return {uid, label, insercao, dmsg, vv, ccn, vitalidade, fc};
+      const isgCheckEl = $('saco'+uid+'ISG');
+      const isgPequeno = isgCheckEl ? isgCheckEl.checked : false;
+      const dmsgNum = num('saco'+uid+'DMSG');
+      const ccnNum = num('saco'+uid+'CCN');
+      const isgValor = (isgPequeno && dmsgNum!==null && ccnNum!==null)
+        ? String(Math.round((dmsgNum-ccnNum)*10)/10).replace('.', ',')
+        : '';
+      return {uid, label, insercao, dmsg, vv, ccn, vitalidade, fc, isgPequeno, isgValor};
     });
     const algumObito = sacos.some(s=> s.vitalidade==='ausente');
 
@@ -1502,6 +1512,9 @@
         +'<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
         +'<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>'
         +'</table>';
+      if(s.isgPequeno){
+        html += '<p class="linha tight">'+phraseRaw('isgPequeno', {ISG: span(blankOrValue(s.isgValor))})+'</p>';
+      }
       html += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('fcfAusente') : phraseRaw('fcf', {FC: span(s.fc)}))+'</p>';
       html += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('embriaoObito') : phrase('embriaoNormal'))+'</p>';
     });
