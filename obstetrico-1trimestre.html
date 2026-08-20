@@ -1933,6 +1933,7 @@
     paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
     const originalHTML = paperEl.innerHTML;
     const originalLineHeight = paperEl.style.lineHeight;
+    const originalFontSize = paperEl.style.fontSize;
 
     const ref = document.createElement('div');
     ref.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:0;width:0;height:24.2cm;';
@@ -1942,12 +1943,12 @@
     const SAFETY_PX = 38;
     const packBudgetPx = pageHeightPx - SAFETY_PX;
 
-    function packAtLineHeight(lineHeight){
+    function packAtLineHeight(lineHeight, fontSize){
       const measure = document.createElement('div');
       measure.className = 'paper';
       measure.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;width:17cm;max-height:none;overflow:visible;background:none;border:none;box-shadow:none;padding:0;margin:0;';
       measure.style.lineHeight = lineHeight;
-      if(paperEl.style.fontSize) measure.style.fontSize = paperEl.style.fontSize;
+      measure.style.fontSize = fontSize;
       measure.innerHTML = originalHTML;
       document.body.appendChild(measure);
 
@@ -1997,22 +1998,48 @@
       return {pages, continuaHtml, continuaHeight};
     }
 
+    // Try the user's chosen font-size/line-height first; only if that spills
+    // past one page does auto-fit kick in, first nudging the line-height down
+    // in small steps (never below 1.0), then — if that alone isn't enough —
+    // also stepping the font-size down in 0.5pt increments (never below
+    // 11pt), sweeping line-height again at each size. A report that's
+    // genuinely long still fails every combination and falls back to normal
+    // multi-page pagination at the original size/spacing — auto-fit never
+    // sacrifices readability below 11pt to hide real overflow, only to
+    // reclaim the sliver of space a pinned signature needs.
     const baseLineHeight = parseFloat(paperEl.style.lineHeight) || 1.15;
+    const baseFontSize = parseFloat(paperEl.style.fontSize) || 12;
     const MIN_LINE_HEIGHT = 1.0;
     const LINE_HEIGHT_STEP = 0.03;
-    let packed = packAtLineHeight(baseLineHeight);
-    let usedLineHeight = baseLineHeight;
-    if(packed.pages.length > 1){
-      for(let lh = baseLineHeight - LINE_HEIGHT_STEP; lh >= MIN_LINE_HEIGHT - 1e-9; lh -= LINE_HEIGHT_STEP){
-        const attempt = packAtLineHeight(lh);
-        if(attempt.pages.length === 1){
-          packed = attempt;
-          usedLineHeight = lh;
-          break;
-        }
+    const MIN_FONT_SIZE = 11;
+    const FONT_SIZE_STEP = 0.5;
+
+    // Sweeps line-height from the base value down to MIN_LINE_HEIGHT at a
+    // fixed font-size; returns the first single-page pack found, or null.
+    function fitAtFontSize(fontSize){
+      for(let lh = baseLineHeight; lh >= MIN_LINE_HEIGHT - 1e-9; lh -= LINE_HEIGHT_STEP){
+        const attempt = packAtLineHeight(lh, fontSize + 'pt');
+        if(attempt.pages.length === 1) return {packed: attempt, lineHeight: lh, fontSize};
       }
+      return null;
+    }
+
+    let fit = fitAtFontSize(baseFontSize);
+    for(let fs = baseFontSize - FONT_SIZE_STEP; !fit && fs >= MIN_FONT_SIZE - 1e-9; fs -= FONT_SIZE_STEP){
+      fit = fitAtFontSize(fs);
+    }
+    let packed, usedLineHeight, usedFontSize;
+    if(fit){
+      packed = fit.packed;
+      usedLineHeight = fit.lineHeight;
+      usedFontSize = fit.fontSize;
+    } else {
+      packed = packAtLineHeight(baseLineHeight, baseFontSize + 'pt');
+      usedLineHeight = baseLineHeight;
+      usedFontSize = baseFontSize;
     }
     if(usedLineHeight !== baseLineHeight) paperEl.style.lineHeight = usedLineHeight;
+    if(usedFontSize !== baseFontSize) paperEl.style.fontSize = usedFontSize + 'pt';
 
     const {pages, continuaHtml, continuaHeight} = packed;
 
@@ -2041,12 +2068,10 @@
       const pinnedHtml = isLast ? (pinned ? pinned.html : '') : continuaHtml;
       const pinnedHeight = isLast ? (pinned ? (pinned.bottom - pinned.top) : 0) : continuaHeight;
       if(pinnedHtml){
-        if(!isLast){
-          const spacerPx = Math.max(0, packBudgetPx - contentHeight - pinnedHeight);
-          const spacer = document.createElement('div');
-          spacer.style.height = spacerPx + 'px';
-          pageEl.appendChild(spacer);
-        }
+        const spacerPx = Math.max(0, packBudgetPx - contentHeight - pinnedHeight);
+        const spacer = document.createElement('div');
+        spacer.style.height = spacerPx + 'px';
+        pageEl.appendChild(spacer);
         pageEl.insertAdjacentHTML('beforeend', pinnedHtml);
       }
       wrap.appendChild(pageEl);
@@ -2056,6 +2081,7 @@
     return function restore(){
       paperEl.innerHTML = originalHTML;
       paperEl.style.lineHeight = originalLineHeight;
+      paperEl.style.fontSize = originalFontSize;
       updatePagePreview();
     };
   }
