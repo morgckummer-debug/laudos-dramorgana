@@ -176,6 +176,9 @@
   .paper p.linha{margin:0 0 16px;}
   .paper p.linha strong{font-weight:700;}
   .paper p.linha.tight{margin-bottom:2px;}
+  .paper table.biometria{border-collapse:collapse;margin:0 0 12px;}
+  .paper table.biometria td{border:none;padding:0 20px 2px 0;vertical-align:top;}
+  .paper table.biometria td:first-child{white-space:nowrap;}
   .paper p.recomendacao{text-align:center;font-style:italic;margin:16px 0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
@@ -248,7 +251,7 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
+    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -312,6 +315,8 @@
   <hr class="sep">
   <h3>Saco gestacional e biometria</h3>
   <div class="field" style="margin-bottom:8px;"><label>Saco gestacional — use {INSERCAO}</label><textarea id="ph_sacoGestacional" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>ISG pequeno — use {ISG}</label><textarea id="ph_isgPequeno" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — use {LOCAL}, {FACE} e {MEDIDA}</label><textarea id="ph_hematoma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Frequência cardíaca fetal — use {FC}</label><textarea id="ph_fcf" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ausência de batimentos cardíacos</label><textarea id="ph_fcfAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
@@ -324,6 +329,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Óbito embrionário — impressão</label><textarea id="ph_impObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DPP — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>ISG reduzido — impressão</label><textarea id="ph_impIsgReduzido" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — impressão</label><textarea id="ph_impHematoma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Bexiga alterada — use {DESCRICAO}</label><textarea id="ph_impBexigaAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Anexos alterados — use {DESCRICAO}</label><textarea id="ph_impAnexosAlterados" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Recomendação de morfológico de 1º trimestre — use {DATA_INICIO} e {DATA_FIM}</label><textarea id="ph_recomendacaoMorfologico" rows="2"></textarea></div>
@@ -900,6 +907,8 @@
     anexosNormais: 'Regiões anexiais sem alterações.',
 
     sacoGestacional: 'Saco gestacional identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos regulares e reação decidual habitual.',
+    isgPequeno: 'Índice do saco gestacional (ISG): {ISG} mm (VR > 5 mm).',
+    hematoma: 'Presença de hematoma subcoriônico, de localização {LOCAL}, face {FACE}, medindo {MEDIDA} mm.',
     fcf: 'Frequência cardíaca fetal (FCF): {FC} bpm.',
     fcfAusente: 'Ausência de batimentos cardíacos identificados ao exame.',
     embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
@@ -910,6 +919,8 @@
     impBoaEvolucao: 'Boa evolução até o momento.',
     impObito: 'Ausência de batimentos cardíacos — sugestivo de óbito embrionário. Recomenda-se correlação clínica e reavaliação.',
     impDPP: 'DPP: {DATA}.',
+    impIsgReduzido: 'Saco gestacional de dimensões reduzidas.',
+    impHematoma: 'Hematoma subcoriônico - acompanhar.',
     impBexigaAlterada: 'Alteração vesical: {DESCRICAO}.',
     impAnexosAlterados: 'Achado em região anexial: {DESCRICAO}.',
     recomendacaoMorfologico: 'Sugere-se a realização do Morfológico do 1º Trimestre para rastreamento de aneuploidias e pré-eclâmpsia entre {DATA_INICIO} a {DATA_FIM}.',
@@ -1092,12 +1103,20 @@
       +'<div class="field-row conditional" id="wrap_saco'+uid+'FC">'
       +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" maxlength="3" id="saco'+uid+'FC" placeholder="bpm"></div>'
       +'</div>'
+      +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'ISG"><label for="saco'+uid+'ISG">ISG pequeno (índice do saco gestacional)</label></div>'
+      +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'Hematoma"><label for="saco'+uid+'Hematoma">Hematoma subcoriônico</label></div>'
+      +'<div class="field-row conditional" id="wrap_saco'+uid+'HematomaCampos">'
+      +'<div class="field"><label>Localização</label><select id="saco'+uid+'HematomaLocal"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option><option value="próximo ao colo uterino">Próximo ao colo uterino</option></select></div>'
+      +'<div class="field"><label>Face</label><select id="saco'+uid+'HematomaFace"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select></div>'
+      +'<div class="field"><label>Medida (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'HematomaMedida" placeholder="mm"></div>'
+      +'</div>'
       +'<button type="button" class="saco-remove" data-uid="'+uid+'">Remover</button>'
       +'</div>'
       +'</div>';
   }
   function updateSacoWraps(uid){
     toggle('wrap_saco'+uid+'FC', $('saco'+uid+'Vitalidade').value==='presente');
+    toggle('wrap_saco'+uid+'HematomaCampos', $('saco'+uid+'Hematoma').checked);
   }
   function sacoLabel(idx, total){
     if(total<=1) return 'Saco gestacional / embrião';
@@ -1124,6 +1143,7 @@
     });
     wireDecimalInputs();
     $('saco'+uid+'Vitalidade').addEventListener('change', ()=> updateSacoWraps(uid));
+    $('saco'+uid+'Hematoma').addEventListener('change', ()=> updateSacoWraps(uid));
     updateSacoWraps(uid);
     el.querySelector('.saco-remove').addEventListener('click', ()=>{
       el.remove();
@@ -1276,6 +1296,13 @@
 
     items.push({key:'evolucao', label: state.algumObito ? phraseRaw('impObito') : phraseRaw('impBoaEvolucao'), auto:true});
     items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
+
+    if(state.algumIsgReduzido){
+      items.push({key:'isg-reduzido', label:phraseRaw('impIsgReduzido'), auto:true});
+    }
+    if(state.algumHematoma){
+      items.push({key:'hematoma', label:phraseRaw('impHematoma'), auto:true});
+    }
 
     if(state.bexigaAspecto==='alterado' && state.bexigaDescricao){
       items.push({key:'bexiga-alterada', label:phraseRaw('impBexigaAlterada', {DESCRICAO:state.bexigaDescricao}), auto:true});
@@ -1432,7 +1459,18 @@
       const ccn = blankOrValue(req('saco'+uid+'CCN'));
       const vitalidade = v('saco'+uid+'Vitalidade');
       const fc = blankOrValue(reqIf('saco'+uid+'FC', vitalidade==='presente'));
-      return {uid, label, insercao, dmsg, vv, ccn, vitalidade, fc};
+      const isgCheckEl = $('saco'+uid+'ISG');
+      const isgPequeno = isgCheckEl ? isgCheckEl.checked : false;
+      const dmsgNum = num('saco'+uid+'DMSG');
+      const ccnNum = num('saco'+uid+'CCN');
+      const isgNum = (isgPequeno && dmsgNum!==null && ccnNum!==null) ? Math.round((dmsgNum-ccnNum)*10)/10 : null;
+      const isgValor = isgNum !== null ? String(isgNum).replace('.', ',') : '';
+      const hematomaCheckEl = $('saco'+uid+'Hematoma');
+      const hematoma = hematomaCheckEl ? hematomaCheckEl.checked : false;
+      const hematomaLocal = v('saco'+uid+'HematomaLocal');
+      const hematomaFace = v('saco'+uid+'HematomaFace');
+      const hematomaMedida = blankOrValue(reqIf('saco'+uid+'HematomaMedida', hematoma));
+      return {uid, label, insercao, dmsg, vv, ccn, vitalidade, fc, isgPequeno, isgValor, isgNum, hematoma, hematomaLocal, hematomaFace, hematomaMedida};
     });
     const algumObito = sacos.some(s=> s.vitalidade==='ausente');
 
@@ -1460,9 +1498,11 @@
     const dataFimMorfo = blankOrValue(morfoPeriodo.fim);
 
     // ----- Impressão -----
+    const algumHematoma = sacos.some(s=> s.hematoma);
+    const algumIsgReduzido = sacos.some(s=> s.isgNum !== null && s.isgNum < 5);
     const state = {
       isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', concordancia: dumConcordancia,
-      algumObito, dpp,
+      algumObito, dpp, algumHematoma, algumIsgReduzido,
       bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao
     };
     const impressaoItems = buildImpressao(state);
@@ -1494,9 +1534,17 @@
       }
       html += '<p class="linha">'+phraseRaw('sacoGestacional', {INSERCAO: s.insercao})+'</p>';
       html += '<p class="linha tight"><strong>Parâmetros biométricos:</strong></p>';
-      html += '<p class="linha tight">Diâmetro médio do saco gestacional (DMSG): '+span(s.dmsg)+' mm.</p>';
-      html += '<p class="linha tight">Vesícula vitelínica (VV): '+span(s.vv)+' mm.</p>';
-      html += '<p class="linha tight">Comprimento cabeça-nádega (CCN): '+span(s.ccn)+' mm.</p>';
+      html += '<table class="biometria">'
+        +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
+        +'<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
+        +'<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>'
+        +'</table>';
+      if(s.isgPequeno){
+        html += '<p class="linha tight">'+phraseRaw('isgPequeno', {ISG: span(blankOrValue(s.isgValor))})+'</p>';
+      }
+      if(s.hematoma){
+        html += '<p class="linha tight">'+phraseRaw('hematoma', {LOCAL: s.hematomaLocal, FACE: s.hematomaFace, MEDIDA: span(s.hematomaMedida)})+'</p>';
+      }
       html += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('fcfAusente') : phraseRaw('fcf', {FC: span(s.fc)}))+'</p>';
       html += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('embriaoObito') : phrase('embriaoNormal'))+'</p>';
     });
@@ -1796,7 +1844,7 @@
         + '</head><body>' + html + '</body></html>';
       const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
       const paciente = sanitizeFilenamePart(v('nomePaciente')) || 'Laudo';
-      await saveBlobAs(blob, paciente+' - Obstetrico 1o Trimestre.doc');
+      await saveBlobAs(blob, paciente+' - Obstétrico do 1º trimestre.doc');
     }catch(e){
       alert('Não foi possível baixar o arquivo Word neste navegador.');
     }
