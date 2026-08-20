@@ -328,7 +328,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia pela DUM) — use {CORIONICIDADE}, {SEMANAS}, {DIAS} e {CONCORDANCIA}</label><textarea id="ph_impGestacaoGemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia por ultrassom/ecografia) — use {CORIONICIDADE}, {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoGemelarSemDum" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Óbito embrionário — impressão</label><textarea id="ph_impObito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Perda gestacional — use {TIPO}, {SEMANAS} e {DIAS}</label><textarea id="ph_impObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DPP — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG reduzido — impressão</label><textarea id="ph_impIsgReduzido" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — impressão</label><textarea id="ph_impHematoma" rows="2"></textarea></div>
@@ -466,6 +466,11 @@
         </div>
         <div class="field-row">
           <div class="field"><label>DPP (data provável do parto)</label><input type="text" id="dpp" placeholder="calculada automaticamente" readonly></div>
+        </div>
+        <div class="field-row conditional" id="wrap_tipoPerda">
+          <div class="field"><label>Tipo de perda gestacional</label>
+            <select id="tipoPerda"><option value="precoce">Precoce</option><option value="tardia">Tardia</option><option value="completa">Completa</option><option value="incompleta">Incompleta</option></select>
+          </div>
         </div>
         <hr class="sep">
         <div class="toggle-line"><input type="checkbox" id="chkRecomendacao" checked><label for="chkRecomendacao">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
@@ -919,7 +924,7 @@
     impGestacaoGemelar: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias (DUM {CONCORDANCIA}).',
     impGestacaoGemelarSemDum: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias.',
     impBoaEvolucao: 'Boa evolução até o momento.',
-    impObito: 'Ausência de batimentos cardíacos — sugestivo de óbito embrionário. Recomenda-se correlação clínica e reavaliação.',
+    impObito: 'Perda gestacional {TIPO}, compatível com {SEMANAS} semanas e {DIAS} dias.',
     impDPP: 'DPP: {DATA}.',
     impIsgReduzido: 'Saco gestacional de dimensões reduzidas.',
     impHematoma: 'Hematoma subcoriônico - acompanhar.',
@@ -1305,7 +1310,7 @@
 
     const suprimirBoaEvolucao = state.algumIsgReduzido || state.algumHematoma;
     if(state.algumObito){
-      items.push({key:'evolucao', label:phraseRaw('impObito'), auto:true});
+      items.push({key:'evolucao', label:phraseRaw('impObito', {TIPO:state.tipoPerda, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
     } else if(!suprimirBoaEvolucao){
       items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
     }
@@ -1489,6 +1494,8 @@
       return {uid, label, insercao, dmsg, vv, ccn, vitalidade, fc, isgPequeno, isgValor, isgNum, hematoma, hematomaLocal, hematomaFace, hematomaMedida};
     });
     const algumObito = sacos.some(s=> s.vitalidade==='ausente');
+    toggle('wrap_tipoPerda', algumObito);
+    const tipoPerda = v('tipoPerda');
 
     const bexigaAspecto = v('bexigaAspecto');
     const bexigaDescricao = vNoDot('bexigaDescricao');
@@ -1518,7 +1525,7 @@
     const algumIsgReduzido = sacos.some(s=> s.isgNum !== null && s.isgNum < 5);
     const state = {
       isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', concordancia: dumConcordancia,
-      algumObito, dpp, algumHematoma, algumIsgReduzido, cronologiaMetodo,
+      algumObito, dpp, algumHematoma, algumIsgReduzido, cronologiaMetodo, tipoPerda,
       bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao
     };
     const impressaoItems = buildImpressao(state);
@@ -1554,7 +1561,9 @@
         +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
         +'<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
         +'<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>'
-        +(s.vitalidade==='ausente' ? '' : '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(s.fc)+' bpm</td></tr>')
+        +(s.vitalidade==='ausente'
+          ? '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">Ausente</span></td></tr>'
+          : '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(s.fc)+' bpm</td></tr>')
         +'</table>';
       if(s.isgPequeno){
         html += '<p class="linha tight">'+phraseRaw('isgPequeno', {ISG: span(blankOrValue(s.isgValor))})+'</p>';
