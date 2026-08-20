@@ -582,6 +582,14 @@
   };
 
   let titleFontSize = null;
+
+  // Gap between the identification header (.id-card) and the title right
+  // below it: a single element's margin-bottom, not one of the p.linha
+  // paragraphs the line-height <select> normally scopes to — tracked
+  // separately so selecting the header or the title and picking a spacing
+  // affects only that gap, the same way titleFontSize scopes to the title.
+  let idCardGapMargin = null;
+
   let impressaoOverrides = {};
 
   // ---------- Block-level reconciliation: each top-level paragraph/section of
@@ -707,7 +715,17 @@
     lineHeightSel.addEventListener('change', ()=>{
       const range = captureSelectionInPaper();
       const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '16px';
-      if(range){
+      const titleEl = paperEl.querySelector('h3.doctitle');
+      const idCardEl = paperEl.querySelector('.id-card');
+      if(range && ((titleEl && titleEl.contains(range.commonAncestorContainer)) || (idCardEl && idCardEl.contains(range.commonAncestorContainer)))){
+        // Seleção está no título ou no cabeçalho de identificação: a médica
+        // está ajustando só o espaço ENTRE os dois, não o laudo inteiro —
+        // aplica apenas na margin do cabeçalho, igual ao tamanho de fonte do
+        // título, sem tocar na margin dos parágrafos do corpo.
+        idCardGapMargin = margin;
+        kvStore.set('idcard-gap-margin', margin);
+        if(idCardEl) idCardEl.style.marginBottom = margin;
+      } else if(range){
         const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, p.recomendacao')).filter(el=> range.intersectsNode(el));
         if(paragraphs.length > 1){
           // Seleção cruza mais de um parágrafo: aplica direto em cada um, em
@@ -726,6 +744,9 @@
           if(!el.getAttribute('style')) el.removeAttribute('style');
         });
         paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(el=>{ el.style.marginBottom = ''; });
+        idCardGapMargin = null;
+        kvStore.remove('idcard-gap-margin');
+        if(idCardEl) idCardEl.style.marginBottom = '';
         paperEl.style.lineHeight = lineHeightSel.value;
         paperEl.style.setProperty('--linha-margin', margin);
         kvStore.set('paper-line-height', lineHeightSel.value);
@@ -736,6 +757,12 @@
       lineHeightSel.value = saved;
       paperEl.style.lineHeight = saved;
       paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '16px');
+    });
+    kvStore.get('idcard-gap-margin').then(saved=>{
+      if(!saved) return;
+      idCardGapMargin = saved;
+      const idCardEl = paperEl.querySelector('.id-card');
+      if(idCardEl) idCardEl.style.marginBottom = saved;
     });
 
     const fontSizeSel = $('fmtFontSize');
@@ -1688,6 +1715,10 @@
       const titleEl = $('paper').querySelector('h3.doctitle');
       if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
     }
+    if(idCardGapMargin){
+      const idCardEl = $('paper').querySelector('.id-card');
+      if(idCardEl) idCardEl.style.marginBottom = idCardGapMargin;
+    }
 
     const pill = $('statusPill');
     if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
@@ -1717,7 +1748,8 @@
       ul.replaceWith(div);
     });
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
-    const idCardMargin = $('paper').style.getPropertyValue('--linha-margin') || '20px';
+    const liveIdCardEl = $('paper').querySelector('.id-card');
+    const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
