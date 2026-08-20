@@ -1797,10 +1797,12 @@
       const pinnedHtml = isLast ? (pinned ? pinned.html : '') : continuaHtml;
       const pinnedHeight = isLast ? (pinned ? (pinned.bottom - pinned.top) : 0) : continuaHeight;
       if(pinnedHtml){
-        const spacerPx = Math.max(0, packBudgetPx - contentHeight - pinnedHeight);
-        const spacer = document.createElement('div');
-        spacer.style.height = spacerPx + 'px';
-        pageEl.appendChild(spacer);
+        if(!isLast){
+          const spacerPx = Math.max(0, packBudgetPx - contentHeight - pinnedHeight);
+          const spacer = document.createElement('div');
+          spacer.style.height = spacerPx + 'px';
+          pageEl.appendChild(spacer);
+        }
         pageEl.insertAdjacentHTML('beforeend', pinnedHtml);
       }
       wrap.appendChild(pageEl);
