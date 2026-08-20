@@ -184,7 +184,7 @@
   .paper h4.sec{
     text-decoration:underline;font-size:13px;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
   }
-  .paper p.linha{margin:0 0 16px;}
+  .paper p.linha{margin:0 0 var(--linha-margin, 16px);}
   .paper p.linha strong{font-weight:700;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
@@ -1039,17 +1039,38 @@
     // survives render() re-drawing the report content — render() only ever
     // reassigns paperEl.innerHTML, never touches paperEl.style. With text
     // selected inside #paper, it instead scopes to just that selection.
+    // "Espaçamento entre linhas" só mudava o line-height do texto — o
+    // espaço ENTRE parágrafos vem da margin de cada <p class="linha">, que é
+    // outra propriedade. Sem isso, escolher "Mínimo" com frases de
+    // parágrafos diferentes selecionadas não fecha a distância visível entre
+    // elas, mesmo o menu mostrando a opção ativa. Por isso o valor escolhido
+    // também ajusta a margin dos parágrafos que a seleção toca (ou de
+    // todos, sem seleção).
+    const LINE_HEIGHT_MARGIN = {'1':'1mm', '1.15':'2mm', '1.35':'3mm', '1.5':'4mm', '1.8':'6mm'};
     lineHeightSel.addEventListener('change', ()=>{
       const range = captureSelectionInPaper();
+      const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '16px';
       if(range){
-        wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
+        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha')).filter(el=> range.intersectsNode(el));
+        if(paragraphs.length > 1){
+          // Seleção cruza mais de um parágrafo: aplica direto em cada um, em
+          // vez de envolver num <span> — um <span> (inline) não pode conter
+          // <p> (bloco) validamente, e a tentativa de "consertar" isso na
+          // mão bagunçava a estrutura do HTML.
+          paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; el.style.marginBottom = margin; });
+        } else {
+          wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
+          paragraphs.forEach(el=>{ el.style.marginBottom = margin; });
+        }
       } else {
         // Sem seleção: limpa overrides de trechos selecionados antes, senão ficam "presos" e não acompanham a mudança geral.
         paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
           el.style.lineHeight = '';
           if(!el.getAttribute('style')) el.removeAttribute('style');
         });
+        paperEl.querySelectorAll('p.linha').forEach(el=>{ el.style.marginBottom = ''; });
         paperEl.style.lineHeight = lineHeightSel.value;
+        paperEl.style.setProperty('--linha-margin', margin);
         kvStore.set('paper-line-height', lineHeightSel.value);
       }
     });
@@ -1057,6 +1078,7 @@
       if(!saved) return;
       lineHeightSel.value = saved;
       paperEl.style.lineHeight = saved;
+      paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '16px');
     });
 
     // Font size: if the user has text selected inside #paper (e.g. just the
