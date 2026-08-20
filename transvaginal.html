@@ -885,7 +885,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.20-b</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.20-c</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -1046,10 +1046,53 @@
     // part of the title. Forcing a plain line break inside the same element
     // keeps the doctor's ability to wrap the title visually without
     // splitting the block in two.
+    // O espaço acima do título é margin do CSS, não uma linha de texto: não
+    // existe lugar ali para o cursor pousar, então clicar nele para "mexer
+    // naquela linha" é impossível — e a saída natural vira dar Enter no
+    // começo do título para empurrá-lo para baixo. Só que isso criava uma
+    // linha vazia com a altura da fonte do título (16pt), que nenhum controle
+    // de margin conseguia encolher depois.
+    //
+    // Em vez de deixar esse atalho quebrado, ele passa a acionar o controle
+    // de verdade: no COMEÇO do título, Enter aumenta e Backspace diminui o
+    // espaço acima dele, um degrau do seletor por vez. O gesto de sempre
+    // continua valendo, agora com um resultado ajustável (e reversível), e o
+    // Backspace ali deixa de correr o risco de fundir o título com o
+    // cabeçalho, que é o que o contenteditable faria por conta própria.
+    function cursorNoInicioDoTitulo(range){
+      const titleEl = paperEl.querySelector('h3.doctitle');
+      if(!titleEl || !range.collapsed || !titleEl.contains(range.startContainer)) return null;
+      const antes = document.createRange();
+      antes.selectNodeContents(titleEl);
+      antes.setEnd(range.startContainer, range.startOffset);
+      return antes.toString().length === 0 ? titleEl : null;
+    }
+    function passoEspacoTitulo(direcao){
+      const i = idCardGapSel.selectedIndex + direcao;
+      if(i < 0 || i >= idCardGapSel.options.length) return;
+      idCardGapSel.selectedIndex = i;
+      idCardGapSel.dispatchEvent(new Event('change'));
+    }
     paperEl.addEventListener('keydown', e=>{
-      if(e.key !== 'Enter') return;
+      if(e.key !== 'Enter' && e.key !== 'Backspace') return;
       const sel = window.getSelection();
       if(!sel || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+
+      if(cursorNoInicioDoTitulo(range)){
+        e.preventDefault();
+        passoEspacoTitulo(e.key === 'Enter' ? 1 : -1);
+        return;
+      }
+      if(e.key !== 'Enter') return;
+
+      // Enter no meio do título dividiria o <h3 class="doctitle"> em dois
+      // <h3> (comportamento padrão do contenteditable dentro de um heading),
+      // ambos herdando data-blk="doctitle" — e renderBlocks() nunca mais
+      // encostaria em nenhum dos dois (o HTML gerado desse bloco não muda
+      // entre renders) nem limparia o duplicado. Uma quebra de linha simples
+      // mantém a possibilidade de quebrar o título em duas linhas sem
+      // duplicar o bloco.
       const anchorNode = sel.anchorNode;
       const anchorEl = anchorNode ? (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement) : null;
       if(anchorEl && anchorEl.closest('h3.doctitle')){
