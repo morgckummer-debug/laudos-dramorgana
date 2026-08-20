@@ -1129,7 +1129,7 @@
   }
   function sacoLabel(idx, total){
     if(total<=1) return 'Saco gestacional / embrião';
-    return 'Saco gestacional '+String.fromCharCode(65+idx);
+    return 'Saco gestacional '+(idx+1);
   }
   function renumberSacos(){
     const container = $('sacosContainer');
@@ -1545,7 +1545,7 @@
     html += '<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>';
     html += '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+'</span><span><strong>Cronologia:</strong> '+span(blankOrValue(cronologia))+'</span></div>';
     html += '</div>';
-    html += '<h3 class="doctitle">ULTRASSOM OBSTÉTRICO DO 1º TRIMESTRE</h3>';
+    html += '<h3 class="doctitle">'+(isMultiple ? 'ULTRASSOM GEMELAR DO 1º TRIMESTRE' : 'ULTRASSOM OBSTÉTRICO DO 1º TRIMESTRE')+'</h3>';
     if(motivoExame){
       html += '<p class="relato">Relato de '+escapeHtml(motivoExame.charAt(0).toLowerCase()+motivoExame.slice(1))+'.</p>';
     }
