@@ -1305,8 +1305,12 @@
         : phraseRaw('impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
     }
 
-    items.push({key:'evolucao', label: state.algumObito ? phraseRaw('impObito') : phraseRaw('impBoaEvolucao'), auto:true});
-    items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
+    const suprimirBoaEvolucao = state.algumIsgReduzido || state.algumHematoma;
+    if(state.algumObito){
+      items.push({key:'evolucao', label:phraseRaw('impObito'), auto:true});
+    } else if(!suprimirBoaEvolucao){
+      items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
+    }
 
     if(state.algumIsgReduzido){
       items.push({key:'isg-reduzido', label:phraseRaw('impIsgReduzido'), auto:true});
@@ -1321,6 +1325,9 @@
     if(state.anexosAspecto==='alterado' && state.anexosDescricao){
       items.push({key:'anexos-alterado', label:phraseRaw('impAnexosAlterados', {DESCRICAO:state.anexosDescricao}), auto:true});
     }
+
+    // DPP sempre por último na conclusão.
+    items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
 
     return items;
   }
