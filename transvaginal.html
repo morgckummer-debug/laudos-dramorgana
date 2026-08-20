@@ -2144,23 +2144,28 @@
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
 
-    // ----- Assemble laudo HTML -----
-    let html = '';
-    html += '<div class="id-card">';
-    html += '<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>';
-    html += '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>';
-    html += '<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>';
-    html += '</div>';
-    html += '<h3 class="doctitle">ULTRASSOM TRANSVAGINAL</h3>';
+    // ----- Assemble laudo HTML, one block per paragraph/section -----
+    const blocks = [];
+
+    blocks.push({id:'idcard', html:
+      '<div class="id-card">'
+      +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
+      +'</div>'});
+
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle">ULTRASSOM TRANSVAGINAL</h3>'});
+
     if(motivoExame){
-      html += '<p class="relato">Relato de '+escapeHtml(lowerFirst(motivoExame))+'.</p>';
+      blocks.push({id:'relato', html:'<p class="relato">Relato de '+escapeHtml(lowerFirst(motivoExame))+'.</p>'});
     }
-    html += '<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>';
+
+    blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
 
     const bexigaTexto = (bexigaAspecto==='alterado' && bexigaDescricao)
       ? escapeHtml(bexigaDescricao)
       : phrase('bexigaNormal');
-    html += '<p class="linha"><strong>Bexiga:</strong> de topografia usual, '+bexigaTexto+'.</p>';
+    blocks.push({id:'bexiga', html:'<p class="linha"><strong>Bexiga:</strong> de topografia usual, '+bexigaTexto+'.</p>'});
 
     // "sem identificação de nódulos sólidos" must disappear as soon as mioma is selected —
     // even before a measurement is filled in — since the placeholder warning below already
@@ -2181,33 +2186,33 @@
         uteroLinha += ' <span class="blank">Preencha ao menos um nódulo (FIGO + medida) acima.</span>';
       }
     }
-    html += '<p class="linha"><strong>Útero:</strong> '+uteroLinha+'</p>';
+    blocks.push({id:'utero', html:'<p class="linha"><strong>Útero:</strong> '+uteroLinha+'</p>'});
     if(miometrioAspecto==='mioma' && miomaFrags.length>=3){
-      html += '<div class="linha nodulos-lista">'+miomaFrags.map((f,i)=>'<p class="nodulo-item">- N'+(i+1)+': '+escapeHtml(f)+'</p>').join('')+'</div>';
+      blocks.push({id:'uteroNodulosLista', html:'<div class="linha nodulos-lista">'+miomaFrags.map((f,i)=>'<p class="nodulo-item">- N'+(i+1)+': '+escapeHtml(f)+'</p>').join('')+'</div>'});
     }
     if(miometrioAspecto==='mioma' && miometrioDescricaoExtra){
-      html += '<p class="linha">'+escapeHtml(miometrioDescricaoExtra)+'.</p>';
+      blocks.push({id:'uteroDescricaoExtra', html:'<p class="linha">'+escapeHtml(miometrioDescricaoExtra)+'.</p>'});
     }
 
-    html += '<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>';
+    blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
 
     if(chkIstmocele){
       const pctObj = istmocelePct!==null ? {text: String(istmocelePct), filled:true} : {text:'____', filled:false};
-      html += '<p class="linha">'+phraseRaw('istmocele', {MEDIDA: span(istmoceleMedida), PCT: span(pctObj)})+'</p>';
+      blocks.push({id:'istmocele', html:'<p class="linha">'+phraseRaw('istmocele', {MEDIDA: span(istmoceleMedida), PCT: span(pctObj)})+'</p>'});
     }
     if(chkPolipoEndocervical){
-      html += '<p class="linha">'+phraseRaw('polipoEndocervical', {MEDIDA: span(polipoEndocervicalMedida)})+'</p>';
+      blocks.push({id:'polipoEndocervical', html:'<p class="linha">'+phraseRaw('polipoEndocervical', {MEDIDA: span(polipoEndocervicalMedida)})+'</p>'});
     }
     if(chkDIU){
-      html += '<p class="linha">'+phraseRaw(diuPosicao==='baixa' ? 'diuBaixa' : 'diuNormo', {MEDIDA: span(diuDistancia)})+'</p>';
+      blocks.push({id:'diu', html:'<p class="linha">'+phraseRaw(diuPosicao==='baixa' ? 'diuBaixa' : 'diuNormo', {MEDIDA: span(diuDistancia)})+'</p>'});
     }
 
     if(endometrioAspecto==='polipo'){
-      html += '<p class="linha"><strong>Endométrio:</strong> '+phraseRaw('endometrioPolipo', {PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida), ESPESSURA: span(endometrioEspessura)})+'</p>';
+      blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+phraseRaw('endometrioPolipo', {PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida), ESPESSURA: span(endometrioEspessura)})+'</p>'});
     } else if(endometrioAspecto==='espessado'){
-      html += '<p class="linha"><strong>Endométrio:</strong> '+phraseRaw('endometrioEspessado', {ESPESSURA: span(endometrioEspessura)})+'</p>';
+      blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+phraseRaw('endometrioEspessado', {ESPESSURA: span(endometrioEspessura)})+'</p>'});
     } else {
-      html += '<p class="linha"><strong>Endométrio:</strong> '+phraseRaw('endometrioNormal', {PADRAO: endometrioPadrao, ESPESSURA: span(endometrioEspessura)})+'</p>';
+      blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+phraseRaw('endometrioNormal', {PADRAO: endometrioPadrao, ESPESSURA: span(endometrioEspessura)})+'</p>'});
     }
 
     // Folds the abnormality phrase into the same sentence as the volume
@@ -2248,66 +2253,69 @@
       const base = phraseRaw(baseKey, {L: span(ov.L), AP: span(ov.AP), T: span(ov.T), VOLUME: span(ov.volume), VR: escapeHtml(vrOvarioTexto)});
       return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+base+extra+'</p>';
     }
-    html += ovarioParagraph(ovD, 'direito', 'direita');
-    html += ovarioParagraph(ovE, 'esquerdo', 'esquerda');
+    blocks.push({id:'ovarioD', html:ovarioParagraph(ovD, 'direito', 'direita')});
+    blocks.push({id:'ovarioE', html:ovarioParagraph(ovE, 'esquerdo', 'esquerda')});
 
     if(chkHidrossalpinge){
-      html += '<p class="linha">'+phraseRaw('hidrossalpinge', {LADO: hidrossalpingeLado, MEDIDA: span(hidrossalpingeMedida)})+'</p>';
+      blocks.push({id:'hidrossalpinge', html:'<p class="linha">'+phraseRaw('hidrossalpinge', {LADO: hidrossalpingeLado, MEDIDA: span(hidrossalpingeMedida)})+'</p>'});
     }
     if(chkVarizes){
-      html += '<p class="linha">'+phrase('varizes')+'</p>';
+      blocks.push({id:'varizes', html:'<p class="linha">'+phrase('varizes')+'</p>'});
     }
     if(!chkHidrossalpinge && !chkVarizes){
-      html += '<p class="linha">'+phrase('anexiaisNormais')+'</p>';
+      blocks.push({id:'anexiaisNormais', html:'<p class="linha">'+phrase('anexiaisNormais')+'</p>'});
     }
 
     if(chkEndometriose){
-      html += '<p class="linha">'+phraseRaw('endometrioseIntestinal', {LOCAL: escapeHtml(endometrioseLocal), MEDIDA: span(blankOrValue(endometrioseMedida)), REGIAO: escapeHtml(endometrioseRegiao)})+'</p>';
+      blocks.push({id:'endometriose', html:'<p class="linha">'+phraseRaw('endometrioseIntestinal', {LOCAL: escapeHtml(endometrioseLocal), MEDIDA: span(blankOrValue(endometrioseMedida)), REGIAO: escapeHtml(endometrioseRegiao)})+'</p>'});
     }
 
-    html += '<p class="linha">'+(liquidoLivrePresente
+    blocks.push({id:'liquidoLivre', html:'<p class="linha">'+(liquidoLivrePresente
       ? phraseRaw('liquidoLivrePresente', {MEDIDAS: span(liquidoLivreMedidas), VOLUME: span(liquidoLivre_Volume)})
-      : phrase('liquidoLivreAusente'))+'</p>';
+      : phrase('liquidoLivreAusente'))+'</p>'});
 
     // When uterus and both ovaries all have preserved mobility, collapse what
     // would otherwise be two separate sentences into a single combined one.
     if(mobilidadeUterina!=='reduzida' && !chkMobilidadeOvD && !chkMobilidadeOvE){
-      html += '<p class="linha">'+phrase('mobilidadeTodosPreservados')+'</p>';
+      blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+phrase('mobilidadeTodosPreservados')+'</p>'});
     } else {
-      html += '<p class="linha">'+(mobilidadeUterina==='reduzida'
+      blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+(mobilidadeUterina==='reduzida'
         ? (phrase('mobilidadeUterinaReduzida')+' '+phrase('slidingSignNegativo'))
-        : phrase('mobilidadeUterinaPreservada'))+'</p>';
+        : phrase('mobilidadeUterinaPreservada'))+'</p>'});
 
       let mobilidadeOvarianaKey = 'mobilidadeOvarianaAmbosPreservados';
       if(chkMobilidadeOvD && chkMobilidadeOvE) mobilidadeOvarianaKey = 'mobilidadeOvarianaAmbosReduzidos';
       else if(chkMobilidadeOvD) mobilidadeOvarianaKey = 'mobilidadeOvarianaDireitaReduzida';
       else if(chkMobilidadeOvE) mobilidadeOvarianaKey = 'mobilidadeOvarianaEsquerdaReduzida';
-      html += '<p class="linha">'+phrase(mobilidadeOvarianaKey)+'</p>';
+      blocks.push({id:'mobilidadeOvariana', html:'<p class="linha">'+phrase(mobilidadeOvarianaKey)+'</p>'});
     }
 
-    html += '<h4 class="sec">IMPRESSÃO:</h4><ul class="impressao">';
+    blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
+    let impressaoListHtml = '<ul class="impressao">';
     if(checkedItems.length===0){
-      html += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
+      impressaoListHtml += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
     } else {
       checkedItems.forEach(it=>{
         const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
-        html += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
+        impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
       });
     }
-    html += '</ul>';
+    impressaoListHtml += '</ul>';
+    blocks.push({id:'impressaoList', html:impressaoListHtml});
 
     // Grouped together so print pagination (which pins whatever the last
     // top-level element is to the bottom of the last page) places both at
     // once: "Imagens em anexo" bottom-left, signature bottom-right.
-    html += '<div class="rodape-final">';
-    html += '<p class="footnote">'+phrase('footerImagens')+'</p>';
-    html += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
-    if(VR.medicoQual1) html += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
-    if(VR.medicoQual2) html += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
-    html += '<p class="assinatura-info">'+escapeHtml(VR.medicoCRM)+'</p></div>';
-    html += '</div>';
+    let rodapeHtml = '<div class="rodape-final">';
+    rodapeHtml += '<p class="footnote">'+phrase('footerImagens')+'</p>';
+    rodapeHtml += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
+    if(VR.medicoQual1) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
+    if(VR.medicoQual2) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
+    rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoCRM)+'</p></div>';
+    rodapeHtml += '</div>';
+    blocks.push({id:'rodape', html:rodapeHtml});
 
-    $('paper').innerHTML = html;
+    renderBlocks(blocks);
     if(titleFontSize){
       const titleEl = $('paper').querySelector('h3.doctitle');
       if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
@@ -2679,6 +2687,13 @@
     $('miomaNodulosContainer').innerHTML = '';
     checkedState = {};
     impressaoOverrides = {};
+    // Force every block to rebuild fresh for the new patient — otherwise a
+    // block whose computed text happens to match the previous patient's
+    // (e.g. bexiga stayed "normal" for both) would keep whatever the doctor
+    // had typed by hand into it, since content-based reconciliation alone
+    // has no way to tell that apart from an untouched block.
+    lastBlockHtml = {};
+    $('paper').innerHTML = '';
     printAttempted = false;
     $('printAlert').classList.remove('show');
     setDefaultDataExame();
