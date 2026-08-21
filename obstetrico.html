@@ -330,6 +330,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Peso sem percentil informado — use {PESO}</label><textarea id="ph_impPesoSemPercentil" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico alterado — use {DESCRICAO}</label><textarea id="ph_impLaAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta alterada — use {DESCRICAO}</label><textarea id="ph_impPlacentaAlterada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta baixa/marginal/prévia — use {INSERCAO}</label><textarea id="ph_impPlacentaPrevia" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Impressões diagnósticas — Doppler</h3>
@@ -445,8 +446,17 @@
       <div class="card-head"><h2>Placenta</h2></div>
       <div class="card-body">
         <div class="field-row">
-          <div class="field"><label>Inserção</label>
-            <select id="placentaInsercao"><option value="posterior">Posterior</option><option value="anterior">Anterior</option></select>
+          <div class="field"><label>Posição / inserção</label>
+            <select id="placentaInsercao">
+              <option value="fúndica">Fúndica</option>
+              <option value="anterior">Anterior</option>
+              <option value="posterior">Posterior</option>
+              <option value="lateral direita">Lateral direita</option>
+              <option value="lateral esquerda">Lateral esquerda</option>
+              <option value="baixa">Placenta baixa</option>
+              <option value="marginal">Placenta marginal</option>
+              <option value="previa">Placenta prévia</option>
+            </select>
           </div>
           <div class="field"><label>Textura</label>
             <select id="placentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select>
@@ -492,7 +502,7 @@
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkDoppler"><label for="chkDoppler">Incluir Doppler obstétrico neste laudo</label></div>
         <div id="dopplerFields" class="conditional">
-          <p style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">Abaixo de 22 semanas: apenas Doppler Materno (artérias uterinas). A partir de 22 semanas: Materno + Fetal (umbilical, cerebral média e relação cérebro-placentária).</p>
+          <p style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">Até 24 semanas: apenas Doppler Materno (artérias uterinas). Após 24 semanas: Materno + Fetal (umbilical, cerebral média e relação cérebro-placentária).</p>
           <p class="linha tight" style="margin:0 0 8px;font-size:13px;font-weight:600;color:var(--rose-dark);">Doppler Materno — artérias uterinas</p>
           <div class="field-row">
             <div class="field"><label>IP artéria uterina direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder="ex: 0,85"></div>
@@ -504,7 +514,7 @@
           </div>
           <div id="dopplerFetalFields" class="conditional">
             <hr class="sep">
-            <p class="linha tight" style="margin:0 0 8px;font-size:13px;font-weight:600;color:var(--rose-dark);">Doppler Fetal — a partir de 22 semanas</p>
+            <p class="linha tight" style="margin:0 0 8px;font-size:13px;font-weight:600;color:var(--rose-dark);">Doppler Fetal — após 24 semanas</p>
             <div class="field-row">
               <div class="field"><label>Art. Umbilical (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="piUmbilical" placeholder="ex: 0,95"></div>
               <div class="field"><label>Art. Cerebral Média (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="piACM" placeholder="ex: 1,60"></div>
@@ -1119,8 +1129,8 @@
     apresentacaoTextoLongitudinal: 'Feto único, em situação longitudinal, apresentação {APRESENTACAO}, com dorso {DORSO} da linha mediana.',
     apresentacaoTextoTransversa: 'Feto único, em situação transversa, apresentação córmica.',
     vitalidadeTexto: 'Movimentação ativa e batimentos cardíacos rítmicos com frequência de {FC} bpm.',
-    placentaTexto: 'Inserção {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
-    placentaTextoEspessuraAlterada: 'Inserção {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
+    placentaTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
+    placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
     laAspectoNormal: 'Aspecto e volume normais para idade gestacional.',
     laValoresTexto: 'Maior bolsão: {BOLSAO} cm &nbsp;&nbsp; ILA: {ILA} cm (percentil {ILAP}).',
 
@@ -1132,6 +1142,7 @@
     impPesoSemPercentil: 'Peso fetal estimado em {PESO} g (Hadlock).',
     impLaAlterado: 'Líquido amniótico alterado: {DESCRICAO}.',
     impPlacentaAlterada: 'Placenta com espessura alterada: {DESCRICAO}.',
+    impPlacentaPrevia: 'Placenta {INSERCAO} — indica-se acompanhamento e reavaliação da localização placentária em exames subsequentes.',
 
     impDopplerUterinasNormal: 'IP médio das artérias uterinas dentro da normalidade.',
     impDopplerUterinasAlterado: 'IP médio das artérias uterinas acima da normalidade (percentil 95), sugerindo risco aumentado para pré-eclâmpsia e/ou restrição de crescimento fetal.',
@@ -1407,13 +1418,25 @@
     return n.toFixed(casas).replace('.', ',');
   }
 
+  const PLACENTA_INSERCAO_TXT = {
+    'fúndica': 'de inserção fúndica',
+    'anterior': 'de inserção anterior',
+    'posterior': 'de inserção posterior',
+    'lateral direita': 'de inserção lateral direita',
+    'lateral esquerda': 'de inserção lateral esquerda',
+    'baixa': 'de inserção baixa',
+    'marginal': 'prévia marginal',
+    'previa': 'prévia total'
+  };
+  const PLACENTA_PREVIA_VALORES = ['baixa', 'marginal', 'previa'];
+
   // ---------- Build impression checklist ----------
   function buildImpressao(state){
     const items = [];
 
     items.push({key:'gestacao', label: phraseRaw('impGestacao', {SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
 
-    const suprimirBoaEvolucao = state.laAlterado || state.placentaAlterada || state.pesoKey==='impPesoPIG';
+    const suprimirBoaEvolucao = state.laAlterado || state.placentaAlterada || state.placentaPrevia || state.pesoKey==='impPesoPIG';
     if(!suprimirBoaEvolucao){
       items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
     }
@@ -1425,6 +1448,9 @@
     }
     if(state.placentaAlterada){
       items.push({key:'placenta-alterada', label:phraseRaw('impPlacentaAlterada', {DESCRICAO: state.placentaDescricao}), auto:true});
+    }
+    if(state.placentaPrevia){
+      items.push({key:'placenta-previa', label:phraseRaw('impPlacentaPrevia', {INSERCAO: state.placentaInsercaoTxt}), auto:true});
     }
 
     if(state.doppler){
@@ -1610,14 +1636,16 @@
 
     // ----- Placenta -----
     const placentaInsercao = v('placentaInsercao');
+    const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
     const placentaTextura = v('placentaTextura');
     const placentaGrau = v('placentaGrau');
     const placentaEspessura = v('placentaEspessura');
     const placentaDescricao = vNoDot('placentaDescricao');
     const placentaAlterada = placentaEspessura==='alterada' && !!placentaDescricao;
+    const placentaPrevia = PLACENTA_PREVIA_VALORES.includes(placentaInsercao);
     const placentaHtml = placentaAlterada
-      ? phraseRaw('placentaTextoEspessuraAlterada', {INSERCAO:placentaInsercao, TEXTURA:placentaTextura, GRAU:placentaGrau, DESCRICAO:placentaDescricao})
-      : phraseRaw('placentaTexto', {INSERCAO:placentaInsercao, TEXTURA:placentaTextura, GRAU:placentaGrau});
+      ? phraseRaw('placentaTextoEspessuraAlterada', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau, DESCRICAO:placentaDescricao})
+      : phraseRaw('placentaTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau});
 
     // ----- Líquido amniótico -----
     const laAspecto = v('laAspecto');
@@ -1628,11 +1656,11 @@
     const laILAPercentil = blankOrValue(v('laILAPercentil'));
 
     // ----- Doppler -----
-    // Abaixo de 22 semanas: só Doppler Materno (artérias uterinas). A
-    // partir de 22 semanas: Materno + Fetal (umbilical, ACM, RCP).
+    // Até 24 semanas: só Doppler Materno (artérias uterinas). Após 24
+    // semanas: Materno + Fetal (umbilical, ACM, RCP).
     const doppler = $('chkDoppler').checked;
     const gaWeeks = gaDays!=null ? Math.floor(gaDays/7) : null;
-    const dopplerFetal = doppler && gaWeeks!=null && gaWeeks >= 22;
+    const dopplerFetal = doppler && gaWeeks!=null && gaWeeks > 24;
     toggle('dopplerFetalFields', dopplerFetal);
     let utMedioTxt = '', utPercentilTxt = '', utAlterado = false, cprTxt = '';
     let utDireitaVal = {text:'____',filled:false}, utEsquerdaVal = {text:'____',filled:false};
@@ -1694,6 +1722,7 @@
       semanas: semanasTxt, dias: diasTxt,
       laAlterado, laDescricao,
       placentaAlterada, placentaDescricao,
+      placentaPrevia, placentaInsercaoTxt,
       pesoKey, pesoLabel,
       doppler, utAlterado, utMedioTxt, utPercentilTxt,
       dopplerFetal, dopplerFetalAlterado,
@@ -1726,11 +1755,9 @@
 
     let biometriaHtml = '<div><p class="linha tight"><strong>Parâmetros Biométricos</strong></p>';
     biometriaHtml += '<table class="biometria">'
-      +'<tr><td>Diâmetro biparietal (DBP)</td><td>'+span(bioDBP)+' mm</td></tr>'
-      +'<tr><td>Comprimento femoral (CF)</td><td>'+span(bioCF)+' mm</td></tr>'
-      +'<tr><td>Circunferência cefálica (CC)</td><td>'+span(bioCC)+' mm</td></tr>'
-      +'<tr><td>Circunferência abdominal (CA)</td><td>'+span(bioCA)+' mm</td></tr>'
-      +'<tr><td>Peso fetal estimado</td><td>'+span(pesoFetal)+' g</td></tr>'
+      +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;padding-right:10px;">'+span(bioDBP)+' mm</td><td style="white-space:nowrap;">Comprimento femoral (CF):</td><td style="white-space:nowrap;padding-right:0;">'+span(bioCF)+' mm</td></tr>'
+      +'<tr><td style="white-space:nowrap;">Circunferência cefálica (CC):</td><td style="white-space:nowrap;padding-right:10px;">'+span(bioCC)+' mm</td><td style="white-space:nowrap;">Circunferência abdominal (CA):</td><td style="white-space:nowrap;padding-right:0;">'+span(bioCA)+' mm</td></tr>'
+      +'<tr><td style="white-space:nowrap;">Peso fetal estimado:</td><td colspan="3" style="white-space:nowrap;">'+span(pesoFetal)+' g</td></tr>'
       +'</table></div>';
     blocks.push({id:'biometria', html:biometriaHtml});
 
