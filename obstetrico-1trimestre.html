@@ -153,7 +153,7 @@
     background:#FEFCFE;border:1px solid var(--line);border-radius:4px;
     box-shadow:var(--shadow);
     padding:34px 36px 40px;
-    font-family:'Times New Roman', Times, serif;font-size:12pt;line-height:1.15;color:var(--ink);
+    font-family:'Times New Roman', Times, serif;font-size:12pt;line-height:1.15;color:var(--ink);text-align:justify;
     max-height:calc(100vh - 150px);overflow-y:auto;
     width:calc(17cm + 72px);max-width:100%;margin:0 auto;
   }
@@ -1926,7 +1926,7 @@
 
     const lineHeight = $('paper').style.lineHeight || '1.15';
     const fontSize = $('paper').style.fontSize || '12pt';
-    return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";\">"+clone.innerHTML+'</div>';
+    return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";text-align:justify;\">"+clone.innerHTML+'</div>';
   }
 
   // ---------- Print pagination: pins the signature to the bottom-right corner
