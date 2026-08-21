@@ -2326,17 +2326,26 @@
     try{
       const userId = session.user.id;
 
-      // 1) Busca ou cria a paciente por CPF
+      // 1) Busca ou cria a paciente por CPF (CPF é único, não filtra por usuário na busca)
       let {data: paciente, error: errBusca} = await cgClient
-        .from('patients').select('id').eq('user_id', userId).eq('cpf', cpf).maybeSingle();
+        .from('patients').select('id').eq('cpf', cpf).maybeSingle();
       if(errBusca) throw errBusca;
 
       if(!paciente){
         const {data: novaPaciente, error: errCria} = await cgClient
           .from('patients').insert({user_id: userId, cpf, nome}).select('id').single();
-        if(errCria) throw errCria;
-        paciente = novaPaciente;
+        if(errCria && errCria.code !== '23505') throw errCria;
+        if(errCria && errCria.code === '23505'){
+          // Corrida: paciente já foi criada nesse meio-tempo — busca de novo
+          const {data: pacienteExistente, error: errBusca2} = await cgClient
+            .from('patients').select('id').eq('cpf', cpf).maybeSingle();
+          if(errBusca2) throw errBusca2;
+          paciente = pacienteExistente;
+        } else {
+          paciente = novaPaciente;
+        }
       }
+      if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
 
       // 2) Busca a gestação ativa dessa paciente
       const {data: gestacao, error: errGest} = await cgClient
