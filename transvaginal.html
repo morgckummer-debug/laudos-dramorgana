@@ -48,7 +48,7 @@
     font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;margin:0;letter-spacing:.1px;
   }
   .topbar .sub{font-size:12px;opacity:.85;margin-top:2px;font-weight:400;}
-  .topbar-actions{display:flex;gap:8px;align-items:center;}
+  .topbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
   button{
     font-family:'Poppins',sans-serif;cursor:pointer;border:none;border-radius:999px;
     font-size:13px;font-weight:600;padding:9px 18px;transition:transform .06s ease, opacity .15s ease;
@@ -147,8 +147,13 @@
      reserve the letterhead margin — thead/tfoot repeat on every physical
      printed page in every engine we've tested (desktop, mobile, headless),
      unlike @page margin, which many mobile "print to PDF" pipelines ignore
-     outright. On screen the thead/tfoot stay collapsed to zero height. */
-  .paper-table{width:100%;border-collapse:collapse;}
+     outright. On screen the thead/tfoot stay collapsed to zero height.
+     table-layout:fixed makes the single column actually honor that
+     width:100% — with the default 'auto' layout, the browser sized the
+     column from .paper's own explicit width (17cm + 72px) instead, which
+     made the table (and everything wrapping it, up to the page) overflow
+     horizontally on narrow/mobile screens instead of shrinking to fit. */
+  .paper-table{width:100%;border-collapse:collapse;table-layout:fixed;}
   .paper-table thead td, .paper-table tfoot td{padding:0;border:none;height:0;}
   .paper-table tbody td{padding:0;border:none;}
   .paper{
