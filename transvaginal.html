@@ -2130,70 +2130,161 @@
   // across pages the way the real print pipeline does — which is plenty to
   // show the page count and roughly where a second page starts, without the
   // cost/complexity of replicating that pipeline on every keystroke.
-  function updatePagePreview(){
-    const paperEl = $('paper');
-    paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+  // ---------- Shared pagination engine ----------
+  // O preview de páginas e a impressão precisam concordar: se cada um contasse
+  // as páginas do seu jeito, o preview anunciaria uma quebra que o PDF não tem
+  // (ou o contrário). Antes era exatamente isso que acontecia — o preview só
+  // apertava a entrelinha, enquanto a impressão também reduzia a fonte e
+  // quebrava a lista de impressões item a item para caber numa página.
+  // Agora os dois passam por estas mesmas funções: a contagem que aparece na
+  // tela é, por construção, a que sai no papel.
+  const PAGE_SAFETY_PX = 38; /* ~1cm */
+  const MIN_LINE_HEIGHT = 1.0;
+  const LINE_HEIGHT_STEP = 0.03;
+  const MIN_FONT_SIZE = 11;
+  const FONT_SIZE_STEP = 0.5;
 
-    const children = Array.from(paperEl.children);
-    const pill = $('pageCountPill');
-    if(!children.length){ if(pill){ pill.textContent='1 página'; pill.classList.remove('pending'); } return; }
-
+  // Converte a faixa de conteúdo de 24,2cm (A4 de 29,7cm menos os 3,5cm do
+  // topo / 2cm do rodapé reservados pelo thead/tfoot da .paper-table no
+  // @media print) em px neste mesmo documento, para ficar na mesma base das
+  // medições por getBoundingClientRect() independentemente de zoom/DPI.
+  // A margem de segurança existe porque a Times New Roman pode render com
+  // métricas de linha ligeiramente diferentes nesta medição em tela e na
+  // passada de impressão real, e esse desvio se acumula ao longo de muitas
+  // linhas — no pior caso sobra um pouco de espaço em branco, nunca falta.
+  function pageBudgetPx(){
     const ref = document.createElement('div');
     ref.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:0;width:0;height:24.2cm;';
     document.body.appendChild(ref);
     const pageHeightPx = ref.getBoundingClientRect().height;
     document.body.removeChild(ref);
-    const packBudgetPx = pageHeightPx - 38; /* ~1cm safety, matches paginateForPrint() */
+    return pageHeightPx - PAGE_SAFETY_PX;
+  }
 
-    const originalLineHeight = paperEl.style.lineHeight;
-    const baseLineHeight = parseFloat(originalLineHeight) || 1.15;
+  // Mede o laudo fora da tela, na largura real de impressão (17cm), e o
+  // distribui em páginas — nada aqui encosta no #paper vivo. Cada "box" é
+  // medido pela borda top/bottom real no fluxo do container de medição, não
+  // somando a altura de cada elemento: uma soma de alturas perde a margem
+  // vertical de cada um (só o p.linha já carrega 16px de margin-bottom) e
+  // subestimaria sistematicamente o quanto cabe numa página.
+  // Cada box carrega o nó vivo correspondente (para o preview marcar a
+  // quebra) e o HTML (para a impressão remontar as páginas).
+  function packAt(paperEl, html, lineHeight, fontSize, budgetPx){
+    const measure = document.createElement('div');
+    measure.className = 'paper';
+    measure.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;width:17cm;max-height:none;overflow:visible;background:none;border:none;box-shadow:none;padding:0;margin:0;';
+    measure.style.lineHeight = lineHeight;
+    measure.style.fontSize = fontSize;
+    measure.innerHTML = html;
+    document.body.appendChild(measure);
 
-    function packAt(lineHeight){
-      paperEl.style.lineHeight = lineHeight;
-      const paddingTop = parseFloat(getComputedStyle(paperEl).paddingTop) || 0;
-      const paperTop = paperEl.getBoundingClientRect().top + paddingTop;
-      const boxes = children.map(el=>{
-        const r = el.getBoundingClientRect();
-        return {top: r.top - paperTop, bottom: r.bottom - paperTop, node: el};
-      });
-      const pages = [[]];
-      let pageStart = boxes[0].top;
-      boxes.forEach(box=>{
-        if((box.bottom - pageStart) > packBudgetPx && pages[pages.length-1].length > 0){
-          pages.push([]);
-          pageStart = box.top;
-        }
-        pages[pages.length-1].push(box);
-      });
-      return pages;
-    }
+    const continuaP = document.createElement('p');
+    continuaP.className = 'continua';
+    continuaP.textContent = 'Continua…';
+    measure.appendChild(continuaP);
+    const continuaHeight = continuaP.getBoundingClientRect().height;
+    measure.removeChild(continuaP);
+    const continuaHtml = continuaP.outerHTML;
 
-    // Same auto-fit search paginateForPrint() does: try the current spacing,
-    // and only if that spills past one page, nudge it tighter until it fits
-    // or the floor is reached — matching the real print output exactly.
-    let pages = packAt(baseLineHeight);
-    if(pages.length > 1){
-      for(let lh = baseLineHeight - 0.03; lh >= 1.0 - 1e-9; lh -= 0.03){
-        const attempt = packAt(lh);
-        if(attempt.length === 1){ pages = attempt; break; }
+    const measureRect = measure.getBoundingClientRect();
+    const realTop = Array.from(paperEl.children);
+    const measureTop = Array.from(measure.children);
+    const boxes = [];
+    realTop.forEach((realChild, idx)=>{
+      const measureChild = measureTop[idx];
+      if(!measureChild) return;
+      if(realChild.tagName==='UL' && realChild.classList.contains('impressao')){
+        const realLis = Array.from(realChild.children);
+        const measureLis = Array.from(measureChild.children);
+        realLis.forEach((li, i)=>{
+          if(!measureLis[i]) return;
+          const r = measureLis[i].getBoundingClientRect();
+          boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:'li', html: li.outerHTML, node: li});
+        });
+      } else {
+        const r = measureChild.getBoundingClientRect();
+        boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:(realChild.tagName==='H4' ? 'heading' : 'block'), html: realChild.outerHTML, node: realChild});
+      }
+    });
+    document.body.removeChild(measure);
+
+    // Empacota os boxes em páginas, sem nunca partir um deles. pageStart
+    // guarda onde começou o primeiro box da página atual, então "o quanto
+    // esta página já está cheia" é só a distância até ali.
+    const pages = [[]];
+    let pageStart = boxes.length ? boxes[0].top : 0;
+    boxes.forEach(box=>{
+      if((box.bottom - pageStart) > budgetPx && pages[pages.length-1].length > 0){
+        pages.push([]);
+        pageStart = box.top;
+      }
+      pages[pages.length-1].push(box);
+    });
+    // Um título sozinho no pé da página, com o conteúdo dele empurrado para a
+    // seguinte, fica órfão — desce junto com o que vem depois.
+    for(let p=0; p<pages.length-1; p++){
+      const pg = pages[p];
+      if(pg.length && pg[pg.length-1].kind==='heading'){
+        pages[p+1].unshift(pg.pop());
       }
     }
-    paperEl.style.lineHeight = originalLineHeight;
+    return {pages, continuaHtml, continuaHeight};
+  }
+
+  // Tenta caber em uma página: primeiro apertando a entrelinha (nunca abaixo
+  // de 1.0), depois também reduzindo a fonte em passos de 0,5pt (nunca abaixo
+  // de 11pt), varrendo a entrelinha de novo a cada tamanho. Um laudo
+  // genuinamente longo falha em todas as combinações e volta ao tamanho
+  // original, paginado normalmente — o auto-fit nunca sacrifica legibilidade
+  // abaixo de 11pt para esconder excesso real de conteúdo.
+  function autoFitPages(paperEl, budgetPx){
+    const html = paperEl.innerHTML;
+    const baseLineHeight = parseFloat(paperEl.style.lineHeight) || 1.15;
+    const baseFontSize = parseFloat(paperEl.style.fontSize) || 12;
+
+    function fitAtFontSize(fontSize){
+      for(let lh = baseLineHeight; lh >= MIN_LINE_HEIGHT - 1e-9; lh -= LINE_HEIGHT_STEP){
+        const attempt = packAt(paperEl, html, lh, fontSize + 'pt', budgetPx);
+        if(attempt.pages.length === 1) return {packed: attempt, lineHeight: lh, fontSize};
+      }
+      return null;
+    }
+
+    let fit = fitAtFontSize(baseFontSize);
+    for(let fs = baseFontSize - FONT_SIZE_STEP; !fit && fs >= MIN_FONT_SIZE - 1e-9; fs -= FONT_SIZE_STEP){
+      fit = fitAtFontSize(fs);
+    }
+    if(fit) return fit;
+    return {
+      packed: packAt(paperEl, html, baseLineHeight, baseFontSize + 'pt', budgetPx),
+      lineHeight: baseLineHeight,
+      fontSize: baseFontSize
+    };
+  }
+
+  function updatePagePreview(){
+    const paperEl = $('paper');
+    paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+
+    const pill = $('pageCountPill');
+    if(!paperEl.children.length){ if(pill){ pill.textContent='1 página'; pill.classList.remove('pending'); } return; }
+
+    const pages = autoFitPages(paperEl, pageBudgetPx()).packed.pages;
 
     if(pill){
       pill.textContent = pages.length===1 ? '1 página' : pages.length+' páginas';
       pill.classList.toggle('pending', pages.length > 1);
     }
-    // pages.length>1 here only happens when auto-fit couldn't rescue it even
-    // at the tightest spacing, in which case `pages` is still the untouched
-    // baseLineHeight attempt — the same spacing currently on screen — so
-    // these box positions/nodes line up with what's actually visible.
     for(let p=0; p<pages.length-1; p++){
-      const marker = document.createElement('div');
+      const node = pages[p+1][0] && pages[p+1][0].node;
+      if(!node || !node.parentNode) continue;
+      // A quebra pode cair no meio da lista de impressões: ali o marcador
+      // precisa ser um <li>, senão vira um filho inválido do <ul>.
+      const marker = document.createElement(node.tagName === 'LI' ? 'li' : 'div');
       marker.className = 'pg-break-marker';
       marker.contentEditable = 'false';
       marker.textContent = 'Fim da página ' + (p+1);
-      paperEl.insertBefore(marker, pages[p+1][0].node);
+      node.parentNode.insertBefore(marker, node);
     }
   }
   let pagePreviewTimer = null;
@@ -2623,138 +2714,14 @@
     const originalLineHeight = paperEl.style.lineHeight;
     const originalFontSize = paperEl.style.fontSize;
 
-    // Convert the 24.2cm content band (29.7cm A4 minus the 3.5cm top / 2cm
-    // bottom reserved by the .paper-table thead/tfoot in @media print above)
-    // into px in this same document, so it's on the same footing as the
-    // getBoundingClientRect() measurements below regardless of zoom/DPI.
-    const ref = document.createElement('div');
-    ref.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:0;width:0;height:24.2cm;';
-    document.body.appendChild(ref);
-    const pageHeightPx = ref.getBoundingClientRect().height;
-    document.body.removeChild(ref);
-    // Target a bit under the true page height, both for packing content into
-    // a page and for how far down the spacer pushes the pinned Continua/
-    // signature. Times New Roman can render with slightly different line
-    // metrics in this hidden screen-measurement clone than in Chromium's
-    // actual print pass, and that drift compounds over many lines — a
-    // generous ~1cm cushion is what keeps that drift from ever overflowing
-    // the real page (worst case: a little extra white space above the
-    // pinned block, never a mispositioned or split signature).
-    const SAFETY_PX = 38; /* ~1cm */
-    const packBudgetPx = pageHeightPx - SAFETY_PX;
+    const packBudgetPx = pageBudgetPx();
 
-    // Packs the report into pages at a given line-height, purely as a
-    // measurement — nothing here touches the live #paper. Re-run at a
-    // tighter line-height below to see whether a report that just barely
-    // spills onto a second page (often only to fit the pinned signature)
-    // can be pulled back onto one.
-    function packAtLineHeight(lineHeight, fontSize){
-      const measure = document.createElement('div');
-      measure.className = 'paper';
-      measure.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;width:17cm;max-height:none;overflow:visible;background:none;border:none;box-shadow:none;padding:0;margin:0;';
-      measure.style.lineHeight = lineHeight;
-      measure.style.fontSize = fontSize;
-      measure.innerHTML = originalHTML;
-      document.body.appendChild(measure);
-
-      const continuaP = document.createElement('p');
-      continuaP.className = 'continua';
-      continuaP.textContent = 'Continua…';
-      measure.appendChild(continuaP);
-      const continuaHeight = continuaP.getBoundingClientRect().height;
-      measure.removeChild(continuaP);
-      const continuaHtml = continuaP.outerHTML;
-
-      // Boxes are measured by their actual top/bottom edge in the flowed
-      // measure container, not by summing each element's own height — a plain
-      // height sum silently drops every element's vertical margin (each
-      // p.linha alone carries a 16px margin-bottom), which would systematically
-      // under-count how much a page really holds. top/bottom already bakes in
-      // real (collapsed) margins because it comes from actual layout.
-      const measureRect = measure.getBoundingClientRect();
-      const realTop = Array.from(paperEl.children);
-      const measureTop = Array.from(measure.children);
-      const boxes = [];
-      realTop.forEach((realChild, idx)=>{
-        const measureChild = measureTop[idx];
-        if(realChild.tagName==='UL' && realChild.classList.contains('impressao')){
-          const realLis = Array.from(realChild.children);
-          const measureLis = Array.from(measureChild.children);
-          realLis.forEach((li, i)=>{
-            const r = measureLis[i].getBoundingClientRect();
-            boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:'li', html: li.outerHTML});
-          });
-        } else {
-          const r = measureChild.getBoundingClientRect();
-          boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:(realChild.tagName==='H4' ? 'heading' : 'block'), html: realChild.outerHTML});
-        }
-      });
-      document.body.removeChild(measure);
-
-      // Greedily pack boxes into pages, never splitting one across a boundary.
-      // pageStart tracks where (in the continuous measurement) the current
-      // page's first box began, so "how full is this page" is just how far
-      // past that start the box we're considering would reach.
-      const pages = [[]];
-      let pageStart = boxes.length ? boxes[0].top : 0;
-      boxes.forEach(box=>{
-        if((box.bottom - pageStart) > packBudgetPx && pages[pages.length-1].length > 0){
-          pages.push([]);
-          pageStart = box.top;
-        }
-        pages[pages.length-1].push(box);
-      });
-      // A heading left alone at the bottom of a page, with its content pushed
-      // to the next one, is an orphan — move it down together with what follows.
-      for(let p=0; p<pages.length-1; p++){
-        const pg = pages[p];
-        if(pg.length && pg[pg.length-1].kind==='heading'){
-          pages[p+1].unshift(pg.pop());
-        }
-      }
-      return {pages, continuaHtml, continuaHeight};
-    }
-
-    // Try the user's chosen font-size/line-height first; only if that spills
-    // past one page does auto-fit kick in, first nudging the line-height down
-    // in small steps (never below 1.0), then — if that alone isn't enough —
-    // also stepping the font-size down in 0.5pt increments (never below
-    // 11pt), sweeping line-height again at each size. A report that's
-    // genuinely long still fails every combination and falls back to normal
-    // multi-page pagination at the original size/spacing — auto-fit never
-    // sacrifices readability below 11pt to hide real overflow, only to
-    // reclaim the sliver of space a pinned signature needs.
     const baseLineHeight = parseFloat(paperEl.style.lineHeight) || 1.15;
     const baseFontSize = parseFloat(paperEl.style.fontSize) || 12;
-    const MIN_LINE_HEIGHT = 1.0;
-    const LINE_HEIGHT_STEP = 0.03;
-    const MIN_FONT_SIZE = 11;
-    const FONT_SIZE_STEP = 0.5;
-
-    // Sweeps line-height from the base value down to MIN_LINE_HEIGHT at a
-    // fixed font-size; returns the first single-page pack found, or null.
-    function fitAtFontSize(fontSize){
-      for(let lh = baseLineHeight; lh >= MIN_LINE_HEIGHT - 1e-9; lh -= LINE_HEIGHT_STEP){
-        const attempt = packAtLineHeight(lh, fontSize + 'pt');
-        if(attempt.pages.length === 1) return {packed: attempt, lineHeight: lh, fontSize};
-      }
-      return null;
-    }
-
-    let fit = fitAtFontSize(baseFontSize);
-    for(let fs = baseFontSize - FONT_SIZE_STEP; !fit && fs >= MIN_FONT_SIZE - 1e-9; fs -= FONT_SIZE_STEP){
-      fit = fitAtFontSize(fs);
-    }
-    let packed, usedLineHeight, usedFontSize;
-    if(fit){
-      packed = fit.packed;
-      usedLineHeight = fit.lineHeight;
-      usedFontSize = fit.fontSize;
-    } else {
-      packed = packAtLineHeight(baseLineHeight, baseFontSize + 'pt');
-      usedLineHeight = baseLineHeight;
-      usedFontSize = baseFontSize;
-    }
+    const fit = autoFitPages(paperEl, packBudgetPx);
+    const packed = fit.packed;
+    const usedLineHeight = fit.lineHeight;
+    const usedFontSize = fit.fontSize;
     if(usedLineHeight !== baseLineHeight) paperEl.style.lineHeight = usedLineHeight;
     if(usedFontSize !== baseFontSize) paperEl.style.fontSize = usedFontSize + 'pt';
 
