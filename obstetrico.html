@@ -153,39 +153,48 @@
     font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink-soft);user-select:none;
   }
+  /* Daqui para baixo, todo espaçamento e todo tamanho de fonte do laudo é
+     expresso em em (relativo à fonte do próprio elemento), e não em px/pt
+     fixos. Os valores foram escolhidos para render exatamente o mesmo que
+     antes na fonte padrão de 12pt (12pt = 16px, então 16px = 1em), mas agora
+     o laudo inteiro encolhe junto quando autoFitPages() reduz a fonte para
+     caber numa folha só. Com margens em px fixos, reduzir 12pt→11pt ganhava
+     só ~3,5% de altura (o texto encolhia, os espaços entre parágrafos não);
+     escalando tudo junto, o mesmo passo ganha ~8%. Ao mexer nestas regras,
+     mantenha em — um px fixo aqui volta a "travar" o auto-fit. */
   .paper .id-card{
-    background:#ffffff;border:1.5px solid #2b2b2e;border-radius:10px;padding:10px 16px;margin:0 0 var(--idcard-gap, 20px);
+    background:#ffffff;border:1.5px solid #2b2b2e;border-radius:10px;padding:0.625em 1em;margin:0 0 var(--idcard-gap, 1.25em);
     font-weight:700;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
-  .paper .id-card-row{display:flex;justify-content:space-between;gap:16px;font-size:12pt;}
-  .paper .id-card-row + .id-card-row{margin-top:2px;}
+  .paper .id-card-row{display:flex;justify-content:space-between;gap:1em;font-size:1em;}
+  .paper .id-card-row + .id-card-row{margin-top:0.125em;}
   .paper h3.doctitle{
-    text-align:center;text-decoration:underline;font-size:16pt;letter-spacing:.5px;
-    margin:0 0 24px;font-weight:700;
+    text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
+    margin:0 0 1.125em;font-weight:700;
   }
   .paper h3.doctitle > br:first-child{display:none;}
-  .paper .relato{color:#C0392B;font-weight:700;margin:0 0 12px;}
+  .paper .relato{color:#C0392B;font-weight:700;margin:0 0 0.75em;}
   .paper h4.sec{
-    text-decoration:underline;font-size:13px;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
+    text-decoration:underline;font-size:0.8125em;letter-spacing:.4px;margin:1.230769em 0 0.615385em;font-weight:600;color:var(--rose-dark);
   }
-  .paper p.linha{margin:0 0 var(--linha-margin, 16px);}
+  .paper p.linha{margin:0 0 var(--linha-margin, 1em);}
   .paper p.linha strong{font-weight:700;}
-  .paper p.linha.tight{margin-bottom:2px;}
-  .paper table.biometria{border-collapse:collapse;margin:0 0 12px;}
-  .paper table.biometria td{border:none;padding:0 20px 2px 0;vertical-align:top;}
+  .paper p.linha.tight{margin-bottom:0.125em;}
+  .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
+  .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
   .paper table.biometria td:first-child{white-space:nowrap;}
-  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 16px) 0;}
+  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
-  .paper ul.impressao li{margin-bottom:2px;font-weight:700;}
-  .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
-  .paper .footnote{font-style:italic;font-size:9pt;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
+  .paper ul.impressao li{margin-bottom:0.125em;font-weight:700;}
+  .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:1.5em;margin-top:1em;}
+  .paper .footnote{font-style:italic;font-size:0.75em;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
   .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
   .paper .assinatura p{margin:0;}
-  .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:3px 14px 0;margin-bottom:2px!important;}
-  .paper .assinatura-info{font-size:9.5pt;color:var(--ink-soft);}
+  .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:0.1875em 0.875em 0;margin-bottom:0.125em!important;}
+  .paper .assinatura-info{font-size:0.791667em;color:var(--ink-soft);}
 
   .preview-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
   .preview-actions button{flex:1;min-width:110px;}
@@ -246,6 +255,13 @@
   }
   @media print{
     .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert{display:none !important;}
+    /* .combo-list (a lista de médicos que aparece ao digitar) é movida para o
+       <body> para não ser cortada pelo overflow:hidden do card — ou seja, ela
+       NÃO é descendente de #formCol e não some com a regra acima. Sem esta
+       linha, mandar imprimir com a lista aberta (digitar o nome do médico e
+       dar Ctrl+P sem clicar fora antes) imprimia o dropdown por cima do
+       laudo. */
+    .combo-list{display:none !important;}
     .pg-break-marker{display:none !important;}
     .layout{display:block;padding:0;margin:0;max-width:none;}
     .preview-wrap{position:static;}
@@ -258,7 +274,7 @@
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
-    .paper .continua{font-style:italic;font-size:10pt;text-align:right;margin:0;}
+    .paper .continua{font-style:italic;font-size:0.833333em;text-align:right;margin:0;}
     .paper .print-page .rodape-final{margin-top:0;}
   }
 </style>
@@ -634,7 +650,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.21-b</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.21-c</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -825,10 +841,15 @@
       sel.addRange(newRange);
     }
 
-    const LINE_HEIGHT_MARGIN = {'1':'1mm', '1.15':'2mm', '1.35':'3mm', '1.5':'4mm', '1.8':'6mm'};
+    // Os valores abaixo eram mm absolutos ("2 mm" etc, como nos rótulos do
+    // seletor). Em em, eles rendem exatamente a mesma medida na fonte padrão
+    // de 12pt e passam a encolher junto quando o auto-fit reduz a fonte para
+    // caber numa folha só — com mm fixos, o espaço entre parágrafos ficava
+    // do mesmo tamanho e travava boa parte do ganho da redução.
+    const LINE_HEIGHT_MARGIN = {'1':'0.236em', '1.15':'0.472em', '1.35':'0.709em', '1.5':'0.945em', '1.8':'1.417em'};
     lineHeightSel.addEventListener('change', ()=>{
       const range = captureSelectionInPaper();
-      const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '16px';
+      const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '1em';
       if(range){
         const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, p.recomendacao')).filter(el=> range.intersectsNode(el));
         if(paragraphs.length > 1){
@@ -850,14 +871,14 @@
     });
 
     const idCardGapSel = $('fmtIdCardGap');
-    const IDCARD_GAP_MARGIN = {'default':'20px', '0':'0mm', '1':'1mm', '2':'2mm', '3':'3mm', '8':'8mm', '12':'12mm', '16':'16mm', '20':'20mm'};
+    const IDCARD_GAP_MARGIN = {'default':'1.25em', '0':'0', '1':'0.236em', '2':'0.472em', '3':'0.709em', '8':'1.89em', '12':'2.835em', '16':'3.78em', '20':'4.724em'};
     idCardGapSel.addEventListener('change', ()=>{
       const val = idCardGapSel.value;
       if(val === 'default'){
         paperEl.style.removeProperty('--idcard-gap');
         kvStore.remove('idcard-gap');
       } else {
-        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[val] || '20px');
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[val] || '1.25em');
         kvStore.set('idcard-gap', val);
       }
     });
@@ -883,12 +904,12 @@
       if(saved){
         lineHeightSel.value = saved;
         paperEl.style.lineHeight = saved;
-        paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '16px');
+        paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '1em');
       }
       const savedGap = await kvStore.get('idcard-gap');
       if(savedGap){
         idCardGapSel.value = savedGap;
-        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[savedGap] || '20px');
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[savedGap] || '1.25em');
       }
     })();
 
