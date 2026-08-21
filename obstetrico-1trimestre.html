@@ -2266,6 +2266,10 @@
   }
 
   function cgOnlyDigits(s){ return (s||'').replace(/\D/g, ''); }
+  function cgFormatCPF(digits){
+    if(digits.length !== 11) return null;
+    return digits.slice(0,3)+'.'+digits.slice(3,6)+'.'+digits.slice(6,9)+'-'+digits.slice(9,11);
+  }
 
   function cgDataExameToISO(){
     const s = v('dataExame');
@@ -2302,8 +2306,9 @@
     const session = await cgCheckSession();
     if(!session){ cgToast('Faça login para salvar.', true); return; }
 
-    const cpf = cgOnlyDigits(v('cpfPaciente'));
-    if(cpf.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
+    const cpfDigits = cgOnlyDigits(v('cpfPaciente'));
+    if(cpfDigits.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
+    const cpf = cgFormatCPF(cpfDigits);
     const nome = v('nomePaciente');
     if(!nome){ cgToast('Preencha o nome da paciente.', true); return; }
     const dataExameISO = cgDataExameToISO();
