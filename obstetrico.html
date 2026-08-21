@@ -333,8 +333,8 @@
 
   <hr class="sep">
   <h3>Impressões diagnósticas — Doppler</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Uterinas normais — use {IPMEDIO} e {P95}</label><textarea id="ph_impDopplerUterinasNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Uterinas alteradas — use {IPMEDIO} e {P95}</label><textarea id="ph_impDopplerUterinasAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Uterinas normais</label><textarea id="ph_impDopplerUterinasNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Uterinas alteradas</label><textarea id="ph_impDopplerUterinasAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Umbilical/ACM/relação cérebro-placentária normais</label><textarea id="ph_impDopplerFetalNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Umbilical/ACM/relação cérebro-placentária alterados</label><textarea id="ph_impDopplerFetalAlterado" rows="2"></textarea></div>
 
@@ -492,27 +492,30 @@
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkDoppler"><label for="chkDoppler">Incluir Doppler obstétrico neste laudo</label></div>
         <div id="dopplerFields" class="conditional">
-          <p style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">Até 24 semanas: apenas artérias uterinas. Após 24 semanas: uterinas + umbilical + cerebral média + relação cérebro-placentária.</p>
-          <p class="linha tight" style="margin:0 0 8px;font-size:13px;font-weight:600;color:var(--rose-dark);">Artérias uterinas</p>
+          <p style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">Abaixo de 22 semanas: apenas Doppler Materno (artérias uterinas). A partir de 22 semanas: Materno + Fetal (umbilical, cerebral média e relação cérebro-placentária).</p>
+          <p class="linha tight" style="margin:0 0 8px;font-size:13px;font-weight:600;color:var(--rose-dark);">Doppler Materno — artérias uterinas</p>
           <div class="field-row">
             <div class="field"><label>IP artéria uterina direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder="ex: 0,85"></div>
             <div class="field"><label>IP artéria uterina esquerda</label><input type="text" inputmode="decimal" data-decimals="2" id="utEsquerda" placeholder="ex: 0,90"></div>
           </div>
           <div class="field-row">
             <div class="field"><label>IP médio (calculado)</label><input type="text" id="utMedioCalc" readonly placeholder="calculado automaticamente"></div>
-            <div class="field"><label>Percentil 95 de referência (Gómez et al., 2008)</label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
+            <div class="field"><label>Percentil calculado (Gómez et al., 2008)</label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
           </div>
           <div id="dopplerFetalFields" class="conditional">
             <hr class="sep">
-            <p class="linha tight" style="margin:0 0 8px;font-size:13px;font-weight:600;color:var(--rose-dark);">Circulação fetal (a partir de 25 semanas)</p>
+            <p class="linha tight" style="margin:0 0 8px;font-size:13px;font-weight:600;color:var(--rose-dark);">Doppler Fetal — a partir de 22 semanas</p>
             <div class="field-row">
-              <div class="field"><label>IP artéria umbilical</label><input type="text" inputmode="decimal" data-decimals="2" id="piUmbilical" placeholder="ex: 0,95"></div>
-              <div class="field"><label>IP artéria cerebral média (ACM)</label><input type="text" inputmode="decimal" data-decimals="2" id="piACM" placeholder="ex: 1,60"></div>
+              <div class="field"><label>Art. Umbilical (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="piUmbilical" placeholder="ex: 0,95"></div>
+              <div class="field"><label>Art. Cerebral Média (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="piACM" placeholder="ex: 1,60"></div>
             </div>
             <div class="field-row">
-              <div class="field"><label>Relação cérebro-placentária (calculada)</label><input type="text" id="cprCalc" readonly placeholder="calculado automaticamente"></div>
+              <div class="field"><label>Relação cérebro-placentária — RCP (calculada)</label><input type="text" id="cprCalc" readonly placeholder="calculado automaticamente"></div>
+              <div class="field"><label>Percentil do RCP (se souber)</label><input type="text" inputmode="numeric" id="cprPercentil" placeholder="ex: 25"></div>
+            </div>
+            <div class="field-row">
               <div class="field"><label>Classificação (umbilical + ACM + relação cérebro-placentária)</label>
-                <select id="dopplerFetalClassificacao"><option value="normal">Dentro da normalidade</option><option value="alterado">Alterado</option></select>
+                <select id="dopplerFetalClassificacao"><option value="normal">Dentro da normalidade</option><option value="alterado">Alterado (centralização de fluxo)</option></select>
               </div>
             </div>
           </div>
@@ -1122,18 +1125,18 @@
     laValoresTexto: 'Maior bolsão: {BOLSAO} cm &nbsp;&nbsp; ILA: {ILA} cm (percentil {ILAP}).',
 
     impGestacao: 'Gestação eutópica, compatível com {SEMANAS} semanas e {DIAS} dias.',
-    impBoaEvolucao: 'Boa evolução até o momento.',
-    impPesoAdequado: 'Peso fetal no percentil {PERCENTIL} (Hadlock), dentro da normalidade.',
+    impBoaEvolucao: 'Gestação com boa evolução.',
+    impPesoAdequado: 'Peso fetal no percentil {PERCENTIL} (Hadlock).',
     impPesoPIG: 'Peso fetal no percentil {PERCENTIL} (Hadlock), abaixo do percentil 10 — sugestivo de restrição de crescimento fetal / pequeno para a idade gestacional.',
     impPesoGIG: 'Peso fetal no percentil {PERCENTIL} (Hadlock), acima do percentil 90 — feto grande para a idade gestacional.',
     impPesoSemPercentil: 'Peso fetal estimado em {PESO} g (Hadlock).',
     impLaAlterado: 'Líquido amniótico alterado: {DESCRICAO}.',
     impPlacentaAlterada: 'Placenta com espessura alterada: {DESCRICAO}.',
 
-    impDopplerUterinasNormal: 'Doppler das artérias uterinas com índice de pulsatilidade médio de {IPMEDIO}, dentro da normalidade para a idade gestacional (percentil 95 de referência: {P95} — Gómez et al., 2008).',
-    impDopplerUterinasAlterado: 'Doppler das artérias uterinas com índice de pulsatilidade médio de {IPMEDIO}, ACIMA do percentil 95 para a idade gestacional (referência: {P95} — Gómez et al., 2008), sugerindo risco aumentado para pré-eclâmpsia e/ou restrição de crescimento fetal.',
-    impDopplerFetalNormal: 'Doppler da artéria umbilical, cerebral média e relação cérebro-placentária dentro da normalidade.',
-    impDopplerFetalAlterado: 'Doppler da artéria umbilical, cerebral média e/ou relação cérebro-placentária alterados — sugere-se avaliação e acompanhamento especializado.',
+    impDopplerUterinasNormal: 'IP médio das artérias uterinas dentro da normalidade.',
+    impDopplerUterinasAlterado: 'IP médio das artérias uterinas acima da normalidade (percentil 95), sugerindo risco aumentado para pré-eclâmpsia e/ou restrição de crescimento fetal.',
+    impDopplerFetalNormal: 'Não há sinais de centralização de fluxo fetal.',
+    impDopplerFetalAlterado: 'Sinais de centralização de fluxo fetal, sugerindo redistribuição hemodinâmica — sugere-se avaliação e acompanhamento especializado.',
 
     impPbfNormal: 'Perfil biofísico fetal modificado: {SCORE}/8, dentro da normalidade.',
     impPbfAlterado: 'Perfil biofísico fetal modificado: {SCORE}/8, com alteração em: {CRITERIOS}. Sugere-se avaliação complementar.',
@@ -1375,18 +1378,29 @@
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  // ---------- Doppler: percentil 95 do IP médio das artérias uterinas,
+  // ---------- Doppler: percentil do IP médio das artérias uterinas,
   // Gómez O, Figueras F, Fernández S, Bennasar M, Martínez JM, Puerto B,
   // Gratacós E. Reference ranges for uterine artery mean pulsatility index
   // at 11-41 weeks of gestation. Ultrasound Obstet Gynecol. 2008;32(2):128-132.
   // Loge(PI médio) = 1,39 − 0,012×IG + 0,0000198×IG² (IG em dias)
   // DP[Loge(PI médio)] = 0,272 − 0,000259×IG
-  // Percentil = exp(média ± 1,645×DP) ----------
-  function gomezP95Uterina(gaDays){
-    if(gaDays==null || isNaN(gaDays)) return null;
+  // O percentil de um valor medido é obtido a partir do z-score dessa
+  // distribuição log-normal, via aproximação de Abramowitz & Stegun para a
+  // função erro (CDF normal). ----------
+  function normalCDF(z){
+    const sign = z < 0 ? -1 : 1;
+    const az = Math.abs(z)/Math.SQRT2;
+    const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
+    const t = 1/(1+p*az);
+    const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-az*az);
+    return 0.5*(1+sign*y);
+  }
+  function gomezPercentilUterina(gaDays, piMedio){
+    if(gaDays==null || isNaN(gaDays) || piMedio==null || isNaN(piMedio)) return null;
     const mean = 1.39 - 0.012*gaDays + 0.0000198*gaDays*gaDays;
     const sd = 0.272 - 0.000259*gaDays;
-    return Math.exp(mean + 1.645*sd);
+    const z = (Math.log(piMedio) - mean) / sd;
+    return normalCDF(z) * 100;
   }
   function fmtNum(n, casas){
     if(n==null || isNaN(n)) return '';
@@ -1415,8 +1429,8 @@
 
     if(state.doppler){
       items.push({key:'doppler-uterinas', label: state.utAlterado
-        ? phraseRaw('impDopplerUterinasAlterado', {IPMEDIO: state.utMedioTxt, P95: state.utP95Txt})
-        : phraseRaw('impDopplerUterinasNormal', {IPMEDIO: state.utMedioTxt, P95: state.utP95Txt}), auto:true});
+        ? phraseRaw('impDopplerUterinasAlterado', {IPMEDIO: state.utMedioTxt, PERCENTIL: state.utPercentilTxt})
+        : phraseRaw('impDopplerUterinasNormal', {IPMEDIO: state.utMedioTxt, PERCENTIL: state.utPercentilTxt}), auto:true});
       if(state.dopplerFetal){
         items.push({key:'doppler-fetal', label: state.dopplerFetalAlterado
           ? phraseRaw('impDopplerFetalAlterado')
@@ -1614,13 +1628,16 @@
     const laILAPercentil = blankOrValue(v('laILAPercentil'));
 
     // ----- Doppler -----
+    // Abaixo de 22 semanas: só Doppler Materno (artérias uterinas). A
+    // partir de 22 semanas: Materno + Fetal (umbilical, ACM, RCP).
     const doppler = $('chkDoppler').checked;
     const gaWeeks = gaDays!=null ? Math.floor(gaDays/7) : null;
-    const dopplerFetal = doppler && gaWeeks!=null && gaWeeks > 24;
+    const dopplerFetal = doppler && gaWeeks!=null && gaWeeks >= 22;
     toggle('dopplerFetalFields', dopplerFetal);
-    let utMedioTxt = '', utP95Txt = '', utAlterado = false, cprTxt = '';
+    let utMedioTxt = '', utPercentilTxt = '', utAlterado = false, cprTxt = '';
     let utDireitaVal = {text:'____',filled:false}, utEsquerdaVal = {text:'____',filled:false};
     let piUmbilicalVal = {text:'____',filled:false}, piACMVal = {text:'____',filled:false};
+    let cprPercentilVal = {text:'__',filled:false};
     let dopplerFetalAlterado = false;
     if(doppler){
       utDireitaVal = blankOrValue(req('utDireita'));
@@ -1628,12 +1645,12 @@
       const utDireitaNum = num('utDireita');
       const utEsquerdaNum = num('utEsquerda');
       const utMedioNum = (utDireitaNum!=null && utEsquerdaNum!=null) ? (utDireitaNum+utEsquerdaNum)/2 : null;
-      const p95Num = gomezP95Uterina(gaDays);
+      const percentilNum = gomezPercentilUterina(gaDays, utMedioNum);
       utMedioTxt = utMedioNum!=null ? fmtNum(utMedioNum,2) : '';
-      utP95Txt = p95Num!=null ? fmtNum(p95Num,2) : '';
-      utAlterado = (utMedioNum!=null && p95Num!=null) ? utMedioNum > p95Num : false;
+      utPercentilTxt = percentilNum!=null ? String(Math.round(percentilNum)) : '';
+      utAlterado = percentilNum!=null ? percentilNum > 95 : false;
       $('utMedioCalc').value = utMedioNum!=null ? utMedioTxt : '';
-      $('utP95Calc').value = p95Num!=null ? utP95Txt+' (IG: '+igAtualTxt+')' : (gaDays==null ? 'informe a IG para calcular' : '');
+      $('utP95Calc').value = percentilNum!=null ? ('P'+utPercentilTxt+' (IG: '+igAtualTxt+')') : (gaDays==null ? 'informe a IG para calcular' : '');
 
       if(dopplerFetal){
         piUmbilicalVal = blankOrValue(req('piUmbilical'));
@@ -1643,6 +1660,7 @@
         const cprNum = (piUmbilicalNum!=null && piACMNum!=null && piUmbilicalNum!==0) ? (piACMNum/piUmbilicalNum) : null;
         cprTxt = cprNum!=null ? fmtNum(cprNum,2) : '';
         $('cprCalc').value = cprTxt;
+        cprPercentilVal = blankOrValue(v('cprPercentil'));
         dopplerFetalAlterado = v('dopplerFetalClassificacao')==='alterado';
       }
     }
@@ -1677,7 +1695,7 @@
       laAlterado, laDescricao,
       placentaAlterada, placentaDescricao,
       pesoKey, pesoLabel,
-      doppler, utAlterado, utMedioTxt, utP95Txt,
+      doppler, utAlterado, utMedioTxt, utPercentilTxt,
       dopplerFetal, dopplerFetalAlterado,
       pbf, pbfScore, pbfCriteriosAlterados,
       colo, coloAlterado
@@ -1726,17 +1744,27 @@
     blocks.push({id:'la', html:laHtml});
 
     if(doppler){
-      let dopplerHtml = '<div><h4 class="sec">DOPPLER OBSTÉTRICO</h4>';
-      dopplerHtml += '<table class="biometria">'
-        +'<tr><td>IP artéria uterina direita</td><td>'+span(utDireitaVal)+'</td></tr>'
-        +'<tr><td>IP artéria uterina esquerda</td><td>'+span(utEsquerdaVal)+'</td></tr>'
-        +'<tr><td>IP médio das uterinas</td><td>'+(utMedioTxt || '____')+' (P95 para '+(igAtualTxt||'____')+': '+(utP95Txt||'____')+')</td></tr>';
+      const utMedioSpan = span(blankOrValue(utMedioTxt));
+      const utPercentilSpan = span(blankOrValue(utPercentilTxt));
+      let dopplerHtml = '<div><h4 class="sec">DOPPLER OBSTÉTRICO</h4>'
+        +'<table style="width:100%;border-collapse:collapse;"><tr>'
+        +'<td style="vertical-align:top;padding:0 '+(dopplerFetal?'12px 0 0':'0')+';width:'+(dopplerFetal?'50%':'100%')+';">'
+        +'<table class="biometria" style="width:100%;">'
+        +'<tr><td><strong style="text-decoration:underline;">Doppler Materno</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
+        +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
+        +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
+        +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+utMedioSpan+' (P'+utPercentilSpan+')</td></tr>'
+        +'</table></td>';
       if(dopplerFetal){
-        dopplerHtml += '<tr><td>IP artéria umbilical</td><td>'+span(piUmbilicalVal)+'</td></tr>'
-          +'<tr><td>IP artéria cerebral média</td><td>'+span(piACMVal)+'</td></tr>'
-          +'<tr><td>Relação cérebro-placentária</td><td>'+(cprTxt || '____')+'</td></tr>';
+        dopplerHtml += '<td style="vertical-align:top;padding:0 0 0 12px;width:50%;">'
+          +'<table class="biometria" style="width:100%;">'
+          +'<tr><td><strong style="text-decoration:underline;">Doppler Fetal</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
+          +'<tr><td>Art. Umbilical (IP):</td><td>'+span(piUmbilicalVal)+'</td></tr>'
+          +'<tr><td>Art. Cerebral Média (IP):</td><td>'+span(piACMVal)+'</td></tr>'
+          +'<tr><td>Rel. Cér-placentária (RCP):</td><td style="white-space:nowrap;">'+span(blankOrValue(cprTxt))+' (P'+span(cprPercentilVal)+')</td></tr>'
+          +'</table></td>';
       }
-      dopplerHtml += '</table></div>';
+      dopplerHtml += '</tr></table></div>';
       blocks.push({id:'doppler', html:dopplerHtml});
     }
 
