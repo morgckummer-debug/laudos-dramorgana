@@ -2227,10 +2227,6 @@
   }
 
   function cgOnlyDigits(s){ return (s||'').replace(/\D/g, ''); }
-  function cgFormatCPF(digits){
-    if(digits.length !== 11) return null;
-    return digits.slice(0,3)+'.'+digits.slice(3,6)+'.'+digits.slice(6,9)+'-'+digits.slice(9,11);
-  }
 
   function cgDataExameToISO(){
     const s = v('dataExame');
@@ -2267,9 +2263,9 @@
     const session = await cgCheckSession();
     if(!session){ cgToast('Faça login para salvar.', true); return; }
 
-    const cpfDigits = cgOnlyDigits(v('cpfPaciente'));
-    if(cpfDigits.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
-    const cpf = cgFormatCPF(cpfDigits);
+    const cpf = cgOnlyDigits(v('cpfPaciente'));
+    if(cpf.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
+    const cpfFormatado = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
     const nome = v('nomePaciente');
     if(!nome){ cgToast('Preencha o nome da paciente.', true); return; }
     const dataExameISO = cgDataExameToISO();
@@ -2285,18 +2281,18 @@
 
       // 1) Busca ou cria a paciente por CPF (tenta com e sem pontuação, pois o app Curvas salva formatado)
       let {data: pacientesEncontrados, error: errBusca} = await cgClient
-        .from('patients').select('id').in('cpf', [cpfDigits, cpf]).is('excluido_em', null).limit(1);
+        .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).limit(1);
       if(errBusca) throw errBusca;
       let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
 
       if(!paciente){
         const {data: novaPaciente, error: errCria} = await cgClient
-          .from('patients').insert({user_id: userId, cpf, nome}).select('id').single();
+          .from('patients').insert({user_id: userId, cpf: cpfFormatado, nome}).select('id').single();
         if(errCria && errCria.code !== '23505') throw errCria;
         if(errCria && errCria.code === '23505'){
           // Corrida: paciente já foi criada nesse meio-tempo — busca de novo
           const {data: pacienteExistente, error: errBusca2} = await cgClient
-            .from('patients').select('id').in('cpf', [cpfDigits, cpf]).is('excluido_em', null).limit(1);
+            .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).limit(1);
           if(errBusca2) throw errBusca2;
           paciente = (pacienteExistente && pacienteExistente[0]) || null;
         } else {
@@ -2307,7 +2303,7 @@
 
       // 2) Busca a gestação ativa dessa paciente
       const {data: gestacao, error: errGest} = await cgClient
-        .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
+        .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').maybeSingle();
       if(errGest) throw errGest;
 
       if(!gestacao){
@@ -2331,11 +2327,6 @@
         femur: num('bioCF'),
         au_ip: num('piUmbilical'),
         acm_ip: num('piACM'),
-        // Doppler materno: aut_e/aut_d são as colunas de artéria uterina esquerda e
-        // direita lá na curva de crescimento. Ficaram de fora quando este bloco foi
-        // escrito — os campos existiam no formulário e nunca chegavam ao banco.
-        aut_e: num('utEsquerda'),
-        aut_d: num('utDireita'),
         cpr: num('cprCalc'),
         ila: num('laILA'),
         bolsao: num('laBolsao'),

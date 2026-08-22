@@ -2266,6 +2266,13 @@
   }
 
   function cgOnlyDigits(s){ return (s||'').replace(/\D/g, ''); }
+  function toISODateLocal(date){
+    if(!date) return null;
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,'0');
+    const d = String(date.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+d;
+  }
   function cgFormatCPF(digits){
     if(digits.length !== 11) return null;
     return digits.slice(0,3)+'.'+digits.slice(3,6)+'.'+digits.slice(6,9)+'-'+digits.slice(9,11);
@@ -2328,7 +2335,7 @@
 
       // 1) Busca ou cria a paciente por CPF (tenta com e sem pontuação, pois o app Curvas salva formatado)
       let {data: pacientesEncontrados, error: errBusca} = await cgClient
-        .from('patients').select('id').in('cpf', [cpfDigits, cpf]).is('excluido_em', null).limit(1);
+        .from('patients').select('id').in('cpf', [cpfDigits, cpf]).limit(1);
       if(errBusca) throw errBusca;
       let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
 
@@ -2339,7 +2346,7 @@
         if(errCria && errCria.code === '23505'){
           // Corrida: paciente já foi criada nesse meio-tempo — busca de novo
           const {data: pacienteExistente, error: errBusca2} = await cgClient
-            .from('patients').select('id').in('cpf', [cpfDigits, cpf]).is('excluido_em', null).limit(1);
+            .from('patients').select('id').in('cpf', [cpfDigits, cpf]).limit(1);
           if(errBusca2) throw errBusca2;
           paciente = (pacienteExistente && pacienteExistente[0]) || null;
         } else {
@@ -2348,14 +2355,26 @@
       }
       if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
 
-      // 2) Busca a gestação ativa dessa paciente
-      const {data: gestacao, error: errGest} = await cgClient
-        .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
+      // 2) Busca a gestação ativa dessa paciente — cria automaticamente se não houver
+      let {data: gestacao, error: errGest} = await cgClient
+        .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').maybeSingle();
       if(errGest) throw errGest;
 
       if(!gestacao){
-        cgToast('Nenhuma gestação ativa para esta paciente na Curva de Crescimento. Cadastre a gestação lá antes de salvar.', true);
-        return;
+        const cronologiaMetodoAtual = v('cronologiaMetodo');
+        const dataBase = computeDataBase(cronologiaMetodoAtual==='usg'||cronologiaMetodoAtual==='exame' ? cronologiaMetodoAtual : 'dum');
+        if(!dataBase){
+          cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
+          return;
+        }
+        const dumISO = toISODateLocal(dataBase);
+        const dppISO = toISODateLocal(addDays(dataBase, 280));
+        const corionicidadeAtual = isMultiple ? v('corionicidade') : null;
+        const {data: novaGestacao, error: errCriaGest} = await cgClient
+          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: isMultiple ? 'gemelar' : 'unica', corionicidade: corionicidadeAtual})
+          .select('id').single();
+        if(errCriaGest) throw errCriaGest;
+        gestacao = novaGestacao;
       }
 
       // 3) Monta um exame por saco gestacional (feto 1, 2... se gemelar)
