@@ -2326,10 +2326,11 @@
     try{
       const userId = session.user.id;
 
-      // 1) Busca ou cria a paciente por CPF (CPF é único, não filtra por usuário na busca)
-      let {data: paciente, error: errBusca} = await cgClient
-        .from('patients').select('id').eq('cpf', cpf).maybeSingle();
+      // 1) Busca ou cria a paciente por CPF (tenta com e sem pontuação, pois o app Curvas salva formatado)
+      let {data: pacientesEncontrados, error: errBusca} = await cgClient
+        .from('patients').select('id').in('cpf', [cpfDigits, cpf]).limit(1);
       if(errBusca) throw errBusca;
+      let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
 
       if(!paciente){
         const {data: novaPaciente, error: errCria} = await cgClient
@@ -2338,9 +2339,9 @@
         if(errCria && errCria.code === '23505'){
           // Corrida: paciente já foi criada nesse meio-tempo — busca de novo
           const {data: pacienteExistente, error: errBusca2} = await cgClient
-            .from('patients').select('id').eq('cpf', cpf).maybeSingle();
+            .from('patients').select('id').in('cpf', [cpfDigits, cpf]).limit(1);
           if(errBusca2) throw errBusca2;
-          paciente = pacienteExistente;
+          paciente = (pacienteExistente && pacienteExistente[0]) || null;
         } else {
           paciente = novaPaciente;
         }

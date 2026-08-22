@@ -2301,7 +2301,7 @@
 
       // 2) Busca a gestação ativa dessa paciente
       const {data: gestacao, error: errGest} = await cgClient
-        .from('gestacoes').select('id').eq('user_id', userId).eq('paciente_id', paciente.id).eq('status', 'ativa').maybeSingle();
+        .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').maybeSingle();
       if(errGest) throw errGest;
 
       if(!gestacao){
