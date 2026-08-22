@@ -2227,6 +2227,13 @@
   }
 
   function cgOnlyDigits(s){ return (s||'').replace(/\D/g, ''); }
+  function toISODateLocal(date){
+    if(!date) return null;
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,'0');
+    const d = String(date.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+d;
+  }
 
   function cgDataExameToISO(){
     const s = v('dataExame');
@@ -2301,14 +2308,25 @@
       }
       if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
 
-      // 2) Busca a gestação ativa dessa paciente
-      const {data: gestacao, error: errGest} = await cgClient
+      // 2) Busca a gestação ativa dessa paciente — cria automaticamente se não houver
+      let {data: gestacao, error: errGest} = await cgClient
         .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').maybeSingle();
       if(errGest) throw errGest;
 
       if(!gestacao){
-        cgToast('Nenhuma gestação ativa para esta paciente na Curva de Crescimento. Cadastre a gestação lá antes de salvar.', true);
-        return;
+        const cronologiaMetodoAtual = v('cronologiaMetodo');
+        const dataBase = computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='exame') ? cronologiaMetodoAtual : 'dum');
+        if(!dataBase){
+          cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
+          return;
+        }
+        const dumISO = toISODateLocal(dataBase);
+        const dppISO = toISODateLocal(addDays(dataBase, 280));
+        const {data: novaGestacao, error: errCriaGest} = await cgClient
+          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: 'unica'})
+          .select('id').single();
+        if(errCriaGest) throw errCriaGest;
+        gestacao = novaGestacao;
       }
 
       // 3) Monta o exame com os campos do laudo
