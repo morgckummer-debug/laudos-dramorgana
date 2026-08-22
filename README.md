@@ -7,6 +7,19 @@ Cada laudo é um arquivo HTML autônomo (sem build, abre direto no navegador). `
 ## Laudos disponíveis
 - `transvaginal.html` — Ultrassonografia Transvaginal
 - `obstetrico-1trimestre.html` — Ultrassonografia Obstétrica de 1º Trimestre (translucência nucal)
+- `obstetrico.html` — Ultrassonografia Obstétrica de 2º/3º Trimestre (feto único, gemelar ou trigemelar)
+
+## Gestação múltipla (`obstetrico.html`)
+O laudo de 2º/3º trimestre atende de um a três fetos. O número de fetos é escolhido no card "Gestação"; cada feto ganha um card próprio, e o que é medido feto a feto se repete dentro dele: apresentação e vitalidade, biometria, placenta, líquido amniótico, Doppler fetal e perfil biofísico. O que é da mãe ou do útero aparece uma vez só — Doppler das artérias uterinas e medida do colo.
+
+Três detalhes valem ser preservados em qualquer mexida futura aqui:
+- **Cada card de feto guarda um `uid` estável** (mesmo padrão dos sacos gestacionais do 1º trimestre e dos nódulos de mioma do transvaginal). Os ids dos campos (`feto3DBP`) e dos blocos do preview (`biometria-f3`) derivam desse uid, e não da posição na lista — assim, remover o feto do meio não recria os blocos dos outros, e o texto que a médica digitou à mão neles sobrevive.
+- **As chaves das impressões diagnósticas são sufixadas por feto** (`peso-f2`) quando há mais de um. Sem isso, marcar/desmarcar ou reescrever um item afetaria o item homônimo do outro feto. Ao remover um feto, `renderChecklist` descarta as chaves órfãs dele em `checkedState` e `impressaoOverrides`.
+- **Doppler fetal e PBF continuam sendo escolhas únicas do laudo** (marcadas uma vez, nos cards "Doppler" e "Perfil biofísico fetal", porque definem o título do laudo), mas seus campos são preenchidos dentro de cada feto.
+
+A discordância de peso — `(maior − menor) / maior × 100` — é calculada automaticamente a partir dos pesos estimados e entra como impressão diagnóstica; a partir de 20% ela vira o alerta de acompanhamento especializado. O rastreio de síndrome de transfusão feto-fetal em monocoriônicas ainda **não** está no laudo.
+
+Ao salvar na Curva de Crescimento, uma gestação múltipla grava `tipo_gestacao: 'gemelar'` com a corionicidade escolhida e insere **um `exams` por feto**, numerados na coluna `feto` — igual ao laudo de 1º trimestre.
 
 ## Adicionando um novo laudo
 Os modelos de laudo já existem na clínica (a Dra. Morgana envia o modelo real usado — texto, foto ou arquivo). O fluxo é:
