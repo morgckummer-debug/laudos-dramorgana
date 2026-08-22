@@ -2331,6 +2331,11 @@
         femur: num('bioCF'),
         au_ip: num('piUmbilical'),
         acm_ip: num('piACM'),
+        // Doppler materno: aut_e/aut_d são as colunas de artéria uterina esquerda e
+        // direita lá na curva de crescimento. Ficaram de fora quando este bloco foi
+        // escrito — os campos existiam no formulário e nunca chegavam ao banco.
+        aut_e: num('utEsquerda'),
+        aut_d: num('utDireita'),
         cpr: num('cprCalc'),
         ila: num('laILA'),
         bolsao: num('laBolsao'),
