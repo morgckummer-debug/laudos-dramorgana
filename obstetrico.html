@@ -472,8 +472,18 @@
             <select id="corionicidade"><option value="dicorionica_diamniotica">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica">Tricoriônica e triamniótica</option></select>
           </div>
         </div>
-        <div class="field-row conditional" id="wrap_discordancia">
-          <div class="field"><label>Discordância de peso entre os fetos (calculada)</label><input type="text" id="discordanciaCalc" readonly placeholder="calculada automaticamente"></div>
+      </div>
+    </div>
+
+    <div id="fetosContainer"></div>
+    <button type="button" class="btn-clear" id="btnAddFeto" style="margin:-8px 0 22px;">+ Adicionar feto</button>
+
+    <div class="card conditional" id="wrap_discordancia">
+      <div class="card-head"><h2>Discordância de peso</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Calculada a partir dos pesos fetais estimados acima: (maior − menor) ÷ maior. A partir de 20% entra o alerta de acompanhamento especializado.</p>
+        <div class="field-row">
+          <div class="field"><label>Discordância entre os fetos</label><input type="text" id="discordanciaCalc" readonly placeholder="calculada automaticamente"></div>
         </div>
       </div>
     </div>
@@ -494,7 +504,7 @@
         </div>
         <hr class="sep">
         <div class="toggle-line"><input type="checkbox" id="chkDopplerFetal"><label for="chkDopplerFetal">Doppler fetal (umbilical, cerebral média e relação cérebro-placentária)</label></div>
-        <p class="hint-perfeto conditional" id="hintDopplerFetal">Os campos do Doppler fetal aparecem dentro de cada feto, abaixo.</p>
+        <p class="hint-perfeto conditional" id="hintDopplerFetal">Os campos do Doppler fetal aparecem dentro de cada feto, acima.</p>
       </div>
     </div>
 
@@ -502,12 +512,10 @@
       <div class="card-head"><h2>Perfil biofísico fetal</h2></div>
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkPBF"><label for="chkPBF">Incluir Perfil Biofísico Fetal neste laudo</label></div>
-        <p class="hint-perfeto conditional" id="hintPBF">Sem cardiotocografia — cada critério vale 2 pontos, total até 8. Os critérios são marcados dentro de cada feto, abaixo.</p>
+        <p class="hint-perfeto conditional" id="hintPBF">Sem cardiotocografia — cada critério vale 2 pontos, total até 8. Os critérios são marcados dentro de cada feto, acima.</p>
       </div>
     </div>
 
-    <div id="fetosContainer"></div>
-    <button type="button" class="btn-clear" id="btnAddFeto" style="margin:-8px 0 22px;">+ Adicionar feto</button>
 
     <div class="card">
       <div class="card-head"><h2>Medida do colo uterino</h2></div>
@@ -2045,15 +2053,25 @@
       blocks.push({id:'gestacaoMultipla', html:'<p class="linha">'+escapeHtml('Gestação múltipla, com '+fetos.length+' fetos, '+corTxt+'.')+'</p>'});
     }
 
-    if(dopplerMaterno){
-      blocks.push({id:'dopplerMaterno', html:'<div>'
-        +'<table class="biometria" style="width:'+(isMultiple?'100%':'60%')+';">'
-        +'<tr><td><strong style="text-decoration:underline;">Doppler Materno</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
-        +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
-        +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
-        +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
-        +'</table></div>'});
-    }
+    // Tabelas do Doppler, montadas uma vez e posicionadas conforme o caso:
+    // com feto único elas continuam lado a lado, logo depois do líquido
+    // amniótico, exatamente como o laudo sempre saiu; com mais de um feto a
+    // fetal entra dentro de cada feto e a materna, que é da mãe, vem uma vez
+    // só depois de todos.
+    const tabelaDopplerMaterno = ''
+      +'<table class="biometria" style="width:100%;">'
+      +'<tr><td><strong style="text-decoration:underline;">Doppler Materno</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
+      +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
+      +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
+      +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
+      +'</table>';
+    const tabelaDopplerFetal = f => ''
+      +'<table class="biometria" style="width:100%;">'
+      +'<tr><td><strong style="text-decoration:underline;">Doppler Fetal</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
+      +'<tr><td>Art. Umbilical (IP):</td><td>'+span(f.piUmbilicalVal)+'</td></tr>'
+      +'<tr><td>Art. Cerebral Média (IP):</td><td>'+span(f.piACMVal)+'</td></tr>'
+      +'<tr><td>Rel. Cér-placentária (RCP):</td><td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td></tr>'
+      +'</table>';
 
     fetos.forEach(f=>{
       const sfx = '-f'+f.uid;
@@ -2079,14 +2097,20 @@
       laHtml += '<p class="linha">'+phraseRaw('laValoresTexto', {BOLSAO: f.laBolsao.text, ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'</p></div>';
       blocks.push({id:'la'+sfx, html:laHtml});
 
-      if(dopplerFetal){
-        blocks.push({id:'dopplerFetal'+sfx, html:'<div>'
-          +'<table class="biometria" style="width:'+(isMultiple?'100%':'60%')+';">'
-          +'<tr><td><strong style="text-decoration:underline;">Doppler Fetal</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
-          +'<tr><td>Art. Umbilical (IP):</td><td>'+span(f.piUmbilicalVal)+'</td></tr>'
-          +'<tr><td>Art. Cerebral Média (IP):</td><td>'+span(f.piACMVal)+'</td></tr>'
-          +'<tr><td>Rel. Cér-placentária (RCP):</td><td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td></tr>'
-          +'</table></div>'});
+      if(!isMultiple && doppler){
+        const ambos = dopplerMaterno && dopplerFetal;
+        const colWidth = ambos ? '50%' : '100%';
+        let dopplerHtml = '<div><table style="width:100%;border-collapse:collapse;"><tr>';
+        if(dopplerMaterno){
+          dopplerHtml += '<td style="vertical-align:top;padding:0 '+(ambos?'12px 0 0':'0')+';width:'+colWidth+';">'+tabelaDopplerMaterno+'</td>';
+        }
+        if(dopplerFetal){
+          dopplerHtml += '<td style="vertical-align:top;padding:0 0 0 '+(ambos?'12px':'0')+';width:'+colWidth+';">'+tabelaDopplerFetal(f)+'</td>';
+        }
+        dopplerHtml += '</tr></table></div>';
+        blocks.push({id:'doppler', html:dopplerHtml});
+      } else if(dopplerFetal){
+        blocks.push({id:'dopplerFetal'+sfx, html:'<div>'+tabelaDopplerFetal(f)+'</div>'});
       }
 
       if(pbf){
@@ -2104,6 +2128,10 @@
 
     if(discordanciaTxt){
       blocks.push({id:'discordancia', html:'<p class="linha"><strong>Discordância de peso entre os fetos:</strong> '+escapeHtml(discordanciaTxt)+'%.</p>'});
+    }
+
+    if(isMultiple && dopplerMaterno){
+      blocks.push({id:'dopplerMaterno', html:'<div>'+tabelaDopplerMaterno+'</div>'});
     }
 
     if(colo){
