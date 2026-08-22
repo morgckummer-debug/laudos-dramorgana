@@ -2383,7 +2383,7 @@
         gestacao_id: gestacao.id,
         data_exame: dataExameISO,
         ccn: num('saco'+uid+'CCN'),
-        feto: isMultiple ? String(idx+1) : null
+        feto: isMultiple ? (idx === 0 ? 'A' : 'B') : null
       }));
 
       const {error: errExame} = await cgClient.from('exams').insert(exames);

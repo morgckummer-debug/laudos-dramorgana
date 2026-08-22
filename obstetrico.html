@@ -2550,7 +2550,7 @@
           ila: num(pre+'LaILA'),
           bolsao: num(pre+'LaBolsao'),
           colo: coloVal,
-          feto: isMultiple ? String(idx+1) : null
+          feto: isMultiple ? (idx === 0 ? 'A' : 'B') : null
         };
       });
 
