@@ -2743,6 +2743,16 @@
 
     const uids = fetoUids();
     if(!uids.length){ cgToast('Nenhum feto preenchido.', true); return; }
+    // A curva de crescimento é construída para no máximo dois fetos: exams.feto
+    // tem check (feto in ('A','B')) e a interface de lá inteira (abas dos
+    // gráficos, edição da visita, datação, discrepância de peso) trabalha com o
+    // par A/B. Mandar o terceiro feto como 'B' passaria no check e o
+    // confundiria com o segundo dentro do prontuário — melhor recusar aqui, em
+    // voz alta, do que gravar duas medidas diferentes sob o mesmo rótulo.
+    if(uids.length > 2){
+      cgToast('A Curva de Crescimento ainda só acompanha até dois fetos (A e B). Nada foi enviado — o laudo continua funcionando normalmente.', true);
+      return;
+    }
     const isMultiple = uids.length > 1;
 
     const btn = $('btnSalvarCG');

@@ -98,9 +98,15 @@ valor vai repetido nos exames dos dois fetos, de propósito.
 ### Limitação conhecida: trigemelar não chega inteiro
 
 O laudo de 2º/3º trimestre atende até três fetos (`MAX_FETOS = 3`), mas a coluna
-`exams.feto` do outro lado tem `check (feto in ('A','B'))` e o código aqui manda
-`idx === 0 ? 'A' : 'B'`. Numa trigemelar, os fetos 2 e 3 chegam os dois como
-"Feto B" e se confundem no prontuário — e `tipo_gestacao` vai como `'gemelar'`
-mesmo com três. Resolver exige mudar o schema e a interface do `curva-fetal`
-(decisão da Dra. Morgana, não do laudo). Enquanto isso não acontece, não tente
-contornar aqui: mandar `'C'` faz o insert inteiro falhar no check.
+`exams.feto` do outro lado tem `check (feto in ('A','B'))`, e o app de curvas
+inteiro é construído em torno do par A/B — abas dos gráficos, edição da visita,
+datação por CCN, discrepância de peso.
+
+Por isso o envio **recusa** três fetos, com aviso na tela, em vez de mandar o
+terceiro como `'B'`: passaria no check e confundiria duas medidas diferentes sob
+o mesmo rótulo dentro do prontuário. Não tente contornar mandando `'C'` sem
+antes soltar o check — o insert inteiro falha.
+
+Dar suporte de verdade a trigemelar é um projeto no `curva-fetal` (migração do
+check, `tipo_gestacao` novo, e as decisões clínicas de como mostrar três fetos
+nos gráficos, na datação e na discrepância de peso), não uma linha aqui.
