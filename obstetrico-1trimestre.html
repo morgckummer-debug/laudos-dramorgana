@@ -2587,9 +2587,9 @@
     const session = await cgCheckSession();
     if(!session){ cgToast('Faça login para salvar.', true); return; }
 
-    const cpf = cgOnlyDigits(v('cpfPaciente'));
-    if(cpf.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
-    const cpfFormatado = cgFormatCPF(cpf);
+    const cpfDigits = cgOnlyDigits(v('cpfPaciente'));
+    if(cpfDigits.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
+    const cpf = cgFormatCPF(cpfDigits);
     const nome = v('nomePaciente');
     if(!nome){ cgToast('Preencha o nome da paciente.', true); return; }
     const dataExameISO = cgDataExameToISO();
@@ -2607,12 +2607,9 @@
     try{
       const userId = session.user.id;
 
-      // 1) Busca ou cria a paciente por CPF. O que é gravado daqui em diante são
-      //    só os 11 dígitos; a busca ainda tenta também a forma pontuada porque
-      //    as pacientes cadastradas antes disso (e as criadas pelo app Curvas)
-      //    podem estar gravadas como 000.000.000-00.
+      // 1) Busca ou cria a paciente por CPF (tenta com e sem pontuação, pois o app Curvas salva formatado)
       let {data: pacientesEncontrados, error: errBusca} = await cgClient
-        .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).limit(1);
+        .from('patients').select('id').in('cpf', [cpfDigits, cpf]).limit(1);
       if(errBusca) throw errBusca;
       let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
 
@@ -2623,7 +2620,7 @@
         if(errCria && errCria.code === '23505'){
           // Corrida: paciente já foi criada nesse meio-tempo — busca de novo
           const {data: pacienteExistente, error: errBusca2} = await cgClient
-            .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).limit(1);
+            .from('patients').select('id').in('cpf', [cpfDigits, cpf]).limit(1);
           if(errBusca2) throw errBusca2;
           paciente = (pacienteExistente && pacienteExistente[0]) || null;
         } else {

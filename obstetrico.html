@@ -2753,10 +2753,7 @@
     try{
       const userId = session.user.id;
 
-      // 1) Busca ou cria a paciente por CPF. O que é gravado daqui em diante são
-      //    só os 11 dígitos; a busca ainda tenta também a forma pontuada porque
-      //    as pacientes cadastradas antes disso (e as criadas pelo app Curvas)
-      //    podem estar gravadas como 000.000.000-00.
+      // 1) Busca ou cria a paciente por CPF (tenta com e sem pontuação, pois o app Curvas salva formatado)
       let {data: pacientesEncontrados, error: errBusca} = await cgClient
         .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).limit(1);
       if(errBusca) throw errBusca;
@@ -2764,7 +2761,7 @@
 
       if(!paciente){
         const {data: novaPaciente, error: errCria} = await cgClient
-          .from('patients').insert({user_id: userId, cpf, nome}).select('id').single();
+          .from('patients').insert({user_id: userId, cpf: cpfFormatado, nome}).select('id').single();
         if(errCria && errCria.code !== '23505') throw errCria;
         if(errCria && errCria.code === '23505'){
           // Corrida: paciente já foi criada nesse meio-tempo — busca de novo
