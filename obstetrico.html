@@ -2755,7 +2755,7 @@
 
       // 1) Busca ou cria a paciente por CPF (tenta com e sem pontuação, pois o app Curvas salva formatado)
       let {data: pacientesEncontrados, error: errBusca} = await cgClient
-        .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).limit(1);
+        .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
       if(errBusca) throw errBusca;
       let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
 
@@ -2766,7 +2766,7 @@
         if(errCria && errCria.code === '23505'){
           // Corrida: paciente já foi criada nesse meio-tempo — busca de novo
           const {data: pacienteExistente, error: errBusca2} = await cgClient
-            .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).limit(1);
+            .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
           if(errBusca2) throw errBusca2;
           paciente = (pacienteExistente && pacienteExistente[0]) || null;
         } else {
@@ -2777,7 +2777,7 @@
 
       // 2) Busca a gestação ativa dessa paciente — cria automaticamente se não houver
       let {data: gestacao, error: errGest} = await cgClient
-        .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').maybeSingle();
+        .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
       if(errGest) throw errGest;
 
       if(!gestacao){
@@ -2817,6 +2817,11 @@
           femur: num(pre+'CF'),
           au_ip: num(pre+'PiUmbilical'),
           acm_ip: num(pre+'PiACM'),
+          // Doppler materno: aut_e/aut_d são as colunas de artéria uterina esquerda e
+          // direita lá na curva de crescimento. As uterinas são da mãe, não do feto —
+          // numa gemelar o mesmo par de valores vai nos dois exames.
+          aut_e: num('utEsquerda'),
+          aut_d: num('utDireita'),
           cpr: num(pre+'CprCalc'),
           ila: num(pre+'LaILA'),
           bolsao: num(pre+'LaBolsao'),
