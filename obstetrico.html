@@ -480,7 +480,7 @@
             <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
           </div>
           <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade / amnionicidade</label>
-            <select id="corionicidade"><option value="dicorionica_diamniotica">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica">Tricoriônica e triamniótica</option></select>
+            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option></select>
           </div>
         </div>
       </div>
@@ -1461,9 +1461,25 @@
     render();
   }
   function updateGestacaoWrap(){
-    const multiplo = $('fetosContainer').children.length > 1;
+    const nFetos = $('fetosContainer').children.length;
+    const multiplo = nFetos > 1;
     toggle('wrap_corionicidade', multiplo);
     toggle('wrap_discordancia', multiplo);
+    // Tricoriônica só existe com três fetos, e as corionicidades de dois não
+    // existem com três: a lista segue o número de fetos escolhido. A curva de
+    // crescimento guarda essa escolha junto do tipo da gestação, e o check de
+    // lá (migração 005) recusa a corionicidade de um tipo gravada no outro.
+    const sel = $('corionicidade');
+    if(!sel) return;
+    Array.from(sel.options).forEach(opt=>{
+      const cabe = !opt.dataset.fetos || parseInt(opt.dataset.fetos, 10) === nFetos;
+      opt.hidden = !cabe;
+      if(!cabe && sel.value === opt.value) sel.selectedIndex = -1;
+    });
+    if(sel.selectedIndex === -1){
+      const primeira = Array.from(sel.options).find(o=> !o.hidden);
+      if(primeira) sel.value = primeira.value;
+    }
   }
   $('numeroFetos').addEventListener('change', e=>{
     setFetoCount(Math.min(Math.max(parseInt(e.target.value,10)||1, 1), MAX_FETOS));
@@ -2598,6 +2614,13 @@
       // isto, ele voltaria à tela sem a pontuação.
       aplicarMascaraCPF();
 
+      // A lista de corionicidade depende do número de fetos, e 'numeroFetos'
+      // está fora do disparo de 'change' logo abaixo (recriaria os cards que
+      // acabaram de voltar). Sem esta chamada, um rascunho antigo poderia
+      // voltar com uma corionicidade que não existe para a quantidade de fetos
+      // dele — dicoriônica numa trigemelar, por exemplo.
+      updateGestacaoWrap();
+
       // Quais blocos condicionais ficam abertos é decidido pelos handlers de
       // 'change' dos selects e checkboxes — e os valores acima foram escritos na
       // mão, sem passar por eles. Um 'change' em cada um reabre no formulário
@@ -2743,16 +2766,6 @@
 
     const uids = fetoUids();
     if(!uids.length){ cgToast('Nenhum feto preenchido.', true); return; }
-    // A curva de crescimento é construída para no máximo dois fetos: exams.feto
-    // tem check (feto in ('A','B')) e a interface de lá inteira (abas dos
-    // gráficos, edição da visita, datação, discrepância de peso) trabalha com o
-    // par A/B. Mandar o terceiro feto como 'B' passaria no check e o
-    // confundiria com o segundo dentro do prontuário — melhor recusar aqui, em
-    // voz alta, do que gravar duas medidas diferentes sob o mesmo rótulo.
-    if(uids.length > 2){
-      cgToast('A Curva de Crescimento ainda só acompanha até dois fetos (A e B). Nada foi enviado — o laudo continua funcionando normalmente.', true);
-      return;
-    }
     const isMultiple = uids.length > 1;
 
     const btn = $('btnSalvarCG');
@@ -2799,16 +2812,21 @@
         }
         const dumISO = toISODateLocal(dataBase);
         const dppISO = toISODateLocal(addDays(dataBase, 280));
+        // 'gemelar' e 'trigemelar' são os valores que o check da tabela aceita
+        // (migração 005 do repo curva-fetal); a corionicidade escolhida no laudo
+        // precisa combinar com o tipo — tricoriônica só existe em trigemelar.
+        const tipoGestacao = uids.length > 2 ? 'trigemelar' : (isMultiple ? 'gemelar' : 'unica');
         const corionicidadeAtual = isMultiple ? v('corionicidade') : null;
         const {data: novaGestacao, error: errCriaGest} = await cgClient
-          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: isMultiple ? 'gemelar' : 'unica', corionicidade: corionicidadeAtual})
+          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: tipoGestacao, corionicidade: corionicidadeAtual})
           .select('id').single();
         if(errCriaGest) throw errCriaGest;
         gestacao = novaGestacao;
       }
 
-      // 3) Monta um exame por feto (feto 1, 2... se gemelar) — a curva de
-      // crescimento acompanha cada feto separadamente.
+      // 3) Monta um exame por feto (feto 1, 2, 3... quando múltipla) — a curva
+      // de crescimento acompanha cada feto separadamente. Lá os fetos são
+      // letras: o Feto 1 do laudo é o 'A', o 2 é o 'B', o 3 é o 'C'.
       const impSemanasVal = num('impSemanas');
       const impDiasVal = num('impDias');
       const igDias = (impSemanasVal!=null && impDiasVal!=null) ? (impSemanasVal*7 + impDiasVal) : null;
@@ -2836,7 +2854,7 @@
           ila: num(pre+'LaILA'),
           bolsao: num(pre+'LaBolsao'),
           colo: coloVal,
-          feto: isMultiple ? (idx === 0 ? 'A' : 'B') : null
+          feto: isMultiple ? String.fromCharCode(65 + idx) : null
         };
       });
 

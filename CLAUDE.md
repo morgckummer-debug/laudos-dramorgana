@@ -95,18 +95,21 @@ feto**.
 As artérias uterinas e o colo são **maternos**, não fetais: numa gemelar o mesmo
 valor vai repetido nos exames dos dois fetos, de propósito.
 
-### Limitação conhecida: trigemelar não chega inteiro
+### Gestação múltipla: um `exams` por feto, A/B/C
 
-O laudo de 2º/3º trimestre atende até três fetos (`MAX_FETOS = 3`), mas a coluna
-`exams.feto` do outro lado tem `check (feto in ('A','B'))`, e o app de curvas
-inteiro é construído em torno do par A/B — abas dos gráficos, edição da visita,
-datação por CCN, discrepância de peso.
+O laudo de 2º/3º trimestre atende até três fetos (`MAX_FETOS = 3`) e manda um
+`exams` por feto: o Feto 1 do laudo é o `'A'` lá, o 2 é `'B'`, o 3 é `'C'`
+(`String.fromCharCode(65 + idx)`). `tipo_gestacao` acompanha — `'gemelar'` com
+dois, `'trigemelar'` com três.
 
-Por isso o envio **recusa** três fetos, com aviso na tela, em vez de mandar o
-terceiro como `'B'`: passaria no check e confundiria duas medidas diferentes sob
-o mesmo rótulo dentro do prontuário. Não tente contornar mandando `'C'` sem
-antes soltar o check — o insert inteiro falha.
+Isso só passou a existir com a **migração 005** do `curva-fetal`, que soltou os
+checks (`exams.feto` aceitava só A e B; `tipo_gestacao`, só única e gemelar).
+Antes dela o laudo mandava o terceiro feto como `'B'` — passava no check e
+confundia duas medidas diferentes sob o mesmo rótulo no prontuário. **Se algum
+dia o banco voltar sem a 005, o insert do terceiro feto falha no check.**
 
-Dar suporte de verdade a trigemelar é um projeto no `curva-fetal` (migração do
-check, `tipo_gestacao` novo, e as decisões clínicas de como mostrar três fetos
-nos gráficos, na datação e na discrepância de peso), não uma linha aqui.
+A **corionicidade** segue o número de fetos nos dois lados: tricoriônica e
+triamniótica só aparece com três, as de dois só aparecem com dois. O check do
+banco é uma lista única, então ele não impede a combinação errada — quem impede
+é o select de cada app. Se for mexer na lista, mexa nos dois: `updateGestacaoWrap()`
+aqui e `_gestacaoTipoUI()` lá.
