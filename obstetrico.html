@@ -258,6 +258,17 @@
   }
   .print-alert.show{display:block;}
 
+  .draft-note{
+    display:none;align-items:center;gap:10px;flex-wrap:wrap;background:var(--rose-light);color:var(--rose-dark);
+    font-size:12.5px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:10px;
+  }
+  .draft-note.show{display:flex;}
+  .draft-note button{
+    background:#fff;border:1.5px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;
+    font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;
+  }
+  .draft-note button:hover{background:var(--sage-light);}
+
   .settings-panel{display:none;background:var(--rose-light);border-radius:var(--radius-md);padding:16px 18px;margin:0 28px 22px;max-width:1440px;}
   .settings-panel.show{display:block;margin:0 auto 22px;}
   .settings-panel h3{font-family:'Poppins',sans-serif;font-size:14px;margin:0 0 10px;color:var(--rose-dark);font-weight:600;}
@@ -274,7 +285,7 @@
     margin: 0;
   }
   @media print{
-    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert{display:none !important;}
+    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note{display:none !important;}
     /* .combo-list (a lista de médicos que aparece ao digitar) é movida para o
        <body> para não ser cortada pelo overflow:hidden do card — ou seja, ela
        NÃO é descendente de #formCol e não some com a regra acima. Sem esta
@@ -543,7 +554,12 @@
   <div class="preview-wrap">
     <span class="status-pill" id="statusPill">0 campos pendentes</span>
     <span class="status-pill" id="pageCountPill">1 página</span>
+    <span class="status-pill" id="draftPill" style="display:none;" title="O laudo é salvo sozinho neste navegador enquanto você digita"></span>
     <div class="print-alert" id="printAlert">⚠ Ainda há campos não preenchidos — corrija antes de imprimir.</div>
+    <div class="draft-note" id="draftNote">
+      <span id="draftNoteText"></span>
+      <button type="button" id="btnDraftDiscard">Fechar aviso</button>
+    </div>
     <div class="format-toolbar" id="formatToolbar">
       <button type="button" class="fmt-btn" id="fmtBold" title="Negrito (Ctrl+B)"><b>N</b></button>
       <button type="button" class="fmt-btn" id="fmtItalic" title="Itálico (Ctrl+I)"><i>I</i></button>
@@ -606,7 +622,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.21-c</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.23-a</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -665,6 +681,13 @@
   // the laudo is rendered as one "block" keyed by a stable id. See
   // obstetrico-1trimestre.html for the full rationale — same mechanism here. ----------
   let lastBlockHtml = {};
+
+  // Ligado só enquanto o rascunho salvo está sendo recolocado no formulário:
+  // render() sai na hora (seria chamado uma vez por campo restaurado) e o
+  // autosave não regrava por cima do que ainda está sendo lido. Declarado aqui,
+  // junto do estado que ele protege, e não lá embaixo com o resto do rascunho,
+  // para já existir antes do primeiro render().
+  let draftRestoring = false;
   function renderBlocks(blocks){
     const paperEl = $('paper');
     let prevNode = null;
@@ -1824,6 +1847,7 @@
   let printAttempted = false;
 
   function render(){
+    if(draftRestoring) return;
     pendingCount = 0;
     function req(id){
       const val = v(id);
@@ -2170,6 +2194,7 @@
     if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
     else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
     updatePagePreview();
+    draftSchedule();
   }
 
   // ---------- Wire up live updates ----------
@@ -2389,6 +2414,8 @@
     $('fetosContainer').innerHTML = '';
     addFeto();
     render();
+    // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
+    draftDiscard();
   });
 
   function setDefaultDataExame(){
@@ -2400,10 +2427,231 @@
   }
   setDefaultDataExame();
 
-  loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=>{
-    addFeto();
+  // ---------- Rascunho automático (o laudo se salva sozinho) ----------
+  // Antes disto o laudo só saía do navegador no fim, no "Imprimir / PDF" ou no
+  // "Baixar Word": uma queda de energia, um F5 sem querer ou a aba fechada por
+  // engano levavam junto tudo o que já tinha sido digitado. Agora cada mudança
+  // no formulário e cada texto digitado direto no laudo viram um rascunho
+  // gravado neste navegador — pouco depois da última tecla, e na hora quando a
+  // aba é escondida ou fechada — e esse rascunho volta sozinho ao reabrir.
+  //
+  // Grava em localStorage direto, e não pelo kvStore assíncrono das
+  // preferências, porque a gravação do 'pagehide' precisa ser síncrona: é a
+  // última que ainda acontece com a aba fechando.
+  //
+  // O rascunho fica só neste computador (não vai para servidor nenhum) e contém
+  // dados da paciente; "Limpar" apaga o rascunho junto com o formulário.
+  const DRAFT_KEY = 'laudo-rascunho-obstetrico-v1';
+  const DRAFT_DEBOUNCE_MS = 800;
+  // Selects que definem quantos cards existem: ficam fora do disparo de 'change'
+  // da restauração porque recriariam do zero os cards que acabaram de voltar com
+  // os uids certos.
+  const DRAFT_SKIP_CHANGE = ['numeroFetos'];
+  let draftTimer = null;
+  let draftReady = false;    // não grava nada antes de a carga inicial terminar
+  let draftBaseline = null;  // assinatura do formulário em branco (nada a salvar)
+
+  function draftPaperHtml(){
+    // Os marcadores de fim de página são recalculados a cada render(); sem
+    // tirá-los daqui, voltariam duplicados junto com o rascunho.
+    const clone = $('paper').cloneNode(true);
+    clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    return clone.innerHTML;
+  }
+
+  function draftSnapshot(){
+    const fields = {};
+    document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
+      // Os checkboxes da checklist de impressões não têm id: eles voltam por
+      // `checked`/`overrides`, que guardam também o texto reescrito à mão.
+      if(!el.id) return;
+      fields[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    return {
+      v: 1,
+      ts: Date.now(),
+      fields: fields,
+      uids: fetoUids(),
+      checked: checkedState,
+      overrides: impressaoOverrides,
+      titleFontSize: titleFontSize,
+      paper: draftPaperHtml(),
+      blocks: lastBlockHtml
+    };
+  }
+
+  // Assinatura do conteúdo, sem o relógio: serve para não gravar — e para apagar,
+  // se já existir — um rascunho que é só o formulário em branco recém-aberto.
+  function draftFingerprint(s){
+    return JSON.stringify([s.fields, s.uids, s.checked, s.overrides, s.paper]);
+  }
+
+  function draftHora(ts){
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, '0');
+    const hora = pad(d.getHours())+':'+pad(d.getMinutes());
+    return d.toDateString() === new Date().toDateString()
+      ? 'hoje às '+hora
+      : 'em '+pad(d.getDate())+'.'+pad(d.getMonth()+1)+' às '+hora;
+  }
+
+  function setDraftPill(text, warn){
+    const pill = $('draftPill');
+    if(!pill) return;
+    if(!text){ pill.style.display = 'none'; return; }
+    pill.textContent = text;
+    pill.classList.toggle('pending', !!warn);
+    pill.style.display = 'inline-block';
+  }
+
+  function draftSaveNow(){
+    if(!draftReady || draftRestoring) return;
+    clearTimeout(draftTimer);
+    draftTimer = null;
+    try{
+      const snap = draftSnapshot();
+      if(draftBaseline && draftFingerprint(snap) === draftBaseline){
+        localStorage.removeItem(DRAFT_KEY);
+        setDraftPill(null);
+        return;
+      }
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
+      draftBaseline = null;  // já tem laudo digitado: nada aqui é mais "em branco"
+      setDraftPill('✓ Rascunho salvo '+draftHora(snap.ts));
+    }catch(e){
+      // Espaço esgotado, aba anônima ou armazenamento bloqueado: melhor avisar
+      // do que deixar a médica achar que está protegida.
+      setDraftPill('⚠ Não consegui salvar o rascunho neste navegador', true);
+    }
+  }
+
+  function draftSchedule(){
+    if(!draftReady || draftRestoring) return;
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(draftSaveNow, DRAFT_DEBOUNCE_MS);
+  }
+
+  function draftDiscard(){
+    clearTimeout(draftTimer);
+    draftTimer = null;
+    try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+    const note = $('draftNote');
+    if(note) note.classList.remove('show');
+    setDraftPill(null);
+    draftBaseline = draftReady ? draftFingerprint(draftSnapshot()) : null;
+  }
+
+  function draftRead(){
+    try{
+      const raw = localStorage.getItem(DRAFT_KEY);
+      const d = raw ? JSON.parse(raw) : null;
+      return (d && d.v === 1 && d.fields) ? d : null;
+    }catch(e){ return null; }
+  }
+
+  function draftRestore(d){
+    draftRestoring = true;
+    try{
+      // Os cards repetidos voltam com os mesmos uids de antes: os ids dos campos,
+      // as chaves da checklist de impressões e os ids dos blocos do laudo derivam
+      // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.
+      const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
+      $('fetosContainer').innerHTML = '';
+      if(uids.length){
+        uids.forEach(uid=>{
+          fetoNextUid = Math.max(fetoNextUid, parseInt(uid, 10) + 1);
+          $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
+          wireFetoCard(uid);
+        });
+        renumberFetos();
+      }else{
+        addFeto();
+      }
+
+      Object.keys(d.fields).forEach(id=>{
+        const el = $(id);
+        if(!el || !el.closest('#formCol')) return;
+        if(el.type === 'checkbox') el.checked = !!d.fields[id];
+        else el.value = d.fields[id];
+      });
+
+      // Quais blocos condicionais ficam abertos é decidido pelos handlers de
+      // 'change' dos selects e checkboxes — e os valores acima foram escritos na
+      // mão, sem passar por eles. Um 'change' em cada um reabre no formulário
+      // exatamente as seções que estavam abertas.
+      document.querySelectorAll('#formCol select, #formCol input[type=checkbox]').forEach(el=>{
+        if(DRAFT_SKIP_CHANGE.indexOf(el.id) !== -1) return;
+        if(el.closest('#impressaoChecklist')) return;
+        el.dispatchEvent(new Event('change'));
+      });
+
+      checkedState = (d.checked && typeof d.checked === 'object') ? d.checked : {};
+      impressaoOverrides = (d.overrides && typeof d.overrides === 'object') ? d.overrides : {};
+      titleFontSize = d.titleFontSize || null;
+    }catch(e){
+      // Rascunho corrompido ou de uma versão antiga deste laudo: melhor abrir em
+      // branco do que deixar a tela quebrada.
+      draftRestoring = false;
+      $('fetosContainer').innerHTML = '';
+      checkedState = {};
+      impressaoOverrides = {};
+      lastBlockHtml = {};
+      $('paper').innerHTML = '';
+      try{ localStorage.removeItem(DRAFT_KEY); }catch(e2){}
+      return false;
+    }
+    draftRestoring = false;
     render();
-  })));
+    // O render() acima remonta o laudo a partir dos campos; por cima dele volta o
+    // HTML exato que estava na tela, com as correções digitadas à mão dentro do
+    // texto. `lastBlockHtml` volta junto para a reconciliação seguinte continuar
+    // sabendo o que é texto gerado e o que é texto digitado.
+    if(typeof d.paper === 'string' && d.paper){
+      $('paper').innerHTML = d.paper;
+      lastBlockHtml = (d.blocks && typeof d.blocks === 'object') ? d.blocks : {};
+      updatePagePreview();
+    }
+    const note = $('draftNote');
+    if(note){
+      $('draftNoteText').textContent = 'Rascunho recuperado — este laudo voltou como estava '
+        + draftHora(d.ts) + '. Continue de onde parou; para começar um laudo novo, use "Limpar" no alto da página.';
+      note.classList.add('show');
+    }
+    setDraftPill('✓ Rascunho salvo '+draftHora(d.ts));
+    return true;
+  }
+
+  function draftInit(){
+    const d = draftRead();
+    if(!(d && draftRestore(d))){
+      addFeto();
+      render();
+      draftReady = true;
+      draftBaseline = draftFingerprint(draftSnapshot());
+      return;
+    }
+    draftReady = true;
+  }
+
+  // Texto digitado direto no laudo não passa por render() — tem o próprio
+  // gatilho de gravação.
+  $('paper').addEventListener('input', draftSchedule);
+
+  // Aba fechada, laudo trocado no seletor, navegador minimizado: grava na hora o
+  // que estiver pendente, em vez de esperar o intervalo do autosave.
+  window.addEventListener('pagehide', draftSaveNow);
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'hidden') draftSaveNow();
+  });
+
+  $('btnDraftDiscard').addEventListener('click', ()=>{
+    $('draftNote').classList.remove('show');
+  });
+
+  // A restauração do rascunho — ou o primeiro card em branco, quando não há
+  // rascunho — entra no fim desta cadeia: precisa das frases e dos valores de
+  // referência já carregados para o laudo voltar exatamente como estava.
+  loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit())));
 
   // ---------- Integração com a Curva de Crescimento (Supabase) ----------
   const CG_URL = 'https://ulcqnqwxguydrpoaplcv.supabase.co';
