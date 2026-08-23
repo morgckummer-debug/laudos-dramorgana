@@ -438,7 +438,7 @@
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">A impressão reserva 3,5 cm em branco no topo para a folha timbrada; o cabeçalho de identificação abaixo entra logo após esse espaço.</p>
         <div class="field-row">
           <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric"></div>
+          <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
           <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
         </div>
         <div class="field-row">
@@ -1519,6 +1519,25 @@
   }
   ['dataExame','dum','usgDataDatacao'].forEach(wireDateMask);
 
+  // ---------- CPF: máscara só na tela ----------
+  // O campo mostra 000.000.000-00 enquanto é digitado, mas os pontos e o traço
+  // existem apenas para a leitura na tela: tudo o que sai daqui para a Curva de
+  // Crescimento passa antes por cgOnlyDigits(), então o que trafega e o que é
+  // comparado continua sendo só os 11 dígitos.
+  function aplicarMascaraCPF(){
+    const el = $('cpfPaciente');
+    if(!el) return;
+    const digits = el.value.replace(/\D/g, '').slice(0, 11);
+    let out = digits.slice(0,3);
+    if(digits.length > 3) out += '.'+digits.slice(3,6);
+    if(digits.length > 6) out += '.'+digits.slice(6,9);
+    if(digits.length > 9) out += '-'+digits.slice(9);
+    if(out === el.value) return;
+    el.value = out;
+    try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
+  }
+  if($('cpfPaciente')) $('cpfPaciente').addEventListener('input', aplicarMascaraCPF);
+
   // ---------- Digits-only input, capped at a fixed length (e.g. FC in bpm: max 3 digits) ----------
   function wireDigitsOnlyInput(id, maxLen){
     const el = $(id);
@@ -2424,6 +2443,10 @@
         if(el.type === 'checkbox') el.checked = !!d.fields[id];
         else el.value = d.fields[id];
       });
+
+      // Rascunhos gravados antes da máscara guardam o CPF só em dígitos: sem
+      // isto, ele voltaria à tela sem a pontuação.
+      aplicarMascaraCPF();
 
       // Quais blocos condicionais ficam abertos é decidido pelos handlers de
       // 'change' dos selects e checkboxes — e os valores acima foram escritos na
