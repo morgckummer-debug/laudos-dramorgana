@@ -22,6 +22,56 @@ A discordância de peso — `(maior − menor) / maior × 100` — é calculada 
 
 Ao salvar na Curva de Crescimento, uma gestação múltipla grava `tipo_gestacao: 'gemelar'` com a corionicidade escolhida e insere **um `exams` por feto**, numerados na coluna `feto` — igual ao laudo de 1º trimestre.
 
+## Rascunho automático (não perder o laudo digitado)
+
+Cada laudo se salva sozinho no navegador enquanto é digitado. Antes disso o
+laudo só existia na tela até o "Imprimir / PDF" ou o "Baixar Word" — uma queda
+de energia, um F5 sem querer ou a aba fechada por engano levavam junto tudo o
+que já tinha sido preenchido.
+
+Como funciona, em cada arquivo de laudo (o código é o mesmo nos três, adaptado
+ao card que se repete de cada um — nódulos de mioma, fetos, sacos gestacionais):
+
+- **Quando grava.** `draftSchedule()` é chamado no fim do `render()` (ou seja, a
+  cada campo alterado) e no `input` do `#paper` (texto digitado direto no
+  laudo), com um intervalo de 0,8 s desde a última tecla. `pagehide` e
+  `visibilitychange` gravam na hora, sem esperar o intervalo — é a última
+  gravação que ainda acontece com a aba fechando.
+- **Onde grava.** `localStorage`, uma chave por laudo
+  (`laudo-rascunho-transvaginal-v1` etc.), sempre no computador da médica —
+  nada disso vai para servidor nenhum. Vai direto no `localStorage`, e não pelo
+  `kvStore` das preferências, porque o `pagehide` precisa de gravação síncrona.
+- **O que grava.** Todos os campos de `#formCol` (por id), os uids dos cards
+  repetidos, `checkedState`, `impressaoOverrides`, `titleFontSize`, o
+  `innerHTML` do `#paper` e o `lastBlockHtml`.
+- **Como volta.** `draftInit()` fecha a cadeia `loadPhrases → loadVR →
+  loadExecutanteSelecionado` (o laudo precisa das frases e dos valores de
+  referência para ser remontado igual). Aparece um aviso "Rascunho recuperado"
+  acima do laudo e um selo `#draftPill` com a hora da última gravação.
+- **Quando some.** "Limpar" apaga o rascunho junto com o formulário
+  (`draftDiscard()`), e um formulário em branco recém-aberto não chega a virar
+  rascunho — `draftBaseline` guarda a assinatura do formulário vazio e o
+  autosave apaga a chave em vez de gravar quando nada mudou.
+
+Três pontos valem ser preservados em qualquer mexida aqui:
+
+- **Os uids dos cards repetidos voltam iguais.** A restauração recria os cards
+  com os mesmos uids gravados (e empurra `fetoNextUid`/`sacoNextUid`/
+  `miomaNextUid` para depois deles) em vez de contar quantos eram: os ids dos
+  campos, as chaves da checklist de impressões (`peso-f2`) e os ids dos blocos
+  do preview derivam do uid, então recriar com uid novo desalinharia tudo.
+- **`draftRestoring` desliga o `render()` durante a restauração.** Os valores
+  são escritos direto nos campos e, em seguida, um `change` é disparado em cada
+  select/checkbox só para reabrir os blocos `.conditional` — sem a trava, cada
+  um desses eventos dispararia um `render()` inteiro. Os selects de quantidade
+  (`miomaCount`, `numeroFetos`, `numeroEmbrioes`) ficam fora desse disparo,
+  senão recriariam os cards que acabaram de voltar.
+- **O `#paper` volta por cima do `render()`.** Primeiro o `render()` remonta o
+  laudo a partir dos campos, depois o `innerHTML` salvo e o `lastBlockHtml`
+  salvo são recolocados juntos — é isso que traz de volta o texto corrigido à
+  mão dentro do laudo e mantém a reconciliação por bloco sabendo o que é texto
+  gerado e o que é texto digitado.
+
 ## Adicionando um novo laudo
 Os modelos de laudo já existem na clínica (a Dra. Morgana envia o modelo real usado — texto, foto ou arquivo). O fluxo é:
 1. A Dra. Morgana envia o modelo do laudo que já usa na clínica.
