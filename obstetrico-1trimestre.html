@@ -2067,14 +2067,95 @@
   });
 
   // ---------- Actions ----------
+
+  // ---------- Montagem do HTML que vira o arquivo do Word ----------
+  // O .doc é um HTML que o Word abre, e ele chega lá SEM nenhuma folha de
+  // estilo desta página: só sobrevive o que estiver escrito em style="" no
+  // próprio elemento (e o <style> de @page que o botão "Baixar Word" injeta,
+  // que define a folha e zera o espaçamento que o Word inventa sozinho).
+  // Tudo que o laudo desenha por classe — a margem entre parágrafos, o corpo
+  // menor dos títulos de seção, o respiro das colunas da tabela de biometria,
+  // o recuo do cartão de identificação — some se não for copiado para o clone.
+  // Era essa a diferença entre o PDF e o Word.
+  //
+  // Em vez de repetir esses valores aqui à mão (e deixá-los envelhecer na
+  // primeira vez que alguém mexer no CSS lá em cima), cada linha da lista
+  // abaixo copia do elemento VIVO o valor já calculado pelo navegador: o que
+  // está na tela é o que vai para o Word, inclusive quando a médica muda o
+  // corpo da fonte ou o espaçamento pela barra de formatação.
+  //
+  // Topo / direita / pé / esquerda da folha do Word, iguais às da impressão
+  // (veja o @media print: <thead> 3,5cm para o timbrado, <tfoot> 2cm,
+  // padding lateral 2cm).
+  const WORD_PAGE_MARGIN = '3.5cm 2cm 2cm 2cm';
+  const MARGINS = ['margin-top','margin-right','margin-bottom','margin-left'];
+  const PADDINGS = ['padding-top','padding-right','padding-bottom','padding-left'];
+  const WORD_COPY = [
+    ['h3.doctitle', ['font-size','line-height','letter-spacing'].concat(MARGINS)],
+    ['p.relato', ['font-size','line-height','color','text-align'].concat(MARGINS)],
+    ['h4.sec', ['font-size','line-height','letter-spacing','color'].concat(MARGINS)],
+    ['p.linha', ['font-size','line-height','text-align'].concat(MARGINS)],
+    ['p.recomendacao', ['font-size','line-height','text-align'].concat(MARGINS)],
+    ['table.biometria', ['font-size','line-height','border-collapse'].concat(MARGINS)],
+    ['table.biometria td', ['vertical-align','white-space'].concat(PADDINGS)],
+    ['.id-card', PADDINGS.concat(MARGINS)],
+    ['.id-card-row', ['font-size','line-height','margin-top']],
+    ['.footnote', ['font-size','line-height','color']],
+    ['.assinatura', ['line-height']],
+    ['.assinatura-nome', PADDINGS.concat(['margin-bottom'])],
+    ['.assinatura-info', ['font-size','line-height','color']],
+    ['.blank', ['color']],
+    ['.filled', ['color']]
+  ];
+  // O Word entende cor em #rrggbb; o navegador serializa todo style="" em
+  // rgb(...), mesmo quando o valor foi escrito em hexadecimal. A troca é feita
+  // no HTML já montado (e não em cada propriedade, onde o CSSOM desfaria) para
+  // que o vermelho do que falta preencher, o vinho dos títulos e o cinza da
+  // assinatura não saiam pretos no arquivo. rgba() com transparência fica como
+  // está: hexadecimal não a representa, e o Word ignora as duas formas igual.
+  function rgbToHexInHtml(html){
+    return html.replace(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/g, function(all, r, g, b, a){
+      if(a !== undefined && Number(a) < 1) return all;
+      return '#' + [r,g,b].map(n=>Number(n).toString(16).padStart(2,'0')).join('');
+    });
+  }
+  function copyComputedToClone(liveRoot, cloneRoot){
+    WORD_COPY.forEach(function(rule){
+      const sel = rule[0], props = rule[1];
+      const live = liveRoot.querySelectorAll(sel);
+      const copy = cloneRoot.querySelectorAll(sel);
+      // O clone é cópia fiel do vivo, então as duas listas casam elemento a
+      // elemento. Se algum dia não casarem, é melhor não estilizar nada do que
+      // pintar o estilo de um parágrafo em cima de outro.
+      if(live.length !== copy.length) return;
+      for(let i=0;i<live.length;i++){
+        const cs = getComputedStyle(live[i]);
+        props.forEach(function(p){
+          const val = cs.getPropertyValue(p);
+          if(val) copy[i].style.setProperty(p, val);
+        });
+      }
+    });
+  }
+
   function buildReportHtml(){
-    const clone = $('paper').cloneNode(true);
+    const paperEl = $('paper');
+    const clone = paperEl.cloneNode(true);
+    copyComputedToClone(paperEl, clone);
     clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    // O importador de HTML do Word aplica a lista com marcador dele em
+    // qualquer <ul><li> que enxerga, ignorando list-style:none (o marcador vem
+    // do mso-list dele, não do CSS) — empilhando um marcador do Word em cima
+    // do "* " que já está no texto de cada item. Exportar cada achado como um
+    // parágrafo em negrito escapa dessa detecção automática.
+    const liveLi = paperEl.querySelector('ul.impressao li');
+    const liStyle = liveLi ? getComputedStyle(liveLi) : null;
     clone.querySelectorAll('ul.impressao').forEach(ul=>{
       const div = document.createElement('div');
       Array.from(ul.children).forEach(li=>{
         const p = document.createElement('p');
-        p.style.margin = '0 0 6px';
+        p.style.margin = '0 0 ' + (liStyle ? liStyle.marginBottom : '2px');
+        if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; p.style.textAlign = liStyle.textAlign; }
         p.style.fontWeight = '700';
         p.innerHTML = li.innerHTML;
         div.appendChild(p);
@@ -2082,24 +2163,27 @@
       ul.replaceWith(div);
     });
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
-    const liveIdCardEl = $('paper').querySelector('.id-card');
-    const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
-    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
-    clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
+    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.fontWeight='700'; });
+    clone.querySelectorAll('.relato').forEach(h=>{ h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    clone.querySelectorAll('table.biometria').forEach(t=>{ t.setAttribute('border','0'); t.style.borderCollapse='collapse'; });
+    clone.querySelectorAll('table.biometria td').forEach(td=>{ td.style.border='none'; });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
-    clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
-    clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
-    clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
-    clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
-    clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
+    clone.querySelectorAll('.blank').forEach(el=>{ el.style.fontWeight='600'; });
+    clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.margin='0'; });
+    clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; });
+    clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; });
+    clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.margin='0'; });
 
+    // O Word não faz flexbox: as linhas lado a lado abaixo (nome/data do
+    // cartão e o par nota-à-esquerda/assinatura-à-direita do rodapé) viravam
+    // blocos empilhados. Tabela o Word renderiza igual a todo mundo, então
+    // toda linha que dependia do flex é remontada como uma.
     clone.querySelectorAll('.id-card-row').forEach(el=>{
-      el.style.fontSize = '12pt';
       if(el.children.length !== 2) return;
       const [left, right] = el.children;
       const table = document.createElement('table');
-      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;');
+      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;font-size:'+(el.style.fontSize||'12pt')+';');
       table.innerHTML = '<tr>'
         + '<td style="border:none;padding:0;text-align:left;">'+left.innerHTML+'</td>'
         + '<td style="border:none;padding:0;text-align:right;">'+right.innerHTML+'</td>'
@@ -2118,9 +2202,8 @@
       el.replaceWith(table);
     });
 
-    const lineHeight = $('paper').style.lineHeight || '1.15';
-    const fontSize = $('paper').style.fontSize || '12pt';
-    return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";text-align:justify;\">"+clone.innerHTML+'</div>';
+    const cs = getComputedStyle(paperEl);
+    return rgbToHexInHtml("<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+cs.fontSize+";line-height:"+cs.lineHeight+";text-align:justify;color:#2b2b2e;\">"+clone.innerHTML+'</div>');
   }
 
   // ---------- Print pagination: pins the signature to the bottom-right corner
@@ -2244,13 +2327,32 @@
   $('btnDownloadWord').addEventListener('click', async ()=>{
     try{
       const html = buildReportHtml();
+      // A folha do Word tem que ser a mesma folha do PDF. Na impressão, o
+      // @page tem margem 0 e quem reserva o espaço é a tabela do laudo: 3,5cm
+      // no topo (o timbrado) pelo <thead>, 2cm no pé pelo <tfoot> e 2cm de
+      // cada lado pelo padding do <tbody> — sobrando 17cm de texto. Aqui isso
+      // é dito de uma vez só no @page, senão o Word usa a margem padrão dele
+      // (2,54cm em volta, nada reservado para o timbrado) e o texto quebra em
+      // outros pontos, que é o que fazia o arquivo parecer outro laudo.
       const docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
         + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
         + 'xmlns="http://www.w3.org/TR/REC-html40">'
         + '<head><meta charset="utf-8"><title>Laudo</title>'
         + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
         + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
-        + '</head><body>' + html + '</body></html>';
+        + '<style>'
+        + '@page WordSection1{size:21.0cm 29.7cm;margin:' + WORD_PAGE_MARGIN + ';}'
+        + 'div.WordSection1{page:WordSection1;}'
+        // O Word aplica o estilo "Normal" dele (espaço entre parágrafos,
+        // Calibri 11) em tudo que chega sem estilo próprio. Como cada bloco do
+        // laudo já traz a sua margem inline, o padrão aqui é zero — e o inline
+        // continua ganhando de qualquer forma.
+        + 'body,div,p,h1,h2,h3,h4,td,li{font-family:\'Times New Roman\',Times,serif;}'
+        + 'p,h1,h2,h3,h4,ul,ol,li{margin:0;}'
+        + 'table{border-collapse:collapse;}'
+        + 'td{border:none;}'
+        + '</style>'
+        + '</head><body><div class="WordSection1">' + html + '</div></body></html>';
       const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
       const paciente = sanitizeFilenamePart(v('nomePaciente')) || 'Laudo';
       await saveBlobAs(blob, paciente+' - Obstétrico do 1º trimestre.doc');
