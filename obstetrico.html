@@ -387,10 +387,10 @@
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (2 fetos) — use {CORIONICIDADE}, {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar (3 fetos) — use {CORIONICIDADE}, {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso antes de 21 semanas (sem percentil)</label><textarea id="ph_impPesoNormalidade" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso adequado — use {PERCENTIL}</label><textarea id="ph_impPesoAdequado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso abaixo do percentil 10 (PIG) — use {PERCENTIL}</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso acima do percentil 90 (GIG) — use {PERCENTIL}</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso sem percentil informado — use {PESO}</label><textarea id="ph_impPesoSemPercentil" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico alterado — use {DESCRICAO}</label><textarea id="ph_impLaAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta alterada — use {DESCRICAO}</label><textarea id="ph_impPlacentaAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta baixa/marginal/prévia — use {INSERCAO}</label><textarea id="ph_impPlacentaPrevia" rows="2"></textarea></div>
@@ -1138,10 +1138,10 @@
     impGestacaoMultipla: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias.',
     impGestacaoTrigemelar: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias.',
     impBoaEvolucao: 'Gestação com boa evolução.',
-    impPesoAdequado: 'Peso fetal no percentil {PERCENTIL}.',
-    impPesoPIG: 'Peso fetal no percentil {PERCENTIL} — abaixo do percentil 10, sugestivo de restrição de crescimento fetal / pequeno para a idade gestacional.',
-    impPesoGIG: 'Peso fetal no percentil {PERCENTIL} — acima do percentil 90, feto grande para a idade gestacional.',
-    impPesoSemPercentil: 'Peso fetal estimado em {PESO} g (Hadlock).',
+    impPesoNormalidade: 'Peso fetal dentro da normalidade.',
+    impPesoAdequado: 'Peso fetal no percentil {PERCENTIL} (Hadlock).',
+    impPesoPIG: 'Peso fetal no percentil {PERCENTIL} (Hadlock) — abaixo do percentil 10, sugestivo de restrição de crescimento fetal / pequeno para a idade gestacional.',
+    impPesoGIG: 'Peso fetal no percentil {PERCENTIL} (Hadlock) — acima do percentil 90, feto grande para a idade gestacional.',
     impLaAlterado: 'Líquido amniótico alterado: {DESCRICAO}.',
     impPlacentaAlterada: 'Placenta com espessura alterada: {DESCRICAO}.',
     impPlacentaPrevia: 'Placenta {INSERCAO}.',
@@ -1309,6 +1309,9 @@
   // um feto do meio da lista não desloca os ids/listeners dos demais (nem os
   // blocos já renderizados no preview, que são casados por esse mesmo uid). ----------
   const MAX_FETOS = 3;
+  // Fronteira do percentil de peso na impressão diagnóstica: antes de 21
+  // semanas o laudo diz apenas que o peso está dentro da normalidade.
+  const PESO_PERCENTIL_IG_DIAS = 21 * 7;
   let fetoNextUid = 1;
 
   function fetoCardHTML(uid){
@@ -1970,12 +1973,18 @@
       const percentil = blankOrValue(v(pre+'Percentil'));
       const percentilNum = num(pre+'Percentil');
 
-      let pesoKey = 'impPesoSemPercentil';
-      if(percentilNum !== null){
-        if(percentilNum < 10) pesoKey = 'impPesoPIG';
-        else if(percentilNum > 90) pesoKey = 'impPesoGIG';
-        else pesoKey = 'impPesoAdequado';
-      }
+      // A impressão nunca traz o peso estimado em gramas — ele já está na
+      // biometria. Antes de 21 semanas o percentil de Hadlock não é confiável,
+      // então a impressão é só a frase de normalidade; a partir daí (e também
+      // quando não há IG para decidir) entra o percentil, em branco se ainda
+      // não foi preenchido. Um percentil fora da faixa continua virando PIG ou
+      // GIG mesmo antes das 21 semanas: chamar de "dentro da normalidade" um
+      // achado que a médica marcou como alterado trocaria o alerta por silêncio.
+      let pesoKey;
+      if(percentilNum !== null && percentilNum < 10) pesoKey = 'impPesoPIG';
+      else if(percentilNum !== null && percentilNum > 90) pesoKey = 'impPesoGIG';
+      else if(gaDays !== null && gaDays < PESO_PERCENTIL_IG_DIAS) pesoKey = 'impPesoNormalidade';
+      else pesoKey = 'impPesoAdequado';
       const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: percentil.text, PESO: peso.text});
 
       const placentaInsercao = v(pre+'PlacentaInsercao');

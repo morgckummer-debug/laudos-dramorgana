@@ -18,6 +18,8 @@ Três detalhes valem ser preservados em qualquer mexida futura aqui:
 - **A ordem do laudo é a mesma de sempre**: biometria antes de Doppler e PBF. Com feto único, as duas tabelas de Doppler (materna e fetal) continuam saindo lado a lado logo depois do líquido amniótico, exatamente como antes; com mais de um feto, a fetal entra dentro de cada feto e a materna — que é da mãe — sai uma vez só, depois de todos.
 - **Doppler fetal e PBF continuam sendo escolhas únicas do laudo** (marcadas uma vez, nos cards "Doppler" e "Perfil biofísico fetal", porque definem o título do laudo), mas seus campos são preenchidos dentro de cada feto.
 
+O peso estimado em gramas aparece na biometria, **nunca na impressão diagnóstica**. Antes de 21 semanas a impressão traz só "Peso fetal dentro da normalidade" (o percentil de Hadlock não é confiável nessa faixa); a partir de 21 semanas ela traz "Peso fetal no percentil X (Hadlock)". Um percentil abaixo de 10 ou acima de 90 digitado pela médica continua virando o alerta de PIG/GIG em qualquer idade gestacional.
+
 A discordância de peso — `(maior − menor) / maior × 100` — é calculada automaticamente a partir dos pesos estimados e entra como impressão diagnóstica; a partir de 20% ela vira o alerta de acompanhamento especializado. O rastreio de síndrome de transfusão feto-fetal em monocoriônicas ainda **não** está no laudo.
 
 Ao salvar na Curva de Crescimento, uma gestação múltipla grava `tipo_gestacao: 'gemelar'` com a corionicidade escolhida e insere **um `exams` por feto**, numerados na coluna `feto` — igual ao laudo de 1º trimestre.
