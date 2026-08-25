@@ -1377,7 +1377,7 @@
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Relação cérebro-placentária — RCP (calculada)</label><input type="text" id="feto'+uid+'CprCalc" readonly placeholder="calculado automaticamente"></div>'
-      +'<div class="field"><label>Percentil do RCP (se souber)</label><input type="text" inputmode="numeric" id="feto'+uid+'CprPercentil" placeholder="ex: 25"></div>'
+      +'<div class="field"><label>Percentil do RCP (calculado, editável)</label><input type="text" inputmode="numeric" id="feto'+uid+'CprPercentil" placeholder="calculado automaticamente"><button type="button" class="cpr-recalc" id="feto'+uid+'CprRecalc" data-uid="'+uid+'" style="margin-top:6px;background:none;border:none;padding:0;font-size:12px;color:var(--rose-dark);text-decoration:underline;cursor:pointer;">Recalcular percentil</button></div>'
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Classificação (umbilical + ACM + relação cérebro-placentária)</label><select id="feto'+uid+'DopplerClassificacao"><option value="normal">Dentro da normalidade</option><option value="alterado">Alterado (centralização de fluxo)</option></select></div>'
@@ -1429,6 +1429,20 @@
     wireDigitsOnlyInput('feto'+uid+'Percentil', 3);
     wireDigitsOnlyInput('feto'+uid+'LaILAPercentil', 3);
     wireDigitsOnlyInput('feto'+uid+'CprPercentil', 3);
+    const cprPctEl = $('feto'+uid+'CprPercentil');
+    if(cprPctEl){
+      cprPctEl.addEventListener('input', ()=>{
+        // Valor digitado passa a mandar; campo vazio volta ao automático.
+        cprPctEl.dataset.manual = cprPctEl.value.trim() ? '1' : '';
+      });
+    }
+    const cprRecalcBtn = $('feto'+uid+'CprRecalc');
+    if(cprRecalcBtn){
+      cprRecalcBtn.addEventListener('click', ()=>{
+        if(cprPctEl){ cprPctEl.dataset.manual = ''; cprPctEl.value = ''; }
+        render();
+      });
+    }
     el.querySelectorAll('input, select, textarea').forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
@@ -1616,6 +1630,33 @@
     const sd = 0.272 - 0.000259*gaDays;
     const z = (Math.log(piMedio) - mean) / sd;
     return normalCDF(z) * 100;
+  }
+  // ---------- Doppler fetal: percentil da relação cérebro-placentária (RCP).
+  // Valores de referência (média e desvio-padrão da RCP por semana de
+  // gestação) conforme a tabela adotada no serviço, 20 a 40 semanas.
+  // Entre semanas completas os parâmetros são interpolados linearmente
+  // pelos dias; fora da faixa 20-40 semanas não há cálculo.
+  // O percentil vem do z-score, via normalCDF (Abramowitz & Stegun). ----------
+  const CPR_REF = {
+    20:[1.37,0.40], 21:[1.44,0.25], 22:[1.48,0.29], 23:[1.49,0.23],
+    24:[1.53,0.22], 25:[1.83,0.48], 26:[1.92,0.55], 27:[2.12,0.61],
+    28:[2.13,0.52], 29:[1.86,0.43], 30:[2.34,0.55], 31:[2.29,0.34],
+    32:[2.03,0.48], 33:[2.10,0.40], 34:[2.10,0.45], 35:[2.01,0.46],
+    36:[2.01,0.46], 37:[2.25,0.66], 38:[1.90,0.41], 39:[1.64,0.29],
+    40:[1.80,0.44]
+  };
+  function cprPercentil(gaDays, cpr){
+    if(gaDays==null || isNaN(gaDays) || cpr==null || isNaN(cpr)) return null;
+    const semanas = gaDays/7;
+    if(semanas < 20 || semanas > 40) return null;
+    const base = Math.min(Math.floor(semanas), 39);
+    const frac = semanas - base;
+    const a = CPR_REF[base], b = CPR_REF[base+1] || a;
+    if(!a) return null;
+    const mean = a[0] + (b[0]-a[0])*frac;
+    const sd = a[1] + (b[1]-a[1])*frac;
+    if(!sd) return null;
+    return normalCDF((cpr - mean)/sd) * 100;
   }
   function fmtNum(n, casas){
     if(n==null || isNaN(n)) return '';
@@ -2014,6 +2055,11 @@
         const cprNum = (piUmbilicalNum!=null && piACMNum!=null && piUmbilicalNum!==0) ? (piACMNum/piUmbilicalNum) : null;
         cprTxt = cprNum!=null ? fmtNum(cprNum,2) : '';
         $(pre+'CprCalc').value = cprTxt;
+        const cprPctEl = $(pre+'CprPercentil');
+        if(cprPctEl && cprPctEl.dataset.manual !== '1'){
+          const pct = cprPercentil(gaDays, cprNum);
+          cprPctEl.value = pct!=null ? String(Math.round(pct)) : '';
+        }
         cprPercentilVal = blankOrValue(v(pre+'CprPercentil'));
         dopplerFetalAlterado = v(pre+'DopplerClassificacao')==='alterado';
       }
