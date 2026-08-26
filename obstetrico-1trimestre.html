@@ -403,12 +403,12 @@
 
   <hr class="sep">
   <h3>Impressões diagnósticas</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação única (cronologia pela DUM) — use {SEMANAS}, {DIAS} e {CONCORDANCIA}</label><textarea id="ph_impGestacaoUnica" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação única (cronologia por ultrassom/ecografia) — use {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoUnicaSemDum" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia pela DUM) — use {CORIONICIDADE}, {SEMANAS}, {DIAS} e {CONCORDANCIA}</label><textarea id="ph_impGestacaoGemelar" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia por ultrassom/ecografia) — use {CORIONICIDADE}, {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoGemelarSemDum" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação única (cronologia pela DUM) — use {IG} e {CONCORDANCIA} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoUnica" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação única (cronologia por ultrassom/ecografia) — use {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoUnicaSemDum" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia pela DUM) — use {CORIONICIDADE}, {IG} e {CONCORDANCIA} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoGemelar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia por ultrassom/ecografia) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoGemelarSemDum" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Perda gestacional — use {TIPO}, {SEMANAS} e {DIAS}</label><textarea id="ph_impObito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Perda gestacional — use {TIPO} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DPP — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG reduzido — impressão</label><textarea id="ph_impIsgReduzido" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — impressão</label><textarea id="ph_impHematoma" rows="2"></textarea></div>
@@ -881,6 +881,23 @@
     // caber numa folha só — com mm fixos, o espaço entre parágrafos ficava
     // do mesmo tamanho e travava boa parte do ganho da redução.
     const LINE_HEIGHT_MARGIN = {'1':'0.236em', '1.15':'0.472em', '1.35':'0.709em', '1.5':'0.945em', '1.8':'1.417em'};
+    // p.recomendacao (a linha de recomendação do Morfológico) é o único
+    // parágrafo com margem simétrica (margin: var(--linha-margin) 0, tanto
+    // acima quanto abaixo — center/itálico, para respirar dos dois lados);
+    // todo p.linha só tem margin-bottom (margin:0 0 var(...)), já que o
+    // espaço entre eles vem só de baixo. Por isso o seletor de espaçamento
+    // escopado a uma seleção de texto — que só mexia em marginBottom —
+    // deixava o topo de p.recomendacao preso no valor global antigo: mudava
+    // visivelmente só a distância abaixo dela, nunca acima, e parecia que a
+    // seleção "não pegava" nessa frase.
+    function aplicarMargemParagrafo(el, margin){
+      el.style.marginBottom = margin;
+      if(el.classList.contains('recomendacao')) el.style.marginTop = margin;
+    }
+    function limparMargemParagrafo(el){
+      el.style.marginBottom = '';
+      el.style.marginTop = '';
+    }
     lineHeightSel.addEventListener('change', ()=>{
       const range = captureSelectionInPaper();
       const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '1em';
@@ -891,10 +908,10 @@
           // vez de envolver num <span> — um <span> (inline) não pode conter
           // <p> (bloco) validamente, e a tentativa de "consertar" isso na
           // mão bagunçava a estrutura do HTML.
-          paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; el.style.marginBottom = margin; });
+          paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; aplicarMargemParagrafo(el, margin); });
         } else {
           wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
-          paragraphs.forEach(el=>{ el.style.marginBottom = margin; });
+          paragraphs.forEach(el=>aplicarMargemParagrafo(el, margin));
         }
       } else {
         // Sem seleção: limpa overrides de trechos selecionados antes, senão ficam "presos" e não acompanham a mudança geral.
@@ -902,7 +919,7 @@
           el.style.lineHeight = '';
           if(!el.getAttribute('style')) el.removeAttribute('style');
         });
-        paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(el=>{ el.style.marginBottom = ''; });
+        paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(limparMargemParagrafo);
         paperEl.style.lineHeight = lineHeightSel.value;
         paperEl.style.setProperty('--linha-margin', margin);
         kvStore.set('paper-line-height', lineHeightSel.value);
@@ -944,7 +961,7 @@
         el.style.lineHeight = '';
         if(!el.getAttribute('style')) el.removeAttribute('style');
       });
-      paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(el=>{ el.style.marginBottom = ''; });
+      paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(limparMargemParagrafo);
       paperEl.style.lineHeight = '';
       paperEl.style.removeProperty('--linha-margin');
       paperEl.style.removeProperty('--idcard-gap');
@@ -1232,12 +1249,12 @@
     embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
     embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
 
-    impGestacaoUnica: 'Gestação única, eutópica, compatível com {SEMANAS} semanas e {DIAS} dias (DUM {CONCORDANCIA}).',
-    impGestacaoUnicaSemDum: 'Gestação única, eutópica, compatível com {SEMANAS} semanas e {DIAS} dias.',
-    impGestacaoGemelar: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias (DUM {CONCORDANCIA}).',
-    impGestacaoGemelarSemDum: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias.',
+    impGestacaoUnica: 'Gestação única, eutópica, compatível com {IG} (DUM {CONCORDANCIA}).',
+    impGestacaoUnicaSemDum: 'Gestação única, eutópica, compatível com {IG}.',
+    impGestacaoGemelar: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG} (DUM {CONCORDANCIA}).',
+    impGestacaoGemelarSemDum: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
     impBoaEvolucao: 'Boa evolução até o momento.',
-    impObito: 'Perda gestacional {TIPO}, compatível com {SEMANAS} semanas e {DIAS} dias.',
+    impObito: 'Perda gestacional {TIPO}, compatível com {IG}.',
     impDPP: 'DPP: {DATA}.',
     impIsgReduzido: 'Saco gestacional de dimensões reduzidas.',
     impHematoma: 'Hematoma subcoriônico - acompanhar.',
@@ -1577,13 +1594,20 @@
     const semanasTxt = semanas + (semanas===1 ? ' semana' : ' semanas');
     return dias>0 ? (semanasTxt+' e '+dias+(dias===1?' dia':' dias')) : semanasTxt;
   }
+  // Mesma conta usada pelo método de datação "1ª Ecografia" (IG informada na
+  // data do exame atual, contada para trás) — extraída à parte porque também
+  // é usada para recalcular DPP/período do Morfológico quando a DUM está
+  // marcada como discordante (ver render()).
+  function computeDataBaseFromIG(dataExameStr, semanasStr, diasStr){
+    const dataExameDt = parseDateBR(dataExameStr);
+    const semanas = parseInt(semanasStr, 10);
+    const dias = parseInt(diasStr, 10);
+    if(!dataExameDt || isNaN(semanas)) return null;
+    return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
+  }
   function computeDataBase(metodo){
     if(metodo === 'exame'){
-      const dataExameDt = parseDateBR(v('dataExame'));
-      const semanas = parseInt(v('impSemanas'), 10);
-      const dias = parseInt(v('impDias'), 10);
-      if(!dataExameDt || isNaN(semanas)) return null;
-      return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
+      return computeDataBaseFromIG(v('dataExame'), v('impSemanas'), v('impDias'));
     }
     if(metodo === 'usg'){
       const usgDt = parseDateBR(v('usgDataDatacao'));
@@ -1632,17 +1656,17 @@
     const baseadaEmDum = state.cronologiaMetodo === 'dum';
     if(!state.isMultiple){
       items.push({key:'gestacao', label: baseadaEmDum
-        ? phraseRaw('impGestacaoUnica', {SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
-        : phraseRaw('impGestacaoUnicaSemDum', {SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+        ? phraseRaw('impGestacaoUnica', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
+        : phraseRaw('impGestacaoUnicaSemDum', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
     } else {
       items.push({key:'gestacao', label: baseadaEmDum
-        ? phraseRaw('impGestacaoGemelar', {CORIONICIDADE:state.corTxt, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
-        : phraseRaw('impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+        ? phraseRaw('impGestacaoGemelar', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
+        : phraseRaw('impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
     }
 
     const suprimirBoaEvolucao = state.algumIsgReduzido || state.algumHematoma;
     if(state.algumObito){
-      items.push({key:'evolucao', label:phraseRaw('impObito', {TIPO:state.tipoPerda, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+      items.push({key:'evolucao', label:phraseRaw('impObito', {TIPO:state.tipoPerda, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
     } else if(!suprimirBoaEvolucao){
       items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
     }
@@ -1946,11 +1970,20 @@
     const impSemanas = req('impSemanas');
     const impDias = req('impDias');
     const dumConcordancia = v('dumConcordancia')==='discordante' ? 'discordante' : 'concordante';
-    const dpp = computeDPP(dataBase);
+    // DUM discordante: a data base da DPP e do período do Morfológico do 1º
+    // Trimestre deixa de ser a DUM (que a própria médica marcou como não
+    // confiável) e passa a ser a IG digitada na conclusão do laudo, aplicada
+    // sobre a data do exame — igual ao método de datação "1ª Ecografia".
+    // Concordante (ou cronologia por USG/ecografia, onde não há o que
+    // discordar) mantém dataBase como já era.
+    const dataBaseDppMorfo = (cronologiaMetodo === 'dum' && dumConcordancia === 'discordante')
+      ? computeDataBaseFromIG(dataExame, impSemanas, impDias)
+      : dataBase;
+    const dpp = computeDPP(dataBaseDppMorfo);
     $('dpp').value = dpp;
 
     const chkRecomendacao = $('chkRecomendacao').checked;
-    const morfoPeriodo = computeMorfoPeriodo(dataBase);
+    const morfoPeriodo = computeMorfoPeriodo(dataBaseDppMorfo);
     $('dataInicioMorfo').value = morfoPeriodo.inicio;
     $('dataFimMorfo').value = morfoPeriodo.fim;
     const dataInicioMorfo = blankOrValue(morfoPeriodo.inicio);
@@ -1959,8 +1992,16 @@
     // ----- Impressão -----
     const algumHematoma = sacos.some(s=> s.hematoma);
     const algumIsgReduzido = sacos.some(s=> s.isgNum !== null && s.isgNum < 5);
+    const impSemanasNum = parseInt(impSemanas, 10);
+    const impDiasNum = parseInt(impDias, 10);
+    // {IG}: "X semanas e Y dia(s)" já formatado (sem "e 0 dias", "1 dia" no
+    // singular — igual ao IG atual do cabeçalho), para as frases de impressão
+    // não montarem esse trecho na mão com {SEMANAS}/{DIAS} soltos.
+    const ig = (impSemanas!=='' && !isNaN(impSemanasNum))
+      ? formatIG(impSemanasNum*7 + (isNaN(impDiasNum) ? 0 : impDiasNum))
+      : '____ semanas e ____ dias';
     const state = {
-      isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', concordancia: dumConcordancia,
+      isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
       algumObito, dpp, algumHematoma, algumIsgReduzido, cronologiaMetodo, tipoPerda,
       bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao
     };
