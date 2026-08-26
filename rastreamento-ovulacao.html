@@ -1,0 +1,2151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laudo de Rastreamento de Ovulação — Dra. Morgana Kummer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f9f5f9;
+    --panel:#ffffff;
+    --ink:#2b2b2e;
+    --ink-soft:#9a7e95;
+    --rose:#ae5ba0;
+    --rose-dark:#6d3263;
+    --rose-light:#f7e9f4;
+    --rose-darker:#4d2346;
+    --sage:#6d3263;
+    --sage-light:#f7e9f4;
+    --amber:#c05a34;
+    --amber-light:#fce7dc;
+    --line:#ebe0e9;
+    --line-soft:#f9f5f9;
+    --radius-lg:26px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --shadow: 0 14px 34px rgba(109,50,99,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+    padding:18px 28px;background:var(--rose-dark);color:#fff;
+    box-shadow: var(--shadow);
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar-brand{display:flex;align-items:center;gap:16px;}
+  .logo-badge{background:#fff;border-radius:14px;padding:6px 14px;display:flex;align-items:center;box-shadow:0 6px 16px rgba(0,0,0,0.12);flex:0 0 auto;}
+  .logo-badge img{height:38px;width:auto;display:block;}
+  .topbar h1{
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;margin:0;letter-spacing:.1px;
+  }
+  .topbar .sub{font-size:12px;opacity:.85;margin-top:2px;font-weight:400;}
+  .topbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  button{
+    font-family:'Poppins',sans-serif;cursor:pointer;border:none;border-radius:999px;
+    font-size:13px;font-weight:600;padding:9px 18px;transition:transform .06s ease, opacity .15s ease;
+  }
+  button:active{transform:scale(.97);}
+  .btn-ghost{background:rgba(255,255,255,.16);color:#fff;}
+  .btn-ghost:hover{background:rgba(255,255,255,.26);}
+  .btn-primary{background:#fff;color:var(--rose-dark);}
+  .btn-primary:hover{opacity:.9;}
+  .laudo-switch, .medico-switch{
+    background:var(--rose-darker) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.25 7.5L10 12.25L14.75 7.5' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
+    background-size:14px;color:#fff;border:none;border-radius:999px;
+    font-family:'Poppins',sans-serif;cursor:pointer;font-size:13px;font-weight:600;
+    padding:9px 32px 9px 18px;-webkit-appearance:none;appearance:none;
+  }
+  .laudo-switch:hover, .medico-switch:hover{filter:brightness(1.18);}
+  .laudo-switch option, .medico-switch option{color:var(--ink);background:#fff;}
+
+  .layout{
+    display:grid;grid-template-columns: 1.15fr 1fr;gap:22px;
+    max-width:1440px;margin:0 auto;padding:22px 28px 80px;
+    align-items:start;
+  }
+  @media (max-width: 980px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-lg);
+    box-shadow:var(--shadow); margin-bottom:22px; overflow:hidden;
+  }
+  .card-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, #F5F8F6, #FFFFFF);
+  }
+  .card-head h2{
+    font-family:'Poppins',sans-serif;font-size:14px;letter-spacing:.2px;
+    color:var(--rose-dark);margin:0;font-weight:600;
+  }
+  .card-body{padding:18px 20px 20px;}
+
+  .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:14px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:12px;color:var(--ink-soft);font-weight:500;}
+  .field .vr{font-size:11px;color:var(--sage);font-weight:500;}
+  .field input[type=text], .field input[type=number], .field select, .field textarea{
+    font-family:'Inter',sans-serif;font-size:13.5px;color:var(--ink);
+    padding:10px 14px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);
+    outline:none;width:100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);
+  }
+  .field input.flag-abnormal{border-color:var(--amber);background:var(--amber-light);}
+  .field input.format-error{border-color:#B4432F;background:#FBEAE6;}
+  .field input.field-missing{border-color:#B4432F;}
+  .format-warning{font-size:11px;color:#B4432F;font-weight:600;display:block;margin-top:3px;}
+  .field .flag-note{font-size:11px;color:var(--amber);font-weight:600;display:none;}
+  .field .flag-note.show{display:block;}
+
+  .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
+  .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
+
+  .subgroup{
+    border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
+  }
+  .visita-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .conditional{display:none;}
+  .conditional.show{display:block;}
+
+  /* Custom combobox for "Médico solicitante" — a plain <datalist> doesn't show
+     its suggestion popup at all on iOS Safari (and is unreliable on other
+     mobile browsers too), so the list is rendered by hand here instead.
+     It's moved to a direct child of <body> and positioned with fixed
+     coordinates computed in JS (see medicosComboList setup), because .card
+     has overflow:hidden — nested absolute/relative positioning would get
+     the dropdown clipped by the card's edge instead of floating over it. */
+  .combo-list{
+    display:none;position:fixed;z-index:1000;
+    background:var(--panel);border:1.5px solid var(--line);border-radius:var(--radius-sm);
+    box-shadow:var(--shadow);max-height:220px;overflow-y:auto;
+  }
+  .combo-list.show{display:block;}
+  .combo-list .combo-option{
+    padding:10px 14px;font-size:13.5px;color:var(--ink);cursor:pointer;
+  }
+  .combo-list .combo-option:hover, .combo-list .combo-option.active{background:var(--rose-light);}
+  .combo-list .combo-empty{padding:10px 14px;font-size:12.5px;color:var(--ink-soft);}
+
+  hr.sep{border:none;border-top:1px dashed var(--line);margin:14px 0;}
+
+  /* Preview / laudo pane */
+  .preview-wrap{position:sticky;top:88px;}
+  /* .paper-table wraps the report in a <table> purely so its thead/tfoot can
+     reserve the letterhead margin — thead/tfoot repeat on every physical
+     printed page in every engine we've tested (desktop, mobile, headless),
+     unlike @page margin, which many mobile "print to PDF" pipelines ignore
+     outright. On screen the thead/tfoot stay collapsed to zero height.
+     table-layout:fixed makes the single column actually honor that
+     width:100% — with the default 'auto' layout, the browser sized the
+     column from .paper's own explicit width (17cm + 72px) instead, which
+     made the table (and everything wrapping it, up to the page) overflow
+     horizontally on narrow/mobile screens instead of shrinking to fit. */
+  .paper-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+  .paper-table thead td, .paper-table tfoot td{padding:0;border:none;height:0;}
+  .paper-table tbody td{padding:0;border:none;}
+  .paper{
+    background:#FEFCFE;border:1px solid var(--line);border-radius:4px;
+    box-shadow:var(--shadow);
+    padding:34px 36px 40px;
+    font-family:'Times New Roman', Times, serif;font-size:12pt;line-height:1.15;color:var(--ink);text-align:justify;
+    max-height:calc(100vh - 150px);overflow-y:auto;
+    /* Matches the 17cm content width paginateForPrint() measures against
+       (21cm A4 minus 2cm side margins), so the on-screen page-break preview
+       below lines up with where the real print/Word output actually splits —
+       capped at 100% so it still fits narrow/mobile screens. */
+    width:calc(17cm + 72px);max-width:100%;margin:0 auto;
+  }
+  .pg-break-marker{
+    margin:18px 0;padding-top:8px;border-top:1.5px dashed #c7a2ab;
+    text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-soft);user-select:none;
+  }
+  .paper .id-card{
+    background:#ffffff;border:1.5px solid #2b2b2e;border-radius:10px;padding:10px 16px;margin:0 0 var(--idcard-gap, 20px);
+    font-weight:700;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  .paper .id-card-row{display:flex;justify-content:space-between;gap:16px;font-size:12pt;}
+  .paper .id-card-row + .id-card-row{margin-top:2px;}
+  .paper h3.doctitle{
+    text-align:center;text-decoration:underline;font-size:16pt;letter-spacing:.5px;
+    margin:0 0 24px;font-weight:700;
+  }
+  /* Dar Enter no COMEÇO do título deixava um <br> solto na frente do texto —
+     ver transvaginal.html para a explicação completa; mantido igual aqui. */
+  .paper h3.doctitle > br:first-child{display:none;}
+  .paper .relato{color:#C0392B;font-weight:700;margin:0 0 12px;}
+  .paper h4.sec{
+    text-decoration:underline;font-size:13px;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
+  }
+  .paper p.linha{margin:0 0 var(--linha-margin, 16px);}
+  .paper p.linha strong{font-weight:700;}
+  .paper .blank{color:#B4432F;font-weight:600;}
+  .paper .filled{color:var(--ink);}
+  .paper table.acompanhamento{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;}
+  .paper table.acompanhamento th, .paper table.acompanhamento td{border:1px solid #2b2b2e;padding:4px 8px;text-align:center;vertical-align:middle;}
+  .paper table.acompanhamento th{font-weight:700;background:var(--rose-light);}
+  .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
+  .paper ul.impressao li{margin-bottom:2px;font-weight:700;}
+  .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
+  .paper .footnote{font-style:italic;font-size:9pt;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
+  .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
+  .paper .assinatura p{margin:0;}
+  .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:3px 14px 0;margin-bottom:2px!important;}
+  .paper .assinatura-info{font-size:9.5pt;color:var(--ink-soft);}
+
+  .preview-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .preview-actions button{flex:1;min-width:110px;}
+  .btn-copy{background:var(--rose);color:#fff;}
+  .btn-copy:hover{background:var(--rose-dark);}
+  .btn-print{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  .btn-clear{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+
+  .format-toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+  .format-toolbar .fmt-btn{
+    width:34px;height:32px;padding:0;border-radius:8px;border:1.5px solid var(--line);background:#fff;color:var(--ink);
+    font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .format-toolbar .fmt-btn svg{display:block;}
+  .format-toolbar .fmt-btn:hover{border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-btn.active{background:var(--rose-light);border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-sep{width:1px;height:22px;background:var(--line);margin:0 4px;}
+  .format-toolbar .fmt-group{display:inline-flex;align-items:center;gap:6px;}
+  .format-toolbar .fmt-reset{
+    border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;
+    background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap;
+  }
+  .format-toolbar .fmt-reset:hover{border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-build{font-size:10.5px;color:var(--ink-soft);opacity:.75;margin-left:auto;white-space:nowrap;}
+  .format-toolbar label{font-size:12px;color:var(--ink-soft);}
+  .format-toolbar select{
+    border:1.5px solid var(--line);border-radius:8px;padding:5px 8px;font-size:12.5px;color:var(--ink);
+    background:#fff;cursor:pointer;
+  }
+
+  .status-pill{
+    font-size:11px;font-weight:600;padding:4px 12px;border-radius:999px;background:var(--sage-light);color:var(--rose-dark);
+    display:inline-block;margin-bottom:10px;
+  }
+  .status-pill.pending{background:var(--amber-light);color:var(--amber);}
+  .status-pill + .status-pill{margin-left:6px;}
+
+  .print-alert{
+    display:none;background:#B4432F;color:#fff;font-weight:600;font-size:13px;
+    padding:10px 14px;border-radius:10px;margin-bottom:10px;
+  }
+  .print-alert.show{display:block;}
+
+  .draft-note{
+    display:none;align-items:center;gap:10px;flex-wrap:wrap;background:var(--rose-light);color:var(--rose-dark);
+    font-size:12.5px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:10px;
+  }
+  .draft-note.show{display:flex;}
+  .draft-note button{
+    background:#fff;border:1.5px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;
+    font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;
+  }
+  .draft-note button:hover{background:var(--sage-light);}
+
+  .settings-panel{display:none;background:var(--rose-light);border-radius:var(--radius-md);padding:16px 18px;margin:0 28px 22px;max-width:1440px;}
+  .settings-panel.show{display:block;margin:0 auto 22px;}
+  .settings-panel h3{font-family:'Poppins',sans-serif;font-size:14px;margin:0 0 10px;color:var(--rose-dark);font-weight:600;}
+  .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
+  .settings-grid .field label{font-size:12px;}
+  .settings-panel .save-row{margin-top:12px;display:flex;gap:8px;align-items:center;}
+  .settings-panel .saved-msg{font-size:12px;color:var(--sage);font-weight:600;display:none;}
+
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;}
+
+  /* Margin zeroed on purpose — ver transvaginal.html para a explicação
+     completa de por que o thead/tfoot da .paper-table reserva a margem real. */
+  @page{
+    size: A4;
+    margin: 0;
+  }
+  @media print{
+    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note{display:none !important;}
+    .pg-break-marker{display:none !important;}
+    .layout{display:block;padding:0;margin:0;max-width:none;}
+    .preview-wrap{position:static;}
+    .paper-table thead td{height:3.5cm;}
+    .paper-table tfoot td{height:2cm;}
+    .paper-table tbody td{padding:0 2cm;}
+    .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
+
+    .paper p.linha, .paper table.acompanhamento, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
+    .paper h4.sec{page-break-after:avoid;}
+
+    .paper .print-page + .print-page{page-break-before:always;}
+    .paper .continua{font-style:italic;font-size:10pt;text-align:right;margin:0;}
+    .paper .print-page .rodape-final{margin-top:0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="logo-badge"><img src="logo.png" alt="Clínica de Ultrassom — Dra. Morgana Kummer"></div>
+    <div>
+      <h1>Laudo de Rastreamento de Ovulação</h1>
+      <div class="sub">Dra. Morgana Kummer · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <select class="medico-switch" id="medicoExecutante" title="Médico executante do exame">
+      <option value="morgana">Dra. Morgana Kummer</option>
+      <option value="barbara">Dra. Bárbara R. Moreira</option>
+      <option value="paulo">Dr. Paulo M. Gontijo Junior</option>
+      <option value="carolina">Dra. Carolina P. Martins</option>
+      <option value="outro">Outro (digitar manualmente)</option>
+    </select>
+    <select class="laudo-switch" id="laudoSwitch" onchange="if(this.value) location.href=this.value;" title="Trocar de laudo">
+      <option value="index.html">Todos os laudos</option>
+      <option value="transvaginal.html">Transvaginal</option>
+      <option value="obstetrico-1trimestre.html">Obstétrico — 1º Trimestre</option>
+      <option value="morfologico-1trimestre.html">Morfológico — 1º Trimestre</option>
+      <option value="obstetrico.html">Obstétrico — 2º/3º Trimestre</option>
+      <option value="rastreamento-ovulacao.html" selected>Rastreamento de Ovulação</option>
+    </select>
+    <button class="btn-ghost" id="btnSettings">Valores de referência</button>
+    <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
+    <button class="btn-ghost" id="btnReset">Limpar</button>
+  </div>
+</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <h3>Identificação do médico (assinatura do laudo)</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Nome do médico (assinatura)</label><input type="text" id="vr_medicoNome" value="Dra. Morgana Fialho Caldas Kummer"></div>
+    <div class="field"><label>Qualificação (linha 1)</label><input type="text" id="vr_medicoQual1" value="Especialista em Ultrassonografia Geral pelo CBR."></div>
+    <div class="field"><label>Qualificação (linha 2)</label><input type="text" id="vr_medicoQual2" value="Pós-Graduação em Medicina Fetal pela FCMMG."></div>
+    <div class="field"><label>CRM / RQE</label><input type="text" id="vr_medicoCRM" value="CRMMG: 45.304 - RQE: 39.156"></div>
+  </div>
+  <hr class="sep">
+  <h3>Valores de referência — volume uterino (personalize e salve)</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Nenhum filho — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroNenhum" value="90"></div>
+    <div class="field"><label>1 ou 2 filhos — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_utero1a2" value="140"></div>
+    <div class="field"><label>3 filhos — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_utero3" value="160"></div>
+    <div class="field"><label>4 ou mais filhos — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_utero4mais" value="180"></div>
+    <div class="field"><label>Infância — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroInfancia" value="10"></div>
+    <div class="field"><label>Adolescência — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroAdolescencia" value="40"></div>
+  </div>
+  <hr class="sep">
+  <h3>Valores de referência — volume ovariano</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Mínimo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_ovarioMin" value="3"></div>
+    <div class="field"><label>Máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_ovarioMax" value="9"></div>
+  </div>
+  <div class="save-row">
+    <button class="btn-copy" id="btnSaveVR">Salvar valores de referência</button>
+    <span class="saved-msg" id="vrSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="settings-panel" id="phrasesPanel">
+  <h3>Personalizar frases do laudo</h3>
+  <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases usadas automaticamente conforme o que você marca no formulário. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui.</p>
+
+  <h3>Útero</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Frase-base (normal) — use {POSICAO}</label><textarea id="ph_uteroBase" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Ovários</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Normal — use {L}, {AP}, {T}, {VOLUME}, {VRMIN} e {VRMAX}</label><textarea id="ph_ovarioNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes no primeiro exame — use {N}</label><textarea id="ph_foliculosDominantes" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Corpo lúteo</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Identificado — use {LADO}</label><textarea id="ph_corpoLuteoIdentificado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Não identificado</label><textarea id="ph_corpoLuteoNaoIdentificado" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Impressão diagnóstica</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Ciclo ovulatório</label><textarea id="ph_impCicloOvulatorio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ciclo anovulatório (corpo lúteo não identificado)</label><textarea id="ph_impCicloAnovulatorio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endométrio concordante</label><textarea id="ph_impEndometrioConcordante" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endométrio discordante — use {DESCRICAO}</label><textarea id="ph_impEndometrioDiscordante" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Achado uterino (útero alterado) — use {DESCRICAO}</label><textarea id="ph_impUteroAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Achado ovariano (ovário alterado) — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Rodapé</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Nota final</label><textarea id="ph_footerImagens" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <div class="save-row">
+    <button class="btn-copy" id="btnSavePhrases">Salvar frases</button>
+    <button class="btn-clear" id="btnResetPhrases">Restaurar padrão</button>
+    <span class="saved-msg" id="phrasesSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- FORM COLUMN -->
+  <div id="formCol">
+
+    <div class="card">
+      <div class="card-head"><h2>Dados do exame</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">A impressão reserva 3,5 cm em branco no topo para a folha timbrada; o cabeçalho de identificação abaixo entra logo após esse espaço.</p>
+        <div class="field-row">
+          <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
+          <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
+          <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+          <div class="field"><label>DUM</label><input type="text" id="dum" placeholder="dd/mm/aaaa"></div>
+        </div>
+        <div class="field"><label>Medicações</label><textarea id="medicacoes" rows="2" placeholder="ex: Citrato de clomifeno 100mg/dia; Letrozol 5mg/dia... (deixe em branco para &quot;---&quot;)"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Útero</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Posição uterina</label>
+            <select id="uteroPosicao">
+              <option value="AVF">Anteversoflexão (AVF)</option>
+              <option value="RVF">Retroversoflexão (RVF)</option>
+              <option value="MVF">Posição intermediária / medioversão (MVF)</option>
+            </select>
+          </div>
+          <div class="field"><label>Valor de referência — volume uterino</label>
+            <select id="vrUteroCategoria">
+              <option value="nenhum">Nenhum filho (VR até <span class="vr-uteroNenhum">90</span> cm³)</option>
+              <option value="1a2">1 ou 2 filhos (VR até <span class="vr-utero1a2">140</span> cm³)</option>
+              <option value="3">3 filhos (VR até <span class="vr-utero3">160</span> cm³)</option>
+              <option value="4mais">4 ou mais filhos (VR até <span class="vr-utero4mais">180</span> cm³)</option>
+              <option value="infancia">Infância (VR até <span class="vr-uteroInfancia">10</span> cm³)</option>
+              <option value="adolescencia">Adolescência (VR até <span class="vr-uteroAdolescencia">40</span> cm³)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Útero — longitudinal (L)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder="cm"></div>
+          <div class="field"><label>Útero — anteroposterior (AP)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder="cm"></div>
+          <div class="field"><label>Útero — transverso (T)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder="cm"></div>
+          <div class="field"><label>Volume uterino</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder="cm³">
+            <span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Aspecto</label>
+            <select id="uteroAspecto">
+              <option value="normal">Normal (configuração anatômica, sem nódulos)</option>
+              <option value="alterado">Alterado (descrever)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_uteroDescricao">
+          <label>Descreva o achado</label>
+          <textarea id="uteroDescricao" rows="2" placeholder="ex: nódulo sólido sugestivo de mioma..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Ovários</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Contagem de folículos dominantes do primeiro exame do ciclo — o crescimento folicular ao longo das visitas é registrado no card "Acompanhamento" abaixo.</p>
+        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário direito</p>
+        <div class="field-row">
+          <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder="cm"></div>
+          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_AP" placeholder="cm"></div>
+          <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_T" placeholder="cm"></div>
+          <div class="field"><label>Volume</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="ovD_volume" placeholder="cm³">
+            <span class="flag-note" id="flag_ovD_volume">Fora do valor de referência</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Folículos dominantes (1º exame)</label><input type="text" inputmode="numeric" id="ovD_foliculos" placeholder="nº"></div>
+          <div class="field"><label>Aspecto</label>
+            <select id="ovD_aspecto">
+              <option value="normal">Normal (dimensões e ecotextura preservadas)</option>
+              <option value="alterado">Alterado (descrever)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_ovD_descricao">
+          <label>Descreva o achado</label>
+          <textarea id="ovD_descricao" rows="2" placeholder="ex: cisto simples medindo..."></textarea>
+        </div>
+
+        <hr class="sep">
+        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário esquerdo</p>
+        <div class="field-row">
+          <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_L" placeholder="cm"></div>
+          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_AP" placeholder="cm"></div>
+          <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_T" placeholder="cm"></div>
+          <div class="field"><label>Volume</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="ovE_volume" placeholder="cm³">
+            <span class="flag-note" id="flag_ovE_volume">Fora do valor de referência</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Folículos dominantes (1º exame)</label><input type="text" inputmode="numeric" id="ovE_foliculos" placeholder="nº"></div>
+          <div class="field"><label>Aspecto</label>
+            <select id="ovE_aspecto">
+              <option value="normal">Normal (dimensões e ecotextura preservadas)</option>
+              <option value="alterado">Alterado (descrever)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_ovE_descricao">
+          <label>Descreva o achado</label>
+          <textarea id="ovE_descricao" rows="2" placeholder="ex: cisto simples medindo..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Acompanhamento (visitas)</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Uma linha por visita/exame do ciclo — a tabela sai no laudo na mesma ordem em que aparece aqui.</p>
+        <div id="visitasContainer"></div>
+        <button type="button" class="btn-clear" id="btnAddVisita" style="margin:2px 0 0;">+ Adicionar visita</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Corpo lúteo e impressão</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Corpo lúteo</label>
+            <select id="corpoLuteoLado">
+              <option value="direito">Identificado no ovário direito</option>
+              <option value="esquerdo">Identificado no ovário esquerdo</option>
+              <option value="nao_identificado">Não identificado</option>
+            </select>
+          </div>
+          <div class="field"><label>Endométrio</label>
+            <select id="endometrioConcordancia">
+              <option value="concordante">Concordante com a fase do ciclo</option>
+              <option value="discordante">Discordante (descrever)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_endometrioDiscordanciaDescricao">
+          <label>Descreva a discordância</label>
+          <textarea id="endometrioDiscordanciaDescricao" rows="2" placeholder="ex: espessura incompatível com a fase do ciclo..."></textarea>
+        </div>
+        <hr class="sep">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
+        <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PREVIEW COLUMN -->
+  <div class="preview-wrap">
+    <span class="status-pill" id="statusPill">0 campos pendentes</span>
+    <span class="status-pill" id="pageCountPill">1 página</span>
+    <span class="status-pill" id="draftPill" style="display:none;" title="O laudo é salvo sozinho neste navegador enquanto você digita"></span>
+    <div class="print-alert" id="printAlert">⚠ Ainda há campos não preenchidos — corrija antes de imprimir.</div>
+    <div class="draft-note" id="draftNote">
+      <span id="draftNoteText"></span>
+      <button type="button" id="btnDraftDiscard">Fechar aviso</button>
+    </div>
+    <div class="format-toolbar" id="formatToolbar">
+      <button type="button" class="fmt-btn" id="fmtBold" title="Negrito (Ctrl+B)"><b>N</b></button>
+      <button type="button" class="fmt-btn" id="fmtItalic" title="Itálico (Ctrl+I)"><i>I</i></button>
+      <button type="button" class="fmt-btn" id="fmtUnderline" title="Sublinhado (Ctrl+U)"><u>S</u></button>
+      <span class="fmt-sep"></span>
+      <button type="button" class="fmt-btn" id="fmtAlignLeft" title="Alinhar à esquerda">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="10" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="10" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignCenter" title="Centralizar">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="3.5" y1="6.5" x2="12.5" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="3.5" y1="13.5" x2="12.5" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignRight" title="Alinhar à direita">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="6" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="6" y1="13.5" x2="15" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignJustify" title="Justificar">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="15" y2="13.5"/></svg>
+      </button>
+      <span class="fmt-sep"></span>
+      <span class="fmt-group">
+        <label for="fmtLineHeight">Espaçamento entre linhas (todo o laudo)</label>
+        <select id="fmtLineHeight" title="Espaçamento entre linhas (todo o laudo)">
+          <option value="1">Mínimo</option>
+          <option value="1.15" selected>Compacto</option>
+          <option value="1.35">Estreito</option>
+          <option value="1.5">Normal</option>
+          <option value="1.8">Largo</option>
+        </select>
+      </span>
+      <span class="fmt-sep"></span>
+      <span class="fmt-group">
+        <label for="fmtIdCardGap">Espaço só acima do título</label>
+        <select id="fmtIdCardGap" title="Espaço só acima do título (não mexe no resto do laudo)">
+          <option value="0">Nenhum</option>
+          <option value="1">1 mm</option>
+          <option value="2">2 mm</option>
+          <option value="3">3 mm</option>
+          <option value="default" selected>5 mm (padrão)</option>
+          <option value="8">8 mm</option>
+          <option value="12">12 mm</option>
+          <option value="16">16 mm</option>
+          <option value="20">20 mm</option>
+        </select>
+      </span>
+      <span class="fmt-sep"></span>
+      <span class="fmt-group">
+        <label for="fmtFontSize">Tamanho da fonte</label>
+        <select id="fmtFontSize" title="Tamanho da fonte">
+          <option value="10.5">10,5 pt</option>
+          <option value="11">11 pt</option>
+          <option value="11.5">11,5 pt</option>
+          <option value="12" selected>12 pt (padrão)</option>
+          <option value="12.5">12,5 pt</option>
+          <option value="13">13 pt</option>
+          <option value="14">14 pt</option>
+          <option value="15">15 pt</option>
+          <option value="16">16 pt</option>
+          <option value="17">17 pt</option>
+          <option value="18">18 pt</option>
+        </select>
+      </span>
+      <span class="fmt-sep"></span>
+      <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.26-a</span>
+    </div>
+    <table class="paper-table">
+      <thead><tr><td></td></tr></thead>
+      <tfoot><tr><td></td></tr></tfoot>
+      <tbody><tr><td><div class="paper" id="paper" contenteditable="true" spellcheck="false"></div></td></tr></tbody>
+    </table>
+    <div class="preview-actions">
+      <button class="btn-print" id="btnPrint">Imprimir / PDF</button>
+      <button class="btn-clear" id="btnDownloadWord">Baixar Word</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+
+  // ---------- Storage: uses Claude's window.storage when available (in-chat preview),
+  // falls back to the browser's own localStorage everywhere else. ----------
+  const kvStore = {
+    async get(key){
+      try{
+        if(window.storage && typeof window.storage.get === 'function'){
+          const r = await window.storage.get(key, false);
+          return r ? r.value : null;
+        }
+      }catch(e){ /* fall through to localStorage */ }
+      try{ return localStorage.getItem(key); }catch(e){ return null; }
+    },
+    async set(key, value){
+      try{
+        if(window.storage && typeof window.storage.set === 'function'){
+          await window.storage.set(key, value, false);
+          return;
+        }
+      }catch(e){ /* fall through to localStorage */ }
+      try{ localStorage.setItem(key, value); }catch(e){ /* storage unavailable this session */ }
+    },
+    async remove(key){
+      try{
+        if(window.storage && typeof window.storage.remove === 'function'){
+          await window.storage.remove(key);
+          return;
+        }
+      }catch(e){ /* fall through to localStorage */ }
+      try{ localStorage.removeItem(key); }catch(e){ /* storage unavailable this session */ }
+    }
+  };
+
+  let titleFontSize = null;
+  let impressaoOverrides = {};
+  let lastBlockHtml = {};
+  let draftRestoring = false;
+
+  function renderBlocks(blocks){
+    const paperEl = $('paper');
+    let prevNode = null;
+    const keepIds = new Set();
+    blocks.forEach(b=>{
+      keepIds.add(b.id);
+      let node = paperEl.querySelector(':scope > [data-blk="'+b.id+'"]');
+      if(!node || lastBlockHtml[b.id] !== b.html){
+        const tmp = document.createElement('div');
+        tmp.innerHTML = b.html;
+        const fresh = tmp.firstElementChild;
+        fresh.setAttribute('data-blk', b.id);
+        if(node) node.replaceWith(fresh);
+        node = fresh;
+        lastBlockHtml[b.id] = b.html;
+      }
+      const wantedNext = prevNode ? prevNode.nextSibling : paperEl.firstChild;
+      if(wantedNext !== node) paperEl.insertBefore(node, wantedNext);
+      prevNode = node;
+    });
+    Array.from(paperEl.querySelectorAll(':scope > [data-blk]')).forEach(el=>{
+      const id = el.getAttribute('data-blk');
+      if(!keepIds.has(id)){ el.remove(); delete lastBlockHtml[id]; }
+    });
+  }
+
+  // ---------- Format toolbar ----------
+  (function(){
+    const paperEl = $('paper');
+    const btnBold = $('fmtBold');
+    const btnItalic = $('fmtItalic');
+    const btnUnderline = $('fmtUnderline');
+    const lineHeightSel = $('fmtLineHeight');
+    const alignButtons = [
+      [$('fmtAlignLeft'), 'justifyLeft'],
+      [$('fmtAlignCenter'), 'justifyCenter'],
+      [$('fmtAlignRight'), 'justifyRight'],
+      [$('fmtAlignJustify'), 'justifyFull'],
+    ];
+
+    function updateFormatButtons(){
+      try{
+        btnBold.classList.toggle('active', document.queryCommandState('bold'));
+        btnItalic.classList.toggle('active', document.queryCommandState('italic'));
+        btnUnderline.classList.toggle('active', document.queryCommandState('underline'));
+        alignButtons.forEach(([btn, cmd])=>btn.classList.toggle('active', document.queryCommandState(cmd)));
+      }catch(e){ /* queryCommandState unsupported */ }
+    }
+    function applyFormat(cmd){
+      paperEl.focus();
+      document.execCommand(cmd, false, null);
+      updateFormatButtons();
+    }
+    const allFmtButtons = [btnBold, btnItalic, btnUnderline, ...alignButtons.map(([btn])=>btn)];
+    allFmtButtons.forEach(btn=>btn.addEventListener('mousedown', e=>e.preventDefault()));
+    btnBold.addEventListener('click', ()=>applyFormat('bold'));
+    btnItalic.addEventListener('click', ()=>applyFormat('italic'));
+    btnUnderline.addEventListener('click', ()=>applyFormat('underline'));
+    alignButtons.forEach(([btn, cmd])=>btn.addEventListener('click', ()=>applyFormat(cmd)));
+    paperEl.addEventListener('keyup', updateFormatButtons);
+    paperEl.addEventListener('mouseup', updateFormatButtons);
+    paperEl.addEventListener('keydown', e=>{
+      const mod = e.ctrlKey || e.metaKey;
+      if(!mod) return;
+      if(e.key === 'b' || e.key === 'B'){ e.preventDefault(); applyFormat('bold'); }
+      else if(e.key === 'i' || e.key === 'I'){ e.preventDefault(); applyFormat('italic'); }
+      else if(e.key === 'u' || e.key === 'U'){ e.preventDefault(); applyFormat('underline'); }
+    });
+
+    function cursorNoInicioDoTitulo(range){
+      const titleEl = paperEl.querySelector('h3.doctitle');
+      if(!titleEl || !range.collapsed || !titleEl.contains(range.startContainer)) return null;
+      const antes = document.createRange();
+      antes.selectNodeContents(titleEl);
+      antes.setEnd(range.startContainer, range.startOffset);
+      return antes.toString().length === 0 ? titleEl : null;
+    }
+    function passoEspacoTitulo(direcao){
+      const i = idCardGapSel.selectedIndex + direcao;
+      if(i < 0 || i >= idCardGapSel.options.length) return;
+      idCardGapSel.selectedIndex = i;
+      idCardGapSel.dispatchEvent(new Event('change'));
+    }
+    paperEl.addEventListener('keydown', e=>{
+      if(e.key !== 'Enter' && e.key !== 'Backspace') return;
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+
+      if(cursorNoInicioDoTitulo(range)){
+        e.preventDefault();
+        passoEspacoTitulo(e.key === 'Enter' ? 1 : -1);
+        return;
+      }
+      if(e.key !== 'Enter') return;
+
+      const anchorNode = sel.anchorNode;
+      const anchorEl = anchorNode ? (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement) : null;
+      if(anchorEl && anchorEl.closest('h3.doctitle')){
+        e.preventDefault();
+        document.execCommand('insertLineBreak');
+      }
+    });
+
+    let lastPaperSelectionRange = null;
+    document.addEventListener('selectionchange', ()=>{
+      const sel = window.getSelection();
+      if(sel && sel.rangeCount && !sel.isCollapsed && paperEl.contains(sel.anchorNode) && paperEl.contains(sel.focusNode)){
+        lastPaperSelectionRange = sel.getRangeAt(0).cloneRange();
+      }
+    });
+    function captureSelectionInPaper(){
+      const range = lastPaperSelectionRange;
+      lastPaperSelectionRange = null;
+      return range;
+    }
+    function wrapSelectionInStyledSpan(range, applyStyle){
+      const span = document.createElement('span');
+      applyStyle(span.style);
+      try{
+        range.surroundContents(span);
+      }catch(e){
+        const contents = range.extractContents();
+        span.appendChild(contents);
+        range.insertNode(span);
+      }
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      const newRange = document.createRange();
+      newRange.selectNodeContents(span);
+      sel.addRange(newRange);
+    }
+
+    const LINE_HEIGHT_MARGIN = {'1':'1mm', '1.15':'2mm', '1.35':'3mm', '1.5':'4mm', '1.8':'6mm'};
+    lineHeightSel.addEventListener('change', ()=>{
+      const range = captureSelectionInPaper();
+      const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '16px';
+      if(range){
+        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha')).filter(el=> range.intersectsNode(el));
+        if(paragraphs.length > 1){
+          paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; el.style.marginBottom = margin; });
+        } else {
+          wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
+          paragraphs.forEach(el=>{ el.style.marginBottom = margin; });
+        }
+      } else {
+        paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
+          el.style.lineHeight = '';
+          if(!el.getAttribute('style')) el.removeAttribute('style');
+        });
+        paperEl.querySelectorAll('p.linha').forEach(el=>{ el.style.marginBottom = ''; });
+        paperEl.style.lineHeight = lineHeightSel.value;
+        paperEl.style.setProperty('--linha-margin', margin);
+        kvStore.set('paper-line-height', lineHeightSel.value);
+      }
+    });
+
+    const idCardGapSel = $('fmtIdCardGap');
+    const IDCARD_GAP_MARGIN = {'default':'20px', '0':'0mm', '1':'1mm', '2':'2mm', '3':'3mm', '8':'8mm', '12':'12mm', '16':'16mm', '20':'20mm'};
+    idCardGapSel.addEventListener('change', ()=>{
+      const val = idCardGapSel.value;
+      if(val === 'default'){
+        paperEl.style.removeProperty('--idcard-gap');
+        kvStore.remove('idcard-gap');
+      } else {
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[val] || '20px');
+        kvStore.set('idcard-gap', val);
+      }
+    });
+
+    function resetEspacamentos(){
+      paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
+        el.style.lineHeight = '';
+        if(!el.getAttribute('style')) el.removeAttribute('style');
+      });
+      paperEl.querySelectorAll('p.linha').forEach(el=>{ el.style.marginBottom = ''; });
+      paperEl.style.lineHeight = '';
+      paperEl.style.removeProperty('--linha-margin');
+      paperEl.style.removeProperty('--idcard-gap');
+      lineHeightSel.value = '1.15';
+      idCardGapSel.value = 'default';
+      kvStore.remove('paper-line-height');
+      kvStore.remove('idcard-gap');
+    }
+    $('fmtResetSpacing').addEventListener('click', resetEspacamentos);
+
+    (async function initLineSpacingPrefs(){
+      const saved = await kvStore.get('paper-line-height');
+      if(saved){
+        lineHeightSel.value = saved;
+        paperEl.style.lineHeight = saved;
+        paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '16px');
+      }
+      const savedGap = await kvStore.get('idcard-gap');
+      if(savedGap){
+        idCardGapSel.value = savedGap;
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[savedGap] || '20px');
+      }
+    })();
+
+    const fontSizeSel = $('fmtFontSize');
+    fontSizeSel.addEventListener('change', ()=>{
+      const size = fontSizeSel.value;
+      const range = captureSelectionInPaper();
+      const titleEl = paperEl.querySelector('h3.doctitle');
+      if(range && titleEl && titleEl.contains(range.commonAncestorContainer)){
+        titleFontSize = size;
+        kvStore.set('title-font-size', size);
+        titleEl.style.fontSize = size + 'pt';
+      } else if(range){
+        wrapSelectionInStyledSpan(range, style=>{ style.fontSize = size + 'pt'; });
+      } else {
+        paperEl.style.fontSize = size + 'pt';
+        kvStore.set('paper-font-size', size);
+      }
+    });
+    document.addEventListener('selectionchange', ()=>{
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount) return;
+      const node = sel.anchorNode;
+      if(!node || !paperEl.contains(node)) return;
+      const el = node.nodeType === 3 ? node.parentElement : node;
+      if(!el) return;
+      const px = parseFloat(getComputedStyle(el).fontSize);
+      if(isNaN(px)) return;
+      const pt = px / (96/72);
+      let closest = null, closestDiff = Infinity;
+      Array.from(fontSizeSel.options).forEach(o=>{
+        const diff = Math.abs(parseFloat(o.value) - pt);
+        if(diff < closestDiff){ closest = o; closestDiff = diff; }
+      });
+      if(closest && closestDiff < 0.4) fontSizeSel.value = closest.value;
+    });
+    (async function initFontSizePrefs(){
+      const savedPaper = await kvStore.get('paper-font-size');
+      if(savedPaper){
+        fontSizeSel.value = savedPaper;
+        paperEl.style.fontSize = savedPaper + 'pt';
+      }
+      const savedTitle = await kvStore.get('title-font-size');
+      if(savedTitle){
+        titleFontSize = savedTitle;
+        const titleEl = paperEl.querySelector('h3.doctitle');
+        if(titleEl) titleEl.style.fontSize = savedTitle + 'pt';
+      }
+    })();
+  })();
+
+  // ---------- Médico solicitante: hand-rolled combobox ----------
+  (function(){
+    const DEFAULT_MEDICOS = [
+      'Dra. Alice Maciel F. e Santos',
+      'Dra. Aline Torres Alves',
+      'Dra. Ana Rita de Paiva Toledo',
+      'Dr. Antônio José Lobo Ribeiro',
+      'Dr. Carlos Alberto F. Silva',
+      'Dra. Cíntia Aparecida S. Oliveira',
+      'Dra. Cristiane M. Gontijo Campos',
+      'Dra. Daniela Cristina M. Tameirão',
+      'Dr. Enilton Barbosa de Araújo',
+      'Dr. Flávio Pimenta Silveira',
+      'Dra. Galia Marichal Manso',
+      'Dr. Gilton de Menezes',
+      'Dra. Iasmine Corrêa Lanza',
+      'Dr. Jahir Richard de Oliveira',
+      'Dr. João Alberto de B. Ribeiro',
+      'Dr. Kleyton W. Pereira Tomaz',
+      'Dra. Lorenza Rafaela F. Magnago',
+      'Dra. Luciane Lopes F. Sader',
+      'Dra. Luciene Ferreira Calazans',
+      'Dra. Marcela Fernanda F. Cólen',
+      'Dra. Maria Soeli Lanza Meirelles',
+      'Dra. Mayana Lobo de Almeida',
+      'Dra. Patrícia J. Schwenck de Carvalho',
+      'Dra. Priscila R. Baleeiro Marcos',
+      'Dra. Rejane Márcia de Abreu',
+      'Dr. Robson Gonçalves',
+      'Dr. Rogério Vicente de L. Ferreira',
+      'Dr. Samir de P. Abdo Zacarias',
+      'Dr. Samuel Conrado de O. Mourão',
+      'Dra. Samyle O. Vasconcelos Marino',
+      'Dra. Tatiane Ventura Gonçalves',
+      'Dr. Wagner Pinheiro P. Villafort'
+    ];
+    const input = $('medicoSolicitante');
+    const listEl = $('medicosComboList');
+    let customMedicos = [];
+    let currentMatches = [];
+    let activeIndex = -1;
+
+    document.body.appendChild(listEl);
+
+    function allMedicos(){ return DEFAULT_MEDICOS.concat(customMedicos); }
+
+    function positionList(){
+      const r = input.getBoundingClientRect();
+      listEl.style.left = r.left + 'px';
+      listEl.style.top = (r.bottom + 4) + 'px';
+      listEl.style.width = r.width + 'px';
+    }
+
+    function highlight(idx){
+      activeIndex = idx;
+      Array.from(listEl.children).forEach((el, i)=> el.classList.toggle('active', i===activeIndex));
+    }
+
+    function renderList(){
+      const q = input.value.trim().toLowerCase();
+      currentMatches = q ? allMedicos().filter(n=> n.toLowerCase().includes(q)) : allMedicos();
+      activeIndex = -1;
+      listEl.innerHTML = currentMatches.length
+        ? currentMatches.map((n, i)=> '<div class="combo-option" data-idx="'+i+'">'+escapeHtml(n)+'</div>').join('')
+        : '<div class="combo-empty">Nenhum nome encontrado — o que você digitar será salvo.</div>';
+    }
+
+    function showList(){
+      renderList();
+      positionList();
+      listEl.classList.add('show');
+    }
+    function hideList(){ listEl.classList.remove('show'); }
+    function repositionIfVisible(){ if(listEl.classList.contains('show')) positionList(); }
+
+    function selectValue(val){
+      input.value = val;
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+      input.dispatchEvent(new Event('change', {bubbles:true}));
+      hideList();
+    }
+
+    input.addEventListener('focus', showList);
+    input.addEventListener('input', showList);
+    input.addEventListener('blur', ()=>{
+      setTimeout(hideList, 150);
+    });
+    input.addEventListener('keydown', e=>{
+      if(!listEl.classList.contains('show') || !currentMatches.length) return;
+      if(e.key === 'ArrowDown'){ e.preventDefault(); highlight(Math.min(activeIndex+1, currentMatches.length-1)); }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); highlight(Math.max(activeIndex-1, 0)); }
+      else if(e.key === 'Enter'){ if(activeIndex>=0){ e.preventDefault(); selectValue(currentMatches[activeIndex]); } }
+      else if(e.key === 'Escape'){ hideList(); }
+    });
+    listEl.addEventListener('mousedown', e=> e.preventDefault());
+    listEl.addEventListener('click', e=>{
+      const opt = e.target.closest('.combo-option');
+      if(!opt) return;
+      selectValue(currentMatches[Number(opt.dataset.idx)]);
+    });
+    window.addEventListener('resize', repositionIfVisible);
+    window.addEventListener('scroll', repositionIfVisible, true);
+
+    kvStore.get('custom-medicos').then(saved=>{
+      if(!saved) return;
+      try{ customMedicos = JSON.parse(saved); }catch(e){ customMedicos = []; }
+    });
+
+    input.addEventListener('change', ()=>{
+      const val = input.value.trim();
+      if(!val) return;
+      const exists = allMedicos().some(n=> n.toLowerCase()===val.toLowerCase());
+      if(!exists){
+        customMedicos.push(val);
+        kvStore.set('custom-medicos', JSON.stringify(customMedicos));
+      }
+    });
+  })();
+
+  // ---------- Numeric format rules ----------
+  function showFormatWarning(el, show, message){
+    let msg = el.parentElement.querySelector('.format-warning');
+    if(show){
+      el.classList.add('format-error');
+      if(!msg){
+        msg = document.createElement('span');
+        msg.className = 'format-warning';
+        el.insertAdjacentElement('afterend', msg);
+      }
+      msg.textContent = message;
+    } else {
+      el.classList.remove('format-error');
+      if(msg) msg.remove();
+    }
+  }
+  function sanitizeChars(el){
+    const cleaned = el.value.replace(/[^0-9,.]/g, '');
+    if(cleaned !== el.value) el.value = cleaned;
+  }
+  function decimalFormatOk(el){
+    const maxDecimals = parseInt(el.dataset.decimals || '0', 10);
+    const maxInt = parseInt(el.dataset.maxint || '0', 10);
+    const normalized = el.value.replace(/\./g, ',');
+    if(normalized === '') return true;
+    const intPart = maxInt > 0 ? ('\\d{1,'+maxInt+'}') : '\\d+';
+    return maxDecimals <= 0
+      ? new RegExp('^'+intPart+'$').test(normalized)
+      : new RegExp('^'+intPart+'(,\\d{1,'+maxDecimals+'})?$').test(normalized);
+  }
+  function isValidDecimal(el){
+    if(!decimalFormatOk(el)) return false;
+    const normalized = el.value.replace(/\./g, ',');
+    if(normalized === '' || el.dataset.max === undefined) return true;
+    const num = parseFloat(normalized.replace(',', '.'));
+    return isNaN(num) || num <= parseFloat(el.dataset.max);
+  }
+  function checkDecimalFormat(el){
+    sanitizeChars(el);
+    const maxDecimals = parseInt(el.dataset.decimals || '0', 10);
+    const maxInt = parseInt(el.dataset.maxint || '0', 10);
+    let message = maxDecimals <= 0
+      ? 'Revise o número — apenas dígitos, sem vírgula.'
+      : (maxInt > 0
+        ? 'Revise o número — até '+maxInt+' algarismo'+(maxInt>1?'s':'')+' antes da vírgula e '+maxDecimals+' depois (ex: '+('9'.repeat(maxInt))+',0).'
+        : 'Revise o número — precisa de um algarismo antes da vírgula (ex: 1,2).');
+    if(decimalFormatOk(el) && el.dataset.max !== undefined){
+      message = 'Revise o número — valor máximo aceito: '+el.dataset.max.replace('.',',')+'.';
+    }
+    showFormatWarning(el, !isValidDecimal(el), message);
+  }
+  function wireDecimalInputs(){
+    document.querySelectorAll('input[data-decimals]').forEach(el=>{
+      el.addEventListener('input', ()=>{
+        sanitizeChars(el);
+        if(isValidDecimal(el)) showFormatWarning(el, false);
+      });
+      el.addEventListener('blur', ()=> checkDecimalFormat(el));
+    });
+  }
+  wireDecimalInputs();
+
+  // ---------- Customizable report phrases ----------
+  const PHRASE_DEFAULTS = {
+    uteroBase: '{POSICAO}, situado na linha mediana, de configuração anatômica, textura homogênea e contornos regulares, sem identificação de nódulos sólidos.',
+    ovarioNormal: 'de topografia usual, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
+    foliculosDominantes: 'Presença de {N} folículo(s) dominante(s) no primeiro exame.',
+    corpoLuteoIdentificado: 'Corpo lúteo identificado no ovário {LADO}.',
+    corpoLuteoNaoIdentificado: 'Corpo lúteo não identificado no presente estudo.',
+    impCicloOvulatorio: 'Exame compatível com ciclo ovulatório.',
+    impCicloAnovulatorio: 'Corpo lúteo não identificado — sugestivo de ciclo anovulatório.',
+    impEndometrioConcordante: 'Endométrio concordante.',
+    impEndometrioDiscordante: 'Endométrio discordante com a fase do ciclo: {DESCRICAO}.',
+    impUteroAlterado: 'Achado uterino: {DESCRICAO}.',
+    impOvarioAlterado: 'Achado no ovário {LADO}: {DESCRICAO}.',
+    footerImagens: 'Imagens em anexo.'
+  };
+  let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
+
+  async function loadPhrases(){
+    try{
+      const val = await kvStore.get('ov-phrase-templates');
+      if(val){
+        const parsed = JSON.parse(val);
+        PHRASES = Object.assign({}, PHRASE_DEFAULTS, parsed);
+      }
+    }catch(e){ /* no saved phrases yet — use defaults */ }
+    applyPhrasesToInputs();
+  }
+  function applyPhrasesToInputs(){
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      if(el) el.value = PHRASES[key];
+    });
+  }
+  function phrase(key, repl){
+    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    if(repl){
+      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
+    }
+    return escapeHtml(t).replace(/\n/g, '<br>');
+  }
+  function phraseRaw(key, repl){
+    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    if(repl){
+      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
+    }
+    return t;
+  }
+  $('btnPhrases').addEventListener('click', ()=>{
+    $('phrasesPanel').classList.toggle('show');
+  });
+  $('btnSavePhrases').addEventListener('click', async ()=>{
+    const updated = {};
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      updated[key] = el ? el.value : PHRASE_DEFAULTS[key];
+    });
+    PHRASES = updated;
+    try{
+      await kvStore.set('ov-phrase-templates', JSON.stringify(PHRASES));
+      const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
+    }catch(e){ /* storage unavailable — values still apply for this session */ }
+    render();
+  });
+  $('btnResetPhrases').addEventListener('click', async ()=>{
+    if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
+    PHRASES = Object.assign({}, PHRASE_DEFAULTS);
+    applyPhrasesToInputs();
+    try{ await kvStore.set('ov-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
+    render();
+  });
+
+  // ---------- Reference values ----------
+  let VR = {
+    medicoNome:'Dra. Morgana Fialho Caldas Kummer',
+    medicoQual1:'Especialista em Ultrassonografia Geral pelo CBR.',
+    medicoQual2:'Pós-Graduação em Medicina Fetal pela FCMMG.',
+    medicoCRM:'CRMMG: 45.304 - RQE: 39.156',
+    uteroNenhum:90, utero1a2:140, utero3:160, utero4mais:180, uteroInfancia:10, uteroAdolescencia:40,
+    ovarioMin:3, ovarioMax:9
+  };
+  const UTERO_VR_LIMIT = {
+    nenhum: v=>v.uteroNenhum, '1a2': v=>v.utero1a2, '3': v=>v.utero3,
+    '4mais': v=>v.utero4mais, infancia: v=>v.uteroInfancia, adolescencia: v=>v.uteroAdolescencia
+  };
+
+  async function loadVR(){
+    try{
+      const val = await kvStore.get('ov-vr-settings');
+      if(val){
+        const parsed = JSON.parse(val);
+        VR = Object.assign(VR, parsed);
+      }
+    }catch(e){ /* no saved settings yet — use defaults */ }
+    applyVRToInputs();
+    updateVRLabels();
+  }
+  function applyVRToInputs(){
+    $('vr_medicoNome').value = VR.medicoNome;
+    $('vr_medicoQual1').value = VR.medicoQual1;
+    $('vr_medicoQual2').value = VR.medicoQual2;
+    $('vr_medicoCRM').value = VR.medicoCRM;
+    $('vr_uteroNenhum').value = VR.uteroNenhum;
+    $('vr_utero1a2').value = VR.utero1a2;
+    $('vr_utero3').value = VR.utero3;
+    $('vr_utero4mais').value = VR.utero4mais;
+    $('vr_uteroInfancia').value = VR.uteroInfancia;
+    $('vr_uteroAdolescencia').value = VR.uteroAdolescencia;
+    $('vr_ovarioMin').value = VR.ovarioMin;
+    $('vr_ovarioMax').value = VR.ovarioMax;
+  }
+  function updateVRLabels(){
+    document.querySelectorAll('.vr-uteroNenhum').forEach(e=>e.textContent=VR.uteroNenhum);
+    document.querySelectorAll('.vr-utero1a2').forEach(e=>e.textContent=VR.utero1a2);
+    document.querySelectorAll('.vr-utero3').forEach(e=>e.textContent=VR.utero3);
+    document.querySelectorAll('.vr-utero4mais').forEach(e=>e.textContent=VR.utero4mais);
+    document.querySelectorAll('.vr-uteroInfancia').forEach(e=>e.textContent=VR.uteroInfancia);
+    document.querySelectorAll('.vr-uteroAdolescencia').forEach(e=>e.textContent=VR.uteroAdolescencia);
+  }
+  $('btnSettings').addEventListener('click', ()=>{
+    $('settingsPanel').classList.toggle('show');
+  });
+
+  const EXECUTANTES = {
+    morgana: {nome:'Dra. Morgana Fialho Caldas Kummer', qual1:'Especialista em Ultrassonografia Geral pelo CBR.', qual2:'Pós-Graduação em Medicina Fetal pela FCMMG.', crm:'CRMMG: 45.304 - RQE: 39.156'},
+    barbara: {nome:'Dra. Bárbara Rodrigues Moreira', qual1:'Especialista em Ultrassonografia Geral pelo CBR.', qual2:'', crm:'CRMMG: 66.451 - RQE: 51.530'},
+    paulo: {nome:'Dr. Paulo Moreira Gontijo Junior', qual1:'', qual2:'', crm:'CRMMG: 76.670'},
+    carolina: {nome:'Dra. Carolina Piedade Martins', qual1:'', qual2:'', crm:'CRMMG: 75.163'}
+  };
+  function applyExecutante(id){
+    const d = EXECUTANTES[id];
+    if(!d) return;
+    VR = Object.assign({}, VR, {medicoNome:d.nome, medicoQual1:d.qual1, medicoQual2:d.qual2, medicoCRM:d.crm});
+    applyVRToInputs();
+    render();
+  }
+  $('medicoExecutante').addEventListener('change', e=>{
+    kvStore.set('medico-executante-selecionado', e.target.value);
+    if(e.target.value === 'outro'){
+      $('settingsPanel').classList.add('show');
+    } else {
+      applyExecutante(e.target.value);
+    }
+  });
+  async function loadExecutanteSelecionado(){
+    const saved = await kvStore.get('medico-executante-selecionado');
+    const sel = $('medicoExecutante');
+    sel.value = (saved && (saved==='outro' || EXECUTANTES[saved])) ? saved : 'morgana';
+    if(sel.value !== 'outro') applyExecutante(sel.value);
+  }
+
+  function pf(id, fallback){
+    const x = parseFloat(($(id).value||'').replace(',', '.'));
+    return isNaN(x) ? fallback : x;
+  }
+  $('btnSaveVR').addEventListener('click', async ()=>{
+    VR = {
+      medicoNome: $('vr_medicoNome').value || VR.medicoNome,
+      medicoQual1: $('vr_medicoQual1').value || VR.medicoQual1,
+      medicoQual2: $('vr_medicoQual2').value || VR.medicoQual2,
+      medicoCRM: $('vr_medicoCRM').value || VR.medicoCRM,
+      uteroNenhum: pf('vr_uteroNenhum', 90),
+      utero1a2: pf('vr_utero1a2', 140),
+      utero3: pf('vr_utero3', 160),
+      utero4mais: pf('vr_utero4mais', 180),
+      uteroInfancia: pf('vr_uteroInfancia', 10),
+      uteroAdolescencia: pf('vr_uteroAdolescencia', 40),
+      ovarioMin: pf('vr_ovarioMin', 3),
+      ovarioMax: pf('vr_ovarioMax', 9)
+    };
+    try{
+      await kvStore.set('ov-vr-settings', JSON.stringify(VR));
+      const m = $('vrSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
+    }catch(e){ /* storage unavailable — values still apply for this session */ }
+    updateVRLabels();
+    render();
+  });
+
+  // ---------- Conditional field visibility ----------
+  function toggle(id, show){ const el=$(id); if(!el) return; el.classList.toggle('show', show); }
+
+  $('uteroAspecto').addEventListener('change', e=> toggle('wrap_uteroDescricao', e.target.value==='alterado'));
+  $('ovD_aspecto').addEventListener('change', e=> toggle('wrap_ovD_descricao', e.target.value==='alterado'));
+  $('ovE_aspecto').addEventListener('change', e=> toggle('wrap_ovE_descricao', e.target.value==='alterado'));
+  $('endometrioConcordancia').addEventListener('change', e=> toggle('wrap_endometrioDiscordanciaDescricao', e.target.value==='discordante'));
+
+  // ---------- Acompanhamento: repeating visita rows (uid-based, same pattern
+  // as the mioma nodules in transvaginal.html) ----------
+  let visitaNextUid = 1;
+  function visitaSubgroupHTML(uid){
+    return ''
+      +'<div class="subgroup" id="wrap_visita'+uid+'">'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Visita <span class="visita-index"></span> — Data</label><input type="text" id="visita'+uid+'Data" placeholder="dd/mm/aaaa"></div>'
+      +'<div class="field"><label>Dia do ciclo</label><input type="text" inputmode="numeric" id="visita'+uid+'Ciclo" placeholder="ex: 12"></div>'
+      +'<div class="field"><label>Ovário direito — maior folículo (mm)</label><input type="text" id="visita'+uid+'FolD" placeholder="ex: 18 x 16"></div>'
+      +'<div class="field"><label>Ovário esquerdo — maior folículo (mm)</label><input type="text" id="visita'+uid+'FolE" placeholder="ex: 10 x 9"></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Endométrio — padrão</label><select id="visita'+uid+'EndoPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option></select></div>'
+      +'<div class="field"><label>Endométrio — espessura (mm)</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="visita'+uid+'EndoEspessura" placeholder="mm"></div>'
+      +'</div>'
+      +'<button type="button" class="visita-remove" data-uid="'+uid+'">Remover visita</button>'
+      +'</div>';
+  }
+  function renumberVisitas(){
+    const container = $('visitasContainer');
+    const visitas = Array.from(container.children);
+    visitas.forEach((el, idx)=>{
+      const label = el.querySelector('.visita-index');
+      if(label) label.textContent = idx+1;
+      const removeBtn = el.querySelector('.visita-remove');
+      if(removeBtn) removeBtn.style.display = visitas.length>1 ? 'inline' : 'none';
+    });
+  }
+  function wireVisita(uid){
+    const el = $('wrap_visita'+uid);
+    el.querySelectorAll('input, select').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    el.querySelector('.visita-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberVisitas();
+      render();
+    });
+  }
+  function addVisita(){
+    const uid = visitaNextUid++;
+    $('visitasContainer').insertAdjacentHTML('beforeend', visitaSubgroupHTML(uid));
+    wireVisita(uid);
+    renumberVisitas();
+    render();
+  }
+  $('btnAddVisita').addEventListener('click', addVisita);
+  function visitaUids(){
+    return Array.from($('visitasContainer').children).map(el=> el.id.replace('wrap_visita',''));
+  }
+
+  function v(id){ const el = $(id); return el ? el.value.trim() : ''; }
+  function num(id){ const x = parseFloat(v(id).replace(',', '.')); return isNaN(x) ? null : x; }
+  function vNoDot(id){ return v(id).replace(/\.+\s*$/, ''); }
+  function blankOrValue(val, suffix){
+    if(val === '' || val === null || val === undefined) return {text:'____', filled:false};
+    return {text: val + (suffix||''), filled:true};
+  }
+  function span(obj){
+    return '<span class="'+(obj.filled?'filled':'blank')+'">'+escapeHtml(obj.text)+'</span>';
+  }
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function flag(id, isAbnormal){
+    const el = $(id), note = $('flag_'+id);
+    if(!el) return;
+    el.classList.toggle('flag-abnormal', !!isAbnormal);
+    if(note) note.classList.toggle('show', !!isAbnormal);
+  }
+
+  // ---------- Build impression checklist ----------
+  let checkedState = {};
+  function buildImpressao(state){
+    const items = [];
+    if(state.corpoLuteoLado === 'nao_identificado'){
+      items.push({key:'ciclo', label:phraseRaw('impCicloAnovulatorio'), auto:true});
+    } else {
+      items.push({key:'ciclo', label:phraseRaw('impCicloOvulatorio'), auto:true});
+    }
+    if(state.endometrioConcordancia === 'discordante' && state.endometrioDiscordanciaDescricao){
+      items.push({key:'endometrio', label:phraseRaw('impEndometrioDiscordante', {DESCRICAO: state.endometrioDiscordanciaDescricao}), auto:true});
+    } else {
+      items.push({key:'endometrio', label:phraseRaw('impEndometrioConcordante'), auto:true});
+    }
+    if(state.uteroAspecto === 'alterado' && state.uteroDescricao){
+      items.push({key:'utero-alterado', label:phraseRaw('impUteroAlterado', {DESCRICAO: state.uteroDescricao}), auto:true});
+    }
+    if(state.ovD_aspecto === 'alterado' && state.ovD_descricao){
+      items.push({key:'ovD-alterado', label:phraseRaw('impOvarioAlterado', {LADO:'direito', DESCRICAO: state.ovD_descricao}), auto:true});
+    }
+    if(state.ovE_aspecto === 'alterado' && state.ovE_descricao){
+      items.push({key:'ovE-alterado', label:phraseRaw('impOvarioAlterado', {LADO:'esquerdo', DESCRICAO: state.ovE_descricao}), auto:true});
+    }
+    return items;
+  }
+  function renderChecklist(items){
+    const box = $('impressaoChecklist');
+    box.innerHTML = '';
+    items.forEach(it=>{
+      if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
+      const row = document.createElement('label');
+      row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#6d3263;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
+      row.querySelector('input').addEventListener('change', e=>{
+        checkedState[it.key] = e.target.checked;
+        render();
+      });
+      box.appendChild(row);
+    });
+  }
+
+  $('paper').addEventListener('input', ()=>{
+    const sel = window.getSelection();
+    if(!sel || !sel.anchorNode) return;
+    const node = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
+    const li = node && node.closest ? node.closest('ul.impressao li[data-key]') : null;
+    if(li) impressaoOverrides[li.dataset.key] = li.textContent;
+  });
+
+  // ---------- Shared pagination engine (identical to transvaginal.html —
+  // keeps the on-screen "fits on N pages" preview and the real print output
+  // agreeing on where pages break) ----------
+  const PAGE_SAFETY_PX = 38;
+  const MIN_LINE_HEIGHT = 1.0;
+  const LINE_HEIGHT_STEP = 0.03;
+  const MIN_FONT_SIZE = 11;
+  const FONT_SIZE_STEP = 0.5;
+
+  function pageBudgetPx(){
+    const ref = document.createElement('div');
+    ref.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:0;width:0;height:24.2cm;';
+    document.body.appendChild(ref);
+    const pageHeightPx = ref.getBoundingClientRect().height;
+    document.body.removeChild(ref);
+    return pageHeightPx - PAGE_SAFETY_PX;
+  }
+
+  function packAt(paperEl, html, lineHeight, fontSize, budgetPx){
+    const measure = document.createElement('div');
+    measure.className = 'paper';
+    measure.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;width:17cm;max-height:none;overflow:visible;background:none;border:none;box-shadow:none;padding:0;margin:0;';
+    measure.style.lineHeight = lineHeight;
+    measure.style.fontSize = fontSize;
+    measure.innerHTML = html;
+    document.body.appendChild(measure);
+
+    const continuaP = document.createElement('p');
+    continuaP.className = 'continua';
+    continuaP.textContent = 'Continua…';
+    measure.appendChild(continuaP);
+    const continuaHeight = continuaP.getBoundingClientRect().height;
+    measure.removeChild(continuaP);
+    const continuaHtml = continuaP.outerHTML;
+
+    const measureRect = measure.getBoundingClientRect();
+    const realTop = Array.from(paperEl.children);
+    const measureTop = Array.from(measure.children);
+    const boxes = [];
+    realTop.forEach((realChild, idx)=>{
+      const measureChild = measureTop[idx];
+      if(!measureChild) return;
+      if(realChild.tagName==='UL' && realChild.classList.contains('impressao')){
+        const realLis = Array.from(realChild.children);
+        const measureLis = Array.from(measureChild.children);
+        realLis.forEach((li, i)=>{
+          if(!measureLis[i]) return;
+          const r = measureLis[i].getBoundingClientRect();
+          boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:'li', html: li.outerHTML, node: li});
+        });
+      } else {
+        const r = measureChild.getBoundingClientRect();
+        boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:(realChild.tagName==='H4' ? 'heading' : 'block'), html: realChild.outerHTML, node: realChild});
+      }
+    });
+    document.body.removeChild(measure);
+
+    const pages = [[]];
+    let pageStart = boxes.length ? boxes[0].top : 0;
+    boxes.forEach(box=>{
+      if((box.bottom - pageStart) > budgetPx && pages[pages.length-1].length > 0){
+        pages.push([]);
+        pageStart = box.top;
+      }
+      pages[pages.length-1].push(box);
+    });
+    for(let p=0; p<pages.length-1; p++){
+      const pg = pages[p];
+      if(pg.length && pg[pg.length-1].kind==='heading'){
+        pages[p+1].unshift(pg.pop());
+      }
+    }
+    return {pages, continuaHtml, continuaHeight};
+  }
+
+  function autoFitPages(paperEl, budgetPx){
+    const html = paperEl.innerHTML;
+    const baseLineHeight = parseFloat(paperEl.style.lineHeight) || 1.15;
+    const baseFontSize = parseFloat(paperEl.style.fontSize) || 12;
+
+    function fitAtFontSize(fontSize){
+      for(let lh = baseLineHeight; lh >= MIN_LINE_HEIGHT - 1e-9; lh -= LINE_HEIGHT_STEP){
+        const attempt = packAt(paperEl, html, lh, fontSize + 'pt', budgetPx);
+        if(attempt.pages.length === 1) return {packed: attempt, lineHeight: lh, fontSize};
+      }
+      return null;
+    }
+
+    let fit = fitAtFontSize(baseFontSize);
+    for(let fs = baseFontSize - FONT_SIZE_STEP; !fit && fs >= MIN_FONT_SIZE - 1e-9; fs -= FONT_SIZE_STEP){
+      fit = fitAtFontSize(fs);
+    }
+    if(fit) return fit;
+    return {
+      packed: packAt(paperEl, html, baseLineHeight, baseFontSize + 'pt', budgetPx),
+      lineHeight: baseLineHeight,
+      fontSize: baseFontSize
+    };
+  }
+
+  function updatePagePreview(){
+    const paperEl = $('paper');
+    paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+
+    const pill = $('pageCountPill');
+    if(!paperEl.children.length){ if(pill){ pill.textContent='1 página'; pill.classList.remove('pending'); } return; }
+
+    const pages = autoFitPages(paperEl, pageBudgetPx()).packed.pages;
+
+    if(pill){
+      pill.textContent = pages.length===1 ? '1 página' : pages.length+' páginas';
+      pill.classList.toggle('pending', pages.length > 1);
+    }
+    for(let p=0; p<pages.length-1; p++){
+      const node = pages[p+1][0] && pages[p+1][0].node;
+      if(!node || !node.parentNode) continue;
+      const marker = document.createElement(node.tagName === 'LI' ? 'li' : 'div');
+      marker.className = 'pg-break-marker';
+      marker.contentEditable = 'false';
+      marker.textContent = 'Fim da página ' + (p+1);
+      node.parentNode.insertBefore(marker, node);
+    }
+  }
+  let pagePreviewTimer = null;
+  function schedulePagePreview(){
+    clearTimeout(pagePreviewTimer);
+    pagePreviewTimer = setTimeout(updatePagePreview, 250);
+  }
+  $('paper').addEventListener('input', schedulePagePreview);
+  window.addEventListener('resize', schedulePagePreview);
+
+  // ---------- Main render ----------
+  let pendingCount = 0;
+  let printAttempted = false;
+
+  function render(){
+    if(draftRestoring) return;
+    pendingCount = 0;
+    function req(id){
+      const val = v(id);
+      const empty = val === '';
+      const el = $(id);
+      if(el) el.classList.toggle('field-missing', printAttempted && empty);
+      if(empty) pendingCount++;
+      return val;
+    }
+
+    const nomePaciente = v('nomePaciente');
+    const dataExame = v('dataExame');
+    const medicoSolicitante = v('medicoSolicitante');
+    const gpaG = v('gpaG');
+    const gpaP = v('gpaP');
+    const gpaA = v('gpaA');
+    const dum = v('dum');
+    const medicacoes = vNoDot('medicacoes');
+
+    const uteroPosicaoVal = v('uteroPosicao');
+    const uteroPosicaoTexto = {AVF:'em anteversoflexão', RVF:'em retroversoflexão', MVF:'em posição intermediária (medioversão)'}[uteroPosicaoVal];
+    const vrUteroCategoria = v('vrUteroCategoria');
+    const vrUteroLimite = UTERO_VR_LIMIT[vrUteroCategoria](VR);
+    const vrUteroTexto = 'até '+vrUteroLimite.toString().replace('.',',')+' cm³';
+    const uteroL = blankOrValue(req('uteroL'));
+    const uteroAP = blankOrValue(req('uteroAP'));
+    const uteroT = blankOrValue(req('uteroT'));
+    const uteroVolumeNum = num('uteroVolume'); req('uteroVolume');
+    const uteroVolume = blankOrValue(v('uteroVolume'));
+    flag('uteroVolume', uteroVolumeNum!==null && uteroVolumeNum > vrUteroLimite);
+    const uteroAspecto = v('uteroAspecto');
+    const uteroDescricao = vNoDot('uteroDescricao');
+
+    const vrOvarioTexto = VR.ovarioMin.toString().replace('.',',')+' e '+VR.ovarioMax.toString().replace('.',',');
+
+    function readOvario(prefix){
+      const L = blankOrValue(req(prefix+'_L'));
+      const AP = blankOrValue(req(prefix+'_AP'));
+      const T = blankOrValue(req(prefix+'_T'));
+      const volNum = num(prefix+'_volume'); req(prefix+'_volume');
+      const volume = blankOrValue(v(prefix+'_volume'));
+      flag(prefix+'_volume', volNum!==null && (volNum < VR.ovarioMin || volNum > VR.ovarioMax));
+      const foliculos = blankOrValue(req(prefix+'_foliculos'));
+      const aspecto = v(prefix+'_aspecto');
+      const descricao = vNoDot(prefix+'_descricao');
+      return {L, AP, T, volume, aspecto, descricao, foliculos};
+    }
+    const ovD = readOvario('ovD');
+    const ovE = readOvario('ovE');
+
+    const visitaUidsAtuais = visitaUids();
+    const visitaRows = visitaUidsAtuais.map(uid=>{
+      const data = blankOrValue(req('visita'+uid+'Data'));
+      const ciclo = blankOrValue(req('visita'+uid+'Ciclo'));
+      const folD = blankOrValue(req('visita'+uid+'FolD'));
+      const folE = blankOrValue(req('visita'+uid+'FolE'));
+      const endoPadrao = v('visita'+uid+'EndoPadrao')==='secretor' ? 'Secretor' : 'Trilaminar';
+      const endoEspessura = blankOrValue(req('visita'+uid+'EndoEspessura'));
+      return {data, ciclo, folD, folE, endoPadrao, endoEspessura};
+    });
+
+    const corpoLuteoLado = v('corpoLuteoLado');
+    const endometrioConcordancia = v('endometrioConcordancia');
+    const endometrioDiscordanciaDescricao = vNoDot('endometrioDiscordanciaDescricao');
+
+    const checklistItems = buildImpressao({
+      corpoLuteoLado, endometrioConcordancia, endometrioDiscordanciaDescricao,
+      uteroAspecto, uteroDescricao,
+      ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao,
+      ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao
+    });
+    renderChecklist(checklistItems);
+    const checkedItems = checklistItems.filter(it=> checkedState[it.key]);
+
+    const blocks = [];
+    blocks.push({id:'idcard', html:''
+      +'<div class="id-card">'
+      +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+'</span></div>'
+      +'</div>'});
+
+    // O <span> em volta da 1ª linha é necessário: sem ele o <br> seria o único
+    // filho-elemento do h3 e cairia no seletor ".doctitle > br:first-child"
+    // (que existe para esconder um <br> solto no INÍCIO do título — ver CSS),
+    // já que esse seletor conta só elementos-irmãos, ignorando o nó de texto
+    // antes dele. O <span> garante que o <br> não seja mais o primeiro filho.
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle"><span>ULTRASSONOGRAFIA TRANSVAGINAL</span><br>PARA RASTREAMENTO DE OVULAÇÃO</h3>'});
+
+    blocks.push({id:'medicacoes', html:'<p class="linha"><strong>Medicações:</strong> '+(medicacoes ? escapeHtml(medicacoes) : '---')+'</p>'});
+
+    blocks.push({id:'aoexame', html:'<p class="linha"><strong>Ao exame:</strong></p>'});
+
+    blocks.push({id:'utero', html:'<p class="linha"><strong>Útero:</strong> '+(uteroAspecto==='alterado'
+      ? span(blankOrValue(uteroDescricao))
+      : phrase('uteroBase', {POSICAO: uteroPosicaoTexto}))+'</p>'});
+    blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
+
+    function ovarioParagraph(ov, ladoM){
+      if(ov.aspecto==='alterado'){
+        return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+span(blankOrValue(ov.descricao))+'</p>';
+      }
+      const base = phraseRaw('ovarioNormal', {L: ov.L.text, AP: ov.AP.text, T: ov.T.text, VOLUME: ov.volume.text, VRMIN: VR.ovarioMin.toString().replace('.',','), VRMAX: VR.ovarioMax.toString().replace('.',',')});
+      const foliculosTxt = phraseRaw('foliculosDominantes', {N: ov.foliculos.text});
+      return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+escapeHtml(base)+' '+escapeHtml(foliculosTxt)+'</p>';
+    }
+    blocks.push({id:'ovD', html: ovarioParagraph(ovD, 'direito')});
+    blocks.push({id:'ovE', html: ovarioParagraph(ovE, 'esquerdo')});
+
+    blocks.push({id:'acompHeader', html:'<h4 class="sec">Acompanhamento:</h4>'});
+    let tableHtml = '<table class="acompanhamento" style="width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;">'
+      + '<tr>'
+      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Data do exame</th>'
+      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Dia do ciclo</th>'
+      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Ovário direito<br>maior folículo</th>'
+      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Ovário esquerdo<br>maior folículo</th>'
+      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Endométrio</th>'
+      + '</tr>';
+    if(visitaRows.length === 0){
+      tableHtml += '<tr><td colspan="5" style="border:1px solid #2b2b2e;padding:4px 8px;color:#B4432F;">Adicione ao menos uma visita no formulário à esquerda.</td></tr>';
+    } else {
+      visitaRows.forEach(row=>{
+        tableHtml += '<tr>'
+          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.data)+'</td>'
+          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.ciclo)+'</td>'
+          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.folD)+' mm</td>'
+          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.folE)+' mm</td>'
+          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+escapeHtml(row.endoPadrao)+' — '+span(row.endoEspessura)+' mm</td>'
+          + '</tr>';
+      });
+    }
+    tableHtml += '</table>';
+    blocks.push({id:'acompTable', html: tableHtml});
+
+    blocks.push({id:'corpoLuteo', html:'<p class="linha">'+(corpoLuteoLado==='nao_identificado'
+      ? phrase('corpoLuteoNaoIdentificado')
+      : phrase('corpoLuteoIdentificado', {LADO: corpoLuteoLado==='esquerdo' ? 'esquerdo' : 'direito'}))+'</p>'});
+
+    blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
+    let impressaoListHtml = '<ul class="impressao">';
+    if(checkedItems.length===0){
+      impressaoListHtml += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
+    } else {
+      checkedItems.forEach(it=>{
+        const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
+        impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
+      });
+    }
+    impressaoListHtml += '</ul>';
+    blocks.push({id:'impressaoList', html:impressaoListHtml});
+
+    let rodapeHtml = '<div class="rodape-final">';
+    rodapeHtml += '<p class="footnote">'+phrase('footerImagens')+'</p>';
+    rodapeHtml += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
+    if(VR.medicoQual1) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
+    if(VR.medicoQual2) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
+    rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoCRM)+'</p></div>';
+    rodapeHtml += '</div>';
+    blocks.push({id:'rodape', html:rodapeHtml});
+
+    renderBlocks(blocks);
+    if(titleFontSize){
+      const titleEl = $('paper').querySelector('h3.doctitle');
+      if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
+    }
+
+    const pill = $('statusPill');
+    if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
+    else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
+    updatePagePreview();
+    draftSchedule();
+  }
+
+  // ---------- Wire up live updates ----------
+  document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
+    el.addEventListener('input', render);
+    el.addEventListener('change', render);
+  });
+
+  // ---------- Actions ----------
+  function buildReportHtml(){
+    const clone = $('paper').cloneNode(true);
+    clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    clone.querySelectorAll('ul.impressao').forEach(ul=>{
+      const div = document.createElement('div');
+      Array.from(ul.children).forEach(li=>{
+        const p = document.createElement('p');
+        p.style.margin = '0 0 6px';
+        p.style.fontWeight = '700';
+        p.innerHTML = li.innerHTML;
+        div.appendChild(p);
+      });
+      ul.replaceWith(div);
+    });
+    clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
+    const liveIdCardEl = $('paper').querySelector('.id-card');
+    const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
+    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
+    clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
+    clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
+    clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
+    clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
+    clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#9a7e95'; el.style.margin='0'; });
+
+    clone.querySelectorAll('.id-card-row').forEach(el=>{
+      el.style.fontSize = '12pt';
+      if(el.children.length !== 2) return;
+      const [left, right] = el.children;
+      const table = document.createElement('table');
+      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;');
+      table.innerHTML = '<tr>'
+        + '<td style="border:none;padding:0;text-align:left;">'+left.innerHTML+'</td>'
+        + '<td style="border:none;padding:0;text-align:right;">'+right.innerHTML+'</td>'
+        + '</tr>';
+      el.replaceWith(table);
+    });
+    clone.querySelectorAll('.rodape-final').forEach(el=>{
+      const footnote = el.querySelector('.footnote');
+      const assinatura = el.querySelector('.assinatura');
+      const table = document.createElement('table');
+      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin-top:16px;');
+      table.innerHTML = '<tr>'
+        + '<td style="border:none;padding:0;vertical-align:bottom;text-align:left;">'+(footnote ? footnote.outerHTML : '')+'</td>'
+        + '<td style="border:none;padding:0;vertical-align:bottom;text-align:right;width:1%;white-space:nowrap;">'+(assinatura ? assinatura.outerHTML : '')+'</td>'
+        + '</tr>';
+      el.replaceWith(table);
+    });
+
+    const lineHeight = $('paper').style.lineHeight || '1.15';
+    const fontSize = $('paper').style.fontSize || '12pt';
+    return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";text-align:justify;\">"+clone.innerHTML+'</div>';
+  }
+
+  function paginateForPrint(){
+    const paperEl = $('paper');
+    paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    const originalHTML = paperEl.innerHTML;
+    const originalLineHeight = paperEl.style.lineHeight;
+    const originalFontSize = paperEl.style.fontSize;
+
+    const packBudgetPx = pageBudgetPx();
+
+    const baseLineHeight = parseFloat(paperEl.style.lineHeight) || 1.15;
+    const baseFontSize = parseFloat(paperEl.style.fontSize) || 12;
+    const fit = autoFitPages(paperEl, packBudgetPx);
+    const packed = fit.packed;
+    const usedLineHeight = fit.lineHeight;
+    const usedFontSize = fit.fontSize;
+    if(usedLineHeight !== baseLineHeight) paperEl.style.lineHeight = usedLineHeight;
+    if(usedFontSize !== baseFontSize) paperEl.style.fontSize = usedFontSize + 'pt';
+
+    const {pages, continuaHtml, continuaHeight} = packed;
+
+    const wrap = document.createElement('div');
+    pages.forEach((pageBoxes, pageIdx)=>{
+      const isLast = pageIdx === pages.length - 1;
+      const pinned = isLast ? pageBoxes[pageBoxes.length - 1] : null;
+      const contentBoxes = isLast ? pageBoxes.slice(0, -1) : pageBoxes;
+
+      const pageEl = document.createElement('div');
+      pageEl.className = 'print-page';
+      let i = 0;
+      while(i < contentBoxes.length){
+        if(contentBoxes[i].kind === 'li'){
+          const ul = document.createElement('ul');
+          ul.className = 'impressao';
+          while(i < contentBoxes.length && contentBoxes[i].kind === 'li'){ ul.insertAdjacentHTML('beforeend', contentBoxes[i].html); i++; }
+          pageEl.appendChild(ul);
+        } else {
+          pageEl.insertAdjacentHTML('beforeend', contentBoxes[i].html);
+          i++;
+        }
+      }
+      const contentHeight = contentBoxes.length ? (contentBoxes[contentBoxes.length-1].bottom - contentBoxes[0].top) : 0;
+
+      const pinnedHtml = isLast ? (pinned ? pinned.html : '') : continuaHtml;
+      const pinnedHeight = isLast ? (pinned ? (pinned.bottom - pinned.top) : 0) : continuaHeight;
+      if(pinnedHtml){
+        const spacerPx = Math.max(0, packBudgetPx - contentHeight - pinnedHeight);
+        const spacer = document.createElement('div');
+        spacer.style.height = spacerPx + 'px';
+        pageEl.appendChild(spacer);
+        pageEl.insertAdjacentHTML('beforeend', pinnedHtml);
+      }
+      wrap.appendChild(pageEl);
+    });
+    paperEl.innerHTML = wrap.innerHTML;
+
+    return function restore(){
+      paperEl.innerHTML = originalHTML;
+      paperEl.style.lineHeight = originalLineHeight;
+      paperEl.style.fontSize = originalFontSize;
+      updatePagePreview();
+    };
+  }
+
+  let printRestore = null;
+  const tituloPagina = document.title;
+  window.addEventListener('beforeprint', ()=>{
+    document.title = nomeArquivoLaudo();
+    if(printRestore) return;
+    printRestore = paginateForPrint();
+  });
+  window.addEventListener('afterprint', ()=>{
+    document.title = tituloPagina;
+    if(printRestore){ printRestore(); printRestore = null; }
+  });
+
+  $('btnPrint').addEventListener('click', ()=>{
+    if(pendingCount > 0){
+      printAttempted = true;
+      render();
+      const alertEl = $('printAlert');
+      alertEl.classList.add('show');
+      alertEl.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    try{
+      window.print();
+    }catch(e){
+      alert('Não foi possível abrir a impressão automaticamente. Use "Baixar Word" e imprima a partir de lá.');
+    }
+  });
+
+  function sanitizeFilenamePart(s){
+    return s.replace(/[\\/:*?"<>|]/g, '').trim();
+  }
+  function tituloExame(){
+    return 'Rastreamento de Ovulação';
+  }
+  function nomeArquivoLaudo(){
+    const paciente = sanitizeFilenamePart(v('nomePaciente'));
+    return paciente ? paciente + ' - ' + tituloExame() : 'Laudo - ' + tituloExame();
+  }
+  async function saveBlobAs(blob, suggestedName){
+    if(window.showSaveFilePicker){
+      try{
+        const handle = await window.showSaveFilePicker({
+          suggestedName,
+          types: [{description:'Documento Word', accept:{'application/msword':['.doc']}}]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return;
+      }catch(e){
+        if(e && e.name === 'AbortError') return;
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = suggestedName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  }
+  $('btnDownloadWord').addEventListener('click', async ()=>{
+    try{
+      const html = buildReportHtml();
+      const docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
+        + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
+        + 'xmlns="http://www.w3.org/TR/REC-html40">'
+        + '<head><meta charset="utf-8"><title>'+escapeHtml(nomeArquivoLaudo())+'</title>'
+        + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
+        + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
+        + '</head><body>' + html + '</body></html>';
+      const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
+      await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
+    }catch(e){
+      alert('Não foi possível baixar o arquivo Word neste navegador.');
+    }
+  });
+
+  $('btnReset').addEventListener('click', ()=>{
+    if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
+    document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
+    document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
+    document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
+    document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
+    document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
+    document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
+    $('visitasContainer').innerHTML = '';
+    checkedState = {};
+    impressaoOverrides = {};
+    lastBlockHtml = {};
+    $('paper').innerHTML = '';
+    printAttempted = false;
+    $('printAlert').classList.remove('show');
+    setDefaultDataExame();
+    addVisita();
+    draftDiscard();
+  });
+
+  function setDefaultDataExame(){
+    const el = $('dataExame');
+    if(!el || el.value) return;
+    const pad = n => String(n).padStart(2, '0');
+    const d = new Date();
+    el.value = pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear();
+  }
+  setDefaultDataExame();
+
+  // ---------- Rascunho automático (o laudo se salva sozinho) ----------
+  const DRAFT_KEY = 'laudo-rascunho-rastreamento-ovulacao-v1';
+  const DRAFT_DEBOUNCE_MS = 800;
+  let draftTimer = null;
+  let draftReady = false;
+  let draftBaseline = null;
+
+  function draftPaperHtml(){
+    const clone = $('paper').cloneNode(true);
+    clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    return clone.innerHTML;
+  }
+
+  function draftSnapshot(){
+    const fields = {};
+    document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
+      if(!el.id) return;
+      fields[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    return {
+      v: 1,
+      ts: Date.now(),
+      fields: fields,
+      uids: visitaUids(),
+      checked: checkedState,
+      overrides: impressaoOverrides,
+      titleFontSize: titleFontSize,
+      paper: draftPaperHtml(),
+      blocks: lastBlockHtml
+    };
+  }
+
+  function draftFingerprint(s){
+    return JSON.stringify([s.fields, s.uids, s.checked, s.overrides, s.paper]);
+  }
+
+  function draftHora(ts){
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, '0');
+    const hora = pad(d.getHours())+':'+pad(d.getMinutes());
+    return d.toDateString() === new Date().toDateString()
+      ? 'hoje às '+hora
+      : 'em '+pad(d.getDate())+'.'+pad(d.getMonth()+1)+' às '+hora;
+  }
+
+  function setDraftPill(text, warn){
+    const pill = $('draftPill');
+    if(!pill) return;
+    if(!text){ pill.style.display = 'none'; return; }
+    pill.textContent = text;
+    pill.classList.toggle('pending', !!warn);
+    pill.style.display = 'inline-block';
+  }
+
+  function draftSaveNow(){
+    if(!draftReady || draftRestoring) return;
+    clearTimeout(draftTimer);
+    draftTimer = null;
+    try{
+      const snap = draftSnapshot();
+      if(draftBaseline && draftFingerprint(snap) === draftBaseline){
+        localStorage.removeItem(DRAFT_KEY);
+        setDraftPill(null);
+        return;
+      }
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
+      draftBaseline = null;
+      setDraftPill('✓ Rascunho salvo '+draftHora(snap.ts));
+    }catch(e){
+      setDraftPill('⚠ Não consegui salvar o rascunho neste navegador', true);
+    }
+  }
+
+  function draftSchedule(){
+    if(!draftReady || draftRestoring) return;
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(draftSaveNow, DRAFT_DEBOUNCE_MS);
+  }
+
+  function draftDiscard(){
+    clearTimeout(draftTimer);
+    draftTimer = null;
+    try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+    const note = $('draftNote');
+    if(note) note.classList.remove('show');
+    setDraftPill(null);
+    draftBaseline = draftReady ? draftFingerprint(draftSnapshot()) : null;
+  }
+
+  function draftRead(){
+    try{
+      const raw = localStorage.getItem(DRAFT_KEY);
+      const d = raw ? JSON.parse(raw) : null;
+      return (d && d.v === 1 && d.fields) ? d : null;
+    }catch(e){ return null; }
+  }
+
+  function draftRestore(d){
+    draftRestoring = true;
+    try{
+      const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
+      $('visitasContainer').innerHTML = '';
+      if(uids.length){
+        uids.forEach(uid=>{
+          visitaNextUid = Math.max(visitaNextUid, parseInt(uid, 10) + 1);
+          $('visitasContainer').insertAdjacentHTML('beforeend', visitaSubgroupHTML(uid));
+          wireVisita(uid);
+        });
+        renumberVisitas();
+      }else{
+        addVisita();
+      }
+
+      Object.keys(d.fields).forEach(id=>{
+        const el = $(id);
+        if(!el || !el.closest('#formCol')) return;
+        if(el.type === 'checkbox') el.checked = !!d.fields[id];
+        else el.value = d.fields[id];
+      });
+
+      document.querySelectorAll('#formCol select, #formCol input[type=checkbox]').forEach(el=>{
+        if(el.closest('#impressaoChecklist')) return;
+        el.dispatchEvent(new Event('change'));
+      });
+
+      checkedState = (d.checked && typeof d.checked === 'object') ? d.checked : {};
+      impressaoOverrides = (d.overrides && typeof d.overrides === 'object') ? d.overrides : {};
+      titleFontSize = d.titleFontSize || null;
+    }catch(e){
+      draftRestoring = false;
+      $('visitasContainer').innerHTML = '';
+      checkedState = {};
+      impressaoOverrides = {};
+      lastBlockHtml = {};
+      $('paper').innerHTML = '';
+      try{ localStorage.removeItem(DRAFT_KEY); }catch(e2){}
+      return false;
+    }
+    draftRestoring = false;
+    render();
+    if(typeof d.paper === 'string' && d.paper){
+      $('paper').innerHTML = d.paper;
+      lastBlockHtml = (d.blocks && typeof d.blocks === 'object') ? d.blocks : {};
+      updatePagePreview();
+    }
+    const note = $('draftNote');
+    if(note){
+      $('draftNoteText').textContent = 'Rascunho recuperado — este laudo voltou como estava '
+        + draftHora(d.ts) + '. Continue de onde parou; para começar um laudo novo, use "Limpar" no alto da página.';
+      note.classList.add('show');
+    }
+    setDraftPill('✓ Rascunho salvo '+draftHora(d.ts));
+    return true;
+  }
+
+  function draftInit(){
+    const d = draftRead();
+    if(!(d && draftRestore(d))){
+      addVisita();
+      render();
+      draftReady = true;
+      draftBaseline = draftFingerprint(draftSnapshot());
+      return;
+    }
+    draftReady = true;
+  }
+
+  $('paper').addEventListener('input', draftSchedule);
+  window.addEventListener('pagehide', draftSaveNow);
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'hidden') draftSaveNow();
+  });
+
+  $('btnDraftDiscard').addEventListener('click', ()=>{
+    $('draftNote').classList.remove('show');
+  });
+
+  loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit())));
+})();
+</script>
+</body>
+</html>
