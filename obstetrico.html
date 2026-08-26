@@ -204,6 +204,12 @@
   .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
   .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
   .paper table.biometria td:first-child{white-space:nowrap;}
+  /* Linha do líquido amniótico (maior bolsão + ILA): a largura da 1ª célula é
+     recalculada em JS (alignIlaColumns) a partir da própria tabela de
+     parâmetros biométricos do mesmo feto, para o "ILA" cair sempre na mesma
+     coluna vertical de CF/CA — não numa posição que varia conforme o tamanho
+     do valor do maior bolsão. */
+  .paper table.grade-la{margin-bottom:var(--linha-margin, 1em);}
   .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
@@ -379,7 +385,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Placenta normal — use {INSERCAO}, {TEXTURA} e {GRAU}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {TEXTURA}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — valores (use {BOLSAO}, {ILA} e {ILAP})</label><textarea id="ph_laValoresTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — maior bolsão (use {BOLSAO})</label><textarea id="ph_laValoresBolsao" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — ILA (use {ILA} e {ILAP})</label><textarea id="ph_laValoresIla" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Impressões diagnósticas — base</h3>
@@ -1132,7 +1139,8 @@
     placentaTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
     laAspectoNormal: 'Aspecto e volume normais para idade gestacional.',
-    laValoresTexto: 'Maior bolsão: {BOLSAO} cm &nbsp;&nbsp; ILA: {ILA} cm (percentil {ILAP}).',
+    laValoresBolsao: 'Maior bolsão: {BOLSAO} cm',
+    laValoresIla: 'ILA: {ILA} cm (P{ILAP})',
 
     impGestacao: 'Gestação eutópica, compatível com {SEMANAS} semanas e {DIAS} dias.',
     impGestacaoMultipla: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias.',
@@ -1948,6 +1956,33 @@
   let pendingCount = 0;
   let printAttempted = false;
 
+  // Alinha verticalmente o "ILA" com as colunas de medidas (CF/CA): a 1ª
+  // célula da linha "Maior bolsão / ILA" de cada feto ganha a mesma largura,
+  // em px, das duas primeiras colunas (rótulo + valor) da tabela de
+  // parâmetros biométricos daquele mesmo feto — medida ao vivo no DOM, e não
+  // chutada em "em", porque o texto do rótulo ("Maior bolsão:") é mais longo
+  // que "Diâmetro biparietal (DBP):" mais o valor sozinhos e sairia da conta
+  // se calculada à mão. Roda depois de todo render(), já com os blocos no ar.
+  function alignIlaColumns(){
+    $('paper').querySelectorAll('table.grade-la').forEach(laTable=>{
+      const laBlk = laTable.closest('[data-blk^="la-"]');
+      if(!laBlk) return;
+      const sfx = laBlk.getAttribute('data-blk').slice('la'.length);
+      const bioTable = $('paper').querySelector('[data-blk="biometria'+sfx+'"] table.biometria');
+      const bioRow = bioTable && bioTable.rows[0];
+      const laRow = laTable.rows[0];
+      if(!bioRow || !laRow || bioRow.cells.length < 2 || laRow.cells.length < 1) return;
+      const widthPx = bioRow.cells[0].getBoundingClientRect().width + bioRow.cells[1].getBoundingClientRect().width;
+      // Em "em", não em px: a impressão/PDF pode reduzir o tamanho da fonte do
+      // laudo inteiro para caber nas páginas (autoFitPages), e uma largura
+      // fixa em px ficaria descalibrada depois desse encolhimento. Em "em"
+      // ela encolhe junto — biometria e ILA usam a mesma fonte — mantendo o
+      // alinhamento em qualquer tamanho de fonte.
+      const fontSizePx = parseFloat(getComputedStyle(laRow.cells[0]).fontSize) || 16;
+      laRow.cells[0].style.width = (widthPx / fontSizePx) + 'em';
+    });
+  }
+
   function render(){
     if(draftRestoring) return;
     pendingCount = 0;
@@ -2165,7 +2200,7 @@
       +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>'
       +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+'</span><span><strong>IG atual:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>IG atual:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>'
       +'</div>'});
 
     // Título acompanha os blocos ativados: sem nenhum é "SIMPLES", e cada
@@ -2224,8 +2259,8 @@
 
       let biometriaHtml = '<div><p class="linha tight"><strong>Parâmetros Biométricos</strong></p>';
       biometriaHtml += '<table class="biometria">'
-        +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;padding-right:10px;">'+span(f.dbp)+' mm</td><td style="white-space:nowrap;">Comprimento femoral (CF):</td><td style="white-space:nowrap;padding-right:0;">'+span(f.cf)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Circunferência cefálica (CC):</td><td style="white-space:nowrap;padding-right:10px;">'+span(f.cc)+' mm</td><td style="white-space:nowrap;">Circunferência abdominal (CA):</td><td style="white-space:nowrap;padding-right:0;">'+span(f.ca)+' mm</td></tr>'
+        +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;">'+span(f.dbp)+' mm</td><td style="white-space:nowrap;">Comprimento femoral (CF):</td><td style="white-space:nowrap;">'+span(f.cf)+' mm</td></tr>'
+        +'<tr><td style="white-space:nowrap;">Circunferência cefálica (CC):</td><td style="white-space:nowrap;">'+span(f.cc)+' mm</td><td style="white-space:nowrap;">Circunferência abdominal (CA):</td><td style="white-space:nowrap;">'+span(f.ca)+' mm</td></tr>'
         +'<tr><td style="white-space:nowrap;"><strong>Peso fetal estimado:</strong></td><td colspan="3" style="white-space:nowrap;"><strong>'+span(f.peso)+' g</strong></td></tr>'
         +'</table></div>';
       blocks.push({id:'biometria'+sfx, html:biometriaHtml});
@@ -2234,7 +2269,10 @@
 
       let laHtml = '<div><p class="linha tight"><strong>Líquido amniótico</strong></p>';
       laHtml += '<p class="linha tight">'+(f.laAlterado ? escapeHtml(f.laDescricao)+'.' : phrase('laAspectoNormal'))+'</p>';
-      laHtml += '<p class="linha">'+phraseRaw('laValoresTexto', {BOLSAO: f.laBolsao.text, ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'</p></div>';
+      laHtml += '<table class="biometria grade-la"><tr>'
+        +'<td style="white-space:nowrap;">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'</td>'
+        +'<td style="white-space:nowrap;">'+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'</td>'
+        +'</tr></table></div>';
       blocks.push({id:'la'+sfx, html:laHtml});
 
       if(!isMultiple && doppler){
@@ -2305,6 +2343,7 @@
       const titleEl = $('paper').querySelector('h3.doctitle');
       if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
     }
+    alignIlaColumns();
 
     const pill = $('statusPill');
     if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
@@ -2346,6 +2385,11 @@
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
     clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
+
+    // A largura da 1ª célula da linha do líquido amniótico já foi calculada em
+    // px pelo alignIlaColumns() e aplicada como estilo inline no #paper vivo
+    // (para o ILA cair na coluna de CF/CA) — cloneNode(true) já traz esse
+    // estilo junto, então nada extra é preciso aqui para o Word.
 
     clone.querySelectorAll('.id-card-row').forEach(el=>{
       el.style.fontSize = '12pt';
@@ -2442,11 +2486,17 @@
   }
 
   let printRestore = null;
+  // "Salvar como PDF" do navegador sugere o nome do arquivo a partir do
+  // document.title, então ele vira "Nome da paciente - Obstétrico ..." durante
+  // a impressão e volta ao título da página assim que ela termina.
+  const tituloPagina = document.title;
   window.addEventListener('beforeprint', ()=>{
+    document.title = nomeArquivoLaudo();
     if(printRestore) return;
     printRestore = paginateForPrint();
   });
   window.addEventListener('afterprint', ()=>{
+    document.title = tituloPagina;
     if(printRestore){ printRestore(); printRestore = null; }
   });
 
@@ -2467,6 +2517,19 @@
 
   function sanitizeFilenamePart(s){
     return s.replace(/[\\/:*?"<>|]/g, '').trim();
+  }
+  // Nome usado tanto no Word quanto no PDF: nome completo da paciente seguido
+  // do título do exame ("Ana Maria Braga - Obstétrico 2º-3º trimestre"), para
+  // o arquivo já sair identificado e ir direto para a pasta da paciente.
+  function tituloExame(){
+    const n = fetoUids().length;
+    if(n >= 3) return 'Obstétrico Trigemelar 2º-3º trimestre';
+    if(n === 2) return 'Obstétrico Gemelar 2º-3º trimestre';
+    return 'Obstétrico 2º-3º trimestre';
+  }
+  function nomeArquivoLaudo(){
+    const paciente = sanitizeFilenamePart(v('nomePaciente'));
+    return paciente ? paciente + ' - ' + tituloExame() : 'Laudo - ' + tituloExame();
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
@@ -2498,13 +2561,12 @@
       const docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
         + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
         + 'xmlns="http://www.w3.org/TR/REC-html40">'
-        + '<head><meta charset="utf-8"><title>Laudo</title>'
+        + '<head><meta charset="utf-8"><title>'+escapeHtml(nomeArquivoLaudo())+'</title>'
         + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
         + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
         + '</head><body>' + html + '</body></html>';
       const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
-      const paciente = sanitizeFilenamePart(v('nomePaciente')) || 'Laudo';
-      await saveBlobAs(blob, paciente+' - Obstétrico 2º-3º trimestre.doc');
+      await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
     }catch(e){
       alert('Não foi possível baixar o arquivo Word neste navegador.');
     }

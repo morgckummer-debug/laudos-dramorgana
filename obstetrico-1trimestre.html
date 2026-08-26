@@ -1976,7 +1976,7 @@
       +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>'
       +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+'</span><span><strong>Cronologia:</strong> '+span(blankOrValue(cronologia))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(cronologia))+'</span></div>'
       +'</div>'});
 
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+(isMultiple ? 'ULTRASSOM GEMELAR DO 1º TRIMESTRE' : 'ULTRASSOM OBSTÉTRICO DO 1º TRIMESTRE')+'</h3>'});
@@ -2274,11 +2274,17 @@
   }
 
   let printRestore = null;
+  // "Salvar como PDF" do navegador sugere o nome do arquivo a partir do
+  // document.title, então ele vira "Nome da paciente - Obstétrico do 1º
+  // trimestre" durante a impressão e volta ao título da página ao terminar.
+  const tituloPagina = document.title;
   window.addEventListener('beforeprint', ()=>{
+    document.title = nomeArquivoLaudo();
     if(printRestore) return;
     printRestore = paginateForPrint();
   });
   window.addEventListener('afterprint', ()=>{
+    document.title = tituloPagina;
     if(printRestore){ printRestore(); printRestore = null; }
   });
 
@@ -2299,6 +2305,16 @@
 
   function sanitizeFilenamePart(s){
     return s.replace(/[\\/:*?"<>|]/g, '').trim();
+  }
+  // Nome usado tanto no Word quanto no PDF: nome completo da paciente seguido
+  // do título do exame ("Ana Maria Braga - Obstétrico do 1º trimestre"), para
+  // o arquivo já sair identificado e ir direto para a pasta da paciente.
+  function tituloExame(){
+    return v('numeroEmbrioes') !== '1' ? 'Gemelar do 1º trimestre' : 'Obstétrico do 1º trimestre';
+  }
+  function nomeArquivoLaudo(){
+    const paciente = sanitizeFilenamePart(v('nomePaciente'));
+    return paciente ? paciente + ' - ' + tituloExame() : 'Laudo - ' + tituloExame();
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
@@ -2337,7 +2353,7 @@
       const docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
         + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
         + 'xmlns="http://www.w3.org/TR/REC-html40">'
-        + '<head><meta charset="utf-8"><title>Laudo</title>'
+        + '<head><meta charset="utf-8"><title>'+escapeHtml(nomeArquivoLaudo())+'</title>'
         + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
         + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
         + '<style>'
@@ -2354,8 +2370,7 @@
         + '</style>'
         + '</head><body><div class="WordSection1">' + html + '</div></body></html>';
       const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
-      const paciente = sanitizeFilenamePart(v('nomePaciente')) || 'Laudo';
-      await saveBlobAs(blob, paciente+' - Obstétrico do 1º trimestre.doc');
+      await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
     }catch(e){
       alert('Não foi possível baixar o arquivo Word neste navegador.');
     }

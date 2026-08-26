@@ -2806,11 +2806,17 @@
   }
 
   let printRestore = null;
+  // "Salvar como PDF" do navegador sugere o nome do arquivo a partir do
+  // document.title, então ele vira "Nome da paciente - Transvaginal" durante a
+  // impressão e volta ao título da página assim que ela termina.
+  const tituloPagina = document.title;
   window.addEventListener('beforeprint', ()=>{
+    document.title = nomeArquivoLaudo();
     if(printRestore) return; // already paginated for this print — beforeprint can fire more than once
     printRestore = paginateForPrint();
   });
   window.addEventListener('afterprint', ()=>{
+    document.title = tituloPagina;
     if(printRestore){ printRestore(); printRestore = null; }
   });
 
@@ -2849,6 +2855,17 @@
   function sanitizeFilenamePart(s){
     return s.replace(/[\\/:*?"<>|]/g, '').trim();
   }
+  // Nome usado tanto no Word quanto no PDF: nome completo da paciente seguido
+  // do título do exame ("Ana Maria Braga - Transvaginal", "Catarina Ribeiro
+  // dos Santos - Transvaginal com DIU"), para o arquivo já sair identificado
+  // e ir direto para a pasta da paciente sem renomear.
+  function tituloExame(){
+    return 'Transvaginal' + ($('chkDIU').checked ? ' com DIU' : '');
+  }
+  function nomeArquivoLaudo(){
+    const paciente = sanitizeFilenamePart(v('nomePaciente'));
+    return paciente ? paciente + ' - ' + tituloExame() : 'Laudo - ' + tituloExame();
+  }
   // Chrome/Edge can prompt a native "save as" dialog (File System Access
   // API) instead of always dropping the file in Downloads — only available
   // over https (or localhost) and unsupported in Firefox/Safari, so it
@@ -2884,13 +2901,12 @@
       const docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
         + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
         + 'xmlns="http://www.w3.org/TR/REC-html40">'
-        + '<head><meta charset="utf-8"><title>Laudo</title>'
+        + '<head><meta charset="utf-8"><title>'+escapeHtml(nomeArquivoLaudo())+'</title>'
         + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
         + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
         + '</head><body>' + html + '</body></html>';
       const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
-      const paciente = sanitizeFilenamePart(v('nomePaciente')) || 'Laudo';
-      await saveBlobAs(blob, paciente+' - Transvaginal.doc');
+      await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
     }catch(e){
       alert('Não foi possível baixar o arquivo Word neste navegador.');
     }
