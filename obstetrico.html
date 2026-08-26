@@ -2208,9 +2208,9 @@
     const tabelaDopplerFetal = f => ''
       +'<table class="biometria" style="width:100%;">'
       +'<tr><td><strong style="text-decoration:underline;">Doppler Fetal</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
-      +'<tr><td>Art. Umbilical (IP):</td><td>'+span(f.piUmbilicalVal)+'</td></tr>'
-      +'<tr><td>Art. Cerebral Média (IP):</td><td>'+span(f.piACMVal)+'</td></tr>'
-      +'<tr><td>Rel. Cér-placentária (RCP):</td><td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td></tr>'
+      +'<tr><td>Art. Umbilical:</td><td>'+span(f.piUmbilicalVal)+'</td></tr>'
+      +'<tr><td>Art. Cerebral Média:</td><td>'+span(f.piACMVal)+'</td></tr>'
+      +'<tr><td>Rel. Cér-placentária:</td><td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td></tr>'
       +'</table>';
 
     fetos.forEach(f=>{
