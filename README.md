@@ -8,6 +8,7 @@ Cada laudo é um arquivo HTML autônomo (sem build, abre direto no navegador). `
 - `transvaginal.html` — Ultrassonografia Transvaginal
 - `obstetrico-1trimestre.html` — Ultrassonografia Obstétrica de 1º Trimestre (translucência nucal)
 - `obstetrico.html` — Ultrassonografia Obstétrica de 2º/3º Trimestre (feto único, gemelar ou trigemelar)
+- `rastreamento-ovulacao.html` — Ultrassonografia Transvaginal para Rastreamento de Ovulação (útero, ovários e acompanhamento folicular visita a visita, até a identificação do corpo lúteo)
 
 ## Gestação múltipla (`obstetrico.html`)
 O laudo de 2º/3º trimestre atende de um a três fetos. O número de fetos é escolhido no card "Gestação"; cada feto ganha um card próprio, e o que é medido feto a feto se repete dentro dele: apresentação e vitalidade, biometria, placenta, líquido amniótico, Doppler fetal e perfil biofísico. O que é da mãe ou do útero aparece uma vez só — Doppler das artérias uterinas e medida do colo.

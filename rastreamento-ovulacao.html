@@ -3,26 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laudo de Ultrassom Obstétrico do 1º Trimestre — Dra. Morgana Kummer</title>
+<title>Laudo de Rastreamento de Ovulação — Dra. Morgana Kummer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  .cg-overlay{position:fixed;inset:0;background:rgba(43,43,46,.55);z-index:5000;display:flex;align-items:center;justify-content:center;}
-  .cg-overlay.hide{display:none;}
-  .cg-box{background:#fff;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);padding:28px 30px;width:340px;max-width:90vw;font-family:'Inter',sans-serif;}
-  .cg-box h3{font-family:'Poppins',sans-serif;margin:0 0 4px;font-size:17px;color:#6d3263;}
-  .cg-box p{font-size:12.5px;color:#9a7e95;margin:0 0 16px;}
-  .cg-box input{width:100%;padding:10px 13px;border:1.5px solid #ebe0e9;border-radius:10px;font-size:13.5px;margin-bottom:10px;box-sizing:border-box;}
-  .cg-box button{width:100%;padding:10px;border:none;border-radius:999px;background:#ae5ba0;color:#fff;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;cursor:pointer;}
-  .cg-box button:hover{opacity:.9;}
-  .cg-err{color:#B4432F;font-size:12px;margin:-4px 0 10px;display:none;}
-  .cg-err.show{display:block;}
-  .btn-cg{background:#6d3263;color:#fff;}
-  .btn-cg:hover{opacity:.9;}
-  .cg-toast{position:fixed;bottom:24px;right:24px;background:#2b2b2e;color:#fff;padding:12px 18px;border-radius:12px;font-family:'Inter',sans-serif;font-size:13px;z-index:6000;box-shadow:0 10px 24px rgba(0,0,0,.25);max-width:320px;display:none;}
-  .cg-toast.show{display:block;}
-  .cg-toast.err{background:#B4432F;}
   :root{
     --bg:#f9f5f9;
     --panel:#ffffff;
@@ -85,7 +70,7 @@
 
   .layout{
     display:grid;grid-template-columns: 1.15fr 1fr;gap:22px;
-    max-width:1440px;margin:0 auto;padding:22px 28px 2.5cm;
+    max-width:1440px;margin:0 auto;padding:22px 28px 80px;
     align-items:start;
   }
   @media (max-width: 980px){
@@ -99,7 +84,7 @@
   .card-head{
     display:flex;align-items:center;justify-content:space-between;
     padding:14px 20px;border-bottom:1px solid var(--line);
-    background:linear-gradient(180deg, #F7F5FB, #FFFFFF);
+    background:linear-gradient(180deg, #F5F8F6, #FFFFFF);
   }
   .card-head h2{
     font-family:'Poppins',sans-serif;font-size:14px;letter-spacing:.2px;
@@ -119,7 +104,6 @@
   .field input:focus, .field select:focus, .field textarea:focus{
     border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);
   }
-  .field input[readonly]{background:var(--line-soft);color:var(--ink-soft);cursor:not-allowed;}
   .field input.flag-abnormal{border-color:var(--amber);background:var(--amber-light);}
   .field input.format-error{border-color:#B4432F;background:#FBEAE6;}
   .field input.field-missing{border-color:#B4432F;}
@@ -133,14 +117,17 @@
   .subgroup{
     border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
   }
-  .saco-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .visita-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
   .conditional{display:none;}
   .conditional.show{display:block;}
-  .field-row.conditional.show{display:grid;}
 
-  /* Custom combobox for "Médico solicitante" — see transvaginal.html for the
-     full rationale (a plain <datalist> doesn't show its suggestion popup at
-     all on iOS Safari, so the list is rendered by hand here instead). */
+  /* Custom combobox for "Médico solicitante" — a plain <datalist> doesn't show
+     its suggestion popup at all on iOS Safari (and is unreliable on other
+     mobile browsers too), so the list is rendered by hand here instead.
+     It's moved to a direct child of <body> and positioned with fixed
+     coordinates computed in JS (see medicosComboList setup), because .card
+     has overflow:hidden — nested absolute/relative positioning would get
+     the dropdown clipped by the card's edge instead of floating over it. */
   .combo-list{
     display:none;position:fixed;z-index:1000;
     background:var(--panel);border:1.5px solid var(--line);border-radius:var(--radius-sm);
@@ -157,10 +144,15 @@
 
   /* Preview / laudo pane */
   .preview-wrap{position:sticky;top:88px;}
-  /* table-layout:fixed makes the single column actually honor width:100% —
-     with the default 'auto' layout, the browser sized the column from
-     .paper's own explicit width (17cm + 72px) instead, which made the
-     table (and everything wrapping it, up to the page) overflow
+  /* .paper-table wraps the report in a <table> purely so its thead/tfoot can
+     reserve the letterhead margin — thead/tfoot repeat on every physical
+     printed page in every engine we've tested (desktop, mobile, headless),
+     unlike @page margin, which many mobile "print to PDF" pipelines ignore
+     outright. On screen the thead/tfoot stay collapsed to zero height.
+     table-layout:fixed makes the single column actually honor that
+     width:100% — with the default 'auto' layout, the browser sized the
+     column from .paper's own explicit width (17cm + 72px) instead, which
+     made the table (and everything wrapping it, up to the page) overflow
      horizontally on narrow/mobile screens instead of shrinking to fit. */
   .paper-table{width:100%;border-collapse:collapse;table-layout:fixed;}
   .paper-table thead td, .paper-table tfoot td{padding:0;border:none;height:0;}
@@ -171,62 +163,51 @@
     padding:34px 36px 40px;
     font-family:'Times New Roman', Times, serif;font-size:12pt;line-height:1.15;color:var(--ink);text-align:justify;
     max-height:calc(100vh - 150px);overflow-y:auto;
+    /* Matches the 17cm content width paginateForPrint() measures against
+       (21cm A4 minus 2cm side margins), so the on-screen page-break preview
+       below lines up with where the real print/Word output actually splits —
+       capped at 100% so it still fits narrow/mobile screens. */
     width:calc(17cm + 72px);max-width:100%;margin:0 auto;
   }
   .pg-break-marker{
-    margin:18px 0;padding-top:8px;border-top:1.5px dashed #b39ddb;
+    margin:18px 0;padding-top:8px;border-top:1.5px dashed #c7a2ab;
     text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink-soft);user-select:none;
   }
-  /* Daqui para baixo, todo espaçamento e todo tamanho de fonte do laudo é
-     expresso em em (relativo à fonte do próprio elemento), e não em px/pt
-     fixos. Os valores foram escolhidos para render exatamente o mesmo que
-     antes na fonte padrão de 12pt (12pt = 16px, então 16px = 1em), mas agora
-     o laudo inteiro encolhe junto quando autoFitPages() reduz a fonte para
-     caber numa folha só. Com margens em px fixos, reduzir 12pt→11pt ganhava
-     só ~3,5% de altura (o texto encolhia, os espaços entre parágrafos não);
-     escalando tudo junto, o mesmo passo ganha ~8%. Ao mexer nestas regras,
-     mantenha em — um px fixo aqui volta a "travar" o auto-fit. */
   .paper .id-card{
-    background:#ffffff;border:1.5px solid #2b2b2e;border-radius:10px;padding:0.625em 1em;margin:0 0 var(--idcard-gap, 1.25em);
+    background:#ffffff;border:1.5px solid #2b2b2e;border-radius:10px;padding:10px 16px;margin:0 0 var(--idcard-gap, 20px);
     font-weight:700;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
-  .paper .id-card-row{display:flex;justify-content:space-between;gap:1em;font-size:1em;}
-  .paper .id-card-row + .id-card-row{margin-top:0.125em;}
+  .paper .id-card-row{display:flex;justify-content:space-between;gap:16px;font-size:12pt;}
+  .paper .id-card-row + .id-card-row{margin-top:2px;}
   .paper h3.doctitle{
-    text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
-    margin:0 0 1.125em;font-weight:700;
+    text-align:center;text-decoration:underline;font-size:16pt;letter-spacing:.5px;
+    margin:0 0 24px;font-weight:700;
   }
   /* Dar Enter no COMEÇO do título deixava um <br> solto na frente do texto —
-     uma linha vazia com a altura da fonte do título (16pt) — que o seletor
-     "Espaço acima do título" não conseguia encolher (não é margin). Esse
-     <br> inicial agora é interceptado no keydown (vira um passo no seletor
-     em vez de uma linha vazia); esta regra é só um cinto-e-suspensório para
-     qualquer <br> inicial que escape por outro caminho (colar texto, etc). */
+     ver transvaginal.html para a explicação completa; mantido igual aqui. */
   .paper h3.doctitle > br:first-child{display:none;}
-  .paper .relato{color:#C0392B;font-weight:700;margin:0 0 0.75em;}
+  .paper .relato{color:#C0392B;font-weight:700;margin:0 0 12px;}
   .paper h4.sec{
-    text-decoration:underline;font-size:0.8125em;letter-spacing:.4px;margin:1.230769em 0 0.615385em;font-weight:600;color:var(--rose-dark);
+    text-decoration:underline;font-size:13px;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
   }
-  .paper p.linha{margin:0 0 var(--linha-margin, 1em);}
+  .paper p.linha{margin:0 0 var(--linha-margin, 16px);}
   .paper p.linha strong{font-weight:700;}
-  .paper p.linha.tight{margin-bottom:0.125em;}
-  .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
-  .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
-  .paper table.biometria td:first-child{white-space:nowrap;}
-  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
+  .paper table.acompanhamento{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;}
+  .paper table.acompanhamento th, .paper table.acompanhamento td{border:1px solid #2b2b2e;padding:4px 8px;text-align:center;vertical-align:middle;}
+  .paper table.acompanhamento th{font-weight:700;background:var(--rose-light);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
-  .paper ul.impressao li{margin-bottom:0.125em;font-weight:700;}
-  .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:1.5em;margin-top:1em;}
-  .paper .footnote{font-style:italic;font-size:0.75em;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
+  .paper ul.impressao li{margin-bottom:2px;font-weight:700;}
+  .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
+  .paper .footnote{font-style:italic;font-size:9pt;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
   .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
   .paper .assinatura p{margin:0;}
-  .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:0.1875em 0.875em 0;margin-bottom:0.125em!important;}
-  .paper .assinatura-info{font-size:0.791667em;color:var(--ink-soft);}
+  .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:3px 14px 0;margin-bottom:2px!important;}
+  .paper .assinatura-info{font-size:9.5pt;color:var(--ink-soft);}
 
   .preview-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
   .preview-actions button{flex:1;min-width:110px;}
@@ -244,11 +225,6 @@
   .format-toolbar .fmt-btn:hover{border-color:var(--rose);color:var(--rose-dark);}
   .format-toolbar .fmt-btn.active{background:var(--rose-light);border-color:var(--rose);color:var(--rose-dark);}
   .format-toolbar .fmt-sep{width:1px;height:22px;background:var(--line);margin:0 4px;}
-  /* Keeps each label glued to its own <select> when the toolbar wraps at
-     narrow widths — before this, flex-wrap could break the line between a
-     label and its select (they were separate flex items), leaving a select
-     stranded on the next row with no visible label, easy to mistake for a
-     different control. */
   .format-toolbar .fmt-group{display:inline-flex;align-items:center;gap:6px;}
   .format-toolbar .fmt-reset{
     border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;
@@ -297,19 +273,14 @@
   ::-webkit-scrollbar{width:9px;}
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;}
 
+  /* Margin zeroed on purpose — ver transvaginal.html para a explicação
+     completa de por que o thead/tfoot da .paper-table reserva a margem real. */
   @page{
     size: A4;
     margin: 0;
   }
   @media print{
-    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note{display:none !important;}
-    /* .combo-list (a lista de médicos que aparece ao digitar) é movida para o
-       <body> para não ser cortada pelo overflow:hidden do card — ou seja, ela
-       NÃO é descendente de #formCol e não some com a regra acima. Sem esta
-       linha, mandar imprimir com a lista aberta (digitar o nome do médico e
-       dar Ctrl+P sem clicar fora antes) imprimia o dropdown por cima do
-       laudo. */
-    .combo-list{display:none !important;}
+    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note, .cg-bar, .cg-results-list, .cg-toast, #cgLoginOverlay{display:none !important;}
     .pg-break-marker{display:none !important;}
     .layout{display:block;padding:0;margin:0;max-width:none;}
     .preview-wrap{position:static;}
@@ -318,13 +289,39 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria{page-break-inside:avoid;}
+    .paper p.linha, .paper table.acompanhamento, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
-    .paper .continua{font-style:italic;font-size:0.833333em;text-align:right;margin:0;}
+    .paper .continua{font-style:italic;font-size:10pt;text-align:right;margin:0;}
     .paper .print-page .rodape-final{margin-top:0;}
   }
+  /* ---- Curva de Crescimento: login + buscar/salvar laudo anterior ---- */
+  .cg-overlay{position:fixed;inset:0;background:rgba(43,43,46,.55);z-index:5000;display:flex;align-items:center;justify-content:center;}
+  .cg-overlay.hide{display:none;}
+  .cg-box{background:#fff;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);padding:28px 30px;width:340px;max-width:90vw;font-family:'Inter',sans-serif;}
+  .cg-box h3{font-family:'Poppins',sans-serif;margin:0 0 4px;font-size:17px;color:#6d3263;}
+  .cg-box p{font-size:12.5px;color:#9a7e95;margin:0 0 16px;}
+  .cg-box input{width:100%;padding:10px 13px;border:1.5px solid #ebe0e9;border-radius:10px;font-size:13.5px;margin-bottom:10px;box-sizing:border-box;}
+  .cg-box button{width:100%;padding:10px;border:none;border-radius:999px;background:#ae5ba0;color:#fff;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;cursor:pointer;}
+  .cg-box button:hover{opacity:.9;}
+  .cg-err{color:#B4432F;font-size:12px;margin:-4px 0 10px;display:none;}
+  .cg-err.show{display:block;}
+  .cg-toast{position:fixed;bottom:24px;right:24px;background:#2b2b2e;color:#fff;padding:12px 18px;border-radius:12px;font-family:'Inter',sans-serif;font-size:13px;z-index:6000;box-shadow:0 10px 24px rgba(0,0,0,.25);max-width:320px;display:none;}
+  .cg-toast.show{display:block;}
+  .cg-toast.err{background:#B4432F;}
+  .btn-cg{background:#6d3263;color:#fff;}
+  .btn-cg:hover{opacity:.9;}
+  .cg-bar{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin:0 28px 14px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow);}
+  .cg-bar .field{flex:1;min-width:200px;margin:0;}
+  .cg-bar .field label{font-size:12px;color:var(--ink-soft);display:block;margin-bottom:4px;}
+  .cg-bar input{width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13.5px;box-sizing:border-box;}
+  .cg-results-list{width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+  .cg-result-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--line-soft);cursor:pointer;}
+  .cg-result-item:hover{background:var(--rose-light);}
+  .cg-result-item .ri-name{font-weight:600;color:var(--ink);font-size:13.5px;}
+  .cg-result-item .ri-meta{font-size:12px;color:var(--ink-soft);}
+  .cg-result-empty{font-size:12.5px;color:var(--ink-soft);padding:6px 2px;}
 </style>
 </head>
 <body>
@@ -332,7 +329,7 @@
 <div class="cg-overlay" id="cgLoginOverlay">
   <div class="cg-box">
     <h3>Entrar</h3>
-    <p>Login da Curva de Crescimento — necessário para salvar exames na pasta da paciente.</p>
+    <p>Login da Curva de Crescimento — necessário para salvar e buscar laudos anteriores.</p>
     <input type="email" id="cgEmail" placeholder="E-mail" autocomplete="username">
     <input type="password" id="cgSenha" placeholder="Senha" autocomplete="current-password">
     <div class="cg-err" id="cgLoginErr"></div>
@@ -345,7 +342,7 @@
   <div class="topbar-brand">
     <div class="logo-badge"><img src="logo.png" alt="Clínica de Ultrassom — Dra. Morgana Kummer"></div>
     <div>
-      <h1>Ultrassom Obstétrico do 1º Trimestre</h1>
+      <h1>Laudo de Rastreamento de Ovulação</h1>
       <div class="sub">Dra. Morgana Kummer · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
     </div>
   </div>
@@ -360,15 +357,24 @@
     <select class="laudo-switch" id="laudoSwitch" onchange="if(this.value) location.href=this.value;" title="Trocar de laudo">
       <option value="index.html">Todos os laudos</option>
       <option value="transvaginal.html">Transvaginal</option>
-      <option value="obstetrico-1trimestre.html" selected>Obstétrico — 1º Trimestre</option>
+      <option value="obstetrico-1trimestre.html">Obstétrico — 1º Trimestre</option>
       <option value="morfologico-1trimestre.html">Morfológico — 1º Trimestre</option>
       <option value="obstetrico.html">Obstétrico — 2º/3º Trimestre</option>
-      <option value="rastreamento-ovulacao.html">Rastreamento de Ovulação</option>
+      <option value="rastreamento-ovulacao.html" selected>Rastreamento de Ovulação</option>
     </select>
-    <button class="btn-ghost" id="btnSettings">Assinatura do laudo</button>
+    <button class="btn-ghost" id="btnSettings">Valores de referência</button>
     <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
     <button class="btn-ghost" id="btnReset">Limpar</button>
   </div>
+</div>
+
+<div class="cg-bar" id="cgBar">
+  <div class="field">
+    <label>Buscar laudo anterior (nome ou CPF)</label>
+    <input type="text" id="cgBusca" placeholder="Digite o nome ou o CPF da paciente" autocomplete="off">
+  </div>
+  <button type="button" class="btn-cg" id="btnBuscarCG">Buscar</button>
+  <div class="cg-results-list" id="cgResults"></div>
 </div>
 
 <div class="settings-panel" id="settingsPanel">
@@ -379,8 +385,24 @@
     <div class="field"><label>Qualificação (linha 2)</label><input type="text" id="vr_medicoQual2" value="Pós-Graduação em Medicina Fetal pela FCMMG."></div>
     <div class="field"><label>CRM / RQE</label><input type="text" id="vr_medicoCRM" value="CRMMG: 45.304 - RQE: 39.156"></div>
   </div>
+  <hr class="sep">
+  <h3>Valores de referência — volume uterino (personalize e salve)</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Nenhum filho — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroNenhum" value="90"></div>
+    <div class="field"><label>1 ou 2 filhos — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_utero1a2" value="140"></div>
+    <div class="field"><label>3 filhos — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_utero3" value="160"></div>
+    <div class="field"><label>4 ou mais filhos — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_utero4mais" value="180"></div>
+    <div class="field"><label>Infância — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroInfancia" value="10"></div>
+    <div class="field"><label>Adolescência — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroAdolescencia" value="40"></div>
+  </div>
+  <hr class="sep">
+  <h3>Valores de referência — volume ovariano</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Mínimo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_ovarioMin" value="3"></div>
+    <div class="field"><label>Máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_ovarioMax" value="9"></div>
+  </div>
   <div class="save-row">
-    <button class="btn-copy" id="btnSaveVR">Salvar</button>
+    <button class="btn-copy" id="btnSaveVR">Salvar valores de referência</button>
     <span class="saved-msg" id="vrSavedMsg">Salvo ✓</span>
   </div>
 </div>
@@ -389,34 +411,27 @@
   <h3>Personalizar frases do laudo</h3>
   <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases usadas automaticamente conforme o que você marca no formulário. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui.</p>
 
-  <h3>Bexiga / útero / anexos</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Bexiga — normal</label><textarea id="ph_bexigaNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Útero — use {POSICAO}, {MEDIDA} e {VOLUME}</label><textarea id="ph_utero" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Regiões anexiais — normais</label><textarea id="ph_anexosNormais" rows="2"></textarea></div>
+  <h3>Útero</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Frase-base (normal) — use {POSICAO}</label><textarea id="ph_uteroBase" rows="2"></textarea></div>
 
   <hr class="sep">
-  <h3>Saco gestacional e biometria</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Saco gestacional — use {INSERCAO}</label><textarea id="ph_sacoGestacional" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>ISG pequeno — use {ISG}</label><textarea id="ph_isgPequeno" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — use {LOCAL}, {FACE} e {MEDIDA}</label><textarea id="ph_hematoma" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ausência de batimentos cardíacos</label><textarea id="ph_fcfAusente" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Embrião — óbito embrionário</label><textarea id="ph_embriaoObito" rows="2"></textarea></div>
+  <h3>Ovários</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Normal — use {L}, {AP}, {T}, {VOLUME}, {VRMIN} e {VRMAX}</label><textarea id="ph_ovarioNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes no primeiro exame — use {N}</label><textarea id="ph_foliculosDominantes" rows="2"></textarea></div>
 
   <hr class="sep">
-  <h3>Impressões diagnósticas</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação única (cronologia pela DUM) — use {IG} e {CONCORDANCIA} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoUnica" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação única (cronologia por ultrassom/ecografia) — use {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoUnicaSemDum" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia pela DUM) — use {CORIONICIDADE}, {IG} e {CONCORDANCIA} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoGemelar" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia por ultrassom/ecografia) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoGemelarSemDum" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Perda gestacional — use {TIPO} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impObito" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>DPP — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>ISG reduzido — impressão</label><textarea id="ph_impIsgReduzido" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — impressão</label><textarea id="ph_impHematoma" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Bexiga alterada — use {DESCRICAO}</label><textarea id="ph_impBexigaAlterada" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Anexos alterados — use {DESCRICAO}</label><textarea id="ph_impAnexosAlterados" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Recomendação de morfológico de 1º trimestre — use {DATA_INICIO} e {DATA_FIM}</label><textarea id="ph_recomendacaoMorfologico" rows="2"></textarea></div>
+  <h3>Corpo lúteo</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Identificado — use {LADO}</label><textarea id="ph_corpoLuteoIdentificado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Não identificado</label><textarea id="ph_corpoLuteoNaoIdentificado" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Impressão diagnóstica</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Ciclo ovulatório</label><textarea id="ph_impCicloOvulatorio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ciclo anovulatório (corpo lúteo não identificado)</label><textarea id="ph_impCicloAnovulatorio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endométrio concordante</label><textarea id="ph_impEndometrioConcordante" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endométrio discordante — use {DESCRICAO}</label><textarea id="ph_impEndometrioDiscordante" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Achado uterino (útero alterado) — use {DESCRICAO}</label><textarea id="ph_impUteroAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Achado ovariano (ovário alterado) — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Rodapé</h3>
@@ -440,65 +455,21 @@
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">A impressão reserva 3,5 cm em branco no topo para a folha timbrada; o cabeçalho de identificação abaixo entra logo após esse espaço.</p>
         <div class="field-row">
           <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
+        </div>
+        <div class="field-row">
           <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
-          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
         </div>
         <div class="field-row">
           <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
         </div>
         <div class="field-row">
-          <div class="field"><label>DUM (data da última menstruação)</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>Cronologia</label><input type="text" id="cronologia" placeholder="calculada automaticamente" readonly></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Cronologia calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="exame">1ª Ecografia</option></select>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_usgDatacao">
-          <div class="field"><label>Data do 1º ultrassom</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>IG no 1º ultrassom — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
-          <div class="field"><label>IG no 1º ultrassom — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
-        </div>
-        <p class="conditional" id="wrap_exameInfo" style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">Sem DUM nem ultrassom anterior: a idade gestacional usada será a informada em <strong>"Idade gestacional pela USG"</strong>, mais abaixo em Impressões diagnósticas.</p>
-        <div class="field-row">
           <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
           <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+          <div class="field"><label>DUM</label><input type="text" id="dum" placeholder="dd/mm/aaaa"></div>
         </div>
-        <div class="field"><label>Motivo do exame ("Relato de...") — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: datação gestacional; sangramento vaginal..."></textarea></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Gestação</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Número de sacos gestacionais / embriões</label>
-            <select id="numeroEmbrioes"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">3 ou mais</option></select>
-          </div>
-          <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade</label>
-            <select id="corionicidade"><option value="dicorionica_diamniotica">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica">Monocoriônica e monoamniótica</option></select>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="sacosContainer"></div>
-    <button type="button" class="btn-clear" id="btnAddSaco" style="margin:-8px 0 22px;">+ Adicionar saco gestacional</button>
-
-    <div class="card">
-      <div class="card-head"><h2>Bexiga</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="bexigaAspecto"><option value="normal">Normal (vazia durante o exame)</option><option value="alterado">Alterado (descrever)</option></select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_bexigaDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="bexigaDescricao" rows="2" placeholder="ex: conteúdo ecogênico em suspensão..."></textarea>
-        </div>
+        <div class="field"><label>Medicações</label><textarea id="medicacoes" rows="2" placeholder="ex: Citrato de clomifeno 100mg/dia; Letrozol 5mg/dia... (deixe em branco para &quot;---&quot;)"></textarea></div>
       </div>
     </div>
 
@@ -508,58 +479,131 @@
         <div class="field-row">
           <div class="field"><label>Posição uterina</label>
             <select id="uteroPosicao">
-              <option value="avf_intermediaria">Antevertido, em posição intermediária</option>
-              <option value="avf">Antevertido</option>
-              <option value="intermediaria">Em posição intermediária</option>
-              <option value="retro">Retrovertido</option>
+              <option value="AVF">Anteversoflexão (AVF)</option>
+              <option value="RVF">Retroversoflexão (RVF)</option>
+              <option value="MVF">Posição intermediária / medioversão (MVF)</option>
+            </select>
+          </div>
+          <div class="field"><label>Valor de referência — volume uterino</label>
+            <select id="vrUteroCategoria">
+              <option value="nenhum">Nenhum filho (VR até <span class="vr-uteroNenhum">90</span> cm³)</option>
+              <option value="1a2">1 ou 2 filhos (VR até <span class="vr-utero1a2">140</span> cm³)</option>
+              <option value="3">3 filhos (VR até <span class="vr-utero3">160</span> cm³)</option>
+              <option value="4mais">4 ou mais filhos (VR até <span class="vr-utero4mais">180</span> cm³)</option>
+              <option value="infancia">Infância (VR até <span class="vr-uteroInfancia">10</span> cm³)</option>
+              <option value="adolescencia">Adolescência (VR até <span class="vr-uteroAdolescencia">40</span> cm³)</option>
             </select>
           </div>
         </div>
         <div class="field-row">
-          <div class="field"><label>Medida (cm)</label><input type="text" id="uteroMedida" placeholder="ex: 9,4 x 6,7 x 7,2"></div>
-          <div class="field"><label>Volume estimado (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder="cm³"></div>
+          <div class="field"><label>Útero — longitudinal (L)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder="cm"></div>
+          <div class="field"><label>Útero — anteroposterior (AP)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder="cm"></div>
+          <div class="field"><label>Útero — transverso (T)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder="cm"></div>
+          <div class="field"><label>Volume uterino</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder="cm³">
+            <span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Regiões anexiais</h2></div>
-      <div class="card-body">
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
-            <select id="anexosAspecto"><option value="normal">Sem alterações</option><option value="alterado">Alterado (descrever)</option></select>
+            <select id="uteroAspecto">
+              <option value="normal">Normal (configuração anatômica, sem nódulos)</option>
+              <option value="alterado">Alterado (descrever)</option>
+            </select>
           </div>
         </div>
-        <div class="field conditional" id="wrap_anexosDescricao">
+        <div class="field conditional" id="wrap_uteroDescricao">
           <label>Descreva o achado</label>
-          <textarea id="anexosDescricao" rows="2" placeholder="ex: cisto simples em ovário direito..."></textarea>
+          <textarea id="uteroDescricao" rows="2" placeholder="ex: nódulo sólido sugestivo de mioma..."></textarea>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Impressões diagnósticas</h2></div>
+      <div class="card-head"><h2>Ovários</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Contagem de folículos dominantes do primeiro exame do ciclo — o crescimento folicular ao longo das visitas é registrado no card "Acompanhamento" abaixo.</p>
+        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário direito</p>
+        <div class="field-row">
+          <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder="cm"></div>
+          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_AP" placeholder="cm"></div>
+          <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_T" placeholder="cm"></div>
+          <div class="field"><label>Volume</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="ovD_volume" placeholder="cm³">
+            <span class="flag-note" id="flag_ovD_volume">Fora do valor de referência</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Folículos dominantes (1º exame)</label><input type="text" inputmode="numeric" id="ovD_foliculos" placeholder="nº"></div>
+          <div class="field"><label>Aspecto</label>
+            <select id="ovD_aspecto">
+              <option value="normal">Normal (dimensões e ecotextura preservadas)</option>
+              <option value="alterado">Alterado (descrever)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_ovD_descricao">
+          <label>Descreva o achado</label>
+          <textarea id="ovD_descricao" rows="2" placeholder="ex: cisto simples medindo..."></textarea>
+        </div>
+
+        <hr class="sep">
+        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário esquerdo</p>
+        <div class="field-row">
+          <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_L" placeholder="cm"></div>
+          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_AP" placeholder="cm"></div>
+          <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_T" placeholder="cm"></div>
+          <div class="field"><label>Volume</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="ovE_volume" placeholder="cm³">
+            <span class="flag-note" id="flag_ovE_volume">Fora do valor de referência</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Folículos dominantes (1º exame)</label><input type="text" inputmode="numeric" id="ovE_foliculos" placeholder="nº"></div>
+          <div class="field"><label>Aspecto</label>
+            <select id="ovE_aspecto">
+              <option value="normal">Normal (dimensões e ecotextura preservadas)</option>
+              <option value="alterado">Alterado (descrever)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_ovE_descricao">
+          <label>Descreva o achado</label>
+          <textarea id="ovE_descricao" rows="2" placeholder="ex: cisto simples medindo..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Acompanhamento (visitas)</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Uma linha por visita/exame do ciclo — a tabela sai no laudo na mesma ordem em que aparece aqui.</p>
+        <div id="visitasContainer"></div>
+        <button type="button" class="btn-clear" id="btnAddVisita" style="margin:2px 0 0;">+ Adicionar visita</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Corpo lúteo e impressão</h2></div>
       <div class="card-body">
         <div class="field-row">
-          <div class="field"><label>Idade gestacional pela USG — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 7"></div>
-          <div class="field"><label>Idade gestacional pela USG — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 2"></div>
-          <div class="field conditional" id="wrap_dumConcordancia"><label>DUM</label>
-            <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
+          <div class="field"><label>Corpo lúteo</label>
+            <select id="corpoLuteoLado">
+              <option value="direito">Identificado no ovário direito</option>
+              <option value="esquerdo">Identificado no ovário esquerdo</option>
+              <option value="nao_identificado">Não identificado</option>
+            </select>
+          </div>
+          <div class="field"><label>Endométrio</label>
+            <select id="endometrioConcordancia">
+              <option value="concordante">Concordante com a fase do ciclo</option>
+              <option value="discordante">Discordante (descrever)</option>
+            </select>
           </div>
         </div>
-        <div class="field-row">
-          <div class="field"><label>DPP (data provável do parto)</label><input type="text" id="dpp" placeholder="calculada automaticamente" readonly></div>
-        </div>
-        <div class="field-row conditional" id="wrap_tipoPerda">
-          <div class="field"><label>Tipo de perda gestacional</label>
-            <select id="tipoPerda"><option value="precoce">Precoce</option><option value="tardia">Tardia</option><option value="completa">Completa</option><option value="incompleta">Incompleta</option></select>
-          </div>
-        </div>
-        <hr class="sep">
-        <div class="toggle-line"><input type="checkbox" id="chkRecomendacao" checked><label for="chkRecomendacao">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
-        <div class="field-row conditional" id="wrap_recomendacao">
-          <div class="field"><label>Período recomendado — início</label><input type="text" id="dataInicioMorfo" placeholder="calculada automaticamente" readonly></div>
-          <div class="field"><label>Período recomendado — fim</label><input type="text" id="dataFimMorfo" placeholder="calculada automaticamente" readonly></div>
+        <div class="field conditional" id="wrap_endometrioDiscordanciaDescricao">
+          <label>Descreva a discordância</label>
+          <textarea id="endometrioDiscordanciaDescricao" rows="2" placeholder="ex: espessura incompatível com a fase do ciclo..."></textarea>
         </div>
         <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
@@ -641,7 +685,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.23-a</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.26-a</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -693,25 +737,10 @@
   };
 
   let titleFontSize = null;
-
   let impressaoOverrides = {};
-
-  // ---------- Block-level reconciliation: each top-level paragraph/section of
-  // the laudo is rendered as one "block" keyed by a stable id. On each
-  // render(), a block's live DOM node is only touched when its freshly
-  // computed HTML actually differs from what was auto-generated for it last
-  // time — otherwise the node (and anything the doctor typed or formatted
-  // inside it by hand) is left exactly as it is. This is what lets the
-  // preview stay freely editable while measurements still update live when
-  // their own field changes. ----------
   let lastBlockHtml = {};
-
-  // Ligado só enquanto o rascunho salvo está sendo recolocado no formulário:
-  // render() sai na hora (seria chamado uma vez por campo restaurado) e o
-  // autosave não regrava por cima do que ainda está sendo lido. Declarado aqui,
-  // junto do estado que ele protege, e não lá embaixo com o resto do rascunho,
-  // para já existir antes do primeiro render().
   let draftRestoring = false;
+
   function renderBlocks(blocks){
     const paperEl = $('paper');
     let prevNode = null;
@@ -738,7 +767,7 @@
     });
   }
 
-  // ---------- Format toolbar: bold/italic/underline/align + line-height + font-size ----------
+  // ---------- Format toolbar ----------
   (function(){
     const paperEl = $('paper');
     const btnBold = $('fmtBold');
@@ -781,19 +810,6 @@
       else if(e.key === 'u' || e.key === 'U'){ e.preventDefault(); applyFormat('underline'); }
     });
 
-    // O espaço acima do título é margin do CSS, não uma linha de texto: não
-    // existe lugar ali para o cursor pousar, então clicar nele para "mexer
-    // naquela linha" é impossível — e a saída natural vira dar Enter no
-    // começo do título para empurrá-lo para baixo. Só que isso criava uma
-    // linha vazia com a altura da fonte do título (16pt), que nenhum controle
-    // de margin conseguia encolher depois.
-    //
-    // Em vez de deixar esse atalho quebrado, ele passa a acionar o controle
-    // de verdade: no COMEÇO do título, Enter aumenta e Backspace diminui o
-    // espaço acima dele, um degrau do seletor por vez. O gesto de sempre
-    // continua valendo, agora com um resultado ajustável (e reversível), e o
-    // Backspace ali deixa de correr o risco de fundir o título com o
-    // cabeçalho, que é o que o contenteditable faria por conta própria.
     function cursorNoInicioDoTitulo(range){
       const titleEl = paperEl.querySelector('h3.doctitle');
       if(!titleEl || !range.collapsed || !titleEl.contains(range.startContainer)) return null;
@@ -821,13 +837,6 @@
       }
       if(e.key !== 'Enter') return;
 
-      // Enter no meio do título dividiria o <h3 class="doctitle"> em dois
-      // <h3> (comportamento padrão do contenteditable dentro de um heading),
-      // ambos herdando data-blk="doctitle" — e renderBlocks() nunca mais
-      // encostaria em nenhum dos dois (o HTML gerado desse bloco não muda
-      // entre renders) nem limparia o duplicado. Uma quebra de linha simples
-      // mantém a possibilidade de quebrar o título em duas linhas sem
-      // duplicar o bloco.
       const anchorNode = sel.anchorNode;
       const anchorEl = anchorNode ? (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement) : null;
       if(anchorEl && anchorEl.closest('h3.doctitle')){
@@ -836,10 +845,6 @@
       }
     });
 
-    // Tracked continuously via selectionchange rather than captured on the
-    // select's mousedown — mousedown-timing relative to the browser's own
-    // focus-shift/selection-collapse on click isn't consistent across
-    // browsers/OSes, which made the selection scoping unreliable.
     let lastPaperSelectionRange = null;
     document.addEventListener('selectionchange', ()=>{
       const sel = window.getSelection();
@@ -869,101 +874,49 @@
       sel.addRange(newRange);
     }
 
-    // "Espaçamento entre linhas" só mudava o line-height do texto — o
-    // espaço ENTRE parágrafos vem da margin de cada <p class="linha">, que é
-    // outra propriedade. Sem isso, escolher "Mínimo" com duas frases de
-    // parágrafos diferentes selecionadas não fecha a distância visível entre
-    // elas, mesmo o menu mostrando a opção ativa. Por isso o valor escolhido
-    // também ajusta a margin dos parágrafos que a seleção toca (ou de todos,
-    // sem seleção) — Range.intersectsNode cobre o caso comum deste laudo em
-    // que a seleção cruza de dentro de um saco gestacional para fora dele.
-    // Os valores abaixo eram mm absolutos ("2 mm" etc, como nos rótulos do
-    // seletor). Em em, eles rendem exatamente a mesma medida na fonte padrão
-    // de 12pt e passam a encolher junto quando o auto-fit reduz a fonte para
-    // caber numa folha só — com mm fixos, o espaço entre parágrafos ficava
-    // do mesmo tamanho e travava boa parte do ganho da redução.
-    const LINE_HEIGHT_MARGIN = {'1':'0.236em', '1.15':'0.472em', '1.35':'0.709em', '1.5':'0.945em', '1.8':'1.417em'};
-    // p.recomendacao (a linha de recomendação do Morfológico) é o único
-    // parágrafo com margem simétrica (margin: var(--linha-margin) 0, tanto
-    // acima quanto abaixo — center/itálico, para respirar dos dois lados);
-    // todo p.linha só tem margin-bottom (margin:0 0 var(...)), já que o
-    // espaço entre eles vem só de baixo. Por isso o seletor de espaçamento
-    // escopado a uma seleção de texto — que só mexia em marginBottom —
-    // deixava o topo de p.recomendacao preso no valor global antigo: mudava
-    // visivelmente só a distância abaixo dela, nunca acima, e parecia que a
-    // seleção "não pegava" nessa frase.
-    function aplicarMargemParagrafo(el, margin){
-      el.style.marginBottom = margin;
-      if(el.classList.contains('recomendacao')) el.style.marginTop = margin;
-    }
-    function limparMargemParagrafo(el){
-      el.style.marginBottom = '';
-      el.style.marginTop = '';
-    }
+    const LINE_HEIGHT_MARGIN = {'1':'1mm', '1.15':'2mm', '1.35':'3mm', '1.5':'4mm', '1.8':'6mm'};
     lineHeightSel.addEventListener('change', ()=>{
       const range = captureSelectionInPaper();
-      const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '1em';
+      const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '16px';
       if(range){
-        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, p.recomendacao')).filter(el=> range.intersectsNode(el));
+        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha')).filter(el=> range.intersectsNode(el));
         if(paragraphs.length > 1){
-          // Seleção cruza mais de um parágrafo: aplica direto em cada um, em
-          // vez de envolver num <span> — um <span> (inline) não pode conter
-          // <p> (bloco) validamente, e a tentativa de "consertar" isso na
-          // mão bagunçava a estrutura do HTML.
-          paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; aplicarMargemParagrafo(el, margin); });
+          paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; el.style.marginBottom = margin; });
         } else {
           wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
-          paragraphs.forEach(el=>aplicarMargemParagrafo(el, margin));
+          paragraphs.forEach(el=>{ el.style.marginBottom = margin; });
         }
       } else {
-        // Sem seleção: limpa overrides de trechos selecionados antes, senão ficam "presos" e não acompanham a mudança geral.
         paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
           el.style.lineHeight = '';
           if(!el.getAttribute('style')) el.removeAttribute('style');
         });
-        paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(limparMargemParagrafo);
+        paperEl.querySelectorAll('p.linha').forEach(el=>{ el.style.marginBottom = ''; });
         paperEl.style.lineHeight = lineHeightSel.value;
         paperEl.style.setProperty('--linha-margin', margin);
         kvStore.set('paper-line-height', lineHeightSel.value);
       }
     });
 
-    // Espaço entre o cabeçalho de identificação (.id-card) e o título logo
-    // abaixo: um controle dedicado e sempre visível, em vez de depender de
-    // selecionar texto no título/cabeçalho para "escopar" o seletor de
-    // espaçamento entre linhas — essa seleção é fácil de não acontecer de
-    // verdade (um clique sem arrastar já basta), e quando isso acontecia o
-    // valor caía no modo "sem seleção" do outro seletor, mudando o laudo
-    // inteiro E salvando aquele valor como padrão global. Este controle
-    // nunca afeta os parágrafos do corpo.
     const idCardGapSel = $('fmtIdCardGap');
-    // Valores explícitos em mm: o alcance vai de zero até bem folgado, para
-    // este seletor dar conta sozinho tanto de reduzir quanto de aumentar o
-    // espaço acima do título — sem ninguém precisar recorrer ao Enter.
-    const IDCARD_GAP_MARGIN = {'default':'1.25em', '0':'0', '1':'0.236em', '2':'0.472em', '3':'0.709em', '8':'1.89em', '12':'2.835em', '16':'3.78em', '20':'4.724em'};
+    const IDCARD_GAP_MARGIN = {'default':'20px', '0':'0mm', '1':'1mm', '2':'2mm', '3':'3mm', '8':'8mm', '12':'12mm', '16':'16mm', '20':'20mm'};
     idCardGapSel.addEventListener('change', ()=>{
       const val = idCardGapSel.value;
       if(val === 'default'){
         paperEl.style.removeProperty('--idcard-gap');
         kvStore.remove('idcard-gap');
       } else {
-        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[val] || '1.25em');
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[val] || '20px');
         kvStore.set('idcard-gap', val);
       }
     });
 
-    // Volta os dois espaçamentos ao padrão de fábrica e apaga o que estiver
-    // salvo neste navegador. Existe porque o espaçamento do corpo é gravado
-    // como preferência permanente: uma vez que "Mínimo" entra ali (inclusive
-    // sem querer), TODO laudo aberto depois já nasce comprimido, em qualquer
-    // sessão futura — e sem um botão explícito não há como perceber que a
-    // culpa é de um valor salvo, e não do que se acabou de mexer.
     function resetEspacamentos(){
       paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
         el.style.lineHeight = '';
         if(!el.getAttribute('style')) el.removeAttribute('style');
       });
-      paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(limparMargemParagrafo);
+      paperEl.querySelectorAll('p.linha').forEach(el=>{ el.style.marginBottom = ''; });
       paperEl.style.lineHeight = '';
       paperEl.style.removeProperty('--linha-margin');
       paperEl.style.removeProperty('--idcard-gap');
@@ -975,31 +928,16 @@
     $('fmtResetSpacing').addEventListener('click', resetEspacamentos);
 
     (async function initLineSpacingPrefs(){
-      // Uma tentativa anterior de escopar o espaço acima do título (via
-      // seleção de texto) podia cair sem querer no modo global e gravar
-      // "Mínimo" como o espaçamento padrão do laudo inteiro — zera esse
-      // resíduo uma vez para quem já tinha essa preferência salva por
-      // engano; uma escolha deliberada feita depois disso volta a ser
-      // respeitada normalmente. A partir daqui o botão "Restaurar
-      // espaçamento padrão" acima resolve sem depender de uma nova limpeza
-      // automática a cada versão.
-      const migrated = await kvStore.get('line-spacing-defaults-reset-v2');
-      if(!migrated){
-        await kvStore.remove('paper-line-height');
-        await kvStore.remove('idcard-gap-margin');
-        await kvStore.remove('idcard-gap');
-        await kvStore.set('line-spacing-defaults-reset-v2', '1');
-      }
       const saved = await kvStore.get('paper-line-height');
       if(saved){
         lineHeightSel.value = saved;
         paperEl.style.lineHeight = saved;
-        paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '1em');
+        paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '16px');
       }
       const savedGap = await kvStore.get('idcard-gap');
       if(savedGap){
         idCardGapSel.value = savedGap;
-        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[savedGap] || '1.25em');
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[savedGap] || '20px');
       }
     })();
 
@@ -1037,12 +975,6 @@
       if(closest && closestDiff < 0.4) fontSizeSel.value = closest.value;
     });
     (async function initFontSizePrefs(){
-      const migrated = await kvStore.get('font-size-defaults-reset-v1');
-      if(!migrated){
-        await kvStore.remove('paper-font-size');
-        await kvStore.remove('title-font-size');
-        await kvStore.set('font-size-defaults-reset-v1', '1');
-      }
       const savedPaper = await kvStore.get('paper-font-size');
       if(savedPaper){
         fontSizeSel.value = savedPaper;
@@ -1057,7 +989,7 @@
     })();
   })();
 
-  // ---------- Médico solicitante: hand-rolled combobox (shared list across laudos) ----------
+  // ---------- Médico solicitante: hand-rolled combobox ----------
   (function(){
     const DEFAULT_MEDICOS = [
       'Dra. Alice Maciel F. e Santos',
@@ -1141,7 +1073,9 @@
 
     input.addEventListener('focus', showList);
     input.addEventListener('input', showList);
-    input.addEventListener('blur', ()=>{ setTimeout(hideList, 150); });
+    input.addEventListener('blur', ()=>{
+      setTimeout(hideList, 150);
+    });
     input.addEventListener('keydown', e=>{
       if(!listEl.classList.contains('show') || !currentMatches.length) return;
       if(e.key === 'ArrowDown'){ e.preventDefault(); highlight(Math.min(activeIndex+1, currentMatches.length-1)); }
@@ -1174,7 +1108,7 @@
     });
   })();
 
-  // ---------- Numeric format rules: digit required before comma, max N decimal places ----------
+  // ---------- Numeric format rules ----------
   function showFormatWarning(el, show, message){
     let msg = el.parentElement.querySelector('.format-warning');
     if(show){
@@ -1227,8 +1161,6 @@
   }
   function wireDecimalInputs(){
     document.querySelectorAll('input[data-decimals]').forEach(el=>{
-      if(el.dataset.decimalsWired) return;
-      el.dataset.decimalsWired = '1';
       el.addEventListener('input', ()=>{
         sanitizeChars(el);
         if(isValidDecimal(el)) showFormatWarning(el, false);
@@ -1240,37 +1172,24 @@
 
   // ---------- Customizable report phrases ----------
   const PHRASE_DEFAULTS = {
-    bexigaNormal: 'de topografia usual, vazia durante o exame.',
-    utero: '{POSICAO}, de configuração globosa e contornos regulares, medindo {MEDIDA} cm, com volume estimado em {VOLUME} cm³.',
-    anexosNormais: 'Regiões anexiais sem alterações.',
-
-    sacoGestacional: 'Saco gestacional identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos regulares e reação decidual habitual.',
-    isgPequeno: 'Índice do saco gestacional (ISG): {ISG} mm (VR > 5 mm).',
-    hematoma: 'Presença de hematoma subcoriônico, de localização {LOCAL}, face {FACE}, medindo {MEDIDA}.',
-    fcfAusente: 'Ausência de batimentos cardíacos identificados ao exame.',
-    embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
-    embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
-
-    impGestacaoUnica: 'Gestação única, eutópica, compatível com {IG} (DUM {CONCORDANCIA}).',
-    impGestacaoUnicaSemDum: 'Gestação única, eutópica, compatível com {IG}.',
-    impGestacaoGemelar: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG} (DUM {CONCORDANCIA}).',
-    impGestacaoGemelarSemDum: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
-    impBoaEvolucao: 'Boa evolução até o momento.',
-    impObito: 'Perda gestacional {TIPO}, compatível com {IG}.',
-    impDPP: 'DPP: {DATA}.',
-    impIsgReduzido: 'Saco gestacional de dimensões reduzidas.',
-    impHematoma: 'Hematoma subcoriônico - acompanhar.',
-    impBexigaAlterada: 'Alteração vesical: {DESCRICAO}.',
-    impAnexosAlterados: 'Achado em região anexial: {DESCRICAO}.',
-    recomendacaoMorfologico: 'Sugere-se a realização do Morfológico do 1º Trimestre para rastreamento de aneuploidias e pré-eclâmpsia entre {DATA_INICIO} a {DATA_FIM}.',
-
+    uteroBase: '{POSICAO}, situado na linha mediana, de configuração anatômica, textura homogênea e contornos regulares, sem identificação de nódulos sólidos.',
+    ovarioNormal: 'de topografia usual, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
+    foliculosDominantes: 'Presença de {N} folículo(s) dominante(s) no primeiro exame.',
+    corpoLuteoIdentificado: 'Corpo lúteo identificado no ovário {LADO}.',
+    corpoLuteoNaoIdentificado: 'Corpo lúteo não identificado no presente estudo.',
+    impCicloOvulatorio: 'Exame compatível com ciclo ovulatório.',
+    impCicloAnovulatorio: 'Corpo lúteo não identificado — sugestivo de ciclo anovulatório.',
+    impEndometrioConcordante: 'Endométrio concordante.',
+    impEndometrioDiscordante: 'Endométrio discordante com a fase do ciclo: {DESCRICAO}.',
+    impUteroAlterado: 'Achado uterino: {DESCRICAO}.',
+    impOvarioAlterado: 'Achado no ovário {LADO}: {DESCRICAO}.',
     footerImagens: 'Imagens em anexo.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
 
   async function loadPhrases(){
     try{
-      const val = await kvStore.get('ob1t-phrase-templates-v2');
+      const val = await kvStore.get('ov-phrase-templates');
       if(val){
         const parsed = JSON.parse(val);
         PHRASES = Object.assign({}, PHRASE_DEFAULTS, parsed);
@@ -1309,7 +1228,7 @@
     });
     PHRASES = updated;
     try{
-      await kvStore.set('ob1t-phrase-templates-v2', JSON.stringify(PHRASES));
+      await kvStore.set('ov-phrase-templates', JSON.stringify(PHRASES));
       const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
     }catch(e){ /* storage unavailable — values still apply for this session */ }
     render();
@@ -1318,57 +1237,61 @@
     if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
     PHRASES = Object.assign({}, PHRASE_DEFAULTS);
     applyPhrasesToInputs();
-    try{ await kvStore.set('ob1t-phrase-templates-v2', JSON.stringify(PHRASES)); }catch(e){}
+    try{ await kvStore.set('ov-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
     render();
   });
 
-  // ---------- Médico (assinatura) ----------
+  // ---------- Reference values ----------
   let VR = {
     medicoNome:'Dra. Morgana Fialho Caldas Kummer',
     medicoQual1:'Especialista em Ultrassonografia Geral pelo CBR.',
     medicoQual2:'Pós-Graduação em Medicina Fetal pela FCMMG.',
-    medicoCRM:'CRMMG: 45.304 - RQE: 39.156'
+    medicoCRM:'CRMMG: 45.304 - RQE: 39.156',
+    uteroNenhum:90, utero1a2:140, utero3:160, utero4mais:180, uteroInfancia:10, uteroAdolescencia:40,
+    ovarioMin:3, ovarioMax:9
+  };
+  const UTERO_VR_LIMIT = {
+    nenhum: v=>v.uteroNenhum, '1a2': v=>v.utero1a2, '3': v=>v.utero3,
+    '4mais': v=>v.utero4mais, infancia: v=>v.uteroInfancia, adolescencia: v=>v.uteroAdolescencia
   };
 
   async function loadVR(){
     try{
-      const val = await kvStore.get('ob1t-vr-settings-v2');
+      const val = await kvStore.get('ov-vr-settings');
       if(val){
         const parsed = JSON.parse(val);
         VR = Object.assign(VR, parsed);
       }
     }catch(e){ /* no saved settings yet — use defaults */ }
     applyVRToInputs();
+    updateVRLabels();
   }
   function applyVRToInputs(){
     $('vr_medicoNome').value = VR.medicoNome;
     $('vr_medicoQual1').value = VR.medicoQual1;
     $('vr_medicoQual2').value = VR.medicoQual2;
     $('vr_medicoCRM').value = VR.medicoCRM;
+    $('vr_uteroNenhum').value = VR.uteroNenhum;
+    $('vr_utero1a2').value = VR.utero1a2;
+    $('vr_utero3').value = VR.utero3;
+    $('vr_utero4mais').value = VR.utero4mais;
+    $('vr_uteroInfancia').value = VR.uteroInfancia;
+    $('vr_uteroAdolescencia').value = VR.uteroAdolescencia;
+    $('vr_ovarioMin').value = VR.ovarioMin;
+    $('vr_ovarioMax').value = VR.ovarioMax;
+  }
+  function updateVRLabels(){
+    document.querySelectorAll('.vr-uteroNenhum').forEach(e=>e.textContent=VR.uteroNenhum);
+    document.querySelectorAll('.vr-utero1a2').forEach(e=>e.textContent=VR.utero1a2);
+    document.querySelectorAll('.vr-utero3').forEach(e=>e.textContent=VR.utero3);
+    document.querySelectorAll('.vr-utero4mais').forEach(e=>e.textContent=VR.utero4mais);
+    document.querySelectorAll('.vr-uteroInfancia').forEach(e=>e.textContent=VR.uteroInfancia);
+    document.querySelectorAll('.vr-uteroAdolescencia').forEach(e=>e.textContent=VR.uteroAdolescencia);
   }
   $('btnSettings').addEventListener('click', ()=>{
     $('settingsPanel').classList.toggle('show');
   });
-  $('btnSaveVR').addEventListener('click', async ()=>{
-    VR = {
-      medicoNome: $('vr_medicoNome').value || VR.medicoNome,
-      medicoQual1: $('vr_medicoQual1').value || VR.medicoQual1,
-      medicoQual2: $('vr_medicoQual2').value || VR.medicoQual2,
-      medicoCRM: $('vr_medicoCRM').value || VR.medicoCRM
-    };
-    try{
-      await kvStore.set('ob1t-vr-settings-v2', JSON.stringify(VR));
-      const m = $('vrSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
-    }catch(e){ /* storage unavailable — values still apply for this session */ }
-    render();
-  });
 
-  // ---------- Médico executante: quick-select among the clinic's doctors —
-  // 4-6 people share 3 rooms here, so who's signing changes exam to exam.
-  // Picking a name overwrites the signature fields below; storage key isn't
-  // laudo-prefixed since who's on shift right now isn't laudo-specific.
-  // "Outro" leaves VR untouched and just opens the panel for a one-off edit
-  // (a visiting doctor, or a quick correction) without touching this roster. ----------
   const EXECUTANTES = {
     morgana: {nome:'Dra. Morgana Fialho Caldas Kummer', qual1:'Especialista em Ultrassonografia Geral pelo CBR.', qual2:'Pós-Graduação em Medicina Fetal pela FCMMG.', crm:'CRMMG: 45.304 - RQE: 39.156'},
     barbara: {nome:'Dra. Bárbara Rodrigues Moreira', qual1:'Especialista em Ultrassonografia Geral pelo CBR.', qual2:'', crm:'CRMMG: 66.451 - RQE: 51.530'},
@@ -1397,242 +1320,97 @@
     if(sel.value !== 'outro') applyExecutante(sel.value);
   }
 
+  function pf(id, fallback){
+    const x = parseFloat(($(id).value||'').replace(',', '.'));
+    return isNaN(x) ? fallback : x;
+  }
+  $('btnSaveVR').addEventListener('click', async ()=>{
+    VR = {
+      medicoNome: $('vr_medicoNome').value || VR.medicoNome,
+      medicoQual1: $('vr_medicoQual1').value || VR.medicoQual1,
+      medicoQual2: $('vr_medicoQual2').value || VR.medicoQual2,
+      medicoCRM: $('vr_medicoCRM').value || VR.medicoCRM,
+      uteroNenhum: pf('vr_uteroNenhum', 90),
+      utero1a2: pf('vr_utero1a2', 140),
+      utero3: pf('vr_utero3', 160),
+      utero4mais: pf('vr_utero4mais', 180),
+      uteroInfancia: pf('vr_uteroInfancia', 10),
+      uteroAdolescencia: pf('vr_uteroAdolescencia', 40),
+      ovarioMin: pf('vr_ovarioMin', 3),
+      ovarioMax: pf('vr_ovarioMax', 9)
+    };
+    try{
+      await kvStore.set('ov-vr-settings', JSON.stringify(VR));
+      const m = $('vrSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
+    }catch(e){ /* storage unavailable — values still apply for this session */ }
+    updateVRLabels();
+    render();
+  });
+
   // ---------- Conditional field visibility ----------
   function toggle(id, show){ const el=$(id); if(!el) return; el.classList.toggle('show', show); }
 
-  $('bexigaAspecto').addEventListener('change', e=> toggle('wrap_bexigaDescricao', e.target.value==='alterado'));
-  $('anexosAspecto').addEventListener('change', e=> toggle('wrap_anexosDescricao', e.target.value==='alterado'));
-  $('chkRecomendacao').addEventListener('change', e=> toggle('wrap_recomendacao', e.target.checked));
-  toggle('wrap_recomendacao', $('chkRecomendacao').checked);
-  $('cronologiaMetodo').addEventListener('change', e=>{
-    toggle('wrap_usgDatacao', e.target.value==='usg');
-    toggle('wrap_exameInfo', e.target.value==='exame');
-    toggle('wrap_dumConcordancia', e.target.value==='dum');
-  });
-  toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
-  toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame');
-  toggle('wrap_dumConcordancia', $('cronologiaMetodo').value==='dum');
+  $('uteroAspecto').addEventListener('change', e=> toggle('wrap_uteroDescricao', e.target.value==='alterado'));
+  $('ovD_aspecto').addEventListener('change', e=> toggle('wrap_ovD_descricao', e.target.value==='alterado'));
+  $('ovE_aspecto').addEventListener('change', e=> toggle('wrap_ovE_descricao', e.target.value==='alterado'));
+  $('endometrioConcordancia').addEventListener('change', e=> toggle('wrap_endometrioDiscordanciaDescricao', e.target.value==='discordante'));
 
-  function updateGestacaoWrap(){
-    toggle('wrap_corionicidade', $('numeroEmbrioes').value !== '1');
-  }
-  $('numeroEmbrioes').addEventListener('change', e=>{
-    updateGestacaoWrap();
-    setSacoCount(Math.min(Math.max(parseInt(e.target.value,10)||1, 1), 3));
-  });
-
-  // ---------- Saco(s) gestacional(is): dynamic list, mirrors the myoma-nodule
-  // pattern in transvaginal.html — each keeps a stable uid once created, so
-  // removing one mid-list never disturbs the others' field ids/listeners. ----------
-  let sacoNextUid = 1;
-  function sacoCardHTML(uid){
+  // ---------- Acompanhamento: repeating visita rows (uid-based, same pattern
+  // as the mioma nodules in transvaginal.html) ----------
+  let visitaNextUid = 1;
+  function visitaSubgroupHTML(uid){
     return ''
-      +'<div class="card" id="wrap_saco'+uid+'">'
-      +'<div class="card-head"><h2><span class="saco-label"></span></h2></div>'
-      +'<div class="card-body">'
+      +'<div class="subgroup" id="wrap_visita'+uid+'">'
       +'<div class="field-row">'
-      +'<div class="field"><label>Inserção do saco gestacional</label><select id="saco'+uid+'Insercao"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option><option value="ístmica">Ístmica</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Diâmetro médio do saco gestacional — DMSG (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'DMSG" placeholder="mm"></div>'
-      +'<div class="field"><label>Vesícula vitelínica — VV (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'VV" placeholder="mm"></div>'
+      +'<div class="field"><label>Visita <span class="visita-index"></span> — Data</label><input type="text" id="visita'+uid+'Data" placeholder="dd/mm/aaaa"></div>'
+      +'<div class="field"><label>Dia do ciclo</label><input type="text" inputmode="numeric" id="visita'+uid+'Ciclo" placeholder="ex: 12"></div>'
+      +'<div class="field"><label>Ovário direito — maior folículo (mm)</label><input type="text" id="visita'+uid+'FolD" placeholder="ex: 18 x 16"></div>'
+      +'<div class="field"><label>Ovário esquerdo — maior folículo (mm)</label><input type="text" id="visita'+uid+'FolE" placeholder="ex: 10 x 9"></div>'
       +'</div>'
       +'<div class="field-row">'
-      +'<div class="field"><label>Comprimento cabeça-nádega — CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'CCN" placeholder="mm"></div>'
-      +'<div class="field"><label>Vitalidade</label><select id="saco'+uid+'Vitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>'
+      +'<div class="field"><label>Endométrio — padrão</label><select id="visita'+uid+'EndoPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option></select></div>'
+      +'<div class="field"><label>Endométrio — espessura (mm)</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="visita'+uid+'EndoEspessura" placeholder="mm"></div>'
       +'</div>'
-      +'<div class="field-row conditional" id="wrap_saco'+uid+'FC">'
-      +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" maxlength="3" id="saco'+uid+'FC" placeholder="bpm"></div>'
-      +'</div>'
-      +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'ISG"><label for="saco'+uid+'ISG">ISG pequeno (índice do saco gestacional — calculado automaticamente: DMSG - CCN)</label></div>'
-      +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'Hematoma"><label for="saco'+uid+'Hematoma">Hematoma subcoriônico</label></div>'
-      +'<div class="field-row conditional" id="wrap_saco'+uid+'HematomaCampos">'
-      +'<div class="field"><label>Localização</label><select id="saco'+uid+'HematomaLocal"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option><option value="próximo ao colo uterino">Próximo ao colo uterino</option></select></div>'
-      +'<div class="field"><label>Face</label><select id="saco'+uid+'HematomaFace"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select></div>'
-      +'<div class="field"><label>Medida</label><input type="text" id="saco'+uid+'HematomaMedida" placeholder="ex: 33,2 x 32 mm"></div>'
-      +'</div>'
-      +'<button type="button" class="saco-remove" data-uid="'+uid+'">Remover</button>'
-      +'</div>'
+      +'<button type="button" class="visita-remove" data-uid="'+uid+'">Remover visita</button>'
       +'</div>';
   }
-  function updateSacoWraps(uid){
-    toggle('wrap_saco'+uid+'FC', $('saco'+uid+'Vitalidade').value==='presente');
-    toggle('wrap_saco'+uid+'HematomaCampos', $('saco'+uid+'Hematoma').checked);
-  }
-  function sacoLabel(idx, total){
-    if(total<=1) return 'Saco gestacional / embrião';
-    return 'Saco gestacional '+(idx+1);
-  }
-  function renumberSacos(){
-    const container = $('sacosContainer');
-    const cards = Array.from(container.children);
-    cards.forEach((el, idx)=>{
-      const label = el.querySelector('.saco-label');
-      if(label) label.textContent = sacoLabel(idx, cards.length);
-      const removeBtn = el.querySelector('.saco-remove');
-      if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
+  function renumberVisitas(){
+    const container = $('visitasContainer');
+    const visitas = Array.from(container.children);
+    visitas.forEach((el, idx)=>{
+      const label = el.querySelector('.visita-index');
+      if(label) label.textContent = idx+1;
+      const removeBtn = el.querySelector('.visita-remove');
+      if(removeBtn) removeBtn.style.display = visitas.length>1 ? 'inline' : 'none';
     });
-    $('numeroEmbrioes').value = String(Math.min(Math.max(cards.length, 1), 3));
-    updateGestacaoWrap();
   }
-  function wireSacoCard(uid){
-    const el = $('wrap_saco'+uid);
-    wireDigitsOnlyInput('saco'+uid+'FC', 3);
-    el.querySelectorAll('input, select, textarea').forEach(field=>{
+  function wireVisita(uid){
+    const el = $('wrap_visita'+uid);
+    el.querySelectorAll('input, select').forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
     });
-    wireDecimalInputs();
-    $('saco'+uid+'Vitalidade').addEventListener('change', ()=> updateSacoWraps(uid));
-    $('saco'+uid+'Hematoma').addEventListener('change', ()=> updateSacoWraps(uid));
-    updateSacoWraps(uid);
-    el.querySelector('.saco-remove').addEventListener('click', ()=>{
+    el.querySelector('.visita-remove').addEventListener('click', ()=>{
       el.remove();
-      renumberSacos();
+      renumberVisitas();
       render();
     });
   }
-  function addSaco(){
-    const uid = sacoNextUid++;
-    $('sacosContainer').insertAdjacentHTML('beforeend', sacoCardHTML(uid));
-    wireSacoCard(uid);
-    renumberSacos();
+  function addVisita(){
+    const uid = visitaNextUid++;
+    $('visitasContainer').insertAdjacentHTML('beforeend', visitaSubgroupHTML(uid));
+    wireVisita(uid);
+    renumberVisitas();
     render();
   }
-  $('btnAddSaco').addEventListener('click', addSaco);
-  function sacoUids(){
-    return Array.from($('sacosContainer').children).map(el=> el.id.replace('wrap_saco',''));
+  $('btnAddVisita').addEventListener('click', addVisita);
+  function visitaUids(){
+    return Array.from($('visitasContainer').children).map(el=> el.id.replace('wrap_visita',''));
   }
-  function setSacoCount(n){
-    const container = $('sacosContainer');
-    while(container.children.length < n){ addSaco(); }
-    while(container.children.length > n){ container.lastElementChild.remove(); }
-    renumberSacos();
-    render();
-  }
-  // Seeding the first saco is deferred to the loadPhrases/loadVR chain at the
-  // bottom of this script, for the same reason as transvaginal.html's mioma
-  // nodule: render() reads state declared with `let` further down, so calling
-  // addSaco() (and so render()) here would hit its temporal dead zone.
 
-  // ---------- Helpers ----------
   function v(id){ const el = $(id); return el ? el.value.trim() : ''; }
   function num(id){ const x = parseFloat(v(id).replace(',', '.')); return isNaN(x) ? null : x; }
   function vNoDot(id){ return v(id).replace(/\.+\s*$/, ''); }
-
-  // ---------- Date mask: auto-inserts dots as digits are typed (dd.mm.aaaa),
-  // so the doctor never has to type a separator — attached before the generic
-  // #formCol listeners below so the field already holds the formatted value
-  // by the time render() reads it. ----------
-  function wireDateMask(id){
-    const el = $(id);
-    if(!el) return;
-    el.addEventListener('input', ()=>{
-      const digits = el.value.replace(/\D/g, '').slice(0, 8);
-      let out = digits;
-      if(digits.length > 4) out = digits.slice(0,2)+'.'+digits.slice(2,4)+'.'+digits.slice(4);
-      else if(digits.length > 2) out = digits.slice(0,2)+'.'+digits.slice(2);
-      el.value = out;
-      try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
-    });
-  }
-  ['dataExame','dum','usgDataDatacao'].forEach(wireDateMask);
-
-  // ---------- CPF: máscara só na tela ----------
-  // O campo mostra 000.000.000-00 enquanto é digitado, mas os pontos e o traço
-  // existem apenas para a leitura na tela: tudo o que sai daqui para a Curva de
-  // Crescimento passa antes por cgOnlyDigits(), então o que trafega e o que é
-  // comparado continua sendo só os 11 dígitos.
-  function aplicarMascaraCPF(){
-    const el = $('cpfPaciente');
-    if(!el) return;
-    const digits = el.value.replace(/\D/g, '').slice(0, 11);
-    let out = digits.slice(0,3);
-    if(digits.length > 3) out += '.'+digits.slice(3,6);
-    if(digits.length > 6) out += '.'+digits.slice(6,9);
-    if(digits.length > 9) out += '-'+digits.slice(9);
-    if(out === el.value) return;
-    el.value = out;
-    try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
-  }
-  if($('cpfPaciente')) $('cpfPaciente').addEventListener('input', aplicarMascaraCPF);
-
-  // ---------- Digits-only input, capped at a fixed length (e.g. FC in bpm: max 3 digits) ----------
-  function wireDigitsOnlyInput(id, maxLen){
-    const el = $(id);
-    if(!el) return;
-    el.addEventListener('input', ()=>{
-      const digits = el.value.replace(/\D/g, '').slice(0, maxLen);
-      if(digits !== el.value) el.value = digits;
-    });
-  }
-
-  // ---------- Cronologia / DPP / período do morfológico: all derived from a
-  // single "data base" (equivalente à DUM) — a data em que a gestação
-  // começaria a contar zero, deduzida conforme o método escolhido:
-  //   - DUM: a própria DUM informada.
-  //   - 1º Ultrassom: data do ultrassom menos a IG constatada nele.
-  //   - 1ª Ecografia (sem DUM nem ultrassom anterior): data do exame atual
-  //     menos a IG informada em "Idade gestacional pela USG" (impSemanas/impDias).
-  // A partir dessa data base, tudo é aritmética de dias. ----------
-  const MS_DIA = 24*60*60*1000;
-  function parseDateBR(str){
-    const m = (str||'').trim().match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);
-    if(!m) return null;
-    let d = parseInt(m[1],10), mo = parseInt(m[2],10), y = parseInt(m[3],10);
-    if(y < 100) y += 2000;
-    const dt = new Date(y, mo-1, d);
-    if(dt.getFullYear()!==y || dt.getMonth()!==mo-1 || dt.getDate()!==d) return null;
-    return dt;
-  }
-  function addDays(date, days){ return new Date(date.getTime() + days*MS_DIA); }
-  function formatDateBR(date){
-    const pad = n => String(n).padStart(2,'0');
-    return pad(date.getDate())+'.'+pad(date.getMonth()+1)+'.'+date.getFullYear();
-  }
-  function formatIG(totalDays){
-    const semanas = Math.floor(totalDays/7);
-    const dias = totalDays % 7;
-    const semanasTxt = semanas + (semanas===1 ? ' semana' : ' semanas');
-    return dias>0 ? (semanasTxt+' e '+dias+(dias===1?' dia':' dias')) : semanasTxt;
-  }
-  // Mesma conta usada pelo método de datação "1ª Ecografia" (IG informada na
-  // data do exame atual, contada para trás) — extraída à parte porque também
-  // é usada para recalcular DPP/período do Morfológico quando a DUM está
-  // marcada como discordante (ver render()).
-  function computeDataBaseFromIG(dataExameStr, semanasStr, diasStr){
-    const dataExameDt = parseDateBR(dataExameStr);
-    const semanas = parseInt(semanasStr, 10);
-    const dias = parseInt(diasStr, 10);
-    if(!dataExameDt || isNaN(semanas)) return null;
-    return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
-  }
-  function computeDataBase(metodo){
-    if(metodo === 'exame'){
-      return computeDataBaseFromIG(v('dataExame'), v('impSemanas'), v('impDias'));
-    }
-    if(metodo === 'usg'){
-      const usgDt = parseDateBR(v('usgDataDatacao'));
-      const semanas = parseInt(v('usgSemanasDatacao'), 10);
-      const dias = parseInt(v('usgDiasDatacao'), 10);
-      if(!usgDt || isNaN(semanas)) return null;
-      return addDays(usgDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
-    }
-    return parseDateBR(v('dum'));
-  }
-  function computeCronologia(dataBase, dataExameStr){
-    const dataExameDt = parseDateBR(dataExameStr);
-    if(!dataBase || !dataExameDt) return '';
-    const totalDays = Math.round((dataExameDt - dataBase)/MS_DIA);
-    return totalDays >= 0 ? formatIG(totalDays) : '';
-  }
-  function computeDPP(dataBase){
-    return dataBase ? formatDateBR(addDays(dataBase, 280)) : '';
-  }
-  function computeMorfoPeriodo(dataBase){
-    if(!dataBase) return {inicio:'', fim:''};
-    return { inicio: formatDateBR(addDays(dataBase, 84)), fim: formatDateBR(addDays(dataBase, 97)) };
-  }
   function blankOrValue(val, suffix){
     if(val === '' || val === null || val === undefined) return {text:'____', filled:false};
     return {text: val + (suffix||''), filled:true};
@@ -1643,58 +1421,38 @@
   function escapeHtml(s){
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
-
-  const UTERO_POSICAO_TEXTO = {
-    avf_intermediaria: 'Útero antevertido, em posição intermediária',
-    avf: 'Útero antevertido',
-    intermediaria: 'Útero em posição intermediária',
-    retro: 'Útero retrovertido'
-  };
-
-  // ---------- Build impression checklist ----------
-  function buildImpressao(state){
-    const items = [];
-
-    const baseadaEmDum = state.cronologiaMetodo === 'dum';
-    if(!state.isMultiple){
-      items.push({key:'gestacao', label: baseadaEmDum
-        ? phraseRaw('impGestacaoUnica', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
-        : phraseRaw('impGestacaoUnicaSemDum', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
-    } else {
-      items.push({key:'gestacao', label: baseadaEmDum
-        ? phraseRaw('impGestacaoGemelar', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
-        : phraseRaw('impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
-    }
-
-    const suprimirBoaEvolucao = state.algumIsgReduzido || state.algumHematoma;
-    if(state.algumObito){
-      items.push({key:'evolucao', label:phraseRaw('impObito', {TIPO:state.tipoPerda, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
-    } else if(!suprimirBoaEvolucao){
-      items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
-    }
-
-    if(state.algumIsgReduzido){
-      items.push({key:'isg-reduzido', label:phraseRaw('impIsgReduzido'), auto:true});
-    }
-    if(state.algumHematoma){
-      items.push({key:'hematoma', label:phraseRaw('impHematoma'), auto:true});
-    }
-
-    if(state.bexigaAspecto==='alterado' && state.bexigaDescricao){
-      items.push({key:'bexiga-alterada', label:phraseRaw('impBexigaAlterada', {DESCRICAO:state.bexigaDescricao}), auto:true});
-    }
-    if(state.anexosAspecto==='alterado' && state.anexosDescricao){
-      items.push({key:'anexos-alterado', label:phraseRaw('impAnexosAlterados', {DESCRICAO:state.anexosDescricao}), auto:true});
-    }
-
-    // DPP sempre por último na conclusão.
-    items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
-
-    return items;
+  function flag(id, isAbnormal){
+    const el = $(id), note = $('flag_'+id);
+    if(!el) return;
+    el.classList.toggle('flag-abnormal', !!isAbnormal);
+    if(note) note.classList.toggle('show', !!isAbnormal);
   }
 
+  // ---------- Build impression checklist ----------
   let checkedState = {};
-
+  function buildImpressao(state){
+    const items = [];
+    if(state.corpoLuteoLado === 'nao_identificado'){
+      items.push({key:'ciclo', label:phraseRaw('impCicloAnovulatorio'), auto:true});
+    } else {
+      items.push({key:'ciclo', label:phraseRaw('impCicloOvulatorio'), auto:true});
+    }
+    if(state.endometrioConcordancia === 'discordante' && state.endometrioDiscordanciaDescricao){
+      items.push({key:'endometrio', label:phraseRaw('impEndometrioDiscordante', {DESCRICAO: state.endometrioDiscordanciaDescricao}), auto:true});
+    } else {
+      items.push({key:'endometrio', label:phraseRaw('impEndometrioConcordante'), auto:true});
+    }
+    if(state.uteroAspecto === 'alterado' && state.uteroDescricao){
+      items.push({key:'utero-alterado', label:phraseRaw('impUteroAlterado', {DESCRICAO: state.uteroDescricao}), auto:true});
+    }
+    if(state.ovD_aspecto === 'alterado' && state.ovD_descricao){
+      items.push({key:'ovD-alterado', label:phraseRaw('impOvarioAlterado', {LADO:'direito', DESCRICAO: state.ovD_descricao}), auto:true});
+    }
+    if(state.ovE_aspecto === 'alterado' && state.ovE_descricao){
+      items.push({key:'ovE-alterado', label:phraseRaw('impOvarioAlterado', {LADO:'esquerdo', DESCRICAO: state.ovE_descricao}), auto:true});
+    }
+    return items;
+  }
   function renderChecklist(items){
     const box = $('impressaoChecklist');
     box.innerHTML = '';
@@ -1719,29 +1477,15 @@
     if(li) impressaoOverrides[li.dataset.key] = li.textContent;
   });
 
-  // ---------- Live page-count preview ----------
-  // ---------- Shared pagination engine ----------
-  // O preview de páginas e a impressão precisam concordar: se cada um contasse
-  // as páginas do seu jeito, o preview anunciaria uma quebra que o PDF não tem
-  // (ou o contrário). Antes era exatamente isso que acontecia — o preview só
-  // apertava a entrelinha, enquanto a impressão também reduzia a fonte e
-  // quebrava a lista de impressões item a item para caber numa página.
-  // Agora os dois passam por estas mesmas funções: a contagem que aparece na
-  // tela é, por construção, a que sai no papel.
-  const PAGE_SAFETY_PX = 38; /* ~1cm */
+  // ---------- Shared pagination engine (identical to transvaginal.html —
+  // keeps the on-screen "fits on N pages" preview and the real print output
+  // agreeing on where pages break) ----------
+  const PAGE_SAFETY_PX = 38;
   const MIN_LINE_HEIGHT = 1.0;
   const LINE_HEIGHT_STEP = 0.03;
   const MIN_FONT_SIZE = 11;
   const FONT_SIZE_STEP = 0.5;
 
-  // Converte a faixa de conteúdo de 24,2cm (A4 de 29,7cm menos os 3,5cm do
-  // topo / 2cm do rodapé reservados pelo thead/tfoot da .paper-table no
-  // @media print) em px neste mesmo documento, para ficar na mesma base das
-  // medições por getBoundingClientRect() independentemente de zoom/DPI.
-  // A margem de segurança existe porque a Times New Roman pode render com
-  // métricas de linha ligeiramente diferentes nesta medição em tela e na
-  // passada de impressão real, e esse desvio se acumula ao longo de muitas
-  // linhas — no pior caso sobra um pouco de espaço em branco, nunca falta.
   function pageBudgetPx(){
     const ref = document.createElement('div');
     ref.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:0;width:0;height:24.2cm;';
@@ -1751,14 +1495,6 @@
     return pageHeightPx - PAGE_SAFETY_PX;
   }
 
-  // Mede o laudo fora da tela, na largura real de impressão (17cm), e o
-  // distribui em páginas — nada aqui encosta no #paper vivo. Cada "box" é
-  // medido pela borda top/bottom real no fluxo do container de medição, não
-  // somando a altura de cada elemento: uma soma de alturas perde a margem
-  // vertical de cada um (só o p.linha já carrega 16px de margin-bottom) e
-  // subestimaria sistematicamente o quanto cabe numa página.
-  // Cada box carrega o nó vivo correspondente (para o preview marcar a
-  // quebra) e o HTML (para a impressão remontar as páginas).
   function packAt(paperEl, html, lineHeight, fontSize, budgetPx){
     const measure = document.createElement('div');
     measure.className = 'paper';
@@ -1798,9 +1534,6 @@
     });
     document.body.removeChild(measure);
 
-    // Empacota os boxes em páginas, sem nunca partir um deles. pageStart
-    // guarda onde começou o primeiro box da página atual, então "o quanto
-    // esta página já está cheia" é só a distância até ali.
     const pages = [[]];
     let pageStart = boxes.length ? boxes[0].top : 0;
     boxes.forEach(box=>{
@@ -1810,8 +1543,6 @@
       }
       pages[pages.length-1].push(box);
     });
-    // Um título sozinho no pé da página, com o conteúdo dele empurrado para a
-    // seguinte, fica órfão — desce junto com o que vem depois.
     for(let p=0; p<pages.length-1; p++){
       const pg = pages[p];
       if(pg.length && pg[pg.length-1].kind==='heading'){
@@ -1821,12 +1552,6 @@
     return {pages, continuaHtml, continuaHeight};
   }
 
-  // Tenta caber em uma página: primeiro apertando a entrelinha (nunca abaixo
-  // de 1.0), depois também reduzindo a fonte em passos de 0,5pt (nunca abaixo
-  // de 11pt), varrendo a entrelinha de novo a cada tamanho. Um laudo
-  // genuinamente longo falha em todas as combinações e volta ao tamanho
-  // original, paginado normalmente — o auto-fit nunca sacrifica legibilidade
-  // abaixo de 11pt para esconder excesso real de conteúdo.
   function autoFitPages(paperEl, budgetPx){
     const html = paperEl.innerHTML;
     const baseLineHeight = parseFloat(paperEl.style.lineHeight) || 1.15;
@@ -1868,8 +1593,6 @@
     for(let p=0; p<pages.length-1; p++){
       const node = pages[p+1][0] && pages[p+1][0].node;
       if(!node || !node.parentNode) continue;
-      // A quebra pode cair no meio da lista de impressões: ali o marcador
-      // precisa ser um <li>, senão vira um filho inválido do <ul>.
       const marker = document.createElement(node.tagName === 'LI' ? 'li' : 'div');
       marker.className = 'pg-break-marker';
       marker.contentEditable = 'false';
@@ -1900,171 +1623,137 @@
       if(empty) pendingCount++;
       return val;
     }
-    function reqIf(id, cond){
-      if(!cond) return v(id);
-      return req(id);
-    }
 
     const nomePaciente = v('nomePaciente');
     const dataExame = v('dataExame');
     const medicoSolicitante = v('medicoSolicitante');
-    const dum = v('dum');
-    const cronologiaMetodoRaw = v('cronologiaMetodo');
-    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame') ? cronologiaMetodoRaw : 'dum';
-    reqIf('usgDataDatacao', cronologiaMetodo==='usg');
-    reqIf('usgSemanasDatacao', cronologiaMetodo==='usg');
-    reqIf('usgDiasDatacao', cronologiaMetodo==='usg');
-    const dataBase = computeDataBase(cronologiaMetodo);
-    const cronologia = computeCronologia(dataBase, dataExame);
-    const cronologiaEl = $('cronologia');
-    if(cronologiaEl) cronologiaEl.value = cronologia;
     const gpaG = v('gpaG');
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
-    const motivoExame = vNoDot('motivoExame');
+    const dum = v('dum');
+    const medicacoes = vNoDot('medicacoes');
 
-    const numeroEmbrioesVal = v('numeroEmbrioes');
-    const isMultiple = numeroEmbrioesVal !== '1';
-    const corionicidade = v('corionicidade');
-    const corTxtMap = {
-      dicorionica_diamniotica: 'dicoriônica e diamniótica',
-      monocorionica_diamniotica: 'monocoriônica e diamniótica',
-      monocorionica_monoamniotica: 'monocoriônica e monoamniótica'
-    };
-    const corTxt = corTxtMap[corionicidade] || 'dicoriônica e diamniótica';
+    const uteroPosicaoVal = v('uteroPosicao');
+    const uteroPosicaoTexto = {AVF:'em anteversoflexão', RVF:'em retroversoflexão', MVF:'em posição intermediária (medioversão)'}[uteroPosicaoVal];
+    const vrUteroCategoria = v('vrUteroCategoria');
+    const vrUteroLimite = UTERO_VR_LIMIT[vrUteroCategoria](VR);
+    const vrUteroTexto = 'até '+vrUteroLimite.toString().replace('.',',')+' cm³';
+    const uteroL = blankOrValue(req('uteroL'));
+    const uteroAP = blankOrValue(req('uteroAP'));
+    const uteroT = blankOrValue(req('uteroT'));
+    const uteroVolumeNum = num('uteroVolume'); req('uteroVolume');
+    const uteroVolume = blankOrValue(v('uteroVolume'));
+    flag('uteroVolume', uteroVolumeNum!==null && uteroVolumeNum > vrUteroLimite);
+    const uteroAspecto = v('uteroAspecto');
+    const uteroDescricao = vNoDot('uteroDescricao');
 
-    const uids = sacoUids();
-    const sacos = uids.map((uid, idx)=>{
-      const label = sacoLabel(idx, uids.length);
-      const insercao = v('saco'+uid+'Insercao');
-      const dmsg = blankOrValue(req('saco'+uid+'DMSG'));
-      const vv = blankOrValue(req('saco'+uid+'VV'));
-      const ccn = blankOrValue(req('saco'+uid+'CCN'));
-      const vitalidade = v('saco'+uid+'Vitalidade');
-      const fc = blankOrValue(reqIf('saco'+uid+'FC', vitalidade==='presente'));
-      const isgCheckEl = $('saco'+uid+'ISG');
-      const isgPequeno = isgCheckEl ? isgCheckEl.checked : false;
-      const dmsgNum = num('saco'+uid+'DMSG');
-      const ccnNum = num('saco'+uid+'CCN');
-      const isgNum = (isgPequeno && dmsgNum!==null && ccnNum!==null) ? Math.round((dmsgNum-ccnNum)*10)/10 : null;
-      const isgValor = isgNum !== null ? String(isgNum).replace('.', ',') : '';
-      const hematomaCheckEl = $('saco'+uid+'Hematoma');
-      const hematoma = hematomaCheckEl ? hematomaCheckEl.checked : false;
-      const hematomaLocal = v('saco'+uid+'HematomaLocal');
-      const hematomaFace = v('saco'+uid+'HematomaFace');
-      const hematomaMedida = blankOrValue(reqIf('saco'+uid+'HematomaMedida', hematoma));
-      return {uid, label, insercao, dmsg, vv, ccn, vitalidade, fc, isgPequeno, isgValor, isgNum, hematoma, hematomaLocal, hematomaFace, hematomaMedida};
+    const vrOvarioTexto = VR.ovarioMin.toString().replace('.',',')+' e '+VR.ovarioMax.toString().replace('.',',');
+
+    function readOvario(prefix){
+      const L = blankOrValue(req(prefix+'_L'));
+      const AP = blankOrValue(req(prefix+'_AP'));
+      const T = blankOrValue(req(prefix+'_T'));
+      const volNum = num(prefix+'_volume'); req(prefix+'_volume');
+      const volume = blankOrValue(v(prefix+'_volume'));
+      flag(prefix+'_volume', volNum!==null && (volNum < VR.ovarioMin || volNum > VR.ovarioMax));
+      const foliculos = blankOrValue(req(prefix+'_foliculos'));
+      const aspecto = v(prefix+'_aspecto');
+      const descricao = vNoDot(prefix+'_descricao');
+      return {L, AP, T, volume, aspecto, descricao, foliculos};
+    }
+    const ovD = readOvario('ovD');
+    const ovE = readOvario('ovE');
+
+    const visitaUidsAtuais = visitaUids();
+    const visitaRows = visitaUidsAtuais.map(uid=>{
+      const data = blankOrValue(req('visita'+uid+'Data'));
+      const ciclo = blankOrValue(req('visita'+uid+'Ciclo'));
+      const folD = blankOrValue(req('visita'+uid+'FolD'));
+      const folE = blankOrValue(req('visita'+uid+'FolE'));
+      const endoPadrao = v('visita'+uid+'EndoPadrao')==='secretor' ? 'Secretor' : 'Trilaminar';
+      const endoEspessura = blankOrValue(req('visita'+uid+'EndoEspessura'));
+      return {data, ciclo, folD, folE, endoPadrao, endoEspessura};
     });
-    const algumObito = sacos.some(s=> s.vitalidade==='ausente');
-    toggle('wrap_tipoPerda', algumObito);
-    const tipoPerda = v('tipoPerda');
 
-    const bexigaAspecto = v('bexigaAspecto');
-    const bexigaDescricao = vNoDot('bexigaDescricao');
+    const corpoLuteoLado = v('corpoLuteoLado');
+    const endometrioConcordancia = v('endometrioConcordancia');
+    const endometrioDiscordanciaDescricao = vNoDot('endometrioDiscordanciaDescricao');
 
-    const uteroPosicao = v('uteroPosicao');
-    const uteroMedida = blankOrValue(req('uteroMedida'));
-    const uteroVolume = blankOrValue(req('uteroVolume'));
+    const checklistItems = buildImpressao({
+      corpoLuteoLado, endometrioConcordancia, endometrioDiscordanciaDescricao,
+      uteroAspecto, uteroDescricao,
+      ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao,
+      ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao
+    });
+    renderChecklist(checklistItems);
+    const checkedItems = checklistItems.filter(it=> checkedState[it.key]);
 
-    const anexosAspecto = v('anexosAspecto');
-    const anexosDescricao = vNoDot('anexosDescricao');
-
-    const impSemanas = req('impSemanas');
-    const impDias = req('impDias');
-    const dumConcordancia = v('dumConcordancia')==='discordante' ? 'discordante' : 'concordante';
-    // DUM discordante: a data base da DPP e do período do Morfológico do 1º
-    // Trimestre deixa de ser a DUM (que a própria médica marcou como não
-    // confiável) e passa a ser a IG digitada na conclusão do laudo, aplicada
-    // sobre a data do exame — igual ao método de datação "1ª Ecografia".
-    // Concordante (ou cronologia por USG/ecografia, onde não há o que
-    // discordar) mantém dataBase como já era.
-    const dataBaseDppMorfo = (cronologiaMetodo === 'dum' && dumConcordancia === 'discordante')
-      ? computeDataBaseFromIG(dataExame, impSemanas, impDias)
-      : dataBase;
-    const dpp = computeDPP(dataBaseDppMorfo);
-    $('dpp').value = dpp;
-
-    const chkRecomendacao = $('chkRecomendacao').checked;
-    const morfoPeriodo = computeMorfoPeriodo(dataBaseDppMorfo);
-    $('dataInicioMorfo').value = morfoPeriodo.inicio;
-    $('dataFimMorfo').value = morfoPeriodo.fim;
-    const dataInicioMorfo = blankOrValue(morfoPeriodo.inicio);
-    const dataFimMorfo = blankOrValue(morfoPeriodo.fim);
-
-    // ----- Impressão -----
-    const algumHematoma = sacos.some(s=> s.hematoma);
-    const algumIsgReduzido = sacos.some(s=> s.isgNum !== null && s.isgNum < 5);
-    const impSemanasNum = parseInt(impSemanas, 10);
-    const impDiasNum = parseInt(impDias, 10);
-    // {IG}: "X semanas e Y dia(s)" já formatado (sem "e 0 dias", "1 dia" no
-    // singular — igual ao IG atual do cabeçalho), para as frases de impressão
-    // não montarem esse trecho na mão com {SEMANAS}/{DIAS} soltos.
-    const ig = (impSemanas!=='' && !isNaN(impSemanasNum))
-      ? formatIG(impSemanasNum*7 + (isNaN(impDiasNum) ? 0 : impDiasNum))
-      : '____ semanas e ____ dias';
-    const state = {
-      isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
-      algumObito, dpp, algumHematoma, algumIsgReduzido, cronologiaMetodo, tipoPerda,
-      bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao
-    };
-    const impressaoItems = buildImpressao(state);
-    renderChecklist(impressaoItems);
-    const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
-
-    // ----- Assemble laudo HTML, one block per paragraph/section -----
     const blocks = [];
-
-    blocks.push({id:'idcard', html:
-      '<div class="id-card">'
+    blocks.push({id:'idcard', html:''
+      +'<div class="id-card">'
       +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>'
       +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(cronologia))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+'</span></div>'
       +'</div>'});
 
-    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+(isMultiple ? 'ULTRASSOM GEMELAR DO 1º TRIMESTRE' : 'ULTRASSOM OBSTÉTRICO DO 1º TRIMESTRE')+'</h3>'});
-    if(motivoExame){
-      blocks.push({id:'relato', html:'<p class="relato">Relato de '+escapeHtml(motivoExame.charAt(0).toLowerCase()+motivoExame.slice(1))+'.</p>'});
+    // O <span> em volta da 1ª linha é necessário: sem ele o <br> seria o único
+    // filho-elemento do h3 e cairia no seletor ".doctitle > br:first-child"
+    // (que existe para esconder um <br> solto no INÍCIO do título — ver CSS),
+    // já que esse seletor conta só elementos-irmãos, ignorando o nó de texto
+    // antes dele. O <span> garante que o <br> não seja mais o primeiro filho.
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle"><span>ULTRASSONOGRAFIA TRANSVAGINAL</span><br>PARA RASTREAMENTO DE OVULAÇÃO</h3>'});
+
+    blocks.push({id:'medicacoes', html:'<p class="linha"><strong>Medicações:</strong> '+(medicacoes ? escapeHtml(medicacoes) : '---')+'</p>'});
+
+    blocks.push({id:'aoexame', html:'<p class="linha"><strong>Ao exame:</strong></p>'});
+
+    blocks.push({id:'utero', html:'<p class="linha"><strong>Útero:</strong> '+(uteroAspecto==='alterado'
+      ? span(blankOrValue(uteroDescricao))
+      : phrase('uteroBase', {POSICAO: uteroPosicaoTexto}))+'</p>'});
+    blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
+
+    function ovarioParagraph(ov, ladoM){
+      if(ov.aspecto==='alterado'){
+        return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+span(blankOrValue(ov.descricao))+'</p>';
+      }
+      const base = phraseRaw('ovarioNormal', {L: ov.L.text, AP: ov.AP.text, T: ov.T.text, VOLUME: ov.volume.text, VRMIN: VR.ovarioMin.toString().replace('.',','), VRMAX: VR.ovarioMax.toString().replace('.',',')});
+      const foliculosTxt = phraseRaw('foliculosDominantes', {N: ov.foliculos.text});
+      return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+escapeHtml(base)+' '+escapeHtml(foliculosTxt)+'</p>';
     }
-    blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
+    blocks.push({id:'ovD', html: ovarioParagraph(ovD, 'direito')});
+    blocks.push({id:'ovE', html: ovarioParagraph(ovE, 'esquerdo')});
 
-    const bexigaTexto = (bexigaAspecto==='alterado' && bexigaDescricao) ? escapeHtml(bexigaDescricao) : phrase('bexigaNormal');
-    blocks.push({id:'bexiga', html:'<p class="linha">Bexiga '+bexigaTexto+'</p>'});
+    blocks.push({id:'acompHeader', html:'<h4 class="sec">Acompanhamento:</h4>'});
+    let tableHtml = '<table class="acompanhamento" style="width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;">'
+      + '<tr>'
+      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Data do exame</th>'
+      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Dia do ciclo</th>'
+      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Ovário direito<br>maior folículo</th>'
+      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Ovário esquerdo<br>maior folículo</th>'
+      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Endométrio</th>'
+      + '</tr>';
+    if(visitaRows.length === 0){
+      tableHtml += '<tr><td colspan="5" style="border:1px solid #2b2b2e;padding:4px 8px;color:#B4432F;">Adicione ao menos uma visita no formulário à esquerda.</td></tr>';
+    } else {
+      visitaRows.forEach(row=>{
+        tableHtml += '<tr>'
+          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.data)+'</td>'
+          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.ciclo)+'</td>'
+          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.folD)+' mm</td>'
+          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.folE)+' mm</td>'
+          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+escapeHtml(row.endoPadrao)+' — '+span(row.endoEspessura)+' mm</td>'
+          + '</tr>';
+      });
+    }
+    tableHtml += '</table>';
+    blocks.push({id:'acompTable', html: tableHtml});
 
-    blocks.push({id:'utero', html:'<p class="linha">'+phraseRaw('utero', {POSICAO: UTERO_POSICAO_TEXTO[uteroPosicao], MEDIDA: span(uteroMedida), VOLUME: span(uteroVolume)})+'</p>'});
+    blocks.push({id:'corpoLuteo', html:'<p class="linha">'+(corpoLuteoLado==='nao_identificado'
+      ? phrase('corpoLuteoNaoIdentificado')
+      : phrase('corpoLuteoIdentificado', {LADO: corpoLuteoLado==='esquerdo' ? 'esquerdo' : 'direito'}))+'</p>'});
 
-    sacos.forEach(s=>{
-      let sacoHtml = '<div class="saco-bloco">';
-      if(uids.length>1){
-        sacoHtml += '<h4 class="sec">'+escapeHtml(s.label.toUpperCase())+'</h4>';
-      }
-      sacoHtml += '<p class="linha">'+phraseRaw('sacoGestacional', {INSERCAO: s.insercao})+'</p>';
-      sacoHtml += '<p class="linha tight"><strong>Parâmetros biométricos:</strong></p>';
-      sacoHtml += '<table class="biometria">'
-        +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
-        +'<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
-        +'<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>'
-        +(s.vitalidade==='ausente'
-          ? '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">Ausente</span></td></tr>'
-          : '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(s.fc)+' bpm</td></tr>')
-        +'</table>';
-      if(s.isgPequeno){
-        sacoHtml += '<p class="linha tight">'+phraseRaw('isgPequeno', {ISG: span(blankOrValue(s.isgValor))})+'</p>';
-      }
-      if(s.hematoma){
-        sacoHtml += '<p class="linha tight">'+phraseRaw('hematoma', {LOCAL: s.hematomaLocal, FACE: s.hematomaFace, MEDIDA: span(s.hematomaMedida)})+'</p>';
-      }
-      if(s.vitalidade==='ausente'){
-        sacoHtml += '<p class="linha">'+phrase('fcfAusente')+'</p>';
-      }
-      sacoHtml += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('embriaoObito') : phrase('embriaoNormal'))+'</p>';
-      sacoHtml += '</div>';
-      blocks.push({id:'saco_'+s.uid, html:sacoHtml});
-    });
-
-    blocks.push({id:'anexos', html:'<p class="linha">'+(anexosAspecto==='alterado' && anexosDescricao ? escapeHtml(anexosDescricao) : phrase('anexosNormais'))+'</p>'});
-
-    blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÕES DIAGNÓSTICAS:</h4>'});
+    blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
     if(checkedItems.length===0){
       impressaoListHtml += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
@@ -2076,10 +1765,6 @@
     }
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
-
-    if(chkRecomendacao){
-      blocks.push({id:'recomendacao', html:'<p class="recomendacao">('+phraseRaw('recomendacaoMorfologico', {DATA_INICIO: span(dataInicioMorfo), DATA_FIM: span(dataFimMorfo)})+')</p>'});
-    }
 
     let rodapeHtml = '<div class="rodape-final">';
     rodapeHtml += '<p class="footnote">'+phrase('footerImagens')+'</p>';
@@ -2110,95 +1795,14 @@
   });
 
   // ---------- Actions ----------
-
-  // ---------- Montagem do HTML que vira o arquivo do Word ----------
-  // O .doc é um HTML que o Word abre, e ele chega lá SEM nenhuma folha de
-  // estilo desta página: só sobrevive o que estiver escrito em style="" no
-  // próprio elemento (e o <style> de @page que o botão "Baixar Word" injeta,
-  // que define a folha e zera o espaçamento que o Word inventa sozinho).
-  // Tudo que o laudo desenha por classe — a margem entre parágrafos, o corpo
-  // menor dos títulos de seção, o respiro das colunas da tabela de biometria,
-  // o recuo do cartão de identificação — some se não for copiado para o clone.
-  // Era essa a diferença entre o PDF e o Word.
-  //
-  // Em vez de repetir esses valores aqui à mão (e deixá-los envelhecer na
-  // primeira vez que alguém mexer no CSS lá em cima), cada linha da lista
-  // abaixo copia do elemento VIVO o valor já calculado pelo navegador: o que
-  // está na tela é o que vai para o Word, inclusive quando a médica muda o
-  // corpo da fonte ou o espaçamento pela barra de formatação.
-  //
-  // Topo / direita / pé / esquerda da folha do Word, iguais às da impressão
-  // (veja o @media print: <thead> 3,5cm para o timbrado, <tfoot> 2cm,
-  // padding lateral 2cm).
-  const WORD_PAGE_MARGIN = '3.5cm 2cm 2cm 2cm';
-  const MARGINS = ['margin-top','margin-right','margin-bottom','margin-left'];
-  const PADDINGS = ['padding-top','padding-right','padding-bottom','padding-left'];
-  const WORD_COPY = [
-    ['h3.doctitle', ['font-size','line-height','letter-spacing'].concat(MARGINS)],
-    ['p.relato', ['font-size','line-height','color','text-align'].concat(MARGINS)],
-    ['h4.sec', ['font-size','line-height','letter-spacing','color'].concat(MARGINS)],
-    ['p.linha', ['font-size','line-height','text-align'].concat(MARGINS)],
-    ['p.recomendacao', ['font-size','line-height','text-align'].concat(MARGINS)],
-    ['table.biometria', ['font-size','line-height','border-collapse'].concat(MARGINS)],
-    ['table.biometria td', ['vertical-align','white-space'].concat(PADDINGS)],
-    ['.id-card', PADDINGS.concat(MARGINS)],
-    ['.id-card-row', ['font-size','line-height','margin-top']],
-    ['.footnote', ['font-size','line-height','color']],
-    ['.assinatura', ['line-height']],
-    ['.assinatura-nome', PADDINGS.concat(['margin-bottom'])],
-    ['.assinatura-info', ['font-size','line-height','color']],
-    ['.blank', ['color']],
-    ['.filled', ['color']]
-  ];
-  // O Word entende cor em #rrggbb; o navegador serializa todo style="" em
-  // rgb(...), mesmo quando o valor foi escrito em hexadecimal. A troca é feita
-  // no HTML já montado (e não em cada propriedade, onde o CSSOM desfaria) para
-  // que o vermelho do que falta preencher, o vinho dos títulos e o cinza da
-  // assinatura não saiam pretos no arquivo. rgba() com transparência fica como
-  // está: hexadecimal não a representa, e o Word ignora as duas formas igual.
-  function rgbToHexInHtml(html){
-    return html.replace(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/g, function(all, r, g, b, a){
-      if(a !== undefined && Number(a) < 1) return all;
-      return '#' + [r,g,b].map(n=>Number(n).toString(16).padStart(2,'0')).join('');
-    });
-  }
-  function copyComputedToClone(liveRoot, cloneRoot){
-    WORD_COPY.forEach(function(rule){
-      const sel = rule[0], props = rule[1];
-      const live = liveRoot.querySelectorAll(sel);
-      const copy = cloneRoot.querySelectorAll(sel);
-      // O clone é cópia fiel do vivo, então as duas listas casam elemento a
-      // elemento. Se algum dia não casarem, é melhor não estilizar nada do que
-      // pintar o estilo de um parágrafo em cima de outro.
-      if(live.length !== copy.length) return;
-      for(let i=0;i<live.length;i++){
-        const cs = getComputedStyle(live[i]);
-        props.forEach(function(p){
-          const val = cs.getPropertyValue(p);
-          if(val) copy[i].style.setProperty(p, val);
-        });
-      }
-    });
-  }
-
   function buildReportHtml(){
-    const paperEl = $('paper');
-    const clone = paperEl.cloneNode(true);
-    copyComputedToClone(paperEl, clone);
+    const clone = $('paper').cloneNode(true);
     clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
-    // O importador de HTML do Word aplica a lista com marcador dele em
-    // qualquer <ul><li> que enxerga, ignorando list-style:none (o marcador vem
-    // do mso-list dele, não do CSS) — empilhando um marcador do Word em cima
-    // do "* " que já está no texto de cada item. Exportar cada achado como um
-    // parágrafo em negrito escapa dessa detecção automática.
-    const liveLi = paperEl.querySelector('ul.impressao li');
-    const liStyle = liveLi ? getComputedStyle(liveLi) : null;
     clone.querySelectorAll('ul.impressao').forEach(ul=>{
       const div = document.createElement('div');
       Array.from(ul.children).forEach(li=>{
         const p = document.createElement('p');
-        p.style.margin = '0 0 ' + (liStyle ? liStyle.marginBottom : '2px');
-        if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; p.style.textAlign = liStyle.textAlign; }
+        p.style.margin = '0 0 6px';
         p.style.fontWeight = '700';
         p.innerHTML = li.innerHTML;
         div.appendChild(p);
@@ -2206,27 +1810,22 @@
       ul.replaceWith(div);
     });
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
-    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.fontWeight='700'; });
-    clone.querySelectorAll('.relato').forEach(h=>{ h.style.fontWeight='700'; });
+    const liveIdCardEl = $('paper').querySelector('.id-card');
+    const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
+    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
-    clone.querySelectorAll('table.biometria').forEach(t=>{ t.setAttribute('border','0'); t.style.borderCollapse='collapse'; });
-    clone.querySelectorAll('table.biometria td').forEach(td=>{ td.style.border='none'; });
-    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
-    clone.querySelectorAll('.blank').forEach(el=>{ el.style.fontWeight='600'; });
-    clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.margin='0'; });
-    clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; });
-    clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; });
-    clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.margin='0'; });
+    clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
+    clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
+    clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
+    clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
+    clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#9a7e95'; el.style.margin='0'; });
 
-    // O Word não faz flexbox: as linhas lado a lado abaixo (nome/data do
-    // cartão e o par nota-à-esquerda/assinatura-à-direita do rodapé) viravam
-    // blocos empilhados. Tabela o Word renderiza igual a todo mundo, então
-    // toda linha que dependia do flex é remontada como uma.
     clone.querySelectorAll('.id-card-row').forEach(el=>{
+      el.style.fontSize = '12pt';
       if(el.children.length !== 2) return;
       const [left, right] = el.children;
       const table = document.createElement('table');
-      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;font-size:'+(el.style.fontSize||'12pt')+';');
+      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;');
       table.innerHTML = '<tr>'
         + '<td style="border:none;padding:0;text-align:left;">'+left.innerHTML+'</td>'
         + '<td style="border:none;padding:0;text-align:right;">'+right.innerHTML+'</td>'
@@ -2245,14 +1844,11 @@
       el.replaceWith(table);
     });
 
-    const cs = getComputedStyle(paperEl);
-    return rgbToHexInHtml("<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+cs.fontSize+";line-height:"+cs.lineHeight+";text-align:justify;color:#2b2b2e;\">"+clone.innerHTML+'</div>');
+    const lineHeight = $('paper').style.lineHeight || '1.15';
+    const fontSize = $('paper').style.fontSize || '12pt';
+    return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";text-align:justify;\">"+clone.innerHTML+'</div>';
   }
 
-  // ---------- Print pagination: pins the signature to the bottom-right corner
-  // of the physical page, at print time only. See transvaginal.html for the
-  // full rationale behind every choice below — this is the same pipeline,
-  // unchanged. ----------
   function paginateForPrint(){
     const paperEl = $('paper');
     paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
@@ -2317,9 +1913,6 @@
   }
 
   let printRestore = null;
-  // "Salvar como PDF" do navegador sugere o nome do arquivo a partir do
-  // document.title, então ele vira "Nome da paciente - Obstétrico do 1º
-  // trimestre" durante a impressão e volta ao título da página ao terminar.
   const tituloPagina = document.title;
   window.addEventListener('beforeprint', ()=>{
     document.title = nomeArquivoLaudo();
@@ -2349,11 +1942,8 @@
   function sanitizeFilenamePart(s){
     return s.replace(/[\\/:*?"<>|]/g, '').trim();
   }
-  // Nome usado tanto no Word quanto no PDF: nome completo da paciente seguido
-  // do título do exame ("Ana Maria Braga - Obstétrico do 1º trimestre"), para
-  // o arquivo já sair identificado e ir direto para a pasta da paciente.
   function tituloExame(){
-    return v('numeroEmbrioes') !== '1' ? 'Gemelar do 1º trimestre' : 'Obstétrico do 1º trimestre';
+    return 'Rastreamento de Ovulação';
   }
   function nomeArquivoLaudo(){
     const paciente = sanitizeFilenamePart(v('nomePaciente'));
@@ -2386,32 +1976,13 @@
   $('btnDownloadWord').addEventListener('click', async ()=>{
     try{
       const html = buildReportHtml();
-      // A folha do Word tem que ser a mesma folha do PDF. Na impressão, o
-      // @page tem margem 0 e quem reserva o espaço é a tabela do laudo: 3,5cm
-      // no topo (o timbrado) pelo <thead>, 2cm no pé pelo <tfoot> e 2cm de
-      // cada lado pelo padding do <tbody> — sobrando 17cm de texto. Aqui isso
-      // é dito de uma vez só no @page, senão o Word usa a margem padrão dele
-      // (2,54cm em volta, nada reservado para o timbrado) e o texto quebra em
-      // outros pontos, que é o que fazia o arquivo parecer outro laudo.
       const docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
         + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
         + 'xmlns="http://www.w3.org/TR/REC-html40">'
         + '<head><meta charset="utf-8"><title>'+escapeHtml(nomeArquivoLaudo())+'</title>'
         + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
         + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
-        + '<style>'
-        + '@page WordSection1{size:21.0cm 29.7cm;margin:' + WORD_PAGE_MARGIN + ';}'
-        + 'div.WordSection1{page:WordSection1;}'
-        // O Word aplica o estilo "Normal" dele (espaço entre parágrafos,
-        // Calibri 11) em tudo que chega sem estilo próprio. Como cada bloco do
-        // laudo já traz a sua margem inline, o padrão aqui é zero — e o inline
-        // continua ganhando de qualquer forma.
-        + 'body,div,p,h1,h2,h3,h4,td,li{font-family:\'Times New Roman\',Times,serif;}'
-        + 'p,h1,h2,h3,h4,ul,ol,li{margin:0;}'
-        + 'table{border-collapse:collapse;}'
-        + 'td{border:none;}'
-        + '</style>'
-        + '</head><body><div class="WordSection1">' + html + '</div></body></html>';
+        + '</head><body>' + html + '</body></html>';
       const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
       await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
     }catch(e){
@@ -2423,27 +1994,19 @@
     if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
     document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
     document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
-    document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=true);
-    $('chkRecomendacao').checked = true;
+    document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
-    $('sacosContainer').innerHTML = '';
+    $('visitasContainer').innerHTML = '';
     checkedState = {};
     impressaoOverrides = {};
-    // Force every block to rebuild fresh for the new patient — otherwise a
-    // block whose computed text happens to match the previous patient's
-    // would keep whatever the doctor had typed by hand into it, since
-    // content-based reconciliation alone has no way to tell that apart from
-    // an untouched block.
     lastBlockHtml = {};
     $('paper').innerHTML = '';
     printAttempted = false;
     $('printAlert').classList.remove('show');
     setDefaultDataExame();
-    toggle('wrap_recomendacao', true);
-    addSaco();
-    // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
+    addVisita();
     draftDiscard();
   });
 
@@ -2457,32 +2020,13 @@
   setDefaultDataExame();
 
   // ---------- Rascunho automático (o laudo se salva sozinho) ----------
-  // Antes disto o laudo só saía do navegador no fim, no "Imprimir / PDF" ou no
-  // "Baixar Word": uma queda de energia, um F5 sem querer ou a aba fechada por
-  // engano levavam junto tudo o que já tinha sido digitado. Agora cada mudança
-  // no formulário e cada texto digitado direto no laudo viram um rascunho
-  // gravado neste navegador — pouco depois da última tecla, e na hora quando a
-  // aba é escondida ou fechada — e esse rascunho volta sozinho ao reabrir.
-  //
-  // Grava em localStorage direto, e não pelo kvStore assíncrono das
-  // preferências, porque a gravação do 'pagehide' precisa ser síncrona: é a
-  // última que ainda acontece com a aba fechando.
-  //
-  // O rascunho fica só neste computador (não vai para servidor nenhum) e contém
-  // dados da paciente; "Limpar" apaga o rascunho junto com o formulário.
-  const DRAFT_KEY = 'laudo-rascunho-obstetrico-1trimestre-v1';
+  const DRAFT_KEY = 'laudo-rascunho-rastreamento-ovulacao-v1';
   const DRAFT_DEBOUNCE_MS = 800;
-  // Selects que definem quantos cards existem: ficam fora do disparo de 'change'
-  // da restauração porque recriariam do zero os cards que acabaram de voltar com
-  // os uids certos.
-  const DRAFT_SKIP_CHANGE = ['numeroEmbrioes'];
   let draftTimer = null;
-  let draftReady = false;    // não grava nada antes de a carga inicial terminar
-  let draftBaseline = null;  // assinatura do formulário em branco (nada a salvar)
+  let draftReady = false;
+  let draftBaseline = null;
 
   function draftPaperHtml(){
-    // Os marcadores de fim de página são recalculados a cada render(); sem
-    // tirá-los daqui, voltariam duplicados junto com o rascunho.
     const clone = $('paper').cloneNode(true);
     clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
     return clone.innerHTML;
@@ -2491,8 +2035,6 @@
   function draftSnapshot(){
     const fields = {};
     document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
-      // Os checkboxes da checklist de impressões não têm id: eles voltam por
-      // `checked`/`overrides`, que guardam também o texto reescrito à mão.
       if(!el.id) return;
       fields[el.id] = el.type === 'checkbox' ? el.checked : el.value;
     });
@@ -2500,7 +2042,7 @@
       v: 1,
       ts: Date.now(),
       fields: fields,
-      uids: sacoUids(),
+      uids: visitaUids(),
       checked: checkedState,
       overrides: impressaoOverrides,
       titleFontSize: titleFontSize,
@@ -2509,8 +2051,6 @@
     };
   }
 
-  // Assinatura do conteúdo, sem o relógio: serve para não gravar — e para apagar,
-  // se já existir — um rascunho que é só o formulário em branco recém-aberto.
   function draftFingerprint(s){
     return JSON.stringify([s.fields, s.uids, s.checked, s.overrides, s.paper]);
   }
@@ -2545,11 +2085,9 @@
         return;
       }
       localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
-      draftBaseline = null;  // já tem laudo digitado: nada aqui é mais "em branco"
+      draftBaseline = null;
       setDraftPill('✓ Rascunho salvo '+draftHora(snap.ts));
     }catch(e){
-      // Espaço esgotado, aba anônima ou armazenamento bloqueado: melhor avisar
-      // do que deixar a médica achar que está protegida.
       setDraftPill('⚠ Não consegui salvar o rascunho neste navegador', true);
     }
   }
@@ -2581,20 +2119,17 @@
   function draftRestore(d){
     draftRestoring = true;
     try{
-      // Os cards repetidos voltam com os mesmos uids de antes: os ids dos campos,
-      // as chaves da checklist de impressões e os ids dos blocos do laudo derivam
-      // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.
       const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
-      $('sacosContainer').innerHTML = '';
+      $('visitasContainer').innerHTML = '';
       if(uids.length){
         uids.forEach(uid=>{
-          sacoNextUid = Math.max(sacoNextUid, parseInt(uid, 10) + 1);
-          $('sacosContainer').insertAdjacentHTML('beforeend', sacoCardHTML(uid));
-          wireSacoCard(uid);
+          visitaNextUid = Math.max(visitaNextUid, parseInt(uid, 10) + 1);
+          $('visitasContainer').insertAdjacentHTML('beforeend', visitaSubgroupHTML(uid));
+          wireVisita(uid);
         });
-        renumberSacos();
+        renumberVisitas();
       }else{
-        addSaco();
+        addVisita();
       }
 
       Object.keys(d.fields).forEach(id=>{
@@ -2604,16 +2139,7 @@
         else el.value = d.fields[id];
       });
 
-      // Rascunhos gravados antes da máscara guardam o CPF só em dígitos: sem
-      // isto, ele voltaria à tela sem a pontuação.
-      aplicarMascaraCPF();
-
-      // Quais blocos condicionais ficam abertos é decidido pelos handlers de
-      // 'change' dos selects e checkboxes — e os valores acima foram escritos na
-      // mão, sem passar por eles. Um 'change' em cada um reabre no formulário
-      // exatamente as seções que estavam abertas.
       document.querySelectorAll('#formCol select, #formCol input[type=checkbox]').forEach(el=>{
-        if(DRAFT_SKIP_CHANGE.indexOf(el.id) !== -1) return;
         if(el.closest('#impressaoChecklist')) return;
         el.dispatchEvent(new Event('change'));
       });
@@ -2622,10 +2148,8 @@
       impressaoOverrides = (d.overrides && typeof d.overrides === 'object') ? d.overrides : {};
       titleFontSize = d.titleFontSize || null;
     }catch(e){
-      // Rascunho corrompido ou de uma versão antiga deste laudo: melhor abrir em
-      // branco do que deixar a tela quebrada.
       draftRestoring = false;
-      $('sacosContainer').innerHTML = '';
+      $('visitasContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
       lastBlockHtml = {};
@@ -2635,10 +2159,6 @@
     }
     draftRestoring = false;
     render();
-    // O render() acima remonta o laudo a partir dos campos; por cima dele volta o
-    // HTML exato que estava na tela, com as correções digitadas à mão dentro do
-    // texto. `lastBlockHtml` volta junto para a reconciliação seguinte continuar
-    // sabendo o que é texto gerado e o que é texto digitado.
     if(typeof d.paper === 'string' && d.paper){
       $('paper').innerHTML = d.paper;
       lastBlockHtml = (d.blocks && typeof d.blocks === 'object') ? d.blocks : {};
@@ -2657,7 +2177,7 @@
   function draftInit(){
     const d = draftRead();
     if(!(d && draftRestore(d))){
-      addSaco();
+      addVisita();
       render();
       draftReady = true;
       draftBaseline = draftFingerprint(draftSnapshot());
@@ -2666,12 +2186,7 @@
     draftReady = true;
   }
 
-  // Texto digitado direto no laudo não passa por render() — tem o próprio
-  // gatilho de gravação.
   $('paper').addEventListener('input', draftSchedule);
-
-  // Aba fechada, laudo trocado no seletor, navegador minimizado: grava na hora o
-  // que estiver pendente, em vez de esperar o intervalo do autosave.
   window.addEventListener('pagehide', draftSaveNow);
   document.addEventListener('visibilitychange', ()=>{
     if(document.visibilityState === 'hidden') draftSaveNow();
@@ -2681,12 +2196,14 @@
     $('draftNote').classList.remove('show');
   });
 
-  // A restauração do rascunho — ou o primeiro card em branco, quando não há
-  // rascunho — entra no fim desta cadeia: precisa das frases e dos valores de
-  // referência já carregados para o laudo voltar exatamente como estava.
   loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit())));
 
-  // ---------- Integração com a Curva de Crescimento (Supabase) ----------
+  // ---- Curva de Crescimento: login + buscar/salvar laudo anterior ----
+  // Mesmo Supabase do app de curvas (mesmo cadastro de paciente, por CPF),
+  // mas o histórico deste laudo fica só na tabela própria `laudos_ovulacao` —
+  // igual ao transvaginal.html com `laudos_tv`. O app de curvas nunca lê essa
+  // tabela; "buscar laudo anterior" é uma função só deste arquivo, que faz a
+  // própria consulta ao Supabase pelo navegador da médica.
   const CG_URL = 'https://ulcqnqwxguydrpoaplcv.supabase.co';
   const CG_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3FucXd4Z3V5ZHJwb2FwbGN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Njk2NjcsImV4cCI6MjEwMTA0NTY2N30.hNrszyJvaBzP08Oild4wivMrTvXnDoGfgL6My1bbtVU';
   const cgClient = window.supabase.createClient(CG_URL, CG_ANON_KEY);
@@ -2698,26 +2215,35 @@
     clearTimeout(el._t);
     el._t = setTimeout(()=> el.classList.remove('show'), 5000);
   }
-
   function cgOnlyDigits(s){ return (s||'').replace(/\D/g, ''); }
-  function toISODateLocal(date){
-    if(!date) return null;
-    const y = date.getFullYear();
-    const m = String(date.getMonth()+1).padStart(2,'0');
-    const d = String(date.getDate()).padStart(2,'0');
-    return y+'-'+m+'-'+d;
-  }
-  function cgFormatCPF(digits){
-    if(digits.length !== 11) return null;
-    return digits.slice(0,3)+'.'+digits.slice(3,6)+'.'+digits.slice(6,9)+'-'+digits.slice(9,11);
-  }
-
+  function cgFormatCPF(digits){ return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'); }
   function cgDataExameToISO(){
+    // o campo dataExame usa dd.mm.aaaa (pontos), como nos demais laudos
     const s = v('dataExame');
     const m = s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
     if(!m) return null;
     return m[3]+'-'+m[2]+'-'+m[1];
   }
+  function cgFormatDateBR(iso){
+    if(!iso) return '';
+    const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(!m) return String(iso);
+    return m[3]+'.'+m[2]+'.'+m[1];
+  }
+
+  function aplicarMascaraCPF(){
+    const el = $('cpfPaciente');
+    if(!el) return;
+    const digits = el.value.replace(/\D/g, '').slice(0, 11);
+    let out = digits.slice(0,3);
+    if(digits.length > 3) out += '.'+digits.slice(3,6);
+    if(digits.length > 6) out += '.'+digits.slice(6,9);
+    if(digits.length > 9) out += '-'+digits.slice(9);
+    if(out === el.value) return;
+    el.value = out;
+    try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
+  }
+  if($('cpfPaciente')) $('cpfPaciente').addEventListener('input', aplicarMascaraCPF);
 
   async function cgCheckSession(){
     const {data} = await cgClient.auth.getSession();
@@ -2743,21 +2269,99 @@
   });
   cgCheckSession();
 
+  // ---- Buscar laudo anterior por nome ou CPF ----
+  async function cgBuscarLaudos(){
+    const session = await cgCheckSession();
+    if(!session){ cgToast('Faça login para buscar laudos.', true); return; }
+    const term = v('cgBusca');
+    const digits = cgOnlyDigits(term);
+    const resultsEl = $('cgResults');
+    resultsEl.innerHTML = '';
+    if(!term){ cgToast('Digite nome ou CPF para buscar.', true); return; }
+
+    let pacientes = [];
+    try{
+      if(digits.length === 11){
+        const cpfFormatado = cgFormatCPF(digits);
+        const {data, error} = await cgClient.from('patients')
+          .select('id, nome, cpf').in('cpf', [digits, cpfFormatado]).is('excluido_em', null).limit(20);
+        if(error) throw error;
+        pacientes = data || [];
+      }else{
+        const nome = term.replace(/[%_]/g, '\\$&');
+        const {data, error} = await cgClient.from('patients')
+          .select('id, nome, cpf').ilike('nome', '%'+nome+'%').is('excluido_em', null).limit(20);
+        if(error) throw error;
+        pacientes = data || [];
+      }
+    }catch(e){
+      cgToast('Erro ao buscar: ' + (e.message || 'tente novamente.'), true);
+      return;
+    }
+    if(!pacientes.length){ resultsEl.innerHTML = '<div class="cg-result-empty">Nenhum paciente encontrado.</div>'; return; }
+
+    const ids = pacientes.map(p=> p.id);
+    let laudos = [];
+    try{
+      const {data, error} = await cgClient.from('laudos_ovulacao')
+        .select('id, data_exame, paciente_id, created_at, conteudo')
+        .in('paciente_id', ids).order('data_exame',{ascending:false}).order('created_at',{ascending:false}).limit(50);
+      if(error) throw error;
+      laudos = data || [];
+    }catch(e){
+      cgToast('Erro ao buscar laudos: ' + (e.message || 'tente novamente.'), true);
+      return;
+    }
+    if(!laudos.length){
+      resultsEl.innerHTML = '<div class="cg-result-empty">Paciente encontrada, mas sem laudo de rastreamento de ovulação anterior salvo.</div>';
+      return;
+    }
+
+    const porNome = {};
+    pacientes.forEach(p=> porNome[p.id] = p.nome);
+    laudos.forEach(laudo=>{
+      const item = document.createElement('div');
+      item.className = 'cg-result-item';
+      item.innerHTML = '<span class="ri-name">'+(porNome[laudo.paciente_id] || 'Paciente')+'</span>'
+        + '<span class="ri-meta">Exame de '+cgFormatDateBR(laudo.data_exame)+'</span>';
+      item.addEventListener('click', ()=> cgCarregarLaudo(laudo));
+      resultsEl.appendChild(item);
+    });
+  }
+
+  $('btnBuscarCG').addEventListener('click', cgBuscarLaudos);
+  $('cgBusca').addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); cgBuscarLaudos(); } });
+
+  // ---- Carregar um laudo anterior no formulário (snapshot completo) ----
+  function cgCarregarLaudo(laudo){
+    const snap = laudo.conteudo;
+    if(!snap || typeof snap !== 'object' || !snap.fields){
+      cgToast('Laudo sem conteúdo salvo (versão antiga).', true);
+      return;
+    }
+    if(!draftRestore(snap)){
+      cgToast('Não foi possível carregar este laudo.', true);
+      return;
+    }
+    const note = $('draftNote');
+    if(note){
+      $('draftNoteText').textContent = 'Laudo anterior carregado da Curva de Crescimento — continue preenchendo a visita de hoje. Para começar um laudo novo, use "Limpar" no alto da página.';
+      note.classList.add('show');
+    }
+    cgToast('Laudo carregado ✓', false);
+  }
+
+  // ---- Salvar o laudo atual na Curva (cria um novo registro por visita) ----
   $('btnSalvarCG').addEventListener('click', async ()=>{
     const session = await cgCheckSession();
     if(!session){ cgToast('Faça login para salvar.', true); return; }
-
-    const cpfDigits = cgOnlyDigits(v('cpfPaciente'));
-    if(cpfDigits.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
-    const cpf = cgFormatCPF(cpfDigits);
+    const cpf = cgOnlyDigits(v('cpfPaciente'));
+    if(cpf.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
+    const cpfFormatado = cgFormatCPF(cpf);
     const nome = v('nomePaciente');
     if(!nome){ cgToast('Preencha o nome da paciente.', true); return; }
     const dataExameISO = cgDataExameToISO();
     if(!dataExameISO){ cgToast('Data do exame inválida (use dd.mm.aaaa).', true); return; }
-
-    const uids = sacoUids();
-    if(!uids.length){ cgToast('Nenhum saco gestacional preenchido.', true); return; }
-    const isMultiple = uids.length > 1;
 
     const btn = $('btnSalvarCG');
     btn.disabled = true;
@@ -2766,64 +2370,42 @@
 
     try{
       const userId = session.user.id;
-
-      // 1) Busca ou cria a paciente por CPF (tenta com e sem pontuação, pois o app Curvas salva formatado)
+      // 1) Busca ou cria a paciente por CPF (mesmo cadastro do app de curvas).
       let {data: pacientesEncontrados, error: errBusca} = await cgClient
-        .from('patients').select('id').in('cpf', [cpfDigits, cpf]).is('excluido_em', null).limit(1);
+        .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
       if(errBusca) throw errBusca;
       let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
-
       if(!paciente){
         const {data: novaPaciente, error: errCria} = await cgClient
-          .from('patients').insert({user_id: userId, cpf, nome}).select('id').single();
+          .from('patients').insert({user_id: userId, cpf: cpfFormatado, nome}).select('id').single();
         if(errCria && errCria.code !== '23505') throw errCria;
         if(errCria && errCria.code === '23505'){
-          // Corrida: paciente já foi criada nesse meio-tempo — busca de novo
           const {data: pacienteExistente, error: errBusca2} = await cgClient
-            .from('patients').select('id').in('cpf', [cpfDigits, cpf]).is('excluido_em', null).limit(1);
+            .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
           if(errBusca2) throw errBusca2;
           paciente = (pacienteExistente && pacienteExistente[0]) || null;
-        } else {
+        }else{
           paciente = novaPaciente;
         }
       }
       if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
 
-      // 2) Busca a gestação ativa dessa paciente — cria automaticamente se não houver
-      let {data: gestacao, error: errGest} = await cgClient
-        .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
-      if(errGest) throw errGest;
+      // 2) Snapshot completo do laudo (todos os campos, visitas, impressão,
+      //    texto digitado à mão) — o mesmo que o rascunho automático já grava.
+      const snap = draftSnapshot();
 
-      if(!gestacao){
-        const cronologiaMetodoAtual = v('cronologiaMetodo');
-        const dataBase = computeDataBase(cronologiaMetodoAtual==='usg'||cronologiaMetodoAtual==='exame' ? cronologiaMetodoAtual : 'dum');
-        if(!dataBase){
-          cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
-          return;
-        }
-        const dumISO = toISODateLocal(dataBase);
-        const dppISO = toISODateLocal(addDays(dataBase, 280));
-        const corionicidadeAtual = isMultiple ? v('corionicidade') : null;
-        const {data: novaGestacao, error: errCriaGest} = await cgClient
-          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: isMultiple ? 'gemelar' : 'unica', corionicidade: corionicidadeAtual})
-          .select('id').single();
-        if(errCriaGest) throw errCriaGest;
-        gestacao = novaGestacao;
-      }
-
-      // 3) Monta um exame por saco gestacional (feto 1, 2... se gemelar)
-      const exames = uids.map((uid, idx)=> ({
+      // 3) Insere um novo registro por visita (não sobrescreve o anterior).
+      const {error: errLaudo} = await cgClient.from('laudos_ovulacao').insert({
         user_id: userId,
-        gestacao_id: gestacao.id,
+        paciente_id: paciente.id,
+        cpf: cpfFormatado,
+        nome: nome,
         data_exame: dataExameISO,
-        ccn: num('saco'+uid+'CCN'),
-        feto: isMultiple ? (idx === 0 ? 'A' : 'B') : null
-      }));
+        conteudo: snap
+      });
+      if(errLaudo) throw errLaudo;
 
-      const {error: errExame} = await cgClient.from('exams').insert(exames);
-      if(errExame) throw errExame;
-
-      cgToast('Exame(s) salvo(s) na Curva de Crescimento ✓', false);
+      cgToast('Laudo salvo na Curva de Crescimento ✓', false);
     }catch(e){
       console.error(e);
       cgToast('Erro ao salvar: ' + (e.message || 'tente novamente.'), true);
