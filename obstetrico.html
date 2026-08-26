@@ -1152,6 +1152,7 @@
     impDopplerUterinasAlterado: 'IP médio das artérias uterinas acima da normalidade (percentil 95), sugerindo risco aumentado para pré-eclâmpsia e/ou restrição de crescimento fetal.',
     impDopplerFetalNormal: 'Não há sinais de centralização de fluxo fetal.',
     impDopplerFetalAlterado: 'Sinais de centralização de fluxo fetal, sugerindo redistribuição hemodinâmica — sugere-se avaliação e acompanhamento especializado.',
+    impRcpBaixoP5: 'Relação Cérebro-Placentária abaixo do P5 — Sinal de redistribuição de fluxo fetal.',
 
     impPbf: 'PBF: {SCORE}/8.',
 
@@ -1724,9 +1725,15 @@
         items.push({key:k('placenta-previa', f), label: pre(f) + phraseRaw('impPlacentaPrevia', {INSERCAO: f.placentaInsercaoTxt}), auto:true});
       }
       if(state.dopplerFetal){
-        items.push({key:k('doppler-fetal', f), label: pre(f) + (f.dopplerFetalAlterado
-          ? phraseRaw('impDopplerFetalAlterado')
-          : phraseRaw('impDopplerFetalNormal')), auto:true});
+        let dopplerFetalLabel;
+        if(f.cprPercentilNum!=null && f.cprPercentilNum < 5){
+          dopplerFetalLabel = phraseRaw('impRcpBaixoP5');
+        } else if(f.dopplerFetalAlterado){
+          dopplerFetalLabel = phraseRaw('impDopplerFetalAlterado');
+        } else {
+          dopplerFetalLabel = phraseRaw('impDopplerFetalNormal');
+        }
+        items.push({key:k('doppler-fetal', f), label: pre(f) + dopplerFetalLabel, auto:true});
       }
       if(state.pbf){
         items.push({key:k('pbf', f), label: pre(f) + phraseRaw('impPbf', {SCORE: f.pbfScore}), auto:true});
@@ -2062,7 +2069,7 @@
       const laILAPercentil = blankOrValue(v(pre+'LaILAPercentil'));
 
       let piUmbilicalVal = {text:'____',filled:false}, piACMVal = {text:'____',filled:false};
-      let cprPercentilVal = {text:'__',filled:false}, cprTxt = '', dopplerFetalAlterado = false;
+      let cprPercentilVal = {text:'__',filled:false}, cprPercentilNum = null, cprTxt = '', dopplerFetalAlterado = false;
       if(dopplerFetal){
         piUmbilicalVal = blankOrValue(req(pre+'PiUmbilical'));
         piACMVal = blankOrValue(req(pre+'PiACM'));
@@ -2076,7 +2083,10 @@
           const pct = cprPercentil(gaDays, cprNum);
           cprPctEl.value = pct!=null ? String(Math.round(pct)) : '';
         }
-        cprPercentilVal = blankOrValue(v(pre+'CprPercentil'));
+        const cprPctRaw = v(pre+'CprPercentil');
+        cprPercentilVal = blankOrValue(cprPctRaw);
+        const cprPctParsed = parseFloat(String(cprPctRaw).replace(',', '.'));
+        cprPercentilNum = !isNaN(cprPctParsed) ? cprPctParsed : null;
         dopplerFetalAlterado = v(pre+'DopplerClassificacao')==='alterado';
       }
 
@@ -2100,7 +2110,7 @@
         dbp, cf, cc, ca, peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
         laAlterado, laDescricao, laBolsao, laILA, laILAPercentil,
-        piUmbilicalVal, piACMVal, cprTxt, cprPercentilVal, dopplerFetalAlterado,
+        piUmbilicalVal, piACMVal, cprTxt, cprPercentilVal, cprPercentilNum, dopplerFetalAlterado,
         pbfResp, pbfCorpo, pbfTono, pbfLA, pbfScore, pbfCriteriosAlterados};
     });
 
