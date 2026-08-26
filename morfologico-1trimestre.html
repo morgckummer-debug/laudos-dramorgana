@@ -1,0 +1,2877 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laudo do Morfológico de 1º Trimestre — Dra. Morgana Kummer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  .cg-overlay{position:fixed;inset:0;background:rgba(43,43,46,.55);z-index:5000;display:flex;align-items:center;justify-content:center;}
+  .cg-overlay.hide{display:none;}
+  .cg-box{background:#fff;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);padding:28px 30px;width:340px;max-width:90vw;font-family:'Inter',sans-serif;}
+  .cg-box h3{font-family:'Poppins',sans-serif;margin:0 0 4px;font-size:17px;color:#6d3263;}
+  .cg-box p{font-size:12.5px;color:#9a7e95;margin:0 0 16px;}
+  .cg-box input{width:100%;padding:10px 13px;border:1.5px solid #ebe0e9;border-radius:10px;font-size:13.5px;margin-bottom:10px;box-sizing:border-box;}
+  .cg-box button{width:100%;padding:10px;border:none;border-radius:999px;background:#ae5ba0;color:#fff;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;cursor:pointer;}
+  .cg-box button:hover{opacity:.9;}
+  .cg-err{color:#B4432F;font-size:12px;margin:-4px 0 10px;display:none;}
+  .cg-err.show{display:block;}
+  .btn-cg{background:#6d3263;color:#fff;}
+  .btn-cg:hover{opacity:.9;}
+  .cg-toast{position:fixed;bottom:24px;right:24px;background:#2b2b2e;color:#fff;padding:12px 18px;border-radius:12px;font-family:'Inter',sans-serif;font-size:13px;z-index:6000;box-shadow:0 10px 24px rgba(0,0,0,.25);max-width:320px;display:none;}
+  .cg-toast.show{display:block;}
+  .cg-toast.err{background:#B4432F;}
+  :root{
+    --bg:#f9f5f9;
+    --panel:#ffffff;
+    --ink:#2b2b2e;
+    --ink-soft:#9a7e95;
+    --rose:#ae5ba0;
+    --rose-dark:#6d3263;
+    --rose-light:#f7e9f4;
+    --rose-darker:#4d2346;
+    --sage:#6d3263;
+    --sage-light:#f7e9f4;
+    --amber:#c05a34;
+    --amber-light:#fce7dc;
+    --line:#ebe0e9;
+    --line-soft:#f9f5f9;
+    --radius-lg:26px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --shadow: 0 14px 34px rgba(109,50,99,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+    padding:18px 28px;background:var(--rose-dark);color:#fff;
+    box-shadow: var(--shadow);
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar-brand{display:flex;align-items:center;gap:16px;}
+  .logo-badge{background:#fff;border-radius:14px;padding:6px 14px;display:flex;align-items:center;box-shadow:0 6px 16px rgba(0,0,0,0.12);flex:0 0 auto;}
+  .logo-badge img{height:38px;width:auto;display:block;}
+  .topbar h1{
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;margin:0;letter-spacing:.1px;
+  }
+  .topbar .sub{font-size:12px;opacity:.85;margin-top:2px;font-weight:400;}
+  .topbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  button{
+    font-family:'Poppins',sans-serif;cursor:pointer;border:none;border-radius:999px;
+    font-size:13px;font-weight:600;padding:9px 18px;transition:transform .06s ease, opacity .15s ease;
+  }
+  button:active{transform:scale(.97);}
+  .btn-ghost{background:rgba(255,255,255,.16);color:#fff;}
+  .btn-ghost:hover{background:rgba(255,255,255,.26);}
+  .btn-primary{background:#fff;color:var(--rose-dark);}
+  .btn-primary:hover{opacity:.9;}
+  .laudo-switch, .medico-switch{
+    background:var(--rose-darker) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.25 7.5L10 12.25L14.75 7.5' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
+    background-size:14px;color:#fff;border:none;border-radius:999px;
+    font-family:'Poppins',sans-serif;cursor:pointer;font-size:13px;font-weight:600;
+    padding:9px 32px 9px 18px;-webkit-appearance:none;appearance:none;
+  }
+  .laudo-switch:hover, .medico-switch:hover{filter:brightness(1.18);}
+  .laudo-switch option, .medico-switch option{color:var(--ink);background:#fff;}
+
+  .layout{
+    display:grid;grid-template-columns: 1.15fr 1fr;gap:22px;
+    max-width:1440px;margin:0 auto;padding:22px 28px 2.5cm;
+    align-items:start;
+  }
+  @media (max-width: 980px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-lg);
+    box-shadow:var(--shadow); margin-bottom:22px; overflow:hidden;
+  }
+  .card-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, #F7F5FB, #FFFFFF);
+  }
+  .card-head h2{
+    font-family:'Poppins',sans-serif;font-size:14px;letter-spacing:.2px;
+    color:var(--rose-dark);margin:0;font-weight:600;
+  }
+  .card-body{padding:18px 20px 20px;}
+
+  .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:14px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:12px;color:var(--ink-soft);font-weight:500;}
+  .field .vr{font-size:11px;color:var(--sage);font-weight:500;}
+  .field input[type=text], .field input[type=number], .field select, .field textarea{
+    font-family:'Inter',sans-serif;font-size:13.5px;color:var(--ink);
+    padding:10px 14px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);
+    outline:none;width:100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);
+  }
+  .field input[readonly]{background:var(--line-soft);color:var(--ink-soft);cursor:not-allowed;}
+  .field input.flag-abnormal{border-color:var(--amber);background:var(--amber-light);}
+  .field input.format-error{border-color:#B4432F;background:#FBEAE6;}
+  .field input.field-missing{border-color:#B4432F;}
+  .format-warning{font-size:11px;color:#B4432F;font-weight:600;display:block;margin-top:3px;}
+  .field .flag-note{font-size:11px;color:var(--amber);font-weight:600;display:none;}
+  .field .flag-note.show{display:block;}
+
+  .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
+  .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
+
+  .subgroup{
+    border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
+  }
+  .feto-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .hint-perfeto{font-size:12px;color:var(--ink-soft);margin:2px 0 0;}
+  .feto-sub{font-size:12.5px;font-weight:700;color:var(--rose-dark);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.3px;}
+  .feto-sub:first-of-type{margin-top:4px;}
+  .conditional{display:none;}
+  .conditional.show{display:block;}
+  .field-row.conditional.show{display:grid;}
+
+  .combo-list{
+    display:none;position:fixed;z-index:1000;
+    background:var(--panel);border:1.5px solid var(--line);border-radius:var(--radius-sm);
+    box-shadow:var(--shadow);max-height:220px;overflow-y:auto;
+  }
+  .combo-list.show{display:block;}
+  .combo-list .combo-option{
+    padding:10px 14px;font-size:13.5px;color:var(--ink);cursor:pointer;
+  }
+  .combo-list .combo-option:hover, .combo-list .combo-option.active{background:var(--rose-light);}
+  .combo-list .combo-empty{padding:10px 14px;font-size:12.5px;color:var(--ink-soft);}
+
+  hr.sep{border:none;border-top:1px dashed var(--line);margin:14px 0;}
+
+  .preview-wrap{position:sticky;top:88px;}
+  .paper-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+  .paper-table thead td, .paper-table tfoot td{padding:0;border:none;height:0;}
+  .paper-table tbody td{padding:0;border:none;}
+  .paper{
+    background:#FEFCFE;border:1px solid var(--line);border-radius:4px;
+    box-shadow:var(--shadow);
+    padding:34px 36px 40px;
+    font-family:'Times New Roman', Times, serif;font-size:12pt;line-height:1.15;color:var(--ink);
+    max-height:calc(100vh - 150px);overflow-y:auto;
+    width:calc(17cm + 72px);max-width:100%;margin:0 auto;
+  }
+  .pg-break-marker{
+    margin:18px 0;padding-top:8px;border-top:1.5px dashed #b39ddb;
+    text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-soft);user-select:none;
+  }
+  /* Daqui para baixo, todo espaçamento e todo tamanho de fonte do laudo é
+     expresso em em (relativo à fonte do próprio elemento), e não em px/pt
+     fixos. Os valores foram escolhidos para render exatamente o mesmo que
+     antes na fonte padrão de 12pt (12pt = 16px, então 16px = 1em), mas agora
+     o laudo inteiro encolhe junto quando autoFitPages() reduz a fonte para
+     caber numa folha só. Com margens em px fixos, reduzir 12pt→11pt ganhava
+     só ~3,5% de altura (o texto encolhia, os espaços entre parágrafos não);
+     escalando tudo junto, o mesmo passo ganha ~8%. Ao mexer nestas regras,
+     mantenha em — um px fixo aqui volta a "travar" o auto-fit. */
+  .paper .id-card{
+    background:#ffffff;border:1.5px solid #2b2b2e;border-radius:10px;padding:0.625em 1em;margin:0 0 var(--idcard-gap, 1.25em);
+    font-weight:700;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  .paper .id-card-row{display:flex;justify-content:space-between;gap:1em;font-size:1em;}
+  .paper .id-card-row + .id-card-row{margin-top:0.125em;}
+  .paper h3.doctitle{
+    text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
+    margin:0 0 1.125em;font-weight:700;
+  }
+  .paper h3.doctitle > br:first-child{display:none;}
+  .paper .relato{color:#C0392B;font-weight:700;margin:0 0 0.75em;}
+  .paper h4.sec{
+    text-decoration:underline;font-size:0.8125em;letter-spacing:.4px;margin:1.230769em 0 0.615385em;font-weight:600;color:var(--rose-dark);
+  }
+  .paper p.linha{margin:0 0 var(--linha-margin, 1em);}
+  .paper p.linha strong{font-weight:700;}
+  .paper p.linha.tight{margin-bottom:0.125em;}
+  .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
+  .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
+  .paper table.biometria td:first-child{white-space:nowrap;}
+  /* Linha do líquido amniótico (maior bolsão + ILA): a largura da 1ª célula é
+     recalculada em JS (alignIlaColumns) a partir da própria tabela de
+     parâmetros biométricos do mesmo feto, para o "ILA" cair sempre na mesma
+     coluna vertical de CF/CA — não numa posição que varia conforme o tamanho
+     do valor do maior bolsão. */
+  .paper table.grade-la{margin-bottom:var(--linha-margin, 1em);}
+  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
+  .paper .blank{color:#B4432F;font-weight:600;}
+  .paper .filled{color:var(--ink);}
+  .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
+  .paper ul.impressao li{margin-bottom:0.125em;font-weight:700;}
+  .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:1.5em;margin-top:1em;}
+  .paper .footnote{font-style:italic;font-size:0.75em;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
+  .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
+  .paper .assinatura p{margin:0;}
+  .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:0.1875em 0.875em 0;margin-bottom:0.125em!important;}
+  .paper .assinatura-info{font-size:0.791667em;color:var(--ink-soft);}
+
+  .preview-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .preview-actions button{flex:1;min-width:110px;}
+  .btn-copy{background:var(--rose);color:#fff;}
+  .btn-copy:hover{background:var(--rose-dark);}
+  .btn-print{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  .btn-clear{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+
+  .format-toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+  .format-toolbar .fmt-btn{
+    width:34px;height:32px;padding:0;border-radius:8px;border:1.5px solid var(--line);background:#fff;color:var(--ink);
+    font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .format-toolbar .fmt-btn svg{display:block;}
+  .format-toolbar .fmt-btn:hover{border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-btn.active{background:var(--rose-light);border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-sep{width:1px;height:22px;background:var(--line);margin:0 4px;}
+  .format-toolbar .fmt-group{display:inline-flex;align-items:center;gap:6px;}
+  .format-toolbar .fmt-reset{
+    border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;
+    background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap;
+  }
+  .format-toolbar .fmt-reset:hover{border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-build{font-size:10.5px;color:var(--ink-soft);opacity:.75;margin-left:auto;white-space:nowrap;}
+  .format-toolbar label{font-size:12px;color:var(--ink-soft);}
+  .format-toolbar select{
+    border:1.5px solid var(--line);border-radius:8px;padding:5px 8px;font-size:12.5px;color:var(--ink);
+    background:#fff;cursor:pointer;
+  }
+
+  .status-pill{
+    font-size:11px;font-weight:600;padding:4px 12px;border-radius:999px;background:var(--sage-light);color:var(--rose-dark);
+    display:inline-block;margin-bottom:10px;
+  }
+  .status-pill.pending{background:var(--amber-light);color:var(--amber);}
+  .status-pill + .status-pill{margin-left:6px;}
+
+  .print-alert{
+    display:none;background:#B4432F;color:#fff;font-weight:600;font-size:13px;
+    padding:10px 14px;border-radius:10px;margin-bottom:10px;
+  }
+  .print-alert.show{display:block;}
+
+  .draft-note{
+    display:none;align-items:center;gap:10px;flex-wrap:wrap;background:var(--rose-light);color:var(--rose-dark);
+    font-size:12.5px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:10px;
+  }
+  .draft-note.show{display:flex;}
+  .draft-note button{
+    background:#fff;border:1.5px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;
+    font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;
+  }
+  .draft-note button:hover{background:var(--sage-light);}
+
+  .settings-panel{display:none;background:var(--rose-light);border-radius:var(--radius-md);padding:16px 18px;margin:0 28px 22px;max-width:1440px;}
+  .settings-panel.show{display:block;margin:0 auto 22px;}
+  .settings-panel h3{font-family:'Poppins',sans-serif;font-size:14px;margin:0 0 10px;color:var(--rose-dark);font-weight:600;}
+  .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
+  .settings-grid .field label{font-size:12px;}
+  .settings-panel .save-row{margin-top:12px;display:flex;gap:8px;align-items:center;}
+  .settings-panel .saved-msg{font-size:12px;color:var(--sage);font-weight:600;display:none;}
+
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;}
+
+  @page{
+    size: A4;
+    margin: 0;
+  }
+  @media print{
+    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note{display:none !important;}
+    /* .combo-list (a lista de médicos que aparece ao digitar) é movida para o
+       <body> para não ser cortada pelo overflow:hidden do card — ou seja, ela
+       NÃO é descendente de #formCol e não some com a regra acima. Sem esta
+       linha, mandar imprimir com a lista aberta (digitar o nome do médico e
+       dar Ctrl+P sem clicar fora antes) imprimia o dropdown por cima do
+       laudo. */
+    .combo-list{display:none !important;}
+    .pg-break-marker{display:none !important;}
+    .layout{display:block;padding:0;margin:0;max-width:none;}
+    .preview-wrap{position:static;}
+    .paper-table thead td{height:3.5cm;}
+    .paper-table tfoot td{height:2cm;}
+    .paper-table tbody td{padding:0 2cm;}
+    .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
+
+    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria{page-break-inside:avoid;}
+    .paper h4.sec{page-break-after:avoid;}
+
+    .paper .print-page + .print-page{page-break-before:always;}
+    .paper .continua{font-style:italic;font-size:0.833333em;text-align:right;margin:0;}
+    .paper .print-page .rodape-final{margin-top:0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="cg-overlay" id="cgLoginOverlay">
+  <div class="cg-box">
+    <h3>Entrar</h3>
+    <p>Login da Curva de Crescimento — necessário para salvar exames na pasta da paciente.</p>
+    <input type="email" id="cgEmail" placeholder="E-mail" autocomplete="username">
+    <input type="password" id="cgSenha" placeholder="Senha" autocomplete="current-password">
+    <div class="cg-err" id="cgLoginErr"></div>
+    <button id="cgBtnLogin">Entrar</button>
+  </div>
+</div>
+<div class="cg-toast" id="cgToast"></div>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="logo-badge"><img src="logo.png" alt="Clínica de Ultrassom — Dra. Morgana Kummer"></div>
+    <div>
+      <h1>Ultrassom Obstétrico Morfológico de 1º Trimestre</h1>
+      <div class="sub">Dra. Morgana Kummer · avaliação morfológica, marcadores de trissomias, Doppler das uterinas e rastreamento de pré-eclâmpsia</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <select class="medico-switch" id="medicoExecutante" title="Médico executante do exame">
+      <option value="morgana">Dra. Morgana Kummer</option>
+      <option value="barbara">Dra. Bárbara R. Moreira</option>
+      <option value="paulo">Dr. Paulo M. Gontijo Junior</option>
+      <option value="carolina">Dra. Carolina P. Martins</option>
+      <option value="outro">Outro (digitar manualmente)</option>
+    </select>
+    <select class="laudo-switch" id="laudoSwitch" onchange="if(this.value) location.href=this.value;" title="Trocar de laudo">
+      <option value="index.html">Todos os laudos</option>
+      <option value="transvaginal.html">Transvaginal</option>
+      <option value="obstetrico-1trimestre.html">Obstétrico — 1º Trimestre</option>
+      <option value="morfologico-1trimestre.html" selected>Morfológico — 1º Trimestre</option>
+      <option value="obstetrico.html">Obstétrico — 2º/3º Trimestre</option>
+    </select>
+    <button class="btn-ghost" id="btnSettings">Assinatura do laudo</button>
+    <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
+    <button class="btn-ghost" id="btnReset">Limpar</button>
+  </div>
+</div>
+
+<div class="settings-panel" id="settingsPanel">
+  <h3>Identificação do médico (assinatura do laudo)</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Nome do médico (assinatura)</label><input type="text" id="vr_medicoNome" value="Dra. Morgana Fialho Caldas Kummer"></div>
+    <div class="field"><label>Qualificação (linha 1)</label><input type="text" id="vr_medicoQual1" value="Especialista em Ultrassonografia Geral pelo CBR."></div>
+    <div class="field"><label>Qualificação (linha 2)</label><input type="text" id="vr_medicoQual2" value="Pós-Graduação em Medicina Fetal pela FCMMG."></div>
+    <div class="field"><label>CRM / RQE</label><input type="text" id="vr_medicoCRM" value="CRMMG: 45.304 - RQE: 39.156"></div>
+  </div>
+  <div class="save-row">
+    <button class="btn-copy" id="btnSaveVR">Salvar</button>
+    <span class="saved-msg" id="vrSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="settings-panel" id="phrasesPanel">
+  <h3>Personalizar frases do laudo</h3>
+  <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases usadas automaticamente conforme o que você marca no formulário. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui.</p>
+
+  <h3>Ao exame — útero, placenta e colo</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Útero e saco gestacional</label><textarea id="ph_uteroTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta — use {INSERCAO}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo uterino — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Avaliação morfológica fetal — textos normais</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Crânio / cérebro</label><textarea id="ph_morfoCranio" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Face</label><textarea id="ph_morfoFace" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Tórax / coração</label><textarea id="ph_morfoTorax" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Abdome</label><textarea id="ph_morfoAbdome" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Coluna</label><textarea id="ph_morfoColuna" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Extremidades</label><textarea id="ph_morfoExtremidades" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cordão umbilical — use {VASOS}</label><textarea id="ph_morfoCordao" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Impressões diagnósticas</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação — use {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar — use {CORIONICIDADE}, {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Sem anomalias estruturais maiores</label><textarea id="ph_impSemAnomalias" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Achado morfológico alterado — use {SEGMENTO} e {DESCRICAO}</label><textarea id="ph_impMorfoAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Baixo risco para cromossomopatias</label><textarea id="ph_impCromossomopatiasBaixo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Risco aumentado para cromossomopatias</label><textarea id="ph_impCromossomopatiasAlto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>IP médio das uterinas — use {PERCENTIL}</label><textarea id="ph_impUterinas" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pré-eclâmpsia — opção 1 (baixo risco) — use {RISCO}</label><textarea id="ph_impPreEclampsia1" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pré-eclâmpsia — opção 2 (risco aumentado, PA e/ou IP alterados) — use {RISCO}</label><textarea id="ph_impPreEclampsia2" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pré-eclâmpsia — opção 3 (risco aumentado, PA e IP normais) — use {RISCO}</label><textarea id="ph_impPreEclampsia3" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo normal</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo curto</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Recomendação final</label><textarea id="ph_impMorfologico2T" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Rodapé</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Nota final</label><textarea id="ph_footerImagens" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <div class="save-row">
+    <button class="btn-copy" id="btnSavePhrases">Salvar frases</button>
+    <button class="btn-clear" id="btnResetPhrases">Restaurar padrão</button>
+    <span class="saved-msg" id="phrasesSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- FORM COLUMN -->
+  <div id="formCol">
+
+    <div class="card">
+      <div class="card-head"><h2>Dados do exame</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+          <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
+          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
+          <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
+          <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Idade materna (anos)</label><input type="text" inputmode="numeric" id="idadeMaterna" placeholder="anos"></div>
+          <div class="field"><label>Peso (kg)</label><input type="text" inputmode="decimal" data-decimals="1" id="pesoMaterno" placeholder="kg"></div>
+          <div class="field"><label>Altura (cm)</label><input type="text" inputmode="numeric" id="alturaMaterna" placeholder="cm"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>IMC (calculado)</label><input type="text" id="imcCalc" readonly placeholder="calculado automaticamente"></div>
+          <div class="field"><label>Pressão arterial (mmHg)</label><input type="text" id="pressaoArterial" placeholder="ex: 110x70"></div>
+        </div>
+        <div class="field"><label>Em uso de — opcional</label><textarea id="medicacoes" rows="2" placeholder="ex: ácido fólico; AAS 100 mg..."></textarea></div>
+        <div class="field" style="margin-top:14px;"><label>Motivo do exame (&quot;Relato de...&quot;) — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: rastreamento de aneuploidias..."></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Idade gestacional</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>DUM (data da última menstruação)</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+          <div class="field"><label>IG atual</label><input type="text" id="igAtual" placeholder="calculada automaticamente" readonly></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Idade gestacional calculada com base em</label>
+            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">Ultrassom de datação (1º trimestre)</option><option value="exame">IG informada neste exame</option></select>
+          </div>
+        </div>
+        <div class="field-row conditional" id="wrap_usgDatacao">
+          <div class="field"><label>Data do ultrassom de datação</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+          <div class="field"><label>IG no ultrassom de datação — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
+          <div class="field"><label>IG no ultrassom de datação — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_exameInfo">
+          <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 12"></div>
+          <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Gestação</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Número de fetos</label>
+            <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
+          </div>
+          <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade / amnionicidade</label>
+            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Ao exame — útero, placenta e colo</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Inserção placentária</label>
+            <select id="placentaInsercao"><option value="anterior">Parede anterior</option><option value="posterior">Parede posterior</option><option value="fúndica">Fúndica</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option></select>
+          </div>
+          <div class="field"><label>Comprimento do colo uterino (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="fetosContainer"></div>
+    <button type="button" class="btn-clear" id="btnAddFeto" style="margin:-8px 0 22px;">+ Adicionar feto</button>
+
+    <div class="card">
+      <div class="card-head"><h2>Doppler</h2></div>
+      <div class="card-body">
+        <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno" checked><label for="chkDopplerMaterno">Dopplerfluxometria materna (artérias uterinas)</label></div>
+        <div id="dopplerMaternoFields" class="conditional show">
+          <div class="field-row">
+            <div class="field"><label>IP artéria uterina direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder="ex: 1,45"></div>
+            <div class="field"><label>IP artéria uterina esquerda</label><input type="text" inputmode="decimal" data-decimals="2" id="utEsquerda" placeholder="ex: 1,30"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>IP médio (calculado)</label><input type="text" id="utMedioCalc" readonly placeholder="calculado automaticamente"></div>
+            <div class="field"><label>Percentil calculado (Gómez et al., 2008)</label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Rastreamento de pré-eclâmpsia (FMF)</h2></div>
+      <div class="card-body">
+        <div class="toggle-line"><input type="checkbox" id="chkPreEclampsia" checked><label for="chkPreEclampsia">Incluir rastreamento combinado de pré-eclâmpsia pré-termo</label></div>
+        <div id="preEclampsiaFields" class="conditional show">
+          <div class="field-row">
+            <div class="field"><label>Risco calculado pela FMF — 1 para</label><input type="text" inputmode="numeric" id="preEclampsiaRisco" placeholder="ex: 250"></div>
+            <div class="field"><label>Texto da impressão</label>
+              <select id="preEclampsiaOpcao">
+                <option value="1">Opção 1 — baixo risco</option>
+                <option value="2">Opção 2 — risco aumentado (PA e/ou IP alterados)</option>
+                <option value="3">Opção 3 — risco aumentado (PA e IP normais)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Impressões diagnósticas</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
+        <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- PREVIEW COLUMN -->
+  <div class="preview-wrap">
+    <span class="status-pill" id="statusPill">0 campos pendentes</span>
+    <span class="status-pill" id="pageCountPill">1 página</span>
+    <span class="status-pill" id="draftPill" style="display:none;" title="O laudo é salvo sozinho neste navegador enquanto você digita"></span>
+    <div class="print-alert" id="printAlert">⚠ Ainda há campos não preenchidos — corrija antes de imprimir.</div>
+    <div class="draft-note" id="draftNote">
+      <span id="draftNoteText"></span>
+      <button type="button" id="btnDraftDiscard">Fechar aviso</button>
+    </div>
+    <div class="format-toolbar" id="formatToolbar">
+      <button type="button" class="fmt-btn" id="fmtBold" title="Negrito (Ctrl+B)"><b>N</b></button>
+      <button type="button" class="fmt-btn" id="fmtItalic" title="Itálico (Ctrl+I)"><i>I</i></button>
+      <button type="button" class="fmt-btn" id="fmtUnderline" title="Sublinhado (Ctrl+U)"><u>S</u></button>
+      <span class="fmt-sep"></span>
+      <button type="button" class="fmt-btn" id="fmtAlignLeft" title="Alinhar à esquerda">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="10" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="10" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignCenter" title="Centralizar">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="3.5" y1="6.5" x2="12.5" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="3.5" y1="13.5" x2="12.5" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignRight" title="Alinhar à direita">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="6" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="6" y1="13.5" x2="15" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignJustify" title="Justificar">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="15" y2="13.5"/></svg>
+      </button>
+      <span class="fmt-sep"></span>
+      <span class="fmt-group">
+        <label for="fmtLineHeight">Espaçamento entre linhas (todo o laudo)</label>
+        <select id="fmtLineHeight" title="Espaçamento entre linhas (todo o laudo)">
+          <option value="1">Mínimo</option>
+          <option value="1.15" selected>Compacto</option>
+          <option value="1.35">Estreito</option>
+          <option value="1.5">Normal</option>
+          <option value="1.8">Largo</option>
+        </select>
+      </span>
+      <span class="fmt-sep"></span>
+      <span class="fmt-group">
+        <label for="fmtIdCardGap">Espaço só acima do título</label>
+        <select id="fmtIdCardGap" title="Espaço só acima do título (não mexe no resto do laudo)">
+          <option value="0">Nenhum</option>
+          <option value="1">1 mm</option>
+          <option value="2">2 mm</option>
+          <option value="3">3 mm</option>
+          <option value="default" selected>5 mm (padrão)</option>
+          <option value="8">8 mm</option>
+          <option value="12">12 mm</option>
+          <option value="16">16 mm</option>
+          <option value="20">20 mm</option>
+        </select>
+      </span>
+      <span class="fmt-sep"></span>
+      <span class="fmt-group">
+        <label for="fmtFontSize">Tamanho da fonte</label>
+        <select id="fmtFontSize" title="Tamanho da fonte">
+          <option value="10.5">10,5 pt</option>
+          <option value="11">11 pt</option>
+          <option value="11.5">11,5 pt</option>
+          <option value="12" selected>12 pt (padrão)</option>
+          <option value="12.5">12,5 pt</option>
+          <option value="13">13 pt</option>
+          <option value="14">14 pt</option>
+          <option value="15">15 pt</option>
+          <option value="16">16 pt</option>
+          <option value="17">17 pt</option>
+          <option value="18">18 pt</option>
+        </select>
+      </span>
+      <span class="fmt-sep"></span>
+      <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.23-a</span>
+    </div>
+    <table class="paper-table">
+      <thead><tr><td></td></tr></thead>
+      <tfoot><tr><td></td></tr></tfoot>
+      <tbody><tr><td><div class="paper" id="paper" contenteditable="true" spellcheck="false"></div></td></tr></tbody>
+    </table>
+    <div class="preview-actions">
+      <button class="btn-print" id="btnPrint">Imprimir / PDF</button>
+      <button class="btn-clear" id="btnDownloadWord">Baixar Word</button>
+      <button class="btn-cg" id="btnSalvarCG">Salvar na Curva de Crescimento</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+
+  // ---------- Storage: uses Claude's window.storage when available (in-chat preview),
+  // falls back to the browser's own localStorage everywhere else. ----------
+  const kvStore = {
+    async get(key){
+      try{
+        if(window.storage && typeof window.storage.get === 'function'){
+          const r = await window.storage.get(key, false);
+          return r ? r.value : null;
+        }
+      }catch(e){ /* fall through to localStorage */ }
+      try{ return localStorage.getItem(key); }catch(e){ return null; }
+    },
+    async set(key, value){
+      try{
+        if(window.storage && typeof window.storage.set === 'function'){
+          await window.storage.set(key, value, false);
+          return;
+        }
+      }catch(e){ /* fall through to localStorage */ }
+      try{ localStorage.setItem(key, value); }catch(e){ /* storage unavailable this session */ }
+    },
+    async remove(key){
+      try{
+        if(window.storage && typeof window.storage.remove === 'function'){
+          await window.storage.remove(key);
+          return;
+        }
+      }catch(e){ /* fall through to localStorage */ }
+      try{ localStorage.removeItem(key); }catch(e){ /* storage unavailable this session */ }
+    }
+  };
+
+  let titleFontSize = null;
+
+  let impressaoOverrides = {};
+
+  // ---------- Block-level reconciliation: each top-level paragraph/section of
+  // the laudo is rendered as one "block" keyed by a stable id. See
+  // obstetrico-1trimestre.html for the full rationale — same mechanism here. ----------
+  let lastBlockHtml = {};
+
+  // Ligado só enquanto o rascunho salvo está sendo recolocado no formulário:
+  // render() sai na hora (seria chamado uma vez por campo restaurado) e o
+  // autosave não regrava por cima do que ainda está sendo lido. Declarado aqui,
+  // junto do estado que ele protege, e não lá embaixo com o resto do rascunho,
+  // para já existir antes do primeiro render().
+  let draftRestoring = false;
+  function renderBlocks(blocks){
+    const paperEl = $('paper');
+    let prevNode = null;
+    const keepIds = new Set();
+    blocks.forEach(b=>{
+      keepIds.add(b.id);
+      let node = paperEl.querySelector(':scope > [data-blk="'+b.id+'"]');
+      if(!node || lastBlockHtml[b.id] !== b.html){
+        const tmp = document.createElement('div');
+        tmp.innerHTML = b.html;
+        const fresh = tmp.firstElementChild;
+        fresh.setAttribute('data-blk', b.id);
+        if(node) node.replaceWith(fresh);
+        node = fresh;
+        lastBlockHtml[b.id] = b.html;
+      }
+      const wantedNext = prevNode ? prevNode.nextSibling : paperEl.firstChild;
+      if(wantedNext !== node) paperEl.insertBefore(node, wantedNext);
+      prevNode = node;
+    });
+    Array.from(paperEl.querySelectorAll(':scope > [data-blk]')).forEach(el=>{
+      const id = el.getAttribute('data-blk');
+      if(!keepIds.has(id)){ el.remove(); delete lastBlockHtml[id]; }
+    });
+  }
+
+  // ---------- Format toolbar: bold/italic/underline/align + line-height + font-size ----------
+  (function(){
+    const paperEl = $('paper');
+    const btnBold = $('fmtBold');
+    const btnItalic = $('fmtItalic');
+    const btnUnderline = $('fmtUnderline');
+    const lineHeightSel = $('fmtLineHeight');
+    const alignButtons = [
+      [$('fmtAlignLeft'), 'justifyLeft'],
+      [$('fmtAlignCenter'), 'justifyCenter'],
+      [$('fmtAlignRight'), 'justifyRight'],
+      [$('fmtAlignJustify'), 'justifyFull'],
+    ];
+
+    function updateFormatButtons(){
+      try{
+        btnBold.classList.toggle('active', document.queryCommandState('bold'));
+        btnItalic.classList.toggle('active', document.queryCommandState('italic'));
+        btnUnderline.classList.toggle('active', document.queryCommandState('underline'));
+        alignButtons.forEach(([btn, cmd])=>btn.classList.toggle('active', document.queryCommandState(cmd)));
+      }catch(e){ /* queryCommandState unsupported */ }
+    }
+    function applyFormat(cmd){
+      paperEl.focus();
+      document.execCommand(cmd, false, null);
+      updateFormatButtons();
+    }
+    const allFmtButtons = [btnBold, btnItalic, btnUnderline, ...alignButtons.map(([btn])=>btn)];
+    allFmtButtons.forEach(btn=>btn.addEventListener('mousedown', e=>e.preventDefault()));
+    btnBold.addEventListener('click', ()=>applyFormat('bold'));
+    btnItalic.addEventListener('click', ()=>applyFormat('italic'));
+    btnUnderline.addEventListener('click', ()=>applyFormat('underline'));
+    alignButtons.forEach(([btn, cmd])=>btn.addEventListener('click', ()=>applyFormat(cmd)));
+    paperEl.addEventListener('keyup', updateFormatButtons);
+    paperEl.addEventListener('mouseup', updateFormatButtons);
+    paperEl.addEventListener('keydown', e=>{
+      const mod = e.ctrlKey || e.metaKey;
+      if(!mod) return;
+      if(e.key === 'b' || e.key === 'B'){ e.preventDefault(); applyFormat('bold'); }
+      else if(e.key === 'i' || e.key === 'I'){ e.preventDefault(); applyFormat('italic'); }
+      else if(e.key === 'u' || e.key === 'U'){ e.preventDefault(); applyFormat('underline'); }
+    });
+
+    function cursorNoInicioDoTitulo(range){
+      const titleEl = paperEl.querySelector('h3.doctitle');
+      if(!titleEl || !range.collapsed || !titleEl.contains(range.startContainer)) return null;
+      const antes = document.createRange();
+      antes.selectNodeContents(titleEl);
+      antes.setEnd(range.startContainer, range.startOffset);
+      return antes.toString().length === 0 ? titleEl : null;
+    }
+    function passoEspacoTitulo(direcao){
+      const i = idCardGapSel.selectedIndex + direcao;
+      if(i < 0 || i >= idCardGapSel.options.length) return;
+      idCardGapSel.selectedIndex = i;
+      idCardGapSel.dispatchEvent(new Event('change'));
+    }
+    paperEl.addEventListener('keydown', e=>{
+      if(e.key !== 'Enter' && e.key !== 'Backspace') return;
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+
+      if(cursorNoInicioDoTitulo(range)){
+        e.preventDefault();
+        passoEspacoTitulo(e.key === 'Enter' ? 1 : -1);
+        return;
+      }
+      if(e.key !== 'Enter') return;
+
+      const anchorNode = sel.anchorNode;
+      const anchorEl = anchorNode ? (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement) : null;
+      if(anchorEl && anchorEl.closest('h3.doctitle')){
+        e.preventDefault();
+        document.execCommand('insertLineBreak');
+      }
+    });
+
+    let lastPaperSelectionRange = null;
+    document.addEventListener('selectionchange', ()=>{
+      const sel = window.getSelection();
+      if(sel && sel.rangeCount && !sel.isCollapsed && paperEl.contains(sel.anchorNode) && paperEl.contains(sel.focusNode)){
+        lastPaperSelectionRange = sel.getRangeAt(0).cloneRange();
+      }
+    });
+    function captureSelectionInPaper(){
+      const range = lastPaperSelectionRange;
+      lastPaperSelectionRange = null;
+      return range;
+    }
+    function wrapSelectionInStyledSpan(range, applyStyle){
+      const span = document.createElement('span');
+      applyStyle(span.style);
+      try{
+        range.surroundContents(span);
+      }catch(e){
+        const contents = range.extractContents();
+        span.appendChild(contents);
+        range.insertNode(span);
+      }
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      const newRange = document.createRange();
+      newRange.selectNodeContents(span);
+      sel.addRange(newRange);
+    }
+
+    // Os valores abaixo eram mm absolutos ("2 mm" etc, como nos rótulos do
+    // seletor). Em em, eles rendem exatamente a mesma medida na fonte padrão
+    // de 12pt e passam a encolher junto quando o auto-fit reduz a fonte para
+    // caber numa folha só — com mm fixos, o espaço entre parágrafos ficava
+    // do mesmo tamanho e travava boa parte do ganho da redução.
+    const LINE_HEIGHT_MARGIN = {'1':'0.236em', '1.15':'0.472em', '1.35':'0.709em', '1.5':'0.945em', '1.8':'1.417em'};
+    lineHeightSel.addEventListener('change', ()=>{
+      const range = captureSelectionInPaper();
+      const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '1em';
+      if(range){
+        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, p.recomendacao')).filter(el=> range.intersectsNode(el));
+        if(paragraphs.length > 1){
+          paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; el.style.marginBottom = margin; });
+        } else {
+          wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
+          paragraphs.forEach(el=>{ el.style.marginBottom = margin; });
+        }
+      } else {
+        paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
+          el.style.lineHeight = '';
+          if(!el.getAttribute('style')) el.removeAttribute('style');
+        });
+        paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(el=>{ el.style.marginBottom = ''; });
+        paperEl.style.lineHeight = lineHeightSel.value;
+        paperEl.style.setProperty('--linha-margin', margin);
+        kvStore.set('paper-line-height', lineHeightSel.value);
+      }
+    });
+
+    const idCardGapSel = $('fmtIdCardGap');
+    const IDCARD_GAP_MARGIN = {'default':'1.25em', '0':'0', '1':'0.236em', '2':'0.472em', '3':'0.709em', '8':'1.89em', '12':'2.835em', '16':'3.78em', '20':'4.724em'};
+    idCardGapSel.addEventListener('change', ()=>{
+      const val = idCardGapSel.value;
+      if(val === 'default'){
+        paperEl.style.removeProperty('--idcard-gap');
+        kvStore.remove('idcard-gap');
+      } else {
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[val] || '1.25em');
+        kvStore.set('idcard-gap', val);
+      }
+    });
+
+    function resetEspacamentos(){
+      paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
+        el.style.lineHeight = '';
+        if(!el.getAttribute('style')) el.removeAttribute('style');
+      });
+      paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(el=>{ el.style.marginBottom = ''; });
+      paperEl.style.lineHeight = '';
+      paperEl.style.removeProperty('--linha-margin');
+      paperEl.style.removeProperty('--idcard-gap');
+      lineHeightSel.value = '1.15';
+      idCardGapSel.value = 'default';
+      kvStore.remove('paper-line-height');
+      kvStore.remove('idcard-gap');
+    }
+    $('fmtResetSpacing').addEventListener('click', resetEspacamentos);
+
+    (async function initLineSpacingPrefs(){
+      const saved = await kvStore.get('paper-line-height');
+      if(saved){
+        lineHeightSel.value = saved;
+        paperEl.style.lineHeight = saved;
+        paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '1em');
+      }
+      const savedGap = await kvStore.get('idcard-gap');
+      if(savedGap){
+        idCardGapSel.value = savedGap;
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[savedGap] || '1.25em');
+      }
+    })();
+
+    const fontSizeSel = $('fmtFontSize');
+    fontSizeSel.addEventListener('change', ()=>{
+      const size = fontSizeSel.value;
+      const range = captureSelectionInPaper();
+      const titleEl = paperEl.querySelector('h3.doctitle');
+      if(range && titleEl && titleEl.contains(range.commonAncestorContainer)){
+        titleFontSize = size;
+        kvStore.set('title-font-size', size);
+        titleEl.style.fontSize = size + 'pt';
+      } else if(range){
+        wrapSelectionInStyledSpan(range, style=>{ style.fontSize = size + 'pt'; });
+      } else {
+        paperEl.style.fontSize = size + 'pt';
+        kvStore.set('paper-font-size', size);
+      }
+    });
+    document.addEventListener('selectionchange', ()=>{
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount) return;
+      const node = sel.anchorNode;
+      if(!node || !paperEl.contains(node)) return;
+      const el = node.nodeType === 3 ? node.parentElement : node;
+      if(!el) return;
+      const px = parseFloat(getComputedStyle(el).fontSize);
+      if(isNaN(px)) return;
+      const pt = px / (96/72);
+      let closest = null, closestDiff = Infinity;
+      Array.from(fontSizeSel.options).forEach(o=>{
+        const diff = Math.abs(parseFloat(o.value) - pt);
+        if(diff < closestDiff){ closest = o; closestDiff = diff; }
+      });
+      if(closest && closestDiff < 0.4) fontSizeSel.value = closest.value;
+    });
+    (async function initFontSizePrefs(){
+      const savedPaper = await kvStore.get('paper-font-size');
+      if(savedPaper){
+        fontSizeSel.value = savedPaper;
+        paperEl.style.fontSize = savedPaper + 'pt';
+      }
+      const savedTitle = await kvStore.get('title-font-size');
+      if(savedTitle){
+        titleFontSize = savedTitle;
+        const titleEl = paperEl.querySelector('h3.doctitle');
+        if(titleEl) titleEl.style.fontSize = savedTitle + 'pt';
+      }
+    })();
+  })();
+
+  // ---------- Médico solicitante: hand-rolled combobox (shared list across laudos) ----------
+  (function(){
+    const DEFAULT_MEDICOS = [
+      'Dra. Alice Maciel F. e Santos',
+      'Dra. Aline Torres Alves',
+      'Dra. Ana Rita de Paiva Toledo',
+      'Dr. Antônio José Lobo Ribeiro',
+      'Dr. Carlos Alberto F. Silva',
+      'Dra. Cíntia Aparecida S. Oliveira',
+      'Dra. Cristiane M. Gontijo Campos',
+      'Dra. Daniela Cristina M. Tameirão',
+      'Dr. Enilton Barbosa de Araújo',
+      'Dr. Flávio Pimenta Silveira',
+      'Dra. Galia Marichal Manso',
+      'Dr. Gilton de Menezes',
+      'Dra. Iasmine Corrêa Lanza',
+      'Dr. Jahir Richard de Oliveira',
+      'Dr. João Alberto de B. Ribeiro',
+      'Dr. Kleyton W. Pereira Tomaz',
+      'Dra. Lorenza Rafaela F. Magnago',
+      'Dra. Luciane Lopes F. Sader',
+      'Dra. Luciene Ferreira Calazans',
+      'Dra. Marcela Fernanda F. Cólen',
+      'Dra. Maria Soeli Lanza Meirelles',
+      'Dra. Mayana Lobo de Almeida',
+      'Dra. Patrícia J. Schwenck de Carvalho',
+      'Dra. Priscila R. Baleeiro Marcos',
+      'Dra. Rejane Márcia de Abreu',
+      'Dr. Robson Gonçalves',
+      'Dr. Rogério Vicente de L. Ferreira',
+      'Dr. Samir de P. Abdo Zacarias',
+      'Dr. Samuel Conrado de O. Mourão',
+      'Dra. Samyle O. Vasconcelos Marino',
+      'Dra. Tatiane Ventura Gonçalves',
+      'Dr. Wagner Pinheiro P. Villafort'
+    ];
+    const input = $('medicoSolicitante');
+    const listEl = $('medicosComboList');
+    let customMedicos = [];
+    let currentMatches = [];
+    let activeIndex = -1;
+
+    document.body.appendChild(listEl);
+
+    function allMedicos(){ return DEFAULT_MEDICOS.concat(customMedicos); }
+
+    function positionList(){
+      const r = input.getBoundingClientRect();
+      listEl.style.left = r.left + 'px';
+      listEl.style.top = (r.bottom + 4) + 'px';
+      listEl.style.width = r.width + 'px';
+    }
+
+    function highlight(idx){
+      activeIndex = idx;
+      Array.from(listEl.children).forEach((el, i)=> el.classList.toggle('active', i===activeIndex));
+    }
+
+    function renderList(){
+      const q = input.value.trim().toLowerCase();
+      currentMatches = q ? allMedicos().filter(n=> n.toLowerCase().includes(q)) : allMedicos();
+      activeIndex = -1;
+      listEl.innerHTML = currentMatches.length
+        ? currentMatches.map((n, i)=> '<div class="combo-option" data-idx="'+i+'">'+escapeHtml(n)+'</div>').join('')
+        : '<div class="combo-empty">Nenhum nome encontrado — o que você digitar será salvo.</div>';
+    }
+
+    function showList(){
+      renderList();
+      positionList();
+      listEl.classList.add('show');
+    }
+    function hideList(){ listEl.classList.remove('show'); }
+    function repositionIfVisible(){ if(listEl.classList.contains('show')) positionList(); }
+
+    function selectValue(val){
+      input.value = val;
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+      input.dispatchEvent(new Event('change', {bubbles:true}));
+      hideList();
+    }
+
+    input.addEventListener('focus', showList);
+    input.addEventListener('input', showList);
+    input.addEventListener('blur', ()=>{ setTimeout(hideList, 150); });
+    input.addEventListener('keydown', e=>{
+      if(!listEl.classList.contains('show') || !currentMatches.length) return;
+      if(e.key === 'ArrowDown'){ e.preventDefault(); highlight(Math.min(activeIndex+1, currentMatches.length-1)); }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); highlight(Math.max(activeIndex-1, 0)); }
+      else if(e.key === 'Enter'){ if(activeIndex>=0){ e.preventDefault(); selectValue(currentMatches[activeIndex]); } }
+      else if(e.key === 'Escape'){ hideList(); }
+    });
+    listEl.addEventListener('mousedown', e=> e.preventDefault());
+    listEl.addEventListener('click', e=>{
+      const opt = e.target.closest('.combo-option');
+      if(!opt) return;
+      selectValue(currentMatches[Number(opt.dataset.idx)]);
+    });
+    window.addEventListener('resize', repositionIfVisible);
+    window.addEventListener('scroll', repositionIfVisible, true);
+
+    kvStore.get('custom-medicos').then(saved=>{
+      if(!saved) return;
+      try{ customMedicos = JSON.parse(saved); }catch(e){ customMedicos = []; }
+    });
+
+    input.addEventListener('change', ()=>{
+      const val = input.value.trim();
+      if(!val) return;
+      const exists = allMedicos().some(n=> n.toLowerCase()===val.toLowerCase());
+      if(!exists){
+        customMedicos.push(val);
+        kvStore.set('custom-medicos', JSON.stringify(customMedicos));
+      }
+    });
+  })();
+
+  // ---------- Numeric format rules: digit required before comma, max N decimal places ----------
+  function showFormatWarning(el, show, message){
+    let msg = el.parentElement.querySelector('.format-warning');
+    if(show){
+      el.classList.add('format-error');
+      if(!msg){
+        msg = document.createElement('span');
+        msg.className = 'format-warning';
+        el.insertAdjacentElement('afterend', msg);
+      }
+      msg.textContent = message;
+    } else {
+      el.classList.remove('format-error');
+      if(msg) msg.remove();
+    }
+  }
+  function sanitizeChars(el){
+    const cleaned = el.value.replace(/[^0-9,.]/g, '');
+    if(cleaned !== el.value) el.value = cleaned;
+  }
+  function decimalFormatOk(el){
+    const maxDecimals = parseInt(el.dataset.decimals || '0', 10);
+    const maxInt = parseInt(el.dataset.maxint || '0', 10);
+    const normalized = el.value.replace(/\./g, ',');
+    if(normalized === '') return true;
+    const intPart = maxInt > 0 ? ('\\d{1,'+maxInt+'}') : '\\d+';
+    return maxDecimals <= 0
+      ? new RegExp('^'+intPart+'$').test(normalized)
+      : new RegExp('^'+intPart+'(,\\d{1,'+maxDecimals+'})?$').test(normalized);
+  }
+  function isValidDecimal(el){
+    if(!decimalFormatOk(el)) return false;
+    const normalized = el.value.replace(/\./g, ',');
+    if(normalized === '' || el.dataset.max === undefined) return true;
+    const num = parseFloat(normalized.replace(',', '.'));
+    return isNaN(num) || num <= parseFloat(el.dataset.max);
+  }
+  function checkDecimalFormat(el){
+    sanitizeChars(el);
+    const maxDecimals = parseInt(el.dataset.decimals || '0', 10);
+    const maxInt = parseInt(el.dataset.maxint || '0', 10);
+    let message = maxDecimals <= 0
+      ? 'Revise o número — apenas dígitos, sem vírgula.'
+      : (maxInt > 0
+        ? 'Revise o número — até '+maxInt+' algarismo'+(maxInt>1?'s':'')+' antes da vírgula e '+maxDecimals+' depois (ex: '+('9'.repeat(maxInt))+',0).'
+        : 'Revise o número — precisa de um algarismo antes da vírgula (ex: 1,2).');
+    if(decimalFormatOk(el) && el.dataset.max !== undefined){
+      message = 'Revise o número — valor máximo aceito: '+el.dataset.max.replace('.',',')+'.';
+    }
+    showFormatWarning(el, !isValidDecimal(el), message);
+  }
+  function wireDecimalInputs(){
+    document.querySelectorAll('input[data-decimals]').forEach(el=>{
+      if(el.dataset.decimalsWired) return;
+      el.dataset.decimalsWired = '1';
+      el.addEventListener('input', ()=>{
+        sanitizeChars(el);
+        if(isValidDecimal(el)) showFormatWarning(el, false);
+      });
+      el.addEventListener('blur', ()=> checkDecimalFormat(el));
+    });
+  }
+  wireDecimalInputs();
+
+  // ---------- Customizable report phrases ----------
+  const PHRASE_DEFAULTS = {
+    uteroTexto: 'Útero de volume aumentado e contornos normais, contendo em seu interior saco gestacional regular.',
+    placentaTexto: 'Placenta de inserção na parede {INSERCAO} do útero, de aspecto e espessura normais.',
+    coloTexto: 'Colo uterino apresentando orifícios interno e externo fechados e comprimento de {MEDIDA} mm.',
+
+    morfoCranio: 'Calota craniana íntegra, com contornos regulares e conformação normal. Foice do cérebro de aspecto normal. Ventrículos laterais normais. Pedúnculo cerebral, cisterna magna e 4º ventrículo de aspectos usuais. "Crash-sign" ausente.',
+    morfoFace: 'Perfil usual. Ausência de retromicrognatia. Triângulo facial de aspecto usual e presença do Gap Mandibular.',
+    morfoTorax: 'Coração em levocardia apresentando dimensões usuais.',
+    morfoAbdome: 'A bexiga e a bolha gástrica foram identificadas e apresentam aspectos normais. Parede abdominal íntegra com cordão umbilical normoinserido. Rins identificados bilateralmente.',
+    morfoColuna: 'Conformação anatômica nos cortes transversal, coronal e sagital.',
+    morfoExtremidades: 'Os membros superiores e inferiores apresentam aspecto normal em seus diferentes segmentos. Mãos e pés de conformação usual. Ecogenicidade óssea normal.',
+    morfoCordao: 'Presença de {VASOS}.',
+
+    impGestacao: 'Gestação única, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com a DUM/primeira ecografia.',
+    impGestacaoMultipla: 'Gestação gemelar, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com a DUM/primeira ecografia.',
+    impGestacaoTrigemelar: 'Gestação trigemelar, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com a DUM/primeira ecografia.',
+    impSemAnomalias: 'Não evidenciamos nenhuma anomalia estrutural maior, passível de identificação para essa idade gestacional.',
+    impMorfoAlterado: '{SEGMENTO}: {DESCRICAO}.',
+    impCromossomopatiasBaixo: 'Os sinais ultrassonográficos indicam baixo risco para cromossomopatias (vide gráficos) — não podemos excluir essa possibilidade somente através da ultrassonografia.',
+    impCromossomopatiasAlto: 'Os sinais ultrassonográficos indicam risco aumentado para cromossomopatias (vide gráficos) — sugere-se avaliação especializada e aconselhamento genético.',
+    impUterinas: 'IP médio das artérias uterinas no percentil {PERCENTIL} para a idade gestacional.',
+    impPreEclampsia1: 'Rastreamento combinado do 1º trimestre: baixo risco (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e, no presente caso, não evidenciou aumento relevante do risco para pré-eclâmpsia pré-termo.',
+    impPreEclampsia2: 'Rastreamento combinado do 1º trimestre: risco aumentado (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e, no presente caso, associa-se à elevação da pressão arterial e/ou do IP médio das artérias uterinas, reforçando a relevância clínica do achado. Há indicação de profilaxia com AAS em baixa dose, de início precoce.',
+    impPreEclampsia3: 'Rastreamento combinado do 1º trimestre: risco aumentado (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e mantém relevância clínica mesmo na presença isolada de pressão arterial e IP médio das artérias uterinas dentro da normalidade. Há indicação de profilaxia com AAS em baixa dose, de início precoce.',
+    impColoNormal: 'Colo uterino sem anormalidades.',
+    impColoAlterado: 'Colo uterino curto — aumento do risco de parto prematuro.',
+    impMorfologico2T: 'Sugere-se a realização do morfológico do 2º trimestre entre 22 e 24 semanas.',
+
+    footerImagens: 'Imagens em anexo.'
+  };
+  let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
+
+  async function loadPhrases(){
+    try{
+      const val = await kvStore.get('morfo1t-phrase-templates-v1');
+      if(val){
+        const parsed = JSON.parse(val);
+        PHRASES = Object.assign({}, PHRASE_DEFAULTS, parsed);
+      }
+    }catch(e){ /* no saved phrases yet — use defaults */ }
+    applyPhrasesToInputs();
+  }
+  function applyPhrasesToInputs(){
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      if(el) el.value = PHRASES[key];
+    });
+  }
+  function phrase(key, repl){
+    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    if(repl){
+      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
+    }
+    return escapeHtml(t).replace(/\n/g, '<br>');
+  }
+  function phraseRaw(key, repl){
+    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    if(repl){
+      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
+    }
+    return t;
+  }
+  $('btnPhrases').addEventListener('click', ()=>{
+    $('phrasesPanel').classList.toggle('show');
+  });
+  $('btnSavePhrases').addEventListener('click', async ()=>{
+    const updated = {};
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      updated[key] = el ? el.value : PHRASE_DEFAULTS[key];
+    });
+    PHRASES = updated;
+    try{
+      await kvStore.set('morfo1t-phrase-templates-v1', JSON.stringify(PHRASES));
+      const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
+    }catch(e){ /* storage unavailable — values still apply for this session */ }
+    render();
+  });
+  $('btnResetPhrases').addEventListener('click', async ()=>{
+    if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
+    PHRASES = Object.assign({}, PHRASE_DEFAULTS);
+    applyPhrasesToInputs();
+    try{ await kvStore.set('morfo1t-phrase-templates-v1', JSON.stringify(PHRASES)); }catch(e){}
+    render();
+  });
+
+  // ---------- Médico (assinatura) ----------
+  let VR = {
+    medicoNome:'Dra. Morgana Fialho Caldas Kummer',
+    medicoQual1:'Especialista em Ultrassonografia Geral pelo CBR.',
+    medicoQual2:'Pós-Graduação em Medicina Fetal pela FCMMG.',
+    medicoCRM:'CRMMG: 45.304 - RQE: 39.156'
+  };
+
+  async function loadVR(){
+    try{
+      const val = await kvStore.get('morfo1t-vr-settings-v1');
+      if(val){
+        const parsed = JSON.parse(val);
+        VR = Object.assign(VR, parsed);
+      }
+    }catch(e){ /* no saved settings yet — use defaults */ }
+    applyVRToInputs();
+  }
+  function applyVRToInputs(){
+    $('vr_medicoNome').value = VR.medicoNome;
+    $('vr_medicoQual1').value = VR.medicoQual1;
+    $('vr_medicoQual2').value = VR.medicoQual2;
+    $('vr_medicoCRM').value = VR.medicoCRM;
+  }
+  $('btnSettings').addEventListener('click', ()=>{
+    $('settingsPanel').classList.toggle('show');
+  });
+  $('btnSaveVR').addEventListener('click', async ()=>{
+    VR = {
+      medicoNome: $('vr_medicoNome').value || VR.medicoNome,
+      medicoQual1: $('vr_medicoQual1').value || VR.medicoQual1,
+      medicoQual2: $('vr_medicoQual2').value || VR.medicoQual2,
+      medicoCRM: $('vr_medicoCRM').value || VR.medicoCRM
+    };
+    try{
+      await kvStore.set('morfo1t-vr-settings-v1', JSON.stringify(VR));
+      const m = $('vrSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
+    }catch(e){ /* storage unavailable — values still apply for this session */ }
+    render();
+  });
+
+  // ---------- Médico executante: quick-select among the clinic's doctors (shared roster/state across laudos) ----------
+  const EXECUTANTES = {
+    morgana: {nome:'Dra. Morgana Fialho Caldas Kummer', qual1:'Especialista em Ultrassonografia Geral pelo CBR.', qual2:'Pós-Graduação em Medicina Fetal pela FCMMG.', crm:'CRMMG: 45.304 - RQE: 39.156'},
+    barbara: {nome:'Dra. Bárbara Rodrigues Moreira', qual1:'Especialista em Ultrassonografia Geral pelo CBR.', qual2:'', crm:'CRMMG: 66.451 - RQE: 51.530'},
+    paulo: {nome:'Dr. Paulo Moreira Gontijo Junior', qual1:'', qual2:'', crm:'CRMMG: 76.670'},
+    carolina: {nome:'Dra. Carolina Piedade Martins', qual1:'', qual2:'', crm:'CRMMG: 75.163'}
+  };
+  function applyExecutante(id){
+    const d = EXECUTANTES[id];
+    if(!d) return;
+    VR = Object.assign({}, VR, {medicoNome:d.nome, medicoQual1:d.qual1, medicoQual2:d.qual2, medicoCRM:d.crm});
+    applyVRToInputs();
+    render();
+  }
+  $('medicoExecutante').addEventListener('change', e=>{
+    kvStore.set('medico-executante-selecionado', e.target.value);
+    if(e.target.value === 'outro'){
+      $('settingsPanel').classList.add('show');
+    } else {
+      applyExecutante(e.target.value);
+    }
+  });
+  async function loadExecutanteSelecionado(){
+    const saved = await kvStore.get('medico-executante-selecionado');
+    const sel = $('medicoExecutante');
+    sel.value = (saved && (saved==='outro' || EXECUTANTES[saved])) ? saved : 'morgana';
+    if(sel.value !== 'outro') applyExecutante(sel.value);
+  }
+
+  // ---------- Conditional field visibility ----------
+  function toggle(id, show){ const el=$(id); if(!el) return; el.classList.toggle('show', show); }
+
+  $('cronologiaMetodo').addEventListener('change', e=>{
+    toggle('wrap_usgDatacao', e.target.value==='usg');
+    toggle('wrap_exameInfo', e.target.value==='exame');
+  });
+  toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
+  toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame');
+
+  $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
+  $('chkPreEclampsia').addEventListener('change', e=>{ toggle('preEclampsiaFields', e.target.checked); render(); });
+
+  // ---------- Feto(s): lista dinâmica, mesmo padrão dos sacos gestacionais do
+  // obstetrico-1trimestre.html — cada card guarda um uid estável, então remover
+  // um feto do meio da lista não desloca os ids/listeners dos demais (nem os
+  // blocos já renderizados no preview, que são casados por esse mesmo uid). ----------
+  const MAX_FETOS = 3;
+  // Fronteira do percentil de peso na impressão diagnóstica: antes de 21
+  // semanas o laudo diz apenas que o peso está dentro da normalidade.
+  const PESO_PERCENTIL_IG_DIAS = 21 * 7;
+  let fetoNextUid = 1;
+
+  // Segmentos da avaliação morfológica: a ordem aqui é a ordem no laudo.
+  const MORFO_SEGMENTOS = [
+    {key:'Cranio', slug:'cranio', titulo:'Crânio / cérebro', phrase:'morfoCranio'},
+    {key:'Face', slug:'face', titulo:'Face', phrase:'morfoFace'},
+    {key:'Torax', slug:'torax', titulo:'Tórax / coração', phrase:'morfoTorax'},
+    {key:'Abdome', slug:'abdome', titulo:'Abdome', phrase:'morfoAbdome'},
+    {key:'Coluna', slug:'coluna', titulo:'Coluna', phrase:'morfoColuna'},
+    {key:'Extremidades', slug:'extremidades', titulo:'Extremidades', phrase:'morfoExtremidades'},
+  ];
+
+  function fetoCardHTML(uid){
+    return ''
+      +'<div class="card" id="wrap_feto'+uid+'">'
+      +'<div class="card-head"><h2><span class="feto-label"></span></h2></div>'
+      +'<div class="card-body">'
+
+      +'<p class="feto-sub">Parâmetros biométricos</p>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Compr. cabeça-nádega — CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CCN" placeholder="mm"></div>'
+      +'<div class="field"><label>Circunferência abdominal — CA (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CA" placeholder="mm"></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Diâmetro biparietal — DBP (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DBP" placeholder="mm"></div>'
+      +'<div class="field"><label>Comprimento do fêmur — CF (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CF" placeholder="mm"></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Circunferência cefálica — CC (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CC" placeholder="mm"></div>'
+      +'<div class="field"><label>Frequência cardíaca (bpm)</label><input type="text" inputmode="numeric" id="feto'+uid+'FC" placeholder="bpm"></div>'
+      +'</div>'
+
+      +'<p class="feto-sub">Avaliação morfológica fetal</p>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Crânio / cérebro</label><select id="feto'+uid+'Cranio"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
+      +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'CranioDescricao"><label>Descreva o achado — Crânio / cérebro</label><textarea id="feto'+uid+'CranioDescricao" rows="2"></textarea></div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Face</label><select id="feto'+uid+'Face"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
+      +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'FaceDescricao"><label>Descreva o achado — Face</label><textarea id="feto'+uid+'FaceDescricao" rows="2"></textarea></div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Tórax / coração</label><select id="feto'+uid+'Torax"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
+      +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'ToraxDescricao"><label>Descreva o achado — Tórax / coração</label><textarea id="feto'+uid+'ToraxDescricao" rows="2"></textarea></div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Abdome</label><select id="feto'+uid+'Abdome"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
+      +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'AbdomeDescricao"><label>Descreva o achado — Abdome</label><textarea id="feto'+uid+'AbdomeDescricao" rows="2"></textarea></div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Coluna</label><select id="feto'+uid+'Coluna"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
+      +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'ColunaDescricao"><label>Descreva o achado — Coluna</label><textarea id="feto'+uid+'ColunaDescricao" rows="2"></textarea></div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Extremidades</label><select id="feto'+uid+'Extremidades"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
+      +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'ExtremidadesDescricao"><label>Descreva o achado — Extremidades</label><textarea id="feto'+uid+'ExtremidadesDescricao" rows="2"></textarea></div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Transl. intracraniana — 4º V (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'TIC" placeholder="mm"></div>'
+      +'<div class="field"><label>Ponte (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Ponte" placeholder="mm"></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Distância ponte-occipital (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'PonteOccipital" placeholder="mm"></div>'
+      +'<div class="field"><label>Rel. ponte/ponte-occipital (calculada)</label><input type="text" id="feto'+uid+'PpoCalc" readonly placeholder="calculada automaticamente"><span class="vr">VR 0,5 - 1,0</span></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Cordão umbilical</label><select id="feto'+uid+'Cordao"><option value="duas artérias e uma veia">Duas artérias e uma veia</option><option value="artéria umbilical única">Artéria umbilical única</option></select></div>'
+      +'</div>'
+
+      +'<p class="feto-sub">Marcadores ultrassonográficos das trissomias</p>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Translucência nucal — TN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'TN" placeholder="mm"></div>'
+      +'<div class="field"><label>TN — percentil</label><select id="feto'+uid+'TNClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Osso nasal</label><select id="feto'+uid+'OssoNasal"><option value="Presente">Presente</option><option value="Ausente">Ausente</option><option value="Hipoplásico">Hipoplásico</option></select></div>'
+      +'<div class="field"><label>Ducto venoso — IPV</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'DuctoVenoso" placeholder="ex: 0,95"></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Ducto venoso — percentil</label><select id="feto'+uid+'DVClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
+      +'<div class="field"><label>Válvula tricúspide</label><select id="feto'+uid+'Tricuspide"><option value="Sem regurgitação">Sem regurgitação</option><option value="Com regurgitação">Com regurgitação</option></select></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Dilatação das pelves renais</label><select id="feto'+uid+'Pelves"><option value="Sem dilatação">Sem dilatação</option><option value="Com dilatação">Com dilatação</option></select></div>'
+      +'<div class="field"><label>Bexiga fetal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Bexiga" placeholder="mm"></div>'
+      +'</div>'
+
+      +'<p class="feto-sub">Risco fetal para trissomias (IM + ON + TN + DV + VT)</p>'
+      +'<p class="hint-perfeto">Valores calculados pelo software da Fetal Medicine Foundation — digite o denominador de cada risco (1 para ...).</p>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Síndrome de Down (T21) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT21" placeholder="ex: 1200"></div>'
+      +'<div class="field"><label>Síndrome de Edwards (T18) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT18" placeholder="ex: 5000"></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Síndrome de Patau (T13) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT13" placeholder="ex: 8000"></div>'
+      +'<div class="field"><label>Risco para cromossomopatias</label><select id="feto'+uid+'RiscoClasse"><option value="baixo">Baixo risco</option><option value="alto">Risco aumentado</option></select></div>'
+      +'</div>'
+
+      +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
+      +'</div>'
+      +'</div>';
+  }
+
+  function updateFetoWraps(uid){
+    toggle('wrap_feto'+uid+'CranioDescricao', v('feto'+uid+'Cranio')==='alterado');
+    toggle('wrap_feto'+uid+'FaceDescricao', v('feto'+uid+'Face')==='alterado');
+    toggle('wrap_feto'+uid+'ToraxDescricao', v('feto'+uid+'Torax')==='alterado');
+    toggle('wrap_feto'+uid+'AbdomeDescricao', v('feto'+uid+'Abdome')==='alterado');
+    toggle('wrap_feto'+uid+'ColunaDescricao', v('feto'+uid+'Coluna')==='alterado');
+    toggle('wrap_feto'+uid+'ExtremidadesDescricao', v('feto'+uid+'Extremidades')==='alterado');
+  }
+  function updateAllFetoWraps(){ fetoUids().forEach(updateFetoWraps); }
+
+  function fetoLabel(idx, total){
+    return total<=1 ? 'Feto' : 'Feto '+(idx+1);
+  }
+  function renumberFetos(){
+    const cards = Array.from($('fetosContainer').children);
+    cards.forEach((el, idx)=>{
+      const label = el.querySelector('.feto-label');
+      if(label) label.textContent = fetoLabel(idx, cards.length);
+      const removeBtn = el.querySelector('.feto-remove');
+      if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
+      const uid = el.id.replace('wrap_feto','');
+      const dl = $('feto'+uid+'DopplerLabel');
+      if(dl) dl.textContent = cards.length>1 ? 'Doppler fetal — '+fetoLabel(idx, cards.length) : 'Doppler fetal';
+    });
+    $('numeroFetos').value = String(Math.min(Math.max(cards.length, 1), MAX_FETOS));
+    updateGestacaoWrap();
+    $('btnAddFeto').style.display = cards.length >= MAX_FETOS ? 'none' : 'inline-block';
+  }
+  function wireFetoCard(uid){
+    const el = $('wrap_feto'+uid);
+    wireDigitsOnlyInput('feto'+uid+'FC', 3);
+    wireDigitsOnlyInput('feto'+uid+'RiscoT21', 6);
+    wireDigitsOnlyInput('feto'+uid+'RiscoT18', 6);
+    wireDigitsOnlyInput('feto'+uid+'RiscoT13', 6);
+    el.querySelectorAll('input, select, textarea').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    wireDecimalInputs();
+    ['Cranio','Face','Torax','Abdome','Coluna','Extremidades'].forEach(sufixo=>{
+      const sel = $('feto'+uid+sufixo);
+      if(sel) sel.addEventListener('change', ()=> updateFetoWraps(uid));
+    });
+    updateFetoWraps(uid);
+    el.querySelector('.feto-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberFetos();
+      render();
+    });
+  }
+  function addFeto(){
+    if($('fetosContainer').children.length >= MAX_FETOS) return;
+    const uid = fetoNextUid++;
+    $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
+    wireFetoCard(uid);
+    renumberFetos();
+    render();
+  }
+  $('btnAddFeto').addEventListener('click', addFeto);
+  function fetoUids(){
+    return Array.from($('fetosContainer').children).map(el=> el.id.replace('wrap_feto',''));
+  }
+  function setFetoCount(n){
+    const container = $('fetosContainer');
+    while(container.children.length < n){ addFeto(); }
+    while(container.children.length > n){
+      const last = container.lastElementChild;
+      const uid = last.id.replace('wrap_feto','');
+      const db = $('wrap_feto'+uid+'Doppler');
+      if(db) db.remove();
+      last.remove();
+    }
+    renumberFetos();
+    render();
+  }
+  function updateGestacaoWrap(){
+    const nFetos = $('fetosContainer').children.length;
+    const multiplo = nFetos > 1;
+    toggle('wrap_corionicidade', multiplo);
+    toggle('wrap_discordancia', multiplo);
+    // Tricoriônica só existe com três fetos, e as corionicidades de dois não
+    // existem com três: a lista segue o número de fetos escolhido. A curva de
+    // crescimento guarda essa escolha junto do tipo da gestação, e o check de
+    // lá (migração 005) recusa a corionicidade de um tipo gravada no outro.
+    const sel = $('corionicidade');
+    if(!sel) return;
+    Array.from(sel.options).forEach(opt=>{
+      const cabe = !opt.dataset.fetos || parseInt(opt.dataset.fetos, 10) === nFetos;
+      opt.hidden = !cabe;
+      if(!cabe && sel.value === opt.value) sel.selectedIndex = -1;
+    });
+    if(sel.selectedIndex === -1){
+      const primeira = Array.from(sel.options).find(o=> !o.hidden);
+      if(primeira) sel.value = primeira.value;
+    }
+  }
+  $('numeroFetos').addEventListener('change', e=>{
+    setFetoCount(Math.min(Math.max(parseInt(e.target.value,10)||1, 1), MAX_FETOS));
+  });
+  // O primeiro feto só é criado no fim do script (junto com loadPhrases/loadVR):
+  // addFeto() chama render(), que lê estado declarado abaixo com `let` — chamar
+  // aqui cairia na temporal dead zone dessas variáveis.
+
+  // ---------- Helpers ----------
+  function v(id){ const el = $(id); return el ? el.value.trim() : ''; }
+  function num(id){ const x = parseFloat(v(id).replace(',', '.')); return isNaN(x) ? null : x; }
+  function vNoDot(id){ return v(id).replace(/\.+\s*$/, ''); }
+
+  function wireDateMask(id){
+    const el = $(id);
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      const digits = el.value.replace(/\D/g, '').slice(0, 8);
+      let out = digits;
+      if(digits.length > 4) out = digits.slice(0,2)+'.'+digits.slice(2,4)+'.'+digits.slice(4);
+      else if(digits.length > 2) out = digits.slice(0,2)+'.'+digits.slice(2);
+      el.value = out;
+      try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
+    });
+  }
+  ['dataExame','dum','usgDataDatacao'].forEach(wireDateMask);
+
+  // ---------- CPF: máscara só na tela ----------
+  // O campo mostra 000.000.000-00 enquanto é digitado, mas os pontos e o traço
+  // existem apenas para a leitura na tela: tudo o que sai daqui para a Curva de
+  // Crescimento passa antes por cgOnlyDigits(), então o que trafega e o que é
+  // comparado continua sendo só os 11 dígitos.
+  function aplicarMascaraCPF(){
+    const el = $('cpfPaciente');
+    if(!el) return;
+    const digits = el.value.replace(/\D/g, '').slice(0, 11);
+    let out = digits.slice(0,3);
+    if(digits.length > 3) out += '.'+digits.slice(3,6);
+    if(digits.length > 6) out += '.'+digits.slice(6,9);
+    if(digits.length > 9) out += '-'+digits.slice(9);
+    if(out === el.value) return;
+    el.value = out;
+    try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
+  }
+  if($('cpfPaciente')) $('cpfPaciente').addEventListener('input', aplicarMascaraCPF);
+
+  function wireDigitsOnlyInput(id, maxLen){
+    const el = $(id);
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      const digits = el.value.replace(/\D/g, '').slice(0, maxLen);
+      if(digits !== el.value) el.value = digits;
+    });
+  }
+
+  // ---------- Cronologia / IG atual: derived from a single "data base"
+  // (equivalente à DUM), deduzida conforme o método escolhido. A partir
+  // dessa data base, tudo é aritmética de dias — mesmo mecanismo do laudo
+  // do 1º trimestre. ----------
+  const MS_DIA = 24*60*60*1000;
+  function parseDateBR(str){
+    const m = (str||'').trim().match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);
+    if(!m) return null;
+    let d = parseInt(m[1],10), mo = parseInt(m[2],10), y = parseInt(m[3],10);
+    if(y < 100) y += 2000;
+    const dt = new Date(y, mo-1, d);
+    if(dt.getFullYear()!==y || dt.getMonth()!==mo-1 || dt.getDate()!==d) return null;
+    return dt;
+  }
+  function addDays(date, days){ return new Date(date.getTime() + days*MS_DIA); }
+  function formatIG(totalDays){
+    const semanas = Math.floor(totalDays/7);
+    const dias = totalDays % 7;
+    const semanasTxt = semanas + (semanas===1 ? ' semana' : ' semanas');
+    return dias>0 ? (semanasTxt+' e '+dias+(dias===1?' dia':' dias')) : semanasTxt;
+  }
+  function computeDataBase(metodo){
+    if(metodo === 'exame'){
+      const dataExameDt = parseDateBR(v('dataExame'));
+      const semanas = parseInt(v('impSemanas'), 10);
+      const dias = parseInt(v('impDias'), 10);
+      if(!dataExameDt || isNaN(semanas)) return null;
+      return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
+    }
+    if(metodo === 'usg'){
+      const usgDt = parseDateBR(v('usgDataDatacao'));
+      const semanas = parseInt(v('usgSemanasDatacao'), 10);
+      const dias = parseInt(v('usgDiasDatacao'), 10);
+      if(!usgDt || isNaN(semanas)) return null;
+      return addDays(usgDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
+    }
+    return parseDateBR(v('dum'));
+  }
+  function computeIGDaysAtExam(dataBase, dataExameStr){
+    const dataExameDt = parseDateBR(dataExameStr);
+    if(!dataBase || !dataExameDt) return null;
+    const totalDays = Math.round((dataExameDt - dataBase)/MS_DIA);
+    return totalDays >= 0 ? totalDays : null;
+  }
+  function blankOrValue(val, suffix){
+    if(val === '' || val === null || val === undefined) return {text:'____', filled:false};
+    return {text: val + (suffix||''), filled:true};
+  }
+  function span(obj){
+    return '<span class="'+(obj.filled?'filled':'blank')+'">'+escapeHtml(obj.text)+'</span>';
+  }
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ---------- Doppler: percentil do IP médio das artérias uterinas,
+  // Gómez O, Figueras F, Fernández S, Bennasar M, Martínez JM, Puerto B,
+  // Gratacós E. Reference ranges for uterine artery mean pulsatility index
+  // at 11-41 weeks of gestation. Ultrasound Obstet Gynecol. 2008;32(2):128-132.
+  // Loge(PI médio) = 1,39 − 0,012×IG + 0,0000198×IG² (IG em dias)
+  // DP[Loge(PI médio)] = 0,272 − 0,000259×IG
+  // O percentil de um valor medido é obtido a partir do z-score dessa
+  // distribuição log-normal, via aproximação de Abramowitz & Stegun para a
+  // função erro (CDF normal). ----------
+  function normalCDF(z){
+    const sign = z < 0 ? -1 : 1;
+    const az = Math.abs(z)/Math.SQRT2;
+    const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
+    const t = 1/(1+p*az);
+    const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-az*az);
+    return 0.5*(1+sign*y);
+  }
+  function gomezPercentilUterina(gaDays, piMedio){
+    if(gaDays==null || isNaN(gaDays) || piMedio==null || isNaN(piMedio)) return null;
+    const mean = 1.39 - 0.012*gaDays + 0.0000198*gaDays*gaDays;
+    const sd = 0.272 - 0.000259*gaDays;
+    const z = (Math.log(piMedio) - mean) / sd;
+    return normalCDF(z) * 100;
+  }
+  // ---------- Doppler fetal: percentil da relação cérebro-placentária (RCP).
+  // Valores de referência (média e desvio-padrão da RCP por semana de
+  // gestação) conforme a tabela adotada no serviço, 20 a 40 semanas.
+  // Entre semanas completas os parâmetros são interpolados linearmente
+  // pelos dias; fora da faixa 20-40 semanas não há cálculo.
+  // O percentil vem do z-score, via normalCDF (Abramowitz & Stegun). ----------
+  const CPR_REF = {
+    20:[1.37,0.40], 21:[1.44,0.25], 22:[1.48,0.29], 23:[1.49,0.23],
+    24:[1.53,0.22], 25:[1.83,0.48], 26:[1.92,0.55], 27:[2.12,0.61],
+    28:[2.13,0.52], 29:[1.86,0.43], 30:[2.34,0.55], 31:[2.29,0.34],
+    32:[2.03,0.48], 33:[2.10,0.40], 34:[2.10,0.45], 35:[2.01,0.46],
+    36:[2.01,0.46], 37:[2.25,0.66], 38:[1.90,0.41], 39:[1.64,0.29],
+    40:[1.80,0.44]
+  };
+  function cprPercentil(gaDays, cpr){
+    if(gaDays==null || isNaN(gaDays) || cpr==null || isNaN(cpr)) return null;
+    const semanas = gaDays/7;
+    if(semanas < 20 || semanas > 40) return null;
+    const base = Math.min(Math.floor(semanas), 39);
+    const frac = semanas - base;
+    const a = CPR_REF[base], b = CPR_REF[base+1] || a;
+    if(!a) return null;
+    const mean = a[0] + (b[0]-a[0])*frac;
+    const sd = a[1] + (b[1]-a[1])*frac;
+    if(!sd) return null;
+    return normalCDF((cpr - mean)/sd) * 100;
+  }
+  function fmtNum(n, casas){
+    if(n==null || isNaN(n)) return '';
+    return n.toFixed(casas).replace('.', ',');
+  }
+
+  const PLACENTA_INSERCAO_TXT = {
+    'fúndica': 'de inserção fúndica',
+    'anterior': 'de inserção anterior',
+    'posterior': 'de inserção posterior',
+    'lateral direita': 'de inserção lateral direita',
+    'lateral esquerda': 'de inserção lateral esquerda',
+    'baixa': 'de inserção baixa',
+    'marginal': 'prévia marginal',
+    'previa': 'prévia total'
+  };
+  const PLACENTA_PREVIA_VALORES = ['baixa', 'marginal', 'previa'];
+
+  // ---------- Build impression checklist ----------
+  function buildImpressao(state){
+    const items = [];
+    const pre = f => state.isMultiple ? (f.label+': ') : '';
+    const k = (base, f) => state.isMultiple ? (base+'-f'+f.uid) : base;
+
+    const gestacaoKey = !state.isMultiple ? 'impGestacao'
+      : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla');
+    items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
+      {CORIONICIDADE:state.corTxt, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+
+    const algumAlterado = state.fetos.some(f=> f.alteracoes.length > 0);
+    if(!algumAlterado){
+      items.push({key:'sem-anomalias', label: phraseRaw('impSemAnomalias'), auto:true});
+    }
+    state.fetos.forEach(f=>{
+      f.alteracoes.forEach(a=>{
+        items.push({key:k('morfo-'+a.slug, f), label: pre(f) + phraseRaw('impMorfoAlterado', {SEGMENTO:a.titulo, DESCRICAO:a.descricao}), auto:true});
+      });
+    });
+
+    state.fetos.forEach(f=>{
+      items.push({key:k('cromossomopatias', f), label: pre(f) + (f.riscoAlto
+        ? phraseRaw('impCromossomopatiasAlto')
+        : phraseRaw('impCromossomopatiasBaixo')), auto:true});
+    });
+
+    if(state.dopplerMaterno){
+      items.push({key:'uterinas', label: phraseRaw('impUterinas', {PERCENTIL: state.utPercentilTxt || '__'}), auto:true});
+    }
+    if(state.preEclampsia){
+      items.push({key:'pre-eclampsia', label: phraseRaw('impPreEclampsia'+state.preEclampsiaOpcao, {RISCO: state.preEclampsiaRiscoTxt || '__'}), auto:true});
+    }
+    items.push({key:'colo', label: state.coloAlterado ? phraseRaw('impColoAlterado') : phraseRaw('impColoNormal'), auto:true});
+    items.push({key:'morfologico2t', label: phraseRaw('impMorfologico2T'), auto:true});
+
+    return items;
+  }
+
+  let checkedState = {};
+
+  function renderChecklist(items){
+    const box = $('impressaoChecklist');
+    box.innerHTML = '';
+    // Um feto removido deixaria para trás as chaves dele ('peso-f2'), junto com
+    // o texto que a médica tivesse reescrito ali. Some com as chaves de fetos
+    // que não estão mais na tela — as dos blocos opcionais (PBF, Doppler, colo)
+    // ficam, para que desligar e religar um bloco preserve o que ela marcou.
+    const fetosVivos = new Set(fetoUids());
+    const fetoMorto = key=>{
+      const m = /-f(\d+)$/.exec(key);
+      return !!m && !fetosVivos.has(m[1]);
+    };
+    Object.keys(checkedState).forEach(key=>{ if(fetoMorto(key)) delete checkedState[key]; });
+    Object.keys(impressaoOverrides).forEach(key=>{ if(fetoMorto(key)) delete impressaoOverrides[key]; });
+    items.forEach(it=>{
+      if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
+      const row = document.createElement('label');
+      row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#6d3263;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
+      row.querySelector('input').addEventListener('change', e=>{
+        checkedState[it.key] = e.target.checked;
+        render();
+      });
+      box.appendChild(row);
+    });
+  }
+
+  $('paper').addEventListener('input', ()=>{
+    const sel = window.getSelection();
+    if(!sel || !sel.anchorNode) return;
+    const node = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
+    const li = node && node.closest ? node.closest('ul.impressao li[data-key]') : null;
+    if(li) impressaoOverrides[li.dataset.key] = li.textContent;
+  });
+
+  // ---------- Live page-count preview ----------
+  // ---------- Shared pagination engine ----------
+  // O preview de páginas e a impressão precisam concordar: se cada um contasse
+  // as páginas do seu jeito, o preview anunciaria uma quebra que o PDF não tem
+  // (ou o contrário). Antes era exatamente isso que acontecia — o preview só
+  // apertava a entrelinha, enquanto a impressão também reduzia a fonte e
+  // quebrava a lista de impressões item a item para caber numa página.
+  // Agora os dois passam por estas mesmas funções: a contagem que aparece na
+  // tela é, por construção, a que sai no papel.
+  const PAGE_SAFETY_PX = 38;
+  const MIN_LINE_HEIGHT = 1.0;
+  const LINE_HEIGHT_STEP = 0.03;
+  const MIN_FONT_SIZE = 11;
+  const FONT_SIZE_STEP = 0.5;
+
+  function pageBudgetPx(){
+    const ref = document.createElement('div');
+    ref.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:0;width:0;height:24.2cm;';
+    document.body.appendChild(ref);
+    const pageHeightPx = ref.getBoundingClientRect().height;
+    document.body.removeChild(ref);
+    return pageHeightPx - PAGE_SAFETY_PX;
+  }
+
+  // Mede o laudo fora da tela na largura real de impressão (17cm) e o
+  // distribui em páginas. Cada "box" carrega o nó vivo correspondente (para o
+  // preview marcar a quebra) e o HTML (para a impressão remontar as páginas).
+  function packAt(paperEl, html, lineHeight, fontSize, budgetPx){
+    const measure = document.createElement('div');
+    measure.className = 'paper';
+    measure.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;width:17cm;max-height:none;overflow:visible;background:none;border:none;box-shadow:none;padding:0;margin:0;';
+    measure.style.lineHeight = lineHeight;
+    measure.style.fontSize = fontSize;
+    measure.innerHTML = html;
+    document.body.appendChild(measure);
+
+    const continuaP = document.createElement('p');
+    continuaP.className = 'continua';
+    continuaP.textContent = 'Continua…';
+    measure.appendChild(continuaP);
+    const continuaHeight = continuaP.getBoundingClientRect().height;
+    measure.removeChild(continuaP);
+    const continuaHtml = continuaP.outerHTML;
+
+    const measureRect = measure.getBoundingClientRect();
+    const realTop = Array.from(paperEl.children);
+    const measureTop = Array.from(measure.children);
+    const boxes = [];
+    realTop.forEach((realChild, idx)=>{
+      const measureChild = measureTop[idx];
+      if(!measureChild) return;
+      if(realChild.tagName==='UL' && realChild.classList.contains('impressao')){
+        const realLis = Array.from(realChild.children);
+        const measureLis = Array.from(measureChild.children);
+        realLis.forEach((li, i)=>{
+          if(!measureLis[i]) return;
+          const r = measureLis[i].getBoundingClientRect();
+          boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:'li', html: li.outerHTML, node: li});
+        });
+      } else {
+        const r = measureChild.getBoundingClientRect();
+        boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:(realChild.tagName==='H4' ? 'heading' : 'block'), html: realChild.outerHTML, node: realChild});
+      }
+    });
+    document.body.removeChild(measure);
+
+    const pages = [[]];
+    let pageStart = boxes.length ? boxes[0].top : 0;
+    boxes.forEach(box=>{
+      if((box.bottom - pageStart) > budgetPx && pages[pages.length-1].length > 0){
+        pages.push([]);
+        pageStart = box.top;
+      }
+      pages[pages.length-1].push(box);
+    });
+    for(let p=0; p<pages.length-1; p++){
+      const pg = pages[p];
+      if(pg.length && pg[pg.length-1].kind==='heading'){
+        pages[p+1].unshift(pg.pop());
+      }
+    }
+    return {pages, continuaHtml, continuaHeight};
+  }
+
+  // Tenta caber em uma página: primeiro apertando a entrelinha, depois também
+  // reduzindo a fonte em passos de 0,5pt (nunca abaixo de 11pt). Um laudo
+  // genuinamente longo falha em todas as combinações e volta ao tamanho
+  // original, paginado normalmente.
+  function autoFitPages(paperEl, budgetPx){
+    const html = paperEl.innerHTML;
+    const baseLineHeight = parseFloat(paperEl.style.lineHeight) || 1.15;
+    const baseFontSize = parseFloat(paperEl.style.fontSize) || 12;
+
+    function fitAtFontSize(fontSize){
+      for(let lh = baseLineHeight; lh >= MIN_LINE_HEIGHT - 1e-9; lh -= LINE_HEIGHT_STEP){
+        const attempt = packAt(paperEl, html, lh, fontSize + 'pt', budgetPx);
+        if(attempt.pages.length === 1) return {packed: attempt, lineHeight: lh, fontSize};
+      }
+      return null;
+    }
+
+    let fit = fitAtFontSize(baseFontSize);
+    for(let fs = baseFontSize - FONT_SIZE_STEP; !fit && fs >= MIN_FONT_SIZE - 1e-9; fs -= FONT_SIZE_STEP){
+      fit = fitAtFontSize(fs);
+    }
+    if(fit) return fit;
+    return {
+      packed: packAt(paperEl, html, baseLineHeight, baseFontSize + 'pt', budgetPx),
+      lineHeight: baseLineHeight,
+      fontSize: baseFontSize
+    };
+  }
+
+  function updatePagePreview(){
+    const paperEl = $('paper');
+    paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+
+    const pill = $('pageCountPill');
+    if(!paperEl.children.length){ if(pill){ pill.textContent='1 página'; pill.classList.remove('pending'); } return; }
+
+    const pages = autoFitPages(paperEl, pageBudgetPx()).packed.pages;
+
+    if(pill){
+      pill.textContent = pages.length===1 ? '1 página' : pages.length+' páginas';
+      pill.classList.toggle('pending', pages.length > 1);
+    }
+    for(let p=0; p<pages.length-1; p++){
+      const node = pages[p+1][0] && pages[p+1][0].node;
+      if(!node || !node.parentNode) continue;
+      // A quebra pode cair no meio da lista de impressões: ali o marcador
+      // precisa ser um <li>, senão vira um filho inválido do <ul>.
+      const marker = document.createElement(node.tagName === 'LI' ? 'li' : 'div');
+      marker.className = 'pg-break-marker';
+      marker.contentEditable = 'false';
+      marker.textContent = 'Fim da página ' + (p+1);
+      node.parentNode.insertBefore(marker, node);
+    }
+  }
+  let pagePreviewTimer = null;
+  function schedulePagePreview(){
+    clearTimeout(pagePreviewTimer);
+    pagePreviewTimer = setTimeout(updatePagePreview, 250);
+  }
+  $('paper').addEventListener('input', schedulePagePreview);
+  window.addEventListener('resize', schedulePagePreview);
+
+  // ---------- Main render ----------
+  let pendingCount = 0;
+  let printAttempted = false;
+
+  // Alinha verticalmente o "ILA" com as colunas de medidas (CF/CA): a 1ª
+  // célula da linha "Maior bolsão / ILA" de cada feto ganha a mesma largura,
+  // em px, das duas primeiras colunas (rótulo + valor) da tabela de
+  // parâmetros biométricos daquele mesmo feto — medida ao vivo no DOM, e não
+  // chutada em "em", porque o texto do rótulo ("Maior bolsão:") é mais longo
+  // que "Diâmetro biparietal (DBP):" mais o valor sozinhos e sairia da conta
+  // se calculada à mão. Roda depois de todo render(), já com os blocos no ar.
+  function alignIlaColumns(){
+    $('paper').querySelectorAll('table.grade-la').forEach(laTable=>{
+      const laBlk = laTable.closest('[data-blk^="la-"]');
+      if(!laBlk) return;
+      const sfx = laBlk.getAttribute('data-blk').slice('la'.length);
+      const bioTable = $('paper').querySelector('[data-blk="biometria'+sfx+'"] table.biometria');
+      const bioRow = bioTable && bioTable.rows[0];
+      const laRow = laTable.rows[0];
+      if(!bioRow || !laRow || bioRow.cells.length < 2 || laRow.cells.length < 1) return;
+      const widthPx = bioRow.cells[0].getBoundingClientRect().width + bioRow.cells[1].getBoundingClientRect().width;
+      // Em "em", não em px: a impressão/PDF pode reduzir o tamanho da fonte do
+      // laudo inteiro para caber nas páginas (autoFitPages), e uma largura
+      // fixa em px ficaria descalibrada depois desse encolhimento. Em "em"
+      // ela encolhe junto — biometria e ILA usam a mesma fonte — mantendo o
+      // alinhamento em qualquer tamanho de fonte.
+      const fontSizePx = parseFloat(getComputedStyle(laRow.cells[0]).fontSize) || 16;
+      laRow.cells[0].style.width = (widthPx / fontSizePx) + 'em';
+    });
+  }
+
+  function render(){
+    if(draftRestoring) return;
+    pendingCount = 0;
+    function req(id){
+      const val = v(id);
+      const empty = val === '';
+      const el = $(id);
+      if(el) el.classList.toggle('field-missing', printAttempted && empty);
+      if(empty) pendingCount++;
+      return val;
+    }
+
+    const nomePaciente = v('nomePaciente');
+    const dataExame = v('dataExame');
+    const medicoSolicitante = v('medicoSolicitante');
+    const dum = v('dum');
+    const gpaG = v('gpaG');
+    const gpaP = v('gpaP');
+    const gpaA = v('gpaA');
+    const motivoExame = vNoDot('motivoExame');
+    const medicacoes = vNoDot('medicacoes');
+    const idadeMaterna = v('idadeMaterna');
+    const pesoMaterno = v('pesoMaterno');
+    const alturaMaterna = v('alturaMaterna');
+    const pressaoArterial = v('pressaoArterial');
+
+    // IMC = peso / altura² (altura digitada em cm).
+    const pesoNum = num('pesoMaterno');
+    const alturaNum = num('alturaMaterna');
+    const imcNum = (pesoNum!=null && alturaNum!=null && alturaNum>0) ? (pesoNum / Math.pow(alturaNum/100, 2)) : null;
+    const imcTxt = imcNum!=null ? fmtNum(imcNum, 1) : '';
+    const imcEl = $('imcCalc');
+    if(imcEl) imcEl.value = imcTxt;
+
+    const cronologiaMetodoRaw = v('cronologiaMetodo');
+    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame') ? cronologiaMetodoRaw : 'dum';
+    const dataBase = computeDataBase(cronologiaMetodo);
+    const gaDays = computeIGDaysAtExam(dataBase, dataExame);
+    const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
+    const igAtualEl = $('igAtual');
+    if(igAtualEl) igAtualEl.value = igAtualTxt;
+    const semanasTxt = gaDays!=null ? String(Math.floor(gaDays/7)) : '____';
+    const diasTxt = gaDays!=null ? String(gaDays%7) : '____';
+
+    const uids = fetoUids();
+    const isMultiple = uids.length > 1;
+    const corTxtMap = {
+      dicorionica_diamniotica: 'dicoriônica e diamniótica',
+      monocorionica_diamniotica: 'monocoriônica e diamniótica',
+      monocorionica_monoamniotica: 'monocoriônica e monoamniótica',
+      tricorionica_triamniotica: 'tricoriônica e triamniótica'
+    };
+    const corTxt = corTxtMap[v('corionicidade')] || 'dicoriônica e diamniótica';
+
+    // ----- Ao exame: útero, placenta e colo (medidas da mãe, uma vez só) -----
+    const placentaInsercao = v('placentaInsercao');
+    const coloComprimentoVal = blankOrValue(req('coloComprimento'));
+    const coloNum = num('coloComprimento');
+    const coloAlterado = coloNum!=null && coloNum < 25;
+
+    // ----- Doppler materno das uterinas (percentil automático — Gómez 2008) -----
+    const dopplerMaterno = $('chkDopplerMaterno').checked;
+    let utMedioTxt = '', utPercentilTxt = '', utAlterado = false;
+    let utDireitaVal = {text:'____',filled:false}, utEsquerdaVal = {text:'____',filled:false};
+    if(dopplerMaterno){
+      utDireitaVal = blankOrValue(req('utDireita'));
+      utEsquerdaVal = blankOrValue(req('utEsquerda'));
+      const utDireitaNum = num('utDireita');
+      const utEsquerdaNum = num('utEsquerda');
+      const utMedioNum = (utDireitaNum!=null && utEsquerdaNum!=null) ? (utDireitaNum+utEsquerdaNum)/2 : null;
+      const percentilUt = gomezPercentilUterina(gaDays, utMedioNum);
+      utMedioTxt = utMedioNum!=null ? fmtNum(utMedioNum,2) : '';
+      utPercentilTxt = percentilUt!=null ? String(Math.round(percentilUt)) : '';
+      utAlterado = percentilUt!=null ? percentilUt > 95 : false;
+      $('utMedioCalc').value = utMedioNum!=null ? utMedioTxt : '';
+      $('utP95Calc').value = percentilUt!=null ? ('P'+utPercentilTxt+' (IG: '+igAtualTxt+')') : (gaDays==null ? 'informe a IG para calcular' : '');
+    }
+
+    // ----- Rastreamento de pré-eclâmpsia (valores da FMF, digitados) -----
+    const preEclampsia = $('chkPreEclampsia').checked;
+    const preEclampsiaOpcao = v('preEclampsiaOpcao') || '1';
+    const preEclampsiaRiscoTxt = preEclampsia ? req('preEclampsiaRisco') : '';
+
+    // ----- Um estado por feto -----
+    const fetos = uids.map((uid, idx)=>{
+      const pre = 'feto'+uid;
+      const label = fetoLabel(idx, uids.length);
+
+      const ccn = blankOrValue(req(pre+'CCN'));
+      const dbp = blankOrValue(req(pre+'DBP'));
+      const cc = blankOrValue(req(pre+'CC'));
+      const ca = blankOrValue(req(pre+'CA'));
+      const cf = blankOrValue(req(pre+'CF'));
+      const fc = blankOrValue(req(pre+'FC'));
+
+      // Segmentos morfológicos: texto padrão quando normal; quando alterado,
+      // entra a descrição digitada e o achado sobe para a impressão.
+      const alteracoes = [];
+      const segmentos = MORFO_SEGMENTOS.map(seg=>{
+        const alterado = v(pre+seg.key)==='alterado';
+        const descricao = vNoDot(pre+seg.key+'Descricao');
+        if(alterado && descricao){
+          alteracoes.push({slug: seg.slug, titulo: seg.titulo, descricao: descricao});
+        }
+        return {
+          titulo: seg.titulo,
+          texto: (alterado && descricao) ? (descricao+'.') : phraseRaw(seg.phrase)
+        };
+      });
+
+      const tic = blankOrValue(req(pre+'TIC'));
+      const ponte = blankOrValue(v(pre+'Ponte'));
+      const ponteOcc = blankOrValue(v(pre+'PonteOccipital'));
+      const ponteNum = num(pre+'Ponte');
+      const ponteOccNum = num(pre+'PonteOccipital');
+      const ppoNum = (ponteNum!=null && ponteOccNum!=null && ponteOccNum!==0) ? (ponteNum/ponteOccNum) : null;
+      const ppoTxt = ppoNum!=null ? fmtNum(ppoNum, 2) : '';
+      const ppoEl = $(pre+'PpoCalc');
+      if(ppoEl){
+        ppoEl.value = ppoTxt;
+        ppoEl.classList.toggle('flag-abnormal', ppoNum!=null && (ppoNum < 0.5 || ppoNum > 1.0));
+      }
+      const cordaoTxt = v(pre+'Cordao') || 'duas artérias e uma veia';
+
+      const tn = blankOrValue(req(pre+'TN'));
+      const tnClasse = v(pre+'TNClasse') || '<P95';
+      const ossoNasal = v(pre+'OssoNasal') || 'Presente';
+      const dv = blankOrValue(req(pre+'DuctoVenoso'));
+      const dvClasse = v(pre+'DVClasse') || '<P95';
+      const tricuspide = v(pre+'Tricuspide') || 'Sem regurgitação';
+      const pelves = v(pre+'Pelves') || 'Sem dilatação';
+      const bexiga = blankOrValue(v(pre+'Bexiga'));
+
+      const riscoT21 = blankOrValue(v(pre+'RiscoT21'));
+      const riscoT18 = blankOrValue(v(pre+'RiscoT18'));
+      const riscoT13 = blankOrValue(v(pre+'RiscoT13'));
+      const riscoAlto = v(pre+'RiscoClasse')==='alto';
+
+      return {uid, label, ccn, dbp, cc, ca, cf, fc, segmentos, alteracoes,
+        tic, ponte, ponteOcc, ppoTxt, cordaoTxt,
+        tn, tnClasse, ossoNasal, dv, dvClasse, tricuspide, pelves, bexiga,
+        riscoT21, riscoT18, riscoT13, riscoAlto};
+    });
+
+    // ----- Impressão -----
+    const state = {
+      semanas: semanasTxt, dias: diasTxt,
+      isMultiple, corTxt, fetos,
+      dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
+      preEclampsia, preEclampsiaOpcao, preEclampsiaRiscoTxt,
+      coloAlterado
+    };
+    const impressaoItems = buildImpressao(state);
+    renderChecklist(impressaoItems);
+    const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
+
+    // ----- Montagem do laudo, um bloco por parágrafo/seção -----
+    const blocks = [];
+
+    blocks.push({id:'idcard', html:
+      '<div class="id-card">'
+      +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>Idade:</strong> '+span(blankOrValue(idadeMaterna))+' anos &nbsp;|&nbsp; <strong>Peso:</strong> '+span(blankOrValue(pesoMaterno))+' kg &nbsp;|&nbsp; <strong>Altura:</strong> '+span(blankOrValue(alturaMaterna))+' cm &nbsp;|&nbsp; <strong>IMC:</strong> '+span(blankOrValue(imcTxt))+' &nbsp;|&nbsp; <strong>PA:</strong> '+span(blankOrValue(pressaoArterial))+' mmHg</span></div>'
+      +'</div>'});
+
+    let tituloTxt = 'ULTRASSOM OBSTÉTRICO MORFOLÓGICO DE PRIMEIRO TRIMESTRE';
+    if(isMultiple) tituloTxt = 'ULTRASSOM OBSTÉTRICO MORFOLÓGICO ' + (fetos.length >= 3 ? 'TRIGEMELAR' : 'GEMELAR') + ' DE PRIMEIRO TRIMESTRE';
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml(tituloTxt)+'</h3>'});
+
+    if(motivoExame){
+      blocks.push({id:'relato', html:'<p class="relato">Relato de '+escapeHtml(motivoExame.charAt(0).toLowerCase()+motivoExame.slice(1))+'.</p>'});
+    }
+    if(medicacoes){
+      blocks.push({id:'medicacoes', html:'<p class="linha"><strong>Em uso de:</strong> '+escapeHtml(medicacoes)+'.</p>'});
+    }
+
+    blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
+    if(isMultiple){
+      blocks.push({id:'gestacaoMultipla', html:'<p class="linha">'+escapeHtml('Gestação múltipla, com '+fetos.length+' fetos, '+corTxt+'.')+'</p>'});
+    }
+    blocks.push({id:'aoExameTexto', html:'<div>'
+      +'<p class="linha tight">'+phrase('uteroTexto')+'</p>'
+      +'<p class="linha tight">'+phrase('placentaTexto', {INSERCAO: placentaInsercao})+'</p>'
+      +'<p class="linha">'+phraseRaw('coloTexto', {MEDIDA: span(coloComprimentoVal)})+'</p>'
+      +'</div>'});
+
+    fetos.forEach(f=>{
+      const sfx = '-f'+f.uid;
+      if(isMultiple){
+        blocks.push({id:'fetoHeader'+sfx, html:'<h4 class="sec">'+escapeHtml(f.label.toUpperCase())+'</h4>'});
+      }
+
+      blocks.push({id:'biometria'+sfx, html:'<div><p class="linha tight"><strong>Parâmetros Biométricos</strong></p>'
+        +'<table class="biometria">'
+        +'<tr><td style="white-space:nowrap;">Compr. cabeça-nádega (CCN):</td><td style="white-space:nowrap;">'+span(f.ccn)+' mm</td><td style="white-space:nowrap;">Circunferência abdominal (CA):</td><td style="white-space:nowrap;">'+span(f.ca)+' mm</td></tr>'
+        +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;">'+span(f.dbp)+' mm</td><td style="white-space:nowrap;">Comprimento do fêmur (CF):</td><td style="white-space:nowrap;">'+span(f.cf)+' mm</td></tr>'
+        +'<tr><td style="white-space:nowrap;">Circunferência cefálica (CC):</td><td style="white-space:nowrap;">'+span(f.cc)+' mm</td><td style="white-space:nowrap;">Frequência cardíaca:</td><td style="white-space:nowrap;">'+span(f.fc)+' bpm</td></tr>'
+        +'</table></div>'});
+
+      let morfoHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">AVALIAÇÃO MORFOLÓGICA FETAL:</strong></p>';
+      morfoHtml += '<table class="biometria" style="width:100%;">';
+      f.segmentos.forEach(seg=>{
+        morfoHtml += '<tr><td style="white-space:nowrap;vertical-align:top;"><strong>'+escapeHtml(seg.titulo)+'</strong></td>'
+          +'<td style="white-space:normal;">'+escapeHtml(seg.texto)+'</td></tr>';
+        if(seg.titulo === 'Crânio / cérebro'){
+          morfoHtml += '<tr><td style="white-space:nowrap;"></td><td style="white-space:normal;">Transl. intracraniana (4º V): '+span(f.tic)+' mm &nbsp;|&nbsp; Rel. Ponte/Ponte-Occipital: '+span(blankOrValue(f.ppoTxt))+' (VR 0,5 - 1,0)</td></tr>';
+        }
+      });
+      morfoHtml += '<tr><td style="white-space:nowrap;vertical-align:top;"><strong>Cordão umbilical</strong></td>'
+        +'<td style="white-space:normal;">'+phrase('morfoCordao', {VASOS: f.cordaoTxt})+'</td></tr>';
+      morfoHtml += '</table></div>';
+      blocks.push({id:'morfologia'+sfx, html:morfoHtml});
+
+      blocks.push({id:'marcadores'+sfx, html:'<div>'
+        +'<p class="linha tight"><strong style="text-decoration:underline;">MARCADORES ULTRASSONOGRÁFICOS DAS TRISSOMIAS:</strong></p>'
+        +'<table class="biometria">'
+        +'<tr><td>Translucência Nucal (TN):</td><td style="white-space:nowrap;">'+span(f.tn)+' mm ('+escapeHtml(f.tnClasse)+')</td></tr>'
+        +'<tr><td>Osso Nasal (ON):</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
+        +'<tr><td>Ducto Venoso (DV - IPV):</td><td style="white-space:nowrap;">'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+')</td></tr>'
+        +'<tr><td>Válvula Tricúspide (VT):</td><td>'+escapeHtml(f.tricuspide)+'</td></tr>'
+        +'<tr><td>Dilatação das pelves renais:</td><td>'+escapeHtml(f.pelves)+'</td></tr>'
+        +'<tr><td>Bexiga fetal:</td><td style="white-space:nowrap;">'+span(f.bexiga)+' mm</td></tr>'
+        +'</table></div>'});
+
+      blocks.push({id:'riscos'+sfx, html:'<div>'
+        +'<p class="linha tight"><strong>Risco Fetal para Trissomias (IM + ON + TN + DV + VT):</strong></p>'
+        +'<table class="biometria">'
+        +'<tr><td>Síndrome de Down (T21):</td><td style="white-space:nowrap;">1: '+span(f.riscoT21)+'</td></tr>'
+        +'<tr><td>Síndrome de Edwards (T18):</td><td style="white-space:nowrap;">1: '+span(f.riscoT18)+'</td></tr>'
+        +'<tr><td>Síndrome de Patau (T13):</td><td style="white-space:nowrap;">1: '+span(f.riscoT13)+'</td></tr>'
+        +'</table></div>'});
+    });
+
+    if(dopplerMaterno){
+      blocks.push({id:'dopplerMaterno', html:'<div>'
+        +'<table class="biometria" style="width:100%;">'
+        +'<tr><td><strong style="text-decoration:underline;">Dopplerfluxometria Materna</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
+        +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
+        +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
+        +'<tr><td>IP médio das artérias uterinas:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
+        +'</table></div>'});
+    }
+
+    blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
+    let impressaoListHtml = '<ul class="impressao">';
+    if(checkedItems.length===0){
+      impressaoListHtml += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
+    } else {
+      checkedItems.forEach(it=>{
+        const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
+        impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
+      });
+    }
+    impressaoListHtml += '</ul>';
+    blocks.push({id:'impressaoList', html:impressaoListHtml});
+
+    let rodapeHtml = '<div class="rodape-final">';
+    rodapeHtml += '<p class="footnote">'+phrase('footerImagens')+'</p>';
+    rodapeHtml += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
+    if(VR.medicoQual1) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
+    if(VR.medicoQual2) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
+    rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoCRM)+'</p></div>';
+    rodapeHtml += '</div>';
+    blocks.push({id:'rodape', html:rodapeHtml});
+
+    renderBlocks(blocks);
+    if(titleFontSize){
+      const titleEl = $('paper').querySelector('h3.doctitle');
+      if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
+    }
+
+    const pill = $('statusPill');
+    if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
+    else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
+    updatePagePreview();
+    draftSchedule();
+  }
+
+  // ---------- Wire up live updates ----------
+  document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
+    el.addEventListener('input', render);
+    el.addEventListener('change', render);
+  });
+
+  // ---------- Actions ----------
+  function buildReportHtml(){
+    const clone = $('paper').cloneNode(true);
+    clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    clone.querySelectorAll('ul.impressao').forEach(ul=>{
+      const div = document.createElement('div');
+      Array.from(ul.children).forEach(li=>{
+        const p = document.createElement('p');
+        p.style.margin = '0 0 6px';
+        p.style.fontWeight = '700';
+        p.innerHTML = li.innerHTML;
+        div.appendChild(p);
+      });
+      ul.replaceWith(div);
+    });
+    clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
+    const liveIdCardEl = $('paper').querySelector('.id-card');
+    const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
+    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
+    clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
+    clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
+    clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
+    clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
+    clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
+    clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
+    clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
+
+    // A largura da 1ª célula da linha do líquido amniótico já foi calculada em
+    // px pelo alignIlaColumns() e aplicada como estilo inline no #paper vivo
+    // (para o ILA cair na coluna de CF/CA) — cloneNode(true) já traz esse
+    // estilo junto, então nada extra é preciso aqui para o Word.
+
+    clone.querySelectorAll('.id-card-row').forEach(el=>{
+      el.style.fontSize = '12pt';
+      if(el.children.length !== 2) return;
+      const [left, right] = el.children;
+      const table = document.createElement('table');
+      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;');
+      table.innerHTML = '<tr>'
+        + '<td style="border:none;padding:0;text-align:left;">'+left.innerHTML+'</td>'
+        + '<td style="border:none;padding:0;text-align:right;">'+right.innerHTML+'</td>'
+        + '</tr>';
+      el.replaceWith(table);
+    });
+    clone.querySelectorAll('.rodape-final').forEach(el=>{
+      const footnote = el.querySelector('.footnote');
+      const assinatura = el.querySelector('.assinatura');
+      const table = document.createElement('table');
+      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin-top:16px;');
+      table.innerHTML = '<tr>'
+        + '<td style="border:none;padding:0;vertical-align:bottom;text-align:left;">'+(footnote ? footnote.outerHTML : '')+'</td>'
+        + '<td style="border:none;padding:0;vertical-align:bottom;text-align:right;width:1%;white-space:nowrap;">'+(assinatura ? assinatura.outerHTML : '')+'</td>'
+        + '</tr>';
+      el.replaceWith(table);
+    });
+
+    const lineHeight = $('paper').style.lineHeight || '1.15';
+    const fontSize = $('paper').style.fontSize || '12pt';
+    return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";\">"+clone.innerHTML+'</div>';
+  }
+
+  // ---------- Print pagination: pins the signature to the bottom-right corner
+  // of the physical page, at print time only. Same pipeline as the other laudos. ----------
+  function paginateForPrint(){
+    const paperEl = $('paper');
+    paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    const originalHTML = paperEl.innerHTML;
+    const originalLineHeight = paperEl.style.lineHeight;
+    const originalFontSize = paperEl.style.fontSize;
+
+    const packBudgetPx = pageBudgetPx();
+
+    const baseLineHeight = parseFloat(paperEl.style.lineHeight) || 1.15;
+    const baseFontSize = parseFloat(paperEl.style.fontSize) || 12;
+    const fit = autoFitPages(paperEl, packBudgetPx);
+    const packed = fit.packed;
+    const usedLineHeight = fit.lineHeight;
+    const usedFontSize = fit.fontSize;
+    if(usedLineHeight !== baseLineHeight) paperEl.style.lineHeight = usedLineHeight;
+    if(usedFontSize !== baseFontSize) paperEl.style.fontSize = usedFontSize + 'pt';
+
+    const {pages, continuaHtml, continuaHeight} = packed;
+
+    const wrap = document.createElement('div');
+    pages.forEach((pageBoxes, pageIdx)=>{
+      const isLast = pageIdx === pages.length - 1;
+      const pinned = isLast ? pageBoxes[pageBoxes.length - 1] : null;
+      const contentBoxes = isLast ? pageBoxes.slice(0, -1) : pageBoxes;
+
+      const pageEl = document.createElement('div');
+      pageEl.className = 'print-page';
+      let i = 0;
+      while(i < contentBoxes.length){
+        if(contentBoxes[i].kind === 'li'){
+          const ul = document.createElement('ul');
+          ul.className = 'impressao';
+          while(i < contentBoxes.length && contentBoxes[i].kind === 'li'){ ul.insertAdjacentHTML('beforeend', contentBoxes[i].html); i++; }
+          pageEl.appendChild(ul);
+        } else {
+          pageEl.insertAdjacentHTML('beforeend', contentBoxes[i].html);
+          i++;
+        }
+      }
+      const contentHeight = contentBoxes.length ? (contentBoxes[contentBoxes.length-1].bottom - contentBoxes[0].top) : 0;
+
+      const pinnedHtml = isLast ? (pinned ? pinned.html : '') : continuaHtml;
+      const pinnedHeight = isLast ? (pinned ? (pinned.bottom - pinned.top) : 0) : continuaHeight;
+      if(pinnedHtml){
+        const spacerPx = Math.max(0, packBudgetPx - contentHeight - pinnedHeight);
+        const spacer = document.createElement('div');
+        spacer.style.height = spacerPx + 'px';
+        pageEl.appendChild(spacer);
+        pageEl.insertAdjacentHTML('beforeend', pinnedHtml);
+      }
+      wrap.appendChild(pageEl);
+    });
+    paperEl.innerHTML = wrap.innerHTML;
+
+    return function restore(){
+      paperEl.innerHTML = originalHTML;
+      paperEl.style.lineHeight = originalLineHeight;
+      paperEl.style.fontSize = originalFontSize;
+      updatePagePreview();
+    };
+  }
+
+  let printRestore = null;
+  // "Salvar como PDF" do navegador sugere o nome do arquivo a partir do
+  // document.title, então ele vira "Nome da paciente - Obstétrico ..." durante
+  // a impressão e volta ao título da página assim que ela termina.
+  const tituloPagina = document.title;
+  window.addEventListener('beforeprint', ()=>{
+    document.title = nomeArquivoLaudo();
+    if(printRestore) return;
+    printRestore = paginateForPrint();
+  });
+  window.addEventListener('afterprint', ()=>{
+    document.title = tituloPagina;
+    if(printRestore){ printRestore(); printRestore = null; }
+  });
+
+  $('btnPrint').addEventListener('click', ()=>{
+    if(pendingCount > 0){
+      printAttempted = true;
+      render();
+      const alertEl = $('printAlert');
+      alertEl.classList.add('show');
+      alertEl.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    try{
+      window.print();
+    }catch(e){
+      alert('Não foi possível abrir a impressão automaticamente. Use "Baixar Word" e imprima a partir de lá.');
+    }
+  });
+
+  function sanitizeFilenamePart(s){
+    return s.replace(/[\\/:*?"<>|]/g, '').trim();
+  }
+  // Nome usado tanto no Word quanto no PDF: nome completo da paciente seguido
+  // do título do exame ("Ana Maria Braga - Obstétrico 2º-3º trimestre"), para
+  // o arquivo já sair identificado e ir direto para a pasta da paciente.
+  function tituloExame(){
+    const n = fetoUids().length;
+    if(n >= 3) return 'Morfológico Trigemelar de 1º trimestre';
+    if(n === 2) return 'Morfológico Gemelar de 1º trimestre';
+    return 'Morfológico de 1º trimestre';
+  }
+  function nomeArquivoLaudo(){
+    const paciente = sanitizeFilenamePart(v('nomePaciente'));
+    return paciente ? paciente + ' - ' + tituloExame() : 'Laudo - ' + tituloExame();
+  }
+  async function saveBlobAs(blob, suggestedName){
+    if(window.showSaveFilePicker){
+      try{
+        const handle = await window.showSaveFilePicker({
+          suggestedName,
+          types: [{description:'Documento Word', accept:{'application/msword':['.doc']}}]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return;
+      }catch(e){
+        if(e && e.name === 'AbortError') return;
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = suggestedName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  }
+  $('btnDownloadWord').addEventListener('click', async ()=>{
+    try{
+      const html = buildReportHtml();
+      const docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
+        + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
+        + 'xmlns="http://www.w3.org/TR/REC-html40">'
+        + '<head><meta charset="utf-8"><title>'+escapeHtml(nomeArquivoLaudo())+'</title>'
+        + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
+        + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
+        + '</head><body>' + html + '</body></html>';
+      const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
+      await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
+    }catch(e){
+      alert('Não foi possível baixar o arquivo Word neste navegador.');
+    }
+  });
+
+  $('btnReset').addEventListener('click', ()=>{
+    if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
+    document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
+    document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
+    document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
+    document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
+    document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
+    document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
+    checkedState = {};
+    impressaoOverrides = {};
+    lastBlockHtml = {};
+    $('paper').innerHTML = '';
+    printAttempted = false;
+    $('printAlert').classList.remove('show');
+    setDefaultDataExame();
+    // Recria a lista de fetos do zero: os cards antigos levavam junto os valores
+    // digitados, e o select de nº de fetos acabou de voltar para "Único".
+    $('fetosContainer').innerHTML = '';
+    const _dffReset = $('dopplerFetalFields'); if(_dffReset) _dffReset.innerHTML = '';
+    addFeto();
+    render();
+    // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
+    draftDiscard();
+  });
+
+  function setDefaultDataExame(){
+    const el = $('dataExame');
+    if(!el || el.value) return;
+    const pad = n => String(n).padStart(2, '0');
+    const d = new Date();
+    el.value = pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear();
+  }
+  setDefaultDataExame();
+
+  // ---------- Rascunho automático (o laudo se salva sozinho) ----------
+  // Antes disto o laudo só saía do navegador no fim, no "Imprimir / PDF" ou no
+  // "Baixar Word": uma queda de energia, um F5 sem querer ou a aba fechada por
+  // engano levavam junto tudo o que já tinha sido digitado. Agora cada mudança
+  // no formulário e cada texto digitado direto no laudo viram um rascunho
+  // gravado neste navegador — pouco depois da última tecla, e na hora quando a
+  // aba é escondida ou fechada — e esse rascunho volta sozinho ao reabrir.
+  //
+  // Grava em localStorage direto, e não pelo kvStore assíncrono das
+  // preferências, porque a gravação do 'pagehide' precisa ser síncrona: é a
+  // última que ainda acontece com a aba fechando.
+  //
+  // O rascunho fica só neste computador (não vai para servidor nenhum) e contém
+  // dados da paciente; "Limpar" apaga o rascunho junto com o formulário.
+  const DRAFT_KEY = 'laudo-rascunho-morfologico1t-v1';
+  const DRAFT_DEBOUNCE_MS = 800;
+  // Selects que definem quantos cards existem: ficam fora do disparo de 'change'
+  // da restauração porque recriariam do zero os cards que acabaram de voltar com
+  // os uids certos.
+  const DRAFT_SKIP_CHANGE = ['numeroFetos'];
+  let draftTimer = null;
+  let draftReady = false;    // não grava nada antes de a carga inicial terminar
+  let draftBaseline = null;  // assinatura do formulário em branco (nada a salvar)
+
+  function draftPaperHtml(){
+    // Os marcadores de fim de página são recalculados a cada render(); sem
+    // tirá-los daqui, voltariam duplicados junto com o rascunho.
+    const clone = $('paper').cloneNode(true);
+    clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    return clone.innerHTML;
+  }
+
+  function draftSnapshot(){
+    const fields = {};
+    document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
+      // Os checkboxes da checklist de impressões não têm id: eles voltam por
+      // `checked`/`overrides`, que guardam também o texto reescrito à mão.
+      if(!el.id) return;
+      fields[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    return {
+      v: 1,
+      ts: Date.now(),
+      fields: fields,
+      uids: fetoUids(),
+      checked: checkedState,
+      overrides: impressaoOverrides,
+      titleFontSize: titleFontSize,
+      paper: draftPaperHtml(),
+      blocks: lastBlockHtml
+    };
+  }
+
+  // Assinatura do conteúdo, sem o relógio: serve para não gravar — e para apagar,
+  // se já existir — um rascunho que é só o formulário em branco recém-aberto.
+  function draftFingerprint(s){
+    return JSON.stringify([s.fields, s.uids, s.checked, s.overrides, s.paper]);
+  }
+
+  function draftHora(ts){
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, '0');
+    const hora = pad(d.getHours())+':'+pad(d.getMinutes());
+    return d.toDateString() === new Date().toDateString()
+      ? 'hoje às '+hora
+      : 'em '+pad(d.getDate())+'.'+pad(d.getMonth()+1)+' às '+hora;
+  }
+
+  function setDraftPill(text, warn){
+    const pill = $('draftPill');
+    if(!pill) return;
+    if(!text){ pill.style.display = 'none'; return; }
+    pill.textContent = text;
+    pill.classList.toggle('pending', !!warn);
+    pill.style.display = 'inline-block';
+  }
+
+  function draftSaveNow(){
+    if(!draftReady || draftRestoring) return;
+    clearTimeout(draftTimer);
+    draftTimer = null;
+    try{
+      const snap = draftSnapshot();
+      if(draftBaseline && draftFingerprint(snap) === draftBaseline){
+        localStorage.removeItem(DRAFT_KEY);
+        setDraftPill(null);
+        return;
+      }
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
+      draftBaseline = null;  // já tem laudo digitado: nada aqui é mais "em branco"
+      setDraftPill('✓ Rascunho salvo '+draftHora(snap.ts));
+    }catch(e){
+      // Espaço esgotado, aba anônima ou armazenamento bloqueado: melhor avisar
+      // do que deixar a médica achar que está protegida.
+      setDraftPill('⚠ Não consegui salvar o rascunho neste navegador', true);
+    }
+  }
+
+  function draftSchedule(){
+    if(!draftReady || draftRestoring) return;
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(draftSaveNow, DRAFT_DEBOUNCE_MS);
+  }
+
+  function draftDiscard(){
+    clearTimeout(draftTimer);
+    draftTimer = null;
+    try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+    const note = $('draftNote');
+    if(note) note.classList.remove('show');
+    setDraftPill(null);
+    draftBaseline = draftReady ? draftFingerprint(draftSnapshot()) : null;
+  }
+
+  function draftRead(){
+    try{
+      const raw = localStorage.getItem(DRAFT_KEY);
+      const d = raw ? JSON.parse(raw) : null;
+      return (d && d.v === 1 && d.fields) ? d : null;
+    }catch(e){ return null; }
+  }
+
+  function draftRestore(d){
+    draftRestoring = true;
+    try{
+      // Os cards repetidos voltam com os mesmos uids de antes: os ids dos campos,
+      // as chaves da checklist de impressões e os ids dos blocos do laudo derivam
+      // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.
+      const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
+      $('fetosContainer').innerHTML = '';
+      const _dffRestore = $('dopplerFetalFields'); if(_dffRestore) _dffRestore.innerHTML = '';
+      if(uids.length){
+        uids.forEach(uid=>{
+          fetoNextUid = Math.max(fetoNextUid, parseInt(uid, 10) + 1);
+          $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
+          wireFetoCard(uid);
+        });
+        renumberFetos();
+      }else{
+        addFeto();
+      }
+
+      Object.keys(d.fields).forEach(id=>{
+        const el = $(id);
+        if(!el || !el.closest('#formCol')) return;
+        if(el.type === 'checkbox') el.checked = !!d.fields[id];
+        else el.value = d.fields[id];
+      });
+
+      // Rascunhos gravados antes da máscara guardam o CPF só em dígitos: sem
+      // isto, ele voltaria à tela sem a pontuação.
+      aplicarMascaraCPF();
+
+      // A lista de corionicidade depende do número de fetos, e 'numeroFetos'
+      // está fora do disparo de 'change' logo abaixo (recriaria os cards que
+      // acabaram de voltar). Sem esta chamada, um rascunho antigo poderia
+      // voltar com uma corionicidade que não existe para a quantidade de fetos
+      // dele — dicoriônica numa trigemelar, por exemplo.
+      updateGestacaoWrap();
+
+      // Quais blocos condicionais ficam abertos é decidido pelos handlers de
+      // 'change' dos selects e checkboxes — e os valores acima foram escritos na
+      // mão, sem passar por eles. Um 'change' em cada um reabre no formulário
+      // exatamente as seções que estavam abertas.
+      document.querySelectorAll('#formCol select, #formCol input[type=checkbox]').forEach(el=>{
+        if(DRAFT_SKIP_CHANGE.indexOf(el.id) !== -1) return;
+        if(el.closest('#impressaoChecklist')) return;
+        el.dispatchEvent(new Event('change'));
+      });
+
+      checkedState = (d.checked && typeof d.checked === 'object') ? d.checked : {};
+      impressaoOverrides = (d.overrides && typeof d.overrides === 'object') ? d.overrides : {};
+      titleFontSize = d.titleFontSize || null;
+    }catch(e){
+      // Rascunho corrompido ou de uma versão antiga deste laudo: melhor abrir em
+      // branco do que deixar a tela quebrada.
+      draftRestoring = false;
+      $('fetosContainer').innerHTML = '';
+      checkedState = {};
+      impressaoOverrides = {};
+      lastBlockHtml = {};
+      $('paper').innerHTML = '';
+      try{ localStorage.removeItem(DRAFT_KEY); }catch(e2){}
+      return false;
+    }
+    draftRestoring = false;
+    render();
+    // O render() acima remonta o laudo a partir dos campos; por cima dele volta o
+    // HTML exato que estava na tela, com as correções digitadas à mão dentro do
+    // texto. `lastBlockHtml` volta junto para a reconciliação seguinte continuar
+    // sabendo o que é texto gerado e o que é texto digitado.
+    if(typeof d.paper === 'string' && d.paper){
+      $('paper').innerHTML = d.paper;
+      lastBlockHtml = (d.blocks && typeof d.blocks === 'object') ? d.blocks : {};
+      updatePagePreview();
+    }
+    const note = $('draftNote');
+    if(note){
+      $('draftNoteText').textContent = 'Rascunho recuperado — este laudo voltou como estava '
+        + draftHora(d.ts) + '. Continue de onde parou; para começar um laudo novo, use "Limpar" no alto da página.';
+      note.classList.add('show');
+    }
+    setDraftPill('✓ Rascunho salvo '+draftHora(d.ts));
+    return true;
+  }
+
+  function draftInit(){
+    const d = draftRead();
+    if(!(d && draftRestore(d))){
+      addFeto();
+      render();
+      draftReady = true;
+      draftBaseline = draftFingerprint(draftSnapshot());
+      return;
+    }
+    draftReady = true;
+  }
+
+  // Texto digitado direto no laudo não passa por render() — tem o próprio
+  // gatilho de gravação.
+  $('paper').addEventListener('input', draftSchedule);
+
+  // Aba fechada, laudo trocado no seletor, navegador minimizado: grava na hora o
+  // que estiver pendente, em vez de esperar o intervalo do autosave.
+  window.addEventListener('pagehide', draftSaveNow);
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'hidden') draftSaveNow();
+  });
+
+  $('btnDraftDiscard').addEventListener('click', ()=>{
+    $('draftNote').classList.remove('show');
+  });
+
+  // A restauração do rascunho — ou o primeiro card em branco, quando não há
+  // rascunho — entra no fim desta cadeia: precisa das frases e dos valores de
+  // referência já carregados para o laudo voltar exatamente como estava.
+  loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit())));
+
+  // ---------- Integração com a Curva de Crescimento (Supabase) ----------
+  const CG_URL = 'https://ulcqnqwxguydrpoaplcv.supabase.co';
+  const CG_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3FucXd4Z3V5ZHJwb2FwbGN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Njk2NjcsImV4cCI6MjEwMTA0NTY2N30.hNrszyJvaBzP08Oild4wivMrTvXnDoGfgL6My1bbtVU';
+  const cgClient = window.supabase.createClient(CG_URL, CG_ANON_KEY);
+
+  function cgToast(msg, isErr){
+    const el = $('cgToast');
+    el.textContent = msg;
+    el.className = 'cg-toast show' + (isErr ? ' err' : '');
+    clearTimeout(el._t);
+    el._t = setTimeout(()=> el.classList.remove('show'), 5000);
+  }
+
+  function cgOnlyDigits(s){ return (s||'').replace(/\D/g, ''); }
+  function toISODateLocal(date){
+    if(!date) return null;
+    const y = date.getFullYear();
+    const m = String(date.getMonth()+1).padStart(2,'0');
+    const d = String(date.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+d;
+  }
+
+  function cgDataExameToISO(){
+    const s = v('dataExame');
+    const m = s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if(!m) return null;
+    return m[3]+'-'+m[2]+'-'+m[1];
+  }
+
+  async function cgCheckSession(){
+    const {data} = await cgClient.auth.getSession();
+    $('cgLoginOverlay').classList.toggle('hide', !!data.session);
+    return data.session;
+  }
+
+  $('cgBtnLogin').addEventListener('click', async ()=>{
+    const email = v('cgEmail'), senha = v('cgSenha');
+    const errEl = $('cgLoginErr');
+    errEl.classList.remove('show');
+    const {error} = await cgClient.auth.signInWithPassword({email, password: senha});
+    if(error){
+      errEl.textContent = 'Login inválido. Confira e-mail e senha.';
+      errEl.classList.add('show');
+      return;
+    }
+    await cgCheckSession();
+  });
+
+  cgClient.auth.onAuthStateChange((_evt, session)=>{
+    $('cgLoginOverlay').classList.toggle('hide', !!session);
+  });
+  cgCheckSession();
+
+  $('btnSalvarCG').addEventListener('click', async ()=>{
+    const session = await cgCheckSession();
+    if(!session){ cgToast('Faça login para salvar.', true); return; }
+
+    const cpf = cgOnlyDigits(v('cpfPaciente'));
+    if(cpf.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
+    const cpfFormatado = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    const nome = v('nomePaciente');
+    if(!nome){ cgToast('Preencha o nome da paciente.', true); return; }
+    const dataExameISO = cgDataExameToISO();
+    if(!dataExameISO){ cgToast('Data do exame inválida (use dd.mm.aaaa).', true); return; }
+
+    const uids = fetoUids();
+    if(!uids.length){ cgToast('Nenhum feto preenchido.', true); return; }
+    const isMultiple = uids.length > 1;
+
+    const btn = $('btnSalvarCG');
+    btn.disabled = true;
+    const originalLabel = btn.textContent;
+    btn.textContent = 'Salvando...';
+
+    try{
+      const userId = session.user.id;
+
+      // 1) Busca ou cria a paciente por CPF (tenta com e sem pontuação, pois o app Curvas salva formatado)
+      let {data: pacientesEncontrados, error: errBusca} = await cgClient
+        .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
+      if(errBusca) throw errBusca;
+      let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
+
+      if(!paciente){
+        const {data: novaPaciente, error: errCria} = await cgClient
+          .from('patients').insert({user_id: userId, cpf: cpfFormatado, nome}).select('id').single();
+        if(errCria && errCria.code !== '23505') throw errCria;
+        if(errCria && errCria.code === '23505'){
+          // Corrida: paciente já foi criada nesse meio-tempo — busca de novo
+          const {data: pacienteExistente, error: errBusca2} = await cgClient
+            .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
+          if(errBusca2) throw errBusca2;
+          paciente = (pacienteExistente && pacienteExistente[0]) || null;
+        } else {
+          paciente = novaPaciente;
+        }
+      }
+      if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
+
+      // 2) Busca a gestação ativa dessa paciente — cria automaticamente se não houver
+      let {data: gestacao, error: errGest} = await cgClient
+        .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
+      if(errGest) throw errGest;
+
+      if(!gestacao){
+        const cronologiaMetodoAtual = v('cronologiaMetodo');
+        const dataBase = computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='exame') ? cronologiaMetodoAtual : 'dum');
+        if(!dataBase){
+          cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
+          return;
+        }
+        const dumISO = toISODateLocal(dataBase);
+        const dppISO = toISODateLocal(addDays(dataBase, 280));
+        // 'gemelar' e 'trigemelar' são os valores que o check da tabela aceita
+        // (migração 005 do repo curva-fetal); a corionicidade escolhida no laudo
+        // precisa combinar com o tipo — tricoriônica só existe em trigemelar.
+        const tipoGestacao = uids.length > 2 ? 'trigemelar' : (isMultiple ? 'gemelar' : 'unica');
+        const corionicidadeAtual = isMultiple ? v('corionicidade') : null;
+        const {data: novaGestacao, error: errCriaGest} = await cgClient
+          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: tipoGestacao, corionicidade: corionicidadeAtual})
+          .select('id').single();
+        if(errCriaGest) throw errCriaGest;
+        gestacao = novaGestacao;
+      }
+
+      // 3) Monta um exame por feto (feto 1, 2, 3... quando múltipla) — a curva
+      // de crescimento acompanha cada feto separadamente. Lá os fetos são
+      // letras: o Feto 1 do laudo é o 'A', o 2 é o 'B', o 3 é o 'C'.
+      const impSemanasVal = num('impSemanas');
+      const impDiasVal = num('impDias');
+      const igDias = (impSemanasVal!=null && impDiasVal!=null) ? (impSemanasVal*7 + impDiasVal) : null;
+      const coloVal = num('coloComprimento');
+
+      const exames = uids.map((uid, idx)=>{
+        const pre = 'feto'+uid;
+        return {
+          user_id: userId,
+          gestacao_id: gestacao.id,
+          data_exame: dataExameISO,
+          ig_dias_manual: igDias,
+          dbp: num(pre+'DBP'),
+          cc: num(pre+'CC'),
+          ca: num(pre+'CA'),
+          femur: num(pre+'CF'),
+          // Uterinas são medidas da mãe: numa gemelar o mesmo par vai nos dois exames.
+          aut_e: num('utEsquerda'),
+          aut_d: num('utDireita'),
+          colo: coloVal,
+          feto: isMultiple ? String.fromCharCode(65 + idx) : null
+        };
+      });
+
+      const {error: errExame} = await cgClient.from('exams').insert(exames);
+      if(errExame) throw errExame;
+
+      cgToast(isMultiple ? 'Exames salvos na Curva de Crescimento ✓' : 'Exame salvo na Curva de Crescimento ✓', false);
+    }catch(e){
+      console.error(e);
+      cgToast('Erro ao salvar: ' + (e.message || 'tente novamente.'), true);
+    }finally{
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  });
+})();
+</script>
+</body>
+</html>
