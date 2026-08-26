@@ -45,15 +45,27 @@ compartilhada entre eles**: o alinhamento é só combinação, e por isso quebra
 calado.
 
 O `CLAUDE.md` do `curva-fetal` descreve o mesmo contrato do lado de lá, e o
-`supabase/schema.sql` dele é a fonte de verdade das colunas. **Toda mudança em
-como este repositório grava CPF, id, lixeira ou colunas de exame precisa ser
-espelhada lá — e vice-versa.** Quando a tarefa mexer nisso, leia os dois lados
-antes de escrever qualquer coisa.
+`supabase/schema.sql` dele é a fonte de verdade das colunas de `patients`,
+`gestacoes` e `exams`. **Toda mudança em como este repositório grava CPF, id,
+lixeira ou colunas de exame precisa ser espelhada lá — e vice-versa.** Quando
+a tarefa mexer nisso, leia os dois lados antes de escrever qualquer coisa.
 
 Onde fica o código aqui: bloco `// ---- Integração com a Curva de Crescimento
 (Supabase) ----`, no fim do `<script>` de `obstetrico.html` e
-`obstetrico-1trimestre.html`, no handler do botão `#btnSalvarCG`. O
-`transvaginal.html` não tem integração nenhuma.
+`obstetrico-1trimestre.html`, no handler do botão `#btnSalvarCG`.
+
+**`transvaginal.html` e `rastreamento-ovulacao.html` são diferentes: não têm
+feto, então não gravam em `exams`/`gestacoes`.** Cada um tem sua própria tabela
+— `laudos_tv` e `laudos_ovulacao`, respectivamente — que guarda um snapshot
+completo do formulário (`draftSnapshot()`) por visita, usada só para o botão
+"Buscar laudo anterior" no topo do próprio laudo continuar de onde parou. O app
+de curvas **nunca lê essas tabelas**; elas não aparecem no `schema.sql` do
+`curva-fetal` (foram criadas direto no painel do Supabase, sem migração
+registrada em nenhum dos dois repositórios — se for criar uma tabela nova
+nesse mesmo padrão para outro laudo, escreva o SQL aqui, no laudo novo, já que
+não há onde mais isso ficaria documentado). Os dois ainda usam `patients` para
+achar/criar a paciente pelo CPF — mesma paciente das curvas — o que faz as
+quatro regras abaixo valerem para eles também, exceto a de colunas de exame.
 
 ### As quatro regras que não podem ser quebradas
 

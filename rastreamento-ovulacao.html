@@ -6,6 +6,7 @@
 <title>Laudo de Rastreamento de Ovulação — Dra. Morgana Kummer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#f9f5f9;
@@ -279,7 +280,7 @@
     margin: 0;
   }
   @media print{
-    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note{display:none !important;}
+    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note, .cg-bar, .cg-results-list, .cg-toast, #cgLoginOverlay{display:none !important;}
     .pg-break-marker{display:none !important;}
     .layout{display:block;padding:0;margin:0;max-width:none;}
     .preview-wrap{position:static;}
@@ -295,9 +296,47 @@
     .paper .continua{font-style:italic;font-size:10pt;text-align:right;margin:0;}
     .paper .print-page .rodape-final{margin-top:0;}
   }
+  /* ---- Curva de Crescimento: login + buscar/salvar laudo anterior ---- */
+  .cg-overlay{position:fixed;inset:0;background:rgba(43,43,46,.55);z-index:5000;display:flex;align-items:center;justify-content:center;}
+  .cg-overlay.hide{display:none;}
+  .cg-box{background:#fff;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);padding:28px 30px;width:340px;max-width:90vw;font-family:'Inter',sans-serif;}
+  .cg-box h3{font-family:'Poppins',sans-serif;margin:0 0 4px;font-size:17px;color:#6d3263;}
+  .cg-box p{font-size:12.5px;color:#9a7e95;margin:0 0 16px;}
+  .cg-box input{width:100%;padding:10px 13px;border:1.5px solid #ebe0e9;border-radius:10px;font-size:13.5px;margin-bottom:10px;box-sizing:border-box;}
+  .cg-box button{width:100%;padding:10px;border:none;border-radius:999px;background:#ae5ba0;color:#fff;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;cursor:pointer;}
+  .cg-box button:hover{opacity:.9;}
+  .cg-err{color:#B4432F;font-size:12px;margin:-4px 0 10px;display:none;}
+  .cg-err.show{display:block;}
+  .cg-toast{position:fixed;bottom:24px;right:24px;background:#2b2b2e;color:#fff;padding:12px 18px;border-radius:12px;font-family:'Inter',sans-serif;font-size:13px;z-index:6000;box-shadow:0 10px 24px rgba(0,0,0,.25);max-width:320px;display:none;}
+  .cg-toast.show{display:block;}
+  .cg-toast.err{background:#B4432F;}
+  .btn-cg{background:#6d3263;color:#fff;}
+  .btn-cg:hover{opacity:.9;}
+  .cg-bar{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin:0 28px 14px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow);}
+  .cg-bar .field{flex:1;min-width:200px;margin:0;}
+  .cg-bar .field label{font-size:12px;color:var(--ink-soft);display:block;margin-bottom:4px;}
+  .cg-bar input{width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13.5px;box-sizing:border-box;}
+  .cg-results-list{width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+  .cg-result-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--line-soft);cursor:pointer;}
+  .cg-result-item:hover{background:var(--rose-light);}
+  .cg-result-item .ri-name{font-weight:600;color:var(--ink);font-size:13.5px;}
+  .cg-result-item .ri-meta{font-size:12px;color:var(--ink-soft);}
+  .cg-result-empty{font-size:12.5px;color:var(--ink-soft);padding:6px 2px;}
 </style>
 </head>
 <body>
+
+<div class="cg-overlay" id="cgLoginOverlay">
+  <div class="cg-box">
+    <h3>Entrar</h3>
+    <p>Login da Curva de Crescimento — necessário para salvar e buscar laudos anteriores.</p>
+    <input type="email" id="cgEmail" placeholder="E-mail" autocomplete="username">
+    <input type="password" id="cgSenha" placeholder="Senha" autocomplete="current-password">
+    <div class="cg-err" id="cgLoginErr"></div>
+    <button id="cgBtnLogin">Entrar</button>
+  </div>
+</div>
+<div class="cg-toast" id="cgToast"></div>
 
 <div class="topbar">
   <div class="topbar-brand">
@@ -327,6 +366,15 @@
     <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
     <button class="btn-ghost" id="btnReset">Limpar</button>
   </div>
+</div>
+
+<div class="cg-bar" id="cgBar">
+  <div class="field">
+    <label>Buscar laudo anterior (nome ou CPF)</label>
+    <input type="text" id="cgBusca" placeholder="Digite o nome ou o CPF da paciente" autocomplete="off">
+  </div>
+  <button type="button" class="btn-cg" id="btnBuscarCG">Buscar</button>
+  <div class="cg-results-list" id="cgResults"></div>
 </div>
 
 <div class="settings-panel" id="settingsPanel">
@@ -408,6 +456,9 @@
         <div class="field-row">
           <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
           <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
         </div>
         <div class="field-row">
           <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
@@ -644,6 +695,7 @@
     <div class="preview-actions">
       <button class="btn-print" id="btnPrint">Imprimir / PDF</button>
       <button class="btn-clear" id="btnDownloadWord">Baixar Word</button>
+      <button class="btn-cg" id="btnSalvarCG">Salvar na Curva de Crescimento</button>
     </div>
   </div>
 </div>
@@ -2145,6 +2197,223 @@
   });
 
   loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit())));
+
+  // ---- Curva de Crescimento: login + buscar/salvar laudo anterior ----
+  // Mesmo Supabase do app de curvas (mesmo cadastro de paciente, por CPF),
+  // mas o histórico deste laudo fica só na tabela própria `laudos_ovulacao` —
+  // igual ao transvaginal.html com `laudos_tv`. O app de curvas nunca lê essa
+  // tabela; "buscar laudo anterior" é uma função só deste arquivo, que faz a
+  // própria consulta ao Supabase pelo navegador da médica.
+  const CG_URL = 'https://ulcqnqwxguydrpoaplcv.supabase.co';
+  const CG_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3FucXd4Z3V5ZHJwb2FwbGN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Njk2NjcsImV4cCI6MjEwMTA0NTY2N30.hNrszyJvaBzP08Oild4wivMrTvXnDoGfgL6My1bbtVU';
+  const cgClient = window.supabase.createClient(CG_URL, CG_ANON_KEY);
+
+  function cgToast(msg, isErr){
+    const el = $('cgToast');
+    el.textContent = msg;
+    el.className = 'cg-toast show' + (isErr ? ' err' : '');
+    clearTimeout(el._t);
+    el._t = setTimeout(()=> el.classList.remove('show'), 5000);
+  }
+  function cgOnlyDigits(s){ return (s||'').replace(/\D/g, ''); }
+  function cgFormatCPF(digits){ return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'); }
+  function cgDataExameToISO(){
+    // o campo dataExame usa dd.mm.aaaa (pontos), como nos demais laudos
+    const s = v('dataExame');
+    const m = s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if(!m) return null;
+    return m[3]+'-'+m[2]+'-'+m[1];
+  }
+  function cgFormatDateBR(iso){
+    if(!iso) return '';
+    const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(!m) return String(iso);
+    return m[3]+'.'+m[2]+'.'+m[1];
+  }
+
+  function aplicarMascaraCPF(){
+    const el = $('cpfPaciente');
+    if(!el) return;
+    const digits = el.value.replace(/\D/g, '').slice(0, 11);
+    let out = digits.slice(0,3);
+    if(digits.length > 3) out += '.'+digits.slice(3,6);
+    if(digits.length > 6) out += '.'+digits.slice(6,9);
+    if(digits.length > 9) out += '-'+digits.slice(9);
+    if(out === el.value) return;
+    el.value = out;
+    try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
+  }
+  if($('cpfPaciente')) $('cpfPaciente').addEventListener('input', aplicarMascaraCPF);
+
+  async function cgCheckSession(){
+    const {data} = await cgClient.auth.getSession();
+    $('cgLoginOverlay').classList.toggle('hide', !!data.session);
+    return data.session;
+  }
+
+  $('cgBtnLogin').addEventListener('click', async ()=>{
+    const email = v('cgEmail'), senha = v('cgSenha');
+    const errEl = $('cgLoginErr');
+    errEl.classList.remove('show');
+    const {error} = await cgClient.auth.signInWithPassword({email, password: senha});
+    if(error){
+      errEl.textContent = 'Login inválido. Confira e-mail e senha.';
+      errEl.classList.add('show');
+      return;
+    }
+    await cgCheckSession();
+  });
+
+  cgClient.auth.onAuthStateChange((_evt, session)=>{
+    $('cgLoginOverlay').classList.toggle('hide', !!session);
+  });
+  cgCheckSession();
+
+  // ---- Buscar laudo anterior por nome ou CPF ----
+  async function cgBuscarLaudos(){
+    const session = await cgCheckSession();
+    if(!session){ cgToast('Faça login para buscar laudos.', true); return; }
+    const term = v('cgBusca');
+    const digits = cgOnlyDigits(term);
+    const resultsEl = $('cgResults');
+    resultsEl.innerHTML = '';
+    if(!term){ cgToast('Digite nome ou CPF para buscar.', true); return; }
+
+    let pacientes = [];
+    try{
+      if(digits.length === 11){
+        const cpfFormatado = cgFormatCPF(digits);
+        const {data, error} = await cgClient.from('patients')
+          .select('id, nome, cpf').in('cpf', [digits, cpfFormatado]).is('excluido_em', null).limit(20);
+        if(error) throw error;
+        pacientes = data || [];
+      }else{
+        const nome = term.replace(/[%_]/g, '\\$&');
+        const {data, error} = await cgClient.from('patients')
+          .select('id, nome, cpf').ilike('nome', '%'+nome+'%').is('excluido_em', null).limit(20);
+        if(error) throw error;
+        pacientes = data || [];
+      }
+    }catch(e){
+      cgToast('Erro ao buscar: ' + (e.message || 'tente novamente.'), true);
+      return;
+    }
+    if(!pacientes.length){ resultsEl.innerHTML = '<div class="cg-result-empty">Nenhum paciente encontrado.</div>'; return; }
+
+    const ids = pacientes.map(p=> p.id);
+    let laudos = [];
+    try{
+      const {data, error} = await cgClient.from('laudos_ovulacao')
+        .select('id, data_exame, paciente_id, created_at, conteudo')
+        .in('paciente_id', ids).order('data_exame',{ascending:false}).order('created_at',{ascending:false}).limit(50);
+      if(error) throw error;
+      laudos = data || [];
+    }catch(e){
+      cgToast('Erro ao buscar laudos: ' + (e.message || 'tente novamente.'), true);
+      return;
+    }
+    if(!laudos.length){
+      resultsEl.innerHTML = '<div class="cg-result-empty">Paciente encontrada, mas sem laudo de rastreamento de ovulação anterior salvo.</div>';
+      return;
+    }
+
+    const porNome = {};
+    pacientes.forEach(p=> porNome[p.id] = p.nome);
+    laudos.forEach(laudo=>{
+      const item = document.createElement('div');
+      item.className = 'cg-result-item';
+      item.innerHTML = '<span class="ri-name">'+(porNome[laudo.paciente_id] || 'Paciente')+'</span>'
+        + '<span class="ri-meta">Exame de '+cgFormatDateBR(laudo.data_exame)+'</span>';
+      item.addEventListener('click', ()=> cgCarregarLaudo(laudo));
+      resultsEl.appendChild(item);
+    });
+  }
+
+  $('btnBuscarCG').addEventListener('click', cgBuscarLaudos);
+  $('cgBusca').addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); cgBuscarLaudos(); } });
+
+  // ---- Carregar um laudo anterior no formulário (snapshot completo) ----
+  function cgCarregarLaudo(laudo){
+    const snap = laudo.conteudo;
+    if(!snap || typeof snap !== 'object' || !snap.fields){
+      cgToast('Laudo sem conteúdo salvo (versão antiga).', true);
+      return;
+    }
+    if(!draftRestore(snap)){
+      cgToast('Não foi possível carregar este laudo.', true);
+      return;
+    }
+    const note = $('draftNote');
+    if(note){
+      $('draftNoteText').textContent = 'Laudo anterior carregado da Curva de Crescimento — continue preenchendo a visita de hoje. Para começar um laudo novo, use "Limpar" no alto da página.';
+      note.classList.add('show');
+    }
+    cgToast('Laudo carregado ✓', false);
+  }
+
+  // ---- Salvar o laudo atual na Curva (cria um novo registro por visita) ----
+  $('btnSalvarCG').addEventListener('click', async ()=>{
+    const session = await cgCheckSession();
+    if(!session){ cgToast('Faça login para salvar.', true); return; }
+    const cpf = cgOnlyDigits(v('cpfPaciente'));
+    if(cpf.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
+    const cpfFormatado = cgFormatCPF(cpf);
+    const nome = v('nomePaciente');
+    if(!nome){ cgToast('Preencha o nome da paciente.', true); return; }
+    const dataExameISO = cgDataExameToISO();
+    if(!dataExameISO){ cgToast('Data do exame inválida (use dd.mm.aaaa).', true); return; }
+
+    const btn = $('btnSalvarCG');
+    btn.disabled = true;
+    const originalLabel = btn.textContent;
+    btn.textContent = 'Salvando...';
+
+    try{
+      const userId = session.user.id;
+      // 1) Busca ou cria a paciente por CPF (mesmo cadastro do app de curvas).
+      let {data: pacientesEncontrados, error: errBusca} = await cgClient
+        .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
+      if(errBusca) throw errBusca;
+      let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
+      if(!paciente){
+        const {data: novaPaciente, error: errCria} = await cgClient
+          .from('patients').insert({user_id: userId, cpf: cpfFormatado, nome}).select('id').single();
+        if(errCria && errCria.code !== '23505') throw errCria;
+        if(errCria && errCria.code === '23505'){
+          const {data: pacienteExistente, error: errBusca2} = await cgClient
+            .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
+          if(errBusca2) throw errBusca2;
+          paciente = (pacienteExistente && pacienteExistente[0]) || null;
+        }else{
+          paciente = novaPaciente;
+        }
+      }
+      if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
+
+      // 2) Snapshot completo do laudo (todos os campos, visitas, impressão,
+      //    texto digitado à mão) — o mesmo que o rascunho automático já grava.
+      const snap = draftSnapshot();
+
+      // 3) Insere um novo registro por visita (não sobrescreve o anterior).
+      const {error: errLaudo} = await cgClient.from('laudos_ovulacao').insert({
+        user_id: userId,
+        paciente_id: paciente.id,
+        cpf: cpfFormatado,
+        nome: nome,
+        data_exame: dataExameISO,
+        conteudo: snap
+      });
+      if(errLaudo) throw errLaudo;
+
+      cgToast('Laudo salvo na Curva de Crescimento ✓', false);
+    }catch(e){
+      console.error(e);
+      cgToast('Erro ao salvar: ' + (e.message || 'tente novamente.'), true);
+    }finally{
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  });
 })();
 </script>
 </body>
