@@ -515,7 +515,7 @@
         </div>
         <hr class="sep">
         <div class="toggle-line"><input type="checkbox" id="chkDopplerFetal"><label for="chkDopplerFetal">Doppler fetal (umbilical, cerebral média e relação cérebro-placentária)</label></div>
-        <p class="hint-perfeto conditional" id="hintDopplerFetal">Os campos do Doppler fetal aparecem dentro de cada feto, acima.</p>
+        <div id="dopplerFetalFields" class="conditional"></div>
       </div>
     </div>
 
@@ -1300,7 +1300,7 @@
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
   // Doppler fetal e PBF são escolhas únicas do laudo, mas seus campos moram
   // dentro de cada feto — ligar o bloco revela a seção correspondente em todos.
-  $('chkDopplerFetal').addEventListener('change', e=>{ toggle('hintDopplerFetal', e.target.checked); updateAllFetoWraps(); render(); });
+  $('chkDopplerFetal').addEventListener('change', e=>{ toggle('dopplerFetalFields', e.target.checked); updateAllFetoWraps(); render(); });
   $('chkPBF').addEventListener('change', e=>{ toggle('hintPBF', e.target.checked); updateAllFetoWraps(); render(); });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
 
@@ -1370,7 +1370,7 @@
       +'</div>'
 
       +'<div class="conditional" id="wrap_feto'+uid+'Doppler">'
-      +'<p class="feto-sub">Doppler fetal</p>'
+      +'<p class="feto-sub" id="feto'+uid+'DopplerLabel">Doppler fetal</p>'
       +'<div class="field-row">'
       +'<div class="field"><label>Art. Umbilical (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiUmbilical" placeholder="ex: 0,95"></div>'
       +'<div class="field"><label>Art. Cerebral Média (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiACM" placeholder="ex: 1,60"></div>'
@@ -1417,6 +1417,9 @@
       if(label) label.textContent = fetoLabel(idx, cards.length);
       const removeBtn = el.querySelector('.feto-remove');
       if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
+      const uid = el.id.replace('wrap_feto','');
+      const dl = $('feto'+uid+'DopplerLabel');
+      if(dl) dl.textContent = cards.length>1 ? 'Doppler fetal — '+fetoLabel(idx, cards.length) : 'Doppler fetal';
     });
     $('numeroFetos').value = String(Math.min(Math.max(cards.length, 1), MAX_FETOS));
     updateGestacaoWrap();
@@ -1452,8 +1455,15 @@
       $('feto'+uid+sufixo).addEventListener('change', ()=> updateFetoWraps(uid));
     });
     updateFetoWraps(uid);
+    // O bloco de Doppler fetal pertence ao card "Doppler" (abaixo), e não ao
+    // card do feto: relocamos o elemento recém-criado para lá. Os ids e os
+    // listeners já anexados acima acompanham o elemento — só muda o pai no DOM.
+    const dopplerBlock = $('wrap_feto'+uid+'Doppler');
+    if(dopplerBlock && $('dopplerFetalFields')) $('dopplerFetalFields').appendChild(dopplerBlock);
     el.querySelector('.feto-remove').addEventListener('click', ()=>{
       el.remove();
+      const db = $('wrap_feto'+uid+'Doppler');
+      if(db) db.remove();
       renumberFetos();
       render();
     });
@@ -1473,7 +1483,13 @@
   function setFetoCount(n){
     const container = $('fetosContainer');
     while(container.children.length < n){ addFeto(); }
-    while(container.children.length > n){ container.lastElementChild.remove(); }
+    while(container.children.length > n){
+      const last = container.lastElementChild;
+      const uid = last.id.replace('wrap_feto','');
+      const db = $('wrap_feto'+uid+'Doppler');
+      if(db) db.remove();
+      last.remove();
+    }
     renumberFetos();
     render();
   }
@@ -2502,6 +2518,7 @@
     // Recria a lista de fetos do zero: os cards antigos levavam junto os valores
     // digitados, e o select de nº de fetos acabou de voltar para "Único".
     $('fetosContainer').innerHTML = '';
+    const _dffReset = $('dopplerFetalFields'); if(_dffReset) _dffReset.innerHTML = '';
     addFeto();
     render();
     // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
@@ -2647,6 +2664,7 @@
       // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.
       const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
       $('fetosContainer').innerHTML = '';
+      const _dffRestore = $('dopplerFetalFields'); if(_dffRestore) _dffRestore.innerHTML = '';
       if(uids.length){
         uids.forEach(uid=>{
           fetoNextUid = Math.max(fetoNextUid, parseInt(uid, 10) + 1);
