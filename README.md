@@ -7,6 +7,7 @@ Cada laudo é um arquivo HTML autônomo (sem build, abre direto no navegador). `
 ## Laudos disponíveis
 - `transvaginal.html` — Ultrassonografia Transvaginal
 - `obstetrico-1trimestre.html` — Ultrassonografia Obstétrica de 1º Trimestre (translucência nucal)
+- `morfologico-1trimestre.html` — Ultrassonografia Morfológica de 1º Trimestre (marcadores de trissomias, Doppler das uterinas e rastreamento de pré-eclâmpsia)
 - `obstetrico.html` — Ultrassonografia Obstétrica de 2º/3º Trimestre (feto único, gemelar ou trigemelar)
 - `rastreamento-ovulacao.html` — Ultrassonografia Transvaginal para Rastreamento de Ovulação (útero, ovários e acompanhamento folicular visita a visita, até a identificação do corpo lúteo)
 
@@ -30,6 +31,9 @@ Qualquer percentil escrito dentro de uma frase do laudo (ILA, peso fetal etc.) u
 
 ### Alinhamento vertical de uma linha de valores calculados com a tabela de medidas
 O líquido amniótico (`table.grade-la`, dentro de cada bloco `la-f{uid}`) é uma linha de 2 células — "Maior bolsão: X cm" | "ILA: Y cm (PZ)" — que precisa cair na mesma coluna vertical da tabela `table.biometria` do mesmo feto (a 2ª célula, do ILA, deve começar onde começa a 3ª coluna da biometria, ou seja, onde começa "Comprimento femoral (CF):"). Como o rótulo "Maior bolsão:" é mais longo que "Diâmetro biparietal (DBP):" + valor somados, não dá para chutar essa largura em CSS fixo (`em` fixo) sem estourar a página ou desalinhar — por isso `alignIlaColumns()` mede ao vivo, no DOM, a largura das duas primeiras colunas da `table.biometria` daquele feto (`getBoundingClientRect()`) e aplica essa largura na 1ª célula da `table.grade-la`, sempre em **`em`** (nunca `px`): a impressão/PDF pode encolher a fonte do laudo inteiro para caber nas páginas (`autoFitPages`), e uma largura fixa em `px` ficaria descalibrada depois desse encolhimento, enquanto `em` acompanha a mudança de fonte porque as duas tabelas compartilham a mesma fonte. `alignIlaColumns()` roda no fim de todo `render()`, depois que os blocos já estão no DOM. Ao adicionar uma linha de valor calculado que precise alinhar com uma tabela de medidas em qualquer laudo (novo ou existente), reuse esse mesmo padrão — medir a largura real das colunas via DOM e aplicar em `em` — em vez de estimar a largura em CSS.
+
+### Impressão/conclusão: alinhamento justificado com recuo suspenso
+A lista de achados (`ul.impressao li` — "IMPRESSÃO", "CONCLUSÃO" ou "IMPRESSÕES DIAGNÓSTICAS", conforme o laudo) usa `text-align:justify` com um recuo suspenso: `padding-left:1em; text-indent:-1em`. O "* " que abre cada item fica fora do parágrafo (`text-indent` negativo), então quando a frase quebra de linha a continuação alinha com o começo do texto da linha de cima, não com o asterisco — que assim fica isolado numa coluna própria, mais visível. Vale nos cinco laudos (`transvaginal.html`, `obstetrico-1trimestre.html`, `obstetrico.html`, `rastreamento-ovulacao.html`, `morfologico-1trimestre.html`). O mesmo trio de propriedades precisa ser repetido no HTML gerado para o "Baixar Word" (`buildReportHtml()`): ali cada `<li>` vira um `<p>` (o importador de HTML do Word aplica marcador próprio em qualquer `<ul><li>`, ignorando `list-style:none`), então o `<style>` da página não chega a valer para esse trecho — os estilos saem inline no próprio `<p>` criado. Ao criar um laudo novo ou mexer nesse trecho, aplique os três estilos nos dois lugares.
 
 ## Rascunho automático (não perder o laudo digitado)
 
