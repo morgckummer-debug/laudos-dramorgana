@@ -207,7 +207,11 @@
   .paper .nodulos-lista .nodulo-item{margin:0 0 6px;padding-left:2.4em;text-indent:-2.4em;}
   .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
-  .paper ul.impressao li{margin-bottom:2px;font-weight:700;}
+  /* Recuo suspenso: o "* " que abre cada item mora fora do parágrafo
+     (text-indent negativo), então quando a frase quebra de linha a
+     continuação alinha com o começo do texto da linha de cima, não com o
+     asterisco — que assim fica isolado numa coluna própria, mais visível. */
+  .paper ul.impressao li{margin-bottom:2px;font-weight:700;text-align:justify;padding-left:1em;text-indent:-1em;}
   .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
   .paper .footnote{font-style:italic;font-size:9pt;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
   .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
@@ -2769,6 +2773,9 @@
         const p = document.createElement('p');
         p.style.margin = '0 0 6px';
         p.style.fontWeight = '700';
+        p.style.textAlign = 'justify';
+        p.style.paddingLeft = '1em';
+        p.style.textIndent = '-1em';
         p.innerHTML = li.innerHTML;
         div.appendChild(p);
       });

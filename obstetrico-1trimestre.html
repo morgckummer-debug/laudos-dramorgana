@@ -220,7 +220,11 @@
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
-  .paper ul.impressao li{margin-bottom:0.125em;font-weight:700;}
+  /* Recuo suspenso: o "* " que abre cada item mora fora do parágrafo
+     (text-indent negativo), então quando a frase quebra de linha a
+     continuação alinha com o começo do texto da linha de cima, não com o
+     asterisco — que assim fica isolado numa coluna própria, mais visível. */
+  .paper ul.impressao li{margin-bottom:0.125em;font-weight:700;text-align:justify;padding-left:1em;text-indent:-1em;}
   .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:1.5em;margin-top:1em;}
   .paper .footnote{font-style:italic;font-size:0.75em;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
   .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
@@ -2200,7 +2204,7 @@
       Array.from(ul.children).forEach(li=>{
         const p = document.createElement('p');
         p.style.margin = '0 0 ' + (liStyle ? liStyle.marginBottom : '2px');
-        if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; p.style.textAlign = liStyle.textAlign; }
+        if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; p.style.textAlign = liStyle.textAlign; p.style.paddingLeft = liStyle.paddingLeft; p.style.textIndent = liStyle.textIndent; }
         p.style.fontWeight = '700';
         p.innerHTML = li.innerHTML;
         div.appendChild(p);
