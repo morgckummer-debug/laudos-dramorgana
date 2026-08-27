@@ -2127,10 +2127,12 @@
   // está na tela é o que vai para o Word, inclusive quando a médica muda o
   // corpo da fonte ou o espaçamento pela barra de formatação.
   //
-  // Topo / direita / pé / esquerda da folha do Word, iguais às da impressão
-  // (veja o @media print: <thead> 3,5cm para o timbrado, <tfoot> 2cm,
-  // padding lateral 2cm).
-  const WORD_PAGE_MARGIN = '3.5cm 2cm 2cm 2cm';
+  // Topo / direita / pé / esquerda da folha do Word. Topo e pé seguem a
+  // impressão (veja o @media print: <thead> 3,5cm para o timbrado, <tfoot>
+  // 2cm) — só a lateral é diferente: 95px fixos, pedido direto para o Word
+  // (a impressão usa 2cm de padding lateral, mas no Word isso ficava largo
+  // demais).
+  const WORD_PAGE_MARGIN = '3.5cm 95px 2cm 95px';
   const MARGINS = ['margin-top','margin-right','margin-bottom','margin-left'];
   const PADDINGS = ['padding-top','padding-right','padding-bottom','padding-left'];
   const WORD_COPY = [
