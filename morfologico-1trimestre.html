@@ -2052,7 +2052,7 @@
     // calculada com base em") também nomeia a referência na frase da
     // conclusão — sem isto, "de acordo com a DUM/primeira ecografia" ficava
     // ambíguo sobre qual das duas datas o laudo realmente seguiu.
-    const METODO_TXT = {dum:'a DUM', usg:'o ultrassom de datação do 1º trimestre', exame:'a idade gestacional informada neste exame'};
+    const METODO_TXT = {dum:'a DUM', usg:'a primeira ecografia', exame:'a IG informada neste exame'};
     const metodoTxt = METODO_TXT[cronologiaMetodo];
     const dataBase = computeDataBase(cronologiaMetodo);
     const gaDays = computeIGDaysAtExam(dataBase, dataExame);
