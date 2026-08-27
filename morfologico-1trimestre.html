@@ -683,6 +683,11 @@
   let titleFontSize = null;
 
   let impressaoOverrides = {};
+  // Texto do "Relato de..." depois de reescrito à mão no preview — assim como
+  // os itens da IMPRESSÃO, uma vez editado direto no papel, o texto some do
+  // template automático ('Relato de ' + motivo + '.') e passa a valer o que
+  // foi digitado, mesmo que outros campos do formulário mudem depois.
+  let relatoOverride = null;
 
   // ---------- Block-level reconciliation: each top-level paragraph/section of
   // the laudo is rendered as one "block" keyed by a stable id. See
@@ -1530,7 +1535,7 @@
       try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
     });
   }
-  ['dataExame','dum','usgDataDatacao'].forEach(wireDateMask);
+  ['dataExame','dum','usgDataDatacao','dataNascimento'].forEach(wireDateMask);
 
   // ---------- CPF: máscara só na tela ----------
   // O campo mostra 000.000.000-00 enquanto é digitado, mas os pontos e o traço
@@ -1775,7 +1780,9 @@
     if(!sel || !sel.anchorNode) return;
     const node = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
     const li = node && node.closest ? node.closest('ul.impressao li[data-key]') : null;
-    if(li) impressaoOverrides[li.dataset.key] = li.textContent;
+    if(li){ impressaoOverrides[li.dataset.key] = li.textContent; return; }
+    const relatoEl = node && node.closest ? node.closest('p.relato') : null;
+    if(relatoEl) relatoOverride = relatoEl.textContent;
   });
 
   // ---------- Live page-count preview ----------
@@ -2006,7 +2013,6 @@
     const idadeTxt = idadeAnos!=null ? String(idadeAnos) : '';
     const idadeCalcEl = $('idadeCalc');
     if(idadeCalcEl) idadeCalcEl.value = idadeTxt;
-    const nascimentoTxt = dataNascimento ? (dataNascimento + (idadeTxt ? ' ('+idadeTxt+' anos)' : '')) : '';
 
     // IMC = peso / altura² (altura digitada em cm).
     const pesoNum = num('pesoMaterno');
@@ -2147,15 +2153,16 @@
       +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
       +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>Nascimento:</strong> '+span(blankOrValue(nascimentoTxt))+' &nbsp;|&nbsp; <strong>Peso:</strong> '+span(blankOrValue(pesoMaterno))+' kg &nbsp;|&nbsp; <strong>Altura:</strong> '+span(blankOrValue(alturaMaterna))+' cm &nbsp;|&nbsp; <strong>IMC:</strong> '+span(blankOrValue(imcTxt))+' &nbsp;|&nbsp; <strong>PA:</strong> '+span(blankOrValue(pressaoArterial))+' mmHg</span></div>'
+      +'<div class="id-card-row"><span><strong>Idade:</strong> '+span(blankOrValue(idadeTxt))+' anos &nbsp;|&nbsp; <strong>Peso:</strong> '+span(blankOrValue(pesoMaterno))+' kg &nbsp;|&nbsp; <strong>Altura:</strong> '+span(blankOrValue(alturaMaterna))+' cm &nbsp;|&nbsp; <strong>IMC:</strong> '+span(blankOrValue(imcTxt))+' &nbsp;|&nbsp; <strong>PA:</strong> '+span(blankOrValue(pressaoArterial))+' mmHg</span></div>'
       +'</div>'});
 
     let tituloTxt = 'ULTRASSOM OBSTÉTRICO MORFOLÓGICO DE PRIMEIRO TRIMESTRE';
     if(isMultiple) tituloTxt = 'ULTRASSOM OBSTÉTRICO MORFOLÓGICO ' + (fetos.length >= 3 ? 'TRIGEMELAR' : 'GEMELAR') + ' DE PRIMEIRO TRIMESTRE';
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml(tituloTxt)+'</h3>'});
 
-    if(motivoExame){
-      blocks.push({id:'relato', html:'<p class="relato">Relato de '+escapeHtml(motivoExame.charAt(0).toLowerCase()+motivoExame.slice(1))+'.</p>'});
+    if(motivoExame || relatoOverride){
+      const relatoTxt = relatoOverride!=null ? relatoOverride : 'Relato de '+motivoExame.charAt(0).toLowerCase()+motivoExame.slice(1)+'.';
+      blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(relatoTxt)+'</p>'});
     }
     if(medicacoes){
       blocks.push({id:'medicacoes', html:'<p class="linha"><strong>Em uso de:</strong> '+escapeHtml(medicacoes)+'.</p>'});
@@ -2200,7 +2207,7 @@
       blocks.push({id:'morfologia'+sfx, html:morfoHtml});
 
       blocks.push({id:'marcadores'+sfx, html:'<div>'
-        +'<p class="linha tight"><strong style="text-decoration:underline;">MARCADORES ULTRASSONOGRÁFICOS DAS TRISSOMIAS:</strong></p>'
+        +'<p class="linha tight"><strong style="text-decoration:underline;">Marcadores Ultrassonográficos de Trissomias:</strong></p>'
         +'<table class="biometria">'
         +'<tr><td>Translucência Nucal (TN):</td><td style="white-space:nowrap;">'+span(f.tn)+' mm ('+escapeHtml(f.tnClasse)+')</td></tr>'
         +'<tr><td>Osso Nasal (ON):</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
@@ -2228,7 +2235,7 @@
       const sfx = '-f'+f.uid;
       const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+' (IM + ON + TN + DV + VT):';
       blocks.push({id:'riscos'+sfx, html:'<div>'
-        +'<p class="linha tight"><strong>'+riscoTitulo+'</strong></p>'
+        +'<p class="linha tight"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
         +'<table class="biometria">'
         +'<tr><td>Síndrome de Down (T21):</td><td style="white-space:nowrap;">1: '+span(f.riscoT21)+'</td></tr>'
         +'<tr><td>Síndrome de Edwards (T18):</td><td style="white-space:nowrap;">1: '+span(f.riscoT18)+'</td></tr>'
@@ -2501,10 +2508,23 @@
     document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
     document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
+    // Dopplerfluxometria materna e rastreamento de pré-eclâmpsia vêm marcados
+    // por padrão (checked no HTML) — sem isto, "Limpar todos os campos"
+    // desmarcava os dois para a próxima paciente, e as duas frases
+    // desapareciam da conclusão até alguém notar e remarcar na mão.
+    ['chkDopplerMaterno','chkPreEclampsia'].forEach(id=>{
+      const el = $(id);
+      if(!el) return;
+      el.checked = true;
+      const fieldsId = id==='chkDopplerMaterno' ? 'dopplerMaternoFields' : 'preEclampsiaFields';
+      const fieldsEl = $(fieldsId);
+      if(fieldsEl) fieldsEl.classList.add('show');
+    });
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
     checkedState = {};
     impressaoOverrides = {};
+    relatoOverride = null;
     lastBlockHtml = {};
     $('paper').innerHTML = '';
     printAttempted = false;
@@ -2576,6 +2596,7 @@
       uids: fetoUids(),
       checked: checkedState,
       overrides: impressaoOverrides,
+      relatoOverride: relatoOverride,
       titleFontSize: titleFontSize,
       paper: draftPaperHtml(),
       blocks: lastBlockHtml
@@ -2701,6 +2722,7 @@
 
       checkedState = (d.checked && typeof d.checked === 'object') ? d.checked : {};
       impressaoOverrides = (d.overrides && typeof d.overrides === 'object') ? d.overrides : {};
+      relatoOverride = typeof d.relatoOverride === 'string' ? d.relatoOverride : null;
       titleFontSize = d.titleFontSize || null;
     }catch(e){
       // Rascunho corrompido ou de uma versão antiga deste laudo: melhor abrir em
@@ -2709,6 +2731,7 @@
       $('fetosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
+      relatoOverride = null;
       lastBlockHtml = {};
       $('paper').innerHTML = '';
       try{ localStorage.removeItem(DRAFT_KEY); }catch(e2){}
