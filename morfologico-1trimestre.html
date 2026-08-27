@@ -406,6 +406,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Achado morfológico alterado — use {SEGMENTO} e {DESCRICAO}</label><textarea id="ph_impMorfoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Baixo risco para cromossomopatias</label><textarea id="ph_impCromossomopatiasBaixo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Risco aumentado para cromossomopatias</label><textarea id="ph_impCromossomopatiasAlto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Regurgitação da válvula tricúspide</label><textarea id="ph_impTricuspideAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>IP médio das uterinas — use {PERCENTIL}</label><textarea id="ph_impUterinas" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pré-eclâmpsia — opção 1 (baixo risco) — use {RISCO}</label><textarea id="ph_impPreEclampsia1" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pré-eclâmpsia — opção 2 (risco aumentado, PA e/ou IP alterados) — use {RISCO}</label><textarea id="ph_impPreEclampsia2" rows="3"></textarea></div>
@@ -1159,6 +1160,7 @@
     impMorfoAlterado: '{SEGMENTO}: {DESCRICAO}.',
     impCromossomopatiasBaixo: 'Os sinais ultrassonográficos indicam baixo risco para cromossomopatias (vide gráficos) — não podemos excluir essa possibilidade somente através da ultrassonografia.',
     impCromossomopatiasAlto: 'Os sinais ultrassonográficos indicam risco aumentado para cromossomopatias (vide gráficos) — sugere-se avaliação especializada e aconselhamento genético.',
+    impTricuspideAlterada: 'Presença de regurgitação da válvula tricúspide - Sugere-se reavaliação com 16 semanas e ecocardiograma entre 24 e 28 semanas.',
     impUterinas: 'IP médio das artérias uterinas no percentil {PERCENTIL} para a idade gestacional.',
     impPreEclampsia1: 'Rastreamento combinado do 1º trimestre: baixo risco (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e, no presente caso, não evidenciou aumento relevante do risco para pré-eclâmpsia pré-termo.',
     impPreEclampsia2: 'Rastreamento combinado do 1º trimestre: risco aumentado (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e, no presente caso, associa-se à elevação da pressão arterial e/ou do IP médio das artérias uterinas, reforçando a relevância clínica do achado. Há indicação de profilaxia com AAS em baixa dose, de início precoce.',
@@ -1660,6 +1662,11 @@
     if(idxRastreio !== -1){
       html = html.slice(0, idxRastreio) + '<span style="font-weight:400;">' + html.slice(idxRastreio) + '</span>';
     }
+    const marcaTricuspide = 'Sugere-se reavaliação com 16 semanas';
+    const idxTricuspide = html.indexOf(marcaTricuspide);
+    if(idxTricuspide !== -1){
+      html = html.slice(0, idxTricuspide) + '<span style="font-weight:400;">' + html.slice(idxTricuspide) + '</span>';
+    }
     return html;
   }
 
@@ -1750,6 +1757,9 @@
       f.alteracoes.forEach(a=>{
         items.push({key:k('morfo-'+a.slug, f), label: pre(f) + phraseRaw('impMorfoAlterado', {SEGMENTO:a.titulo, DESCRICAO:a.descricao}), auto:true});
       });
+      if(f.tricuspide === 'Com regurgitação'){
+        items.push({key:k('tricuspide', f), label: pre(f) + phraseRaw('impTricuspideAlterada'), auto:true, italic:true});
+      }
     });
 
     state.fetos.forEach(f=>{
@@ -2280,7 +2290,9 @@
     } else {
       checkedItems.forEach(it=>{
         const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
-        impressaoListHtml += '<li data-key="'+it.key+'">'+italicizeFMF(deemphasizeSecondary(escapeHtml(text)))+'</li>';
+        let itemHtml = italicizeFMF(deemphasizeSecondary(escapeHtml(text)));
+        if(it.italic) itemHtml = '<em>'+itemHtml+'</em>';
+        impressaoListHtml += '<li data-key="'+it.key+'">'+itemHtml+'</li>';
       });
     }
     impressaoListHtml += '</ul>';
