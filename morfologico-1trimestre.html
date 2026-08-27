@@ -1394,7 +1394,7 @@
       +'</div>'
 
       +'<p class="feto-sub">Risco fetal para trissomias (IM + ON + TN + DV + VT)</p>'
-      +'<p class="hint-perfeto">Valores calculados pelo software da Fetal Medicine Foundation — digite o denominador de cada risco (1 para ...).</p>'
+      +'<p class="hint-perfeto">Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).</p>'
       +'<div class="field-row">'
       +'<div class="field"><label>Síndrome de Down (T21) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT21" placeholder="ex: 1200"></div>'
       +'<div class="field"><label>Síndrome de Edwards (T18) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT18" placeholder="ex: 5000"></div>'
@@ -1613,6 +1613,13 @@
   function escapeHtml(s){
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
+  // "Fetal Medicine Foundation" é inglês em meio a texto em português — vai
+  // sempre em itálico. Aplicado depois de escapeHtml (mesmo padrão do <br>
+  // em phrase()), nunca antes: o texto das impressões passa por override
+  // editável em texto puro, e inserir a tag antes abriria brecha de HTML cru.
+  function italicizeFMF(html){
+    return html.replace(/Fetal Medicine Foundation/g, '<em>Fetal Medicine Foundation</em>');
+  }
 
   // ---------- Doppler: percentil do IP médio das artérias uterinas,
   // Gómez O, Figueras F, Fernández S, Bennasar M, Martínez JM, Puerto B,
@@ -1741,7 +1748,7 @@
       if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
       const row = document.createElement('label');
       row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
-      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#6d3263;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#6d3263;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+italicizeFMF(escapeHtml(it.label))+'</span>';
       row.querySelector('input').addEventListener('change', e=>{
         checkedState[it.key] = e.target.checked;
         render();
@@ -1932,6 +1939,27 @@
       // alinhamento em qualquer tamanho de fonte.
       const fontSizePx = parseFloat(getComputedStyle(laRow.cells[0]).fontSize) || 16;
       laRow.cells[0].style.width = (widthPx / fontSizePx) + 'em';
+    });
+  }
+
+  // Alinha a margem direita das frases da AVALIAÇÃO MORFOLÓGICA FETAL (texto
+  // justificado) com a margem direita da tabela de Parâmetros Biométricos do
+  // mesmo feto: a tabela de parâmetros não tem largura fixa (as 4 colunas são
+  // nowrap, o tanto que ocupam depende dos valores digitados), então não dá
+  // pra chutar a largura da tabela de morfologia em CSS — mede-se a largura
+  // real da tabela de parâmetros no DOM e aplica-se em "em" (mesmo motivo do
+  // alignIlaColumns acima: acompanha o autoFitPages). Roda depois de todo
+  // render(), já com os blocos no ar.
+  function alignMorfoWidth(){
+    $('paper').querySelectorAll('[data-blk^="morfologia-f"]').forEach(morfoBlk=>{
+      const sfx = morfoBlk.getAttribute('data-blk').slice('morfologia'.length);
+      const bioTable = $('paper').querySelector('[data-blk="biometria'+sfx+'"] table.biometria');
+      const morfoTable = morfoBlk.querySelector('table.biometria');
+      if(!bioTable || !morfoTable) return;
+      const widthPx = bioTable.getBoundingClientRect().width;
+      if(!widthPx) return;
+      const fontSizePx = parseFloat(getComputedStyle(morfoTable).fontSize) || 16;
+      morfoTable.style.width = (widthPx / fontSizePx) + 'em';
     });
   }
 
@@ -2141,13 +2169,14 @@
       morfoHtml += '<table class="biometria" style="width:100%;">';
       f.segmentos.forEach(seg=>{
         morfoHtml += '<tr><td style="white-space:nowrap;vertical-align:top;"><strong>'+escapeHtml(seg.titulo)+'</strong></td>'
-          +'<td style="white-space:normal;">'+escapeHtml(seg.texto)+'</td></tr>';
+          +'<td style="white-space:normal;text-align:justify;">'+escapeHtml(seg.texto)+'</td></tr>';
         if(seg.titulo === 'Crânio / cérebro'){
-          morfoHtml += '<tr><td style="white-space:nowrap;"></td><td style="white-space:normal;">Transl. intracraniana (4º V): '+span(f.tic)+' mm &nbsp;|&nbsp; Rel. Ponte/Ponte-Occipital: '+span(blankOrValue(f.ppoTxt))+' (VR 0,5 - 1,0)</td></tr>';
+          morfoHtml += '<tr><td style="white-space:nowrap;"></td><td style="white-space:normal;">Transl. intracraniana (4º V): '+span(f.tic)+' mm</td></tr>'
+            +'<tr><td style="white-space:nowrap;"></td><td style="white-space:normal;">Rel. Ponte/Ponte-Occipital: '+span(blankOrValue(f.ppoTxt))+' (VR 0,5 - 1,0)</td></tr>';
         }
       });
       morfoHtml += '<tr><td style="white-space:nowrap;vertical-align:top;"><strong>Cordão umbilical</strong></td>'
-        +'<td style="white-space:normal;">'+phrase('morfoCordao', {VASOS: f.cordaoTxt})+'</td></tr>';
+        +'<td style="white-space:normal;text-align:justify;">'+phrase('morfoCordao', {VASOS: f.cordaoTxt})+'</td></tr>';
       morfoHtml += '</table></div>';
       blocks.push({id:'morfologia'+sfx, html:morfoHtml});
 
@@ -2161,25 +2190,32 @@
         +'<tr><td>Dilatação das pelves renais:</td><td>'+escapeHtml(f.pelves)+'</td></tr>'
         +'<tr><td>Bexiga fetal:</td><td style="white-space:nowrap;">'+span(f.bexiga)+' mm</td></tr>'
         +'</table></div>'});
-
-      blocks.push({id:'riscos'+sfx, html:'<div>'
-        +'<p class="linha tight"><strong>Risco Fetal para Trissomias (IM + ON + TN + DV + VT):</strong></p>'
-        +'<table class="biometria">'
-        +'<tr><td>Síndrome de Down (T21):</td><td style="white-space:nowrap;">1: '+span(f.riscoT21)+'</td></tr>'
-        +'<tr><td>Síndrome de Edwards (T18):</td><td style="white-space:nowrap;">1: '+span(f.riscoT18)+'</td></tr>'
-        +'<tr><td>Síndrome de Patau (T13):</td><td style="white-space:nowrap;">1: '+span(f.riscoT13)+'</td></tr>'
-        +'</table></div>'});
     });
 
     if(dopplerMaterno){
       blocks.push({id:'dopplerMaterno', html:'<div>'
-        +'<table class="biometria" style="width:100%;">'
+        +'<table class="biometria">'
         +'<tr><td><strong style="text-decoration:underline;">Dopplerfluxometria Materna</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
         +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
         +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
         +'<tr><td>IP médio das artérias uterinas:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
         +'</table></div>'});
     }
+
+    // Risco de aneuploidias: sempre a última tabela antes da IMPRESSÃO, por
+    // isso fica fora do forEach acima (depois da biometria/morfologia/
+    // marcadores de todos os fetos e do Doppler materno), num laço à parte.
+    fetos.forEach(f=>{
+      const sfx = '-f'+f.uid;
+      const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+' (IM + ON + TN + DV + VT):';
+      blocks.push({id:'riscos'+sfx, html:'<div>'
+        +'<p class="linha tight"><strong>'+riscoTitulo+'</strong></p>'
+        +'<table class="biometria">'
+        +'<tr><td>Síndrome de Down (T21):</td><td style="white-space:nowrap;">1: '+span(f.riscoT21)+'</td></tr>'
+        +'<tr><td>Síndrome de Edwards (T18):</td><td style="white-space:nowrap;">1: '+span(f.riscoT18)+'</td></tr>'
+        +'<tr><td>Síndrome de Patau (T13):</td><td style="white-space:nowrap;">1: '+span(f.riscoT13)+'</td></tr>'
+        +'</table></div>'});
+    });
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
@@ -2188,7 +2224,7 @@
     } else {
       checkedItems.forEach(it=>{
         const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
-        impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
+        impressaoListHtml += '<li data-key="'+it.key+'">'+italicizeFMF(escapeHtml(text))+'</li>';
       });
     }
     impressaoListHtml += '</ul>';
@@ -2204,6 +2240,7 @@
     blocks.push({id:'rodape', html:rodapeHtml});
 
     renderBlocks(blocks);
+    alignMorfoWidth();
     if(titleFontSize){
       const titleEl = $('paper').querySelector('h3.doctitle');
       if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
