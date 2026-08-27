@@ -215,12 +215,21 @@
      para baixo") deixava um <br> solto na frente do texto — ver a mesma nota
      em transvaginal.html/obstetrico.html; comportamento idêntico aqui. */
   .paper h3.doctitle > br:first-child{display:none;}
+  /* Título "...COM DOPPLER" é gerado por render() como TEXTO<br>TEXTO — o <br>
+     é o único elemento filho do h3, então a regra acima (pensada só pra suprimir
+     um <br> solto deixado por edição manual no começo, vazio) também o pega,
+     mesmo tendo texto antes dele. Precisa de override explícito. */
+  .paper h3.doctitle > br.quebra-doppler{display:inline !important;}
   .paper .relato{color:#C0392B;font-weight:700;margin:0 0 12px;}
   .paper h4.sec{
     text-decoration:underline;font-size:13px;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
   }
   .paper p.linha{margin:0 0 var(--linha-margin, 16px);}
   .paper p.linha strong{font-weight:700;}
+  /* Propedêutica / Idade / "Os seguintes aspectos..." — negrito, coladas entre
+     si; a última reabre o espaçamento normal antes do primeiro achado (Bexiga). */
+  .paper p.linha.intro{font-weight:700;margin:0 0 2px;}
+  .paper p.linha.intro.intro-last{margin:0 0 var(--linha-margin, 16px);}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -1612,12 +1621,12 @@
       +'</div>'});
 
     blocks.push({id:'doctitle', html: chkDoppler
-      ? '<h3 class="doctitle">ULTRASSOM PÉLVICO TRANSABDOMINAL<br>COM DOPPLER</h3>'
+      ? '<h3 class="doctitle">ULTRASSOM PÉLVICO TRANSABDOMINAL<br class="quebra-doppler">COM DOPPLER</h3>'
       : '<h3 class="doctitle">ULTRASSOM PÉLVICO TRANSABDOMINAL</h3>'});
 
-    blocks.push({id:'propedeutica', html:'<p class="linha">Propedêutica de puberdade precoce.</p>'});
-    blocks.push({id:'idade', html:'<p class="linha">Idade: '+span(blankOrValue(idadeAnos))+' anos.</p>'});
-    blocks.push({id:'aoExameLabel', html:'<p class="linha">Os seguintes aspectos foram observados:</p>'});
+    blocks.push({id:'propedeutica', html:'<p class="linha intro">Propedêutica de puberdade precoce.</p>'});
+    blocks.push({id:'idade', html:'<p class="linha intro">Idade: '+span(blankOrValue(idadeAnos))+' anos.</p>'});
+    blocks.push({id:'aoExameLabel', html:'<p class="linha intro intro-last">Os seguintes aspectos foram observados:</p>'});
 
     const bexigaTexto = (bexigaAspecto==='alterado' && bexigaDescricao)
       ? escapeHtml(bexigaDescricao)+'.'
@@ -1726,6 +1735,15 @@
       ul.replaceWith(div);
     });
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
+    // Negrito/espaçamento de "Propedêutica" / "Idade" / "Os seguintes aspectos..."
+    // são regras do <style> da página — o Word não recebe esse <style> (só o
+    // @page abaixo), então precisam ir inline aqui, igual ao .id-card acima.
+    const liveIntroEls = Array.from($('paper').querySelectorAll('p.linha.intro'));
+    clone.querySelectorAll('p.linha.intro').forEach((el, i)=>{
+      el.style.fontWeight = '700';
+      const liveMargin = liveIntroEls[i] ? getComputedStyle(liveIntroEls[i]).marginBottom : (el.classList.contains('intro-last') ? '16px' : '2px');
+      el.style.margin = '0 0 '+liveMargin;
+    });
     const liveIdCardEl = $('paper').querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
