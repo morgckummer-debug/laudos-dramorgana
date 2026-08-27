@@ -443,7 +443,8 @@
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
         </div>
         <div class="field-row">
-          <div class="field"><label>Idade materna (anos)</label><input type="text" inputmode="numeric" id="idadeMaterna" placeholder="anos"></div>
+          <div class="field"><label>Data de nascimento</label><input type="text" id="dataNascimento" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+          <div class="field"><label>Idade (calculada)</label><input type="text" id="idadeCalc" readonly placeholder="calculada automaticamente"></div>
           <div class="field"><label>Peso (kg)</label><input type="text" inputmode="decimal" data-decimals="1" id="pesoMaterno" placeholder="kg"></div>
           <div class="field"><label>Altura (cm)</label><input type="text" inputmode="numeric" id="alturaMaterna" placeholder="cm"></div>
         </div>
@@ -1574,6 +1575,18 @@
     return dt;
   }
   function addDays(date, days){ return new Date(date.getTime() + days*MS_DIA); }
+  // Idade da paciente na data do exame (ou hoje, se a data do exame ainda
+  // não foi preenchida) — anos completos, mesma conta de aniversário.
+  function computeIdadeAnos(dataNascimentoStr, dataExameStr){
+    const nasc = parseDateBR(dataNascimentoStr);
+    if(!nasc) return null;
+    const ref = parseDateBR(dataExameStr) || new Date();
+    let idade = ref.getFullYear() - nasc.getFullYear();
+    const aindaNaoFezAniversario = (ref.getMonth() < nasc.getMonth())
+      || (ref.getMonth() === nasc.getMonth() && ref.getDate() < nasc.getDate());
+    if(aindaNaoFezAniversario) idade--;
+    return idade >= 0 ? idade : null;
+  }
   function formatIG(totalDays){
     const semanas = Math.floor(totalDays/7);
     const dias = totalDays % 7;
@@ -1984,10 +1997,16 @@
     const gpaA = v('gpaA');
     const motivoExame = vNoDot('motivoExame');
     const medicacoes = vNoDot('medicacoes');
-    const idadeMaterna = v('idadeMaterna');
+    const dataNascimento = v('dataNascimento');
     const pesoMaterno = v('pesoMaterno');
     const alturaMaterna = v('alturaMaterna');
     const pressaoArterial = v('pressaoArterial');
+
+    const idadeAnos = computeIdadeAnos(dataNascimento, dataExame);
+    const idadeTxt = idadeAnos!=null ? String(idadeAnos) : '';
+    const idadeCalcEl = $('idadeCalc');
+    if(idadeCalcEl) idadeCalcEl.value = idadeTxt;
+    const nascimentoTxt = dataNascimento ? (dataNascimento + (idadeTxt ? ' ('+idadeTxt+' anos)' : '')) : '';
 
     // IMC = peso / altura² (altura digitada em cm).
     const pesoNum = num('pesoMaterno');
@@ -2128,7 +2147,7 @@
       +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
       +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>Idade:</strong> '+span(blankOrValue(idadeMaterna))+' anos &nbsp;|&nbsp; <strong>Peso:</strong> '+span(blankOrValue(pesoMaterno))+' kg &nbsp;|&nbsp; <strong>Altura:</strong> '+span(blankOrValue(alturaMaterna))+' cm &nbsp;|&nbsp; <strong>IMC:</strong> '+span(blankOrValue(imcTxt))+' &nbsp;|&nbsp; <strong>PA:</strong> '+span(blankOrValue(pressaoArterial))+' mmHg</span></div>'
+      +'<div class="id-card-row"><span><strong>Nascimento:</strong> '+span(blankOrValue(nascimentoTxt))+' &nbsp;|&nbsp; <strong>Peso:</strong> '+span(blankOrValue(pesoMaterno))+' kg &nbsp;|&nbsp; <strong>Altura:</strong> '+span(blankOrValue(alturaMaterna))+' cm &nbsp;|&nbsp; <strong>IMC:</strong> '+span(blankOrValue(imcTxt))+' &nbsp;|&nbsp; <strong>PA:</strong> '+span(blankOrValue(pressaoArterial))+' mmHg</span></div>'
       +'</div>'});
 
     let tituloTxt = 'ULTRASSOM OBSTÉTRICO MORFOLÓGICO DE PRIMEIRO TRIMESTRE';
