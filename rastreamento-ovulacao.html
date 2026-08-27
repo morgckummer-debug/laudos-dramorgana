@@ -2032,7 +2032,10 @@
         + '<head><meta charset="utf-8"><title>'+escapeHtml(nomeArquivoLaudo())+'</title>'
         + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
         + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
-        + '</head><body>' + html + '</body></html>';
+        // Só a margem lateral é fixada (95px) — topo e pé ficam com o padrão
+        // do Word, sem valor nenhum aqui para não mexer neles.
+        + '<style>@page WordSection1{margin-left:95px;margin-right:95px;}div.WordSection1{page:WordSection1;}</style>'
+        + '</head><body><div class="WordSection1">' + html + '</div></body></html>';
       const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
       await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
     }catch(e){
