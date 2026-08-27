@@ -226,10 +226,10 @@
   }
   .paper p.linha{margin:0 0 var(--linha-margin, 16px);}
   .paper p.linha strong{font-weight:700;}
-  /* Propedêutica / Idade / "Os seguintes aspectos..." — negrito, coladas entre
+  /* Propedêutica / Idade / "Ao exame" — negrito, coladas entre
      si; a última reabre o espaçamento normal antes do primeiro achado (Bexiga). */
   .paper p.linha.intro{font-weight:700;margin:0 0 2px;}
-  .paper p.linha.intro.intro-last{margin:0 0 var(--linha-margin, 16px);}
+  .paper p.linha.intro.intro-last{margin:0 0 var(--linha-margin, 16px);text-decoration:underline;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -442,6 +442,7 @@
           <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
           <div class="field"><label>Idade</label><input type="text" inputmode="numeric" id="idadeAnos" placeholder="anos"></div>
         </div>
+        <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkPropedeutica" checked><label for="chkPropedeutica">Incluir "Propedêutica de puberdade precoce."</label></div>
         <div class="field-row">
           <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
         </div>
@@ -1546,6 +1547,7 @@
     const idadeAnos = req('idadeAnos');
 
     const chkDoppler = $('chkDoppler').checked;
+    const chkPropedeutica = $('chkPropedeutica').checked;
     const faixaKey = v('faixaEtaria') || 'ate6';
     const faixa = FAIXA_VR[faixaKey] || FAIXA_VR.ate6;
 
@@ -1625,9 +1627,11 @@
       ? '<h3 class="doctitle">ULTRASSOM PÉLVICO TRANSABDOMINAL<br class="quebra-doppler">COM DOPPLER</h3>'
       : '<h3 class="doctitle">ULTRASSOM PÉLVICO TRANSABDOMINAL</h3>'});
 
-    blocks.push({id:'propedeutica', html:'<p class="linha intro">Propedêutica de puberdade precoce.</p>'});
+    if(chkPropedeutica){
+      blocks.push({id:'propedeutica', html:'<p class="linha intro">Propedêutica de puberdade precoce.</p>'});
+    }
     blocks.push({id:'idade', html:'<p class="linha intro">Idade: '+span(blankOrValue(idadeAnos))+' anos.</p>'});
-    blocks.push({id:'aoExameLabel', html:'<p class="linha intro intro-last">Os seguintes aspectos foram observados:</p>'});
+    blocks.push({id:'aoExameLabel', html:'<p class="linha intro intro-last">Ao exame</p>'});
 
     const bexigaTexto = (bexigaAspecto==='alterado' && bexigaDescricao)
       ? escapeHtml(bexigaDescricao)+'.'
@@ -1736,7 +1740,7 @@
       ul.replaceWith(div);
     });
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
-    // Negrito/espaçamento de "Propedêutica" / "Idade" / "Os seguintes aspectos..."
+    // Negrito/espaçamento/sublinhado de "Propedêutica" / "Idade" / "Ao exame"
     // são regras do <style> da página — o Word não recebe esse <style> (só o
     // @page abaixo), então precisam ir inline aqui, igual ao .id-card acima.
     const liveIntroEls = Array.from($('paper').querySelectorAll('p.linha.intro'));
@@ -1744,6 +1748,7 @@
       el.style.fontWeight = '700';
       const liveMargin = liveIntroEls[i] ? getComputedStyle(liveIntroEls[i]).marginBottom : (el.classList.contains('intro-last') ? '16px' : '2px');
       el.style.margin = '0 0 '+liveMargin;
+      if(el.classList.contains('intro-last')) el.style.textDecoration = 'underline';
     });
     const liveIdCardEl = $('paper').querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
@@ -1938,6 +1943,7 @@
     document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
     document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
     $('chkCavidadeVirtual').checked = true;
+    $('chkPropedeutica').checked = true;
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     $('wrap_ovD_normalCampos').classList.add('show');
     $('wrap_ovE_normalCampos').classList.add('show');
