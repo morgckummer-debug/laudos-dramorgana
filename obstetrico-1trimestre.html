@@ -189,7 +189,7 @@
      escalando tudo junto, o mesmo passo ganha ~8%. Ao mexer nestas regras,
      mantenha em — um px fixo aqui volta a "travar" o auto-fit. */
   .paper .id-card{
-    background:#ffffff;border:1.5px solid #2b2b2e;border-radius:10px;padding:0.625em 1em;margin:0 0 var(--idcard-gap, 1.25em);
+    background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.625em 1em;margin:0 0 var(--idcard-gap, 1.25em);
     font-weight:700;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
@@ -2214,7 +2214,7 @@
       ul.replaceWith(div);
     });
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
-    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#ffffff'; el.style.border='1.5px solid #2b2b2e'; el.style.borderRadius='10px'; el.style.fontWeight='700'; });
+    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('table.biometria').forEach(t=>{ t.setAttribute('border','0'); t.style.borderCollapse='collapse'; });
