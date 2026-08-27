@@ -429,7 +429,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Ciclo ovulatório</label><textarea id="ph_impCicloOvulatorio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ciclo anovulatório (corpo lúteo não identificado)</label><textarea id="ph_impCicloAnovulatorio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio concordante</label><textarea id="ph_impEndometrioConcordante" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Endométrio discordante — use {DESCRICAO}</label><textarea id="ph_impEndometrioDiscordante" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endométrio discordante (a palavra "discordante" sai sempre sublinhada no laudo, mesmo que você edite este texto)</label><textarea id="ph_impEndometrioDiscordante" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado uterino (útero alterado) — use {DESCRICAO}</label><textarea id="ph_impUteroAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado ovariano (ovário alterado) — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
 
@@ -597,13 +597,9 @@
           <div class="field"><label>Endométrio</label>
             <select id="endometrioConcordancia">
               <option value="concordante">Concordante com a fase do ciclo</option>
-              <option value="discordante">Discordante (descrever)</option>
+              <option value="discordante">Discordante</option>
             </select>
           </div>
-        </div>
-        <div class="field conditional" id="wrap_endometrioDiscordanciaDescricao">
-          <label>Descreva a discordância</label>
-          <textarea id="endometrioDiscordanciaDescricao" rows="2" placeholder="ex: espessura incompatível com a fase do ciclo..."></textarea>
         </div>
         <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
@@ -1180,7 +1176,7 @@
     impCicloOvulatorio: 'Exame compatível com ciclo ovulatório.',
     impCicloAnovulatorio: 'Corpo lúteo não identificado — sugestivo de ciclo anovulatório.',
     impEndometrioConcordante: 'Endométrio concordante.',
-    impEndometrioDiscordante: 'Endométrio discordante com a fase do ciclo: {DESCRICAO}.',
+    impEndometrioDiscordante: 'Endométrio discordante.',
     impUteroAlterado: 'Achado uterino: {DESCRICAO}.',
     impOvarioAlterado: 'Achado no ovário {LADO}: {DESCRICAO}.',
     footerImagens: 'Imagens em anexo.'
@@ -1353,7 +1349,6 @@
   $('uteroAspecto').addEventListener('change', e=> toggle('wrap_uteroDescricao', e.target.value==='alterado'));
   $('ovD_aspecto').addEventListener('change', e=> toggle('wrap_ovD_descricao', e.target.value==='alterado'));
   $('ovE_aspecto').addEventListener('change', e=> toggle('wrap_ovE_descricao', e.target.value==='alterado'));
-  $('endometrioConcordancia').addEventListener('change', e=> toggle('wrap_endometrioDiscordanciaDescricao', e.target.value==='discordante'));
 
   // ---------- Acompanhamento: repeating visita rows (uid-based, same pattern
   // as the mioma nodules in transvaginal.html) ----------
@@ -1362,13 +1357,13 @@
     return ''
       +'<div class="subgroup" id="wrap_visita'+uid+'">'
       +'<div class="field-row">'
-      +'<div class="field"><label>Visita <span class="visita-index"></span> — Data</label><input type="text" id="visita'+uid+'Data" placeholder="dd/mm/aaaa"></div>'
-      +'<div class="field"><label>Dia do ciclo</label><input type="text" inputmode="numeric" id="visita'+uid+'Ciclo" placeholder="ex: 12"></div>'
+      +'<div class="field"><label>Visita <span class="visita-index"></span> — Data</label><input type="text" inputmode="numeric" id="visita'+uid+'Data" placeholder="20.08.2026"></div>'
+      +'<div class="field"><label>Dia do ciclo</label><input type="text" inputmode="numeric" id="visita'+uid+'Ciclo" placeholder="ex: 12º"></div>'
       +'<div class="field"><label>Ovário direito — maior folículo (mm)</label><input type="text" id="visita'+uid+'FolD" placeholder="ex: 18 x 16"></div>'
       +'<div class="field"><label>Ovário esquerdo — maior folículo (mm)</label><input type="text" id="visita'+uid+'FolE" placeholder="ex: 10 x 9"></div>'
       +'</div>'
       +'<div class="field-row">'
-      +'<div class="field"><label>Endométrio — padrão</label><select id="visita'+uid+'EndoPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option></select></div>'
+      +'<div class="field"><label>Endométrio — padrão</label><select id="visita'+uid+'EndoPadrao"><option value="trilaminar">Trilaminar</option><option value="ecogenico">Ecogênico</option></select></div>'
       +'<div class="field"><label>Endométrio — espessura (mm)</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="visita'+uid+'EndoEspessura" placeholder="mm"></div>'
       +'</div>'
       +'<button type="button" class="visita-remove" data-uid="'+uid+'">Remover visita</button>'
@@ -1384,12 +1379,60 @@
       if(removeBtn) removeBtn.style.display = visitas.length>1 ? 'inline' : 'none';
     });
   }
+  // Máscara de data (dd.mm.aaaa) para o campo "Data" de cada visita — mesmo
+  // padrão progressivo de pontos usado na máscara de CPF, mais abaixo.
+  function aplicarMascaraDataVisita(el){
+    const digits = el.value.replace(/\D/g, '').slice(0, 8);
+    let out = digits.slice(0,2);
+    if(digits.length > 2) out += '.'+digits.slice(2,4);
+    if(digits.length > 4) out += '.'+digits.slice(4,8);
+    if(out === el.value) return;
+    el.value = out;
+    try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
+  }
+  // "Dia do ciclo" sempre com o "º" ordinal (12 -> 12º), igual ao modelo.
+  function aplicarMascaraDiaCiclo(el){
+    const digits = el.value.replace(/\D/g, '');
+    const out = digits ? digits + 'º' : '';
+    if(out === el.value) return;
+    el.value = out;
+    try{ el.setSelectionRange(digits.length, digits.length); }catch(e){ /* not focused/selectable */ }
+  }
+  function parseDataVisita(s){
+    const m = String(s||'').match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if(!m) return null;
+    const d = new Date(parseInt(m[3],10), parseInt(m[2],10)-1, parseInt(m[1],10));
+    return isNaN(d.getTime()) ? null : d;
+  }
+  // A 1ª visita é a referência: a partir da data e do dia do ciclo dela, as
+  // visitas seguintes com data preenchida têm o próprio dia do ciclo calculado
+  // sozinho (mesma diferença de dias entre as datas) — continua editável à
+  // mão depois, para o caso raro de precisar ajustar.
+  function recalcVisitaCiclos(){
+    const uids = visitaUids();
+    if(uids.length < 2) return;
+    const firstUid = uids[0];
+    const firstDate = parseDataVisita($('visita'+firstUid+'Data').value);
+    const firstCiclo = parseInt(($('visita'+firstUid+'Ciclo').value||'').replace(/\D/g,''), 10);
+    if(!firstDate || isNaN(firstCiclo)) return;
+    uids.slice(1).forEach(uid=>{
+      const thisDate = parseDataVisita($('visita'+uid+'Data').value);
+      if(!thisDate) return;
+      const diffDays = Math.round((thisDate - firstDate) / 86400000);
+      const novoCiclo = firstCiclo + diffDays;
+      if(novoCiclo > 0) $('visita'+uid+'Ciclo').value = novoCiclo + 'º';
+    });
+  }
   function wireVisita(uid){
     const el = $('wrap_visita'+uid);
     el.querySelectorAll('input, select').forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
     });
+    const dataEl = $('visita'+uid+'Data');
+    dataEl.addEventListener('input', ()=>{ aplicarMascaraDataVisita(dataEl); recalcVisitaCiclos(); render(); });
+    const cicloEl = $('visita'+uid+'Ciclo');
+    cicloEl.addEventListener('input', ()=>{ aplicarMascaraDiaCiclo(cicloEl); recalcVisitaCiclos(); render(); });
     el.querySelector('.visita-remove').addEventListener('click', ()=>{
       el.remove();
       renumberVisitas();
@@ -1437,8 +1480,8 @@
     } else {
       items.push({key:'ciclo', label:phraseRaw('impCicloOvulatorio'), auto:true});
     }
-    if(state.endometrioConcordancia === 'discordante' && state.endometrioDiscordanciaDescricao){
-      items.push({key:'endometrio', label:phraseRaw('impEndometrioDiscordante', {DESCRICAO: state.endometrioDiscordanciaDescricao}), auto:true});
+    if(state.endometrioConcordancia === 'discordante'){
+      items.push({key:'endometrio', label:phraseRaw('impEndometrioDiscordante'), auto:true});
     } else {
       items.push({key:'endometrio', label:phraseRaw('impEndometrioConcordante'), auto:true});
     }
@@ -1670,17 +1713,16 @@
       const ciclo = blankOrValue(req('visita'+uid+'Ciclo'));
       const folD = blankOrValue(req('visita'+uid+'FolD'));
       const folE = blankOrValue(req('visita'+uid+'FolE'));
-      const endoPadrao = v('visita'+uid+'EndoPadrao')==='secretor' ? 'Secretor' : 'Trilaminar';
+      const endoPadrao = v('visita'+uid+'EndoPadrao')==='ecogenico' ? 'Ecogênico' : 'Trilaminar';
       const endoEspessura = blankOrValue(req('visita'+uid+'EndoEspessura'));
       return {data, ciclo, folD, folE, endoPadrao, endoEspessura};
     });
 
     const corpoLuteoLado = v('corpoLuteoLado');
     const endometrioConcordancia = v('endometrioConcordancia');
-    const endometrioDiscordanciaDescricao = vNoDot('endometrioDiscordanciaDescricao');
 
     const checklistItems = buildImpressao({
-      corpoLuteoLado, endometrioConcordancia, endometrioDiscordanciaDescricao,
+      corpoLuteoLado, endometrioConcordancia,
       uteroAspecto, uteroDescricao,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao,
       ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao
@@ -1706,7 +1748,7 @@
 
     blocks.push({id:'medicacoes', html:'<p class="linha"><strong>Medicações:</strong> '+(medicacoes ? escapeHtml(medicacoes) : '---')+'</p>'});
 
-    blocks.push({id:'aoexame', html:'<p class="linha"><strong>Ao exame:</strong></p>'});
+    blocks.push({id:'aoexame', html:'<p class="linha"><strong><u>Ao exame:</u></strong></p>'});
 
     blocks.push({id:'utero', html:'<p class="linha"><strong>Útero:</strong> '+(uteroAspecto==='alterado'
       ? span(blankOrValue(uteroDescricao))
@@ -1759,8 +1801,16 @@
       impressaoListHtml += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
     } else {
       checkedItems.forEach(it=>{
-        const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
-        impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
+        const overridden = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key);
+        const text = overridden ? impressaoOverrides[it.key] : ('* '+it.label);
+        let html = escapeHtml(text);
+        // A palavra "discordante" sai sempre sublinhada — só enquanto o item
+        // não foi reescrito à mão (edição manual vira texto puro, como os
+        // demais itens da lista).
+        if(!overridden && it.key==='endometrio' && endometrioConcordancia==='discordante'){
+          html = html.replace(/discordante/i, '<u>$&</u>');
+        }
+        impressaoListHtml += '<li data-key="'+it.key+'">'+html+'</li>';
       });
     }
     impressaoListHtml += '</ul>';
