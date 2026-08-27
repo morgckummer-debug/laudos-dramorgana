@@ -399,9 +399,9 @@
 
   <hr class="sep">
   <h3>Impressões diagnósticas</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação — use {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar — use {CORIONICIDADE}, {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação — use {SEMANAS}, {DIAS} e {METODO} (DUM/ecografia/exame, conforme a cronologia escolhida)</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {SEMANAS}, {DIAS} e {METODO}</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar — use {CORIONICIDADE}, {SEMANAS}, {DIAS} e {METODO}</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Sem anomalias estruturais maiores</label><textarea id="ph_impSemAnomalias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado morfológico alterado — use {SEGMENTO} e {DESCRICAO}</label><textarea id="ph_impMorfoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Baixo risco para cromossomopatias</label><textarea id="ph_impCromossomopatiasBaixo" rows="2"></textarea></div>
@@ -1152,9 +1152,9 @@
     morfoExtremidades: 'Os membros superiores e inferiores apresentam aspecto normal em seus diferentes segmentos. Mãos e pés de conformação usual. Ecogenicidade óssea normal.',
     morfoCordao: 'Presença de {VASOS}.',
 
-    impGestacao: 'Gestação única, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com a DUM/primeira ecografia.',
-    impGestacaoMultipla: 'Gestação gemelar, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com a DUM/primeira ecografia.',
-    impGestacaoTrigemelar: 'Gestação trigemelar, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com a DUM/primeira ecografia.',
+    impGestacao: 'Gestação única, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com {METODO}.',
+    impGestacaoMultipla: 'Gestação gemelar, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com {METODO}.',
+    impGestacaoTrigemelar: 'Gestação trigemelar, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com {METODO}.',
     impSemAnomalias: 'Não evidenciamos nenhuma anomalia estrutural maior, passível de identificação para essa idade gestacional.',
     impMorfoAlterado: '{SEGMENTO}: {DESCRICAO}.',
     impCromossomopatiasBaixo: 'Os sinais ultrassonográficos indicam baixo risco para cromossomopatias (vide gráficos) — não podemos excluir essa possibilidade somente através da ultrassonografia.',
@@ -1740,7 +1740,7 @@
     const gestacaoKey = !state.isMultiple ? 'impGestacao'
       : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla');
     items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
-      {CORIONICIDADE:state.corTxt, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+      {CORIONICIDADE:state.corTxt, SEMANAS:state.semanas, DIAS:state.dias, METODO:state.metodoTxt}), auto:true});
 
     const algumAlterado = state.fetos.some(f=> f.alteracoes.length > 0);
     if(!algumAlterado){
@@ -2048,6 +2048,12 @@
 
     const cronologiaMetodoRaw = v('cronologiaMetodo');
     const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame') ? cronologiaMetodoRaw : 'dum';
+    // Mesma cronologia usada pra calcular a IG (campo "Idade gestacional
+    // calculada com base em") também nomeia a referência na frase da
+    // conclusão — sem isto, "de acordo com a DUM/primeira ecografia" ficava
+    // ambíguo sobre qual das duas datas o laudo realmente seguiu.
+    const METODO_TXT = {dum:'a DUM', usg:'o ultrassom de datação do 1º trimestre', exame:'a idade gestacional informada neste exame'};
+    const metodoTxt = METODO_TXT[cronologiaMetodo];
     const dataBase = computeDataBase(cronologiaMetodo);
     const gaDays = computeIGDaysAtExam(dataBase, dataExame);
     const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
@@ -2158,7 +2164,7 @@
 
     // ----- Impressão -----
     const state = {
-      semanas: semanasTxt, dias: diasTxt,
+      semanas: semanasTxt, dias: diasTxt, metodoTxt,
       isMultiple, corTxt, fetos,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       preEclampsia, preEclampsiaOpcao, preEclampsiaRiscoTxt,
