@@ -315,6 +315,7 @@
   }
   @media print{
     .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note, .cg-bar, .cg-results-list, .cg-toast, #cgLoginOverlay{display:none !important;}
+    .combo-list{display:none !important;}
     .pg-break-marker{display:none !important;}
     .layout{display:block;padding:0;margin:0;max-width:none;}
     .preview-wrap{position:static;}
@@ -442,7 +443,6 @@
           <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
           <div class="field"><label>Idade</label><input type="text" inputmode="numeric" id="idadeAnos" placeholder="anos"></div>
         </div>
-        <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkPropedeutica" checked><label for="chkPropedeutica">Incluir "Propedêutica de puberdade precoce."</label></div>
         <div class="field-row">
           <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
         </div>
@@ -455,7 +455,8 @@
             </select>
           </div>
         </div>
-        <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkDoppler"><label for="chkDoppler">Incluir Doppler da artéria uterina (opcional, independente da faixa etária)</label></div>
+        <div class="toggle-line"><input type="checkbox" id="chkDoppler"><label for="chkDoppler">Incluir Doppler da artéria uterina (opcional, independente da faixa etária)</label></div>
+        <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkPropedeutica" checked><label for="chkPropedeutica">Incluir "Propedêutica de puberdade precoce."</label></div>
       </div>
     </div>
 
