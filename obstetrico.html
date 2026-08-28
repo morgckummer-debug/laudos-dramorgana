@@ -1724,13 +1724,18 @@
 
     const algumAchado = state.fetos.some(f=> f.laAlterado || f.placentaAlterada || f.placentaPrevia || f.pesoKey==='impPesoPIG')
       || state.discordanciaAlterada;
+
+    // O percentil de peso fetal vai sempre no 2º item da conclusão, logo após
+    // a gestação — antes até da frase de boa evolução.
+    state.fetos.forEach(f=>{
+      items.push({key:k('peso', f), label: pre(f) + f.pesoLabel, auto:true});
+    });
+
     if(!algumAchado){
       items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
     }
 
     state.fetos.forEach(f=>{
-      items.push({key:k('peso', f), label: pre(f) + f.pesoLabel, auto:true});
-
       if(f.laAlterado){
         items.push({key:k('la-alterado', f), label: pre(f) + phraseRaw('impLaAlterado', {DESCRICAO: f.laDescricao}), auto:true});
       }
