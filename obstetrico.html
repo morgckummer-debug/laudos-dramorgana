@@ -1905,6 +1905,14 @@
     const realTop = Array.from(paperEl.children);
     const measureTop = Array.from(measure.children);
     const boxes = [];
+    // Cabeçalho de identificação: se o laudo tiver mais de uma página, cada
+    // página a partir da 2ª leva uma cópia do id-card no topo — senão, uma
+    // folha solta no meio da impressão fica sem como identificar a paciente.
+    // Altura e margem são lidas aqui, do próprio "measure" (com o lineHeight/
+    // fontSize candidatos desta chamada já aplicados) — não do #paper vivo,
+    // que pode ainda estar no tamanho base e dar uma margem em em errada.
+    let idCardHtml = '';
+    let idCardRepeatHeight = 0;
     realTop.forEach((realChild, idx)=>{
       const measureChild = measureTop[idx];
       if(!measureChild) return;
@@ -1919,6 +1927,11 @@
       } else {
         const r = measureChild.getBoundingClientRect();
         boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:(realChild.tagName==='H4' ? 'heading' : 'block'), html: realChild.outerHTML, node: realChild});
+        if(realChild.classList && realChild.classList.contains('id-card')){
+          idCardHtml = realChild.outerHTML;
+          const marginBottom = parseFloat(getComputedStyle(measureChild).marginBottom) || 0;
+          idCardRepeatHeight = (r.bottom - r.top) + marginBottom;
+        }
       }
     });
     document.body.removeChild(measure);
@@ -1926,7 +1939,8 @@
     const pages = [[]];
     let pageStart = boxes.length ? boxes[0].top : 0;
     boxes.forEach(box=>{
-      if((box.bottom - pageStart) > budgetPx && pages[pages.length-1].length > 0){
+      const budgetHere = pages.length > 1 ? (budgetPx - idCardRepeatHeight - continuaHeight) : budgetPx;
+      if((box.bottom - pageStart) > budgetHere && pages[pages.length-1].length > 0){
         pages.push([]);
         pageStart = box.top;
       }
@@ -1938,7 +1952,7 @@
         pages[p+1].unshift(pg.pop());
       }
     }
-    return {pages, continuaHtml, continuaHeight};
+    return {pages, continuaHtml, continuaHeight, idCardHtml, idCardRepeatHeight};
   }
 
   // Tenta caber em uma página: primeiro apertando a entrelinha, depois também
@@ -2538,7 +2552,7 @@
     if(usedLineHeight !== baseLineHeight) paperEl.style.lineHeight = usedLineHeight;
     if(usedFontSize !== baseFontSize) paperEl.style.fontSize = usedFontSize + 'pt';
 
-    const {pages, continuaHtml, continuaHeight} = packed;
+    const {pages, continuaHtml, continuaHeight, idCardHtml, idCardRepeatHeight} = packed;
 
     const wrap = document.createElement('div');
     pages.forEach((pageBoxes, pageIdx)=>{
@@ -2548,6 +2562,7 @@
 
       const pageEl = document.createElement('div');
       pageEl.className = 'print-page';
+      if(pageIdx > 0 && idCardHtml) pageEl.insertAdjacentHTML('beforeend', idCardHtml);
       let i = 0;
       while(i < contentBoxes.length){
         if(contentBoxes[i].kind === 'li'){
@@ -2565,7 +2580,8 @@
       const pinnedHtml = isLast ? (pinned ? pinned.html : '') : continuaHtml;
       const pinnedHeight = isLast ? (pinned ? (pinned.bottom - pinned.top) : 0) : continuaHeight;
       if(pinnedHtml){
-        const spacerPx = Math.max(0, packBudgetPx - contentHeight - pinnedHeight);
+        const idCardExtra = pageIdx > 0 ? idCardRepeatHeight : 0;
+        const spacerPx = Math.max(0, packBudgetPx - idCardExtra - contentHeight - pinnedHeight);
         const spacer = document.createElement('div');
         spacer.style.height = spacerPx + 'px';
         pageEl.appendChild(spacer);

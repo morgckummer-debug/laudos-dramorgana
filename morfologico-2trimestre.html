@@ -204,11 +204,12 @@
   .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
   .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
   .paper table.biometria td:first-child{white-space:nowrap;}
-  /* Linha do líquido amniótico (maior bolsão + ILA): a largura da 1ª célula é
-     recalculada em JS (alignIlaColumns) a partir da própria tabela de
-     parâmetros biométricos do mesmo feto, para o "ILA" cair sempre na mesma
-     coluna vertical de CF/CA — não numa posição que varia conforme o tamanho
-     do valor do maior bolsão. */
+  /* Linha do líquido amniótico (maior bolsão + ILA): aqui a biometria tem 2
+     pares por linha (DBP/diâmetro cerebelar, CC/prega nucal...), bem mais
+     larga que a do obstetrico.html — alinhar a 1ª célula com a 2ª coluna
+     daquela tabela (como lá) jogaria o "ILA" muito para a direita, longe do
+     "Maior bolsão". Aqui as duas células só usam o padding natural da
+     table.biometria, uma do lado da outra. */
   .paper table.grade-la{margin-bottom:var(--linha-margin, 1em);}
   .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;font-size:10pt;}
   .paper .blank{color:#B4432F;font-weight:600;}
@@ -1869,6 +1870,14 @@
     const realTop = Array.from(paperEl.children);
     const measureTop = Array.from(measure.children);
     const boxes = [];
+    // Cabeçalho de identificação: se o laudo tiver mais de uma página, cada
+    // página a partir da 2ª leva uma cópia do id-card no topo — senão, uma
+    // folha solta no meio da impressão fica sem como identificar a paciente.
+    // Altura e margem são lidas aqui, do próprio "measure" (com o lineHeight/
+    // fontSize candidatos desta chamada já aplicados) — não do #paper vivo,
+    // que pode ainda estar no tamanho base e dar uma margem em em errada.
+    let idCardHtml = '';
+    let idCardRepeatHeight = 0;
     realTop.forEach((realChild, idx)=>{
       const measureChild = measureTop[idx];
       if(!measureChild) return;
@@ -1883,6 +1892,11 @@
       } else {
         const r = measureChild.getBoundingClientRect();
         boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:(realChild.tagName==='H4' ? 'heading' : 'block'), html: realChild.outerHTML, node: realChild});
+        if(realChild.classList && realChild.classList.contains('id-card')){
+          idCardHtml = realChild.outerHTML;
+          const marginBottom = parseFloat(getComputedStyle(measureChild).marginBottom) || 0;
+          idCardRepeatHeight = (r.bottom - r.top) + marginBottom;
+        }
       }
     });
     document.body.removeChild(measure);
@@ -1890,7 +1904,8 @@
     const pages = [[]];
     let pageStart = boxes.length ? boxes[0].top : 0;
     boxes.forEach(box=>{
-      if((box.bottom - pageStart) > budgetPx && pages[pages.length-1].length > 0){
+      const budgetHere = pages.length > 1 ? (budgetPx - idCardRepeatHeight - continuaHeight) : budgetPx;
+      if((box.bottom - pageStart) > budgetHere && pages[pages.length-1].length > 0){
         pages.push([]);
         pageStart = box.top;
       }
@@ -1902,7 +1917,7 @@
         pages[p+1].unshift(pg.pop());
       }
     }
-    return {pages, continuaHtml, continuaHeight};
+    return {pages, continuaHtml, continuaHeight, idCardHtml, idCardRepeatHeight};
   }
 
   // Tenta caber em uma página: primeiro apertando a entrelinha, depois também
@@ -1970,33 +1985,6 @@
   // ---------- Main render ----------
   let pendingCount = 0;
   let printAttempted = false;
-
-  // Alinha verticalmente o "ILA" com as colunas de medidas (CF/CA): a 1ª
-  // célula da linha "Maior bolsão / ILA" de cada feto ganha a mesma largura,
-  // em px, das duas primeiras colunas (rótulo + valor) da tabela de
-  // parâmetros biométricos daquele mesmo feto — medida ao vivo no DOM, e não
-  // chutada em "em", porque o texto do rótulo ("Maior bolsão:") é mais longo
-  // que "Diâmetro biparietal (DBP):" mais o valor sozinhos e sairia da conta
-  // se calculada à mão. Roda depois de todo render(), já com os blocos no ar.
-  function alignIlaColumns(){
-    $('paper').querySelectorAll('table.grade-la').forEach(laTable=>{
-      const laBlk = laTable.closest('[data-blk^="la-"]');
-      if(!laBlk) return;
-      const sfx = laBlk.getAttribute('data-blk').slice('la'.length);
-      const bioTable = $('paper').querySelector('[data-blk="biometria'+sfx+'"] table.biometria');
-      const bioRow = bioTable && bioTable.rows[0];
-      const laRow = laTable.rows[0];
-      if(!bioRow || !laRow || bioRow.cells.length < 2 || laRow.cells.length < 1) return;
-      const widthPx = bioRow.cells[0].getBoundingClientRect().width + bioRow.cells[1].getBoundingClientRect().width;
-      // Em "em", não em px: a impressão/PDF pode reduzir o tamanho da fonte do
-      // laudo inteiro para caber nas páginas (autoFitPages), e uma largura
-      // fixa em px ficaria descalibrada depois desse encolhimento. Em "em"
-      // ela encolhe junto — biometria e ILA usam a mesma fonte — mantendo o
-      // alinhamento em qualquer tamanho de fonte.
-      const fontSizePx = parseFloat(getComputedStyle(laRow.cells[0]).fontSize) || 16;
-      laRow.cells[0].style.width = (widthPx / fontSizePx) + 'em';
-    });
-  }
 
   function render(){
     if(draftRestoring) return;
@@ -2274,7 +2262,7 @@
 
     if(dopplerMaterno){
       const tabelaDopplerMaterno = ''
-        +'<table class="biometria" style="width:100%;">'
+        +'<table class="biometria">'
         +'<tr><td><strong style="text-decoration:underline;">Doppler Materno</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
         +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
         +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
@@ -2316,8 +2304,6 @@
       const titleEl = $('paper').querySelector('h3.doctitle');
       if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
     }
-    alignIlaColumns();
-
     const pill = $('statusPill');
     if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
     else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
@@ -2403,10 +2389,6 @@
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
     clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
 
-    // A largura da 1ª célula da linha do líquido amniótico já foi calculada em
-    // px pelo alignIlaColumns() e aplicada como estilo inline no #paper vivo
-    // (para o ILA cair na coluna de CF/CA) — cloneNode(true) já traz esse
-    // estilo junto, então nada extra é preciso aqui para o Word.
 
     clone.querySelectorAll('.id-card-row').forEach(el=>{
       el.style.fontSize = '12pt';
@@ -2457,7 +2439,7 @@
     if(usedLineHeight !== baseLineHeight) paperEl.style.lineHeight = usedLineHeight;
     if(usedFontSize !== baseFontSize) paperEl.style.fontSize = usedFontSize + 'pt';
 
-    const {pages, continuaHtml, continuaHeight} = packed;
+    const {pages, continuaHtml, continuaHeight, idCardHtml, idCardRepeatHeight} = packed;
 
     const wrap = document.createElement('div');
     pages.forEach((pageBoxes, pageIdx)=>{
@@ -2467,6 +2449,7 @@
 
       const pageEl = document.createElement('div');
       pageEl.className = 'print-page';
+      if(pageIdx > 0 && idCardHtml) pageEl.insertAdjacentHTML('beforeend', idCardHtml);
       let i = 0;
       while(i < contentBoxes.length){
         if(contentBoxes[i].kind === 'li'){
@@ -2484,7 +2467,8 @@
       const pinnedHtml = isLast ? (pinned ? pinned.html : '') : continuaHtml;
       const pinnedHeight = isLast ? (pinned ? (pinned.bottom - pinned.top) : 0) : continuaHeight;
       if(pinnedHtml){
-        const spacerPx = Math.max(0, packBudgetPx - contentHeight - pinnedHeight);
+        const idCardExtra = pageIdx > 0 ? idCardRepeatHeight : 0;
+        const spacerPx = Math.max(0, packBudgetPx - idCardExtra - contentHeight - pinnedHeight);
         const spacer = document.createElement('div');
         spacer.style.height = spacerPx + 'px';
         pageEl.appendChild(spacer);
