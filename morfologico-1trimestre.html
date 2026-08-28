@@ -458,7 +458,7 @@
         </div>
         <div class="field-row">
           <div class="field"><label>IMC (calculado)</label><input type="text" id="imcCalc" readonly placeholder="calculado automaticamente"></div>
-          <div class="field"><label>Pressão arterial (mmHg)</label><input type="text" id="pressaoArterial" placeholder="ex: 110x70"></div>
+          <div class="field"><label>Pressão arterial média (PAM) (mmHg)</label><input type="text" id="pressaoArterial" placeholder="ex: 110x70"></div>
         </div>
         <div class="field"><label>Em uso de — opcional</label><textarea id="medicacoes" rows="2" placeholder="ex: ácido fólico; AAS 100 mg..."></textarea></div>
         <div class="field" style="margin-top:14px;"><label>Motivo do exame (&quot;Relato de...&quot;) — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: rastreamento de aneuploidias..."></textarea></div>
@@ -2196,7 +2196,7 @@
       +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
       +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>Idade:</strong> '+span(blankOrValue(idadeTxt))+' anos &nbsp;|&nbsp; <strong>Peso:</strong> '+span(blankOrValue(pesoMaterno))+' kg &nbsp;|&nbsp; <strong>Altura:</strong> '+span(blankOrValue(alturaMaterna))+' cm &nbsp;|&nbsp; <strong>IMC:</strong> '+span(blankOrValue(imcTxt))+' &nbsp;|&nbsp; <strong>PA:</strong> '+span(blankOrValue(pressaoArterial))+' mmHg</span></div>'
+      +'<div class="id-card-row"><span><strong>Idade:</strong> '+span(blankOrValue(idadeTxt))+' anos &nbsp;|&nbsp; <strong>Peso:</strong> '+span(blankOrValue(pesoMaterno))+' kg &nbsp;|&nbsp; <strong>Altura:</strong> '+span(blankOrValue(alturaMaterna))+' cm &nbsp;|&nbsp; <strong>IMC:</strong> '+span(blankOrValue(imcTxt))+' &nbsp;|&nbsp; <strong>PAM:</strong> '+span(blankOrValue(pressaoArterial))+' mmHg</span></div>'
       +'</div>'});
 
     let tituloTxt = 'ULTRASSOM OBSTÉTRICO MORFOLÓGICO DE PRIMEIRO TRIMESTRE';
