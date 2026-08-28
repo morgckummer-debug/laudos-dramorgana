@@ -2313,9 +2313,49 @@
   });
 
   // ---------- Actions ----------
+  // O Word ignora o line-height herdado da <div> que envolve o laudo inteiro
+  // (só respeita o que está no style="" de cada elemento, e mesmo assim só o
+  // valor que o navegador já calculou) — sem isso ele aplica a entrelinha do
+  // estilo "Normal" dele, diferente da tela. Mesma solução do obstétrico do
+  // 1º trimestre (commit "Faz o Word do 1º trimestre sair igual ao PDF"):
+  // copiar elemento a elemento o valor computado ao vivo.
+  const MARGINS = ['margin-top','margin-right','margin-bottom','margin-left'];
+  const PADDINGS = ['padding-top','padding-right','padding-bottom','padding-left'];
+  const WORD_COPY = [
+    ['h3.doctitle', ['font-size','line-height'].concat(MARGINS)],
+    ['p.relato', ['font-size','line-height'].concat(MARGINS)],
+    ['h4.sec', ['font-size','line-height'].concat(MARGINS)],
+    ['p.linha', ['font-size','line-height'].concat(MARGINS)],
+    ['p.recomendacao', ['font-size','line-height'].concat(MARGINS)],
+    ['table.biometria', ['font-size','line-height','border-collapse'].concat(MARGINS)],
+    ['table.biometria td', ['vertical-align','white-space'].concat(PADDINGS)],
+    ['.id-card-row', ['font-size','line-height']],
+    ['.footnote', ['font-size','line-height']],
+    ['.assinatura', ['line-height']],
+    ['.assinatura-info', ['font-size','line-height']]
+  ];
+  function copyComputedToClone(liveRoot, cloneRoot){
+    WORD_COPY.forEach(function(rule){
+      const sel = rule[0], props = rule[1];
+      const live = liveRoot.querySelectorAll(sel);
+      const copy = cloneRoot.querySelectorAll(sel);
+      if(live.length !== copy.length) return;
+      for(let i=0;i<live.length;i++){
+        const cs = getComputedStyle(live[i]);
+        props.forEach(function(p){
+          const val = cs.getPropertyValue(p);
+          if(val) copy[i].style.setProperty(p, val);
+        });
+      }
+    });
+  }
   function buildReportHtml(){
-    const clone = $('paper').cloneNode(true);
+    const paperEl = $('paper');
+    const clone = paperEl.cloneNode(true);
+    copyComputedToClone(paperEl, clone);
     clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    const liveLi = paperEl.querySelector('ul.impressao li');
+    const liStyle = liveLi ? getComputedStyle(liveLi) : null;
     clone.querySelectorAll('ul.impressao').forEach(ul=>{
       const div = document.createElement('div');
       Array.from(ul.children).forEach(li=>{
@@ -2325,13 +2365,14 @@
         p.style.textAlign = 'justify';
         p.style.paddingLeft = '1em';
         p.style.textIndent = '-1em';
+        if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; }
         p.innerHTML = li.innerHTML;
         div.appendChild(p);
       });
       ul.replaceWith(div);
     });
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
-    const liveIdCardEl = $('paper').querySelector('.id-card');
+    const liveIdCardEl = paperEl.querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });

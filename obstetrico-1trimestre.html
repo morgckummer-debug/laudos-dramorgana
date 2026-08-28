@@ -408,6 +408,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Ausência de batimentos cardíacos</label><textarea id="ph_fcfAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — óbito embrionário</label><textarea id="ph_embriaoObito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado</label><textarea id="ph_embriaoNaoIdentificado" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Impressões diagnósticas</h3>
@@ -417,6 +418,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia por ultrassom/ecografia) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoGemelarSemDum" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Perda gestacional — use {TIPO} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impObito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Embrião não identificado — impressão</label><textarea id="ph_impEmbriaoNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DPP — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG reduzido — impressão</label><textarea id="ph_impIsgReduzido" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — impressão</label><textarea id="ph_impHematoma" rows="2"></textarea></div>
@@ -570,6 +572,10 @@
         <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+        <div class="field" style="margin-top:10px;">
+          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
+          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
+        </div>
       </div>
     </div>
 
@@ -1256,6 +1262,7 @@
     fcfAusente: 'Ausência de batimentos cardíacos identificados ao exame.',
     embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
     embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
+    embriaoNaoIdentificado: 'Embrião ainda não identificado — gestação em fase muito inicial.',
 
     impGestacaoUnica: 'Gestação única, eutópica, compatível com {IG} (DUM {CONCORDANCIA}).',
     impGestacaoUnicaSemDum: 'Gestação única, eutópica, compatível com {IG}.',
@@ -1263,6 +1270,7 @@
     impGestacaoGemelarSemDum: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
     impBoaEvolucao: 'Boa evolução até o momento.',
     impObito: 'Perda gestacional {TIPO}, compatível com {IG}.',
+    impEmbriaoNaoIdentificado: 'Embrião não identificado no momento — sugere-se reavaliação em 10-14 dias.',
     impDPP: 'DPP: {DATA}.',
     impIsgReduzido: 'Saco gestacional de dimensões reduzidas.',
     impHematoma: 'Hematoma subcoriônico - acompanhar.',
@@ -1445,7 +1453,7 @@
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Comprimento cabeça-nádega — CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'CCN" placeholder="mm"></div>'
-      +'<div class="field"><label>Vitalidade</label><select id="saco'+uid+'Vitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>'
+      +'<div class="field"><label>Vitalidade</label><select id="saco'+uid+'Vitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option><option value="nao_identificado">Embrião não identificado (gestação muito inicial)</option></select></div>'
       +'</div>'
       +'<div class="field-row conditional" id="wrap_saco'+uid+'FC">'
       +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" maxlength="3" id="saco'+uid+'FC" placeholder="bpm"></div>'
@@ -1672,9 +1680,11 @@
         : phraseRaw('impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
     }
 
-    const suprimirBoaEvolucao = state.algumIsgReduzido || state.algumHematoma;
+    const suprimirBoaEvolucao = state.algumIsgReduzido || state.algumHematoma || state.algumEmbrioNaoIdentificado;
     if(state.algumObito){
       items.push({key:'evolucao', label:phraseRaw('impObito', {TIPO:state.tipoPerda, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+    } else if(state.algumEmbrioNaoIdentificado){
+      items.push({key:'embriao-nao-identificado', label:phraseRaw('impEmbriaoNaoIdentificado'), auto:true});
     } else if(!suprimirBoaEvolucao){
       items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
     }
@@ -1692,6 +1702,13 @@
     if(state.anexosAspecto==='alterado' && state.anexosDescricao){
       items.push({key:'anexos-alterado', label:phraseRaw('impAnexosAlterados', {DESCRICAO:state.anexosDescricao}), auto:true});
     }
+
+    // Observações livres: texto que a médica escreve fora de qualquer campo
+    // padrão — cada linha não-vazia vira seu próprio item, já com o texto dela
+    // (não um gabarito), então editar/desmarcar funciona igual aos demais.
+    state.obsLinhas.forEach((linha, idx)=>{
+      items.push({key:'obs-'+idx, label: linha, auto:true});
+    });
 
     // DPP sempre por último na conclusão.
     items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
@@ -1945,8 +1962,10 @@
       const insercao = v('saco'+uid+'Insercao');
       const dmsg = blankOrValue(req('saco'+uid+'DMSG'));
       const vv = blankOrValue(req('saco'+uid+'VV'));
-      const ccn = blankOrValue(req('saco'+uid+'CCN'));
       const vitalidade = v('saco'+uid+'Vitalidade');
+      // Sem embrião identificado ainda não há o que medir no CCN — cobrar o
+      // campo como pendente marcaria de vermelho um dado que não existe.
+      const ccn = blankOrValue(reqIf('saco'+uid+'CCN', vitalidade!=='nao_identificado'));
       const fc = blankOrValue(reqIf('saco'+uid+'FC', vitalidade==='presente'));
       const isgCheckEl = $('saco'+uid+'ISG');
       const isgPequeno = isgCheckEl ? isgCheckEl.checked : false;
@@ -2000,6 +2019,7 @@
     // ----- Impressão -----
     const algumHematoma = sacos.some(s=> s.hematoma);
     const algumIsgReduzido = sacos.some(s=> s.isgNum !== null && s.isgNum < 5);
+    const algumEmbrioNaoIdentificado = sacos.some(s=> s.vitalidade==='nao_identificado');
     const impSemanasNum = parseInt(impSemanas, 10);
     const impDiasNum = parseInt(impDias, 10);
     // {IG}: "X semanas e Y dia(s)" já formatado (sem "e 0 dias", "1 dia" no
@@ -2010,8 +2030,9 @@
       : '____ semanas e ____ dias';
     const state = {
       isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
-      algumObito, dpp, algumHematoma, algumIsgReduzido, cronologiaMetodo, tipoPerda,
-      bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao
+      algumObito, dpp, algumHematoma, algumIsgReduzido, algumEmbrioNaoIdentificado, cronologiaMetodo, tipoPerda,
+      bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao,
+      obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
@@ -2049,10 +2070,12 @@
       sacoHtml += '<table class="biometria">'
         +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
         +'<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
-        +'<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>'
-        +(s.vitalidade==='ausente'
-          ? '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">Ausente</span></td></tr>'
-          : '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(s.fc)+' bpm</td></tr>')
+        +(s.vitalidade==='nao_identificado'
+          ? '<tr><td>Comprimento cabeça-nádega (CCN)</td><td>Não avaliável</td></tr>'
+          : '<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>')
+        +(s.vitalidade==='presente'
+          ? '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(s.fc)+' bpm</td></tr>'
+          : '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">'+(s.vitalidade==='ausente' ? 'Ausente' : 'Não avaliável')+'</span></td></tr>')
         +'</table>';
       if(s.isgPequeno){
         sacoHtml += '<p class="linha tight">'+phraseRaw('isgPequeno', {ISG: span(blankOrValue(s.isgValor))})+'</p>';
@@ -2063,7 +2086,8 @@
       if(s.vitalidade==='ausente'){
         sacoHtml += '<p class="linha">'+phrase('fcfAusente')+'</p>';
       }
-      sacoHtml += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('embriaoObito') : phrase('embriaoNormal'))+'</p>';
+      sacoHtml += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('embriaoObito')
+        : s.vitalidade==='nao_identificado' ? phrase('embriaoNaoIdentificado') : phrase('embriaoNormal'))+'</p>';
       sacoHtml += '</div>';
       blocks.push({id:'saco_'+s.uid, html:sacoHtml});
     });
