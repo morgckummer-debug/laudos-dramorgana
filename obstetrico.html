@@ -2306,7 +2306,7 @@
 
       if(pbf){
         blocks.push({id:'pbf'+sfx, html:'<div>'
-          +'<p class="linha tight"><strong>Perfil biofísico fetal</strong></p>'
+          +'<p class="linha tight"><strong style="text-decoration:underline;">Perfil biofísico fetal</strong></p>'
           +'<table class="biometria">'
           +'<tr><td>Movimentos respiratórios</td><td>'+(f.pbfResp?'Presentes (2)':'Ausentes (0)')+'</td></tr>'
           +'<tr><td>Movimentos corpóreos</td><td>'+(f.pbfCorpo?'Presentes (2)':'Ausentes (0)')+'</td></tr>'
@@ -2326,7 +2326,7 @@
     }
 
     if(colo){
-      blocks.push({id:'colo', html:'<div><p class="linha tight"><strong>Colo uterino</strong></p><p class="linha">'+phraseRaw('coloTexto', {MEDIDA: coloComprimentoVal.text})+'</p></div>'});
+      blocks.push({id:'colo', html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Colo uterino</strong></p><p class="linha">'+phraseRaw('coloTexto', {MEDIDA: coloComprimentoVal.text})+'</p></div>'});
     }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
