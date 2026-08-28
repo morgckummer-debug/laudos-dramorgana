@@ -2270,7 +2270,7 @@
       blocks.push({id:'apresentacao'+sfx, html:'<p class="linha">'+f.apresentacaoHtml+'</p>'});
       blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+phraseRaw('vitalidadeTexto', {FC: f.fc.text})+'</p>'});
 
-      let biometriaHtml = '<div><p class="linha tight"><strong>Parâmetros Biométricos</strong></p>';
+      let biometriaHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Parâmetros Biométricos</strong></p>';
       biometriaHtml += '<table class="biometria">'
         +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;">'+span(f.dbp)+' mm</td><td style="white-space:nowrap;">Comprimento femoral (CF):</td><td style="white-space:nowrap;">'+span(f.cf)+' mm</td></tr>'
         +'<tr><td style="white-space:nowrap;">Circunferência cefálica (CC):</td><td style="white-space:nowrap;">'+span(f.cc)+' mm</td><td style="white-space:nowrap;">Circunferência abdominal (CA):</td><td style="white-space:nowrap;">'+span(f.ca)+' mm</td></tr>'
@@ -2278,9 +2278,9 @@
         +'</table></div>';
       blocks.push({id:'biometria'+sfx, html:biometriaHtml});
 
-      blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong>Placenta</strong></p><p class="linha">'+f.placentaHtml+'</p></div>'});
+      blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta</strong></p><p class="linha">'+f.placentaHtml+'</p></div>'});
 
-      let laHtml = '<div><p class="linha tight"><strong>Líquido amniótico</strong></p>';
+      let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
       laHtml += '<p class="linha tight">'+(f.laAlterado ? escapeHtml(f.laDescricao)+'.' : phrase('laAspectoNormal'))+'</p>';
       laHtml += '<table class="biometria grade-la"><tr>'
         +'<td style="white-space:nowrap;">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'</td>'
