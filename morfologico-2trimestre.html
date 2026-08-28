@@ -395,6 +395,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {TEXTURA}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cordão umbilical — use {VASOS}</label><textarea id="ph_cordaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — volume reduzido (oligoâmnio)</label><textarea id="ph_laAspectoOligoamnio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — volume aumentado (polidrâmnio)</label><textarea id="ph_laAspectoPolidramnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — maior bolsão (use {BOLSAO})</label><textarea id="ph_laValoresBolsao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — ILA (use {ILA} e {ILAP})</label><textarea id="ph_laValoresIla" rows="2"></textarea></div>
 
@@ -419,7 +421,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Peso acima do percentil 90 (GIG) — use {PERCENTIL}</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Sem anomalia estrutural — todos os segmentos normais</label><textarea id="ph_impSemAnomalias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado morfológico alterado — use {SEGMENTO} e {DESCRICAO}</label><textarea id="ph_impMorfoAlterado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico alterado — use {DESCRICAO}</label><textarea id="ph_impLaAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — oligoâmnio (impressão)</label><textarea id="ph_impLaOligoamnio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — polidrâmnio (impressão)</label><textarea id="ph_impLaPolidramnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta alterada — use {DESCRICAO}</label><textarea id="ph_impPlacentaAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta baixa/marginal/prévia — use {INSERCAO}</label><textarea id="ph_impPlacentaPrevia" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Discordância de peso dentro da normalidade — use {DISCORDANCIA}</label><textarea id="ph_impDiscordanciaNormal" rows="2"></textarea></div>
@@ -557,6 +560,10 @@
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima e os blocos ativados. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+        <div class="field" style="margin-top:10px;">
+          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
+          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
+        </div>
       </div>
     </div>
 
@@ -1146,6 +1153,8 @@
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
     cordaoTexto: 'Cordão umbilical apresentando {VASOS}.',
     laAspectoNormal: 'Aspecto e volume normais para a idade gestacional.',
+    laAspectoOligoamnio: 'Volume de líquido amniótico reduzido para a idade gestacional (oligoâmnio).',
+    laAspectoPolidramnio: 'Volume de líquido amniótico aumentado para a idade gestacional (polidrâmnio).',
     laValoresBolsao: 'Maior bolsão: {BOLSAO} cm',
     laValoresIla: 'ILA: {ILA} cm (P{ILAP})',
 
@@ -1166,7 +1175,8 @@
     impPesoGIG: 'Peso fetal no percentil {PERCENTIL} (Hadlock) — acima do percentil 90, feto grande para a idade gestacional.',
     impSemAnomalias: 'Ao exame morfológico não evidenciamos nenhuma anomalia estrutural, passível de identificação para essa idade gestacional.',
     impMorfoAlterado: '{SEGMENTO}: {DESCRICAO}.',
-    impLaAlterado: 'Líquido amniótico alterado: {DESCRICAO}.',
+    impLaOligoamnio: 'Oligoâmnio — redução do volume de líquido amniótico para a idade gestacional.',
+    impLaPolidramnio: 'Polidrâmnio — aumento do volume de líquido amniótico para a idade gestacional.',
     impPlacentaAlterada: 'Placenta com espessura alterada: {DESCRICAO}.',
     impPlacentaPrevia: 'Placenta {INSERCAO}.',
     impDiscordanciaNormal: 'Discordância de peso entre os fetos de {DISCORDANCIA}% — dentro da normalidade.',
@@ -1402,6 +1412,7 @@
       +'<option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option>'
       +'<option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option>'
       +'<option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option>'
+      +'<option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option>'
       +'</select></div>'
       +'<div class="field"><label>Textura</label><select id="feto'+uid+'PlacentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div>'
       +'</div>'
@@ -1416,9 +1427,8 @@
 
       +'<p class="feto-sub">Líquido amniótico</p>'
       +'<div class="field-row">'
-      +'<div class="field"><label>Aspecto e volume</label><select id="feto'+uid+'LaAspecto"><option value="normal">Normais para a idade gestacional</option><option value="alterado">Alterados (descrever)</option></select></div>'
+      +'<div class="field"><label>Aspecto e volume</label><select id="feto'+uid+'LaAspecto"><option value="normal">Normal</option><option value="reduzido">Volume reduzido (oligoâmnio)</option><option value="aumentado">Volume aumentado (polidrâmnio)</option></select></div>'
       +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'LaDescricao"><label>Descreva o achado</label><textarea id="feto'+uid+'LaDescricao" rows="2" placeholder="ex: oligoâmnio; polidrâmnio..."></textarea></div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Maior bolsão (cm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaBolsao" placeholder="cm"></div>'
       +'<div class="field"><label>ILA (cm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaILA" placeholder="cm"></div>'
@@ -1428,27 +1438,21 @@
       +'<p class="feto-sub">Avaliação morfológica fetal</p>'
       +'<div class="field-row">'
       +'<div class="field"><label>Crânio / cérebro</label><select id="feto'+uid+'Cranio"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'CranioDescricao"><label>Descreva o achado — Crânio / cérebro</label><textarea id="feto'+uid+'CranioDescricao" rows="2"></textarea></div>'
-      +'<div class="field-row">'
       +'<div class="field"><label>Face</label><select id="feto'+uid+'Face"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'CranioDescricao"><label>Descreva o achado — Crânio / cérebro</label><textarea id="feto'+uid+'CranioDescricao" rows="2"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'FaceDescricao"><label>Descreva o achado — Face</label><textarea id="feto'+uid+'FaceDescricao" rows="2"></textarea></div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Coluna vertebral</label><select id="feto'+uid+'Coluna"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'ColunaDescricao"><label>Descreva o achado — Coluna vertebral</label><textarea id="feto'+uid+'ColunaDescricao" rows="2"></textarea></div>'
-      +'<div class="field-row">'
       +'<div class="field"><label>Tórax / coração</label><select id="feto'+uid+'Torax"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'ColunaDescricao"><label>Descreva o achado — Coluna vertebral</label><textarea id="feto'+uid+'ColunaDescricao" rows="2"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'ToraxDescricao"><label>Descreva o achado — Tórax / coração</label><textarea id="feto'+uid+'ToraxDescricao" rows="2"></textarea></div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Abdome</label><select id="feto'+uid+'Abdome"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'AbdomeDescricao"><label>Descreva o achado — Abdome</label><textarea id="feto'+uid+'AbdomeDescricao" rows="2"></textarea></div>'
-      +'<div class="field-row">'
       +'<div class="field"><label>Membros fetais</label><select id="feto'+uid+'Membros"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'AbdomeDescricao"><label>Descreva o achado — Abdome</label><textarea id="feto'+uid+'AbdomeDescricao" rows="2"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'MembrosDescricao"><label>Descreva o achado — Membros fetais</label><textarea id="feto'+uid+'MembrosDescricao" rows="2"></textarea></div>'
 
       +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
@@ -1459,7 +1463,6 @@
   function updateFetoWraps(uid){
     toggle('wrap_feto'+uid+'Dorso', v('feto'+uid+'Apresentacao')!=='córmica');
     toggle('wrap_feto'+uid+'PlacentaDescricao', v('feto'+uid+'PlacentaEspessura')==='alterada');
-    toggle('wrap_feto'+uid+'LaDescricao', v('feto'+uid+'LaAspecto')==='alterado');
     MORFO_SEGMENTOS.forEach(seg=>{
       toggle('wrap_feto'+uid+seg.key+'Descricao', v('feto'+uid+seg.key)==='alterado');
     });
@@ -1492,7 +1495,7 @@
       field.addEventListener('change', render);
     });
     wireDecimalInputs();
-    ['Apresentacao','PlacentaEspessura','LaAspecto'].concat(MORFO_SEGMENTOS.map(seg=>seg.key)).forEach(sufixo=>{
+    ['Apresentacao','PlacentaEspessura'].concat(MORFO_SEGMENTOS.map(seg=>seg.key)).forEach(sufixo=>{
       $('feto'+uid+sufixo).addEventListener('change', ()=> updateFetoWraps(uid));
     });
     updateFetoWraps(uid);
@@ -1692,7 +1695,10 @@
     'lateral esquerda': 'de inserção lateral esquerda',
     'baixa': 'de inserção baixa',
     'marginal': 'prévia marginal',
-    'previa': 'prévia total'
+    'previa': 'prévia total',
+    'sucenturiada': 'sucenturiada',
+    'bilobulada': 'bilobulada',
+    'raquete': 'em raquete'
   };
   const PLACENTA_PREVIA_VALORES = ['baixa', 'marginal', 'previa'];
 
@@ -1737,8 +1743,11 @@
     });
 
     state.fetos.forEach(f=>{
-      if(f.laAlterado){
-        items.push({key:k('la-alterado', f), label: pre(f) + phraseRaw('impLaAlterado', {DESCRICAO: f.laDescricao}), auto:true});
+      if(f.laOligoamnio){
+        items.push({key:k('la-alterado', f), label: pre(f) + phraseRaw('impLaOligoamnio'), auto:true});
+      }
+      if(f.laPolidramnio){
+        items.push({key:k('la-alterado', f), label: pre(f) + phraseRaw('impLaPolidramnio'), auto:true});
       }
       if(f.placentaAlterada){
         items.push({key:k('placenta-alterada', f), label: pre(f) + phraseRaw('impPlacentaAlterada', {DESCRICAO: f.placentaDescricao}), auto:true});
@@ -1765,6 +1774,13 @@
         ? phraseRaw('impColoAlterado')
         : phraseRaw('impColoNormal'), auto:true});
     }
+
+    // Observações livres: texto que a médica escreve fora de qualquer campo
+    // padrão — cada linha não-vazia vira seu próprio item, já com o texto dela
+    // (não um gabarito), então editar/desmarcar funciona igual aos demais.
+    state.obsLinhas.forEach((linha, idx)=>{
+      items.push({key:'obs-'+idx, label: linha, auto:true});
+    });
 
     return items;
   }
@@ -2121,8 +2137,10 @@
         ? phraseRaw('placentaTextoEspessuraAlterada', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau, DESCRICAO:placentaDescricao})
         : phraseRaw('placentaTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau});
 
-      const laDescricao = vNoDot(pre+'LaDescricao');
-      const laAlterado = v(pre+'LaAspecto')==='alterado' && !!laDescricao;
+      const laAspecto = v(pre+'LaAspecto');
+      const laOligoamnio = laAspecto === 'reduzido';
+      const laPolidramnio = laAspecto === 'aumentado';
+      const laAlterado = laOligoamnio || laPolidramnio;
       const laBolsao = blankOrValue(req(pre+'LaBolsao'));
       const laILA = blankOrValue(req(pre+'LaILA'));
       const laILAPercentil = blankOrValue(v(pre+'LaILAPercentil'));
@@ -2133,7 +2151,7 @@
         peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
         segmentos, alteracoes, cordaoTxt,
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
-        laAlterado, laDescricao, laBolsao, laILA, laILAPercentil};
+        laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil};
     });
 
     // ----- Discordância de peso entre os fetos -----
@@ -2169,7 +2187,8 @@
       isMultiple, corTxt, fetos,
       discordanciaTxt, discordanciaAlterada, discordanciaNum,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
-      colo, coloAlterado
+      colo, coloAlterado,
+      obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
@@ -2241,7 +2260,7 @@
       blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta</strong></p><p class="linha">'+f.placentaHtml+' '+phraseRaw('cordaoTexto', {VASOS: f.cordaoTxt})+'</p></div>'});
 
       let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
-      laHtml += '<p class="linha tight">'+(f.laAlterado ? escapeHtml(f.laDescricao)+'.' : phrase('laAspectoNormal'))+'</p>';
+      laHtml += '<p class="linha tight">'+(f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormal'))+'</p>';
       laHtml += '<table class="biometria grade-la"><tr>'
         +'<td style="white-space:nowrap;">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'</td>'
         +'<td style="white-space:nowrap;">'+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'</td>'
