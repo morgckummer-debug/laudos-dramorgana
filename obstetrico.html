@@ -418,10 +418,12 @@
   <div class="field" style="margin-bottom:8px;"><label>Uterinas alteradas</label><textarea id="ph_impDopplerUterinasAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Umbilical/ACM/relação cérebro-placentária normais</label><textarea id="ph_impDopplerFetalNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Umbilical/ACM/relação cérebro-placentária alterados</label><textarea id="ph_impDopplerFetalAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Normais em todos os fetos (gemelar/trigemelar) — use {TERMO}</label><textarea id="ph_impDopplerFetalNormalTodos" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Impressões diagnósticas — PBF e colo</h3>
   <div class="field" style="margin-bottom:8px;"><label>PBF — use {SCORE}</label><textarea id="ph_impPbf" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>PBF 8/8 em todos os fetos (gemelar/trigemelar) — use {TERMO}</label><textarea id="ph_impPbfTodos" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo uterino — texto no corpo do laudo — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo normal — impressão</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo curto — impressão</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
@@ -560,6 +562,10 @@
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima e os blocos ativados. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+        <div class="field" style="margin-top:10px;">
+          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
+          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
+        </div>
       </div>
     </div>
 
@@ -1168,9 +1174,11 @@
     impDopplerUterinasAlterado: 'IP médio das artérias uterinas acima da normalidade (percentil 95), sugerindo risco aumentado para pré-eclâmpsia e/ou restrição de crescimento fetal.',
     impDopplerFetalNormal: 'Não há sinais de centralização de fluxo fetal.',
     impDopplerFetalAlterado: 'Sinais de centralização de fluxo fetal, sugerindo redistribuição hemodinâmica — sugere-se avaliação e acompanhamento especializado.',
+    impDopplerFetalNormalTodos: 'Não há sinais de centralização de fluxo em {TERMO} os fetos.',
     impRcpBaixoP5: 'Relação Cérebro-Placentária abaixo do P5 — Sinal de redistribuição de fluxo fetal.',
 
     impPbf: 'PBF: {SCORE}/8.',
+    impPbfTodos: 'PBF de {TERMO} os fetos: {SCORE}/8.',
 
     coloTexto: 'Colo uterino: de textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm (VR ≥ 25,0 mm). "Sludge" não identificado.',
     impColoNormal: 'Colo uterino longo e fechado. Baixo risco de parto prematuro.',
@@ -1716,6 +1724,19 @@
     // item no laudo alteraria o item homônimo do outro feto.
     const pre = f => state.isMultiple ? (f.label+': ') : '';
     const k = (base, f) => state.isMultiple ? (base+'-f'+f.uid) : base;
+    const termoTodos = state.fetos.length >= 3 ? 'todos' : 'ambos';
+
+    // Doppler fetal e PBF normais em TODOS os fetos viram uma única frase na
+    // conclusão da gemelar/trigemelar ("...em ambos os fetos"), em vez de uma
+    // linha repetida por feto — só quando todos estão de fato normais; havendo
+    // qualquer alteração em um deles, cada feto volta a ter sua própria linha.
+    const dopplerFetalLabelFor = f => (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
+      ? phraseRaw('impRcpBaixoP5')
+      : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
+    const dopplerFetalTodosNormais = state.isMultiple && state.dopplerFetal
+      && state.fetos.every(f => dopplerFetalLabelFor(f) === phraseRaw('impDopplerFetalNormal'));
+    const pbfTodosNormais = state.isMultiple && state.pbf
+      && state.fetos.every(f => f.pbfScore === 8);
 
     const gestacaoKey = !state.isMultiple ? 'impGestacao'
       : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla');
@@ -1745,21 +1766,20 @@
       if(f.placentaPrevia){
         items.push({key:k('placenta-previa', f), label: pre(f) + phraseRaw('impPlacentaPrevia', {INSERCAO: f.placentaInsercaoTxt}), auto:true});
       }
-      if(state.dopplerFetal){
-        let dopplerFetalLabel;
-        if(f.cprPercentilNum!=null && f.cprPercentilNum < 5){
-          dopplerFetalLabel = phraseRaw('impRcpBaixoP5');
-        } else if(f.dopplerFetalAlterado){
-          dopplerFetalLabel = phraseRaw('impDopplerFetalAlterado');
-        } else {
-          dopplerFetalLabel = phraseRaw('impDopplerFetalNormal');
-        }
-        items.push({key:k('doppler-fetal', f), label: pre(f) + dopplerFetalLabel, auto:true});
+      if(state.dopplerFetal && !dopplerFetalTodosNormais){
+        items.push({key:k('doppler-fetal', f), label: pre(f) + dopplerFetalLabelFor(f), auto:true});
       }
-      if(state.pbf){
+      if(state.pbf && !pbfTodosNormais){
         items.push({key:k('pbf', f), label: pre(f) + phraseRaw('impPbf', {SCORE: f.pbfScore}), auto:true});
       }
     });
+
+    if(dopplerFetalTodosNormais){
+      items.push({key:'doppler-fetal-todos', label: phraseRaw('impDopplerFetalNormalTodos', {TERMO: termoTodos}), auto:true});
+    }
+    if(pbfTodosNormais){
+      items.push({key:'pbf-todos', label: phraseRaw('impPbfTodos', {TERMO: termoTodos, SCORE: 8}), auto:true});
+    }
 
     if(state.discordanciaTxt){
       items.push({key:'discordancia', label: state.discordanciaAlterada
@@ -1778,6 +1798,13 @@
         ? phraseRaw('impColoAlterado')
         : phraseRaw('impColoNormal'), auto:true});
     }
+
+    // Observações livres: texto que a médica escreve fora de qualquer campo
+    // padrão — cada linha não-vazia vira seu próprio item, já com o texto dela
+    // (não um gabarito), então editar/desmarcar funciona igual aos demais.
+    state.obsLinhas.forEach((linha, idx)=>{
+      items.push({key:'obs-'+idx, label: linha, auto:true});
+    });
 
     return items;
   }
@@ -2196,7 +2223,8 @@
       discordanciaTxt, discordanciaAlterada, discordanciaNum,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       dopplerFetal, pbf,
-      colo, coloAlterado
+      colo, coloAlterado,
+      obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
@@ -2372,9 +2400,49 @@
   });
 
   // ---------- Actions ----------
+  // O Word ignora o line-height herdado da <div> que envolve o laudo inteiro
+  // (só respeita o que está no style="" de cada elemento, e mesmo assim só
+  // quando o valor é o que o próprio navegador já calculou) — sem isso ele
+  // aplica a entrelinha do estilo "Normal" dele, que não é a mesma da tela.
+  // Mesma solução do 1º trimestre (commit "Faz o Word do 1º trimestre sair
+  // igual ao PDF"): copiar elemento a elemento o valor computado ao vivo.
+  const MARGINS = ['margin-top','margin-right','margin-bottom','margin-left'];
+  const PADDINGS = ['padding-top','padding-right','padding-bottom','padding-left'];
+  const WORD_COPY = [
+    ['h3.doctitle', ['font-size','line-height'].concat(MARGINS)],
+    ['p.relato', ['font-size','line-height'].concat(MARGINS)],
+    ['h4.sec', ['font-size','line-height'].concat(MARGINS)],
+    ['p.linha', ['font-size','line-height'].concat(MARGINS)],
+    ['p.recomendacao', ['font-size','line-height'].concat(MARGINS)],
+    ['table.biometria', ['font-size','line-height','border-collapse'].concat(MARGINS)],
+    ['table.biometria td', ['vertical-align','white-space'].concat(PADDINGS)],
+    ['.id-card-row', ['font-size','line-height']],
+    ['.footnote', ['font-size','line-height']],
+    ['.assinatura', ['line-height']],
+    ['.assinatura-info', ['font-size','line-height']]
+  ];
+  function copyComputedToClone(liveRoot, cloneRoot){
+    WORD_COPY.forEach(function(rule){
+      const sel = rule[0], props = rule[1];
+      const live = liveRoot.querySelectorAll(sel);
+      const copy = cloneRoot.querySelectorAll(sel);
+      if(live.length !== copy.length) return;
+      for(let i=0;i<live.length;i++){
+        const cs = getComputedStyle(live[i]);
+        props.forEach(function(p){
+          const val = cs.getPropertyValue(p);
+          if(val) copy[i].style.setProperty(p, val);
+        });
+      }
+    });
+  }
   function buildReportHtml(){
-    const clone = $('paper').cloneNode(true);
+    const paperEl = $('paper');
+    const clone = paperEl.cloneNode(true);
+    copyComputedToClone(paperEl, clone);
     clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    const liveLi = paperEl.querySelector('ul.impressao li');
+    const liStyle = liveLi ? getComputedStyle(liveLi) : null;
     clone.querySelectorAll('ul.impressao').forEach(ul=>{
       const div = document.createElement('div');
       Array.from(ul.children).forEach(li=>{
@@ -2384,13 +2452,14 @@
         p.style.textAlign = 'justify';
         p.style.paddingLeft = '1em';
         p.style.textIndent = '-1em';
+        if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; }
         p.innerHTML = li.innerHTML;
         div.appendChild(p);
       });
       ul.replaceWith(div);
     });
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
-    const liveIdCardEl = $('paper').querySelector('.id-card');
+    const liveIdCardEl = paperEl.querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
