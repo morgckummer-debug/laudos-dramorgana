@@ -210,7 +210,7 @@
      coluna vertical de CF/CA — não numa posição que varia conforme o tamanho
      do valor do maior bolsão. */
   .paper table.grade-la{margin-bottom:var(--linha-margin, 1em);}
-  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
+  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;font-size:10pt;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -1712,6 +1712,13 @@
 
     const algumAchado = state.fetos.some(f=> f.laAlterado || f.placentaAlterada || f.placentaPrevia || f.alteracoes.length>0 || f.pesoKey==='impPesoPIG')
       || state.discordanciaAlterada;
+
+    // O percentil de peso fetal vai sempre no 2º item da conclusão, logo após
+    // a gestação — antes até da frase de boa evolução e dos achados morfológicos.
+    state.fetos.forEach(f=>{
+      items.push({key:k('peso', f), label: pre(f) + f.pesoLabel, auto:true});
+    });
+
     if(!algumAchado){
       items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
     }
@@ -1730,8 +1737,6 @@
     });
 
     state.fetos.forEach(f=>{
-      items.push({key:k('peso', f), label: pre(f) + f.pesoLabel, auto:true});
-
       if(f.laAlterado){
         items.push({key:k('la-alterado', f), label: pre(f) + phraseRaw('impLaAlterado', {DESCRICAO: f.laDescricao}), auto:true});
       }
@@ -2209,7 +2214,7 @@
       blocks.push({id:'movimentacao'+sfx, html:'<p class="linha">'+phrase('movimentacaoTexto')+'</p>'});
       blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+phraseRaw('vitalidadeTexto', {FC: f.fc.text})+'</p>'});
 
-      let biometriaHtml = '<div><p class="linha tight"><strong>Biometria</strong></p>';
+      let biometriaHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Biometria</strong></p>';
       biometriaHtml += '<table class="biometria">'
         +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;">'+span(f.dbp)+' mm</td><td style="white-space:nowrap;">Diâmetro cerebelar:</td><td style="white-space:nowrap;">'+span(f.diamCerebelar)+' mm</td></tr>'
         +'<tr><td style="white-space:nowrap;">Diâmetro occipitofrontal (DOF):</td><td style="white-space:nowrap;">'+span(f.dof)+' mm</td><td style="white-space:nowrap;">Cisterna magna:</td><td style="white-space:nowrap;">'+span(f.cisternaMagna)+' mm</td></tr>'
@@ -2219,12 +2224,12 @@
         +'<tr><td style="white-space:nowrap;">Comprimento umeral:</td><td style="white-space:nowrap;">'+span(f.umero)+' mm</td><td style="white-space:nowrap;">Prega pré-nasal:</td><td style="white-space:nowrap;">'+span(f.pregaPreNasal)+' mm</td></tr>'
         +'<tr><td style="white-space:nowrap;">Rádio:</td><td style="white-space:nowrap;">'+span(f.radio)+' mm</td><td style="white-space:nowrap;">Distância orbitária externa:</td><td style="white-space:nowrap;">'+span(f.doe)+' mm</td></tr>'
         +'<tr><td style="white-space:nowrap;">Ulna:</td><td style="white-space:nowrap;">'+span(f.ulna)+' mm</td><td style="white-space:nowrap;">Distância orbitária interna:</td><td style="white-space:nowrap;">'+span(f.doi)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Tíbia:</td><td style="white-space:nowrap;">'+span(f.tibia)+' mm</td><td style="white-space:nowrap;"><strong>Peso fetal estimado:</strong></td><td style="white-space:nowrap;"><strong>'+span(f.peso)+' g</strong></td></tr>'
-        +'<tr><td style="white-space:nowrap;">Fíbula:</td><td style="white-space:nowrap;">'+span(f.fibula)+' mm</td><td style="white-space:nowrap;">Percentil de peso:</td><td style="white-space:nowrap;">'+span(f.percentil)+'</td></tr>'
+        +'<tr><td style="white-space:nowrap;">Tíbia:</td><td style="white-space:nowrap;">'+span(f.tibia)+' mm</td><td style="white-space:nowrap;"><strong>Peso fetal estimado:</strong></td><td style="white-space:nowrap;"><strong>'+span(f.peso)+' g'+(f.percentil.filled ? ' (P'+escapeHtml(f.percentil.text)+')' : '')+'</strong></td></tr>'
+        +'<tr><td style="white-space:nowrap;">Fíbula:</td><td colspan="3" style="white-space:nowrap;">'+span(f.fibula)+' mm</td></tr>'
         +'</table></div>';
       blocks.push({id:'biometria'+sfx, html:biometriaHtml});
 
-      let morfoHtml = '<div><p class="linha tight"><strong>Morfologia Fetal</strong></p>';
+      let morfoHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Morfologia Fetal</strong></p>';
       morfoHtml += '<table class="biometria" style="width:100%;">';
       f.segmentos.forEach(seg=>{
         morfoHtml += '<tr><td style="white-space:nowrap;vertical-align:top;"><strong>'+escapeHtml(seg.titulo)+'</strong></td>'
@@ -2233,9 +2238,9 @@
       morfoHtml += '</table></div>';
       blocks.push({id:'morfologia'+sfx, html:morfoHtml});
 
-      blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong>Placenta</strong></p><p class="linha">'+f.placentaHtml+' '+phraseRaw('cordaoTexto', {VASOS: f.cordaoTxt})+'</p></div>'});
+      blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta</strong></p><p class="linha">'+f.placentaHtml+' '+phraseRaw('cordaoTexto', {VASOS: f.cordaoTxt})+'</p></div>'});
 
-      let laHtml = '<div><p class="linha tight"><strong>Líquido amniótico</strong></p>';
+      let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
       laHtml += '<p class="linha tight">'+(f.laAlterado ? escapeHtml(f.laDescricao)+'.' : phrase('laAspectoNormal'))+'</p>';
       laHtml += '<table class="biometria grade-la"><tr>'
         +'<td style="white-space:nowrap;">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'</td>'
@@ -2331,7 +2336,7 @@
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
-    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
+    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='10pt'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
