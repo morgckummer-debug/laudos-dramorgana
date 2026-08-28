@@ -426,6 +426,14 @@
   <div class="field" style="margin-bottom:8px;"><label>Discordância de peso ≥ 20% — use {DISCORDANCIA}</label><textarea id="ph_impDiscordanciaAlterada" rows="2"></textarea></div>
 
   <hr class="sep">
+  <h3>Impressões diagnósticas — Doppler e colo</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Uterinas normais</label><textarea id="ph_impDopplerUterinasNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Uterinas alteradas</label><textarea id="ph_impDopplerUterinasAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo uterino — texto no corpo do laudo — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo normal — impressão</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo curto — impressão</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
+
+  <hr class="sep">
   <h3>Rodapé</h3>
   <div class="field" style="margin-bottom:8px;"><label>Recomendação final (corpo do laudo, antes da assinatura)</label><textarea id="ph_recomendacaoTexto" rows="4"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nota final</label><textarea id="ph_footerImagens" rows="2"></textarea></div>
@@ -511,6 +519,35 @@
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Calculada a partir dos pesos fetais estimados acima: (maior − menor) ÷ maior. A partir de 20% entra o alerta de acompanhamento especializado.</p>
         <div class="field-row">
           <div class="field"><label>Discordância entre os fetos</label><input type="text" id="discordanciaCalc" readonly placeholder="calculada automaticamente"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Doppler das artérias uterinas</h2></div>
+      <div class="card-body">
+        <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno"><label for="chkDopplerMaterno">Doppler materno (artérias uterinas)</label></div>
+        <div id="dopplerMaternoFields" class="conditional">
+          <div class="field-row">
+            <div class="field"><label>IP artéria uterina direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder="ex: 0,85"></div>
+            <div class="field"><label>IP artéria uterina esquerda</label><input type="text" inputmode="decimal" data-decimals="2" id="utEsquerda" placeholder="ex: 0,90"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>IP médio (calculado)</label><input type="text" id="utMedioCalc" readonly placeholder="calculado automaticamente"></div>
+            <div class="field"><label>Percentil calculado (Gómez et al., 2008)</label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Medida do colo uterino</h2></div>
+      <div class="card-body">
+        <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
+        <div id="coloFields" class="conditional">
+          <div class="field-row">
+            <div class="field"><label>Comprimento do colo — via transvaginal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1134,6 +1171,11 @@
     impPlacentaPrevia: 'Placenta {INSERCAO}.',
     impDiscordanciaNormal: 'Discordância de peso entre os fetos de {DISCORDANCIA}% — dentro da normalidade.',
     impDiscordanciaAlterada: 'Discordância de peso entre os fetos de {DISCORDANCIA}% — igual ou superior a 20%, sugere-se acompanhamento especializado.',
+    impDopplerUterinasNormal: 'IP médio das artérias uterinas dentro da normalidade.',
+    impDopplerUterinasAlterado: 'IP médio das artérias uterinas acima da normalidade (percentil 95), sugerindo risco aumentado para pré-eclâmpsia e/ou restrição de crescimento fetal.',
+    coloTexto: 'Colo uterino: de textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm (VR ≥ 25,0 mm). "Sludge" não identificado.',
+    impColoNormal: 'Colo uterino longo e fechado. Baixo risco de parto prematuro.',
+    impColoAlterado: 'Colo curto. Aumento do risco de parto prematuro.',
 
     recomendacaoTexto: 'O exame realizado entre 20 e 24 semanas identifica até 90% dos defeitos congênitos. Achados negativos não significam ausência de malformações, pois existem algumas delas que só serão diagnosticadas no 3º trimestre, como por exemplo, malformações do sistema digestivo e músculo-esquelético. Este exame não exclui a necessidade de realização do ECOCARDIOGRAMA entre 24 e 28 semanas.',
     footerImagens: 'Imagens em anexo.'
@@ -1273,6 +1315,9 @@
   });
   toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
   toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame');
+
+  $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
+  $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
 
   // ---------- Feto(s): lista dinâmica, mesmo padrão dos sacos gestacionais do
   // obstetrico-1trimestre.html — cada card guarda um uid estável, então remover
@@ -1614,6 +1659,31 @@
     return n.toFixed(casas).replace('.', ',');
   }
 
+  // ---------- Doppler: percentil do IP médio das artérias uterinas,
+  // Gómez O, Figueras F, Fernández S, Bennasar M, Martínez JM, Puerto B,
+  // Gratacós E. Reference ranges for uterine artery mean pulsatility index
+  // at 11-41 weeks of gestation. Ultrasound Obstet Gynecol. 2008;32(2):128-132.
+  // Loge(PI médio) = 1,39 − 0,012×IG + 0,0000198×IG² (IG em dias)
+  // DP[Loge(PI médio)] = 0,272 − 0,000259×IG
+  // O percentil de um valor medido é obtido a partir do z-score dessa
+  // distribuição log-normal, via aproximação de Abramowitz & Stegun para a
+  // função erro (CDF normal). ----------
+  function normalCDF(z){
+    const sign = z < 0 ? -1 : 1;
+    const az = Math.abs(z)/Math.SQRT2;
+    const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
+    const t = 1/(1+p*az);
+    const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-az*az);
+    return 0.5*(1+sign*y);
+  }
+  function gomezPercentilUterina(gaDays, piMedio){
+    if(gaDays==null || isNaN(gaDays) || piMedio==null || isNaN(piMedio)) return null;
+    const mean = 1.39 - 0.012*gaDays + 0.0000198*gaDays*gaDays;
+    const sd = 0.272 - 0.000259*gaDays;
+    const z = (Math.log(piMedio) - mean) / sd;
+    return normalCDF(z) * 100;
+  }
+
   const PLACENTA_INSERCAO_TXT = {
     'fúndica': 'de inserção fúndica',
     'anterior': 'de inserção anterior',
@@ -1677,6 +1747,18 @@
       items.push({key:'discordancia', label: state.discordanciaAlterada
         ? phraseRaw('impDiscordanciaAlterada', {DISCORDANCIA: state.discordanciaTxt})
         : phraseRaw('impDiscordanciaNormal', {DISCORDANCIA: state.discordanciaTxt}), auto:true});
+    }
+
+    if(state.dopplerMaterno){
+      items.push({key:'doppler-uterinas', label: state.utAlterado
+        ? phraseRaw('impDopplerUterinasAlterado', {IPMEDIO: state.utMedioTxt, PERCENTIL: state.utPercentilTxt})
+        : phraseRaw('impDopplerUterinasNormal', {IPMEDIO: state.utMedioTxt, PERCENTIL: state.utPercentilTxt}), auto:true});
+    }
+
+    if(state.colo){
+      items.push({key:'colo', label: state.coloAlterado
+        ? phraseRaw('impColoAlterado')
+        : phraseRaw('impColoNormal'), auto:true});
     }
 
     return items;
@@ -1938,6 +2020,24 @@
     };
     const corTxt = corTxtMap[v('corionicidade')] || 'dicoriônica e diamniótica';
 
+    // ----- Doppler materno (artérias uterinas) -----
+    const dopplerMaterno = $('chkDopplerMaterno').checked;
+    let utMedioTxt = '', utPercentilTxt = '', utAlterado = false;
+    let utDireitaVal = {text:'____',filled:false}, utEsquerdaVal = {text:'____',filled:false};
+    if(dopplerMaterno){
+      utDireitaVal = blankOrValue(req('utDireita'));
+      utEsquerdaVal = blankOrValue(req('utEsquerda'));
+      const utDireitaNum = num('utDireita');
+      const utEsquerdaNum = num('utEsquerda');
+      const utMedioNum = (utDireitaNum!=null && utEsquerdaNum!=null) ? (utDireitaNum+utEsquerdaNum)/2 : null;
+      const percentilUt = gomezPercentilUterina(gaDays, utMedioNum);
+      utMedioTxt = utMedioNum!=null ? fmtNum(utMedioNum,2) : '';
+      utPercentilTxt = percentilUt!=null ? String(Math.round(percentilUt)) : '';
+      utAlterado = percentilUt!=null ? percentilUt > 95 : false;
+      $('utMedioCalc').value = utMedioNum!=null ? utMedioTxt : '';
+      $('utP95Calc').value = percentilUt!=null ? ('P'+utPercentilTxt+' (IG: '+igAtualTxt+')') : (gaDays==null ? 'informe a IG para calcular' : '');
+    }
+
     // ----- Um estado por feto -----
     const fetos = uids.map((uid, idx)=>{
       const pre = 'feto'+uid;
@@ -2049,11 +2149,22 @@
       discEl.classList.toggle('flag-abnormal', discordanciaAlterada);
     }
 
+    // ----- Colo uterino -----
+    const colo = $('chkColo').checked;
+    let coloAlterado = false, coloComprimentoVal = {text:'____',filled:false};
+    if(colo){
+      coloComprimentoVal = blankOrValue(req('coloComprimento'));
+      const coloNum = num('coloComprimento');
+      coloAlterado = coloNum!=null && coloNum < 25;
+    }
+
     // ----- Impressão -----
     const state = {
       semanas: semanasTxt, dias: diasTxt,
       isMultiple, corTxt, fetos,
-      discordanciaTxt, discordanciaAlterada, discordanciaNum
+      discordanciaTxt, discordanciaAlterada, discordanciaNum,
+      dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
+      colo, coloAlterado
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
@@ -2073,9 +2184,9 @@
       +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>IG atual:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>'
       +'</div>'});
 
-    let tituloTxt = 'ULTRASSOM OBSTÉTRICO MORFOLÓGICO DO 2º TRIMESTRE';
-    if(isMultiple) tituloTxt = 'ULTRASSOM OBSTÉTRICO MORFOLÓGICO ' + (fetos.length >= 3 ? 'TRIGEMELAR' : 'GEMELAR') + ' DO 2º TRIMESTRE';
-    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml(tituloTxt)+'</h3>'});
+    let tituloLinha2 = 'DO 2º TRIMESTRE';
+    if(isMultiple) tituloLinha2 = (fetos.length >= 3 ? 'TRIGEMELAR' : 'GEMELAR') + ' DO 2º TRIMESTRE';
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml('ULTRASSOM OBSTÉTRICO MORFOLÓGICO')+'<br>'+escapeHtml(tituloLinha2)+'</h3>'});
     if(motivoExame){
       blocks.push({id:'relato', html:'<p class="relato">Relato de '+escapeHtml(motivoExame.charAt(0).toLowerCase()+motivoExame.slice(1))+'.</p>'});
     }
@@ -2135,6 +2246,21 @@
 
     if(discordanciaTxt){
       blocks.push({id:'discordancia', html:'<p class="linha"><strong>Discordância de peso entre os fetos:</strong> '+escapeHtml(discordanciaTxt)+'%.</p>'});
+    }
+
+    if(dopplerMaterno){
+      const tabelaDopplerMaterno = ''
+        +'<table class="biometria" style="width:100%;">'
+        +'<tr><td><strong style="text-decoration:underline;">Doppler Materno</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
+        +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
+        +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
+        +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
+        +'</table>';
+      blocks.push({id:'dopplerMaterno', html:'<div>'+tabelaDopplerMaterno+'</div>'});
+    }
+
+    if(colo){
+      blocks.push({id:'colo', html:'<div><p class="linha tight"><strong>Colo uterino</strong></p><p class="linha">'+phraseRaw('coloTexto', {MEDIDA: coloComprimentoVal.text})+'</p></div>'});
     }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
@@ -2802,6 +2928,7 @@
       const impSemanasVal = num('impSemanas');
       const impDiasVal = num('impDias');
       const igDias = (impSemanasVal!=null && impDiasVal!=null) ? (impSemanasVal*7 + impDiasVal) : null;
+      const coloVal = num('coloComprimento');
 
       const exames = uids.map((uid, idx)=>{
         const pre = 'feto'+uid;
@@ -2820,8 +2947,14 @@
           ulna: num(pre+'Ulna'),
           tibia: num(pre+'Tibia'),
           fibula: num(pre+'Fibula'),
+          // Doppler materno: aut_e/aut_d são as colunas de artéria uterina esquerda e
+          // direita lá na curva de crescimento. As uterinas são da mãe, não do feto —
+          // numa gemelar o mesmo par de valores vai nos dois exames.
+          aut_e: num('utEsquerda'),
+          aut_d: num('utDireita'),
           ila: num(pre+'LaILA'),
           bolsao: num(pre+'LaBolsao'),
+          colo: coloVal,
           feto: isMultiple ? String.fromCharCode(65 + idx) : null
         };
       });
