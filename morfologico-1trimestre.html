@@ -461,7 +461,7 @@
           <div class="field"><label>Pressão arterial média (PAM) (mmHg)</label><input type="text" id="pressaoArterial" placeholder="ex: 110x70"></div>
         </div>
         <div class="field"><label>Em uso de — opcional</label><textarea id="medicacoes" rows="2" placeholder="ex: ácido fólico; AAS 100 mg..."></textarea></div>
-        <div class="field" style="margin-top:14px;"><label>Motivo do exame (&quot;Relato de...&quot;) — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: rastreamento de aneuploidias..."></textarea></div>
+        <div class="field" style="margin-top:14px;"><label>Motivo do exame — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de rastreamento de aneuploidias."></textarea></div>
       </div>
     </div>
 
@@ -695,10 +695,10 @@
   let titleFontSize = null;
 
   let impressaoOverrides = {};
-  // Texto do "Relato de..." depois de reescrito à mão no preview — assim como
+  // Texto do motivo do exame depois de reescrito à mão no preview — assim como
   // os itens da IMPRESSÃO, uma vez editado direto no papel, o texto some do
-  // template automático ('Relato de ' + motivo + '.') e passa a valer o que
-  // foi digitado, mesmo que outros campos do formulário mudem depois.
+  // template automático (motivo + '.') e passa a valer o que foi digitado,
+  // mesmo que outros campos do formulário mudem depois.
   let relatoOverride = null;
 
   // ---------- Block-level reconciliation: each top-level paragraph/section of
@@ -2230,7 +2230,7 @@
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml(tituloTxt)+'</h3>'});
 
     if(motivoExame || relatoOverride){
-      const relatoTxt = relatoOverride!=null ? relatoOverride : 'Relato de '+motivoExame.charAt(0).toLowerCase()+motivoExame.slice(1)+'.';
+      const relatoTxt = relatoOverride!=null ? relatoOverride : motivoExame+'.';
       blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(relatoTxt)+'</p>'});
     }
     if(medicacoes){

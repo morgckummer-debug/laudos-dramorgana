@@ -122,6 +122,10 @@
   .card-body{padding:18px 20px 20px;}
 
   .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:14px;}
+  /* Linhas com vários campos numéricos curtos (medidas, volume) — colunas mais
+     estreitas para caberem todas na mesma linha mesmo com a coluna do
+     formulário mais apertada, sem depender da largura da janela. */
+  .field-row-compact{grid-template-columns:repeat(auto-fit,minmax(105px,1fr));}
   .field{display:flex;flex-direction:column;gap:5px;}
   .field label{font-size:12px;color:var(--ink-soft);font-weight:500;}
   .field .vr{font-size:11px;color:var(--sage);font-weight:500;}
@@ -502,7 +506,7 @@
           <textarea id="uteroTexturaContornosDescricao" rows="2" placeholder="ex: irregulares, heterogêneos..."></textarea>
         </div>
         <hr class="sep">
-        <div class="field-row">
+        <div class="field-row field-row-compact">
           <div class="field"><label>Útero — longitudinal (L)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder="cm"></div>
           <div class="field"><label>Útero — anteroposterior (AP)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder="cm"></div>
           <div class="field"><label>Útero — transverso (T)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder="cm"></div>
@@ -542,7 +546,7 @@
             <select id="ovD_aspecto"><option value="normal">Normal (topografia, forma e textura usuais)</option><option value="alterado">Alterado (descrever)</option></select>
           </div>
         </div>
-        <div class="field-row conditional show" id="wrap_ovD_normalCampos">
+        <div class="field-row field-row-compact conditional show" id="wrap_ovD_normalCampos">
           <div class="field"><label>Dimensões (L x AP x T)</label><input type="text" id="ovD_dimensao" placeholder="ex: 2,1 x 1,0 x 1,8 cm"></div>
           <div class="field"><label>Volume</label>
             <input type="text" inputmode="decimal" data-decimals="1" id="ovD_volume" placeholder="cm³">
@@ -567,7 +571,7 @@
             <select id="ovE_aspecto"><option value="normal">Normal (topografia, forma e textura usuais)</option><option value="alterado">Alterado (descrever)</option></select>
           </div>
         </div>
-        <div class="field-row conditional show" id="wrap_ovE_normalCampos">
+        <div class="field-row field-row-compact conditional show" id="wrap_ovE_normalCampos">
           <div class="field"><label>Dimensões (L x AP x T)</label><input type="text" id="ovE_dimensao" placeholder="ex: 2,0 x 1,1 x 1,7 cm"></div>
           <div class="field"><label>Volume</label>
             <input type="text" inputmode="decimal" data-decimals="1" id="ovE_volume" placeholder="cm³">
@@ -628,14 +632,20 @@
     </div>
 
     <div class="card">
+      <div class="card-head"><h2>Observações</h2></div>
+      <div class="card-body">
+        <div class="field">
+          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
+          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="card-head"><h2>Impressão diagnóstica</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base no exame normal. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
-        <div class="field" style="margin-top:10px;">
-          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
-          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
-        </div>
       </div>
     </div>
 

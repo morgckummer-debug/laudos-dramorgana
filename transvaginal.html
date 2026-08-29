@@ -93,6 +93,10 @@
   .card-body{padding:18px 20px 20px;}
 
   .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:14px;}
+  /* Linhas com vários campos numéricos curtos (medidas, volume) — colunas mais
+     estreitas para caberem todas na mesma linha mesmo com a coluna do
+     formulário mais apertada, sem depender da largura da janela. */
+  .field-row-compact{grid-template-columns:repeat(auto-fit,minmax(105px,1fr));}
   .field{display:flex;flex-direction:column;gap:5px;}
   .field label{font-size:12px;color:var(--ink-soft);font-weight:500;}
   .field .vr{font-size:11px;color:var(--sage);font-weight:500;}
@@ -587,7 +591,7 @@
           <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
         </div>
-        <div class="field"><label>Motivo do exame ("Relato de...")</label><textarea id="motivoExame" rows="2" placeholder="ex: dor pélvica; sangramento uterino anormal; controle de mioma..."></textarea></div>
+        <div class="field"><label>Motivo do exame</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de dor pélvica."></textarea></div>
       </div>
     </div>
 
@@ -644,7 +648,7 @@
             </select>
           </div>
         </div>
-        <div class="field-row">
+        <div class="field-row field-row-compact">
           <div class="field"><label>Útero — longitudinal (L)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder="cm"></div>
           <div class="field"><label>Útero — anteroposterior (AP)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder="cm"></div>
           <div class="field"><label>Útero — transverso (T)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder="cm"></div>
@@ -750,7 +754,7 @@
 
         <hr class="sep">
         <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário direito</p>
-        <div class="field-row">
+        <div class="field-row field-row-compact">
           <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder="cm"></div>
           <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_AP" placeholder="cm"></div>
           <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_T" placeholder="cm"></div>
@@ -802,7 +806,7 @@
 
         <hr class="sep">
         <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário esquerdo</p>
-        <div class="field-row">
+        <div class="field-row field-row-compact">
           <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_L" placeholder="cm"></div>
           <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_AP" placeholder="cm"></div>
           <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_T" placeholder="cm"></div>
@@ -902,14 +906,20 @@
     </div>
 
     <div class="card">
+      <div class="card-head"><h2>Observações</h2></div>
+      <div class="card-body">
+        <div class="field">
+          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
+          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="card-head"><h2>Impressão diagnóstica</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
-        <div class="field" style="margin-top:10px;">
-          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
-          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
-        </div>
       </div>
     </div>
 
@@ -2065,9 +2075,6 @@
   function escapeHtml(s){
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
-  function lowerFirst(s){
-    return s.charAt(0).toLowerCase() + s.slice(1);
-  }
   function flag(id, isAbnormal){
     const el = $(id), note = $('flag_'+id);
     if(!el) return;
@@ -2601,7 +2608,7 @@
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">ULTRASSOM TRANSVAGINAL</h3>'});
 
     if(motivoExame){
-      blocks.push({id:'relato', html:'<p class="relato">Relato de '+escapeHtml(lowerFirst(motivoExame))+'.</p>'});
+      blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(motivoExame)+'.</p>'});
     }
 
     blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
