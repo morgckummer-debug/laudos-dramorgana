@@ -54,18 +54,26 @@ Onde fica o código aqui: bloco `// ---- Integração com a Curva de Crescimento
 (Supabase) ----`, no fim do `<script>` de `obstetrico.html` e
 `obstetrico-1trimestre.html`, no handler do botão `#btnSalvarCG`.
 
-**`transvaginal.html` e `rastreamento-ovulacao.html` são diferentes: não têm
-feto, então não gravam em `exams`/`gestacoes`.** Cada um tem sua própria tabela
-— `laudos_tv` e `laudos_ovulacao`, respectivamente — que guarda um snapshot
-completo do formulário (`draftSnapshot()`) por visita, usada só para o botão
-"Buscar laudo anterior" no topo do próprio laudo continuar de onde parou. O app
-de curvas **nunca lê essas tabelas**; elas não aparecem no `schema.sql` do
-`curva-fetal` (foram criadas direto no painel do Supabase, sem migração
-registrada em nenhum dos dois repositórios — se for criar uma tabela nova
-nesse mesmo padrão para outro laudo, escreva o SQL aqui, no laudo novo, já que
-não há onde mais isso ficaria documentado). Os dois ainda usam `patients` para
+**`rastreamento-ovulacao.html` é diferente: não tem feto, então não grava em
+`exams`/`gestacoes`.** Tem sua própria tabela — `laudos_ovulacao` — que guarda
+um snapshot completo do formulário (`draftSnapshot()`) por visita, usada só
+para o botão "Buscar laudo anterior" no topo do próprio laudo continuar de
+onde parou. O app de curvas **nunca lê essa tabela**; ela não aparece no
+`schema.sql` do `curva-fetal` (foi criada direto no painel do Supabase, sem
+migração registrada em nenhum dos dois repositórios — se for criar uma tabela
+nova nesse mesmo padrão para outro laudo, escreva o SQL aqui, no laudo novo,
+já que não há onde mais isso ficaria documentado). Ainda usa `patients` para
 achar/criar a paciente pelo CPF — mesma paciente das curvas — o que faz as
-quatro regras abaixo valerem para eles também, exceto a de colunas de exame.
+quatro regras abaixo valerem para ele também, exceto a de colunas de exame.
+
+`transvaginal.html` e `pelvico-infantil.html` tinham o mesmo padrão (tabelas
+`laudos_tv` e `laudos_pelvico_infantil`), mas em 2026-08-29 a Dra. Morgana
+pediu para tirar a busca de laudo/paciente anterior desses dois — deve existir
+só no rastreamento de ovulação. O código foi removido dos dois arquivos
+(login, busca, carregar e salvar); eles não tocam mais em `patients` nem em
+Supabase. As tabelas `laudos_tv` e `laudos_pelvico_infantil` continuam
+existindo no banco com o histórico salvo até então, só não recebem gravação
+nova.
 
 ### As quatro regras que não podem ser quebradas
 
