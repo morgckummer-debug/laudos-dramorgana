@@ -23,6 +23,17 @@
   .cg-toast{position:fixed;bottom:24px;right:24px;background:#2b2b2e;color:#fff;padding:12px 18px;border-radius:12px;font-family:'Inter',sans-serif;font-size:13px;z-index:6000;box-shadow:0 10px 24px rgba(0,0,0,.25);max-width:320px;display:none;}
   .cg-toast.show{display:block;}
   .cg-toast.err{background:#B4432F;}
+  .cg-gpa-box{background:#fff;border-radius:22px;box-shadow:0 24px 60px rgba(77,35,70,.35);padding:28px 30px;width:520px;max-width:92vw;font-family:'Inter',sans-serif;border-top:5px solid #ae5ba0;}
+  .cg-gpa-box h3{font-family:'Poppins',sans-serif;margin:0 0 6px;font-size:18px;color:#6d3263;}
+  .cg-gpa-box>p{font-size:12.5px;color:#9a7e95;margin:0 0 20px;}
+  .cg-gpa-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:480px){ .cg-gpa-cards{grid-template-columns:1fr;} }
+  .cg-gpa-card{display:flex;flex-direction:column;align-items:center;gap:10px;background:#f7e9f4;border:2px solid #ebe0e9;border-radius:16px;padding:20px 12px;cursor:pointer;font-family:'Inter',sans-serif;transition:border-color .15s ease, transform .06s ease, background .15s ease;}
+  .cg-gpa-card:hover{border-color:#ae5ba0;background:#f3ddef;transform:translateY(-2px);}
+  .cg-gpa-card:active{transform:scale(.98);}
+  .cg-gpa-card-label{font-size:11.5px;font-weight:600;color:#6d3263;text-transform:uppercase;letter-spacing:.4px;text-align:center;}
+  .cg-gpa-card-value{font-family:'Poppins',sans-serif;font-size:24px;font-weight:700;color:#4d2346;}
+  .cg-gpa-hint{margin-top:16px;font-size:11px;color:#9a7e95;text-align:center;}
   :root{
     --bg:#f9f5f9;
     --panel:#ffffff;
@@ -333,6 +344,24 @@
   </div>
 </div>
 <div class="cg-toast" id="cgToast"></div>
+
+<div class="cg-overlay hide" id="cgGpaOverlay">
+  <div class="cg-gpa-box">
+    <h3>Divergência no GPA</h3>
+    <p>O GPA deste laudo é diferente do que já está salvo na Curva de Crescimento para esta gestação. Escolha qual manter.</p>
+    <div class="cg-gpa-cards">
+      <div class="cg-gpa-card" id="cgGpaCardCurva" tabindex="0" role="button">
+        <span class="cg-gpa-card-label">Na Curva de Crescimento</span>
+        <span class="cg-gpa-card-value" id="cgGpaCardCurvaValue">G0 P0 A0</span>
+      </div>
+      <div class="cg-gpa-card" id="cgGpaCardLaudo" tabindex="0" role="button">
+        <span class="cg-gpa-card-label">Neste laudo</span>
+        <span class="cg-gpa-card-value" id="cgGpaCardLaudoValue">G0 P0 A0</span>
+      </div>
+    </div>
+    <div class="cg-gpa-hint">Clique no card com o GPA que deve valer.</div>
+  </div>
+</div>
 
 <div class="topbar">
   <div class="topbar-brand">
@@ -2975,6 +3004,39 @@
   }
 
   function cgOnlyDigits(s){ return (s||'').replace(/\D/g, ''); }
+
+  function fmtGPA(g,p,a){ return 'G'+(g??'?')+' P'+(p??'?')+' A'+(a??'?'); }
+
+  // Modal de escolha quando o GPA deste laudo diverge do que já está salvo
+  // na Curva de Crescimento — resolve com true (usar o do laudo) ou false
+  // (manter o que já está salvo na Curva).
+  function askGpaDivergencia(curva, laudo){
+    return new Promise(resolve=>{
+      const overlay = $('cgGpaOverlay');
+      const btnCurva = $('cgGpaCardCurva');
+      const btnLaudo = $('cgGpaCardLaudo');
+      $('cgGpaCardCurvaValue').textContent = fmtGPA(curva.gestas, curva.partos, curva.abortos);
+      $('cgGpaCardLaudoValue').textContent = fmtGPA(laudo.gestas, laudo.partos, laudo.abortos);
+      overlay.classList.remove('hide');
+
+      function escolher(usarLaudo){
+        overlay.classList.add('hide');
+        btnCurva.removeEventListener('click', onCurva);
+        btnLaudo.removeEventListener('click', onLaudo);
+        btnCurva.removeEventListener('keydown', onCurvaKey);
+        btnLaudo.removeEventListener('keydown', onLaudoKey);
+        resolve(usarLaudo);
+      }
+      function onCurva(){ escolher(false); }
+      function onLaudo(){ escolher(true); }
+      function onCurvaKey(e){ if(e.key==='Enter' || e.key===' ') onCurva(); }
+      function onLaudoKey(e){ if(e.key==='Enter' || e.key===' ') onLaudo(); }
+      btnCurva.addEventListener('click', onCurva);
+      btnLaudo.addEventListener('click', onLaudo);
+      btnCurva.addEventListener('keydown', onCurvaKey);
+      btnLaudo.addEventListener('keydown', onLaudoKey);
+    });
+  }
   function toISODateLocal(date){
     if(!date) return null;
     const y = date.getFullYear();
@@ -3100,12 +3162,9 @@
         let abortosFinal = gpaAVal!=null ? gpaAVal : gestacao.abortos;
 
         if(divergeGPA){
-          const fmtGPA = (g,p,a)=> 'G'+(g??'?')+' P'+(p??'?')+' A'+(a??'?');
-          const usarDoLaudo = confirm(
-            'O GPA deste laudo diverge do que já está salvo na Curva de Crescimento para esta gestação.\n\n'+
-            'Na Curva de Crescimento: '+fmtGPA(gestacao.gestas, gestacao.partos, gestacao.abortos)+'\n'+
-            'Neste laudo: '+fmtGPA(gpaGVal, gpaPVal, gpaAVal)+'\n\n'+
-            'OK = usar o GPA deste laudo.\nCancelar = manter o que já está salvo na Curva de Crescimento.'
+          const usarDoLaudo = await askGpaDivergencia(
+            {gestas: gestacao.gestas, partos: gestacao.partos, abortos: gestacao.abortos},
+            {gestas: gpaGVal, partos: gpaPVal, abortos: gpaAVal}
           );
           if(!usarDoLaudo){
             gestasFinal = gestacao.gestas;
