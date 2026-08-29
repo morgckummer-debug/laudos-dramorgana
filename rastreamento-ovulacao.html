@@ -1364,7 +1364,7 @@
       +'<div class="subgroup" id="wrap_visita'+uid+'">'
       +'<div class="field-row">'
       +'<div class="field"><label>Visita <span class="visita-index"></span> — Data</label><input type="text" inputmode="numeric" id="visita'+uid+'Data" placeholder="20.08.2026"></div>'
-      +'<div class="field"><label>Dia do ciclo</label><input type="text" inputmode="numeric" id="visita'+uid+'Ciclo" placeholder="ex: 12º"></div>'
+      +'<div class="field"><label>Dia do ciclo (calculado pela DUM, editável)</label><input type="text" inputmode="numeric" id="visita'+uid+'Ciclo" placeholder="ex: 12º"></div>'
       +'<div class="field"><label>Ovário direito — maior folículo (mm)</label><input type="text" id="visita'+uid+'FolD" placeholder="ex: 18 x 16"></div>'
       +'<div class="field"><label>Ovário esquerdo — maior folículo (mm)</label><input type="text" id="visita'+uid+'FolE" placeholder="ex: 10 x 9"></div>'
       +'</div>'
@@ -1410,11 +1410,27 @@
     const d = new Date(parseInt(m[3],10), parseInt(m[2],10)-1, parseInt(m[1],10));
     return isNaN(d.getTime()) ? null : d;
   }
-  // A 1ª visita é a referência: a partir da data e do dia do ciclo dela, as
-  // visitas seguintes com data preenchida têm o próprio dia do ciclo calculado
-  // sozinho (mesma diferença de dias entre as datas) — continua editável à
-  // mão depois, para o caso raro de precisar ajustar.
+  // Com a DUM preenchida, o 1º dia da menstruação é o 1º dia do ciclo: o dia
+  // do ciclo de cada visita é só a diferença de dias entre a data da visita
+  // e a DUM, mais 1. Recalcula todas as visitas de uma vez (a própria DUM
+  // conta como dia 1, então uma visita na mesma data da DUM dá "1º").
+  function recalcVisitaCiclosFromDUM(){
+    const dumDate = parseDataVisita(v('dum'));
+    if(!dumDate) return false;
+    visitaUids().forEach(uid=>{
+      const thisDate = parseDataVisita($('visita'+uid+'Data').value);
+      if(!thisDate) return;
+      const diaCiclo = Math.round((thisDate - dumDate) / 86400000) + 1;
+      if(diaCiclo > 0) $('visita'+uid+'Ciclo').value = diaCiclo + 'º';
+    });
+    return true;
+  }
+  // Sem DUM preenchida (ou inválida), cai no comportamento antigo: a 1ª
+  // visita vira a referência manual, e as seguintes têm o dia do ciclo
+  // calculado a partir dela (mesma diferença de dias entre as datas) —
+  // continua editável à mão depois, para o caso raro de precisar ajustar.
   function recalcVisitaCiclos(){
+    if(recalcVisitaCiclosFromDUM()) return;
     const uids = visitaUids();
     if(uids.length < 2) return;
     const firstUid = uids[0];
@@ -1438,7 +1454,15 @@
     const dataEl = $('visita'+uid+'Data');
     dataEl.addEventListener('input', ()=>{ aplicarMascaraDataVisita(dataEl); recalcVisitaCiclos(); render(); });
     const cicloEl = $('visita'+uid+'Ciclo');
-    cicloEl.addEventListener('input', ()=>{ aplicarMascaraDiaCiclo(cicloEl); recalcVisitaCiclos(); render(); });
+    cicloEl.addEventListener('input', ()=>{
+      aplicarMascaraDiaCiclo(cicloEl);
+      // Com DUM preenchida o dia do ciclo já é automático — recalcular aqui
+      // sobrescreveria a cada tecla o que a médica está digitando à mão.
+      // Sem DUM, o valor digitado é a própria referência (1ª visita), então
+      // precisa propagar para as demais.
+      if(!parseDataVisita(v('dum'))) recalcVisitaCiclos();
+      render();
+    });
     el.querySelector('.visita-remove').addEventListener('click', ()=>{
       el.remove();
       renumberVisitas();
@@ -2373,6 +2397,7 @@
     });
   }
   wireDateMask('dum');
+  $('dum').addEventListener('input', recalcVisitaCiclos);
 
   async function cgCheckSession(){
     const {data} = await cgClient.auth.getSession();
