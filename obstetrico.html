@@ -3029,6 +3029,7 @@
     const uids = fetoUids();
     if(!uids.length){ cgToast('Nenhum feto preenchido.', true); return; }
     const isMultiple = uids.length > 1;
+    const gpaGVal = num('gpaG'), gpaPVal = num('gpaP'), gpaAVal = num('gpaA');
 
     const btn = $('btnSalvarCG');
     btn.disabled = true;
@@ -3062,7 +3063,7 @@
 
       // 2) Busca a gestação ativa dessa paciente — cria automaticamente se não houver
       let {data: gestacao, error: errGest} = await cgClient
-        .from('gestacoes').select('id').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
+        .from('gestacoes').select('id, gestas, partos, abortos').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
       if(errGest) throw errGest;
 
       if(!gestacao){
@@ -3080,10 +3081,44 @@
         const tipoGestacao = uids.length > 2 ? 'trigemelar' : (isMultiple ? 'gemelar' : 'unica');
         const corionicidadeAtual = isMultiple ? v('corionicidade') : null;
         const {data: novaGestacao, error: errCriaGest} = await cgClient
-          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: tipoGestacao, corionicidade: corionicidadeAtual})
+          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: tipoGestacao, corionicidade: corionicidadeAtual, gestas: gpaGVal, partos: gpaPVal, abortos: gpaAVal})
           .select('id').single();
         if(errCriaGest) throw errCriaGest;
         gestacao = novaGestacao;
+      } else {
+        // A gestação já existia na Curva de Crescimento (visita anterior) com
+        // seu próprio G/P/A — se o que está digitado neste laudo diverge do
+        // que já está salvo, pergunta qual dos dois prevalece antes de gravar.
+        // Sem divergência (ex.: o que está salvo é nulo, primeira sincronização
+        // depois desta correção) só preenche, sem popup.
+        const divergeGPA = (gpaGVal!=null && gestacao.gestas!=null && gpaGVal!==gestacao.gestas)
+          || (gpaPVal!=null && gestacao.partos!=null && gpaPVal!==gestacao.partos)
+          || (gpaAVal!=null && gestacao.abortos!=null && gpaAVal!==gestacao.abortos);
+
+        let gestasFinal = gpaGVal!=null ? gpaGVal : gestacao.gestas;
+        let partosFinal = gpaPVal!=null ? gpaPVal : gestacao.partos;
+        let abortosFinal = gpaAVal!=null ? gpaAVal : gestacao.abortos;
+
+        if(divergeGPA){
+          const fmtGPA = (g,p,a)=> 'G'+(g??'?')+' P'+(p??'?')+' A'+(a??'?');
+          const usarDoLaudo = confirm(
+            'O GPA deste laudo diverge do que já está salvo na Curva de Crescimento para esta gestação.\n\n'+
+            'Na Curva de Crescimento: '+fmtGPA(gestacao.gestas, gestacao.partos, gestacao.abortos)+'\n'+
+            'Neste laudo: '+fmtGPA(gpaGVal, gpaPVal, gpaAVal)+'\n\n'+
+            'OK = usar o GPA deste laudo.\nCancelar = manter o que já está salvo na Curva de Crescimento.'
+          );
+          if(!usarDoLaudo){
+            gestasFinal = gestacao.gestas;
+            partosFinal = gestacao.partos;
+            abortosFinal = gestacao.abortos;
+          }
+        }
+
+        if(gestasFinal !== gestacao.gestas || partosFinal !== gestacao.partos || abortosFinal !== gestacao.abortos){
+          const {error: errUpdateGpa} = await cgClient
+            .from('gestacoes').update({gestas: gestasFinal, partos: partosFinal, abortos: abortosFinal}).eq('id', gestacao.id);
+          if(errUpdateGpa) throw errUpdateGpa;
+        }
       }
 
       // 3) Monta um exame por feto (feto 1, 2, 3... quando múltipla) — a curva
