@@ -554,7 +554,7 @@
           <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
         </div>
-        <div class="field"><label>Motivo do exame</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de dor pélvica."></textarea></div>
+        <div class="field"><label>Motivo do exame</label><textarea id="motivoExame" rows="3" placeholder="ex: Relato de dor pélvica.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
       </div>
     </div>
 
@@ -1984,6 +1984,15 @@
   $('uteroEstado').addEventListener('change', updateUteroEstadoWraps);
   updateUteroEstadoWraps();
 
+  // Número de partos (P do GPA) sugere a categoria de VR do volume uterino —
+  // a médica ainda pode trocar manualmente depois (ex: menopausa/adolescência).
+  $('gpaP').addEventListener('input', ()=>{
+    const p = parseInt(v('gpaP'), 10);
+    if(isNaN(p)) return;
+    const categoria = p<=0 ? 'nenhum' : p<=2 ? '1a2' : p===3 ? '3' : '4mais';
+    $('vrUteroCategoria').value = categoria;
+  });
+
   $('miometrioAspecto').addEventListener('change', e=>{
     toggle('wrap_miomaDetalhes', e.target.value==='mioma');
     if(e.target.value==='mioma' && $('miomaNodulosContainer').children.length===0){
@@ -2709,13 +2718,18 @@
       +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
       // GPA some do cabeçalho na pós-menopausa (VR do útero em "Menopausa") —
       // gestações/partos/abortos não é dado clinicamente relevante ali.
-      +(vrUteroCategoria!=='menopausa' ? '<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>' : '')
+      // Com G0 não há partos nem abortos a declarar — só "G0", sem P0 A0.
+      +(vrUteroCategoria!=='menopausa' ? '<div class="id-card-row"><span>'+(gpaG==='0' ? '<strong>G:</strong> 0' : '<strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>' : '')
       +'</div>'});
 
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+(chkTransabdominal ? 'ULTRASSOM PÉLVICO' : 'ULTRASSOM TRANSVAGINAL')+'</h3>'});
 
     if(motivoExame){
-      blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(motivoExame)+'.</p>'});
+      const relatoLinhas = motivoExame.split('\n').map(l=>l.trim()).filter(Boolean);
+      const relatoHtml = relatoLinhas.map((linha, idx)=>
+        '<span style="display:block;'+(idx>0?'margin-top:1mm;':'')+'">'+escapeHtml(linha)+(idx===relatoLinhas.length-1?'.':'')+'</span>'
+      ).join('');
+      blocks.push({id:'relato', html:'<p class="relato">'+relatoHtml+'</p>'});
     }
 
     blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
