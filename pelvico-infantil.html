@@ -975,6 +975,7 @@
   // clinic's referring-physician list. ----------
   (function(){
     const DEFAULT_MEDICOS = [
+      'Nenhum',
       'Dra. Alice Maciel F. e Santos',
       'Dra. Aline Torres Alves',
       'Dra. Ana Rita de Paiva Toledo',
@@ -1578,7 +1579,10 @@
     blocks.push({id:'idcard', html:
       '<div class="id-card">'
       +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
+      // "Nenhum" no combo de médico solicitante é uma escolha explícita de que
+      // não há médico solicitante — tira a linha inteira do cabeçalho, em vez
+      // de mostrar "Médico: ____" como se fosse um campo ainda não preenchido.
+      +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
       +'</div>'});
 
     blocks.push({id:'doctitle', html: chkDoppler

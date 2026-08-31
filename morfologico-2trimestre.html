@@ -964,6 +964,7 @@
   // ---------- Médico solicitante: hand-rolled combobox (shared list across laudos) ----------
   (function(){
     const DEFAULT_MEDICOS = [
+      'Nenhum',
       'Dra. Alice Maciel F. e Santos',
       'Dra. Aline Torres Alves',
       'Dra. Ana Rita de Paiva Toledo',
@@ -1364,6 +1365,7 @@
       +'<div class="field-row">'
       +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" id="feto'+uid+'FC" placeholder="bpm"></div>'
       +'</div>'
+      +'<div class="field"><label>Observações / alterações (texto livre)</label><textarea id="feto'+uid+'Observacoes" rows="2" placeholder="ex: um achado que não se encaixa nos campos abaixo"></textarea></div>'
 
       +'<p class="feto-sub">Parâmetros biométricos</p>'
       +'<div class="field-row">'
@@ -2056,6 +2058,7 @@
       const isTransversa = apresentacao === 'córmica';
       const dorso = v(pre+'Dorso');
       const fc = blankOrValue(req(pre+'FC'));
+      const observacoes = vNoDot(pre+'Observacoes');
       const apresentacaoHtml = isTransversa
         ? phraseRaw(isMultiple ? 'apresentacaoTextoTransversaMultiplo' : 'apresentacaoTextoTransversa')
         : phraseRaw(isMultiple ? 'apresentacaoTextoLongitudinalMultiplo' : 'apresentacaoTextoLongitudinal', {APRESENTACAO: apresentacao, DORSO: dorso});
@@ -2133,7 +2136,7 @@
       const laILA = blankOrValue(req(pre+'LaILA'));
       const laILAPercentil = blankOrValue(v(pre+'LaILAPercentil'));
 
-      return {uid, label, apresentacaoHtml, fc,
+      return {uid, label, apresentacaoHtml, fc, observacoes,
         dbp, diamCerebelar, dof, cisternaMagna, cc, pregaNucal, ca, ventriculoPosterior,
         cf, ossoNasal, umero, pregaPreNasal, radio, doe, ulna, doi, tibia, fibula,
         peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
@@ -2191,7 +2194,10 @@
     blocks.push({id:'idcard', html:
       '<div class="id-card">'
       +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>'
+      // "Nenhum" no combo de médico solicitante é uma escolha explícita de que
+      // não há médico solicitante — tira a linha inteira do cabeçalho, em vez
+      // de mostrar "Médico: ____" como se fosse um campo ainda não preenchido.
+      +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
       +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>IG atual:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>'
       +'</div>'});
@@ -2220,6 +2226,11 @@
       blocks.push({id:'apresentacao'+sfx, html:'<p class="linha">'+f.apresentacaoHtml+'</p>'});
       blocks.push({id:'movimentacao'+sfx, html:'<p class="linha">'+phrase('movimentacaoTexto')+'</p>'});
       blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+phraseRaw('vitalidadeTexto', {FC: f.fc.text})+'</p>'});
+      // Texto livre da médica — só entra no corpo do laudo, nunca na impressão
+      // diagnóstica (buildImpressao não lê f.observacoes).
+      if(f.observacoes){
+        blocks.push({id:'observacoes'+sfx, html:'<p class="linha">'+escapeHtml(f.observacoes)+'.</p>'});
+      }
 
       let biometriaHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Biometria</strong></p>';
       biometriaHtml += '<table class="biometria">'
