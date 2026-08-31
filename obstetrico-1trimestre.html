@@ -1453,12 +1453,13 @@
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Comprimento cabeça-nádega — CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'CCN" placeholder="mm"></div>'
-      +'<div class="field"><label>Vitalidade</label><select id="saco'+uid+'Vitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option><option value="nao_identificado">Embrião não identificado (gestação muito inicial)</option></select></div>'
+      +'<div class="field conditional show" id="wrap_saco'+uid+'Vitalidade"><label>Vitalidade</label><select id="saco'+uid+'Vitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>'
       +'</div>'
       +'<div class="field-row conditional" id="wrap_saco'+uid+'FC">'
       +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" maxlength="3" id="saco'+uid+'FC" placeholder="bpm"></div>'
       +'</div>'
       +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'ISG"><label for="saco'+uid+'ISG">ISG pequeno (índice do saco gestacional — calculado automaticamente: DMSG - CCN)</label></div>'
+      +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'EmbriaoNaoIdentificado"><label for="saco'+uid+'EmbriaoNaoIdentificado">Embrião não identificado (gestação muito inicial)</label></div>'
       +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'Hematoma"><label for="saco'+uid+'Hematoma">Hematoma subcoriônico</label></div>'
       +'<div class="field-row conditional" id="wrap_saco'+uid+'HematomaCampos">'
       +'<div class="field"><label>Localização</label><select id="saco'+uid+'HematomaLocal"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option><option value="próximo ao colo uterino">Próximo ao colo uterino</option></select></div>'
@@ -1470,7 +1471,9 @@
       +'</div>';
   }
   function updateSacoWraps(uid){
-    toggle('wrap_saco'+uid+'FC', $('saco'+uid+'Vitalidade').value==='presente');
+    const embriaoNaoIdentificado = $('saco'+uid+'EmbriaoNaoIdentificado').checked;
+    toggle('wrap_saco'+uid+'Vitalidade', !embriaoNaoIdentificado);
+    toggle('wrap_saco'+uid+'FC', !embriaoNaoIdentificado && $('saco'+uid+'Vitalidade').value==='presente');
     toggle('wrap_saco'+uid+'HematomaCampos', $('saco'+uid+'Hematoma').checked);
   }
   function sacoLabel(idx, total){
@@ -1498,6 +1501,7 @@
     });
     wireDecimalInputs();
     $('saco'+uid+'Vitalidade').addEventListener('change', ()=> updateSacoWraps(uid));
+    $('saco'+uid+'EmbriaoNaoIdentificado').addEventListener('change', ()=> updateSacoWraps(uid));
     $('saco'+uid+'Hematoma').addEventListener('change', ()=> updateSacoWraps(uid));
     updateSacoWraps(uid);
     el.querySelector('.saco-remove').addEventListener('click', ()=>{
@@ -1976,7 +1980,11 @@
       const insercao = v('saco'+uid+'Insercao');
       const dmsg = blankOrValue(req('saco'+uid+'DMSG'));
       const vv = blankOrValue(req('saco'+uid+'VV'));
-      const vitalidade = v('saco'+uid+'Vitalidade');
+      // "Embrião não identificado" é um checkbox à parte (fica confuso junto
+      // do dropdown de batimentos cardíacos) mas o resto do código ainda
+      // trata os três estados como um "vitalidade" só.
+      const embriaoNaoIdentificado = $('saco'+uid+'EmbriaoNaoIdentificado').checked;
+      const vitalidade = embriaoNaoIdentificado ? 'nao_identificado' : v('saco'+uid+'Vitalidade');
       // Sem embrião identificado ainda não há o que medir no CCN — cobrar o
       // campo como pendente marcaria de vermelho um dado que não existe.
       const ccn = blankOrValue(reqIf('saco'+uid+'CCN', vitalidade!=='nao_identificado'));
