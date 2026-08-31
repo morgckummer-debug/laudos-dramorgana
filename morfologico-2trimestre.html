@@ -2231,7 +2231,7 @@
         +'<tr><td style="white-space:nowrap;">Comprimento umeral:</td><td style="white-space:nowrap;">'+span(f.umero)+' mm</td><td style="white-space:nowrap;">Prega pré-nasal:</td><td style="white-space:nowrap;">'+span(f.pregaPreNasal)+' mm</td></tr>'
         +'<tr><td style="white-space:nowrap;">Rádio:</td><td style="white-space:nowrap;">'+span(f.radio)+' mm</td><td style="white-space:nowrap;">Distância orbitária externa:</td><td style="white-space:nowrap;">'+span(f.doe)+' mm</td></tr>'
         +'<tr><td style="white-space:nowrap;">Ulna:</td><td style="white-space:nowrap;">'+span(f.ulna)+' mm</td><td style="white-space:nowrap;">Distância orbitária interna:</td><td style="white-space:nowrap;">'+span(f.doi)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Tíbia:</td><td style="white-space:nowrap;">'+span(f.tibia)+' mm</td><td style="white-space:nowrap;"><strong>Peso fetal estimado:</strong></td><td style="white-space:nowrap;"><strong>'+span(f.peso)+' g'+(f.percentil.filled ? ' (P'+escapeHtml(f.percentil.text)+')' : '')+'</strong></td></tr>'
+        +'<tr><td style="white-space:nowrap;">Tíbia:</td><td style="white-space:nowrap;">'+span(f.tibia)+' mm</td><td style="white-space:nowrap;"><strong>Peso fetal estimado:</strong></td><td style="white-space:nowrap;"><strong>'+span(f.peso)+' g</strong></td></tr>'
         +'<tr><td style="white-space:nowrap;">Fíbula:</td><td colspan="3" style="white-space:nowrap;">'+span(f.fibula)+' mm</td></tr>'
         +'</table></div>';
       blocks.push({id:'biometria'+sfx, html:biometriaHtml});
@@ -2266,7 +2266,7 @@
         +'<tr><td><strong style="text-decoration:underline;">Doppler Materno</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
         +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
         +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
-        +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
+        +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+(utAlterado ? ' (<span class="filled" style="text-decoration:underline;">acima do percentil 95</span>)' : ' (P'+span(blankOrValue(utPercentilTxt))+')')+'</td></tr>'
         +'</table>';
       blocks.push({id:'dopplerMaterno', html:'<div>'+tabelaDopplerMaterno+'</div>'});
     }
