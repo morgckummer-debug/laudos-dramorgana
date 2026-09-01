@@ -196,7 +196,7 @@
   .paper .id-card-row + .id-card-row{margin-top:0.125em;}
   .paper .id-card-row:last-child{border-top:1.5px solid #2b2b2e;margin-top:0.375em;padding-top:0.375em;}
   .paper .risk-card{
-    display:table;background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.75em 1.75em;margin:0 auto 0.75em;
+    display:inline-block;background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.75em 1.75em;margin:0 0 0.75em;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
   .paper .risk-card table.biometria{margin:0;}
@@ -2092,9 +2092,9 @@ if(typeof criarMotorLaudo !== 'function'){
     fetos.forEach(f=>{
       const sfx = '-f'+f.uid;
       const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+' (IM + ON + TN + DV + VT):';
-      blocks.push({id:'riscos'+sfx, html:'<div>'
+      blocks.push({id:'riscos'+sfx, html:'<div style="text-align:center;">'
         +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
-        +'<div class="risk-card"><table class="biometria">'
+        +'<div class="risk-card"><table class="biometria" style="text-align:left;">'
         +'<tr><td>Síndrome de Down (T21):</td><td style="white-space:nowrap;">1: '+span(f.riscoT21)+'</td></tr>'
         +'<tr><td>Síndrome de Edwards (T18):</td><td style="white-space:nowrap;">1: '+span(f.riscoT18)+'</td></tr>'
         +'<tr><td>Síndrome de Patau (T13):</td><td style="white-space:nowrap;">1: '+span(f.riscoT13)+'</td></tr>'
