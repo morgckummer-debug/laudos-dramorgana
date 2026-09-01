@@ -420,16 +420,6 @@
           <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
         </div>
-        <div class="field-row">
-          <div class="field"><label>Data de nascimento</label><input type="text" id="dataNascimento" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>Idade (calculada)</label><input type="text" id="idadeCalc" readonly placeholder="calculada automaticamente"></div>
-          <div class="field"><label>Peso (kg)</label><input type="text" inputmode="decimal" data-decimals="1" id="pesoMaterno" placeholder="kg"></div>
-          <div class="field"><label>Altura (cm)</label><input type="text" inputmode="numeric" id="alturaMaterna" placeholder="cm"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>IMC (calculado)</label><input type="text" id="imcCalc" readonly placeholder="calculado automaticamente"></div>
-          <div class="field"><label>Pressão arterial média (PAM) (mmHg)</label><input type="text" id="pressaoArterial" placeholder="ex: 110x70"></div>
-        </div>
         <div class="field"><label>Em uso de — opcional</label><textarea id="medicacoes" rows="2" placeholder="ex: ácido fólico; AAS 100 mg..."></textarea></div>
         <div class="field" style="margin-top:14px;"><label>Motivo do exame — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de rastreamento de aneuploidias."></textarea></div>
       </div>
@@ -1310,7 +1300,7 @@ if(typeof criarMotorLaudo !== 'function'){
       try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
     });
   }
-  ['dataExame','dum','usgDataDatacao','dataNascimento'].forEach(wireDateMask);
+  ['dataExame','dum','usgDataDatacao'].forEach(wireDateMask);
 
   function wireDigitsOnlyInput(id, maxLen){
     const el = $(id);
@@ -1336,18 +1326,6 @@ if(typeof criarMotorLaudo !== 'function'){
     return dt;
   }
   function addDays(date, days){ return new Date(date.getTime() + days*MS_DIA); }
-  // Idade da paciente na data do exame (ou hoje, se a data do exame ainda
-  // não foi preenchida) — anos completos, mesma conta de aniversário.
-  function computeIdadeAnos(dataNascimentoStr, dataExameStr){
-    const nasc = parseDateBR(dataNascimentoStr);
-    if(!nasc) return null;
-    const ref = parseDateBR(dataExameStr) || new Date();
-    let idade = ref.getFullYear() - nasc.getFullYear();
-    const aindaNaoFezAniversario = (ref.getMonth() < nasc.getMonth())
-      || (ref.getMonth() === nasc.getMonth() && ref.getDate() < nasc.getDate());
-    if(aindaNaoFezAniversario) idade--;
-    return idade >= 0 ? idade : null;
-  }
   function formatIG(totalDays){
     const semanas = Math.floor(totalDays/7);
     const dias = totalDays % 7;
@@ -1383,6 +1361,17 @@ if(typeof criarMotorLaudo !== 'function'){
   // editável em texto puro, e inserir a tag antes abriria brecha de HTML cru.
   function italicizeFMF(html){
     return html.replace(/Fetal Medicine Foundation/g, '<em>Fetal Medicine Foundation</em>');
+  }
+  // Dentro do item de TN normal (negrito por padrão via CSS), a ressalva —
+  // "Não podemos excluir essa possibilidade somente através da
+  // ultrassonografia." — fica em peso normal, pra não competir visualmente
+  // com o achado principal. Mesmo padrão do italicizeFMF: aplicado depois de
+  // escapeHtml, por busca de texto literal.
+  function deemphasizeSecondary(html){
+    const marca = 'Não podemos excluir';
+    const idx = html.indexOf(marca);
+    if(idx === -1) return html;
+    return html.slice(0, idx) + '<span style="font-weight:400;">' + html.slice(idx) + '</span>';
   }
   // ---------- Doppler: percentil do IP médio das artérias uterinas,
   // Gómez O, Figueras F, Fernández S, Bennasar M, Martínez JM, Puerto B,
@@ -1557,23 +1546,6 @@ if(typeof criarMotorLaudo !== 'function'){
     const gpaA = v('gpaA');
     const motivoExame = vNoDot('motivoExame');
     const medicacoes = vNoDot('medicacoes');
-    const dataNascimento = v('dataNascimento');
-    const pesoMaterno = v('pesoMaterno');
-    const alturaMaterna = v('alturaMaterna');
-    const pressaoArterial = v('pressaoArterial');
-
-    const idadeAnos = computeIdadeAnos(dataNascimento, dataExame);
-    const idadeTxt = idadeAnos!=null ? String(idadeAnos) : '';
-    const idadeCalcEl = $('idadeCalc');
-    if(idadeCalcEl) idadeCalcEl.value = idadeTxt;
-
-    // IMC = peso / altura² (altura digitada em cm).
-    const pesoNum = num('pesoMaterno');
-    const alturaNum = num('alturaMaterna');
-    const imcNum = (pesoNum!=null && alturaNum!=null && alturaNum>0) ? (pesoNum / Math.pow(alturaNum/100, 2)) : null;
-    const imcTxt = imcNum!=null ? fmtNum(imcNum, 1) : '';
-    const imcEl = $('imcCalc');
-    if(imcEl) imcEl.value = imcTxt;
 
     const cronologiaMetodoRaw = v('cronologiaMetodo');
     const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame') ? cronologiaMetodoRaw : 'dum';
@@ -1693,7 +1665,6 @@ if(typeof criarMotorLaudo !== 'function'){
       +(cronologiaMetodo==='usg'
         ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+'+'+span(blankOrValue(usgDiasDatacaoTxt))+' semanas: '+span(blankOrValue(igAtualTxt))+'</span></div>'
         : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
-      +'<div class="id-card-row"><span><strong>Idade:</strong> '+span(blankOrValue(idadeTxt))+' anos &nbsp;|&nbsp; <strong>Peso:</strong> '+span(blankOrValue(pesoMaterno))+' kg &nbsp;|&nbsp; <strong>Altura:</strong> '+span(blankOrValue(alturaMaterna))+' cm &nbsp;|&nbsp; <strong>IMC:</strong> '+span(blankOrValue(imcTxt))+' &nbsp;|&nbsp; <strong>PAM:</strong> '+span(blankOrValue(pressaoArterial))+' mmHg</span></div>'
       +'</div>'});
 
     let tituloTxt = 'ULTRASSOM OBSTÉTRICO COM TRANSLUCÊNCIA NUCAL, DOPPLER E COLO UTERINO';
@@ -1773,7 +1744,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       checkedItems.forEach(it=>{
         const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
-        let itemHtml = italicizeFMF(escapeHtml(text));
+        let itemHtml = italicizeFMF(deemphasizeSecondary(escapeHtml(text)));
         if(it.italic) itemHtml = '<em>'+itemHtml+'</em>';
         impressaoListHtml += '<li data-key="'+it.key+'">'+itemHtml+'</li>';
       });
