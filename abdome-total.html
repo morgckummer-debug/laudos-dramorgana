@@ -359,8 +359,35 @@
       <div class="card-body">
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
-            <select id="figadoAspecto"><option value="normal">Normal (dimensões, forma, parênquima e veia porta usuais)</option><option value="alterado">Alterado (descrever)</option></select>
+            <select id="figadoAspecto">
+              <option value="normal">Normal (dimensões, forma, parênquima e veia porta usuais)</option>
+              <option value="esteatose">Esteatose hepática (aumento difuso da ecogenicidade)</option>
+              <option value="cisto">Cisto hepático simples</option>
+              <option value="hemangioma">Hemangioma</option>
+              <option value="alterado">Outro (descrever)</option>
+            </select>
           </div>
+        </div>
+        <div class="field-row conditional" id="wrap_figadoEsteatoseCampos">
+          <div class="field"><label>Volume hepático</label>
+            <select id="figadoVolume"><option value="usuais">Dimensões usuais</option><option value="aumentadas">Dimensões aumentadas</option></select>
+          </div>
+          <div class="field"><label>Atenuação dos feixes sonoros</label>
+            <select id="figadoAtenuacao"><option value="leve">Leve</option><option value="moderada">Moderada</option><option value="acentuada">Acentuada</option></select>
+          </div>
+          <div class="field conditional" id="wrap_figadoGrauManual">
+            <label>Grau da doença de depósito</label>
+            <select id="figadoGrauManual"><option value="1">Grau 1</option><option value="2">Grau 2</option><option value="3">Grau 3</option></select>
+            <span class="vr">Some com a Impressão só quando o QUS abaixo estiver desligado</span>
+          </div>
+        </div>
+        <div class="field-row conditional" id="wrap_figadoCistoCampos">
+          <div class="field"><label>Segmento hepático</label><input type="text" id="figadoCistoSegmento" placeholder="ex: V"></div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="figadoCistoTamanho" placeholder="mm"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_figadoHemangiomaCampos">
+          <div class="field"><label>Segmento hepático</label><input type="text" id="figadoHemangiomaSegmento" placeholder="ex: VII"></div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="figadoHemangiomaTamanho" placeholder="cm"></div>
         </div>
         <div class="field conditional" id="wrap_figadoDescricao">
           <label>Descreva o achado</label>
@@ -441,7 +468,83 @@
       <div class="card-body">
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
-            <select id="rinsAspecto"><option value="normal">Normal (cortical, diferenciação córtico-medular e sistema coletor usuais, sem cálculos)</option><option value="alterado">Alterado (descrever)</option></select>
+            <select id="rinsAspecto">
+              <option value="normal">Normal (cortical, diferenciação córtico-medular e sistema coletor usuais, sem cálculos)</option>
+              <option value="calculo">Cálculo(s) renal(is)</option>
+              <option value="cisto">Cisto(s) renal(is) simples</option>
+              <option value="cistoLeiteCalcio">Cisto de leite de cálcio</option>
+              <option value="nodulo">Nódulo renal (angiomiolipoma)</option>
+              <option value="hidronefrose">Hidronefrose acentuada</option>
+              <option value="alterado">Outro (descrever)</option>
+            </select>
+          </div>
+        </div>
+        <!-- Achados unilaterais (cálculo/cisto/leite de cálcio/nódulo): só Direito/Esquerdo — um
+             cálculo/cisto simultâneo e idêntico nos dois rins é raro o bastante para caber em
+             "Outro (descrever)" em vez de duplicar cada campo de medida por lado aqui. -->
+        <div class="field-row conditional" id="wrap_rinsLado">
+          <div class="field"><label>Rim acometido</label>
+            <select id="rinsLadoSelect"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
+          </div>
+        </div>
+        <div class="field-row conditional" id="wrap_rinsCalculoCampos">
+          <div class="field"><label>Quantidade</label>
+            <select id="rinsCalculoQtd"><option value="1">1 cálculo</option><option value="2">2 cálculos</option></select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsCalc1">
+          <div class="field"><label>Terço (1º cálculo)</label>
+            <select id="rinsCalc1Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+          <div class="field"><label>Tamanho (1º cálculo)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsCalc1Tamanho" placeholder="mm"></div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsCalc2">
+          <div class="field"><label>Terço (2º cálculo)</label>
+            <select id="rinsCalc2Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+          <div class="field"><label>Tamanho (2º cálculo)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsCalc2Tamanho" placeholder="mm"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_rinsCistoCampos">
+          <div class="field"><label>Quantidade</label>
+            <select id="rinsCistoQtd"><option value="1">1 cisto</option><option value="2">2 cistos</option><option value="varios">Vários cistos</option></select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsCisto1">
+          <div class="field"><label>Terço (1º cisto)</label>
+            <select id="rinsCisto1Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+          <div class="field"><label>Tamanho (1º cisto)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsCisto1Tamanho" placeholder="mm"></div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsCisto2">
+          <div class="field"><label>Terço (2º cisto)</label>
+            <select id="rinsCisto2Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+          <div class="field"><label>Tamanho (2º cisto)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsCisto2Tamanho" placeholder="mm"></div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsCistoVarios">
+          <div class="field"><label>Menor</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsCistoVariosMin" placeholder="mm"></div>
+          <div class="field"><label>Maior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsCistoVariosMax" placeholder="mm"></div>
+          <div class="field"><label>Terço do maior</label>
+            <select id="rinsCistoVariosTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsLeiteCalcio">
+          <div class="field"><label>Tamanho (terço superior)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsLeiteCalcioTamanho" placeholder="mm"></div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsNodulo">
+          <div class="field"><label>Terço</label>
+            <select id="rinsNoduloTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsNoduloTamanho" placeholder="mm"></div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsHidro">
+          <div class="field"><label>Lado</label>
+            <select id="rinsHidroLado"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option><option value="bilateral">Bilateral</option></select>
+          </div>
+          <div class="field"><label>Medida da pelve renal</label>
+            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsHidroMedida" placeholder="mm">
+            <span class="vr">VR até 10,0 mm</span>
+            <span class="flag-note" id="flag_rinsHidroMedida">Acima do valor de referência</span>
           </div>
         </div>
         <div class="field conditional" id="wrap_rinsDescricao">
@@ -461,7 +564,18 @@
       <div class="card-body">
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
-            <select id="bexigaAspecto"><option value="normal">Normal (topografia e repleção normais)</option><option value="alterado">Alterado (descrever)</option></select>
+            <select id="bexigaAspecto">
+              <option value="normal">Normal (topografia e repleção normais)</option>
+              <option value="esforco">Bexiga de esforço (paredes espessadas e trabeculadas)</option>
+              <option value="alterado">Outro (descrever)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_bexigaEsforco">
+          <div class="field"><label>Espessura da parede</label>
+            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="bexigaEsforcoEspessura" placeholder="mm">
+            <span class="vr">VR até 3,0 mm</span>
+            <span class="flag-note" id="flag_bexigaEsforcoEspessura">Acima do valor de referência</span>
           </div>
         </div>
         <div class="field conditional" id="wrap_bexigaDescricao">
@@ -476,8 +590,21 @@
       <div class="card-body">
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
-            <select id="vasosAspecto"><option value="normal">Normal (aorta, veia cava inferior e artérias ilíacas de trajeto e calibre usuais, sem linfonodomegalia)</option><option value="alterado">Alterado (descrever)</option></select>
+            <select id="vasosAspecto">
+              <option value="normal">Normal (aorta, veia cava inferior e artérias ilíacas de trajeto e calibre usuais, sem linfonodomegalia)</option>
+              <option value="ateromatose">Ateromatose da aorta abdominal</option>
+              <option value="aneurisma">Aneurisma de aorta abdominal</option>
+              <option value="alterado">Outro (descrever)</option>
+            </select>
           </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_vasosAneurismaCampos">
+          <div class="field"><label>Posição do aneurisma</label>
+            <select id="vasosAneurismaPosicao"><option value="abaixo">Abaixo da emergência das artérias renais</option><option value="acima">Acima da emergência das artérias renais</option></select>
+          </div>
+          <div class="field"><label>Maior diâmetro AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vasosAneurismaDiametro" placeholder="mm"></div>
+          <div class="field"><label>Diâmetro da porção proximal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vasosAneurismaProximal" placeholder="mm"></div>
+          <div class="field"><label>Distância até a bifurcação</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vasosAneurismaDistal" placeholder="cm"></div>
         </div>
         <div class="field conditional" id="wrap_vasosDescricao">
           <label>Descreva o achado</label>
@@ -491,19 +618,64 @@
       <div class="card-body">
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
-            <select id="bacoAspecto"><option value="normal">Normal (forma, dimensões, contornos e parênquima usuais)</option><option value="alterado">Alterado (descrever)</option></select>
+            <select id="bacoAspecto">
+              <option value="normal">Normal (forma, dimensões, contornos e parênquima usuais)</option>
+              <option value="esplenectomia">Esplenectomia (baço não visibilizado)</option>
+              <option value="acessorio">Baço acessório</option>
+              <option value="esplenomegaliaLeve">Esplenomegalia leve</option>
+              <option value="esplenomegaliaVolumosa">Esplenomegalia volumosa</option>
+              <option value="hemangioma">Hemangioma esplênico</option>
+              <option value="alterado">Outro (descrever)</option>
+            </select>
           </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_bacoAcessorioCampos">
+          <div class="field"><label>Tamanho do nódulo acessório</label><input type="text" id="bacoAcessorioTamanho" placeholder="ex: 1,2 x 0,8 cm"></div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_bacoHemangiomaCampos">
+          <div class="field"><label>Terço</label>
+            <select id="bacoHemangiomaTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="bacoHemangiomaTamanho" placeholder="cm"></div>
         </div>
         <div class="field conditional" id="wrap_bacoDescricao">
           <label>Descreva o achado</label>
           <textarea id="bacoDescricao" rows="2" placeholder="descrição completa do achado esplênico..."></textarea>
         </div>
         <hr class="sep">
-        <div class="field-row field-row-compact">
+        <div class="field-row field-row-compact conditional show" id="wrap_bacoDiametro">
           <div class="field"><label>Diâmetro bipolar</label>
             <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="bacoDiametro" placeholder="cm">
             <span class="vr" id="vrBacoTexto">VR até 12,0 cm (mulher)</span>
             <span class="flag-note" id="flag_bacoDiametro">Acima do valor de referência</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Achados adicionais (avaliação direcionada)</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Não fazem parte da rotina do abdome total — só entram no laudo quando marcados.</p>
+        <div class="toggle-line"><input type="checkbox" id="chkApendice"><label for="chkApendice">Avaliar apêndice cecal</label></div>
+        <div class="field-row conditional" id="wrap_apendiceAspecto">
+          <div class="field"><label>Aspecto</label>
+            <select id="apendiceAspecto">
+              <option value="normal">Não dilatado, sem espessamento parietal, na topografia habitual</option>
+              <option value="alterado">Achados sugestivos de apendicite aguda</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_apendiceEspessura">
+          <div class="field"><label>Espessura da parede</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="apendiceEspessuraValor" placeholder="mm"></div>
+        </div>
+        <hr class="sep">
+        <div class="toggle-line"><input type="checkbox" id="chkAdenite"><label for="chkAdenite">Linfonodos mesentéricos aumentados (sugestivo de adenite mesentérica)</label></div>
+        <hr class="sep">
+        <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkAscite"><label for="chkAscite">Líquido livre intracavitário (ascite)</label></div>
+        <div class="field-row conditional" id="wrap_asciteGrau">
+          <div class="field"><label>Quantidade</label>
+            <select id="asciteGrau"><option value="leve">Discreta</option><option value="moderada">Moderada</option><option value="acentuada">Acentuada</option></select>
           </div>
         </div>
       </div>
@@ -1081,14 +1253,74 @@ if(typeof criarMotorLaudo !== 'function'){
     if(sel.value !== 'outro') applyExecutante(sel.value);
   }
 
-  $('figadoAspecto').addEventListener('change', e=> toggle('wrap_figadoDescricao', e.target.value==='alterado'));
+  function updateFigadoGrauManualVisibility(){
+    toggle('wrap_figadoGrauManual', v('figadoAspecto')==='esteatose' && !$('chkEsteatose').checked);
+  }
+  $('figadoAspecto').addEventListener('change', e=>{
+    const val = e.target.value;
+    toggle('wrap_figadoEsteatoseCampos', val==='esteatose');
+    toggle('wrap_figadoCistoCampos', val==='cisto');
+    toggle('wrap_figadoHemangiomaCampos', val==='hemangioma');
+    toggle('wrap_figadoDescricao', val==='alterado');
+    updateFigadoGrauManualVisibility();
+  });
   $('vesiculaAspecto').addEventListener('change', e=> toggle('wrap_vesiculaDescricao', e.target.value==='alterado'));
   $('pancreasAspecto').addEventListener('change', e=> toggle('wrap_pancreasDescricao', e.target.value==='alterado'));
-  $('rinsAspecto').addEventListener('change', e=> toggle('wrap_rinsDescricao', e.target.value==='alterado'));
-  $('bexigaAspecto').addEventListener('change', e=> toggle('wrap_bexigaDescricao', e.target.value==='alterado'));
-  $('vasosAspecto').addEventListener('change', e=> toggle('wrap_vasosDescricao', e.target.value==='alterado'));
-  $('bacoAspecto').addEventListener('change', e=> toggle('wrap_bacoDescricao', e.target.value==='alterado'));
-  $('chkEsteatose').addEventListener('change', e=> toggle('wrap_esteatose', e.target.checked));
+  function updateRinsCalculoCampos(){
+    toggle('wrap_rinsCalc2', v('rinsCalculoQtd')==='2');
+  }
+  function updateRinsCistoCampos(){
+    const qtd = v('rinsCistoQtd');
+    toggle('wrap_rinsCisto1', qtd==='1' || qtd==='2');
+    toggle('wrap_rinsCisto2', qtd==='2');
+    toggle('wrap_rinsCistoVarios', qtd==='varios');
+  }
+  $('rinsAspecto').addEventListener('change', e=>{
+    const val = e.target.value;
+    toggle('wrap_rinsLado', ['calculo','cisto','cistoLeiteCalcio','nodulo'].includes(val));
+    toggle('wrap_rinsCalculoCampos', val==='calculo');
+    toggle('wrap_rinsCalc1', val==='calculo');
+    toggle('wrap_rinsCalc2', val==='calculo' && v('rinsCalculoQtd')==='2');
+    toggle('wrap_rinsCistoCampos', val==='cisto');
+    if(val==='cisto') updateRinsCistoCampos();
+    else { toggle('wrap_rinsCisto1', false); toggle('wrap_rinsCisto2', false); toggle('wrap_rinsCistoVarios', false); }
+    toggle('wrap_rinsLeiteCalcio', val==='cistoLeiteCalcio');
+    toggle('wrap_rinsNodulo', val==='nodulo');
+    toggle('wrap_rinsHidro', val==='hidronefrose');
+    toggle('wrap_rinsDescricao', val==='alterado');
+  });
+  $('rinsCalculoQtd').addEventListener('change', updateRinsCalculoCampos);
+  $('rinsCistoQtd').addEventListener('change', updateRinsCistoCampos);
+  $('bexigaAspecto').addEventListener('change', e=>{
+    toggle('wrap_bexigaEsforco', e.target.value==='esforco');
+    toggle('wrap_bexigaDescricao', e.target.value==='alterado');
+  });
+  $('vasosAspecto').addEventListener('change', e=>{
+    toggle('wrap_vasosAneurismaCampos', e.target.value==='aneurisma');
+    toggle('wrap_vasosDescricao', e.target.value==='alterado');
+  });
+  $('bacoAspecto').addEventListener('change', e=>{
+    const val = e.target.value;
+    toggle('wrap_bacoAcessorioCampos', val==='acessorio');
+    toggle('wrap_bacoHemangiomaCampos', val==='hemangioma');
+    toggle('wrap_bacoDescricao', val==='alterado');
+    // Sem baço, não há o que medir: some com o campo de diâmetro bipolar em
+    // vez de deixá-lo pendente sem sentido clínico nenhum.
+    toggle('wrap_bacoDiametro', val!=='esplenectomia');
+  });
+  $('chkEsteatose').addEventListener('change', e=>{
+    toggle('wrap_esteatose', e.target.checked);
+    updateFigadoGrauManualVisibility();
+  });
+
+  $('chkApendice').addEventListener('change', e=>{
+    toggle('wrap_apendiceAspecto', e.target.checked);
+    toggle('wrap_apendiceEspessura', e.target.checked && v('apendiceAspecto')==='alterado');
+  });
+  $('apendiceAspecto').addEventListener('change', e=>{
+    toggle('wrap_apendiceEspessura', $('chkApendice').checked && e.target.value==='alterado');
+  });
+  $('chkAscite').addEventListener('change', e=> toggle('wrap_asciteGrau', e.target.checked));
 
   function updateVrBacoLabel(){
     const sexo = v('sexoPaciente')==='masculino' ? 'masculino' : 'feminino';
@@ -1117,10 +1349,40 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.chkEsteatose && state.pctGorduraNum !== null){
       const pctStr = state.pctGorduraTexto;
       if(state.grauInfo.normal){
-        items.push({key:'esteatose', label:'Quantificação ultrassonográfica pelo método QUS estimou '+pctStr+'% de gordura, valor dentro da faixa normal, sem evidência de esteatose hepática.', auto:true});
+        items.push({key:'esteatose', label:'Quantificação ultrassonográfica pelo método QUS estimou '+pctStr+'% de gordura, valor dentro da faixa normal (S0), sem evidência de esteatose hepática significativa.', auto:true});
       } else {
-        items.push({key:'esteatose', label:'Quantificação ultrassonográfica pelo método QUS estimou '+pctStr+'% de gordura, valor que se enquadra no grau '+state.grauInfo.numero+' de esteatose hepática.', auto:true});
+        items.push({key:'esteatose', label:'Esteatose hepática: Quantificação ultrassonográfica pelo método QUS estimou '+pctStr+'% de gordura, valor que se enquadra no grau '+state.grauInfo.numero+' de esteatose hepática.', auto:true});
       }
+    }
+    if(state.figadoImpressaoDeposito){
+      items.push({key:'figado-deposito', label: state.figadoImpressaoDeposito, auto:true});
+    }
+    if(state.figadoAspecto==='cisto'){
+      items.push({key:'figado-cisto', label:'Cisto hepático simples.', auto:true});
+    }
+    if(state.figadoAspecto==='hemangioma'){
+      items.push({key:'figado-hemangioma', label:'Nódulo(s) hepático(s) sugestivo(s) de hemangioma(s).', auto:true});
+    }
+    if(state.rinsImpressaoHD){
+      items.push({key:'rins-achado', label: state.rinsImpressaoHD, auto:true});
+    }
+    if(state.bexigaImpressaoHD){
+      items.push({key:'bexiga-achado', label: state.bexigaImpressaoHD, auto:true});
+    }
+    if(state.bacoImpressaoHD){
+      items.push({key:'baco-achado', label: state.bacoImpressaoHD, auto:true});
+    }
+    if(state.vasosImpressaoHD){
+      items.push({key:'vasos-achado', label: state.vasosImpressaoHD, auto:true});
+    }
+    if(state.apendiceImpressaoHD){
+      items.push({key:'apendice-achado', label: state.apendiceImpressaoHD, auto:true});
+    }
+    if(state.adeniteImpressaoHD){
+      items.push({key:'adenite-achado', label: state.adeniteImpressaoHD, auto:true});
+    }
+    if(state.asciteImpressaoHD){
+      items.push({key:'ascite-achado', label: state.asciteImpressaoHD, auto:true});
     }
     state.obsLinhas.forEach((linha, idx)=>{
       items.push({key:'obs-'+idx, label: linha, auto:true});
@@ -1207,6 +1469,30 @@ if(typeof criarMotorLaudo !== 'function'){
     const grauLabelEl = $('grauEsteatoseLabel');
     if(grauLabelEl) grauLabelEl.textContent = grauInfo ? ('→ '+grauInfo.grau+' ('+grauInfo.label+')') : '';
 
+    const figadoVolume = v('figadoVolume') || 'usuais';
+    const figadoAtenuacao = v('figadoAtenuacao') || 'leve';
+    const figadoGrauManual = v('figadoGrauManual') || '1';
+    const figadoCistoSegmentoTexto = blankOrValue(reqIf('figadoCistoSegmento', figadoAspecto==='cisto'));
+    const figadoCistoTamanhoTexto = blankOrValue(reqIf('figadoCistoTamanho', figadoAspecto==='cisto'));
+    const figadoHemangiomaSegmentoTexto = blankOrValue(reqIf('figadoHemangiomaSegmento', figadoAspecto==='hemangioma'));
+    const figadoHemangiomaTamanhoTexto = blankOrValue(reqIf('figadoHemangiomaTamanho', figadoAspecto==='hemangioma'));
+    let figadoImpressaoDeposito = null;
+    let figadoTextoBase;
+    if(figadoAspecto==='esteatose'){
+      figadoTextoBase = 'Dimensões '+(figadoVolume==='aumentadas'?'aumentadas':'usuais')+', forma globosa, contornos arredondados e regulares. Parênquima hepático apresentando aumento difuso da ecogenicidade, condicionando '+figadoAtenuacao+' atenuação dos feixes sonoros nos planos posteriores, dificultando a avaliação de lesões intraparenquimatosas ao método. Veia porta, seus ramos e veias hepáticas sem alterações.';
+      if(!chkEsteatose){
+        figadoImpressaoDeposito = 'Aumento difuso da ecogenicidade hepática sugestivo de doença de depósito em grau '+figadoGrauManual+'.';
+      }
+    } else if(figadoAspecto==='cisto'){
+      figadoTextoBase = 'Observa-se imagem anecóica de paredes finas e regulares, localizada no segmento '+span(figadoCistoSegmentoTexto)+', medindo '+span(figadoCistoTamanhoTexto)+' mm.';
+    } else if(figadoAspecto==='hemangioma'){
+      figadoTextoBase = 'Observa-se imagem nodular sólida, ecogênica e pouco heterogênea, de contornos regulares, localizada em segmento '+span(figadoHemangiomaSegmentoTexto)+', medindo '+span(figadoHemangiomaTamanhoTexto)+' cm.';
+    } else if(figadoAspecto==='alterado' && figadoDescricao){
+      figadoTextoBase = escapeHtml(figadoDescricao)+'.';
+    } else {
+      figadoTextoBase = 'Dimensões normais, forma anatômica, bordas finas e contornos lisos e regulares. Parênquima com ecogenicidade usual e textura homogênea, sem identificação de lesões intraparenquimatosas. Veia porta, seus ramos e veias hepáticas sem alterações.';
+    }
+
     // ----- Vesícula e vias biliares -----
     const vesiculaAspecto = v('vesiculaAspecto');
     const vesiculaDescricao = vNoDot('vesiculaDescricao');
@@ -1225,29 +1511,183 @@ if(typeof criarMotorLaudo !== 'function'){
     const rimDireitoTexto = blankOrValue(req('rimDireitoMedida'));
     const rimEsquerdoTexto = blankOrValue(req('rimEsquerdoMedida'));
 
+    const rinsLado = v('rinsLadoSelect') || 'direito';
+    const rinsLadoNome = rinsLado==='esquerdo' ? 'esquerdo' : 'direito';
+    const rinsLadoHD = rinsLado==='esquerdo' ? 'à esquerda' : 'à direita';
+
+    const rinsCalculoQtd = v('rinsCalculoQtd') || '1';
+    reqIf('rinsCalc1Terco', rinsAspecto==='calculo');
+    const rinsCalc1Terco = v('rinsCalc1Terco') || 'superior';
+    const rinsCalc1TamanhoTexto = blankOrValue(reqIf('rinsCalc1Tamanho', rinsAspecto==='calculo'));
+    const rinsCalc2Terco = v('rinsCalc2Terco') || 'superior';
+    const rinsCalc2TamanhoTexto = blankOrValue(reqIf('rinsCalc2Tamanho', rinsAspecto==='calculo' && rinsCalculoQtd==='2'));
+
+    const rinsCistoQtd = v('rinsCistoQtd') || '1';
+    const rinsCisto1Terco = v('rinsCisto1Terco') || 'superior';
+    const rinsCisto1TamanhoTexto = blankOrValue(reqIf('rinsCisto1Tamanho', rinsAspecto==='cisto' && rinsCistoQtd!=='varios'));
+    const rinsCisto2Terco = v('rinsCisto2Terco') || 'superior';
+    const rinsCisto2TamanhoTexto = blankOrValue(reqIf('rinsCisto2Tamanho', rinsAspecto==='cisto' && rinsCistoQtd==='2'));
+    const rinsCistoVariosMinTexto = blankOrValue(reqIf('rinsCistoVariosMin', rinsAspecto==='cisto' && rinsCistoQtd==='varios'));
+    const rinsCistoVariosMaxTexto = blankOrValue(reqIf('rinsCistoVariosMax', rinsAspecto==='cisto' && rinsCistoQtd==='varios'));
+    const rinsCistoVariosTerco = v('rinsCistoVariosTerco') || 'superior';
+
+    const rinsLeiteCalcioTamanhoTexto = blankOrValue(reqIf('rinsLeiteCalcioTamanho', rinsAspecto==='cistoLeiteCalcio'));
+
+    const rinsNoduloTerco = v('rinsNoduloTerco') || 'superior';
+    const rinsNoduloTamanhoTexto = blankOrValue(reqIf('rinsNoduloTamanho', rinsAspecto==='nodulo'));
+
+    const rinsHidroLado = v('rinsHidroLado') || 'direito';
+    const rinsHidroMedidaNum = num('rinsHidroMedida'); reqIf('rinsHidroMedida', rinsAspecto==='hidronefrose');
+    const rinsHidroMedidaTexto = blankOrValue(v('rinsHidroMedida'));
+    flag('rinsHidroMedida', rinsHidroMedidaNum!==null && rinsHidroMedidaNum > 10.0);
+
+    let rinsTextoTail;
+    let rinsImpressaoHD = null;
+    if(rinsAspecto==='calculo'){
+      if(rinsCalculoQtd==='2'){
+        rinsTextoTail = 'Em rim '+rinsLadoNome+' observam-se duas imagens hiperecogênicas ovaladas, que condicionam sombra acústica posterior, uma localizada em terço '+rinsCalc1Terco+', medindo '+span(rinsCalc1TamanhoTexto)+' mm e outra em terço '+rinsCalc2Terco+', medindo '+span(rinsCalc2TamanhoTexto)+' mm.';
+      } else {
+        rinsTextoTail = 'Em rim '+rinsLadoNome+' observa-se imagem hiperecogênica ovalada, que condiciona sombra acústica posterior, localizada em terço '+rinsCalc1Terco+', medindo '+span(rinsCalc1TamanhoTexto)+' mm.';
+      }
+      rinsImpressaoHD = 'Nefrolitíase '+rinsLadoHD+'.';
+    } else if(rinsAspecto==='cisto'){
+      if(rinsCistoQtd==='2'){
+        rinsTextoTail = 'Em rim '+rinsLadoNome+' observam-se duas imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, uma localizada no terço '+rinsCisto1Terco+', medindo '+span(rinsCisto1TamanhoTexto)+' mm, e outra no terço '+rinsCisto2Terco+', medindo '+span(rinsCisto2TamanhoTexto)+' mm.';
+        rinsImpressaoHD = 'Cistos renais simples '+rinsLadoHD+'.';
+      } else if(rinsCistoQtd==='varios'){
+        rinsTextoTail = 'Em rim '+rinsLadoNome+' observam-se várias imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, dispersas pelo parênquima cortical, variando entre '+span(rinsCistoVariosMinTexto)+' e '+span(rinsCistoVariosMaxTexto)+' mm, a maior localizada no terço '+rinsCistoVariosTerco+'.';
+        rinsImpressaoHD = 'Cistos renais simples '+rinsLadoHD+'.';
+      } else {
+        rinsTextoTail = 'Em rim '+rinsLadoNome+' observa-se imagem anecóica de paredes finas e regulares, condicionando reforço acústico posterior, localizada no terço '+rinsCisto1Terco+', medindo '+span(rinsCisto1TamanhoTexto)+' mm.';
+        rinsImpressaoHD = 'Cisto renal simples '+rinsLadoHD+'.';
+      }
+    } else if(rinsAspecto==='cistoLeiteCalcio'){
+      rinsTextoTail = 'Em rim '+rinsLadoNome+' observa-se imagem anecóica de paredes finas e regulares, apresentando imagem hiperecogênica depositada em sua parede posterior condicionando sombra acústica, localizada no terço superior, medindo '+span(rinsLeiteCalcioTamanhoTexto)+' mm.';
+      rinsImpressaoHD = 'Cisto renal simples '+rinsLadoHD+' (leite de cálcio).';
+    } else if(rinsAspecto==='nodulo'){
+      rinsTextoTail = 'Presença de imagem nodular sólida, ecogênica, de contornos regulares, localizada em terço '+rinsNoduloTerco+', medindo '+span(rinsNoduloTamanhoTexto)+' mm, em rim '+rinsLadoNome+'.';
+      rinsImpressaoHD = 'Nódulo renal '+rinsLadoHD+' sugestivo de angiomiolipoma.';
+    } else if(rinsAspecto==='hidronefrose'){
+      const hidroLadoDescr = rinsHidroLado==='bilateral' ? 'bilateralmente' : (rinsHidroLado==='esquerdo' ? 'à esquerda' : 'à direita');
+      rinsTextoTail = 'Observa-se dilatação de pelve renal '+hidroLadoDescr+', medindo '+span(rinsHidroMedidaTexto)+' mm (VR até 10,0 mm); além disso, há dilatação do sistema coletor que se estende até os pequenos cálices, ocasionando redução da espessura do parênquima renal.';
+      rinsImpressaoHD = 'Hidronefrose acentuada.';
+    } else if(rinsAspecto==='alterado' && rinsDescricao){
+      rinsTextoTail = escapeHtml(rinsDescricao)+'.';
+    } else {
+      rinsTextoTail = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureteres sem sinais de dilatações. Espaço perirrenal livre.';
+    }
+
     // ----- Bexiga -----
     const bexigaAspecto = v('bexigaAspecto');
     const bexigaDescricao = vNoDot('bexigaDescricao');
     reqIf('bexigaDescricao', bexigaAspecto==='alterado');
+    const bexigaEsforcoNum = num('bexigaEsforcoEspessura'); reqIf('bexigaEsforcoEspessura', bexigaAspecto==='esforco');
+    const bexigaEsforcoTexto = blankOrValue(v('bexigaEsforcoEspessura'));
+    flag('bexigaEsforcoEspessura', bexigaEsforcoNum!==null && bexigaEsforcoNum > 3.0);
+    let bexigaTexto;
+    let bexigaImpressaoHD = null;
+    if(bexigaAspecto==='esforco'){
+      bexigaTexto = 'Com boa repleção, de forma anatômica, paredes difusamente espessadas, medindo '+span(bexigaEsforcoTexto)+' mm (VR: até 3,0 mm) e trabeculadas. Conteúdo de aspecto límpido. Ausência de dilatação dos ureteres distais. Meatos ureterais sem alterações.';
+      bexigaImpressaoHD = 'Achados ecográficos sugestivos de bexiga de esforço.';
+    } else if(bexigaAspecto==='alterado' && bexigaDescricao){
+      bexigaTexto = escapeHtml(bexigaDescricao)+'.';
+    } else {
+      bexigaTexto = 'De topografia usual, boa repleção, contorno interno regular e conteúdo anecoico. Meatos ureterais pérvios, sem alterações.';
+    }
 
     // ----- Grandes vasos -----
     const vasosAspecto = v('vasosAspecto');
     const vasosDescricao = vNoDot('vasosDescricao');
     reqIf('vasosDescricao', vasosAspecto==='alterado');
+    const vasosAneurismaPosicao = v('vasosAneurismaPosicao') || 'abaixo';
+    const vasosAneurismaDiametroTexto = blankOrValue(reqIf('vasosAneurismaDiametro', vasosAspecto==='aneurisma'));
+    const vasosAneurismaProximalTexto = blankOrValue(reqIf('vasosAneurismaProximal', vasosAspecto==='aneurisma'));
+    const vasosAneurismaDistalTexto = blankOrValue(reqIf('vasosAneurismaDistal', vasosAspecto==='aneurisma'));
+
+    let vasosTexto;
+    let vasosImpressaoHD = null;
+    if(vasosAspecto==='ateromatose'){
+      vasosTexto = 'Aorta, vasos ilíacos e veia cava inferior apresentando trajeto e calibres normais. Na parede aórtica, observam-se focos hiperecogênicos compatíveis com ateromas.';
+      vasosImpressaoHD = 'Ateromatose da aorta abdominal.';
+    } else if(vasosAspecto==='aneurisma'){
+      vasosTexto = 'Observa-se dilatação fusiforme-sacular em aorta abdominal '+vasosAneurismaPosicao+' da emergência das artérias renais, cujo maior diâmetro ântero-posterior é de '+span(vasosAneurismaDiametroTexto)+' mm e a porção proximal à dilatação é de '+span(vasosAneurismaProximalTexto)+' mm. Sua porção distal está a aproximadamente '+span(vasosAneurismaDistalTexto)+' cm da sua bifurcação.';
+      vasosImpressaoHD = 'Aneurisma de aorta abdominal.';
+    } else if(vasosAspecto==='alterado' && vasosDescricao){
+      vasosTexto = escapeHtml(vasosDescricao)+'.';
+    } else {
+      vasosTexto = 'Aorta abdominal, veia cava inferior e artérias ilíacas de trajeto e calibre normais. Ausência de sinais de linfonodomegalia periaórtico-caval.';
+    }
 
     // ----- Baço -----
     const bacoAspecto = v('bacoAspecto');
     const bacoDescricao = vNoDot('bacoDescricao');
     reqIf('bacoDescricao', bacoAspecto==='alterado');
-    const bacoDiametroNum = num('bacoDiametro'); req('bacoDiametro');
+    const bacoDiametroNum = num('bacoDiametro');
+    reqIf('bacoDiametro', bacoAspecto!=='esplenectomia');
     const bacoDiametroTexto = blankOrValue(v('bacoDiametro'));
     const bacoMax = BACO_MAX[sexo];
     flag('bacoDiametro', bacoDiametroNum!==null && bacoDiametroNum > bacoMax);
     const bacoVrTexto = bacoMax.toFixed(1).replace('.',',')+' cm ('+(sexo==='masculino'?'homem':'mulher')+')';
+    const bacoAcessorioTamanhoTexto = blankOrValue(reqIf('bacoAcessorioTamanho', bacoAspecto==='acessorio'));
+    const bacoHemangiomaTerco = v('bacoHemangiomaTerco') || 'superior';
+    const bacoHemangiomaTamanhoTexto = blankOrValue(reqIf('bacoHemangiomaTamanho', bacoAspecto==='hemangioma'));
+
+    let bacoHtml;
+    let bacoImpressaoHD = null;
+    if(bacoAspecto==='esplenectomia'){
+      bacoHtml = 'Não visibilizado (relato de esplenectomia prévia).';
+      bacoImpressaoHD = 'Esplenectomia.';
+    } else if(bacoAspecto==='acessorio'){
+      bacoHtml = 'Forma, dimensões e contornos normais. Parênquima esplênico de textura sólida, homogênea, sem evidência de lesões sólidas ou císticas. Veia esplênica de calibre normal, medindo '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+'). Nota-se adjacente ao polo inferior, uma imagem nodular sólida, isoecogênica, bem delimitada, medindo '+span(bacoAcessorioTamanhoTexto)+', sugestiva de baço acessório.';
+      bacoImpressaoHD = 'Baço acessório.';
+    } else if(bacoAspecto==='esplenomegaliaLeve'){
+      bacoHtml = 'Morfologia, contornos e ecotextura normais, com dimensões aumentadas, medindo '+span(bacoDiametroTexto)+' cm (VR &lt; '+escapeHtml(bacoVrTexto)+').';
+      bacoImpressaoHD = 'Esplenomegalia leve.';
+    } else if(bacoAspecto==='esplenomegaliaVolumosa'){
+      bacoHtml = 'Dimensões muito aumentadas, medindo cerca de '+span(bacoDiametroTexto)+' cm (normal &lt; '+escapeHtml(bacoVrTexto)+'), ultrapassando a linha média e estendendo-se para a fossa ilíaca esquerda, comprimindo órgãos adjacentes.';
+      bacoImpressaoHD = 'Esplenomegalia volumosa.';
+    } else if(bacoAspecto==='hemangioma'){
+      bacoHtml = 'Forma, dimensões e contornos normais, medindo '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+'). Nota-se imagem nodular sólida, hiperecogênica e homogênea, de contornos bem definidos e regulares, sem artefato posterior e sem fluxo ao Doppler, localizada no terço '+bacoHemangiomaTerco+', medindo '+span(bacoHemangiomaTamanhoTexto)+' cm.';
+      bacoImpressaoHD = 'Nódulo esplênico sugestivo de hemangioma.';
+    } else if(bacoAspecto==='alterado' && bacoDescricao){
+      bacoHtml = escapeHtml(bacoDescricao)+'. Diâmetro bipolar de '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+').';
+    } else {
+      bacoHtml = 'Forma, dimensões e contornos normais. Parênquima esplênico de textura sólida, homogênea, sem evidência de lesões sólidas ou císticas. Veia esplênica de calibre normal. Diâmetro bipolar de '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+').';
+    }
+
+    // ----- Achados adicionais (opcionais) -----
+    const chkApendice = $('chkApendice').checked;
+    const apendiceAspecto = v('apendiceAspecto');
+    let apendiceHtml = null;
+    let apendiceImpressaoHD = null;
+    if(chkApendice){
+      const apendiceAlterado = apendiceAspecto==='alterado';
+      const apendiceEspessuraTexto = blankOrValue(reqIf('apendiceEspessuraValor', apendiceAlterado));
+      apendiceHtml = apendiceAlterado
+        ? 'Em exame direcionado à fossa ilíaca direita observa-se apêndice cecal espessado, com espessura de '+span(apendiceEspessuraTexto)+' mm, com captação de fluxo em região infundibular e aumento da ecogenicidade mesentérica ao seu redor. Ausência de coleções. Não se identificou fecalito em seu interior ou linfonodos reacionais em fossa ilíaca direita.'
+        : 'Em exame direcionado à fossa ilíaca direita, apêndice cecal não dilatado, sem sinais de espessamento parietal, na topografia habitual.';
+      if(apendiceAlterado) apendiceImpressaoHD = 'Achados sugestivos de apendicite aguda não complicada.';
+    }
+
+    const chkAdenite = $('chkAdenite').checked;
+    const adeniteImpressaoHD = chkAdenite ? 'Linfonodos intraperitoneais levemente aumentados, dentre as hipóteses diagnósticas encontra-se a de adenite mesentérica.' : null;
+
+    const chkAscite = $('chkAscite').checked;
+    let asciteHtml = null;
+    let asciteImpressaoHD = null;
+    if(chkAscite){
+      const asciteGrau = v('asciteGrau') || 'leve';
+      const asciteAdjetivo = {leve:'Discreta', moderada:'Moderada', acentuada:'Acentuada'}[asciteGrau];
+      asciteHtml = asciteAdjetivo+' quantidade de líquido livre intraperitoneal, com aspecto anecoide homogêneo, se estendendo do fundo de saco posterior e goteiras parietocólicas até os espaços hepato e espleno-renais.';
+      const asciteRotulo = {leve:'discreta', moderada:'moderada', acentuada:'acentuada'}[asciteGrau];
+      asciteImpressaoHD = 'Ascite '+asciteRotulo+'.';
+    }
 
     // ----- Impressão -----
     const state = {
       chkEsteatose, pctGorduraNum, pctGorduraTexto, grauInfo,
+      figadoAspecto, figadoImpressaoDeposito, rinsImpressaoHD, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
+      apendiceImpressaoHD, adeniteImpressaoHD, asciteImpressaoHD,
       obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
@@ -1267,9 +1707,6 @@ if(typeof criarMotorLaudo !== 'function'){
 
     blocks.push({id:'aoExameLabel', html:'<p class="linha intro intro-last">Ao exame:</p>'});
 
-    const figadoTextoBase = (figadoAspecto==='alterado' && figadoDescricao)
-      ? escapeHtml(figadoDescricao)+'.'
-      : 'Dimensões normais, forma anatômica, bordas finas e contornos lisos e regulares. Parênquima com ecogenicidade usual e textura homogênea, sem identificação de lesões intraparenquimatosas. Veia porta, seus ramos e veias hepáticas sem alterações.';
     blocks.push({id:'figado', html:'<p class="linha"><strong>Fígado:</strong> '+figadoTextoBase+' O lobo direito mede '+span(loboDTexto)+' cm e o lobo esquerdo mede '+span(loboETexto)+' cm no eixo longitudinal (VR: lobo direito até 15,5 cm e lobo esquerdo até 11,0 cm).</p>'});
 
     const vesiculaTextoBase = (vesiculaAspecto==='alterado' && vesiculaDescricao)
@@ -1282,25 +1719,21 @@ if(typeof criarMotorLaudo !== 'function'){
       : 'De topografia, dimensões e forma usuais, apresentando parênquima com ecogenicidade habitual. Não há evidência de dilatação do ducto pancreático principal. Região peri-pancreática sem alterações.';
     blocks.push({id:'pancreas', html:'<p class="linha"><strong>Pâncreas:</strong> '+pancreasTexto+'</p>'});
 
-    const rinsTextoTail = (rinsAspecto==='alterado' && rinsDescricao)
-      ? escapeHtml(rinsDescricao)+'.'
-      : 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureteres sem sinais de dilatações. Espaço perirrenal livre.';
     blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> Topografia, forma, contornos e mobilidade normais. O rim direito mede '+span(rimDireitoTexto)+' cm, e o esquerdo, '+span(rimEsquerdoTexto)+' cm. '+rinsTextoTail+'</p>'});
 
-    const bexigaTexto = (bexigaAspecto==='alterado' && bexigaDescricao)
-      ? escapeHtml(bexigaDescricao)+'.'
-      : 'De topografia usual, boa repleção, contorno interno regular e conteúdo anecoico. Meatos ureterais pérvios, sem alterações.';
     blocks.push({id:'bexiga', html:'<p class="linha"><strong>Bexiga:</strong> '+bexigaTexto+'</p>'});
 
-    const vasosTexto = (vasosAspecto==='alterado' && vasosDescricao)
-      ? escapeHtml(vasosDescricao)+'.'
-      : 'Aorta abdominal, veia cava inferior e artérias ilíacas de trajeto e calibre normais. Ausência de sinais de linfonodomegalia periaórtico-caval.';
     blocks.push({id:'vasos', html:'<p class="linha"><strong>Grandes vasos abdominais:</strong> '+vasosTexto+'</p>'});
 
-    const bacoTextoBase = (bacoAspecto==='alterado' && bacoDescricao)
-      ? escapeHtml(bacoDescricao)+'.'
-      : 'Forma, dimensões e contornos normais. Parênquima esplênico de textura sólida, homogênea, sem evidência de lesões sólidas ou císticas. Veia esplênica de calibre normal.';
-    blocks.push({id:'baco', html:'<p class="linha"><strong>Baço:</strong> '+bacoTextoBase+' Diâmetro bipolar de '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+').</p>'});
+    if(apendiceHtml){
+      blocks.push({id:'apendice', html:'<p class="linha"><strong>Apêndice cecal:</strong> '+apendiceHtml+'</p>'});
+    }
+
+    blocks.push({id:'baco', html:'<p class="linha"><strong>Baço:</strong> '+bacoHtml+'</p>'});
+
+    if(asciteHtml){
+      blocks.push({id:'ascite', html:'<p class="linha">'+asciteHtml+'</p>'});
+    }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
