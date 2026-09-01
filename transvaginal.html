@@ -689,7 +689,7 @@
             </select>
           </div>
           <div class="field conditional" id="wrap_endometrioPadrao"><label>Padrão</label>
-            <select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option></select>
+            <select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option><option value="ecogenico">Ecogênico</option></select>
           </div>
         </div>
         <div class="field-row conditional" id="wrap_polipoCampos">
@@ -2344,7 +2344,8 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const endometrioEspessura = blankOrValue(reqIf('endometrioEspessura', uteroPresente));
     const endometrioAspecto = v('endometrioAspecto');
-    const endometrioPadrao = v('endometrioPadrao')==='secretor' ? 'secretor' : 'trilaminar';
+    const ENDOMETRIO_PADRAO_TEXTO = {trilaminar:'trilaminar', secretor:'secretor', laminar:'laminar', ecogenico:'ecogênico'};
+    const endometrioPadrao = ENDOMETRIO_PADRAO_TEXTO[v('endometrioPadrao')] || 'trilaminar';
     const polipoLocalizacao = v('polipoLocalizacao');
     const polipoPediculo = v('polipoPediculo');
     const polipoMedida = blankOrValue(reqIf('polipoMedida', endometrioAspecto==='polipo'));
