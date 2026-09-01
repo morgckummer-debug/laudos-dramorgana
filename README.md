@@ -2,7 +2,14 @@
 
 Laudos personalizados de ultrassonografia obstétrica/ginecológica — Dra. Morgana Kummer.
 
-Cada laudo é um arquivo HTML autônomo (sem build, abre direto no navegador). `index.html` lista os laudos disponíveis; cada laudo também tem um dropdown no cabeçalho ("Trocar de laudo") para navegar entre eles.
+Cada laudo é um arquivo HTML (sem build) que carrega, ao lado, o `laudo-core.js` — o motor comum aos sete: paginação da impressão, ajuste automático de fonte e entrelinha, barra de formatação, rascunho automático, máscara de CPF e validação de decimais. Consertar qualquer uma dessas coisas é **uma edição só, no `laudo-core.js`, valendo para os sete laudos**; o que é de um laudo só (as medidas, as impressões diagnósticas, o texto) continua dentro do `.html` dele. O `CLAUDE.md` explica a divisão.
+
+Como o motor é um arquivo à parte, o `.html` não abre mais sozinho fora da pasta do projeto: aberto solto, ele mostra um aviso dizendo que falta o `laudo-core.js`. Pelo endereço da clínica no navegador os dois estão sempre juntos.
+
+`index.html` lista os laudos disponíveis; cada laudo também tem um dropdown no cabeçalho ("Trocar de laudo") para navegar entre eles.
+
+## Arquivos
+- `laudo-core.js` — o motor compartilhado pelos sete laudos (ver `CLAUDE.md`)
 
 ## Laudos disponíveis
 - `transvaginal.html` — Ultrassonografia Transvaginal
@@ -10,6 +17,7 @@ Cada laudo é um arquivo HTML autônomo (sem build, abre direto no navegador). `
 - `morfologico-1trimestre.html` — Ultrassonografia Morfológica de 1º Trimestre (marcadores de trissomias, Doppler das uterinas e rastreamento de pré-eclâmpsia)
 - `obstetrico.html` — Ultrassonografia Obstétrica de 2º/3º Trimestre (feto único, gemelar ou trigemelar)
 - `morfologico-2trimestre.html` — Ultrassonografia Obstétrica Morfológica de 2º Trimestre (avaliação morfológica fetal órgão a órgão, biometria estendida e cordão umbilical; feto único, gemelar ou trigemelar)
+- `pelvico-infantil.html` — Ultrassonografia Pélvica Infantil (propedêutica de puberdade precoce)
 - `rastreamento-ovulacao.html` — Ultrassonografia Transvaginal para Rastreamento de Ovulação (útero, ovários e acompanhamento folicular visita a visita, até a identificação do corpo lúteo)
 
 ## Gestação múltipla (`obstetrico.html`)

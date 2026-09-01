@@ -1,10 +1,11 @@
 # laudos-dramorgana
 
-Três laudos de ultrassonografia, cada um um arquivo HTML autônomo, sem build e
-sem CSS/JS compartilhado entre eles. O `README.md` descreve laudo a laudo (o que
-cada um tem, o rascunho automático, o layout de referência); este arquivo trata
-do que não se vê olhando um laudo isolado: a integração com o app de Curva de
-Crescimento e as armadilhas de manutenção que já morderam antes.
+Sete laudos de ultrassonografia, cada um um arquivo HTML, sem build, mais um
+**`laudo-core.js`** que os sete carregam: o motor comum a todos eles. O
+`README.md` descreve laudo a laudo (o que cada um tem, o rascunho automático, o
+layout de referência); este arquivo trata do que não se vê olhando um laudo
+isolado: o que é do motor e o que é de cada laudo, a integração com o app de
+Curva de Crescimento e as armadilhas de manutenção que já morderam antes.
 
 ## Publicação
 
@@ -13,6 +14,86 @@ deployment", ~1 minuto após o push). Confirmado em 2026-08-23 pelo `head_branch
 dos runs. Merge na `main` = está no ar — mas o navegador da médica pode segurar
 a versão antiga em cache: quando ela disser que a mudança "não apareceu", peça um
 hard refresh antes de sair investigando o código.
+
+## `laudo-core.js`: conserta-se num lugar só
+
+Até 2026-09-01 os sete laudos carregavam cada um a sua cópia do mesmo motor —
+paginação da impressão, ajuste automático de fonte e entrelinha, barra de
+formatação, rascunho automático, máscara de CPF, validação de decimais. Toda
+correção nessa parte era a mesma edição feita sete vezes, à mão, e bastava
+esquecer um arquivo para o conserto valer só em seis.
+
+**Não era hipótese: já tinha acontecido.** No dia da extração, o guard de
+`wireDecimalInputs` (que impede o mesmo `<input>` ganhar um listener novo a cada
+`render()`) existia em quatro laudos e faltava em três; `packAt()`,
+`paginateForPrint()` e `updatePagePreview()` tinham duas versões diferentes
+circulando, e outras oito funções divergiam em comentários — sinal de conserto
+aplicado num arquivo e copiado a meio caminho nos outros.
+
+Hoje esse motor é um arquivo só, `laudo-core.js`, e cada laudo o carrega antes
+do próprio `<script>`:
+
+```html
+<script src="laudo-core.js"></script>
+```
+
+**Mudança no motor = mudança nos sete de uma vez, sem tocar em nenhum `.html`.**
+É esse o ponto. O cabeçalho do `laudo-core.js` explica a interface; o resumo:
+
+- O laudo cria o motor na **primeira linha** de dentro do IIFE, com
+  `criarMotorLaudo({...})`, e desestrutura dele o que for usar.
+- Tudo o que o motor recebe em `cfg` é **função** (`render: () => render()`),
+  de propósito: assim ele pode ser criado antes de qualquer `const` do laudo
+  existir, sem esbarrar em TDZ.
+- **O estado que os dois lados escrevem vive em `motor.st`** —
+  `st.printPaginated`, `st.draftReady`, `st.lastBlockHtml`, `st.draftTimer` e
+  companhia. No laudo eles se escrevem sempre com o `st.` na frente. Declarar um
+  `let printPaginated` local de novo não dá erro nenhum: só cria uma segunda
+  cópia que se desgarra da do motor em silêncio, que é exatamente o tipo de bug
+  que essa extração veio matar.
+
+### Conferindo uma mudança no motor
+
+Como o `laudo-core.js` vale para os sete, um erro nele quebra os sete de uma vez
+— e nem todo estrago aparece na tela do laudo em que se estava mexendo.
+`ferramentas/testar-laudos.mjs` abre os sete num Chromium, preenche tudo com
+valores fixos, imprime, salva o rascunho, baixa o Word e guarda o HTML que saiu
+de cada passo; rodado antes e depois, aponta qual laudo mudou de comportamento.
+
+```
+npx http-server . -p 8901 -s &
+node ferramentas/testar-laudos.mjs http://127.0.0.1:8901 antes.json
+# ... a mudança ...
+node ferramentas/testar-laudos.mjs http://127.0.0.1:8901 depois.json
+node ferramentas/testar-laudos.mjs --comparar antes.json depois.json
+```
+
+Foi assim que a própria extração do motor foi conferida: das dezenas de valores
+comparados, os únicos que mudaram nos sete laudos foram os três esperados — o
+guard de decimais passando a existir em `pelvico-infantil`,
+`rastreamento-ovulacao` e `transvaginal`. Todo o resto, incluindo o HTML do
+laudo montado, saiu byte a byte igual.
+
+### O que continua dentro de cada `.html`
+
+O motor é o que não muda de laudo para laudo. O que é do laudo continua nele, e
+é bastante: `render()`, `buildImpressao()`, `buildReportHtml()`, `WORD_COPY`,
+`renderChecklist()`, `tituloExame()`, `draftSnapshot()`, `draftRestore()`,
+`draftInit()`, `applyVRToInputs()`, `VR`/`PHRASES` e a integração com a Curva de
+Crescimento. Essas divergem de propósito — cada laudo mede coisas diferentes.
+
+Ao criar um laudo novo, o caminho é copiar um laudo parecido, apagar o que é
+dele e **não** recopiar o motor: o `<script src="laudo-core.js">` já entrega
+tudo aquilo pronto.
+
+### O laudo não abre mais sozinho, fora da pasta
+
+O preço de ter um motor só é que o `.html` deixou de ser um arquivo que se abre
+solto: sem o `laudo-core.js` do lado, ele carrega e não monta nada. Cada laudo
+tem, logo depois do `<script src>`, um teste de `typeof criarMotorLaudo` que
+mostra um aviso explicando o que falta — em vez de deixar a médica diante de uma
+tela pela metade, sem pista nenhuma. Pelo GitHub Pages os dois arquivos estão
+sempre juntos e nada disso aparece.
 
 ## ⚠️ "Add files via upload" apaga o que foi corrigido aqui
 
@@ -26,6 +107,14 @@ Já aconteceu, e custou um dia inteiro de integração quebrada em silêncio: em
 `bb5ecd4` (artérias uterinas); às 12h59 do mesmo dia o upload `3b10dc0` desfez os
 dois. Só foram recolocados no dia seguinte (`74bb127`), depois de alguém
 perguntar "está tudo integrado?".
+
+Com o motor separado há uma terceira forma disso acontecer: subir por upload uma
+cópia **antiga** de um laudo — de antes de 2026-09-01 — devolve aquele arquivo ao
+tempo em que ele trazia o motor inteiro dentro de si. Ele até funciona (ignora o
+`laudo-core.js` e usa a cópia velha que carrega), e é justamente por funcionar
+que passa despercebido: aquele laudo simplesmente para de receber os consertos
+feitos no motor, calado. Se um laudo começar a divergir dos outros seis sem
+motivo, confira se ele ainda tem o `<script src="laudo-core.js">` no topo.
 
 Duas consequências práticas:
 
@@ -59,9 +148,9 @@ rascunho gravava o laudo já paginado, e a duplicação voltava a cada abertura.
 O que segura isso hoje, e precisa continuar valendo em qualquer mexida no
 pipeline de impressão:
 
-- **`printPaginated`** marca o intervalo. `render()` adia (`renderPendingAfterPrint`,
+- **`st.printPaginated`** marca o intervalo. `render()` adia (`st.renderPendingAfterPrint`,
   rodado pelo `restore()`) e `updatePagePreview()` sai na hora.
-- **`unwrapPrintPages(root)`** desfaz a paginação: tira os blocos das
+- **`unwrapPrintPages(root)`** (no `laudo-core.js`) desfaz a paginação: tira os blocos das
   `.print-page` e mantém só um elemento por `data-blk` — o resto (o
   "Continua…", o espaçador da assinatura, a cópia do cabeçalho, o
   `<ul class="impressao">` remontado) é andaime de impressão e vai fora. Roda
