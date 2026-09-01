@@ -278,3 +278,28 @@ triamniótica só aparece com três, as de dois só aparecem com dois. O check d
 banco é uma lista única, então ele não impede a combinação errada — quem impede
 é o select de cada app. Se for mexer na lista, mexa nos dois: `updateGestacaoWrap()`
 aqui e `_gestacaoTipoUI()` lá.
+
+### Flags booleanas da gestação: sempre ratchet, nunca sobrescrita
+
+`ppt_espontaneo_previo`, `progesterona_vaginal_em_uso` e `cerclagem_realizada`
+(+ `cerclagem_ig_semanas`) alimentam `avaliarRiscoColoCurto()` do lado do
+`curva-fetal` — o alerta de colo curto lê esses campos para não sugerir de novo
+cerclagem ou progesterona já feitas, nem "avaliar cerclagem" com a gestante já
+fora da janela de 2º trimestre (migrações `009` e `010` do `curva-fetal`).
+
+Os dois laudos (`obstetrico.html`, `obstetrico-1trimestre.html`) gravam esses
+três campos com o mesmo padrão: grava `true` quando o checkbox aqui está
+marcado **e** a gestação ainda não tinha o campo como `true`; nunca escreve
+`false` por cima de um `true` já salvo. Um laudo é uma visita — não teria como
+saber se um "true" gravado numa visita anterior (por este laudo, pelo outro
+trimestre, ou direto no app de curvas) deixou de valer; um checkbox
+desmarcado aqui só significa "não mexi nisso agora", não "reverteu". Se
+algum dia um desses campos precisar mesmo ser desfeito (ex.: cerclagem
+removida), isso é edição manual na gestação, no app de curvas — não este
+formulário.
+
+Ao adicionar uma flag nova nesse molde, siga o mesmo padrão: campo no
+formulário perto do antecedente de PPT, coluna no `select` que busca a
+gestação ativa, valor no `insert` (gestação nova) e um `if(check && !valorNoBanco)`
+próprio no bloco de gestação existente — nunca um único `else if` cobrindo
+várias flags, porque aí só a primeira verdadeira do laudo seria gravada.

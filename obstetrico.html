@@ -503,6 +503,11 @@
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
         </div>
         <div class="toggle-line"><input type="checkbox" id="pptEspontaneoPrevio"><label for="pptEspontaneoPrevio">Antecedente de parto prematuro espontâneo</label></div>
+        <div class="toggle-line"><input type="checkbox" id="progesteronaVaginalEmUso"><label for="progesteronaVaginalEmUso">Em uso de progesterona vaginal</label></div>
+        <div class="toggle-line"><input type="checkbox" id="cerclagemRealizada"><label for="cerclagemRealizada">Cerclagem realizada</label></div>
+        <div class="field-row conditional" id="wrap_cerclagemIG">
+          <div class="field"><label>IG da cerclagem (semanas)</label><input type="text" inputmode="numeric" id="cerclagemIgSemanas" placeholder="ex: 14"></div>
+        </div>
         <div class="field"><label>Motivo do exame — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de avaliação de crescimento fetal."></textarea></div>
       </div>
     </div>
@@ -1275,6 +1280,7 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkDopplerFetal').addEventListener('change', e=>{ toggle('dopplerFetalFields', e.target.checked); updateAllFetoWraps(); render(); });
   $('chkPBF').addEventListener('change', e=>{ toggle('hintPBF', e.target.checked); updateAllFetoWraps(); render(); });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
+  $('cerclagemRealizada').addEventListener('change', e=>{ toggle('wrap_cerclagemIG', e.target.checked); });
 
   // ---------- Feto(s): lista dinâmica, mesmo padrão dos sacos gestacionais do
   // obstetrico-1trimestre.html — cada card guarda um uid estável, então remover
@@ -2684,6 +2690,9 @@ if(typeof criarMotorLaudo !== 'function'){
     const isMultiple = uids.length > 1;
     const gpaGVal = num('gpaG'), gpaPVal = num('gpaP'), gpaAVal = num('gpaA');
     const pptEspontaneoPrevioVal = $('pptEspontaneoPrevio').checked;
+    const progesteronaVaginalEmUsoVal = $('progesteronaVaginalEmUso').checked;
+    const cerclagemRealizadaVal = $('cerclagemRealizada').checked;
+    const cerclagemIgSemanasVal = cerclagemRealizadaVal ? num('cerclagemIgSemanas') : null;
 
     const btn = $('btnSalvarCG');
     btn.disabled = true;
@@ -2717,7 +2726,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       // 2) Busca a gestação ativa dessa paciente — cria automaticamente se não houver
       let {data: gestacao, error: errGest} = await cgClient
-        .from('gestacoes').select('id, gestas, partos, abortos, ppt_espontaneo_previo').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
+        .from('gestacoes').select('id, gestas, partos, abortos, ppt_espontaneo_previo, progesterona_vaginal_em_uso, cerclagem_realizada').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
       if(errGest) throw errGest;
 
       if(!gestacao){
@@ -2735,7 +2744,7 @@ if(typeof criarMotorLaudo !== 'function'){
         const tipoGestacao = uids.length > 2 ? 'trigemelar' : (isMultiple ? 'gemelar' : 'unica');
         const corionicidadeAtual = isMultiple ? v('corionicidade') : null;
         const {data: novaGestacao, error: errCriaGest} = await cgClient
-          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: tipoGestacao, corionicidade: corionicidadeAtual, gestas: gpaGVal, partos: gpaPVal, abortos: gpaAVal, ppt_espontaneo_previo: pptEspontaneoPrevioVal})
+          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: tipoGestacao, corionicidade: corionicidadeAtual, gestas: gpaGVal, partos: gpaPVal, abortos: gpaAVal, ppt_espontaneo_previo: pptEspontaneoPrevioVal, progesterona_vaginal_em_uso: progesteronaVaginalEmUsoVal, cerclagem_realizada: cerclagemRealizadaVal, cerclagem_ig_semanas: cerclagemIgSemanasVal})
           .select('id').single();
         if(errCriaGest) throw errCriaGest;
         gestacao = novaGestacao;
@@ -2778,6 +2787,16 @@ if(typeof criarMotorLaudo !== 'function'){
           const {error: errUpdatePpt} = await cgClient
             .from('gestacoes').update({ppt_espontaneo_previo: true}).eq('id', gestacao.id);
           if(errUpdatePpt) throw errUpdatePpt;
+        }
+        if(progesteronaVaginalEmUsoVal && !gestacao.progesterona_vaginal_em_uso){
+          const {error: errUpdateProg} = await cgClient
+            .from('gestacoes').update({progesterona_vaginal_em_uso: true}).eq('id', gestacao.id);
+          if(errUpdateProg) throw errUpdateProg;
+        }
+        if(cerclagemRealizadaVal && !gestacao.cerclagem_realizada){
+          const {error: errUpdateCerc} = await cgClient
+            .from('gestacoes').update({cerclagem_realizada: true, cerclagem_ig_semanas: cerclagemIgSemanasVal}).eq('id', gestacao.id);
+          if(errUpdateCerc) throw errUpdateCerc;
         }
       }
 
