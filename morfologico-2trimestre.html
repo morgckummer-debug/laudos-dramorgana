@@ -566,10 +566,6 @@
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima e os blocos ativados. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
-        <div class="field" style="margin-top:10px;">
-          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
-          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
-        </div>
       </div>
     </div>
 
@@ -1517,6 +1513,21 @@
       +'</div>';
   }
 
+  // Ao marcar um segmento como alterado, a caixa de descrição já abre com a
+  // frase padrão daquele segmento dentro: na prática quase sempre é um detalhe
+  // dela que muda, e obrigar a reescrever o parágrafo inteiro fazia perder o
+  // resto do texto normal. Só preenche caixa vazia — o que a médica já
+  // escreveu sobrevive a alternar normal/alterado, e voltar ao padrão é
+  // apagar a caixa e marcar alterado de novo.
+  function prefillSegmentoDescricao(uid, seg){
+    const sel = $('feto'+uid+seg.key);
+    const box = $('feto'+uid+seg.key+'Descricao');
+    if(!sel || !box) return false;
+    if(sel.value !== 'alterado' || box.value.trim()) return false;
+    box.value = phraseRaw(seg.phrase);
+    return true;
+  }
+
   function updateFetoWraps(uid){
     toggle('wrap_feto'+uid+'Dorso', v('feto'+uid+'Apresentacao')!=='córmica');
     toggle('wrap_feto'+uid+'PlacentaDescricao', v('feto'+uid+'PlacentaEspessura')==='alterada');
@@ -1554,6 +1565,10 @@
     wireDecimalInputs();
     ['Apresentacao','PlacentaEspessura'].concat(MORFO_SEGMENTOS.map(seg=>seg.key)).forEach(sufixo=>{
       $('feto'+uid+sufixo).addEventListener('change', ()=> updateFetoWraps(uid));
+    });
+    MORFO_SEGMENTOS.forEach(seg=>{
+      const sel = $('feto'+uid+seg.key);
+      if(sel) sel.addEventListener('change', ()=>{ if(prefillSegmentoDescricao(uid, seg)) render(); });
     });
     updateFetoWraps(uid);
     el.querySelector('.feto-remove').addEventListener('click', ()=>{
@@ -1831,13 +1846,6 @@
         ? phraseRaw('impColoAlterado')
         : phraseRaw('impColoNormal'), auto:true});
     }
-
-    // Observações livres: texto que a médica escreve fora de qualquer campo
-    // padrão — cada linha não-vazia vira seu próprio item, já com o texto dela
-    // (não um gabarito), então editar/desmarcar funciona igual aos demais.
-    state.obsLinhas.forEach((linha, idx)=>{
-      items.push({key:'obs-'+idx, label: linha, auto:true});
-    });
 
     return items;
   }
@@ -2197,17 +2205,25 @@
       const percentilNum = num(pre+'Percentil');
 
       // Segmentos morfológicos: texto padrão quando normal; quando alterado,
-      // entra a descrição digitada e o achado sobe para a impressão.
+      // entra a descrição editada e o achado sobe para a impressão.
       const alteracoes = [];
       const segmentos = MORFO_SEGMENTOS.map(seg=>{
+        const generica = phraseRaw(seg.phrase);
         const alterado = v(pre+seg.key)==='alterado';
         const descricao = vNoDot(pre+seg.key+'Descricao');
-        if(alterado && descricao){
+        // A caixa de descrição já nasce com a frase padrão dentro
+        // (prefillSegmentoDescricao), então "tem texto" não quer mais dizer
+        // "tem achado": enquanto a frase voltar igual ao padrão, o segmento
+        // segue normal. Sem isso, marcar "alterado" e ainda não ter mexido em
+        // nada inventaria um achado na Impressão Diagnóstica e apagaria a
+        // frase de ausência de anomalias.
+        const reescrita = !!descricao && descricao !== generica.replace(/\.+\s*$/, '');
+        if(alterado && reescrita){
           alteracoes.push({slug: seg.slug, titulo: seg.titulo, descricao: descricao});
         }
         return {
           titulo: seg.titulo,
-          texto: (alterado && descricao) ? (descricao+'.') : phraseRaw(seg.phrase)
+          texto: (alterado && descricao) ? (descricao+'.') : generica
         };
       });
 
@@ -2288,8 +2304,7 @@
       isMultiple, corTxt, fetos,
       discordanciaTxt, discordanciaAlterada, discordanciaNum,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
-      colo, coloAlterado,
-      obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
+      colo, coloAlterado
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
