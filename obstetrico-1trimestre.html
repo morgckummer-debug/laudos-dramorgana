@@ -724,8 +724,57 @@
   // junto do estado que ele protege, e não lá embaixo com o resto do rascunho,
   // para já existir antes do primeiro render().
   let draftRestoring = false;
+  // ---------- Estado de impressão: o #paper remontado em folhas ----------
+  // Entre o 'beforeprint' e o 'afterprint', paginateForPrint() troca o conteúdo
+  // do #paper por uma sequência de <div class="print-page">. Nesse intervalo os
+  // blocos do laudo deixam de ser filhos diretos do #paper — e tudo o que
+  // reconcilia, mede ou salva o laudo conta com eles ali.
+  let printPaginated = false;
+  let renderPendingAfterPrint = false;
+
+  // Desfaz o que paginateForPrint() monta: tira os blocos de dentro das
+  // .print-page, joga fora o "Continua…", os espaçadores que empurram a
+  // assinatura para o pé da folha e as cópias repetidas de um mesmo bloco (o
+  // cabeçalho de identificação vai repetido no topo de cada folha a partir da
+  // 2ª). Serve tanto para o #paper vivo quanto para um clone ou para o HTML
+  // que volta do rascunho.
+  //
+  // Sem isto o laudo duplicava: um autosave que caísse no meio da impressão
+  // — o debounce de 800 ms dos espaços recém-digitados, ou o
+  // 'visibilitychange' que a janela de impressão dispara — gravava no rascunho
+  // o laudo já paginado. Na volta, renderBlocks() procurava os blocos em
+  // ':scope > [data-blk]' e não achava nenhum (estavam um nível abaixo, dentro
+  // das .print-page), concluía que o laudo estava vazio e montava outro por
+  // cima — sem conseguir remover o antigo, invisível pela mesma consulta.
+  // Resultado: o laudo inteiro duas vezes.
+  function unwrapPrintPages(root){
+    if(!root || !root.querySelector(':scope > .print-page')) return false;
+    Array.from(root.children).forEach(page=>{
+      if(!page.classList || !page.classList.contains('print-page')) return;
+      while(page.firstChild) root.insertBefore(page.firstChild, page);
+      page.remove();
+    });
+    // Do que sobra, só fica o que renderBlocks() sabe reconciliar: um bloco por
+    // data-blk, o primeiro de cada. O resto é andaime da impressão — o
+    // "Continua…", o espaçador que empurra a assinatura para o pé da folha, a
+    // cópia do cabeçalho de identificação no topo de cada folha e o
+    // <ul class="impressao"> remontado (a lista pode ser cortada ao meio, e
+    // cada pedaço volta sem o data-blk do bloco original).
+    const vistos = {};
+    Array.from(root.children).forEach(el=>{
+      const id = el.getAttribute ? el.getAttribute('data-blk') : null;
+      if(!id || vistos[id]) el.remove(); else vistos[id] = true;
+    });
+    return true;
+  }
+
   function renderBlocks(blocks){
     const paperEl = $('paper');
+    // Rede de segurança: se por qualquer caminho o laudo chegar aqui ainda
+    // paginado, desfaz antes de reconciliar — a consulta ':scope > [data-blk]'
+    // abaixo não enxerga bloco nenhum dentro de uma .print-page e duplicaria o
+    // laudo inteiro.
+    unwrapPrintPages(paperEl);
     let prevNode = null;
     const keepIds = new Set();
     blocks.forEach(b=>{
@@ -1895,6 +1944,9 @@
   }
 
   function updatePagePreview(){
+    // O debounce de 250 ms pode vencer com a impressão já em curso: aí o #paper
+    // está em folhas e a contagem sairia sobre a remontagem, não sobre o laudo.
+    if(printPaginated) return;
     const paperEl = $('paper');
     paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
 
@@ -1933,6 +1985,10 @@
 
   function render(){
     if(draftRestoring) return;
+    // Durante a impressão o #paper está remontado em folhas e será reposto
+    // inteiro pelo 'afterprint': o que fosse renderizado agora seria jogado
+    // fora ali. Fica anotado e roda assim que a impressão termina.
+    if(printPaginated){ renderPendingAfterPrint = true; return; }
     pendingCount = 0;
     function req(id){
       const val = v(id);
@@ -2324,6 +2380,9 @@
   function paginateForPrint(){
     const paperEl = $('paper');
     paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    // Um 'afterprint' que não chegou a disparar deixaria o laudo em folhas:
+    // paginar por cima disso guardaria a remontagem como "original".
+    unwrapPrintPages(paperEl);
     const originalHTML = paperEl.innerHTML;
     const originalLineHeight = paperEl.style.lineHeight;
     const originalFontSize = paperEl.style.fontSize;
@@ -2376,12 +2435,15 @@
       }
       wrap.appendChild(pageEl);
     });
+    printPaginated = true;
     paperEl.innerHTML = wrap.innerHTML;
 
     return function restore(){
       paperEl.innerHTML = originalHTML;
       paperEl.style.lineHeight = originalLineHeight;
       paperEl.style.fontSize = originalFontSize;
+      printPaginated = false;
+      if(renderPendingAfterPrint){ renderPendingAfterPrint = false; render(); }
       updatePagePreview();
     };
   }
@@ -2555,6 +2617,10 @@
     // tirá-los daqui, voltariam duplicados junto com o rascunho.
     const clone = $('paper').cloneNode(true);
     clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    // O autosave pode cair com a impressão em curso (o 'visibilitychange' da
+    // janela de impressão chama draftSaveNow() na hora): o rascunho guarda
+    // sempre o laudo desmontado, nunca as folhas de impressão.
+    unwrapPrintPages(clone);
     return clone.innerHTML;
   }
 
@@ -2711,6 +2777,9 @@
     // sabendo o que é texto gerado e o que é texto digitado.
     if(typeof d.paper === 'string' && d.paper){
       $('paper').innerHTML = d.paper;
+      // Rascunhos gravados antes desta correção podem trazer o laudo já
+      // paginado (e até duplicado): desmonta antes de seguir.
+      unwrapPrintPages($('paper'));
       lastBlockHtml = (d.blocks && typeof d.blocks === 'object') ? d.blocks : {};
       updatePagePreview();
     }
