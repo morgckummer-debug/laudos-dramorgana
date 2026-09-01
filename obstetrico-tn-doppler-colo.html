@@ -458,7 +458,7 @@
             <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
           </div>
           <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade / amnionicidade</label>
-            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option></select>
+            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option></select>
           </div>
         </div>
       </div>
@@ -1190,6 +1190,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Ducto venoso — percentil</label><select id="feto'+uid+'DVClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
       +'</div>'
 
+      +'<div id="feto'+uid+'RiscoWrap">'
       +'<p class="feto-sub">Risco para Síndrome de Down (T21)</p>'
       +'<p class="hint-perfeto">Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).</p>'
       +'<div class="field-row">'
@@ -1198,6 +1199,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Risco para cromossomopatias</label><select id="feto'+uid+'RiscoClasse"><option value="baixo">Baixo risco</option><option value="alto">Risco aumentado</option></select></div>'
+      +'</div>'
       +'</div>'
 
       +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
@@ -1281,7 +1283,24 @@ if(typeof criarMotorLaudo !== 'function'){
       const primeira = Array.from(sel.options).find(o=> !o.hidden);
       if(primeira) sel.value = primeira.value;
     }
+    updateRiscoCompartilhado();
   }
+  // Gemelar monocoriônica (diamniótica ou monoamniótica): o risco de Down é
+  // um cálculo só, igual pros dois fetos — não faz sentido pedir (e mostrar)
+  // dois conjuntos de valores que deveriam ser idênticos. O card de risco do
+  // segundo feto some do formulário; só o do Feto 1 é usado, no laudo impresso
+  // e na impressão, com o rótulo "ambos os fetos". Trigemelar nunca é
+  // monocoriônica nas opções deste laudo, então isso só se aplica a 2 fetos.
+  function updateRiscoCompartilhado(){
+    const uids = fetoUids();
+    const corVal = v('corionicidade');
+    const mono = uids.length === 2 && (corVal === 'monocorionica_diamniotica' || corVal === 'monocorionica_monoamniotica');
+    uids.forEach((uid, idx)=>{
+      const el = $('feto'+uid+'RiscoWrap');
+      if(el) el.style.display = (mono && idx > 0) ? 'none' : '';
+    });
+  }
+  $('corionicidade').addEventListener('change', updateRiscoCompartilhado);
   $('numeroFetos').addEventListener('change', e=>{
     setFetoCount(Math.min(Math.max(parseInt(e.target.value,10)||1, 1), MAX_FETOS));
   });
@@ -1456,11 +1475,20 @@ if(typeof criarMotorLaudo !== 'function'){
 
     items.push({key:'vitalidade', label: phraseRaw('impVitalidade'), auto:true});
 
-    state.fetos.forEach(f=>{
-      items.push({key:k('cromossomopatias', f), label: pre(f) + (f.riscoAlto
+    // Gemelar monocoriônica: risco calculado uma vez só (ver
+    // updateRiscoCompartilhado()) — um item de checklist só, não um por feto.
+    if(state.monoCompartilhado){
+      const f = state.fetos[0];
+      items.push({key:'cromossomopatias', label: 'Ambos os fetos: ' + (f.riscoAlto
         ? phraseRaw('impCromossomopatiasAlto')
         : phraseRaw('impCromossomopatiasBaixo')), auto:true});
-    });
+    } else {
+      state.fetos.forEach(f=>{
+        items.push({key:k('cromossomopatias', f), label: pre(f) + (f.riscoAlto
+          ? phraseRaw('impCromossomopatiasAlto')
+          : phraseRaw('impCromossomopatiasBaixo')), auto:true});
+      });
+    }
 
     if(state.dopplerMaterno){
       items.push({key:'uterinas', label: phraseRaw('impUterinas', {PERCENTIL: state.utPercentilTxt || '__'}), auto:true});
@@ -1523,14 +1551,16 @@ if(typeof criarMotorLaudo !== 'function'){
   // só o que de fato foi pedido/avaliado (a de só colo, sem Doppler, segue o
   // mesmo padrão da de só Doppler, que a Dra. Morgana deu como exemplo).
   function tituloDoLaudo(isMultiple, numFetos, dopplerMaterno, colo){
-    const multiploTxt = numFetos >= 3 ? ' Trigemelar' : (isMultiple ? ' Gemelar' : '');
-    const base = 'Ultrassom Obstétrico' + multiploTxt + ' com Translucência Nucal';
+    // Maiúsculas para bater com o título impresso dos outros seis laudos
+    // (todos em CAIXA ALTA) — este era o único ainda em title case.
+    const multiploTxt = numFetos >= 3 ? ' TRIGEMELAR' : (isMultiple ? ' GEMELAR' : '');
+    const base = 'ULTRASSOM OBSTÉTRICO' + multiploTxt + ' COM TRANSLUCÊNCIA NUCAL';
     const extras = [];
-    if(dopplerMaterno) extras.push('Doppler');
-    if(colo) extras.push('medida do colo uterino');
+    if(dopplerMaterno) extras.push('DOPPLER');
+    if(colo) extras.push('MEDIDA DO COLO UTERINO');
     if(extras.length === 0) return base;
-    if(extras.length === 1) return base + ' e ' + extras[0];
-    return base + ', ' + extras.join(' e ');
+    if(extras.length === 1) return base + ' E ' + extras[0];
+    return base + ', ' + extras.join(' E ');
   }
 
   // ---------- Main render ----------
@@ -1596,9 +1626,15 @@ if(typeof criarMotorLaudo !== 'function'){
       dicorionica_diamniotica: 'dicoriônica e diamniótica',
       monocorionica_diamniotica: 'monocoriônica e diamniótica',
       monocorionica_monoamniotica: 'monocoriônica e monoamniótica',
-      tricorionica_triamniotica: 'tricoriônica e triamniótica'
+      tricorionica_triamniotica: 'tricoriônica e triamniótica',
+      dicorionica_triamniotica: 'dicoriônica e triamniótica'
     };
-    const corTxt = corTxtMap[v('corionicidade')] || 'dicoriônica e diamniótica';
+    const corVal = v('corionicidade');
+    const corTxt = corTxtMap[corVal] || 'dicoriônica e diamniótica';
+    // Gemelar monocoriônica: risco de Down calculado uma vez só, ver
+    // updateRiscoCompartilhado() acima (mantém o card do Feto 2 escondido no
+    // formulário).
+    const monoCompartilhado = uids.length === 2 && (corVal === 'monocorionica_diamniotica' || corVal === 'monocorionica_monoamniotica');
 
     // ----- Ao exame: útero e placenta (medidas da mãe, uma vez só) -----
     const placentaInsercao = v('placentaInsercao');
@@ -1656,7 +1692,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // ----- Impressão -----
     const state = {
       semanas: semanasTxt, dias: diasTxt, ig: igTxt, metodoTxt,
-      isMultiple, corTxt, fetos,
+      isMultiple, corTxt, fetos, monoCompartilhado,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       colo, coloAlterado
     };
@@ -1735,16 +1771,29 @@ if(typeof criarMotorLaudo !== 'function'){
     // Risco para Down: sempre a última tabela antes da placenta/líquido, por
     // isso fica fora do forEach acima (depois da biometria de todos os fetos
     // e do Doppler), num laço à parte.
-    fetos.forEach(f=>{
-      const sfx = '-f'+f.uid;
-      const riscoTitulo = 'Risco para Síndrome de Down (T21)'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+':';
-      blocks.push({id:'riscos'+sfx, html:'<div style="text-align:center;">'
+    // Gemelar monocoriônica: um card só, com os valores do Feto 1 (o card do
+    // Feto 2 fica escondido no formulário — updateRiscoCompartilhado()).
+    if(monoCompartilhado){
+      const f = fetos[0];
+      const riscoTitulo = 'Risco para Síndrome de Down (T21) — ambos os fetos:';
+      blocks.push({id:'riscos-compartilhado', html:'<div style="text-align:center;">'
         +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
         +'<div class="risk-card"><table class="biometria" style="text-align:left;">'
         +'<tr><td>Risco basal (idade materna):</td><td style="white-space:nowrap;">1: '+span(f.riscoBasal)+'</td></tr>'
         +'<tr><td>Risco pós-teste (IM + TN + DV):</td><td style="white-space:nowrap;">1: '+span(f.riscoPosTeste)+'</td></tr>'
         +'</table></div></div>'});
-    });
+    } else {
+      fetos.forEach(f=>{
+        const sfx = '-f'+f.uid;
+        const riscoTitulo = 'Risco para Síndrome de Down (T21)'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+':';
+        blocks.push({id:'riscos'+sfx, html:'<div style="text-align:center;">'
+          +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
+          +'<div class="risk-card"><table class="biometria" style="text-align:left;">'
+          +'<tr><td>Risco basal (idade materna):</td><td style="white-space:nowrap;">1: '+span(f.riscoBasal)+'</td></tr>'
+          +'<tr><td>Risco pós-teste (IM + TN + DV):</td><td style="white-space:nowrap;">1: '+span(f.riscoPosTeste)+'</td></tr>'
+          +'</table></div></div>'});
+      });
+    }
 
     blocks.push({id:'placentaLiquido', html:'<p class="linha">'+phrase('placentaLiquidoTexto')+'</p>'});
 

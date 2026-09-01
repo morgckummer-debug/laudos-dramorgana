@@ -510,7 +510,7 @@
             <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
           </div>
           <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade / amnionicidade</label>
-            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option></select>
+            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option></select>
           </div>
         </div>
       </div>
@@ -1876,7 +1876,8 @@ if(typeof criarMotorLaudo !== 'function'){
       dicorionica_diamniotica: 'dicoriônica e diamniótica',
       monocorionica_diamniotica: 'monocoriônica e diamniótica',
       monocorionica_monoamniotica: 'monocoriônica e monoamniótica',
-      tricorionica_triamniotica: 'tricoriônica e triamniótica'
+      tricorionica_triamniotica: 'tricoriônica e triamniótica',
+      dicorionica_triamniotica: 'dicoriônica e triamniótica'
     };
     const corTxt = corTxtMap[v('corionicidade')] || 'dicoriônica e diamniótica';
 
