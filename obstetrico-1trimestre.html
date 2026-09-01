@@ -1929,6 +1929,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const clone = paperEl.cloneNode(true);
     copyComputedToClone(paperEl, clone);
     clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    // Se a impressão/PDF anterior deixou o laudo em folhas (o 'afterprint' que
+    // não chegou a disparar — ver aviso em paginateForPrint()), o clone abaixo
+    // herdaria as cópias do cabeçalho de identificação repetidas em cada
+    // folha, duplicando o nome da paciente no Word gerado.
+    unwrapPrintPages(clone);
     // O importador de HTML do Word aplica a lista com marcador dele em
     // qualquer <ul><li> que enxerga, ignorando list-style:none (o marcador vem
     // do mso-list dele, não do CSS) — empilhando um marcador do Word em cima

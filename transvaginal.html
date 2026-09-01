@@ -390,7 +390,7 @@
     <div class="field"><label>1 ou 2 filhos — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_utero1a2" value="140"></div>
     <div class="field"><label>3 filhos — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_utero3" value="160"></div>
     <div class="field"><label>4 ou mais filhos — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_utero4mais" value="180"></div>
-    <div class="field"><label>Menopausa — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroMenopausa" value="40"></div>
+    <div class="field"><label>Menopausa — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroMenopausa" value="70"></div>
     <div class="field"><label>Adolescência — máx. normal (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroAdolescencia" value="40"></div>
   </div>
   <hr class="sep">
@@ -606,7 +606,7 @@
               <option value="1a2">1 ou 2 filhos (VR até <span class="vr-utero1a2">140</span> cm³)</option>
               <option value="3">3 filhos (VR até <span class="vr-utero3">160</span> cm³)</option>
               <option value="4mais">4 ou mais filhos (VR até <span class="vr-utero4mais">180</span> cm³)</option>
-              <option value="menopausa">Menopausa (VR até <span class="vr-uteroMenopausa">40</span> cm³)</option>
+              <option value="menopausa">Menopausa (VR até <span class="vr-uteroMenopausa">70</span> cm³)</option>
               <option value="adolescencia">Adolescência (VR até <span class="vr-uteroAdolescencia">40</span> cm³)</option>
             </select>
           </div>
@@ -1769,7 +1769,7 @@ if(typeof criarMotorLaudo !== 'function'){
     medicoQual1:'Especialista em Ultrassonografia Geral pelo CBR.',
     medicoQual2:'Pós-Graduação em Medicina Fetal pela FCMMG.',
     medicoCRM:'CRMMG: 45.304 - RQE: 39.156',
-    uteroNenhum:90, utero1a2:140, utero3:160, utero4mais:180, uteroMenopausa:40, uteroAdolescencia:40,
+    uteroNenhum:90, utero1a2:140, utero3:160, utero4mais:180, uteroMenopausa:70, uteroAdolescencia:40,
     ovarioMin:3, ovarioMax:9, ovarioMenopausa:5
   };
   const UTERO_VR_LIMIT = {
@@ -1847,7 +1847,7 @@ if(typeof criarMotorLaudo !== 'function'){
       utero1a2: pf('vr_utero1a2', 140),
       utero3: pf('vr_utero3', 160),
       utero4mais: pf('vr_utero4mais', 180),
-      uteroMenopausa: pf('vr_uteroMenopausa', 40),
+      uteroMenopausa: pf('vr_uteroMenopausa', 70),
       uteroAdolescencia: pf('vr_uteroAdolescencia', 40),
       ovarioMin: pf('vr_ovarioMin', 3),
       ovarioMax: pf('vr_ovarioMax', 9),
@@ -2654,6 +2654,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const clone = paperEl.cloneNode(true);
     copyComputedToClone(paperEl, clone);
     clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    // Se a impressão/PDF anterior deixou o laudo em folhas (o 'afterprint' que
+    // não chegou a disparar — ver aviso em paginateForPrint()), o clone abaixo
+    // herdaria as cópias do cabeçalho de identificação repetidas em cada
+    // folha, duplicando o nome da paciente no Word gerado.
+    unwrapPrintPages(clone);
     // Word's HTML importer auto-applies its own bulleted list to any <ul><li>
     // it sees, ignoring list-style:none entirely (it drives the bullet off
     // its own mso-list machinery, not CSS) — stacking a Word bullet on top of

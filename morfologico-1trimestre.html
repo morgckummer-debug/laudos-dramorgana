@@ -2157,6 +2157,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const clone = paperEl.cloneNode(true);
     copyComputedToClone(paperEl, clone);
     clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    // Se a impressão/PDF anterior deixou o laudo em folhas (o 'afterprint' que
+    // não chegou a disparar — ver aviso em paginateForPrint()), o clone abaixo
+    // herdaria as cópias do cabeçalho de identificação repetidas em cada
+    // folha, duplicando o nome da paciente no Word gerado.
+    unwrapPrintPages(clone);
     const liveLi = paperEl.querySelector('ul.impressao li');
     const liStyle = liveLi ? getComputedStyle(liveLi) : null;
     clone.querySelectorAll('ul.impressao').forEach(ul=>{
