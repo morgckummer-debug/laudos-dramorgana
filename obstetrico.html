@@ -494,6 +494,7 @@
           <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="pptEspontaneoPrevio"><label for="pptEspontaneoPrevio">Antecedente de parto prematuro espontâneo</label></div>
         <div class="field"><label>Motivo do exame — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de avaliação de crescimento fetal."></textarea></div>
       </div>
     </div>
@@ -2674,6 +2675,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!uids.length){ cgToast('Nenhum feto preenchido.', true); return; }
     const isMultiple = uids.length > 1;
     const gpaGVal = num('gpaG'), gpaPVal = num('gpaP'), gpaAVal = num('gpaA');
+    const pptEspontaneoPrevioVal = $('pptEspontaneoPrevio').checked;
 
     const btn = $('btnSalvarCG');
     btn.disabled = true;
@@ -2707,7 +2709,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       // 2) Busca a gestação ativa dessa paciente — cria automaticamente se não houver
       let {data: gestacao, error: errGest} = await cgClient
-        .from('gestacoes').select('id, gestas, partos, abortos').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
+        .from('gestacoes').select('id, gestas, partos, abortos, ppt_espontaneo_previo').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
       if(errGest) throw errGest;
 
       if(!gestacao){
@@ -2725,7 +2727,7 @@ if(typeof criarMotorLaudo !== 'function'){
         const tipoGestacao = uids.length > 2 ? 'trigemelar' : (isMultiple ? 'gemelar' : 'unica');
         const corionicidadeAtual = isMultiple ? v('corionicidade') : null;
         const {data: novaGestacao, error: errCriaGest} = await cgClient
-          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: tipoGestacao, corionicidade: corionicidadeAtual, gestas: gpaGVal, partos: gpaPVal, abortos: gpaAVal})
+          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: tipoGestacao, corionicidade: corionicidadeAtual, gestas: gpaGVal, partos: gpaPVal, abortos: gpaAVal, ppt_espontaneo_previo: pptEspontaneoPrevioVal})
           .select('id').single();
         if(errCriaGest) throw errCriaGest;
         gestacao = novaGestacao;
@@ -2759,6 +2761,15 @@ if(typeof criarMotorLaudo !== 'function'){
           const {error: errUpdateGpa} = await cgClient
             .from('gestacoes').update({gestas: gestasFinal, partos: partosFinal, abortos: abortosFinal}).eq('id', gestacao.id);
           if(errUpdateGpa) throw errUpdateGpa;
+        }
+
+        // Só grava quando marcado aqui e a gestação ainda não tinha o antecedente
+        // registrado — nunca desmarca um "sim" já salvo (pelo app de curvas ou por
+        // um laudo anterior) só porque esta tela abriu sem o checkbox marcado.
+        if(pptEspontaneoPrevioVal && !gestacao.ppt_espontaneo_previo){
+          const {error: errUpdatePpt} = await cgClient
+            .from('gestacoes').update({ppt_espontaneo_previo: true}).eq('id', gestacao.id);
+          if(errUpdatePpt) throw errUpdatePpt;
         }
       }
 
