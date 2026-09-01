@@ -1032,7 +1032,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impCromossomopatiasAlto: 'A Translucência Nucal apresenta-se aumentada, o que eleva o risco para cromossomopatias – sugere-se avaliação especializada e aconselhamento genético.',
     impUterinas: 'Doppler das artérias estudadas dentro da normalidade (IP médio no percentil {PERCENTIL} para a idade gestacional).',
     impColoNormal: 'Colo uterino sem anormalidades.',
-    impColoAlterado: 'Colo uterino curto — aumento do risco de parto prematuro.',
+    impColoAlterado: 'Colo curto para a idade gestacional - Sugere-se reavaliação para risco de prematuridade com 16-18 semanas.',
     impMorfologico2T: 'Sugere-se a realização do morfológico do 2º trimestre entre 22 e 24 semanas. A medida da Translucência Nucal consiste num teste de rastreamento e não de diagnóstico. Valores normais não excluem a possibilidade de cromossomopatias.',
     impCalculoRiscoTN: 'Cálculo de risco realizado de acordo com o protocolo da FMF (https://fetalmedicine.org/research/assess/trisomie).',
 
@@ -1394,8 +1394,15 @@ if(typeof criarMotorLaudo !== 'function'){
   function deemphasizeSecondary(html){
     const marca = 'Não podemos excluir';
     const idx = html.indexOf(marca);
-    if(idx === -1) return html;
-    return html.slice(0, idx) + '<span style="font-weight:400;">' + html.slice(idx) + '</span>';
+    if(idx !== -1){
+      html = html.slice(0, idx) + '<span style="font-weight:400;">' + html.slice(idx) + '</span>';
+    }
+    const marcaColo = 'Sugere-se reavaliação para risco de prematuridade';
+    const idxColo = html.indexOf(marcaColo);
+    if(idxColo !== -1){
+      html = html.slice(0, idxColo) + '<span style="font-weight:400;">' + html.slice(idxColo) + '</span>';
+    }
+    return html;
   }
   // ---------- Doppler: percentil do IP médio das artérias uterinas,
   // Gómez O, Figueras F, Fernández S, Bennasar M, Martínez JM, Puerto B,
@@ -1653,7 +1660,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(colo){
       coloComprimentoVal = blankOrValue(req('coloComprimento'));
       const coloNum = num('coloComprimento');
-      coloAlterado = coloNum!=null && coloNum < 25;
+      coloAlterado = coloNum!=null && coloNum < 30;
     }
 
     // ----- Doppler materno das uterinas (percentil automático — Gómez 2008) -----

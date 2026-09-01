@@ -1105,7 +1105,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impPreEclampsia2: 'Rastreamento combinado do 1º trimestre: risco aumentado (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e, no presente caso, associa-se à elevação da pressão arterial e/ou do IP médio das artérias uterinas, reforçando a relevância clínica do achado. Há indicação de profilaxia com AAS em baixa dose, de início precoce.',
     impPreEclampsia3: 'Rastreamento combinado do 1º trimestre: risco aumentado (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e mantém relevância clínica mesmo na presença isolada de pressão arterial e IP médio das artérias uterinas dentro da normalidade. Há indicação de profilaxia com AAS em baixa dose, de início precoce.',
     impColoNormal: 'Colo uterino sem anormalidades.',
-    impColoAlterado: 'Colo uterino curto — aumento do risco de parto prematuro.',
+    impColoAlterado: 'Colo curto para a idade gestacional - Sugere-se reavaliação para risco de prematuridade com 16-18 semanas.',
     impMorfologico2T: 'Sugere-se a realização do morfológico do 2º trimestre entre 22 e 24 semanas.',
 
     footerImagens: 'Imagens em anexo.'
@@ -1590,6 +1590,11 @@ if(typeof criarMotorLaudo !== 'function'){
     if(idxTricuspide !== -1){
       html = html.slice(0, idxTricuspide) + '<span style="font-weight:400;">' + html.slice(idxTricuspide) + '</span>';
     }
+    const marcaColo = 'Sugere-se reavaliação para risco de prematuridade';
+    const idxColo = html.indexOf(marcaColo);
+    if(idxColo !== -1){
+      html = html.slice(0, idxColo) + '<span style="font-weight:400;">' + html.slice(idxColo) + '</span>';
+    }
     return html;
   }
 
@@ -1887,7 +1892,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const placentaInsercao = v('placentaInsercao');
     const coloComprimentoVal = blankOrValue(req('coloComprimento'));
     const coloNum = num('coloComprimento');
-    const coloAlterado = coloNum!=null && coloNum < 25;
+    const coloAlterado = coloNum!=null && coloNum < 30;
 
     // ----- Doppler materno das uterinas (percentil automático — Gómez 2008) -----
     const dopplerMaterno = $('chkDopplerMaterno').checked;
