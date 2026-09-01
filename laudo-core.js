@@ -556,6 +556,28 @@ function criarMotorLaudo(cfg){
       }
     });
   }
+  function wirePastePlainText(paperEl){
+    // Colar dentro do #paper com o HTML original do clipboard é o mesmo risco
+    // que o Enter no meio do título (ver o comentário no laudo, perto do
+    // keydown): se o texto colado veio de dentro do próprio #paper — a médica
+    // seleciona um trecho do laudo já escrito para usar de base numa observação
+    // nova —, o HTML copiado carrega o atributo data-blk junto. O navegador não
+    // cola isso como filho direto do #paper (que teria pelo menos a chance de
+    // ser limpo por renderBlocks()): ele insere no ponto do cursor, quase
+    // sempre dentro do último bloco existente. O resultado é um data-blk
+    // duplicado *dentro* de outro bloco, invisível para a consulta
+    // ':scope > [data-blk]' de renderBlocks() — e por isso nunca mais some,
+    // sobrevivendo a cada render() como se o laudo tivesse duplicado sozinho.
+    // Colar sempre como texto puro fecha esse caminho de uma vez, venha o
+    // texto de dentro do próprio laudo ou de fora (Word, e-mail, WhatsApp).
+    if(paperEl.dataset.pastePlainWired) return;
+    paperEl.dataset.pastePlainWired = '1';
+    paperEl.addEventListener('paste', e=>{
+      e.preventDefault();
+      const texto = (e.clipboardData || window.clipboardData).getData('text/plain');
+      document.execCommand('insertText', false, texto);
+    });
+  }
   function wireDecimalInputs(){
     document.querySelectorAll('input[data-decimals]').forEach(el=>{
       if(el.dataset.decimalsWired) return;
@@ -651,6 +673,7 @@ function criarMotorLaudo(cfg){
     updatePagePreview: updatePagePreview,
     v: v,
     vNoDot: vNoDot,
-    wireDecimalInputs: wireDecimalInputs
+    wireDecimalInputs: wireDecimalInputs,
+    wirePastePlainText: wirePastePlainText
   };
 }

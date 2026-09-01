@@ -710,7 +710,7 @@ if(typeof criarMotorLaudo !== 'function'){
     draftFingerprint, draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule,
     escapeHtml, nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview,
     setDefaultDataExame, setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview,
-    v, vNoDot, wireDecimalInputs
+    v, vNoDot, wireDecimalInputs, wirePastePlainText
   } = motor;
 
 
@@ -731,6 +731,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // ---------- Format toolbar: bold/italic/underline/align + line-height + font-size ----------
   (function(){
     const paperEl = $('paper');
+    wirePastePlainText(paperEl);
     const btnBold = $('fmtBold');
     const btnItalic = $('fmtItalic');
     const btnUnderline = $('fmtUnderline');

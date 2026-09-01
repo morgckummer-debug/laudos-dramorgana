@@ -1100,7 +1100,7 @@ if(typeof criarMotorLaudo !== 'function'){
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
     nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
-    vNoDot, wireDecimalInputs
+    vNoDot, wireDecimalInputs, wirePastePlainText
   } = motor;
 
 
@@ -1130,6 +1130,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // selection made by the user is still there when execCommand runs. ----------
   (function(){
     const paperEl = $('paper');
+    wirePastePlainText(paperEl);
     const btnBold = $('fmtBold');
     const btnItalic = $('fmtItalic');
     const btnUnderline = $('fmtUnderline');
