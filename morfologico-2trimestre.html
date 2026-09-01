@@ -1494,19 +1494,25 @@
       +'<div class="field"><label>Face</label><select id="feto'+uid+'Face"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'</div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'CranioDescricao"><label>Descreva o achado — Crânio / cérebro</label><textarea id="feto'+uid+'CranioDescricao" rows="2"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'CranioResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'CranioResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'FaceDescricao"><label>Descreva o achado — Face</label><textarea id="feto'+uid+'FaceDescricao" rows="2"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'FaceResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'FaceResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Coluna vertebral</label><select id="feto'+uid+'Coluna"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'<div class="field"><label>Tórax / coração</label><select id="feto'+uid+'Torax"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'</div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'ColunaDescricao"><label>Descreva o achado — Coluna vertebral</label><textarea id="feto'+uid+'ColunaDescricao" rows="2"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'ColunaResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'ColunaResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'ToraxDescricao"><label>Descreva o achado — Tórax / coração</label><textarea id="feto'+uid+'ToraxDescricao" rows="2"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'ToraxResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'ToraxResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Abdome</label><select id="feto'+uid+'Abdome"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'<div class="field"><label>Membros fetais</label><select id="feto'+uid+'Membros"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'</div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'AbdomeDescricao"><label>Descreva o achado — Abdome</label><textarea id="feto'+uid+'AbdomeDescricao" rows="2"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'AbdomeResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'AbdomeResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'MembrosDescricao"><label>Descreva o achado — Membros fetais</label><textarea id="feto'+uid+'MembrosDescricao" rows="2"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'MembrosResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'MembrosResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
 
       +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
       +'</div>'
@@ -1532,7 +1538,9 @@
     toggle('wrap_feto'+uid+'Dorso', v('feto'+uid+'Apresentacao')!=='córmica');
     toggle('wrap_feto'+uid+'PlacentaDescricao', v('feto'+uid+'PlacentaEspessura')==='alterada');
     MORFO_SEGMENTOS.forEach(seg=>{
-      toggle('wrap_feto'+uid+seg.key+'Descricao', v('feto'+uid+seg.key)==='alterado');
+      const alt = v('feto'+uid+seg.key)==='alterado';
+      toggle('wrap_feto'+uid+seg.key+'Descricao', alt);
+      toggle('wrap_feto'+uid+seg.key+'Resumo', alt);
     });
   }
   function updateAllFetoWraps(){ fetoUids().forEach(updateFetoWraps); }
@@ -2218,8 +2226,14 @@
         // nada inventaria um achado na Impressão Diagnóstica e apagaria a
         // frase de ausência de anomalias.
         const reescrita = !!descricao && descricao !== generica.replace(/\.+\s*$/, '');
+        // O corpo do laudo leva a descrição inteira; a conclusão, se ficasse
+        // com o mesmo texto, herdaria um parágrafo — o resumo é uma frase
+        // objetiva à parte. Vazio, a conclusão repete a descrição (mesmo
+        // comportamento de antes deste campo existir; nenhum achado some por
+        // falta de preenchimento).
+        const resumo = vNoDot(pre+seg.key+'Resumo') || descricao;
         if(alterado && reescrita){
-          alteracoes.push({slug: seg.slug, titulo: seg.titulo, descricao: descricao});
+          alteracoes.push({slug: seg.slug, titulo: seg.titulo, descricao: resumo});
         }
         return {
           titulo: seg.titulo,
