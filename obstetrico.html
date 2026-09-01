@@ -429,9 +429,9 @@
 
   <hr class="sep">
   <h3>Impressões diagnósticas — base</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação — use {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (2 fetos) — use {CORIONICIDADE}, {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar (3 fetos) — use {CORIONICIDADE}, {SEMANAS} e {DIAS}</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação — use {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (2 fetos) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar (3 fetos) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso antes de 21 semanas (sem percentil)</label><textarea id="ph_impPesoNormalidade" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso adequado — use {PERCENTIL}</label><textarea id="ph_impPesoAdequado" rows="2"></textarea></div>
@@ -1191,9 +1191,9 @@
     laValoresBolsao: 'Maior bolsão: {BOLSAO} cm',
     laValoresIla: 'ILA: {ILA} cm (P{ILAP})',
 
-    impGestacao: 'Gestação eutópica, compatível com {SEMANAS} semanas e {DIAS} dias.',
-    impGestacaoMultipla: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias.',
-    impGestacaoTrigemelar: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias.',
+    impGestacao: 'Gestação eutópica, compatível com {IG}.',
+    impGestacaoMultipla: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
+    impGestacaoTrigemelar: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
     impBoaEvolucao: 'Gestação com boa evolução.',
     impPesoNormalidade: 'Peso fetal dentro da normalidade.',
     impPesoAdequado: 'Peso fetal no percentil {PERCENTIL} (Hadlock).',
@@ -1780,7 +1780,7 @@
     const gestacaoKey = !state.isMultiple ? 'impGestacao'
       : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla');
     items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
-      {CORIONICIDADE:state.corTxt, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+      {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
 
     const algumAchado = state.fetos.some(f=> f.laAlterado || f.placentaAlterada || f.placentaPrevia || f.pesoKey==='impPesoPIG')
       || state.discordanciaAlterada;
@@ -2059,7 +2059,15 @@
   // chutada em "em", porque o texto do rótulo ("Maior bolsão:") é mais longo
   // que "Diâmetro biparietal (DBP):" mais o valor sozinhos e sairia da conta
   // se calculada à mão. Roda depois de todo render(), já com os blocos no ar.
+  //
+  // O IP médio das artérias uterinas (Doppler Materno) mostra o valor na
+  // mesma posição de coluna que o CF/CA e o ILA — quando a tabela ocupa a
+  // linha inteira (não dividida meio a meio com o Doppler Fetal), a 1ª
+  // célula dela ganha a mesma largura, senão o rótulo "Artéria Uterina
+  // Direita:" (mais curto que "Diâmetro biparietal (DBP):" + valor) deixa o
+  // IP mais à frente que o ILA, descolado da coluna e quebrando a simetria.
   function alignIlaColumns(){
+    let sharedWidthEm = null;
     $('paper').querySelectorAll('table.grade-la').forEach(laTable=>{
       const laBlk = laTable.closest('[data-blk^="la-"]');
       if(!laBlk) return;
@@ -2075,8 +2083,22 @@
       // ela encolhe junto — biometria e ILA usam a mesma fonte — mantendo o
       // alinhamento em qualquer tamanho de fonte.
       const fontSizePx = parseFloat(getComputedStyle(laRow.cells[0]).fontSize) || 16;
-      laRow.cells[0].style.width = (widthPx / fontSizePx) + 'em';
+      const widthEm = widthPx / fontSizePx;
+      laRow.cells[0].style.width = widthEm + 'em';
+      if(sharedWidthEm === null || widthEm > sharedWidthEm) sharedWidthEm = widthEm;
     });
+    if(sharedWidthEm !== null){
+      $('paper').querySelectorAll('table.doppler-materno').forEach(dopplerTable=>{
+        // Lado a lado com o Doppler Fetal (2 colunas de 50%): a tabela já
+        // ocupa só metade da linha, forçar a mesma largura da biometria
+        // (calculada para a página inteira) estouraria essa metade.
+        const wrapperTd = dopplerTable.closest('td');
+        if(wrapperTd && wrapperTd.parentElement && wrapperTd.parentElement.children.length > 1) return;
+        Array.from(dopplerTable.rows).forEach(row=>{
+          if(row.cells.length > 0) row.cells[0].style.width = sharedWidthEm + 'em';
+        });
+      });
+    }
   }
 
   function render(){
@@ -2107,8 +2129,19 @@
     const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
     const igAtualEl = $('igAtual');
     if(igAtualEl) igAtualEl.value = igAtualTxt;
+    // Datação por ultrassom do 1º trimestre: não há DUM informada, então o
+    // cabeçalho troca a linha "DUM: ____" (sempre em branco nesse método)
+    // pela frase que explica de onde veio a IG atual, com a mesma IG já
+    // corrigida no final — em vez de mostrar um campo vazio ao lado dela.
+    const usgDataDatacaoTxt = v('usgDataDatacao');
+    const usgSemanasDatacaoTxt = v('usgSemanasDatacao');
+    const usgDiasDatacaoTxt = v('usgDiasDatacao');
     const semanasTxt = gaDays!=null ? String(Math.floor(gaDays/7)) : '____';
     const diasTxt = gaDays!=null ? String(gaDays%7) : '____';
+    // {IG}: "X semanas e Y dia(s)" já formatado (sem "e 0 dias", "1 dia" no
+    // singular — igual ao IG atual do cabeçalho), para a frase de gestação
+    // da impressão não montar esse trecho na mão com {SEMANAS}/{DIAS} soltos.
+    const igTxt = gaDays!=null ? formatIG(gaDays) : '____ semanas e ____ dias';
 
     // ----- Gestação: único ou múltipla -----
     const uids = fetoUids();
@@ -2277,7 +2310,7 @@
 
     // ----- Impressão -----
     const state = {
-      semanas: semanasTxt, dias: diasTxt,
+      semanas: semanasTxt, dias: diasTxt, ig: igTxt,
       isMultiple, corTxt, fetos,
       discordanciaTxt, discordanciaAlterada, discordanciaNum,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
@@ -2302,8 +2335,13 @@
       // não há médico solicitante — tira a linha inteira do cabeçalho, em vez
       // de mostrar "Médico: ____" como se fosse um campo ainda não preenchido.
       +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
-      +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>IG atual:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>'
+      // G:0 já deixa implícito P:0 e A:0 (não há como ter parto/aborto sem
+      // gestação anterior) — nesse caso o cabeçalho fica só com "G: 0", sem
+      // repetir os dois campos zerados ao lado.
+      +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+(gpaG==='0' ? '' : ' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>'
+      +(cronologiaMetodo==='usg'
+        ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+'+'+span(blankOrValue(usgDiasDatacaoTxt))+' semanas: '+span(blankOrValue(igAtualTxt))+'</span></div>'
+        : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>IG atual:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
       +'</div>'});
 
     // Título acompanha os blocos ativados: sem nenhum é "SIMPLES", e cada
@@ -2337,7 +2375,7 @@
     // fetal entra dentro de cada feto e a materna, que é da mãe, vem uma vez
     // só depois de todos.
     const tabelaDopplerMaterno = ''
-      +'<table class="biometria" style="width:100%;">'
+      +'<table class="biometria doppler-materno" style="width:100%;">'
       +'<tr><td><strong style="text-decoration:underline;">Doppler Materno</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
       +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
       +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
@@ -2369,7 +2407,7 @@
       biometriaHtml += '<table class="biometria">'
         +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;">'+span(f.dbp)+' mm</td><td style="white-space:nowrap;">Comprimento femoral (CF):</td><td style="white-space:nowrap;">'+span(f.cf)+' mm</td></tr>'
         +'<tr><td style="white-space:nowrap;">Circunferência cefálica (CC):</td><td style="white-space:nowrap;">'+span(f.cc)+' mm</td><td style="white-space:nowrap;">Circunferência abdominal (CA):</td><td style="white-space:nowrap;">'+span(f.ca)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;"><strong>Peso fetal estimado:</strong></td><td colspan="3" style="white-space:nowrap;"><strong>'+span(f.peso)+' g</strong></td></tr>'
+        +'<tr><td style="white-space:nowrap;"><strong>Peso fetal estimado:</strong></td><td colspan="3" style="white-space:nowrap;"><strong>'+span(f.peso)+' gramas</strong></td></tr>'
         +'</table></div>';
       blocks.push({id:'biometria'+sfx, html:biometriaHtml});
 
