@@ -1517,6 +1517,18 @@ if(typeof criarMotorLaudo !== 'function'){
   $('paper').addEventListener('input', schedulePagePreview);
   window.addEventListener('resize', schedulePagePreview);
 
+  // Doppler e colo são cards opcionais — o título do laudo (e o nome do
+  // arquivo salvo, em tituloExame()) precisam refletir só o que de fato foi
+  // pedido/avaliado, não sempre os três juntos.
+  function tituloComplemento(dopplerMaterno, colo){
+    const extras = [];
+    if(dopplerMaterno) extras.push('DOPPLER');
+    if(colo) extras.push('COLO UTERINO');
+    if(extras.length === 0) return 'COM TRANSLUCÊNCIA NUCAL';
+    if(extras.length === 1) return 'COM TRANSLUCÊNCIA NUCAL E ' + extras[0];
+    return 'COM TRANSLUCÊNCIA NUCAL, ' + extras.join(' E ');
+  }
+
   // ---------- Main render ----------
   let pendingCount = 0;
   let printAttempted = false;
@@ -1667,8 +1679,9 @@ if(typeof criarMotorLaudo !== 'function'){
         : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
       +'</div>'});
 
-    let tituloTxt = 'ULTRASSOM OBSTÉTRICO COM TRANSLUCÊNCIA NUCAL, DOPPLER E COLO UTERINO';
-    if(isMultiple) tituloTxt = 'ULTRASSOM OBSTÉTRICO GEMELAR ' + (fetos.length >= 3 ? '(TRIGEMELAR) ' : '') + 'COM TRANSLUCÊNCIA NUCAL, DOPPLER E COLO UTERINO';
+    const tituloSufixo = tituloComplemento(dopplerMaterno, colo);
+    let tituloTxt = 'ULTRASSOM OBSTÉTRICO ' + tituloSufixo;
+    if(isMultiple) tituloTxt = 'ULTRASSOM OBSTÉTRICO GEMELAR ' + (fetos.length >= 3 ? '(TRIGEMELAR) ' : '') + tituloSufixo;
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml(tituloTxt)+'</h3>'});
 
     if(motivoExame || relatoOverride){
@@ -1925,9 +1938,15 @@ if(typeof criarMotorLaudo !== 'function'){
   // o arquivo já sair identificado e ir direto para a pasta da paciente.
   function tituloExame(){
     const n = fetoUids().length;
-    if(n >= 3) return 'Obstétrico Trigemelar com TN, Doppler e Colo';
-    if(n === 2) return 'Obstétrico Gemelar com TN, Doppler e Colo';
-    return 'Obstétrico com TN, Doppler e Colo';
+    const extras = [];
+    if($('chkDopplerMaterno').checked) extras.push('Doppler');
+    if($('chkColo').checked) extras.push('Colo');
+    const sufixo = extras.length === 0 ? 'com TN'
+      : extras.length === 1 ? 'com TN e ' + extras[0]
+      : 'com TN, ' + extras.join(' e ');
+    if(n >= 3) return 'Obstétrico Trigemelar ' + sufixo;
+    if(n === 2) return 'Obstétrico Gemelar ' + sufixo;
+    return 'Obstétrico ' + sufixo;
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
