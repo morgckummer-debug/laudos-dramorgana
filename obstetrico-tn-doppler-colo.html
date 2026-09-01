@@ -340,11 +340,11 @@
       <option value="transvaginal.html">Transvaginal</option>
       <option value="rastreamento-ovulacao.html">Rastreamento de Ovulação</option>
       <option value="pelvico-infantil.html">Pélvico Infantil</option>
-      <option value="obstetrico-1trimestre.html">Obstétrico — 1º Trimestre</option>
       <option value="obstetrico.html">Obstétrico Geral</option>
+      <option value="obstetrico-tn-doppler-colo.html" selected>Obstétrico — TN, Doppler e Colo</option>
+      <option value="obstetrico-1trimestre.html">Obstétrico — 1º Trimestre</option>
       <option value="morfologico-1trimestre.html">Morfológico — 1º Trimestre</option>
       <option value="morfologico-2trimestre.html">Morfológico — 2º Trimestre</option>
-      <option value="obstetrico-tn-doppler-colo.html" selected>Obstétrico — TN, Doppler e Colo</option>
     </select>
     <button class="btn-ghost" id="btnSettings">Assinatura do laudo</button>
     <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
@@ -1517,16 +1517,18 @@ if(typeof criarMotorLaudo !== 'function'){
   $('paper').addEventListener('input', schedulePagePreview);
   window.addEventListener('resize', schedulePagePreview);
 
-  // Doppler e colo são cards opcionais — o título do laudo (e o nome do
-  // arquivo salvo, em tituloExame()) precisam refletir só o que de fato foi
-  // pedido/avaliado, não sempre os três juntos.
-  function tituloComplemento(dopplerMaterno, colo){
+  // Doppler e colo são cards opcionais — o título impresso precisa refletir
+  // só o que de fato foi pedido/avaliado (a de só colo, sem Doppler, segue o
+  // mesmo padrão da de só Doppler, que a Dra. Morgana deu como exemplo).
+  function tituloDoLaudo(isMultiple, numFetos, dopplerMaterno, colo){
+    const multiploTxt = numFetos >= 3 ? ' Trigemelar' : (isMultiple ? ' Gemelar' : '');
+    const base = 'Ultrassom Obstétrico' + multiploTxt + ' com Translucência Nucal';
     const extras = [];
-    if(dopplerMaterno) extras.push('DOPPLER');
-    if(colo) extras.push('COLO UTERINO');
-    if(extras.length === 0) return 'COM TRANSLUCÊNCIA NUCAL';
-    if(extras.length === 1) return 'COM TRANSLUCÊNCIA NUCAL E ' + extras[0];
-    return 'COM TRANSLUCÊNCIA NUCAL, ' + extras.join(' E ');
+    if(dopplerMaterno) extras.push('Doppler');
+    if(colo) extras.push('medida do colo uterino');
+    if(extras.length === 0) return base;
+    if(extras.length === 1) return base + ' e ' + extras[0];
+    return base + ', ' + extras.join(' e ');
   }
 
   // ---------- Main render ----------
@@ -1679,9 +1681,7 @@ if(typeof criarMotorLaudo !== 'function'){
         : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
       +'</div>'});
 
-    const tituloSufixo = tituloComplemento(dopplerMaterno, colo);
-    let tituloTxt = 'ULTRASSOM OBSTÉTRICO ' + tituloSufixo;
-    if(isMultiple) tituloTxt = 'ULTRASSOM OBSTÉTRICO GEMELAR ' + (fetos.length >= 3 ? '(TRIGEMELAR) ' : '') + tituloSufixo;
+    const tituloTxt = tituloDoLaudo(isMultiple, fetos.length, dopplerMaterno, colo);
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml(tituloTxt)+'</h3>'});
 
     if(motivoExame || relatoOverride){
@@ -1938,15 +1938,9 @@ if(typeof criarMotorLaudo !== 'function'){
   // o arquivo já sair identificado e ir direto para a pasta da paciente.
   function tituloExame(){
     const n = fetoUids().length;
-    const extras = [];
-    if($('chkDopplerMaterno').checked) extras.push('Doppler');
-    if($('chkColo').checked) extras.push('Colo');
-    const sufixo = extras.length === 0 ? 'com TN'
-      : extras.length === 1 ? 'com TN e ' + extras[0]
-      : 'com TN, ' + extras.join(' e ');
-    if(n >= 3) return 'Obstétrico Trigemelar ' + sufixo;
-    if(n === 2) return 'Obstétrico Gemelar ' + sufixo;
-    return 'Obstétrico ' + sufixo;
+    if(n >= 3) return 'Obstétrico Trigemelar com TN';
+    if(n === 2) return 'Obstétrico Gemelar com TN';
+    return 'Obstétrico com TN';
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
