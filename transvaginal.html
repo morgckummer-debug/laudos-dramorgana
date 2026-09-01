@@ -1885,6 +1885,14 @@ if(typeof criarMotorLaudo !== 'function'){
     $('vrUteroCategoria').value = categoria;
   });
 
+  // Selecionar "Menopausa" no VR do útero também é sinal de que a paciente
+  // está na menopausa para o VR do ovário — evita esquecer de trocar os dois.
+  $('vrUteroCategoria').addEventListener('change', ()=>{
+    if($('vrUteroCategoria').value === 'menopausa'){
+      $('vrOvarioTipo').value = 'menopausa';
+    }
+  });
+
   $('miometrioAspecto').addEventListener('change', e=>{
     toggle('wrap_miomaDetalhes', e.target.value==='mioma');
     if(e.target.value==='mioma' && $('miomaNodulosContainer').children.length===0){
