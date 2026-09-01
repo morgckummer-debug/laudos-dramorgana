@@ -564,10 +564,6 @@
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
-        <div class="field" style="margin-top:10px;">
-          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
-          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
-        </div>
       </div>
     </div>
 
@@ -1839,13 +1835,6 @@
     items.push({key:'colo', label: state.coloAlterado ? phraseRaw('impColoAlterado') : phraseRaw('impColoNormal'), auto:true});
     items.push({key:'morfologico2t', label: phraseRaw('impMorfologico2T'), auto:true});
 
-    // Observações livres: texto que a médica escreve fora de qualquer campo
-    // padrão — cada linha não-vazia vira seu próprio item, já com o texto dela
-    // (não um gabarito), então editar/desmarcar funciona igual aos demais.
-    state.obsLinhas.forEach((linha, idx)=>{
-      items.push({key:'obs-'+idx, label: linha, auto:true});
-    });
-
     return items;
   }
 
@@ -2317,8 +2306,7 @@
       isMultiple, corTxt, fetos,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       preEclampsia, preEclampsiaOpcao, preEclampsiaRiscoTxt,
-      coloAlterado,
-      obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
+      coloAlterado
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
