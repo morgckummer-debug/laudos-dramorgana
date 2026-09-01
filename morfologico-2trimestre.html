@@ -216,7 +216,7 @@
      "Maior bolsão". Aqui as duas células só usam o padding natural da
      table.biometria, uma do lado da outra. */
   .paper table.grade-la{margin-bottom:var(--linha-margin, 1em);}
-  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;font-size:10pt;}
+  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;font-size:9.5pt;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -1112,7 +1112,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impColoNormal: 'Colo uterino longo e fechado. Baixo risco de parto prematuro.',
     impColoAlterado: 'Colo curto. Aumento do risco de parto prematuro.',
 
-    recomendacaoTexto: 'O exame realizado entre 20 e 24 semanas identifica até 90% dos defeitos congênitos. Achados negativos não significam ausência de malformações, pois existem algumas delas que só serão diagnosticadas no 3º trimestre, como por exemplo, malformações do sistema digestivo e músculo-esquelético. Este exame não exclui a necessidade de realização do ECOCARDIOGRAMA entre 24 e 28 semanas.',
+    recomendacaoTexto: 'O exame realizado entre 22 e 24 semanas identifica até 90% dos defeitos congênitos. Achados negativos não significam ausência de malformações, pois existem algumas delas que só serão diagnosticadas no 3º trimestre, como por exemplo, malformações do sistema digestivo e músculo-esquelético. Este exame não exclui a necessidade de realização do ECOCARDIOGRAMA entre 24 e 28 semanas.',
     footerImagens: 'Imagens em anexo.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
@@ -2151,7 +2151,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
-    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='10pt'; });
+    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='9.5pt'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
