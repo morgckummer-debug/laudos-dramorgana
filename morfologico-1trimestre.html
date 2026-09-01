@@ -2190,8 +2190,21 @@ if(typeof criarMotorLaudo !== 'function'){
     const liveIdCardEl = paperEl.querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
-    clone.querySelectorAll('.risk-card').forEach(el=>{ el.style.display='table'; el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='14px 26px'; el.style.margin='0 auto 10px'; });
-    clone.querySelectorAll('.risk-card-title').forEach(el=>{ el.style.textAlign='center'; });
+    // O Word (filtro HTML legado) ignora "display:table" num <div> — a
+    // caixa perdia o ajuste ao conteúdo, o respiro do padding e a
+    // centralização por margin:auto, mesmo com esses estilos inline. Uma
+    // <table> de verdade, com align="center" e o padding na <td>, é o que
+    // esse motor realmente sabe renderizar (mesma lógica do .id-card-row
+    // logo abaixo). Corda arredondada em si o Word não suporta de jeito
+    // nenhum (nem no .id-card do cabeçalho) — fica só na tela/PDF.
+    clone.querySelectorAll('.risk-card').forEach(el=>{
+      const table = document.createElement('table');
+      table.setAttribute('align', 'center');
+      table.setAttribute('style', 'border-collapse:collapse;margin:0 auto 10px;');
+      table.innerHTML = '<tr><td style="background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:14px 26px;">'+el.innerHTML+'</td></tr>';
+      el.replaceWith(table);
+    });
+    clone.querySelectorAll('.risk-card-title').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
