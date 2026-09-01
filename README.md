@@ -1,24 +1,32 @@
 # laudos-dramorgana
 
-Laudos personalizados de ultrassonografia obstétrica/ginecológica — Dra. Morgana Kummer.
+Laudos personalizados de ultrassonografia — Dra. Morgana Kummer. Cobrem três áreas: medicina interna, ginecologia e obstetrícia.
 
-Cada laudo é um arquivo HTML (sem build) que carrega, ao lado, o `laudo-core.js` — o motor comum aos sete: paginação da impressão, ajuste automático de fonte e entrelinha, barra de formatação, rascunho automático, máscara de CPF e validação de decimais. Consertar qualquer uma dessas coisas é **uma edição só, no `laudo-core.js`, valendo para os sete laudos**; o que é de um laudo só (as medidas, as impressões diagnósticas, o texto) continua dentro do `.html` dele. O `CLAUDE.md` explica a divisão.
+Cada laudo é um arquivo HTML (sem build) que carrega, ao lado, o `laudo-core.js` — o motor comum a todos: paginação da impressão, ajuste automático de fonte e entrelinha, barra de formatação, rascunho automático, máscara de CPF e validação de decimais. Consertar qualquer uma dessas coisas é **uma edição só, no `laudo-core.js`, valendo para todos os laudos**; o que é de um laudo só (as medidas, as impressões diagnósticas, o texto) continua dentro do `.html` dele. O `CLAUDE.md` explica a divisão.
 
 Como o motor é um arquivo à parte, o `.html` não abre mais sozinho fora da pasta do projeto: aberto solto, ele mostra um aviso dizendo que falta o `laudo-core.js`. Pelo endereço da clínica no navegador os dois estão sempre juntos.
 
-`index.html` lista os laudos disponíveis; cada laudo também tem um dropdown no cabeçalho ("Trocar de laudo") para navegar entre eles.
+`index.html` lista os laudos disponíveis, agrupados por categoria (Medicina Interna, Ginecológico, Obstétrico); cada laudo também tem um dropdown no cabeçalho ("Trocar de laudo"), agrupado da mesma forma, para navegar entre eles.
 
 ## Arquivos
-- `laudo-core.js` — o motor compartilhado pelos sete laudos (ver `CLAUDE.md`)
+- `laudo-core.js` — o motor compartilhado por todos os laudos (ver `CLAUDE.md`)
 
 ## Laudos disponíveis
+
+### Medicina Interna
+- `abdome-total.html` — Ultrassonografia de Abdome Total (fígado, vesícula e vias biliares, pâncreas, rins, bexiga, grandes vasos abdominais e baço; inclui quantificação de esteatose hepática pelo método QUS, com grau calculado automaticamente a partir do % de gordura informado). Sem CPF e sem integração com a Curva de Crescimento — não tem feto, nada a gravar em `patients`/`gestacoes`/`exams`.
+- `rins-vias-urinarias.html` — Ultrassonografia dos Rins e Vias Urinárias (rim direito e esquerdo, bexiga e volume urinário pré e pós-miccional). Mesma observação: sem CPF, sem integração com a Curva de Crescimento.
+
+### Ginecológico
 - `transvaginal.html` — Ultrassonografia Transvaginal
+- `rastreamento-ovulacao.html` — Ultrassonografia Transvaginal para Rastreamento de Ovulação (útero, ovários e acompanhamento folicular visita a visita, até a identificação do corpo lúteo)
+- `pelvico-infantil.html` — Ultrassonografia Pélvica Infantil (propedêutica de puberdade precoce)
+
+### Obstétrico
 - `obstetrico-1trimestre.html` — Ultrassonografia Obstétrica de 1º Trimestre (translucência nucal)
 - `morfologico-1trimestre.html` — Ultrassonografia Morfológica de 1º Trimestre (marcadores de trissomias, Doppler das uterinas e rastreamento de pré-eclâmpsia)
 - `obstetrico.html` — Ultrassonografia Obstétrica de 2º/3º Trimestre (feto único, gemelar ou trigemelar)
 - `morfologico-2trimestre.html` — Ultrassonografia Obstétrica Morfológica de 2º Trimestre (avaliação morfológica fetal órgão a órgão, biometria estendida e cordão umbilical; feto único, gemelar ou trigemelar)
-- `pelvico-infantil.html` — Ultrassonografia Pélvica Infantil (propedêutica de puberdade precoce)
-- `rastreamento-ovulacao.html` — Ultrassonografia Transvaginal para Rastreamento de Ovulação (útero, ovários e acompanhamento folicular visita a visita, até a identificação do corpo lúteo)
 - `obstetrico-tn-doppler-colo.html` — Ultrassonografia Obstétrica com Translucência Nucal (biometria simples, TN e risco para Síndrome de Down sempre presentes; Doppler das artérias uterinas + ducto venoso e medida do colo uterino são cards opcionais, ativados conforme o pedido médico). Sem integração com a Curva de Crescimento — laudo isolado, como `transvaginal.html`.
 
 ## Gestação múltipla (`obstetrico.html`)

@@ -361,14 +361,22 @@
     </select>
     <select class="laudo-switch" id="laudoSwitch" onchange="if(this.value) location.href=this.value;" title="Trocar de laudo">
       <option value="index.html">Todos os laudos</option>
-      <option value="transvaginal.html" selected>Transvaginal</option>
-      <option value="rastreamento-ovulacao.html">Rastreamento de Ovulação</option>
-      <option value="pelvico-infantil.html">Pélvico Infantil</option>
-      <option value="obstetrico.html">Obstétrico Geral</option>
-      <option value="obstetrico-tn-doppler-colo.html">Obstétrico — TN, Doppler e Colo</option>
-      <option value="obstetrico-1trimestre.html">Obstétrico — 1º Trimestre</option>
-      <option value="morfologico-1trimestre.html">Morfológico — 1º Trimestre</option>
-      <option value="morfologico-2trimestre.html">Morfológico — 2º Trimestre</option>
+      <optgroup label="Medicina Interna">
+        <option value="abdome-total.html">Abdome Total</option>
+        <option value="rins-vias-urinarias.html">Rins e Vias Urinárias</option>
+      </optgroup>
+      <optgroup label="Ginecológico">
+        <option value="transvaginal.html" selected>Transvaginal</option>
+        <option value="rastreamento-ovulacao.html">Rastreamento de Ovulação</option>
+        <option value="pelvico-infantil.html">Pélvico Infantil</option>
+      </optgroup>
+      <optgroup label="Obstétrico">
+        <option value="obstetrico.html">Obstétrico Geral</option>
+        <option value="obstetrico-tn-doppler-colo.html">Obstétrico — TN, Doppler e Colo</option>
+        <option value="obstetrico-1trimestre.html">Obstétrico — 1º Trimestre</option>
+        <option value="morfologico-1trimestre.html">Morfológico — 1º Trimestre</option>
+        <option value="morfologico-2trimestre.html">Morfológico — 2º Trimestre</option>
+      </optgroup>
     </select>
     <button class="btn-ghost" id="btnSettings">Valores de referência</button>
     <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
