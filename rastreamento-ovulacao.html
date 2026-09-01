@@ -444,8 +444,26 @@
   <hr class="sep">
   <h3>Ovários</h3>
   <div class="field" style="margin-bottom:8px;"><label>Normal — use {L}, {AP}, {T}, {VOLUME}, {VRMIN} e {VRMAX}</label><textarea id="ph_ovarioNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Não identificado</label><textarea id="ph_ovarioNaoIdentificado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Policístico — frase-base (substitui "Normal" quando policístico) — use {L}, {AP}, {T}, {VOLUME}, {VRMIN} e {VRMAX}</label><textarea id="ph_ovarioPolicisticoBase" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — complemento (achado, após a frase-base) — use {LADO}</label><textarea id="ph_ovarioPolicistico" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>1 cisto simples — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioCisto1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>2 cistos simples — use {LADO}, {MEDIDA1} e {MEDIDA2}</label><textarea id="ph_ovarioCisto2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Corpo lúteo (achado no ovário) — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioCorpoLuteo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Folículo dominante (achado no ovário) — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioFoliculo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioDermoide" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioEndometrioma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes no primeiro exame — use {N}</label><textarea id="ph_foliculosDominantes" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nenhum folículo dominante no primeiro exame</label><textarea id="ph_foliculosDominantesZero" rows="2"></textarea></div>
+
+  <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:12px 0 4px;">Segunda alteração no mesmo ovário (introduzida por "Observa-se também...")</p>
+  <div class="field" style="margin-bottom:8px;"><label>1 cisto simples — use {MEDIDA}</label><textarea id="ph_ovarioCisto1Tambem" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>2 cistos simples — use {MEDIDA1} e {MEDIDA2}</label><textarea id="ph_ovarioCisto2Tambem" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Corpo lúteo — use {MEDIDA}</label><textarea id="ph_ovarioCorpoLuteoTambem" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Folículo dominante — use {MEDIDA}</label><textarea id="ph_ovarioFoliculoTambem" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {MEDIDA}</label><textarea id="ph_ovarioDermoideTambem" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {MEDIDA}</label><textarea id="ph_ovarioEndometriomaTambem" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Outro (descrever) — use {DESCRICAO}</label><textarea id="ph_ovarioAlteradoTambem" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Corpo lúteo</h3>
@@ -463,6 +481,17 @@
   <div class="field" style="margin-bottom:8px;"><label>Útero miomatoso (3 ou mais nódulos)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado uterino (útero alterado) — use {DESCRICAO}</label><textarea id="ph_impUteroAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado ovariano (ovário alterado) — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário não identificado — use {LADO}</label><textarea id="ph_impOvarioNaoIdentificado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — use {LADO}</label><textarea id="ph_impOvarioPolicistico" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovários policísticos bilateral (ambos os ovários)</label><textarea id="ph_impOvariosPolicisticosBilateral" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário de volume reduzido — use {LADO}</label><textarea id="ph_impOvarioVolumeReduzido" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovários de volume reduzido bilateral (ambos os ovários)</label><textarea id="ph_impOvariosVolumeReduzidoBilateral" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com 1 cisto simples — use {LADO}</label><textarea id="ph_impOvarioCisto1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com 2 cistos simples — use {LADO}</label><textarea id="ph_impOvarioCisto2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com corpo lúteo — use {LADO}</label><textarea id="ph_impOvarioCorpoLuteo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com folículo dominante — use {LADO}</label><textarea id="ph_impOvarioFoliculo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {LADO}</label><textarea id="ph_impOvarioDermoide" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {LADO}</label><textarea id="ph_impOvarioEndometrioma" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Rodapé</h3>
@@ -585,13 +614,81 @@
           <div class="field"><label>Aspecto</label>
             <select id="ovD_aspecto">
               <option value="normal">Normal (dimensões e ecotextura preservadas)</option>
-              <option value="alterado">Alterado (descrever)</option>
+              <option value="volume_reduzido">Volume reduzido</option>
+              <option value="policistico">Ovário policístico</option>
+              <option value="cisto1">1 cisto simples</option>
+              <option value="cisto2">2 cistos simples</option>
+              <option value="corpoluteo">Corpo lúteo</option>
+              <option value="foliculo">Folículo dominante</option>
+              <option value="dermoide">Cisto dermoide (teratoma)</option>
+              <option value="endometrioma">Endometrioma</option>
+              <option value="nao_identificado">Não identificado</option>
+              <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
         </div>
+        <div class="field-row conditional" id="wrap_ovD_cisto1">
+          <div class="field"><label>Medida do cisto (mm)</label><input type="text" id="ovD_cisto1Medida" placeholder="ex: 15 x 12,2"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_ovD_cisto2">
+          <div class="field"><label>Medida do cisto 1 (mm)</label><input type="text" id="ovD_cisto2MedidaA" placeholder="ex: 15 x 12,2"></div>
+          <div class="field"><label>Medida do cisto 2 (mm)</label><input type="text" id="ovD_cisto2MedidaB" placeholder="ex: 15 x 12,2"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_ovD_corpoluteo">
+          <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_corpoLuteoMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_ovD_foliculo">
+          <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_foliculoMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_ovD_dermoide">
+          <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_dermoideMedida" placeholder="ex: 35 x 30"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_ovD_endometrioma">
+          <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_endometriomaMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
         <div class="field conditional" id="wrap_ovD_descricao">
           <label>Descreva o achado</label>
-          <textarea id="ovD_descricao" rows="2" placeholder="ex: cisto simples medindo..."></textarea>
+          <textarea id="ovD_descricao" rows="2" placeholder="ex: formação sólida com fluxo ao Doppler..."></textarea>
+        </div>
+
+        <div class="conditional show" id="wrap_ovD_segunda">
+          <div class="field-row">
+            <div class="field"><label>Alteração adicional no mesmo ovário (opcional)</label>
+              <select id="ovD_aspecto2">
+                <option value="">Nenhuma</option>
+                <option value="cisto1">1 cisto simples</option>
+                <option value="cisto2">2 cistos simples</option>
+                <option value="corpoluteo">Corpo lúteo</option>
+                <option value="foliculo">Folículo dominante</option>
+                <option value="dermoide">Cisto dermoide (teratoma)</option>
+                <option value="endometrioma">Endometrioma</option>
+                <option value="alterado">Outro (descrever)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovD_cisto1_2">
+            <div class="field"><label>Medida do cisto (mm)</label><input type="text" id="ovD_cisto1Medida2" placeholder="ex: 15 x 12,2"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovD_cisto2_2">
+            <div class="field"><label>Medida do cisto 1 (mm)</label><input type="text" id="ovD_cisto2MedidaA2" placeholder="ex: 15 x 12,2"></div>
+            <div class="field"><label>Medida do cisto 2 (mm)</label><input type="text" id="ovD_cisto2MedidaB2" placeholder="ex: 15 x 12,2"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovD_corpoluteo_2">
+            <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_corpoLuteoMedida2" placeholder="ex: 15 x 12,2"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovD_foliculo_2">
+            <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_foliculoMedida2" placeholder="ex: 15 x 12,2"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovD_dermoide_2">
+            <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_dermoideMedida2" placeholder="ex: 35 x 30"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovD_endometrioma_2">
+            <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_endometriomaMedida2" placeholder="ex: 15 x 12,2"></div>
+          </div>
+          <div class="field conditional" id="wrap_ovD_descricao_2">
+            <label>Descreva o achado adicional</label>
+            <textarea id="ovD_descricao2" rows="2" placeholder="ex: formação sólida com fluxo ao Doppler..."></textarea>
+          </div>
         </div>
 
         <hr class="sep">
@@ -610,13 +707,81 @@
           <div class="field"><label>Aspecto</label>
             <select id="ovE_aspecto">
               <option value="normal">Normal (dimensões e ecotextura preservadas)</option>
-              <option value="alterado">Alterado (descrever)</option>
+              <option value="volume_reduzido">Volume reduzido</option>
+              <option value="policistico">Ovário policístico</option>
+              <option value="cisto1">1 cisto simples</option>
+              <option value="cisto2">2 cistos simples</option>
+              <option value="corpoluteo">Corpo lúteo</option>
+              <option value="foliculo">Folículo dominante</option>
+              <option value="dermoide">Cisto dermoide (teratoma)</option>
+              <option value="endometrioma">Endometrioma</option>
+              <option value="nao_identificado">Não identificado</option>
+              <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
         </div>
+        <div class="field-row conditional" id="wrap_ovE_cisto1">
+          <div class="field"><label>Medida do cisto (mm)</label><input type="text" id="ovE_cisto1Medida" placeholder="ex: 15 x 12,2"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_ovE_cisto2">
+          <div class="field"><label>Medida do cisto 1 (mm)</label><input type="text" id="ovE_cisto2MedidaA" placeholder="ex: 15 x 12,2"></div>
+          <div class="field"><label>Medida do cisto 2 (mm)</label><input type="text" id="ovE_cisto2MedidaB" placeholder="ex: 15 x 12,2"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_ovE_corpoluteo">
+          <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_corpoLuteoMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_ovE_foliculo">
+          <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_foliculoMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_ovE_dermoide">
+          <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_dermoideMedida" placeholder="ex: 35 x 30"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_ovE_endometrioma">
+          <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_endometriomaMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
         <div class="field conditional" id="wrap_ovE_descricao">
           <label>Descreva o achado</label>
-          <textarea id="ovE_descricao" rows="2" placeholder="ex: cisto simples medindo..."></textarea>
+          <textarea id="ovE_descricao" rows="2" placeholder="ex: formação sólida com fluxo ao Doppler..."></textarea>
+        </div>
+
+        <div class="conditional show" id="wrap_ovE_segunda">
+          <div class="field-row">
+            <div class="field"><label>Alteração adicional no mesmo ovário (opcional)</label>
+              <select id="ovE_aspecto2">
+                <option value="">Nenhuma</option>
+                <option value="cisto1">1 cisto simples</option>
+                <option value="cisto2">2 cistos simples</option>
+                <option value="corpoluteo">Corpo lúteo</option>
+                <option value="foliculo">Folículo dominante</option>
+                <option value="dermoide">Cisto dermoide (teratoma)</option>
+                <option value="endometrioma">Endometrioma</option>
+                <option value="alterado">Outro (descrever)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovE_cisto1_2">
+            <div class="field"><label>Medida do cisto (mm)</label><input type="text" id="ovE_cisto1Medida2" placeholder="ex: 15 x 12,2"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovE_cisto2_2">
+            <div class="field"><label>Medida do cisto 1 (mm)</label><input type="text" id="ovE_cisto2MedidaA2" placeholder="ex: 15 x 12,2"></div>
+            <div class="field"><label>Medida do cisto 2 (mm)</label><input type="text" id="ovE_cisto2MedidaB2" placeholder="ex: 15 x 12,2"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovE_corpoluteo_2">
+            <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_corpoLuteoMedida2" placeholder="ex: 15 x 12,2"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovE_foliculo_2">
+            <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_foliculoMedida2" placeholder="ex: 15 x 12,2"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovE_dermoide_2">
+            <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_dermoideMedida2" placeholder="ex: 35 x 30"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_ovE_endometrioma_2">
+            <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_endometriomaMedida2" placeholder="ex: 15 x 12,2"></div>
+          </div>
+          <div class="field conditional" id="wrap_ovE_descricao_2">
+            <label>Descreva o achado adicional</label>
+            <textarea id="ovE_descricao2" rows="2" placeholder="ex: formação sólida com fluxo ao Doppler..."></textarea>
+          </div>
         </div>
       </div>
     </div>
@@ -1231,6 +1396,22 @@
     figoF7: 'parede {PAREDE}, totalmente subserosa (FIGO 7), medindo {MEDIDA} mm',
     figoF8: 'região cervical{DETALHE} (FIGO 8), medindo {MEDIDA} mm',
     ovarioNormal: 'de topografia usual, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
+    ovarioNaoIdentificado: 'não identificado no presente estudo. Não são identificadas massas císticas ou sólidas em sua topografia.',
+    ovarioPolicisticoBase: 'de topografia usual, forma globosa e textura micropolicística, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
+    ovarioPolicistico: 'Ovário {LADO} apresentando folículos antrais de distribuição predominantemente periférica, com diâmetro médio de 5 mm, associado a aumento da ecogenicidade do estroma.',
+    ovarioCisto1: 'Ovário {LADO}, em seu interior observa-se imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm.',
+    ovarioCisto2: 'Ovário {LADO}, em seu interior observam-se duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm e {MEDIDA2} mm, respectivamente.',
+    ovarioCorpoLuteo: 'Ovário {LADO}, em seu interior nota-se imagem cística heterogênea, de paredes espessadas e irregulares, conteúdo ecogênico e captação de fluxo periférico ao mapeamento Doppler colorido, medindo {MEDIDA} mm (corpo lúteo).',
+    ovarioFoliculo: 'Ovário {LADO}, em seu interior observa-se imagem folicular com discreta captação de fluxo periférico, medindo {MEDIDA} mm.',
+    ovarioDermoide: 'Ovário {LADO}, em seu interior observa-se imagem nodular ecogênica, bem delimitada, sem captação de fluxo periférico, medindo {MEDIDA} mm.',
+    ovarioEndometrioma: 'Em seu interior, nota-se imagem cística regular e unilocular, com conteúdo de textura em "vidro fosco", com mínima captação de fluxo periférico, medindo {MEDIDA} mm.',
+    ovarioCisto1Tambem: 'Observa-se também, em seu interior, imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm.',
+    ovarioCisto2Tambem: 'Observam-se também, em seu interior, duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm e {MEDIDA2} mm, respectivamente.',
+    ovarioCorpoLuteoTambem: 'Observa-se também, em seu interior, imagem cística heterogênea, de paredes espessadas e irregulares, conteúdo ecogênico e captação de fluxo periférico ao mapeamento Doppler colorido, medindo {MEDIDA} mm (corpo lúteo).',
+    ovarioFoliculoTambem: 'Observa-se também, em seu interior, imagem folicular com discreta captação de fluxo periférico, medindo {MEDIDA} mm.',
+    ovarioDermoideTambem: 'Observa-se também, em seu interior, imagem nodular ecogênica, bem delimitada, sem captação de fluxo periférico, medindo {MEDIDA} mm.',
+    ovarioEndometriomaTambem: 'Observa-se também, em seu interior, imagem cística regular e unilocular, com conteúdo de textura em "vidro fosco", com mínima captação de fluxo periférico, medindo {MEDIDA} mm.',
+    ovarioAlteradoTambem: 'Observa-se também {DESCRICAO}.',
     foliculosDominantes: 'Presença de {N} folículo(s) dominante(s) no primeiro exame.',
     foliculosDominantesZero: 'Nenhum folículo dominante no primeiro exame.',
     corpoLuteoIdentificado: 'Corpo lúteo identificado no ovário {LADO}.',
@@ -1244,6 +1425,17 @@
     impUteroMiomatoso: 'Útero de volume aumentado, miomatoso.',
     impUteroAlterado: 'Achado uterino: {DESCRICAO}.',
     impOvarioAlterado: 'Achado no ovário {LADO}: {DESCRICAO}.',
+    impOvarioNaoIdentificado: 'Ovário {LADO} não identificado no presente estudo.',
+    impOvarioPolicistico: 'Ovário {LADO} com aspecto sugestivo de ovários policísticos.',
+    impOvariosPolicisticosBilateral: 'Ovários de volume aumentado, micropolicísticos.',
+    impOvarioVolumeReduzido: 'Ovário {LADO} de volume reduzido.',
+    impOvariosVolumeReduzidoBilateral: 'Ovários de volume reduzido.',
+    impOvarioCisto1: 'Ovário {LADO} de volume aumentado às custas de cisto uniloculado.',
+    impOvarioCisto2: 'Ovário {LADO} de volume aumentado às custas de cistos uniloculados.',
+    impOvarioCorpoLuteo: 'Ovário {LADO} de volume aumentado, apresentando imagem compatível com corpo lúteo.',
+    impOvarioFoliculo: 'Ovário {LADO} de volume aumentado às custas de imagem sugestiva de folículo funcional.',
+    impOvarioDermoide: 'Nódulo ovariano à {LADO} sugestivo de teratoma.',
+    impOvarioEndometrioma: 'Imagem sugestiva de endometrioma à {LADO}.',
     footerImagens: 'Imagens em anexo.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
@@ -1418,8 +1610,39 @@
       addMiomaNodule();
     }
   });
-  $('ovD_aspecto').addEventListener('change', e=> toggle('wrap_ovD_descricao', e.target.value==='alterado'));
-  $('ovE_aspecto').addEventListener('change', e=> toggle('wrap_ovE_descricao', e.target.value==='alterado'));
+  function wireOvario(prefix){
+    const sel = $(prefix+'_aspecto');
+    sel.addEventListener('change', e=>{
+      const val = e.target.value;
+      toggle('wrap_'+prefix+'_cisto1', val==='cisto1');
+      toggle('wrap_'+prefix+'_cisto2', val==='cisto2');
+      toggle('wrap_'+prefix+'_corpoluteo', val==='corpoluteo');
+      toggle('wrap_'+prefix+'_foliculo', val==='foliculo');
+      toggle('wrap_'+prefix+'_dermoide', val==='dermoide');
+      toggle('wrap_'+prefix+'_endometrioma', val==='endometrioma');
+      toggle('wrap_'+prefix+'_descricao', val==='alterado');
+      // Sem ovário identificado não há o que descrever a mais: esconde (e
+      // limpa) a segunda alteração para não deixar um achado órfão salvo.
+      toggle('wrap_'+prefix+'_segunda', val!=='nao_identificado');
+      if(val==='nao_identificado'){
+        const sel2 = $(prefix+'_aspecto2');
+        if(sel2 && sel2.value){ sel2.value=''; sel2.dispatchEvent(new Event('change')); }
+      }
+    });
+    const sel2 = $(prefix+'_aspecto2');
+    sel2.addEventListener('change', e=>{
+      const val = e.target.value;
+      toggle('wrap_'+prefix+'_cisto1_2', val==='cisto1');
+      toggle('wrap_'+prefix+'_cisto2_2', val==='cisto2');
+      toggle('wrap_'+prefix+'_corpoluteo_2', val==='corpoluteo');
+      toggle('wrap_'+prefix+'_foliculo_2', val==='foliculo');
+      toggle('wrap_'+prefix+'_dermoide_2', val==='dermoide');
+      toggle('wrap_'+prefix+'_endometrioma_2', val==='endometrioma');
+      toggle('wrap_'+prefix+'_descricao_2', val==='alterado');
+    });
+  }
+  wireOvario('ovD');
+  wireOvario('ovE');
 
   // ---------- Myoma nodules: dynamic list (uid-based, same pattern as
   // transvaginal.html's mioma scheme) ----------
@@ -1652,6 +1875,33 @@
     F8: (p,m,d)=>phraseRaw('figoF8', {DETALHE:(d?' '+d:''), MEDIDA:m})
   };
 
+  const OVARIO_ACHADO_TEXT = {
+    policistico: (lado)=> phraseRaw('ovarioPolicistico', {LADO:lado}),
+    cisto1: (lado, m)=> phraseRaw('ovarioCisto1', {LADO:lado, MEDIDA:m}),
+    cisto2: (lado, m1, m2)=> phraseRaw('ovarioCisto2', {LADO:lado, MEDIDA1:m1, MEDIDA2:m2}),
+    corpoluteo: (lado, m)=> phraseRaw('ovarioCorpoLuteo', {LADO:lado, MEDIDA:m}),
+    foliculo: (lado, m)=> phraseRaw('ovarioFoliculo', {LADO:lado, MEDIDA:m}),
+    dermoide: (lado, m)=> phraseRaw('ovarioDermoide', {LADO:lado, MEDIDA:m}),
+    endometrioma: (lado, m)=> phraseRaw('ovarioEndometrioma', {LADO:lado, MEDIDA:m})
+  };
+  const OVARIO_ACHADO_TAMBEM_TEXT = {
+    cisto1: (m)=> phraseRaw('ovarioCisto1Tambem', {MEDIDA:m}),
+    cisto2: (m1, m2)=> phraseRaw('ovarioCisto2Tambem', {MEDIDA1:m1, MEDIDA2:m2}),
+    corpoluteo: (m)=> phraseRaw('ovarioCorpoLuteoTambem', {MEDIDA:m}),
+    foliculo: (m)=> phraseRaw('ovarioFoliculoTambem', {MEDIDA:m}),
+    dermoide: (m)=> phraseRaw('ovarioDermoideTambem', {MEDIDA:m}),
+    endometrioma: (m)=> phraseRaw('ovarioEndometriomaTambem', {MEDIDA:m})
+  };
+  const OVARIO_HD_TEXT = {
+    policistico: (lado)=> phraseRaw('impOvarioPolicistico', {LADO:lado}),
+    cisto1: (lado)=> phraseRaw('impOvarioCisto1', {LADO:lado}),
+    cisto2: (lado)=> phraseRaw('impOvarioCisto2', {LADO:lado}),
+    corpoluteo: (lado)=> phraseRaw('impOvarioCorpoLuteo', {LADO:lado}),
+    foliculo: (lado)=> phraseRaw('impOvarioFoliculo', {LADO:lado}),
+    dermoide: (lado)=> phraseRaw('impOvarioDermoide', {LADO:lado}),
+    endometrioma: (lado)=> phraseRaw('impOvarioEndometrioma', {LADO:lado})
+  };
+
   // ---------- Build impression checklist ----------
   let checkedState = {};
   function buildImpressao(state){
@@ -1677,12 +1927,56 @@
     if(state.uteroAspecto === 'alterado' && state.uteroDescricao){
       items.push({key:'utero-alterado', label:phraseRaw('impUteroAlterado', {DESCRICAO: state.uteroDescricao}), auto:true});
     }
-    if(state.ovD_aspecto === 'alterado' && state.ovD_descricao){
-      items.push({key:'ovD-alterado', label:phraseRaw('impOvarioAlterado', {LADO:'direito', DESCRICAO: state.ovD_descricao}), auto:true});
+
+    const ambosOvariosPolicisticos = state.ovD_aspecto==='policistico' && state.ovE_aspecto==='policistico';
+    if(ambosOvariosPolicisticos){
+      items.push({key:'ov-policistico-bilateral', label:phraseRaw('impOvariosPolicisticosBilateral'), auto:true});
     }
-    if(state.ovE_aspecto === 'alterado' && state.ovE_descricao){
-      items.push({key:'ovE-alterado', label:phraseRaw('impOvarioAlterado', {LADO:'esquerdo', DESCRICAO: state.ovE_descricao}), auto:true});
+
+    // Volume reduzido não é escolhido só no dropdown: também é detectado pelo
+    // próprio número do campo de volume, abaixo do valor de referência.
+    function ovarioVolumeReduzido(prefix){
+      if(state[prefix+'_aspecto']==='volume_reduzido') return true;
+      if(state[prefix+'_aspecto']!=='normal') return false;
+      const vn = state[prefix+'_volNum'];
+      return vn!=null && vn < VR.ovarioMin;
     }
+    const ovD_volumeReduzido = ovarioVolumeReduzido('ovD');
+    const ovE_volumeReduzido = ovarioVolumeReduzido('ovE');
+    const ambosOvariosVolumeReduzido = ovD_volumeReduzido && ovE_volumeReduzido;
+    if(ambosOvariosVolumeReduzido){
+      items.push({key:'ov-volume-reduzido-bilateral', label:phraseRaw('impOvariosVolumeReduzidoBilateral'), auto:true});
+    }
+
+    ['ovD','ovE'].forEach(prefix=>{
+      const aspecto = state[prefix+'_aspecto'];
+      const lado = prefix==='ovD' ? 'direito' : 'esquerdo';
+      const ladoFem = prefix==='ovD' ? 'direita' : 'esquerda';
+      const volumeReduzido = prefix==='ovD' ? ovD_volumeReduzido : ovE_volumeReduzido;
+      const primarioBilateral = (ambosOvariosPolicisticos && aspecto==='policistico') || (ambosOvariosVolumeReduzido && volumeReduzido);
+      if(!primarioBilateral){
+        if(aspecto==='nao_identificado'){
+          items.push({key:prefix+'-nao-identificado', label:phraseRaw('impOvarioNaoIdentificado', {LADO:lado}), auto:true});
+        } else if(aspecto==='alterado' && state[prefix+'_descricao']){
+          items.push({key:prefix+'-alterado', label:phraseRaw('impOvarioAlterado', {LADO:lado, DESCRICAO:state[prefix+'_descricao']}), auto:true});
+        } else if(volumeReduzido){
+          items.push({key:prefix+'-volume-reduzido', label:phraseRaw('impOvarioVolumeReduzido', {LADO:lado}), auto:true});
+        } else if(OVARIO_HD_TEXT[aspecto]){
+          const ladoUsado = (aspecto==='dermoide' || aspecto==='endometrioma') ? ladoFem : lado;
+          items.push({key:prefix+'-'+aspecto, label:OVARIO_HD_TEXT[aspecto](ladoUsado), auto:true});
+        }
+      }
+      const aspecto2 = state[prefix+'_aspecto2'];
+      if(aspecto!=='nao_identificado' && aspecto2){
+        if(aspecto2==='alterado' && state[prefix+'_descricao2']){
+          items.push({key:prefix+'-alterado-2', label:phraseRaw('impOvarioAlterado', {LADO:lado, DESCRICAO:state[prefix+'_descricao2']}), auto:true});
+        } else if(OVARIO_HD_TEXT[aspecto2]){
+          const ladoUsado2 = (aspecto2==='dermoide' || aspecto2==='endometrioma') ? ladoFem : lado;
+          items.push({key:prefix+'-'+aspecto2+'-2', label:OVARIO_HD_TEXT[aspecto2](ladoUsado2), auto:true});
+        }
+      }
+    });
+
     return items;
   }
   function renderChecklist(items){
@@ -1929,7 +2223,25 @@
       const foliculos = blankOrValue(req(prefix+'_foliculos'));
       const aspecto = v(prefix+'_aspecto');
       const descricao = vNoDot(prefix+'_descricao');
-      return {L, AP, T, volume, aspecto, descricao, foliculos, foliculosNum};
+      const cisto1Medida = reqIf(prefix+'_cisto1Medida', aspecto==='cisto1');
+      const cisto2MedidaA = reqIf(prefix+'_cisto2MedidaA', aspecto==='cisto2');
+      const cisto2MedidaB = reqIf(prefix+'_cisto2MedidaB', aspecto==='cisto2');
+      const corpoLuteoMedida = reqIf(prefix+'_corpoLuteoMedida', aspecto==='corpoluteo');
+      const foliculoMedida = reqIf(prefix+'_foliculoMedida', aspecto==='foliculo');
+      const dermoideMedida = reqIf(prefix+'_dermoideMedida', aspecto==='dermoide');
+      const endometriomaMedida = reqIf(prefix+'_endometriomaMedida', aspecto==='endometrioma');
+      const aspecto2 = v(prefix+'_aspecto2');
+      const descricao2 = vNoDot(prefix+'_descricao2');
+      const cisto1Medida2 = reqIf(prefix+'_cisto1Medida2', aspecto2==='cisto1');
+      const cisto2MedidaA2 = reqIf(prefix+'_cisto2MedidaA2', aspecto2==='cisto2');
+      const cisto2MedidaB2 = reqIf(prefix+'_cisto2MedidaB2', aspecto2==='cisto2');
+      const corpoLuteoMedida2 = reqIf(prefix+'_corpoLuteoMedida2', aspecto2==='corpoluteo');
+      const foliculoMedida2 = reqIf(prefix+'_foliculoMedida2', aspecto2==='foliculo');
+      const dermoideMedida2 = reqIf(prefix+'_dermoideMedida2', aspecto2==='dermoide');
+      const endometriomaMedida2 = reqIf(prefix+'_endometriomaMedida2', aspecto2==='endometrioma');
+      return {L, AP, T, volume, volNum, aspecto, descricao, foliculos, foliculosNum,
+        cisto1Medida, cisto2MedidaA, cisto2MedidaB, corpoLuteoMedida, foliculoMedida, dermoideMedida, endometriomaMedida,
+        aspecto2, descricao2, cisto1Medida2, cisto2MedidaA2, cisto2MedidaB2, corpoLuteoMedida2, foliculoMedida2, dermoideMedida2, endometriomaMedida2};
     }
     const ovD = readOvario('ovD');
     const ovE = readOvario('ovE');
@@ -1952,8 +2264,10 @@
       corpoLuteoLado, endometrioConcordancia,
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
-      ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao,
-      ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao
+      ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
+      ovD_aspecto2: ovD.aspecto2, ovD_descricao2: ovD.descricao2,
+      ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao, ovE_volNum: ovE.volNum,
+      ovE_aspecto2: ovE.aspecto2, ovE_descricao2: ovE.descricao2
     });
     renderChecklist(checklistItems);
     const checkedItems = checklistItems.filter(it=> checkedState[it.key]);
@@ -2007,15 +2321,64 @@
     }
     blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
 
+    // Dobra a frase do achado dentro da mesma sentença do volume, em vez de um
+    // parágrafo à parte. A maioria das frases de achado começa com "Ovário
+    // {lado}..." (necessário quando a frase fica sozinha); esse início é
+    // removido aqui já que o parágrafo já nomeou o ovário.
+    function mergeOvarioAchado(ladoM, achadoText){
+      const semLeadIn = achadoText.replace(new RegExp('^Ov[áa]rio\\s+'+ladoM+'\\s*,?\\s*', 'i'), '');
+      return ' '+semLeadIn.charAt(0).toUpperCase()+semLeadIn.slice(1);
+    }
     function ovarioParagraph(ov, ladoM){
-      if(ov.aspecto==='alterado'){
-        return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+span(blankOrValue(ov.descricao))+'</p>';
+      if(ov.aspecto==='nao_identificado'){
+        return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+phrase('ovarioNaoIdentificado')+'</p>';
       }
-      const base = phraseRaw('ovarioNormal', {L: ov.L.text, AP: ov.AP.text, T: ov.T.text, VOLUME: ov.volume.text, VRMIN: VR.ovarioMin.toString().replace('.',','), VRMAX: VR.ovarioMax.toString().replace('.',',')});
+      let extra = '';
+      if(ov.aspecto==='policistico'){
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.policistico(ladoM));
+      } else if(ov.aspecto==='cisto1'){
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto1(ladoM, ov.cisto1Medida||'____'));
+      } else if(ov.aspecto==='cisto2'){
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto2(ladoM, ov.cisto2MedidaA||'____', ov.cisto2MedidaB||'____'));
+      } else if(ov.aspecto==='corpoluteo'){
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.corpoluteo(ladoM, ov.corpoLuteoMedida||'____'));
+      } else if(ov.aspecto==='foliculo'){
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.foliculo(ladoM, ov.foliculoMedida||'____'));
+      } else if(ov.aspecto==='dermoide'){
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.dermoide(ladoM, ov.dermoideMedida||'____'));
+      } else if(ov.aspecto==='endometrioma'){
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.endometrioma(ladoM, ov.endometriomaMedida||'____'));
+      } else if(ov.aspecto==='alterado' && ov.descricao){
+        extra = ' '+ov.descricao+'.';
+      }
+      // Segunda alteração no mesmo ovário (ex.: teratoma + cisto simples): não
+      // repete "Ovário {lado}" — entra como frase à parte, já pronta nas
+      // frases "Tambem" (sem precisar do mergeOvarioAchado de cima).
+      let extra2 = '';
+      if(ov.aspecto2==='cisto1'){
+        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto1(ov.cisto1Medida2||'____');
+      } else if(ov.aspecto2==='cisto2'){
+        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto2(ov.cisto2MedidaA2||'____', ov.cisto2MedidaB2||'____');
+      } else if(ov.aspecto2==='corpoluteo'){
+        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.corpoluteo(ov.corpoLuteoMedida2||'____');
+      } else if(ov.aspecto2==='foliculo'){
+        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.foliculo(ov.foliculoMedida2||'____');
+      } else if(ov.aspecto2==='dermoide'){
+        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.dermoide(ov.dermoideMedida2||'____');
+      } else if(ov.aspecto2==='endometrioma'){
+        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.endometrioma(ov.endometriomaMedida2||'____');
+      } else if(ov.aspecto2==='alterado' && ov.descricao2){
+        extra2 = ' '+phraseRaw('ovarioAlteradoTambem', {DESCRICAO: ov.descricao2});
+      }
+      // Ovário policístico tem frase-base própria ("forma globosa e textura
+      // micropolicística") em vez da "ovarioNormal" — usar a normal e deixar o
+      // achado sobrescrever a forma logo em seguida seria contraditório.
+      const baseKey = ov.aspecto==='policistico' ? 'ovarioPolicisticoBase' : 'ovarioNormal';
+      const base = phraseRaw(baseKey, {L: ov.L.text, AP: ov.AP.text, T: ov.T.text, VOLUME: ov.volume.text, VRMIN: VR.ovarioMin.toString().replace('.',','), VRMAX: VR.ovarioMax.toString().replace('.',',')});
       const foliculosTxt = ov.foliculosNum===0
         ? phraseRaw('foliculosDominantesZero')
         : phraseRaw('foliculosDominantes', {N: ov.foliculos.text});
-      return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+escapeHtml(base)+' '+escapeHtml(foliculosTxt)+'</p>';
+      return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+escapeHtml(base+extra+extra2)+' '+escapeHtml(foliculosTxt)+'</p>';
     }
     blocks.push({id:'ovD', html: ovarioParagraph(ovD, 'direito')});
     blocks.push({id:'ovE', html: ovarioParagraph(ovE, 'esquerdo')});
@@ -2358,6 +2721,12 @@
     setDefaultDataExame();
     addVisita();
     addMiomaNodule();
+    // Aspecto de ambos os ovários volta para "Normal": a seção de segunda
+    // alteração fica visível de novo (só some quando o ovário não é
+    // identificado), diferente dos outros blocos condicionais que já nascem
+    // escondidos com esse reset em branco.
+    toggle('wrap_ovD_segunda', true);
+    toggle('wrap_ovE_segunda', true);
     draftDiscard();
   });
 
