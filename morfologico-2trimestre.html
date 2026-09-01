@@ -365,6 +365,7 @@
       <option value="obstetrico.html">Obstétrico Geral</option>
       <option value="morfologico-1trimestre.html">Morfológico — 1º Trimestre</option>
       <option value="morfologico-2trimestre.html" selected>Morfológico — 2º Trimestre</option>
+      <option value="obstetrico-tn-doppler-colo.html">Obstétrico — TN, Doppler e Colo</option>
     </select>
     <button class="btn-ghost" id="btnSettings">Assinatura do laudo</button>
     <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
@@ -704,7 +705,7 @@ if(typeof criarMotorLaudo !== 'function'){
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
     nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
-    vNoDot, wireDecimalInputs
+    vNoDot, wireDecimalInputs, wirePastePlainText
   } = motor;
 
 
@@ -720,6 +721,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // ---------- Format toolbar: bold/italic/underline/align + line-height + font-size ----------
   (function(){
     const paperEl = $('paper');
+    wirePastePlainText(paperEl);
     const btnBold = $('fmtBold');
     const btnItalic = $('fmtItalic');
     const btnUnderline = $('fmtUnderline');

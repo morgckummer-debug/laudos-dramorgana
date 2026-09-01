@@ -19,6 +19,7 @@ Como o motor é um arquivo à parte, o `.html` não abre mais sozinho fora da pa
 - `morfologico-2trimestre.html` — Ultrassonografia Obstétrica Morfológica de 2º Trimestre (avaliação morfológica fetal órgão a órgão, biometria estendida e cordão umbilical; feto único, gemelar ou trigemelar)
 - `pelvico-infantil.html` — Ultrassonografia Pélvica Infantil (propedêutica de puberdade precoce)
 - `rastreamento-ovulacao.html` — Ultrassonografia Transvaginal para Rastreamento de Ovulação (útero, ovários e acompanhamento folicular visita a visita, até a identificação do corpo lúteo)
+- `obstetrico-tn-doppler-colo.html` — Ultrassonografia Obstétrica com Translucência Nucal (biometria simples, TN e risco para Síndrome de Down sempre presentes; Doppler das artérias uterinas + ducto venoso e medida do colo uterino são cards opcionais, ativados conforme o pedido médico). Sem integração com a Curva de Crescimento — laudo isolado, como `transvaginal.html`.
 
 ## Gestação múltipla (`obstetrico.html`)
 O laudo de 2º/3º trimestre atende de um a três fetos. O número de fetos é escolhido no card "Gestação"; cada feto ganha um card próprio, e o que é medido feto a feto se repete dentro dele: apresentação e vitalidade, biometria, placenta, líquido amniótico, Doppler fetal e perfil biofísico. O que é da mãe ou do útero aparece uma vez só — Doppler das artérias uterinas e medida do colo.
