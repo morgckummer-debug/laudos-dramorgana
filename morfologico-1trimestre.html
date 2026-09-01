@@ -196,11 +196,12 @@
   .paper .id-card-row + .id-card-row{margin-top:0.125em;}
   .paper .id-card-row:last-child{border-top:1.5px solid #2b2b2e;margin-top:0.375em;padding-top:0.375em;}
   .paper .risk-card{
-    display:table;background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.35em 1.25em;margin:0 auto 0.75em;
+    display:table;background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.75em 1.75em;margin:0 auto 0.75em;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
   .paper .risk-card table.biometria{margin:0;}
-  .paper .risk-card table.biometria td{font-weight:700;}
+  .paper .risk-card table.biometria td{font-weight:700;padding-top:0.1875em;padding-bottom:0.1875em;}
+  .paper .risk-card-title{text-align:center;}
   .paper h3.doctitle{
     text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
     margin:0 0 1.125em;font-weight:700;
@@ -2092,7 +2093,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const sfx = '-f'+f.uid;
       const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+' (IM + ON + TN + DV + VT):';
       blocks.push({id:'riscos'+sfx, html:'<div>'
-        +'<p class="linha tight"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
+        +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
         +'<div class="risk-card"><table class="biometria">'
         +'<tr><td>Síndrome de Down (T21):</td><td style="white-space:nowrap;">1: '+span(f.riscoT21)+'</td></tr>'
         +'<tr><td>Síndrome de Edwards (T18):</td><td style="white-space:nowrap;">1: '+span(f.riscoT18)+'</td></tr>'
@@ -2189,7 +2190,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const liveIdCardEl = paperEl.querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
-    clone.querySelectorAll('.risk-card').forEach(el=>{ el.style.display='table'; el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='6px 18px'; el.style.margin='0 auto 10px'; });
+    clone.querySelectorAll('.risk-card').forEach(el=>{ el.style.display='table'; el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='14px 26px'; el.style.margin='0 auto 10px'; });
+    clone.querySelectorAll('.risk-card-title').forEach(el=>{ el.style.textAlign='center'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
