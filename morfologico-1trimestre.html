@@ -402,9 +402,9 @@
 
   <hr class="sep">
   <h3>Impressões diagnósticas</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação — use {SEMANAS}, {DIAS} e {METODO} (DUM/ecografia/exame, conforme a cronologia escolhida)</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {SEMANAS}, {DIAS} e {METODO}</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar — use {CORIONICIDADE}, {SEMANAS}, {DIAS} e {METODO}</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação — use {IG} e {METODO} (DUM/ecografia/exame, conforme a cronologia escolhida; também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {IG} e {METODO} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar — use {CORIONICIDADE}, {IG} e {METODO} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Sem anomalias estruturais maiores</label><textarea id="ph_impSemAnomalias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado morfológico alterado — use {SEGMENTO} e {DESCRICAO}</label><textarea id="ph_impMorfoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Baixo risco para cromossomopatias</label><textarea id="ph_impCromossomopatiasBaixo" rows="2"></textarea></div>
@@ -1161,9 +1161,9 @@
     morfoExtremidades: 'Os membros superiores e inferiores apresentam aspecto normal em seus diferentes segmentos. Mãos e pés de conformação usual. Ecogenicidade óssea normal.',
     morfoCordao: 'Presença de {VASOS}.',
 
-    impGestacao: 'Gestação única, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com {METODO}.',
-    impGestacaoMultipla: 'Gestação gemelar, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com {METODO}.',
-    impGestacaoTrigemelar: 'Gestação trigemelar, {CORIONICIDADE}, compatível com {SEMANAS} semanas e {DIAS} dias de acordo com {METODO}.',
+    impGestacao: 'Gestação única, compatível com {IG} de acordo com {METODO}.',
+    impGestacaoMultipla: 'Gestação gemelar, {CORIONICIDADE}, compatível com {IG} de acordo com {METODO}.',
+    impGestacaoTrigemelar: 'Gestação trigemelar, {CORIONICIDADE}, compatível com {IG} de acordo com {METODO}.',
     impSemAnomalias: 'Não evidenciamos nenhuma anomalia estrutural maior, passível de identificação para essa idade gestacional.',
     impMorfoAlterado: '{SEGMENTO}: {DESCRICAO}.',
     impCromossomopatiasBaixo: 'Os sinais ultrassonográficos indicam baixo risco para cromossomopatias (vide gráficos) — não podemos excluir essa possibilidade somente através da ultrassonografia.',
@@ -1755,7 +1755,7 @@
     const gestacaoKey = !state.isMultiple ? 'impGestacao'
       : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla');
     items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
-      {CORIONICIDADE:state.corTxt, SEMANAS:state.semanas, DIAS:state.dias, METODO:state.metodoTxt}), auto:true});
+      {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, METODO:state.metodoTxt}), auto:true});
 
     const algumAlterado = state.fetos.some(f=> f.alteracoes.length > 0);
     if(!algumAlterado){
@@ -2098,8 +2098,19 @@
     const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
     const igAtualEl = $('igAtual');
     if(igAtualEl) igAtualEl.value = igAtualTxt;
+    // Datação por ultrassom do 1º trimestre: não há DUM informada, então o
+    // cabeçalho troca a linha "DUM: ____" (sempre em branco nesse método)
+    // pela frase que explica de onde veio a IG atual, com a mesma IG já
+    // corrigida no final — em vez de mostrar um campo vazio ao lado dela.
+    const usgDataDatacaoTxt = v('usgDataDatacao');
+    const usgSemanasDatacaoTxt = v('usgSemanasDatacao');
+    const usgDiasDatacaoTxt = v('usgDiasDatacao');
     const semanasTxt = gaDays!=null ? String(Math.floor(gaDays/7)) : '____';
     const diasTxt = gaDays!=null ? String(gaDays%7) : '____';
+    // {IG}: "X semanas e Y dia(s)" já formatado (sem "e 0 dias", "1 dia" no
+    // singular — igual ao IG atual do cabeçalho), para a frase de gestação
+    // da impressão não montar esse trecho na mão com {SEMANAS}/{DIAS} soltos.
+    const igTxt = gaDays!=null ? formatIG(gaDays) : '____ semanas e ____ dias';
 
     const uids = fetoUids();
     const isMultiple = uids.length > 1;
@@ -2203,7 +2214,7 @@
 
     // ----- Impressão -----
     const state = {
-      semanas: semanasTxt, dias: diasTxt, metodoTxt,
+      semanas: semanasTxt, dias: diasTxt, ig: igTxt, metodoTxt,
       isMultiple, corTxt, fetos,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       preEclampsia, preEclampsiaOpcao, preEclampsiaRiscoTxt,
@@ -2224,8 +2235,13 @@
       // não há médico solicitante — tira a linha inteira do cabeçalho, em vez
       // de mostrar "Médico: ____" como se fosse um campo ainda não preenchido.
       +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
-      +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>'
+      // G:0 já deixa implícito P:0 e A:0 (não há como ter parto/aborto sem
+      // gestação anterior) — nesse caso o cabeçalho fica só com "G: 0", sem
+      // repetir os dois campos zerados ao lado.
+      +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+(gpaG==='0' ? '' : ' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>'
+      +(cronologiaMetodo==='usg'
+        ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+'+'+span(blankOrValue(usgDiasDatacaoTxt))+' semanas: '+span(blankOrValue(igAtualTxt))+'</span></div>'
+        : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
       +'<div class="id-card-row"><span><strong>Idade:</strong> '+span(blankOrValue(idadeTxt))+' anos &nbsp;|&nbsp; <strong>Peso:</strong> '+span(blankOrValue(pesoMaterno))+' kg &nbsp;|&nbsp; <strong>Altura:</strong> '+span(blankOrValue(alturaMaterna))+' cm &nbsp;|&nbsp; <strong>IMC:</strong> '+span(blankOrValue(imcTxt))+' &nbsp;|&nbsp; <strong>PAM:</strong> '+span(blankOrValue(pressaoArterial))+' mmHg</span></div>'
       +'</div>'});
 

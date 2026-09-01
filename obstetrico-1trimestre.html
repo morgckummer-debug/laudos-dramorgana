@@ -1960,6 +1960,13 @@
     const cronologia = computeCronologia(dataBase, dataExame);
     const cronologiaEl = $('cronologia');
     if(cronologiaEl) cronologiaEl.value = cronologia;
+    // Datação por ultrassom do 1º trimestre: não há DUM informada, então o
+    // cabeçalho troca a linha "DUM: ____" (sempre em branco nesse método)
+    // pela frase que explica de onde veio a IG atual, com a mesma IG já
+    // corrigida no final — em vez de mostrar um campo vazio ao lado dela.
+    const usgDataDatacaoTxt = v('usgDataDatacao');
+    const usgSemanasDatacaoTxt = v('usgSemanasDatacao');
+    const usgDiasDatacaoTxt = v('usgDiasDatacao');
     const gpaG = v('gpaG');
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
@@ -2071,8 +2078,13 @@
       // não há médico solicitante — tira a linha inteira do cabeçalho, em vez
       // de mostrar "Médico: ____" como se fosse um campo ainda não preenchido.
       +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
-      +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
-      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(cronologia))+'</span></div>'
+      // G:0 já deixa implícito P:0 e A:0 (não há como ter parto/aborto sem
+      // gestação anterior) — nesse caso o cabeçalho fica só com "G: 0", sem
+      // repetir os dois campos zerados ao lado.
+      +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+(gpaG==='0' ? '' : ' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>'
+      +(cronologiaMetodo==='usg'
+        ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+'+'+span(blankOrValue(usgDiasDatacaoTxt))+' semanas: '+span(blankOrValue(cronologia))+'</span></div>'
+        : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(cronologia))+'</span></div>')
       +'</div>'});
 
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+(isMultiple ? 'ULTRASSOM GEMELAR DO 1º TRIMESTRE' : 'ULTRASSOM OBSTÉTRICO DO 1º TRIMESTRE')+'</h3>'});
