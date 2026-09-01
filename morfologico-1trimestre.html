@@ -1479,6 +1479,21 @@
       +'</div>';
   }
 
+  // Ao marcar um segmento como alterado, a caixa de descrição já abre com a
+  // frase padrão daquele segmento dentro: na prática quase sempre é um detalhe
+  // dela que muda, e obrigar a reescrever o parágrafo inteiro fazia perder o
+  // resto do texto normal. Só preenche caixa vazia — o que a médica já
+  // escreveu sobrevive a alternar normal/alterado, e voltar ao padrão é
+  // apagar a caixa e marcar alterado de novo.
+  function prefillSegmentoDescricao(uid, seg){
+    const sel = $('feto'+uid+seg.key);
+    const box = $('feto'+uid+seg.key+'Descricao');
+    if(!sel || !box) return false;
+    if(sel.value !== 'alterado' || box.value.trim()) return false;
+    box.value = phraseRaw(seg.phrase);
+    return true;
+  }
+
   function updateFetoWraps(uid){
     toggle('wrap_feto'+uid+'CranioDescricao', v('feto'+uid+'Cranio')==='alterado');
     toggle('wrap_feto'+uid+'FaceDescricao', v('feto'+uid+'Face')==='alterado');
@@ -1521,6 +1536,10 @@
     ['Cranio','Face','Torax','Abdome','Coluna','Extremidades'].forEach(sufixo=>{
       const sel = $('feto'+uid+sufixo);
       if(sel) sel.addEventListener('change', ()=> updateFetoWraps(uid));
+    });
+    MORFO_SEGMENTOS.forEach(seg=>{
+      const sel = $('feto'+uid+seg.key);
+      if(sel) sel.addEventListener('change', ()=>{ if(prefillSegmentoDescricao(uid, seg)) render(); });
     });
     updateFetoWraps(uid);
     el.querySelector('.feto-remove').addEventListener('click', ()=>{
@@ -2252,17 +2271,25 @@
       const fc = blankOrValue(req(pre+'FC'));
 
       // Segmentos morfológicos: texto padrão quando normal; quando alterado,
-      // entra a descrição digitada e o achado sobe para a impressão.
+      // entra a descrição editada e o achado sobe para a impressão.
       const alteracoes = [];
       const segmentos = MORFO_SEGMENTOS.map(seg=>{
+        const generica = phraseRaw(seg.phrase);
         const alterado = v(pre+seg.key)==='alterado';
         const descricao = vNoDot(pre+seg.key+'Descricao');
-        if(alterado && descricao){
+        // A caixa de descrição já nasce com a frase padrão dentro
+        // (prefillSegmentoDescricao), então "tem texto" não quer mais dizer
+        // "tem achado": enquanto a frase voltar igual ao padrão, o segmento
+        // segue normal. Sem isso, marcar "alterado" e ainda não ter mexido em
+        // nada inventaria um achado na Impressão Diagnóstica e apagaria a
+        // frase de ausência de anomalias.
+        const reescrita = !!descricao && descricao !== generica.replace(/\.+\s*$/, '');
+        if(alterado && reescrita){
           alteracoes.push({slug: seg.slug, titulo: seg.titulo, descricao: descricao});
         }
         return {
           titulo: seg.titulo,
-          texto: (alterado && descricao) ? (descricao+'.') : phraseRaw(seg.phrase)
+          texto: (alterado && descricao) ? (descricao+'.') : generica
         };
       });
 
