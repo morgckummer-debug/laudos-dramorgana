@@ -418,6 +418,7 @@
   <h3>Útero</h3>
   <div class="field" style="margin-bottom:8px;"><label>Frase-base (sem miomas) — use {POSICAO}</label><textarea id="ph_uteroBase" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Frase-base (com miomas) — use {POSICAO} e {CONTORNOS} (vira "irregulares" automaticamente com mioma FIGO 5, 6 ou 7)</label><textarea id="ph_uteroBaseComNodulos" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Frase-base (calcificação das artérias arqueadas) — use {POSICAO}</label><textarea id="ph_uteroBaseCalcificacao" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Miométrio / miomas</h3>
@@ -627,6 +628,7 @@
             <select id="miometrioAspecto">
               <option value="homogeneo">Textura homogênea (sem nódulos)</option>
               <option value="mioma">Heterogêneo — nódulo(s) sólido(s) (mioma)</option>
+              <option value="calcificacao">Calcificações das artérias arqueadas</option>
             </select>
           </div>
         </div>
@@ -689,7 +691,7 @@
             </select>
           </div>
           <div class="field conditional" id="wrap_endometrioPadrao"><label>Padrão</label>
-            <select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option></select>
+            <select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option><option value="ecogenico">Ecogênico</option></select>
           </div>
         </div>
         <div class="field-row conditional" id="wrap_polipoCampos">
@@ -1619,6 +1621,7 @@ if(typeof criarMotorLaudo !== 'function'){
     bexigaNormal: 'apresentando-se vazia durante a realização do exame',
     uteroBase: '{POSICAO}, situado na linha mediana, de configuração anatômica, textura homogênea e contornos regulares, sem identificação de nódulos sólidos.',
     uteroBaseComNodulos: '{POSICAO}, situado na linha mediana, de configuração anatômica e contornos {CONTORNOS}.',
+    uteroBaseCalcificacao: '{POSICAO}, situado na linha mediana, de configuração anatômica, textura heterogênea às custas da calcificação das artérias arqueadas, sem identificação de nódulos sólidos.',
 
     miomaIntro1: 'Observa-se imagem nodular sólida, hipoecoica e heterogênea, localizada na {F1}.',
     miomaIntro2: 'Observam-se duas imagens nodulares sólidas, hipoecogênicas e heterogêneas, uma localizada na {F1} e outra na {F2}.',
@@ -2344,7 +2347,8 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const endometrioEspessura = blankOrValue(reqIf('endometrioEspessura', uteroPresente));
     const endometrioAspecto = v('endometrioAspecto');
-    const endometrioPadrao = v('endometrioPadrao')==='secretor' ? 'secretor' : 'trilaminar';
+    const ENDOMETRIO_PADRAO_TEXTO = {trilaminar:'trilaminar', secretor:'secretor', laminar:'laminar', ecogenico:'ecogênico'};
+    const endometrioPadrao = ENDOMETRIO_PADRAO_TEXTO[v('endometrioPadrao')] || 'trilaminar';
     const polipoLocalizacao = v('polipoLocalizacao');
     const polipoPediculo = v('polipoPediculo');
     const polipoMedida = blankOrValue(reqIf('polipoMedida', endometrioAspecto==='polipo'));
@@ -2462,7 +2466,10 @@ if(typeof criarMotorLaudo !== 'function'){
     } else if(uteroEstado==='hist_subtotal'){
       blocks.push({id:'utero', html:'<p class="linha"><strong>Útero:</strong> Relato de histerectomia subtotal, com colo medindo '+span(histSubtotalColoMedida)+' cm e volume de '+span(histSubtotalColoVolume)+' cm³.</p>'});
     } else {
-      let uteroLinha = phrase((miometrioAspecto==='mioma' || chkAdenomiose) ? 'uteroBaseComNodulos' : 'uteroBase', {POSICAO: uteroPosicaoTexto, CONTORNOS: uteroContornos});
+      const uteroPhraseKey = (miometrioAspecto==='mioma' || chkAdenomiose) ? 'uteroBaseComNodulos'
+        : miometrioAspecto==='calcificacao' ? 'uteroBaseCalcificacao'
+        : 'uteroBase';
+      let uteroLinha = phrase(uteroPhraseKey, {POSICAO: uteroPosicaoTexto, CONTORNOS: uteroContornos});
       if(chkAdenomiose){
         // Adenomiose (diffuse change) is described before the focal mioma nodules.
         uteroLinha += ' '+phrase(miometrioAspecto==='mioma' ? 'adenomioseComMioma' : 'adenomiose', {SIMETRIA: adenomioseSimetria});
