@@ -1,11 +1,21 @@
 # laudos-dramorgana
 
-Sete laudos de ultrassonografia, cada um um arquivo HTML, sem build, mais um
-**`laudo-core.js`** que os sete carregam: o motor comum a todos eles. O
+Laudos de ultrassonografia, cada um um arquivo HTML, sem build, mais um
+**`laudo-core.js`** que todos carregam: o motor comum a todos eles. Cobrem três
+áreas — medicina interna, ginecologia e obstetrícia — organizadas em três
+categorias no `index.html` e no dropdown "Trocar de laudo" de cada arquivo. O
 `README.md` descreve laudo a laudo (o que cada um tem, o rascunho automático, o
 layout de referência); este arquivo trata do que não se vê olhando um laudo
 isolado: o que é do motor e o que é de cada laudo, a integração com o app de
 Curva de Crescimento e as armadilhas de manutenção que já morderam antes.
+
+Os laudos de **medicina interna** (`abdome-total.html`,
+`rins-vias-urinarias.html`) usam o mesmo motor mas não têm CPF, não têm feto e
+não tocam em `patients`/`gestacoes`/`exams` — nenhuma integração com a Curva de
+Crescimento, igual ao `rastreamento-ovulacao.html` nesse aspecto (mas sem
+tabela própria no Supabase: não salvam nada, é preenche-e-imprime). A seção
+"O que cada laudo grava", mais abaixo, é sobre os laudos obstétricos — não se
+aplica a eles.
 
 ## Publicação
 

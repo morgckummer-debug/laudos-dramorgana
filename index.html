@@ -38,7 +38,10 @@
   }
   .topbar .sub{font-size:12px;opacity:.85;margin-top:2px;font-weight:400;}
   main{max-width:960px;margin:0 auto;padding:40px 24px 80px;}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;margin-top:24px;}
+  .categoria{margin-top:36px;}
+  .categoria:first-of-type{margin-top:24px;}
+  .categoria-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;margin-top:16px;}
   .card{
     background:var(--panel);border-radius:var(--radius-lg);padding:26px;
     box-shadow:var(--shadow);text-decoration:none;color:var(--ink);
@@ -53,11 +56,13 @@
   .card h2{font-family:'Poppins',sans-serif;font-size:17px;font-weight:600;margin:0;}
   .card p{font-size:13px;color:var(--ink-soft);margin:0;line-height:1.5;}
   .empty-note{
-    margin-top:24px;padding:20px 26px;border-radius:var(--radius-md);
-    background:var(--sage-light);color:var(--rose-dark);font-size:13px;
+    margin-top:12px;padding:14px 18px;border-radius:var(--radius-md);
+    background:var(--sage-light);color:var(--rose-dark);font-size:12.5px;
     border:1px dashed var(--rose-dark);
   }
   h3.section{font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:0;}
+  h2.categoria-title{font-family:'Poppins',sans-serif;font-size:19px;font-weight:600;color:var(--rose-dark);margin:0;}
+  .categoria-count{font-size:12px;color:var(--ink-soft);font-weight:500;}
   .topbar-brand{display:flex;align-items:center;gap:16px;}
   .logo-badge{display:flex;align-items:center;}
   .logo-badge img{height:46px;width:auto;display:block;}
@@ -77,51 +82,85 @@
 
 <main>
   <h3 class="section">Laudos disponíveis</h3>
-  <div class="grid">
-    <a class="card" href="transvaginal.html">
-      <div class="icon">🩺</div>
-      <h2>Ultrassonografia Transvaginal</h2>
-      <p>Útero, ovários e anexos — medidas com laudo montado automaticamente.</p>
-    </a>
-    <a class="card" href="rastreamento-ovulacao.html">
-      <div class="icon">🌸</div>
-      <h2>Rastreamento de Ovulação</h2>
-      <p>Útero e ovários, folículos dominantes e acompanhamento do ciclo visita a visita, até a identificação do corpo lúteo.</p>
-    </a>
-    <a class="card" href="pelvico-infantil.html">
-      <div class="icon">🎀</div>
-      <h2>Pélvico Infantil</h2>
-      <p>Propedêutica de puberdade precoce — escolha a faixa etária e o laudo já traz os valores de referência de útero e ovários, com Doppler da artéria uterina opcional.</p>
-    </a>
-    <a class="card" href="obstetrico.html">
-      <div class="icon">🤰</div>
-      <h2>Obstétrico Geral</h2>
-      <p>Biometria e crescimento fetal, com Doppler, Perfil Biofísico Fetal e medida do colo uterino opcionais.</p>
-    </a>
-    <a class="card" href="obstetrico-tn-doppler-colo.html">
-      <div class="icon">🧿</div>
-      <h2>Obstétrico — TN, Doppler e Colo</h2>
-      <p>Translucência nucal e risco de Síndrome de Down — Doppler das uterinas e medida do colo uterino opcionais, conforme o pedido médico.</p>
-    </a>
-    <a class="card" href="obstetrico-1trimestre.html">
-      <div class="icon">👶</div>
-      <h2>Obstétrico — 1º Trimestre</h2>
-      <p>Translucência nucal, biometria fetal e marcadores de aneuploidia — laudo montado automaticamente.</p>
-    </a>
-    <a class="card" href="morfologico-1trimestre.html">
-      <div class="icon">🧬</div>
-      <h2>Morfológico — 1º Trimestre</h2>
-      <p>Avaliação morfológica fetal, marcadores de trissomias, Doppler das uterinas e rastreamento de pré-eclâmpsia.</p>
-    </a>
-    <a class="card" href="morfologico-2trimestre.html">
-      <div class="icon">🔬</div>
-      <h2>Morfológico — 2º Trimestre</h2>
-      <p>Avaliação morfológica fetal órgão a órgão, biometria estendida e cordão umbilical — laudo montado automaticamente.</p>
-    </a>
+
+  <div class="categoria">
+    <div class="categoria-head">
+      <h2 class="categoria-title">Medicina Interna</h2>
+      <span class="categoria-count">abdome, rins, tireoide, próstata...</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="abdome-total.html">
+        <div class="icon">🫁</div>
+        <h2>Abdome Total</h2>
+        <p>Fígado, vesícula e vias biliares, pâncreas, rins, bexiga, grandes vasos e baço — com quantificação de esteatose hepática pelo método QUS.</p>
+      </a>
+      <a class="card" href="rins-vias-urinarias.html">
+        <div class="icon">💧</div>
+        <h2>Rins e Vias Urinárias</h2>
+        <p>Rim direito e esquerdo, bexiga e volume urinário pré e pós-miccional.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="categoria">
+    <div class="categoria-head">
+      <h2 class="categoria-title">Ginecológico</h2>
+      <span class="categoria-count">transvaginal, pélvico, mamas, folículos antrais...</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="transvaginal.html">
+        <div class="icon">🩺</div>
+        <h2>Ultrassonografia Transvaginal</h2>
+        <p>Útero, ovários e anexos — medidas com laudo montado automaticamente.</p>
+      </a>
+      <a class="card" href="rastreamento-ovulacao.html">
+        <div class="icon">🌸</div>
+        <h2>Rastreamento de Ovulação</h2>
+        <p>Útero e ovários, folículos dominantes e acompanhamento do ciclo visita a visita, até a identificação do corpo lúteo.</p>
+      </a>
+      <a class="card" href="pelvico-infantil.html">
+        <div class="icon">🎀</div>
+        <h2>Pélvico Infantil</h2>
+        <p>Propedêutica de puberdade precoce — escolha a faixa etária e o laudo já traz os valores de referência de útero e ovários, com Doppler da artéria uterina opcional.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="categoria">
+    <div class="categoria-head">
+      <h2 class="categoria-title">Obstétrico</h2>
+    </div>
+    <div class="grid">
+      <a class="card" href="obstetrico.html">
+        <div class="icon">🤰</div>
+        <h2>Obstétrico Geral</h2>
+        <p>Biometria e crescimento fetal, com Doppler, Perfil Biofísico Fetal e medida do colo uterino opcionais.</p>
+      </a>
+      <a class="card" href="obstetrico-tn-doppler-colo.html">
+        <div class="icon">🧿</div>
+        <h2>Obstétrico — TN, Doppler e Colo</h2>
+        <p>Translucência nucal e risco de Síndrome de Down — Doppler das uterinas e medida do colo uterino opcionais, conforme o pedido médico.</p>
+      </a>
+      <a class="card" href="obstetrico-1trimestre.html">
+        <div class="icon">👶</div>
+        <h2>Obstétrico — 1º Trimestre</h2>
+        <p>Translucência nucal, biometria fetal e marcadores de aneuploidia — laudo montado automaticamente.</p>
+      </a>
+      <a class="card" href="morfologico-1trimestre.html">
+        <div class="icon">🧬</div>
+        <h2>Morfológico — 1º Trimestre</h2>
+        <p>Avaliação morfológica fetal, marcadores de trissomias, Doppler das uterinas e rastreamento de pré-eclâmpsia.</p>
+      </a>
+      <a class="card" href="morfologico-2trimestre.html">
+        <div class="icon">🔬</div>
+        <h2>Morfológico — 2º Trimestre</h2>
+        <p>Avaliação morfológica fetal órgão a órgão, biometria estendida e cordão umbilical — laudo montado automaticamente.</p>
+      </a>
+    </div>
   </div>
 
   <div class="empty-note">
-    Novos laudos obstétricos entram aqui conforme forem criados — basta adicionar o arquivo .html deste repositório e um card acima.
+    Novos laudos entram aqui, na categoria correspondente, conforme forem criados — basta adicionar o arquivo .html deste repositório e um card acima.
   </div>
 </main>
 
