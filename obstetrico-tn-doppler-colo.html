@@ -207,7 +207,7 @@
      coluna vertical de CF/CA — não numa posição que varia conforme o tamanho
      do valor do maior bolsão. */
   .paper table.grade-la{margin-bottom:var(--linha-margin, 1em);}
-  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
+  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;font-size:10pt;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -388,6 +388,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Colo normal</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo curto</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Recomendação final</label><textarea id="ph_impMorfologico2T" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Frase final — cálculo do risco (TN), centralizada e em itálico abaixo da conclusão</label><textarea id="ph_impCalculoRiscoTN" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Rodapé</h3>
@@ -1032,7 +1033,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impUterinas: 'Doppler das artérias estudadas dentro da normalidade (IP médio no percentil {PERCENTIL} para a idade gestacional).',
     impColoNormal: 'Colo uterino sem anormalidades.',
     impColoAlterado: 'Colo uterino curto — aumento do risco de parto prematuro.',
-    impMorfologico2T: 'Sugere-se a realização do morfológico do 2º trimestre entre 22 e 24 semanas. A medida da Translucência Nucal consiste num teste de rastreamento e não de diagnóstico. Valores normais não excluem a possibilidade de cromossomopatias. Cálculo de risco realizado de acordo com o protocolo da FMF (https://fetalmedicine.org/research/assess/trisomie).',
+    impMorfologico2T: 'Sugere-se a realização do morfológico do 2º trimestre entre 22 e 24 semanas. A medida da Translucência Nucal consiste num teste de rastreamento e não de diagnóstico. Valores normais não excluem a possibilidade de cromossomopatias.',
+    impCalculoRiscoTN: 'Cálculo de risco realizado de acordo com o protocolo da FMF (https://fetalmedicine.org/research/assess/trisomie).',
 
     footerImagens: 'Imagens em anexo.'
   };
@@ -1765,6 +1767,14 @@ if(typeof criarMotorLaudo !== 'function'){
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
+    // A frase de como o risco foi calculado (protocolo da FMF) não é mais um
+    // tópico da lista de conclusão — vem centralizada, em itálico e menor,
+    // logo abaixo do último tópico, e só aparece junto com a recomendação
+    // final (mesmo tópico de que ela saiu).
+    if(checkedItems.some(it=>it.key==='morfologico2t')){
+      blocks.push({id:'calculoRiscoTN', html:'<p class="recomendacao">'+escapeHtml(phraseRaw('impCalculoRiscoTN'))+'</p>'});
+    }
+
     let rodapeHtml = '<div class="rodape-final">';
     rodapeHtml += '<p class="footnote">'+phrase('footerImagens')+'</p>';
     rodapeHtml += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
@@ -1855,7 +1865,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.risk-card-title').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
-    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
+    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='10pt'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
