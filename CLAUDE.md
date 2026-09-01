@@ -36,6 +36,52 @@ Duas consequências práticas:
   trabalho.** O caminho seguro é pedir a mudança aqui, sobre o que já está no
   repositório.
 
+## O #paper em folhas: a invariante que duplicava o laudo
+
+Nos sete laudos o corpo do documento é um `#paper` `contenteditable` cujos
+**filhos diretos** são os blocos gerados por `render()`, cada um com um
+`data-blk` estável. `renderBlocks()` reconcilia por essa chave — e só olha
+`:scope > [data-blk]`, filho direto, nunca neto.
+
+Entre o `beforeprint` e o `afterprint`, `paginateForPrint()` quebra essa
+invariante: troca o conteúdo do `#paper` por uma sequência de
+`<div class="print-page">` (uma por folha física, para prender a assinatura no
+pé da última e repetir o cabeçalho de identificação no topo das demais). Nesse
+intervalo os blocos são **netos** do `#paper`.
+
+Foi daí que saiu o laudo impresso em duplicata (corrigido em 2026-09-01, nos
+sete arquivos): qualquer `render()` ou autosave que caísse nesse intervalo —
+o debounce de 800 ms do texto recém-digitado, o `visibilitychange` que a janela
+de impressão dispara — via um `#paper` "vazio" e montava outro laudo por cima,
+sem conseguir remover o antigo (invisível pela mesma consulta). Pior: o
+rascunho gravava o laudo já paginado, e a duplicação voltava a cada abertura.
+
+O que segura isso hoje, e precisa continuar valendo em qualquer mexida no
+pipeline de impressão:
+
+- **`printPaginated`** marca o intervalo. `render()` adia (`renderPendingAfterPrint`,
+  rodado pelo `restore()`) e `updatePagePreview()` sai na hora.
+- **`unwrapPrintPages(root)`** desfaz a paginação: tira os blocos das
+  `.print-page` e mantém só um elemento por `data-blk` — o resto (o
+  "Continua…", o espaçador da assinatura, a cópia do cabeçalho, o
+  `<ul class="impressao">` remontado) é andaime de impressão e vai fora. Roda
+  em `renderBlocks()`, no `draftPaperHtml()`, ao recolocar o rascunho e no
+  começo do próprio `paginateForPrint()`.
+
+**Todo código novo que leia, salve ou reconcilie o `#paper` tem de passar por
+`unwrapPrintPages()` antes** — ou assumir que pode estar rodando com o laudo em
+folhas.
+
+### A morfologia quebra linha a linha
+
+O bloco da morfologia fetal (nos dois morfológicos) sai com
+`data-split="rows"`: `packAt()` gera um box por `<tr>` em vez de um box para o
+bloco inteiro, e `paginateForPrint()` remonta as linhas que couberam numa
+tabela por folha. Sem isso a morfologia inteira pulava para a folha seguinte e
+deixava meia página em branco — e não havia como empurrar só o final dela.
+O marcador de quebra do preview vira um `<tr>` quando cai dentro da tabela;
+um `<div>` ali seria filho inválido e o navegador o jogaria para fora.
+
 ## A integração com a Curva de Crescimento
 
 O app de curvas é outro repositório, **`morgckummer-debug/curva-fetal`** — página
