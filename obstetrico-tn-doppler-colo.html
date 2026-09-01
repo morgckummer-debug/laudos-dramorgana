@@ -458,7 +458,7 @@
             <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
           </div>
           <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade / amnionicidade</label>
-            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option></select>
+            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option><option value="monocorionica_triamniotica" data-fetos="3">Monocoriônica e triamniótica</option></select>
           </div>
         </div>
       </div>
@@ -1167,6 +1167,10 @@ if(typeof criarMotorLaudo !== 'function'){
   // blocos já renderizados no preview, que são casados por esse mesmo uid). ----------
   const MAX_FETOS = 3;
   let fetoNextUid = 1;
+  // Qualquer corionicidade monocoriônica (gemelar ou trigemelar): o risco de
+  // Down é um cálculo só, compartilhado por todos os fetos — usado tanto no
+  // formulário (updateRiscoCompartilhado) quanto na montagem do laudo.
+  const CORIONICIDADE_MONO = ['monocorionica_diamniotica', 'monocorionica_monoamniotica', 'monocorionica_triamniotica'];
 
   function fetoCardHTML(uid){
     return ''
@@ -1285,16 +1289,15 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     updateRiscoCompartilhado();
   }
-  // Gemelar monocoriônica (diamniótica ou monoamniótica): o risco de Down é
-  // um cálculo só, igual pros dois fetos — não faz sentido pedir (e mostrar)
-  // dois conjuntos de valores que deveriam ser idênticos. O card de risco do
-  // segundo feto some do formulário; só o do Feto 1 é usado, no laudo impresso
-  // e na impressão, com o rótulo "ambos os fetos". Trigemelar nunca é
-  // monocoriônica nas opções deste laudo, então isso só se aplica a 2 fetos.
+  // Gestação monocoriônica (gemelar ou trigemelar): o risco de Down é um
+  // cálculo só, igual pra todos os fetos — não faz sentido pedir (e mostrar)
+  // vários conjuntos de valores que deveriam ser idênticos. O card de risco
+  // de todos menos o Feto 1 some do formulário; só o do Feto 1 é usado, no
+  // laudo impresso e na impressão, com o rótulo "ambos/todos os fetos".
   function updateRiscoCompartilhado(){
     const uids = fetoUids();
     const corVal = v('corionicidade');
-    const mono = uids.length === 2 && (corVal === 'monocorionica_diamniotica' || corVal === 'monocorionica_monoamniotica');
+    const mono = uids.length > 1 && CORIONICIDADE_MONO.indexOf(corVal) !== -1;
     uids.forEach((uid, idx)=>{
       const el = $('feto'+uid+'RiscoWrap');
       if(el) el.style.display = (mono && idx > 0) ? 'none' : '';
@@ -1475,11 +1478,15 @@ if(typeof criarMotorLaudo !== 'function'){
 
     items.push({key:'vitalidade', label: phraseRaw('impVitalidade'), auto:true});
 
-    // Gemelar monocoriônica: risco calculado uma vez só (ver
+    // Monocoriônica (gemelar ou trigemelar): risco calculado uma vez só (ver
     // updateRiscoCompartilhado()) — um item de checklist só, não um por feto.
+    // Chave segue o mesmo padrão '-f<uid>' do Feto 1 sozinho (k() abaixo),
+    // pra não colidir com a chave do exame de feto único nem escapar da
+    // limpeza de "feto morto" em renderChecklist().
     if(state.monoCompartilhado){
       const f = state.fetos[0];
-      items.push({key:'cromossomopatias', label: 'Ambos os fetos: ' + (f.riscoAlto
+      const todosTxt = state.fetos.length >= 3 ? 'Todos os fetos: ' : 'Ambos os fetos: ';
+      items.push({key:k('cromossomopatias', f), label: todosTxt + (f.riscoAlto
         ? phraseRaw('impCromossomopatiasAlto')
         : phraseRaw('impCromossomopatiasBaixo')), auto:true});
     } else {
@@ -1627,14 +1634,15 @@ if(typeof criarMotorLaudo !== 'function'){
       monocorionica_diamniotica: 'monocoriônica e diamniótica',
       monocorionica_monoamniotica: 'monocoriônica e monoamniótica',
       tricorionica_triamniotica: 'tricoriônica e triamniótica',
-      dicorionica_triamniotica: 'dicoriônica e triamniótica'
+      dicorionica_triamniotica: 'dicoriônica e triamniótica',
+      monocorionica_triamniotica: 'monocoriônica e triamniótica'
     };
     const corVal = v('corionicidade');
     const corTxt = corTxtMap[corVal] || 'dicoriônica e diamniótica';
-    // Gemelar monocoriônica: risco de Down calculado uma vez só, ver
-    // updateRiscoCompartilhado() acima (mantém o card do Feto 2 escondido no
-    // formulário).
-    const monoCompartilhado = uids.length === 2 && (corVal === 'monocorionica_diamniotica' || corVal === 'monocorionica_monoamniotica');
+    // Monocoriônica (gemelar ou trigemelar): risco de Down calculado uma vez
+    // só, ver updateRiscoCompartilhado() acima (mantém escondido no
+    // formulário o card de risco de todos os fetos menos o primeiro).
+    const monoCompartilhado = uids.length > 1 && CORIONICIDADE_MONO.indexOf(corVal) !== -1;
 
     // ----- Ao exame: útero e placenta (medidas da mãe, uma vez só) -----
     const placentaInsercao = v('placentaInsercao');
@@ -1771,11 +1779,13 @@ if(typeof criarMotorLaudo !== 'function'){
     // Risco para Down: sempre a última tabela antes da placenta/líquido, por
     // isso fica fora do forEach acima (depois da biometria de todos os fetos
     // e do Doppler), num laço à parte.
-    // Gemelar monocoriônica: um card só, com os valores do Feto 1 (o card do
-    // Feto 2 fica escondido no formulário — updateRiscoCompartilhado()).
+    // Monocoriônica (gemelar ou trigemelar): um card só, com os valores do
+    // Feto 1 (o card dos demais fetos fica escondido no formulário —
+    // updateRiscoCompartilhado()).
     if(monoCompartilhado){
       const f = fetos[0];
-      const riscoTitulo = 'Risco para Síndrome de Down (T21) — ambos os fetos:';
+      const todosTxt = fetos.length >= 3 ? 'todos os fetos' : 'ambos os fetos';
+      const riscoTitulo = 'Risco para Síndrome de Down (T21) — '+todosTxt+':';
       blocks.push({id:'riscos-compartilhado', html:'<div style="text-align:center;">'
         +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
         +'<div class="risk-card"><table class="biometria" style="text-align:left;">'
