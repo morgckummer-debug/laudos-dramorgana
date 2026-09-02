@@ -341,7 +341,8 @@
   <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases que entram na Impressão conforme o exame estiver normal. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui. Achados alterados não geram frase automática: descreva-os nos campos do formulário e ajuste a Impressão diretamente no laudo, ao lado.</p>
   <div class="field" style="margin-bottom:8px;"><label>Tireóide sem alterações</label><textarea id="ph_impNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Estudo Doppler dentro da normalidade</label><textarea id="ph_impDopplerNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido — use {LADO} e {TIRADS}</label><textarea id="ph_impNodulo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido, TI-RADS 2 ou 3 — use {LOBO} e {TIRADS}</label><textarea id="ph_impNoduloBenigno" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido, TI-RADS 4 ou 5 — use {LOBO}</label><textarea id="ph_impNoduloSuspeito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto colóide (1) — use {LADO}</label><textarea id="ph_impCistoColoide1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cistos colóides (ao menos 3) — use {LADO}</label><textarea id="ph_impCistoColoideVarios" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Tireoidite de Hashimoto — use {VOLVASC}</label><textarea id="ph_impHashimoto" rows="2"></textarea></div>
@@ -1056,7 +1057,8 @@ if(typeof criarMotorLaudo !== 'function'){
   const PHRASE_DEFAULTS = {
     impNormal: 'Tireóide sem alterações ao exame ecográfico.',
     impDopplerNormal: 'Estudo Doppler dentro da normalidade.',
-    impNodulo: 'Nódulo sólido no lobo {LADO} (TI-RADS – Cat. {TIRADS}).',
+    impNoduloBenigno: 'Nódulo sólido em Lobo {LOBO} - TIRADS-{TIRADS}.',
+    impNoduloSuspeito: 'Nódulo suspeito em Lobo {LOBO} - Seguir propedêutica.',
     impCistoColoide1: 'Cisto colóide no lobo {LADO}.',
     impCistoColoideVarios: 'Cistos colóides no lobo {LADO}.',
     impHashimoto: 'Tireoide de volume e vascularização {VOLVASC} com textura heterogênea, sugestiva de tireoidite crônica.',
@@ -1255,7 +1257,12 @@ if(typeof criarMotorLaudo !== 'function'){
       const captacao = v('noduloCaptacao')==='discreta' ? 'com discreta captação de fluxo periférica ao estudo Doppler' : 'sem captação de fluxo periférica ao estudo Doppler';
       const tirads = v('noduloTirads') || '3';
       parenquimaTexto = 'Nódulo sólido, '+ecogenicidade+', bem delimitado, paralelo a pele, contornos regulares, sem calcificações, sem halo periférico, '+captacao+', localizado no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' cm (TI-RADS – Cat. '+tirads+').';
-      parenquimaImpressaoHD = phrase('impNodulo', {LADO:'à '+(lobo==='direito'?'direita':'esquerda'), TIRADS:tirads});
+      // TI-RADS 2-3 é achado provavelmente benigno — a Impressão só registra a
+      // categoria; a partir de 4 ela vira achado suspeito, com recomendação de
+      // seguir a propedêutica, em vez do número da categoria.
+      parenquimaImpressaoHD = (parseInt(tirads, 10) >= 4)
+        ? phrase('impNoduloSuspeito', {LOBO:lobo})
+        : phrase('impNoduloBenigno', {LOBO:lobo, TIRADS:tirads});
     } else if(parenquimaAspecto==='cistoColoide1'){
       const lobo = v('cistoLobo') || 'direito';
       const terco = v('cistoTerco') || 'superior';
