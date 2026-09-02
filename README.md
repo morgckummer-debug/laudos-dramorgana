@@ -16,6 +16,7 @@ Como o motor é um arquivo à parte, o `.html` não abre mais sozinho fora da pa
 ### Medicina Interna
 - `abdome-total.html` — Ultrassonografia de Abdome Total (fígado, vesícula e vias biliares, pâncreas, rins, bexiga, grandes vasos abdominais e baço; inclui quantificação de esteatose hepática pelo método QUS, com grau calculado automaticamente a partir do % de gordura informado). Sem CPF e sem integração com a Curva de Crescimento — não tem feto, nada a gravar em `patients`/`gestacoes`/`exams`.
 - `rins-vias-urinarias.html` — Ultrassonografia dos Rins e Vias Urinárias (rim direito e esquerdo, bexiga e volume urinário pré e pós-miccional). Mesma observação: sem CPF, sem integração com a Curva de Crescimento.
+- `tireoide-doppler.html` — Ultrassonografia da Tireóide com Estudo Doppler (lobo direito, lobo esquerdo e istmo, com volume de cada porção calculado automaticamente pela fórmula do elipsoide — comprimento × AP × transversal × 0,523 — e volume total somando os dois lobos; padrão de vascularização e velocidade da artéria tireoidea inferior ao Doppler). Mesma observação: sem CPF, sem integração com a Curva de Crescimento.
 
 ### Ginecológico
 - `transvaginal.html` — Ultrassonografia Transvaginal
