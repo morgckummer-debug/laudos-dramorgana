@@ -695,8 +695,11 @@ function criarMotorLaudo(cfg){
   function draftFingerprint(s){
     // Superconjunto das chaves que os laudos usam: as que este laudo não tem
     // entram como null, e a impressão digital só precisa ser estável entre
-    // duas chamadas do mesmo laudo.
-    return JSON.stringify([s.fields, s.uids, s.miomaUids, s.checked, s.overrides, s.paper]);
+    // duas chamadas do mesmo laudo. `s.anexoFmf` só existe no morfológico de
+    // 1º trimestre (página de imagem colada do cálculo de risco); nos outros
+    // seis laudos é sempre undefined dos dois lados da comparação, então não
+    // muda nada para eles.
+    return JSON.stringify([s.fields, s.uids, s.miomaUids, s.checked, s.overrides, s.paper, s.anexoFmf]);
   }
 
   return {
