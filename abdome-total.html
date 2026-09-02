@@ -516,6 +516,7 @@
               <option value="nodulo">Nódulo renal (angiomiolipoma)</option>
               <option value="hidronefrose">Hidronefrose acentuada</option>
               <option value="nefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</option>
+              <option value="ureterolitiase">Ureterolitíase</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
@@ -591,6 +592,15 @@
         <div class="field-row field-row-compact conditional" id="wrap_rinsNefro">
           <div class="field"><label>Lado</label>
             <select id="rinsNefroLado"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option><option value="bilateral">Bilateral</option></select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsUreter">
+          <div class="field"><label>Terço do ureter</label>
+            <select id="rinsUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select>
+          </div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsUreterTamanho" placeholder="mm"></div>
+          <div class="field"><label>Hidronefrose a montante</label>
+            <select id="rinsUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select>
           </div>
         </div>
         <div class="field conditional" id="wrap_rinsDescricao">
@@ -1342,7 +1352,7 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   $('rinsAspecto').addEventListener('change', e=>{
     const val = e.target.value;
-    toggle('wrap_rinsLado', ['calculo','cisto','cistoLeiteCalcio','nodulo'].includes(val));
+    toggle('wrap_rinsLado', ['calculo','cisto','cistoLeiteCalcio','nodulo','ureterolitiase'].includes(val));
     toggle('wrap_rinsCalculoCampos', val==='calculo');
     toggle('wrap_rinsCalc1', val==='calculo');
     toggle('wrap_rinsCalc2', val==='calculo' && v('rinsCalculoQtd')==='2');
@@ -1353,6 +1363,7 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_rinsNodulo', val==='nodulo');
     toggle('wrap_rinsHidro', val==='hidronefrose');
     toggle('wrap_rinsNefro', val==='nefrocalcinose');
+    toggle('wrap_rinsUreter', val==='ureterolitiase');
     toggle('wrap_rinsDescricao', val==='alterado');
   });
   $('rinsCalculoQtd').addEventListener('change', updateRinsCalculoCampos);
@@ -1639,6 +1650,10 @@ if(typeof criarMotorLaudo !== 'function'){
     flag('rinsHidroMedida', rinsHidroMedidaNum!==null && rinsHidroMedidaNum > 10.0);
     const rinsNefroLado = v('rinsNefroLado') || 'direito';
 
+    const rinsUreterTerco = v('rinsUreterTerco') || 'proximal';
+    const rinsUreterTamanhoTexto = blankOrValue(reqIf('rinsUreterTamanho', rinsAspecto==='ureterolitiase'));
+    const rinsUreterHidro = v('rinsUreterHidro') || 'sem';
+
     let rinsTextoTail;
     let rinsImpressaoHD = null;
     if(rinsAspecto==='calculo'){
@@ -1673,6 +1688,10 @@ if(typeof criarMotorLaudo !== 'function'){
       rinsTextoTail = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular evidente pelo aumento da ecogenicidade das medulares renais.';
       const nefroLadoHD = rinsNefroLado==='bilateral' ? 'bilateral' : (rinsNefroLado==='esquerdo' ? 'à esquerda' : 'à direita');
       rinsImpressaoHD = 'Nefrocalcinose medular '+nefroLadoHD+'.';
+    } else if(rinsAspecto==='ureterolitiase'){
+      const hidroTexto = rinsUreterHidro==='com' ? 'condicionando' : 'sem condicionar';
+      rinsTextoTail = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Presença de imagem ovalada hiperecogênica localizada no terço '+rinsUreterTerco+' do ureter '+rinsLadoNome+', medindo '+span(rinsUreterTamanhoTexto)+' mm, '+hidroTexto+' hidronefrose a montante. Espaço perirrenal livre.';
+      rinsImpressaoHD = 'Ureterolitíase '+rinsUreterTerco+' '+rinsLadoHD+'.';
     } else if(rinsAspecto==='alterado' && rinsDescricao){
       rinsTextoTail = escapeHtml(rinsDescricao)+'.';
     } else {
