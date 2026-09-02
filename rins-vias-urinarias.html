@@ -363,6 +363,8 @@
               <option value="cistoLeiteCalcio">Cisto de leite de cálcio</option>
               <option value="nodulo">Nódulo renal (angiomiolipoma)</option>
               <option value="hidronefrose">Hidronefrose acentuada</option>
+              <option value="nefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</option>
+              <option value="ureterolitiase">Ureterolitíase</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
@@ -424,6 +426,15 @@
             <span class="flag-note" id="flag_rimDHidroMedida">Acima do valor de referência</span>
           </div>
         </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rimDUreter">
+          <div class="field"><label>Terço do ureter</label>
+            <select id="rimDUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select>
+          </div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDUreterTamanho" placeholder="mm"></div>
+          <div class="field"><label>Hidronefrose a montante</label>
+            <select id="rimDUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select>
+          </div>
+        </div>
         <div class="field conditional" id="wrap_rimDDescricao">
           <label>Descreva o achado</label>
           <textarea id="rimDDescricao" rows="2" placeholder="ex: cálculo no cálice inferior medindo...; dilatação pielocalicinal leve..."></textarea>
@@ -452,6 +463,8 @@
               <option value="cistoLeiteCalcio">Cisto de leite de cálcio</option>
               <option value="nodulo">Nódulo renal (angiomiolipoma)</option>
               <option value="hidronefrose">Hidronefrose acentuada</option>
+              <option value="nefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</option>
+              <option value="ureterolitiase">Ureterolitíase</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
@@ -513,6 +526,15 @@
             <span class="flag-note" id="flag_rimEHidroMedida">Acima do valor de referência</span>
           </div>
         </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rimEUreter">
+          <div class="field"><label>Terço do ureter</label>
+            <select id="rimEUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select>
+          </div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimEUreterTamanho" placeholder="mm"></div>
+          <div class="field"><label>Hidronefrose a montante</label>
+            <select id="rimEUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select>
+          </div>
+        </div>
         <div class="field conditional" id="wrap_rimEDescricao">
           <label>Descreva o achado</label>
           <textarea id="rimEDescricao" rows="2" placeholder="ex: cálculo no cálice inferior medindo...; dilatação pielocalicinal leve..."></textarea>
@@ -537,6 +559,7 @@
             <select id="bexigaAspecto">
               <option value="normal">Normal (topografia e repleção normais)</option>
               <option value="esforco">Bexiga de esforço (paredes espessadas e trabeculadas)</option>
+              <option value="calculo">Cálculo vesical</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
@@ -547,6 +570,9 @@
             <span class="vr">VR até 3,0 mm</span>
             <span class="flag-note" id="flag_bexigaEsforcoEspessura">Acima do valor de referência</span>
           </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_bexigaCalculoCampos">
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="bexigaCalculoTamanho" placeholder="mm"></div>
         </div>
         <div class="field conditional" id="wrap_bexigaDescricao">
           <label>Descreva o achado</label>
@@ -1143,6 +1169,7 @@ if(typeof criarMotorLaudo !== 'function'){
       toggle('wrap_'+p+'LeiteCalcio', val==='cistoLeiteCalcio');
       toggle('wrap_'+p+'Nodulo', val==='nodulo');
       toggle('wrap_'+p+'Hidro', val==='hidronefrose');
+      toggle('wrap_'+p+'Ureter', val==='ureterolitiase');
       toggle('wrap_'+p+'Descricao', val==='alterado');
     });
     $(p+'CalculoQtd').addEventListener('change', updateCalculoCampos);
@@ -1151,8 +1178,10 @@ if(typeof criarMotorLaudo !== 'function'){
   wireRim('rimD');
   wireRim('rimE');
   $('bexigaAspecto').addEventListener('change', e=>{
-    toggle('wrap_bexigaEsforco', e.target.value==='esforco');
-    toggle('wrap_bexigaDescricao', e.target.value==='alterado');
+    const val = e.target.value;
+    toggle('wrap_bexigaEsforco', val==='esforco');
+    toggle('wrap_bexigaCalculoCampos', val==='calculo');
+    toggle('wrap_bexigaDescricao', val==='alterado');
   });
 
   function classificacaoVolumePos(ml){
@@ -1252,7 +1281,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // prefixo do campo (rimD/rimE) e pelo texto de lado usado no HD.
     function computeRimAchado(p, ladoHD){
       const aspecto = v(p+'Aspecto');
-      let tail = null, hd = null;
+      let tail = null, hd = null, diferenciacao = null;
       if(aspecto==='calculo'){
         const qtd = v(p+'CalculoQtd') || '1';
         const terco1 = v(p+'Calc1Terco') || 'superior';
@@ -1299,8 +1328,20 @@ if(typeof criarMotorLaudo !== 'function'){
         flag(p+'HidroMedida', medidaNum!==null && medidaNum > 10.0);
         tail = 'Observa-se dilatação de pelve renal, medindo '+span(medida)+' mm (VR até 10,0 mm); além disso, há dilatação do sistema coletor que se estende até os pequenos cálices, ocasionando redução da espessura do parênquima renal.';
         hd = 'Hidronefrose acentuada '+ladoHD+'.';
+      } else if(aspecto==='nefrocalcinose'){
+        diferenciacao = 'evidente pelo aumento da ecogenicidade das medulares renais';
+        hd = 'Nefrocalcinose medular '+ladoHD+'.';
+      } else if(aspecto==='ureterolitiase'){
+        const terco = v(p+'UreterTerco') || 'proximal';
+        const tam = blankOrValue(req(p+'UreterTamanho'));
+        const hidroTexto = v(p+'UreterHidro')==='com' ? 'condicionando' : 'sem condicionar';
+        // Mantém o resto da descrição normal do rim (coletor sem dilatação, sem
+        // cálculos, espaço perirrenal livre) — só a frase "Ureter <lado> sem
+        // sinais de dilatações" (a única específica sobre o ureter) sai daqui.
+        tail = 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Presença de imagem ovalada hiperecogênica localizada no terço '+terco+' do ureter, medindo '+span(tam)+' mm, '+hidroTexto+' hidronefrose a montante.';
+        hd = 'Ureterolitíase '+terco+' '+ladoHD+'.';
       }
-      return {tail, hd};
+      return {tail, hd, diferenciacao};
     }
 
     // ----- Rim direito -----
@@ -1330,6 +1371,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const bexigaEsforcoNum = num('bexigaEsforcoEspessura'); reqIf('bexigaEsforcoEspessura', bexigaAspecto==='esforco');
     const bexigaEsforcoTexto = blankOrValue(v('bexigaEsforcoEspessura'));
     flag('bexigaEsforcoEspessura', bexigaEsforcoNum!==null && bexigaEsforcoNum > 3.0);
+    const bexigaCalculoTamanhoTexto = blankOrValue(reqIf('bexigaCalculoTamanho', bexigaAspecto==='calculo'));
     const volumeInicialTexto = blankOrValue(req('volumeInicial'));
     const volumePosNum = num('volumePosMiccional'); req('volumePosMiccional');
     const volumePosTexto = blankOrValue(v('volumePosMiccional'));
@@ -1348,7 +1390,9 @@ if(typeof criarMotorLaudo !== 'function'){
     // ----- Impressão -----
     const state = {
       rimDImpressaoHD: rimDAchado.hd, rimEImpressaoHD: rimEAchado.hd,
-      bexigaImpressaoHD: bexigaAspecto==='esforco' ? 'Achados ecográficos sugestivos de bexiga de esforço.' : null
+      bexigaImpressaoHD: bexigaAspecto==='esforco' ? 'Achados ecográficos sugestivos de bexiga de esforço.'
+        : bexigaAspecto==='calculo' ? 'Cistolitíase.'
+        : null
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
@@ -1376,18 +1420,22 @@ if(typeof criarMotorLaudo !== 'function'){
       : (rimDAspecto==='alterado' && rimDDescricao)
         ? escapeHtml(rimDDescricao)+'.'
         : 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureter direito sem sinais de dilatações.';
-    blocks.push({id:'rimD', html:'<p class="linha"><strong>Rim Direito:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimDDiametroTexto)+' cm. Cortical renal homogênea com espessura de '+span(rimDCorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular anatômica. Área pielovascular livre. '+rimDTail+'</p>'});
+    const rimDDiferenciacao = rimDAchado.diferenciacao || 'anatômica';
+    blocks.push({id:'rimD', html:'<p class="linha"><strong>Rim Direito:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimDDiametroTexto)+' cm. Cortical renal homogênea com espessura de '+span(rimDCorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimDDiferenciacao+'. Área pielovascular livre. '+rimDTail+'</p>'});
 
     const rimETail = rimEAchado.tail
       ? rimEAchado.tail
       : (rimEAspecto==='alterado' && rimEDescricao)
         ? escapeHtml(rimEDescricao)+'.'
         : 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureter esquerdo sem sinais de dilatações.';
-    blocks.push({id:'rimE', html:'<p class="linha"><strong>Rim Esquerdo:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimEDiametroTexto)+' cm. Cortical renal homogênea com espessura de '+span(rimECorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular anatômica. Área pielovascular livre. '+rimETail+'</p>'});
+    const rimEDiferenciacao = rimEAchado.diferenciacao || 'anatômica';
+    blocks.push({id:'rimE', html:'<p class="linha"><strong>Rim Esquerdo:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimEDiametroTexto)+' cm. Cortical renal homogênea com espessura de '+span(rimECorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimEDiferenciacao+'. Área pielovascular livre. '+rimETail+'</p>'});
 
     let bexigaTexto;
     if(bexigaAspecto==='esforco'){
       bexigaTexto = 'Com boa repleção, de forma anatômica, paredes difusamente espessadas, medindo '+span(bexigaEsforcoTexto)+' mm (VR: até 3,0 mm) e trabeculadas. Conteúdo de aspecto límpido. Ausência de dilatação dos ureteres distais. Meatos ureterais sem alterações.';
+    } else if(bexigaAspecto==='calculo'){
+      bexigaTexto = 'De topografia usual, boa repleção, contorno interno regular. Em seu interior, observa-se imagem ovalada hiperecogênica, móvel às mudanças de decúbito, que condiciona sombra acústica posterior, medindo '+span(bexigaCalculoTamanhoTexto)+' mm. Meatos ureterais pérvios, sem alterações.';
     } else if(bexigaAspecto==='alterado' && bexigaDescricao){
       bexigaTexto = escapeHtml(bexigaDescricao)+'.';
     } else {
