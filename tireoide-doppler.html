@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laudo Rins e Vias Urinárias — Dra. Morgana Kummer</title>
+<title>Laudo Tireóide com Doppler — Dra. Morgana Kummer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -110,6 +110,8 @@
   .format-warning{font-size:11px;color:#B4432F;font-weight:600;display:block;margin-top:3px;}
   .field .flag-note{font-size:11px;color:var(--amber);font-weight:600;display:none;}
   .field .flag-note.show{display:block;}
+  .grau-live{font-size:12.5px;font-weight:600;color:var(--sage);margin-top:6px;display:block;}
+  .grau-live.amber{color:var(--amber);}
 
   .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
   .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
@@ -162,6 +164,7 @@
     margin:0 0 24px;font-weight:700;
   }
   .paper h3.doctitle > br:first-child{display:none;}
+  .paper h3.doctitle > br.quebra-doppler{display:inline !important;}
   .paper .relato{color:#C0392B;font-weight:700;margin:0 0 12px;}
   .paper h4.sec{
     text-decoration:underline;font-size:13px;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
@@ -172,6 +175,10 @@
   .paper p.linha.intro.intro-last{margin:0 0 var(--linha-margin, 16px);text-decoration:underline;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
+  .paper table.medidas{border-collapse:collapse;margin:0 0 var(--linha-margin, 16px);width:100%;}
+  .paper table.medidas th, .paper table.medidas td{border:1px solid #2b2b2e;padding:4px 8px;text-align:center;}
+  .paper table.medidas th{font-weight:700;}
+  .paper table.medidas td:first-child, .paper table.medidas th:first-child{text-align:left;font-weight:700;}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
   .paper ul.impressao li{margin-bottom:2px;font-weight:700;text-align:justify;padding-left:1em;text-indent:-1em;}
   .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
@@ -260,7 +267,7 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
+    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.medidas{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -275,8 +282,8 @@
   <div class="topbar-brand">
     <div class="logo-badge"><img src="logo-horiz.png" alt="Clínica de Ultrassom — Dra. Morgana Kummer"></div>
     <div>
-      <h1>Rins e Vias Urinárias</h1>
-      <div class="sub">Ultrassonografia dos Rins e Vias Urinárias · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
+      <h1>Tireóide com Doppler</h1>
+      <div class="sub">Ultrassonografia da Tireóide com Estudo Doppler · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
     </div>
   </div>
   <div class="topbar-actions">
@@ -291,8 +298,8 @@
       <option value="index.html">Todos os laudos</option>
       <optgroup label="Medicina Interna">
         <option value="abdome-total.html">Abdome Total</option>
-        <option value="rins-vias-urinarias.html" selected>Rins e Vias Urinárias</option>
-        <option value="tireoide-doppler.html">Tireóide com Doppler</option>
+        <option value="rins-vias-urinarias.html">Rins e Vias Urinárias</option>
+        <option value="tireoide-doppler.html" selected>Tireóide com Doppler</option>
       </optgroup>
       <optgroup label="Ginecológico">
         <option value="transvaginal.html">Transvaginal</option>
@@ -329,27 +336,9 @@
 
 <div class="settings-panel" id="phrasesPanel">
   <h3>Personalizar frases da impressão diagnóstica</h3>
-  <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases que entram na Impressão diagnóstica conforme o que você marca no formulário. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui.</p>
-
-  <h3 style="margin-top:4px;">Geral</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Nada alterado</label><textarea id="ph_impNormal" rows="2"></textarea></div>
-
-  <hr class="sep">
-  <h3>Rins (direito e esquerdo)</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Cálculo(s) renal(is) — use {LADO}</label><textarea id="ph_impCalculo" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>1 cisto renal simples — use {LADO}</label><textarea id="ph_impCistoSingular" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>2 ou vários cistos renais simples — use {LADO}</label><textarea id="ph_impCistoPlural" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Cisto de leite de cálcio — use {LADO}</label><textarea id="ph_impLeiteCalcio" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Nódulo renal (angiomiolipoma) — use {LADO}</label><textarea id="ph_impNodulo" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Hidronefrose acentuada — use {LADO}</label><textarea id="ph_impHidronefrose" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Nefrocalcinose medular — use {LADO}</label><textarea id="ph_impNefrocalcinose" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ureterolitíase — use {TERCO} e {LADO}</label><textarea id="ph_impUreterolitiase" rows="2"></textarea></div>
-
-  <hr class="sep">
-  <h3>Bexiga</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Bexiga de esforço</label><textarea id="ph_impBexigaEsforco" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Cistolitíase</label><textarea id="ph_impBexigaCalculo" rows="2"></textarea></div>
-
+  <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases que entram na Impressão conforme o exame estiver normal. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui. Achados alterados não geram frase automática: descreva-os nos campos do formulário e ajuste a Impressão diretamente no laudo, ao lado.</p>
+  <div class="field" style="margin-bottom:8px;"><label>Tireóide sem alterações</label><textarea id="ph_impNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Estudo Doppler dentro da normalidade</label><textarea id="ph_impDopplerNormal" rows="2"></textarea></div>
   <hr class="sep">
   <div class="save-row">
     <button class="btn-copy" id="btnSavePhrases">Salvar frases</button>
@@ -372,251 +361,107 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
-          <div class="field"><label>Indicação clínica</label>
-            <select id="lateralidadeDor">
-              <option value="nenhuma">Sem dor referida (não imprime linha)</option>
-              <option value="direita">Dor à direita</option>
-              <option value="esquerda">Dor à esquerda</option>
-              <option value="bilateral">Dor bilateral</option>
-            </select>
-          </div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Rim direito</h2></div>
+      <div class="card-head"><h2>Tireóide — Aspecto geral</h2></div>
       <div class="card-body">
         <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="rimDAspecto">
-              <option value="normal">Normal (sistema coletor, cálculos e ureter sem alterações)</option>
-              <option value="calculo">Cálculo(s)</option>
-              <option value="cisto">Cisto(s) simples</option>
-              <option value="cistoLeiteCalcio">Cisto de leite de cálcio</option>
-              <option value="nodulo">Nódulo renal (angiomiolipoma)</option>
-              <option value="hidronefrose">Hidronefrose acentuada</option>
-              <option value="nefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</option>
-              <option value="ureterolitiase">Ureterolitíase</option>
+          <div class="field"><label>Topografia e contornos</label>
+            <select id="contornosAspecto">
+              <option value="normal">Normal (topografia usual, contornos regulares)</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
         </div>
-        <div class="field-row conditional" id="wrap_rimDCalculoCampos">
-          <div class="field"><label>Quantidade</label>
-            <select id="rimDCalculoQtd"><option value="1">1 cálculo</option><option value="2">2 cálculos</option></select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDCalc1">
-          <div class="field"><label>Terço (1º cálculo)</label>
-            <select id="rimDCalc1Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (1º cálculo)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDCalc1Tamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDCalc2">
-          <div class="field"><label>Terço (2º cálculo)</label>
-            <select id="rimDCalc2Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (2º cálculo)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDCalc2Tamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row conditional" id="wrap_rimDCistoCampos">
-          <div class="field"><label>Quantidade</label>
-            <select id="rimDCistoQtd"><option value="1">1 cisto</option><option value="2">2 cistos</option><option value="varios">Vários cistos</option></select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDCisto1">
-          <div class="field"><label>Terço (1º cisto)</label>
-            <select id="rimDCisto1Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (1º cisto)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDCisto1Tamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDCisto2">
-          <div class="field"><label>Terço (2º cisto)</label>
-            <select id="rimDCisto2Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (2º cisto)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDCisto2Tamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDCistoVarios">
-          <div class="field"><label>Menor</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDCistoVariosMin" placeholder="mm"></div>
-          <div class="field"><label>Maior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDCistoVariosMax" placeholder="mm"></div>
-          <div class="field"><label>Terço do maior</label>
-            <select id="rimDCistoVariosTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDLeiteCalcio">
-          <div class="field"><label>Tamanho (terço superior)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDLeiteCalcioTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDNodulo">
-          <div class="field"><label>Terço</label>
-            <select id="rimDNoduloTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDNoduloTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDHidro">
-          <div class="field"><label>Medida da pelve renal</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDHidroMedida" placeholder="mm">
-            <span class="vr">VR até 10,0 mm</span>
-            <span class="flag-note" id="flag_rimDHidroMedida">Acima do valor de referência</span>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDUreter">
-          <div class="field"><label>Terço do ureter</label>
-            <select id="rimDUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDUreterTamanho" placeholder="mm"></div>
-          <div class="field"><label>Hidronefrose a montante</label>
-            <select id="rimDUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_rimDDescricao">
+        <div class="field conditional" id="wrap_contornosDescricao">
           <label>Descreva o achado</label>
-          <textarea id="rimDDescricao" rows="2" placeholder="ex: cálculo no cálice inferior medindo...; dilatação pielocalicinal leve..."></textarea>
+          <textarea id="contornosDescricao" rows="2" placeholder="ex: aumentada de volume difusamente, contornos lobulados..."></textarea>
         </div>
         <hr class="sep">
-        <div class="field-row field-row-compact">
-          <div class="field"><label>Diâmetro bipolar</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDDiametro" placeholder="cm"></div>
-          <div class="field"><label>Espessura cortical</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDCortical" placeholder="mm">
-            <span class="vr">VR &gt; 11,0 mm</span>
-            <span class="flag-note" id="flag_rimDCortical">Abaixo do valor de referência</span>
+        <div class="field-row">
+          <div class="field"><label>Parênquima</label>
+            <select id="parenquimaAspecto">
+              <option value="normal">Normal (textura homogênea, sem nódulos sólidos ou císticos)</option>
+              <option value="alterado">Outro (descrever)</option>
+            </select>
           </div>
+        </div>
+        <div class="field conditional" id="wrap_parenquimaDescricao">
+          <label>Descreva o achado</label>
+          <textarea id="parenquimaDescricao" rows="2" placeholder="ex: nódulo sólido, hipoecogênico, contornos regulares, localizado no terço médio do lobo direito, medindo..."></textarea>
+        </div>
+        <hr class="sep">
+        <div class="field-row">
+          <div class="field"><label>Demais estruturas cervicais</label>
+            <select id="cervicaisAspecto">
+              <option value="normal">Sem alterações (traqueia em posição anatômica)</option>
+              <option value="alterado">Outro (descrever)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_cervicaisDescricao">
+          <label>Descreva o achado</label>
+          <textarea id="cervicaisDescricao" rows="2" placeholder="ex: linfonodomegalia cervical..."></textarea>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Rim esquerdo</h2></div>
+      <div class="card-head"><h2>Tireóide — Dimensões</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="rimEAspecto">
-              <option value="normal">Normal (sistema coletor, cálculos e ureter sem alterações)</option>
-              <option value="calculo">Cálculo(s)</option>
-              <option value="cisto">Cisto(s) simples</option>
-              <option value="cistoLeiteCalcio">Cisto de leite de cálcio</option>
-              <option value="nodulo">Nódulo renal (angiomiolipoma)</option>
-              <option value="hidronefrose">Hidronefrose acentuada</option>
-              <option value="nefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</option>
-              <option value="ureterolitiase">Ureterolitíase</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_rimECalculoCampos">
-          <div class="field"><label>Quantidade</label>
-            <select id="rimECalculoQtd"><option value="1">1 cálculo</option><option value="2">2 cálculos</option></select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimECalc1">
-          <div class="field"><label>Terço (1º cálculo)</label>
-            <select id="rimECalc1Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (1º cálculo)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimECalc1Tamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimECalc2">
-          <div class="field"><label>Terço (2º cálculo)</label>
-            <select id="rimECalc2Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (2º cálculo)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimECalc2Tamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row conditional" id="wrap_rimECistoCampos">
-          <div class="field"><label>Quantidade</label>
-            <select id="rimECistoQtd"><option value="1">1 cisto</option><option value="2">2 cistos</option><option value="varios">Vários cistos</option></select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimECisto1">
-          <div class="field"><label>Terço (1º cisto)</label>
-            <select id="rimECisto1Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (1º cisto)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimECisto1Tamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimECisto2">
-          <div class="field"><label>Terço (2º cisto)</label>
-            <select id="rimECisto2Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (2º cisto)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimECisto2Tamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimECistoVarios">
-          <div class="field"><label>Menor</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimECistoVariosMin" placeholder="mm"></div>
-          <div class="field"><label>Maior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimECistoVariosMax" placeholder="mm"></div>
-          <div class="field"><label>Terço do maior</label>
-            <select id="rimECistoVariosTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimELeiteCalcio">
-          <div class="field"><label>Tamanho (terço superior)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimELeiteCalcioTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimENodulo">
-          <div class="field"><label>Terço</label>
-            <select id="rimENoduloTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimENoduloTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimEHidro">
-          <div class="field"><label>Medida da pelve renal</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimEHidroMedida" placeholder="mm">
-            <span class="vr">VR até 10,0 mm</span>
-            <span class="flag-note" id="flag_rimEHidroMedida">Acima do valor de referência</span>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimEUreter">
-          <div class="field"><label>Terço do ureter</label>
-            <select id="rimEUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimEUreterTamanho" placeholder="mm"></div>
-          <div class="field"><label>Hidronefrose a montante</label>
-            <select id="rimEUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_rimEDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="rimEDescricao" rows="2" placeholder="ex: cálculo no cálice inferior medindo...; dilatação pielocalicinal leve..."></textarea>
-        </div>
-        <hr class="sep">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">O volume de cada porção é calculado automaticamente pela fórmula do elipsoide (comprimento × AP × transversal × 0,523). O volume total da glândula soma os dois lobos.</p>
+        <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Lobo direito</p>
         <div class="field-row field-row-compact">
-          <div class="field"><label>Diâmetro bipolar</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimEDiametro" placeholder="cm"></div>
-          <div class="field"><label>Espessura cortical</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimECortical" placeholder="mm">
-            <span class="vr">VR &gt; 11,0 mm</span>
-            <span class="flag-note" id="flag_rimECortical">Abaixo do valor de referência</span>
-          </div>
+          <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDLong" placeholder="cm"></div>
+          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDAP" placeholder="cm"></div>
+          <div class="field"><label>Transversal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDTransv" placeholder="cm"></div>
         </div>
+        <span class="grau-live" id="loboDVolumeLabel"></span>
+        <hr class="sep">
+        <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Lobo esquerdo</p>
+        <div class="field-row field-row-compact">
+          <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboELong" placeholder="cm"></div>
+          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboEAP" placeholder="cm"></div>
+          <div class="field"><label>Transversal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboETransv" placeholder="cm"></div>
+        </div>
+        <span class="grau-live" id="loboEVolumeLabel"></span>
+        <hr class="sep">
+        <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Istmo</p>
+        <div class="field-row field-row-compact">
+          <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="istmoLong" placeholder="cm"></div>
+          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="istmoAP" placeholder="cm"></div>
+          <div class="field"><label>Transversal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="istmoTransv" placeholder="cm"></div>
+        </div>
+        <span class="grau-live" id="istmoVolumeLabel"></span>
+        <hr class="sep">
+        <span class="grau-live" id="volumeTotalLabel" style="font-size:13.5px;"></span>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Bexiga</h2></div>
+      <div class="card-head"><h2>Estudo Doppler</h2></div>
       <div class="card-body">
         <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="bexigaAspecto">
-              <option value="normal">Normal (topografia e repleção normais)</option>
-              <option value="esforco">Bexiga de esforço (paredes espessadas e trabeculadas)</option>
-              <option value="calculo">Cálculo vesical</option>
+          <div class="field"><label>Padrão de vascularização</label>
+            <select id="vascularizacaoAspecto">
+              <option value="normal">Normal (padrão normal ao mapeamento colorido)</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
         </div>
-        <div class="field-row field-row-compact conditional" id="wrap_bexigaEsforco">
-          <div class="field"><label>Espessura da parede</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="bexigaEsforcoEspessura" placeholder="mm">
-            <span class="vr">VR até 3,0 mm</span>
-            <span class="flag-note" id="flag_bexigaEsforcoEspessura">Acima do valor de referência</span>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_bexigaCalculoCampos">
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="bexigaCalculoTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field conditional" id="wrap_bexigaDescricao">
+        <div class="field conditional" id="wrap_vascularizacaoDescricao">
           <label>Descreva o achado</label>
-          <textarea id="bexigaDescricao" rows="2" placeholder="ex: espessamento parietal; conteúdo ecogênico em suspensão..."></textarea>
+          <textarea id="vascularizacaoDescricao" rows="2" placeholder="ex: aumento difuso da vascularização ao mapeamento colorido, sugestivo de tireoidite..."></textarea>
         </div>
         <hr class="sep">
         <div class="field-row field-row-compact">
-          <div class="field"><label>Volume urinário inicial</label><input type="text" inputmode="decimal" data-decimals="0" id="volumeInicial" placeholder="ml"></div>
-          <div class="field"><label>Volume pós-miccional</label>
-            <input type="text" inputmode="decimal" data-decimals="0" id="volumePosMiccional" placeholder="ml">
-            <span class="vr" id="volumePosClassificacao">Desprezível: 0–30 mL</span>
+          <div class="field"><label>Artéria Tireoidea Inferior — velocidade</label>
+            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="velocidadeATI" placeholder="cm/s">
+            <span class="vr">VR até 30,0 cm/s</span>
+            <span class="flag-note" id="flag_velocidadeATI">Acima do valor de referência</span>
           </div>
         </div>
       </div>
@@ -714,7 +559,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.09.01-a</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.09.02-a</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -759,7 +604,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // máscara de CPF e validação de decimais. Consertar qualquer um deles é uma
   // edição só, lá, e vale para todos. Ver o cabeçalho do laudo-core.js.
   const motor = criarMotorLaudo({
-    DRAFT_KEY: 'laudo-rascunho-rins-vias-urinarias-v1',
+    DRAFT_KEY: 'laudo-rascunho-tireoide-doppler-v1',
     render:          () => render(),
     draftSnapshot:   () => draftSnapshot(),
     tituloExame:     () => tituloExame(),
@@ -1099,12 +944,13 @@ if(typeof criarMotorLaudo !== 'function'){
     medicoQual2:'Pós-Graduação em Medicina Fetal pela FCMMG.',
     medicoCRM:'CRMMG: 45.304 - RQE: 39.156'
   };
-  const CORTICAL_MIN = 11.0;
-  const RESIDUO_MAX = 30;
+  const VOLUME_TOTAL_MIN = 6.0;
+  const VOLUME_TOTAL_MAX = 15.0;
+  const VELOCIDADE_ATI_MAX = 30.0;
 
   async function loadVR(){
     try{
-      const val = await kvStore.get('rins-vr-settings');
+      const val = await kvStore.get('tireoide-doppler-vr-settings');
       if(val){
         const parsed = JSON.parse(val);
         VR = Object.assign(VR, parsed);
@@ -1129,7 +975,7 @@ if(typeof criarMotorLaudo !== 'function'){
       medicoCRM: $('vr_medicoCRM').value || VR.medicoCRM
     };
     try{
-      await kvStore.set('rins-vr-settings', JSON.stringify(VR));
+      await kvStore.set('tireoide-doppler-vr-settings', JSON.stringify(VR));
       const m = $('vrSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
     }catch(e){ /* storage unavailable — values still apply for this session */ }
     render();
@@ -1137,23 +983,14 @@ if(typeof criarMotorLaudo !== 'function'){
 
   // ---------- Frases da impressão diagnóstica ----------
   const PHRASE_DEFAULTS = {
-    impNormal: 'Exame ecográfico dentro da normalidade.',
-    impCalculo: 'Nefrolitíase {LADO}.',
-    impCistoSingular: 'Cisto renal simples {LADO}.',
-    impCistoPlural: 'Cistos renais simples {LADO}.',
-    impLeiteCalcio: 'Cisto renal simples {LADO} (leite de cálcio).',
-    impNodulo: 'Nódulo renal {LADO} sugestivo de angiomiolipoma.',
-    impHidronefrose: 'Hidronefrose acentuada {LADO}.',
-    impNefrocalcinose: 'Nefrocalcinose medular {LADO}.',
-    impUreterolitiase: 'Ureterolitíase {TERCO} {LADO}.',
-    impBexigaEsforco: 'Achados ecográficos sugestivos de bexiga de esforço.',
-    impBexigaCalculo: 'Cistolitíase.'
+    impNormal: 'Tireóide sem alterações ao exame ecográfico.',
+    impDopplerNormal: 'Estudo Doppler dentro da normalidade.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
 
   async function loadPhrases(){
     try{
-      const val = await kvStore.get('rins-phrase-templates');
+      const val = await kvStore.get('tireoide-doppler-phrase-templates');
       if(val){
         const parsed = JSON.parse(val);
         PHRASES = Object.assign({}, PHRASE_DEFAULTS, parsed);
@@ -1167,12 +1004,8 @@ if(typeof criarMotorLaudo !== 'function'){
       if(el) el.value = PHRASES[key];
     });
   }
-  function phrase(key, repl){
-    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
-    if(repl){
-      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
-    }
-    return t;
+  function phrase(key){
+    return PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
   }
   $('btnPhrases').addEventListener('click', ()=>{
     $('phrasesPanel').classList.toggle('show');
@@ -1185,7 +1018,7 @@ if(typeof criarMotorLaudo !== 'function'){
     });
     PHRASES = updated;
     try{
-      await kvStore.set('rins-phrase-templates', JSON.stringify(PHRASES));
+      await kvStore.set('tireoide-doppler-phrase-templates', JSON.stringify(PHRASES));
       const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
     }catch(e){ /* storage unavailable — values still apply for this session */ }
     render();
@@ -1194,7 +1027,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
     PHRASES = Object.assign({}, PHRASE_DEFAULTS);
     applyPhrasesToInputs();
-    try{ await kvStore.set('rins-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
+    try{ await kvStore.set('tireoide-doppler-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
     render();
   });
 
@@ -1213,47 +1046,15 @@ if(typeof criarMotorLaudo !== 'function'){
     if(sel.value !== 'outro') applyExecutante(sel.value);
   }
 
-  function wireRim(p){
-    function updateCalculoCampos(){ toggle('wrap_'+p+'Calc2', v(p+'CalculoQtd')==='2'); }
-    function updateCistoCampos(){
-      const qtd = v(p+'CistoQtd');
-      toggle('wrap_'+p+'Cisto1', qtd==='1' || qtd==='2');
-      toggle('wrap_'+p+'Cisto2', qtd==='2');
-      toggle('wrap_'+p+'CistoVarios', qtd==='varios');
-    }
-    $(p+'Aspecto').addEventListener('change', e=>{
-      const val = e.target.value;
-      toggle('wrap_'+p+'CalculoCampos', val==='calculo');
-      toggle('wrap_'+p+'Calc1', val==='calculo');
-      toggle('wrap_'+p+'Calc2', val==='calculo' && v(p+'CalculoQtd')==='2');
-      toggle('wrap_'+p+'CistoCampos', val==='cisto');
-      if(val==='cisto') updateCistoCampos();
-      else { toggle('wrap_'+p+'Cisto1', false); toggle('wrap_'+p+'Cisto2', false); toggle('wrap_'+p+'CistoVarios', false); }
-      toggle('wrap_'+p+'LeiteCalcio', val==='cistoLeiteCalcio');
-      toggle('wrap_'+p+'Nodulo', val==='nodulo');
-      toggle('wrap_'+p+'Hidro', val==='hidronefrose');
-      toggle('wrap_'+p+'Ureter', val==='ureterolitiase');
-      toggle('wrap_'+p+'Descricao', val==='alterado');
+  function wireAspecto(aspectoId, wrapId){
+    $(aspectoId).addEventListener('change', e=>{
+      toggle(wrapId, e.target.value==='alterado');
     });
-    $(p+'CalculoQtd').addEventListener('change', updateCalculoCampos);
-    $(p+'CistoQtd').addEventListener('change', updateCistoCampos);
   }
-  wireRim('rimD');
-  wireRim('rimE');
-  $('bexigaAspecto').addEventListener('change', e=>{
-    const val = e.target.value;
-    toggle('wrap_bexigaEsforco', val==='esforco');
-    toggle('wrap_bexigaCalculoCampos', val==='calculo');
-    toggle('wrap_bexigaDescricao', val==='alterado');
-  });
-
-  function classificacaoVolumePos(ml){
-    if(ml <= 30) return 'Desprezível';
-    if(ml <= 80) return 'Pequeno';
-    if(ml <= 150) return 'Moderado';
-    if(ml <= 300) return 'Acentuado';
-    return 'Muito acentuado';
-  }
+  wireAspecto('contornosAspecto', 'wrap_contornosDescricao');
+  wireAspecto('parenquimaAspecto', 'wrap_parenquimaDescricao');
+  wireAspecto('cervicaisAspecto', 'wrap_cervicaisDescricao');
+  wireAspecto('vascularizacaoAspecto', 'wrap_vascularizacaoDescricao');
 
   function flag(id, isAbnormal){
     const el = $(id), note = $('flag_'+id);
@@ -1262,22 +1063,23 @@ if(typeof criarMotorLaudo !== 'function'){
     if(note) note.classList.toggle('show', !!isAbnormal);
   }
 
+  // Volume do elipsoide (comprimento × AP × transversal × 0,523), o mesmo
+  // método usado pelo aparelho de ultrassom para estimar volume glandular.
+  function volumeElipsoide(long, ap, transv){
+    if(long===null || ap===null || transv===null) return null;
+    return long * ap * transv * 0.523;
+  }
+  function fmtVol(n){ return n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
   // ---------- Build impression checklist ----------
   // Como nos demais laudos, não há detecção automática de achado alterado —
   // a médica reescreve o item marcado, à mão, direto no laudo, quando o
   // achado for outro que não a normalidade.
-  function buildImpressao(state){
-    const items = [{key:'normal', label:phrase('impNormal'), auto:true}];
-    if(state.rimDImpressaoHD){
-      items.push({key:'rimD-achado', label: state.rimDImpressaoHD, auto:true});
-    }
-    if(state.rimEImpressaoHD){
-      items.push({key:'rimE-achado', label: state.rimEImpressaoHD, auto:true});
-    }
-    if(state.bexigaImpressaoHD){
-      items.push({key:'bexiga-achado', label: state.bexigaImpressaoHD, auto:true});
-    }
-    return items;
+  function buildImpressao(){
+    return [
+      {key:'normal', label:phrase('impNormal'), auto:true},
+      {key:'dopplerNormal', label:phrase('impDopplerNormal'), auto:true}
+    ];
   }
 
   let checkedState = {};
@@ -1337,113 +1139,66 @@ if(typeof criarMotorLaudo !== 'function'){
     const medicoSolicitante = v('medicoSolicitante');
     req('nomePaciente'); req('dataExame');
 
-    const lateralidadeDor = v('lateralidadeDor') || 'nenhuma';
+    // ----- Aspecto geral -----
+    const contornosAspecto = v('contornosAspecto') || 'normal';
+    const contornosDescricao = vNoDot('contornosDescricao');
+    reqIf('contornosDescricao', contornosAspecto==='alterado');
+    const contornosTexto = (contornosAspecto==='alterado' && contornosDescricao)
+      ? escapeHtml(contornosDescricao)+'.'
+      : 'Glândula tireóidea de topografia usual apresentando contornos regulares.';
 
-    // Achados renais estruturados (cálculo/cisto/leite de cálcio/nódulo/hidronefrose)
-    // são os mesmos nos dois rins, então ficam numa função só, parametrizada pelo
-    // prefixo do campo (rimD/rimE) e pelo texto de lado usado no HD.
-    function computeRimAchado(p, ladoHD){
-      const aspecto = v(p+'Aspecto');
-      let tail = null, hd = null, diferenciacao = null;
-      if(aspecto==='calculo'){
-        const qtd = v(p+'CalculoQtd') || '1';
-        const terco1 = v(p+'Calc1Terco') || 'superior';
-        const tam1 = blankOrValue(req(p+'Calc1Tamanho'));
-        if(qtd==='2'){
-          const terco2 = v(p+'Calc2Terco') || 'superior';
-          const tam2 = blankOrValue(req(p+'Calc2Tamanho'));
-          tail = 'Observam-se duas imagens hiperecogênicas ovaladas, que condicionam sombra acústica posterior, uma localizada em terço '+terco1+', medindo '+span(tam1)+' mm e outra em terço '+terco2+', medindo '+span(tam2)+' mm.';
-        } else {
-          tail = 'Observa-se imagem hiperecogênica ovalada, que condiciona sombra acústica posterior, localizada em terço '+terco1+', medindo '+span(tam1)+' mm.';
-        }
-        hd = phrase('impCalculo', {LADO:ladoHD});
-      } else if(aspecto==='cisto'){
-        const qtd = v(p+'CistoQtd') || '1';
-        if(qtd==='2'){
-          const terco1 = v(p+'Cisto1Terco') || 'superior';
-          const tam1 = blankOrValue(req(p+'Cisto1Tamanho'));
-          const terco2 = v(p+'Cisto2Terco') || 'superior';
-          const tam2 = blankOrValue(req(p+'Cisto2Tamanho'));
-          tail = 'Observam-se duas imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, uma localizada no terço '+terco1+', medindo '+span(tam1)+' mm, e outra no terço '+terco2+', medindo '+span(tam2)+' mm.';
-        } else if(qtd==='varios'){
-          const min = blankOrValue(req(p+'CistoVariosMin'));
-          const max = blankOrValue(req(p+'CistoVariosMax'));
-          const tercoMaior = v(p+'CistoVariosTerco') || 'superior';
-          tail = 'Observam-se várias imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, dispersas pelo parênquima cortical, variando entre '+span(min)+' e '+span(max)+' mm, a maior localizada no terço '+tercoMaior+'.';
-        } else {
-          const terco1 = v(p+'Cisto1Terco') || 'superior';
-          const tam1 = blankOrValue(req(p+'Cisto1Tamanho'));
-          tail = 'Observa-se imagem anecóica de paredes finas e regulares, condicionando reforço acústico posterior, localizada no terço '+terco1+', medindo '+span(tam1)+' mm.';
-        }
-        hd = phrase(qtd==='1' ? 'impCistoSingular' : 'impCistoPlural', {LADO:ladoHD});
-      } else if(aspecto==='cistoLeiteCalcio'){
-        const tam = blankOrValue(req(p+'LeiteCalcioTamanho'));
-        tail = 'Observa-se imagem anecóica de paredes finas e regulares, apresentando imagem hiperecogênica depositada em sua parede posterior condicionando sombra acústica, localizada no terço superior, medindo '+span(tam)+' mm.';
-        hd = phrase('impLeiteCalcio', {LADO:ladoHD});
-      } else if(aspecto==='nodulo'){
-        const terco = v(p+'NoduloTerco') || 'superior';
-        const tam = blankOrValue(req(p+'NoduloTamanho'));
-        tail = 'Presença de imagem nodular sólida, ecogênica, de contornos regulares, localizada em terço '+terco+', medindo '+span(tam)+' mm.';
-        hd = phrase('impNodulo', {LADO:ladoHD});
-      } else if(aspecto==='hidronefrose'){
-        const medidaNum = num(p+'HidroMedida'); req(p+'HidroMedida');
-        const medida = blankOrValue(v(p+'HidroMedida'));
-        flag(p+'HidroMedida', medidaNum!==null && medidaNum > 10.0);
-        tail = 'Observa-se dilatação de pelve renal, medindo '+span(medida)+' mm (VR até 10,0 mm); além disso, há dilatação do sistema coletor que se estende até os pequenos cálices, ocasionando redução da espessura do parênquima renal.';
-        hd = phrase('impHidronefrose', {LADO:ladoHD});
-      } else if(aspecto==='nefrocalcinose'){
-        diferenciacao = 'evidente pelo aumento da ecogenicidade das medulares renais';
-        hd = phrase('impNefrocalcinose', {LADO:ladoHD});
-      } else if(aspecto==='ureterolitiase'){
-        const terco = v(p+'UreterTerco') || 'proximal';
-        const tam = blankOrValue(req(p+'UreterTamanho'));
-        const hidroTexto = v(p+'UreterHidro')==='com' ? 'condicionando' : 'sem condicionar';
-        // Mantém o resto da descrição normal do rim (coletor sem dilatação, sem
-        // cálculos, espaço perirrenal livre) — só a frase "Ureter <lado> sem
-        // sinais de dilatações" (a única específica sobre o ureter) sai daqui.
-        tail = 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Presença de imagem ovalada hiperecogênica localizada no terço '+terco+' do ureter, medindo '+span(tam)+' mm, '+hidroTexto+' hidronefrose a montante.';
-        hd = phrase('impUreterolitiase', {TERCO:terco, LADO:ladoHD});
-      }
-      return {tail, hd, diferenciacao};
+    const parenquimaAspecto = v('parenquimaAspecto') || 'normal';
+    const parenquimaDescricao = vNoDot('parenquimaDescricao');
+    reqIf('parenquimaDescricao', parenquimaAspecto==='alterado');
+    const parenquimaTexto = (parenquimaAspecto==='alterado' && parenquimaDescricao)
+      ? escapeHtml(parenquimaDescricao)+'.'
+      : 'Parênquima de textura homogênea, não se identificando nódulos sólidos ou císticos.';
+
+    const cervicaisAspecto = v('cervicaisAspecto') || 'normal';
+    const cervicaisDescricao = vNoDot('cervicaisDescricao');
+    reqIf('cervicaisDescricao', cervicaisAspecto==='alterado');
+    const cervicaisTexto = (cervicaisAspecto==='alterado' && cervicaisDescricao)
+      ? escapeHtml(cervicaisDescricao)+'.'
+      : 'Demais estruturas cervicais sem alterações à ecografia. Traqueia em posição anatômica.';
+
+    // ----- Dimensões -----
+    req('loboDLong'); req('loboDAP'); req('loboDTransv');
+    const loboDLongNum = num('loboDLong'), loboDAPNum = num('loboDAP'), loboDTransvNum = num('loboDTransv');
+    const loboDVol = volumeElipsoide(loboDLongNum, loboDAPNum, loboDTransvNum);
+    $('loboDVolumeLabel').textContent = loboDVol!==null ? ('→ Volume do lobo direito: '+fmtVol(loboDVol)+' cm³') : '';
+
+    req('loboELong'); req('loboEAP'); req('loboETransv');
+    const loboELongNum = num('loboELong'), loboEAPNum = num('loboEAP'), loboETransvNum = num('loboETransv');
+    const loboEVol = volumeElipsoide(loboELongNum, loboEAPNum, loboETransvNum);
+    $('loboEVolumeLabel').textContent = loboEVol!==null ? ('→ Volume do lobo esquerdo: '+fmtVol(loboEVol)+' cm³') : '';
+
+    req('istmoLong'); req('istmoAP'); req('istmoTransv');
+    const istmoLongNum = num('istmoLong'), istmoAPNum = num('istmoAP'), istmoTransvNum = num('istmoTransv');
+    const istmoVol = volumeElipsoide(istmoLongNum, istmoAPNum, istmoTransvNum);
+    $('istmoVolumeLabel').textContent = istmoVol!==null ? ('→ Volume do istmo: '+fmtVol(istmoVol)+' cm³') : '';
+
+    const volumeTotal = (loboDVol!==null && loboEVol!==null) ? (loboDVol + loboEVol) : null;
+    const volumeTotalEl = $('volumeTotalLabel');
+    if(volumeTotal!==null){
+      const fora = volumeTotal < VOLUME_TOTAL_MIN || volumeTotal > VOLUME_TOTAL_MAX;
+      volumeTotalEl.textContent = '→ Volume total da glândula (lobo direito + lobo esquerdo): '+fmtVol(volumeTotal)+' cm³ (VR 6,0 a 15,0 cm³)'+(fora?' — fora da faixa de referência':'');
+      volumeTotalEl.classList.toggle('amber', fora);
+    } else {
+      volumeTotalEl.textContent = '';
+      volumeTotalEl.classList.remove('amber');
     }
 
-    // ----- Rim direito -----
-    const rimDAspecto = v('rimDAspecto');
-    const rimDDescricao = vNoDot('rimDDescricao');
-    reqIf('rimDDescricao', rimDAspecto==='alterado');
-    const rimDDiametroTexto = blankOrValue(req('rimDDiametro'));
-    const rimDCorticalNum = num('rimDCortical'); req('rimDCortical');
-    const rimDCorticalTexto = blankOrValue(v('rimDCortical'));
-    flag('rimDCortical', rimDCorticalNum!==null && rimDCorticalNum < CORTICAL_MIN);
-    const rimDAchado = computeRimAchado('rimD', 'à direita');
+    // ----- Doppler -----
+    const vascularizacaoAspecto = v('vascularizacaoAspecto') || 'normal';
+    const vascularizacaoDescricao = vNoDot('vascularizacaoDescricao');
+    reqIf('vascularizacaoDescricao', vascularizacaoAspecto==='alterado');
+    const vascularizacaoTexto = (vascularizacaoAspecto==='alterado' && vascularizacaoDescricao)
+      ? escapeHtml(vascularizacaoDescricao)+'.'
+      : 'Tireóide apresentando padrão de vascularização normal ao mapeamento colorido.';
 
-    // ----- Rim esquerdo -----
-    const rimEAspecto = v('rimEAspecto');
-    const rimEDescricao = vNoDot('rimEDescricao');
-    reqIf('rimEDescricao', rimEAspecto==='alterado');
-    const rimEDiametroTexto = blankOrValue(req('rimEDiametro'));
-    const rimECorticalNum = num('rimECortical'); req('rimECortical');
-    const rimECorticalTexto = blankOrValue(v('rimECortical'));
-    flag('rimECortical', rimECorticalNum!==null && rimECorticalNum < CORTICAL_MIN);
-    const rimEAchado = computeRimAchado('rimE', 'à esquerda');
-
-    // ----- Bexiga -----
-    const bexigaAspecto = v('bexigaAspecto');
-    const bexigaDescricao = vNoDot('bexigaDescricao');
-    reqIf('bexigaDescricao', bexigaAspecto==='alterado');
-    const bexigaEsforcoNum = num('bexigaEsforcoEspessura'); reqIf('bexigaEsforcoEspessura', bexigaAspecto==='esforco');
-    const bexigaEsforcoTexto = blankOrValue(v('bexigaEsforcoEspessura'));
-    flag('bexigaEsforcoEspessura', bexigaEsforcoNum!==null && bexigaEsforcoNum > 3.0);
-    const bexigaCalculoTamanhoTexto = blankOrValue(reqIf('bexigaCalculoTamanho', bexigaAspecto==='calculo'));
-    const volumeInicialTexto = blankOrValue(req('volumeInicial'));
-    const volumePosNum = num('volumePosMiccional'); req('volumePosMiccional');
-    const volumePosTexto = blankOrValue(v('volumePosMiccional'));
-    const volumePosClassEl = $('volumePosClassificacao');
-    if(volumePosClassEl){
-      volumePosClassEl.textContent = volumePosNum!==null
-        ? classificacaoVolumePos(volumePosNum)+': '+(volumePosNum<=30?'0–30':volumePosNum<=80?'30–80':volumePosNum<=150?'80–150':volumePosNum<=300?'150–300':'>300')+' mL'
-        : 'Desprezível: 0–30 mL';
-    }
+    const velocidadeATINum = num('velocidadeATI'); req('velocidadeATI');
+    const velocidadeATITexto = blankOrValue(v('velocidadeATI'));
+    flag('velocidadeATI', velocidadeATINum!==null && velocidadeATINum > VELOCIDADE_ATI_MAX);
 
     // Observações: descrição livre de achado fora dos campos acima. Vira parágrafo
     // no corpo do laudo (documenta o que foi visto) — a médica decide, por conta
@@ -1451,13 +1206,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
 
     // ----- Impressão -----
-    const state = {
-      rimDImpressaoHD: rimDAchado.hd, rimEImpressaoHD: rimEAchado.hd,
-      bexigaImpressaoHD: bexigaAspecto==='esforco' ? phrase('impBexigaEsforco')
-        : bexigaAspecto==='calculo' ? phrase('impBexigaCalculo')
-        : null
-    };
-    const impressaoItems = buildImpressao(state);
+    const impressaoItems = buildImpressao();
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
 
@@ -1470,44 +1219,43 @@ if(typeof criarMotorLaudo !== 'function'){
       +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
       +'</div>'});
 
-    blocks.push({id:'doctitle', html: '<h3 class="doctitle">ULTRASSOM DOS RINS E VIAS URINÁRIAS</h3>'});
+    blocks.push({id:'doctitle', html: '<h3 class="doctitle">ULTRASSOM DA TIREÓIDE<br class="quebra-doppler">COM ESTUDO DOPPLER</h3>'});
 
-    if(lateralidadeDor !== 'nenhuma'){
-      const dorTexto = {direita:'Dor à direita.', esquerda:'Dor à esquerda.', bilateral:'Dor bilateral.'}[lateralidadeDor];
-      blocks.push({id:'indicacao', html:'<p class="linha intro">'+dorTexto+'</p>'});
-    }
-    blocks.push({id:'aoExameLabel', html:'<p class="linha intro intro-last">Ao exame:</p>'});
+    blocks.push({id:'observadosLabel', html:'<p class="linha intro intro-last">Os seguintes aspectos foram observados:</p>'});
 
-    const rimDTail = rimDAchado.tail
-      ? rimDAchado.tail
-      : (rimDAspecto==='alterado' && rimDDescricao)
-        ? escapeHtml(rimDDescricao)+'.'
-        : 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureter direito sem sinais de dilatações.';
-    const rimDDiferenciacao = rimDAchado.diferenciacao || 'anatômica';
-    blocks.push({id:'rimD', html:'<p class="linha"><strong>Rim Direito:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimDDiametroTexto)+' cm. Cortical renal homogênea com espessura de '+span(rimDCorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimDDiferenciacao+'. Área pielovascular livre. '+rimDTail+'</p>'});
+    blocks.push({id:'contornos', html:'<p class="linha">'+contornosTexto+'</p>'});
 
-    const rimETail = rimEAchado.tail
-      ? rimEAchado.tail
-      : (rimEAspecto==='alterado' && rimEDescricao)
-        ? escapeHtml(rimEDescricao)+'.'
-        : 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureter esquerdo sem sinais de dilatações.';
-    const rimEDiferenciacao = rimEAchado.diferenciacao || 'anatômica';
-    blocks.push({id:'rimE', html:'<p class="linha"><strong>Rim Esquerdo:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimEDiametroTexto)+' cm. Cortical renal homogênea com espessura de '+span(rimECorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimEDiferenciacao+'. Área pielovascular livre. '+rimETail+'</p>'});
+    blocks.push({id:'dimensoesLabel', html:'<p class="linha intro">Dimensões:</p>'});
+    const loboDLongTexto = span(blankOrValue(v('loboDLong')))+' cm';
+    const loboDAPTexto = span(blankOrValue(v('loboDAP')))+' cm';
+    const loboDTransvTexto = span(blankOrValue(v('loboDTransv')))+' cm';
+    const loboDVolTexto = span(blankOrValue(loboDVol!==null ? fmtVol(loboDVol) : ''))+' cm³';
+    const loboELongTexto = span(blankOrValue(v('loboELong')))+' cm';
+    const loboEAPTexto = span(blankOrValue(v('loboEAP')))+' cm';
+    const loboETransvTexto = span(blankOrValue(v('loboETransv')))+' cm';
+    const loboEVolTexto = span(blankOrValue(loboEVol!==null ? fmtVol(loboEVol) : ''))+' cm³';
+    const istmoLongTexto = span(blankOrValue(v('istmoLong')))+' cm';
+    const istmoAPTexto = span(blankOrValue(v('istmoAP')))+' cm';
+    const istmoTransvTexto = span(blankOrValue(v('istmoTransv')))+' cm';
+    const istmoVolTexto = span(blankOrValue(istmoVol!==null ? fmtVol(istmoVol) : ''))+' cm³';
+    blocks.push({id:'medidasTabela', html:
+      '<table class="medidas">'
+      +'<thead><tr><th></th><th>Longitudinal</th><th>AP</th><th>Transversal</th><th>Volume</th></tr></thead>'
+      +'<tbody>'
+      +'<tr><td>Lobo direito</td><td>'+loboDLongTexto+'</td><td>'+loboDAPTexto+'</td><td>'+loboDTransvTexto+'</td><td>'+loboDVolTexto+'</td></tr>'
+      +'<tr><td>Lobo esquerdo</td><td>'+loboELongTexto+'</td><td>'+loboEAPTexto+'</td><td>'+loboETransvTexto+'</td><td>'+loboEVolTexto+'</td></tr>'
+      +'<tr><td>Istmo</td><td>'+istmoLongTexto+'</td><td>'+istmoAPTexto+'</td><td>'+istmoTransvTexto+'</td><td>'+istmoVolTexto+'</td></tr>'
+      +'</tbody></table>'});
 
-    let bexigaTexto;
-    if(bexigaAspecto==='esforco'){
-      bexigaTexto = 'Com boa repleção, de forma anatômica, paredes difusamente espessadas, medindo '+span(bexigaEsforcoTexto)+' mm (VR: até 3,0 mm) e trabeculadas. Conteúdo de aspecto límpido. Ausência de dilatação dos ureteres distais. Meatos ureterais sem alterações.';
-    } else if(bexigaAspecto==='calculo'){
-      bexigaTexto = 'De topografia usual, boa repleção, contorno interno regular. Em seu interior, observa-se imagem ovalada hiperecogênica, móvel às mudanças de decúbito, que condiciona sombra acústica posterior, medindo '+span(bexigaCalculoTamanhoTexto)+' mm. Meatos ureterais pérvios, sem alterações.';
-    } else if(bexigaAspecto==='alterado' && bexigaDescricao){
-      bexigaTexto = escapeHtml(bexigaDescricao)+'.';
-    } else {
-      bexigaTexto = 'De topografia usual, boa repleção, contorno interno regular e conteúdo anecoico. Meatos ureterais pérvios, sem alterações.';
-    }
-    blocks.push({id:'bexiga', html:'<p class="linha"><strong>Bexiga:</strong> '+bexigaTexto+'</p>'});
-    blocks.push({id:'volumeInicial', html:'<p class="linha">Volume urinário inicial: '+span(volumeInicialTexto)+' ml.</p>'});
-    const desprezivel = (volumePosNum!==null && volumePosNum <= RESIDUO_MAX) ? ' (desprezível)' : '';
-    blocks.push({id:'volumePos', html:'<p class="linha">Volume urinário pós-miccional: '+span(volumePosTexto)+' ml'+desprezivel+'.</p>'});
+    const volumeTotalTexto = blankOrValue(volumeTotal!==null ? fmtVol(volumeTotal) : '');
+    blocks.push({id:'volumeTotal', html:'<p class="linha">O volume total da glândula é de '+span(volumeTotalTexto)+' cm³ (normal 6,0 a 15,0 cm³).</p>'});
+
+    blocks.push({id:'parenquima', html:'<p class="linha">'+parenquimaTexto+'</p>'});
+    blocks.push({id:'cervicais', html:'<p class="linha">'+cervicaisTexto+'</p>'});
+
+    blocks.push({id:'dopplerHeader', html:'<h4 class="sec">ESTUDO DOPPLER:</h4>'});
+    blocks.push({id:'vascularizacao', html:'<p class="linha"><strong>Vascularização:</strong> '+vascularizacaoTexto+'</p>'});
+    blocks.push({id:'velocidadeATI', html:'<p class="linha"><strong>Artéria Tireoidea Inferior:</strong> Velocidade de '+span(velocidadeATITexto)+' cm/s (VR até 30,0 cm/s).</p>'});
 
     obsLinhas.forEach((linha, idx)=>{
       blocks.push({id:'obs-'+idx, html:'<p class="linha">'+escapeHtml(linha)+'</p>'});
@@ -1558,6 +1306,9 @@ if(typeof criarMotorLaudo !== 'function'){
     ['h3.doctitle', ['font-size','line-height'].concat(MARGINS)],
     ['h4.sec', ['font-size','line-height'].concat(MARGINS)],
     ['p.linha', ['font-size','line-height'].concat(MARGINS)],
+    ['table.medidas', ['font-size','line-height'].concat(MARGINS)],
+    ['table.medidas td', ['border','padding','text-align','font-weight']],
+    ['table.medidas th', ['border','padding','text-align','font-weight']],
     ['.id-card-row', ['font-size','line-height']],
     ['.footnote', ['font-size','line-height']],
     ['.assinatura', ['line-height']],
@@ -1599,6 +1350,10 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
+    clone.querySelectorAll('table.medidas th, table.medidas td').forEach(el=>{ el.style.border='1px solid #2b2b2e'; el.style.padding='4px 8px'; el.style.textAlign='center'; });
+    clone.querySelectorAll('table.medidas th, table.medidas td:first-child').forEach(el=>{ el.style.fontWeight='700'; });
+    clone.querySelectorAll('table.medidas td:first-child').forEach(el=>{ el.style.textAlign='left'; });
+    clone.querySelectorAll('table.medidas').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='100%'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
@@ -1661,7 +1416,7 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
   function tituloExame(){
-    return 'Rins e Vias Urinárias';
+    return 'Tireóide com Doppler';
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
