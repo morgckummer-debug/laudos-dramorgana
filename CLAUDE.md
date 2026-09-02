@@ -10,7 +10,7 @@ isolado: o que é do motor e o que é de cada laudo, a integração com o app de
 Curva de Crescimento e as armadilhas de manutenção que já morderam antes.
 
 Os laudos de **medicina interna** (`abdome-total.html`,
-`rins-vias-urinarias.html`) usam o mesmo motor mas não têm CPF, não têm feto e
+`rins-vias-urinarias.html`, `tireoide-doppler.html`) usam o mesmo motor mas não têm CPF, não têm feto e
 não tocam em `patients`/`gestacoes`/`exams` — nenhuma integração com a Curva de
 Crescimento, igual ao `rastreamento-ovulacao.html` nesse aspecto (mas sem
 tabela própria no Supabase: não salvam nada, é preenche-e-imprime). A seção
