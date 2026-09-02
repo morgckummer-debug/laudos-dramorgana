@@ -175,7 +175,7 @@
   .paper p.linha.intro.intro-last{margin:0 0 var(--linha-margin, 16px);text-decoration:underline;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
-  .paper table.medidas{border-collapse:collapse;margin:0 0 var(--linha-margin, 16px);width:auto;font-size:0.8em;}
+  .paper table.medidas{border-collapse:collapse;margin:0 auto var(--linha-margin, 16px);width:auto;font-size:0.8em;}
   .paper table.medidas th{border-top:1.25px solid #2b2b2e;border-bottom:0.75px solid #2b2b2e;padding:3px 6px 4px;text-align:center;font-weight:700;}
   .paper table.medidas td{padding:3px 6px;text-align:center;}
   .paper table.medidas td:first-child, .paper table.medidas th:first-child{text-align:left;}
@@ -1483,7 +1483,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('table.medidas td').forEach(el=>{ el.style.padding='3px 6px'; el.style.textAlign='center'; });
     clone.querySelectorAll('table.medidas td:first-child').forEach(el=>{ el.style.textAlign='left'; el.style.fontWeight='700'; });
     clone.querySelectorAll('table.medidas tbody tr:last-child td').forEach(el=>{ el.style.borderBottom='1.25px solid #2b2b2e'; });
-    clone.querySelectorAll('table.medidas').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; });
+    clone.querySelectorAll('table.medidas').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
