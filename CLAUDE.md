@@ -181,6 +181,38 @@ deixava meia página em branco — e não havia como empurrar só o final dela.
 O marcador de quebra do preview vira um `<tr>` quando cai dentro da tabela;
 um `<div>` ali seria filho inválido e o navegador o jogaria para fora.
 
+### Enter num parágrafo digitado à mão também duplicava o bloco
+
+Mesma família do bug acima, gatilho diferente: por padrão, Enter dentro de um
+`contenteditable` divide em dois o elemento de bloco mais próximo do cursor.
+Quando esse elemento É o próprio portador do `data-blk` — um `<p>`/`<h3>`/`<h4>`
+sem filhos de bloco, como `<h3 class="doctitle">` ou o `<p class="linha">` de
+"Ao exame:" —, as duas metades da divisão herdam o **mesmo** `data-blk`.
+`renderBlocks()` só enxerga o primeiro de cada id (`:scope >
+[data-blk="id"]` pega um só) e nunca mais toca no segundo: ele vira um órfão
+que nenhuma reconciliação move nem remove, arrastando o resto do laudo —
+inclusive a assinatura — para lugar nenhum a cada novo `render()` ou
+impressão, sem jeito de voltar ao estado anterior editando de novo.
+
+Isso já tinha sido flagrado e corrigido, mas só para o `<h3 class="doctitle">`
+(o atalho de Enter no título vira mover o seletor de espaço acima dele, não
+uma quebra de linha — ver comentário histórico ainda em alguns laudos). O
+mesmo bug em qualquer outro bloco de parágrafo único ficou sem proteção até
+2026-09-02, quando a Dra. Morgana relatou digitar uma observação extra
+diretamente no preview e ver "Ao exame" pular para depois da assinatura, sem
+conseguir mais desfazer digitando de novo.
+
+A correção — `wireEnterLineBreaks(paperEl, getIdCardGapSel)`, em
+`laudo-core.js` — generaliza a proteção do título para o `#paper` inteiro:
+sempre que o Enter dividiria o próprio elemento com `data-blk` (ele não tem
+nenhum filho de bloco — `<p>`, `<div>`, `<h1-6>`, `<li>`, `<ul>`, `<ol>`,
+`<table>`), o evento é interceptado e vira uma quebra de linha
+(`document.execCommand('insertLineBreak')`) dentro do mesmo nó, em vez de
+uma divisão. Dentro de um bloco que já tem filhos de bloco (várias `<p>`
+dentro de uma `<div>`, um `<li>` dentro do `<ul>` da impressão), o Enter
+continua livre: quem se divide é o filho, sem `data-blk` próprio, e o
+container nunca é tocado.
+
 ## A integração com a Curva de Crescimento
 
 O app de curvas é outro repositório, **`morgckummer-debug/curva-fetal`** — página

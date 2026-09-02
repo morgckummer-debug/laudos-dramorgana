@@ -578,6 +578,71 @@ function criarMotorLaudo(cfg){
       document.execCommand('insertText', false, texto);
     });
   }
+  function wireEnterLineBreaks(paperEl, getIdCardGapSel){
+    // Por padrão, Enter dentro de um contenteditable divide em dois o
+    // elemento de bloco mais próximo do cursor. Quando esse elemento é o
+    // próprio portador do data-blk — um <p>/<h3>/<h4> sem filhos de bloco,
+    // caso do <h3 class="doctitle">, de "Ao exame:" e de qualquer <p
+    // class="linha">/<h4 class="sec"> que seja o bloco inteiro — as duas
+    // metades da divisão herdam o MESMO data-blk. renderBlocks() só enxerga
+    // o primeiro de cada id (a consulta ':scope > [data-blk="id"]' pega um
+    // só) e nunca mais toca no segundo: ele fica um órfão que nenhuma
+    // reconciliação move nem remove, empurrando o resto do laudo — inclusive
+    // a assinatura — para lugar nenhum a cada novo render() ou impressão, e
+    // sem jeito de voltar ao estado anterior editando de novo. Foi assim que
+    // a divisão do <h3 class="doctitle"> foi flagrada originalmente; a mesma
+    // divisão vale para qualquer outro bloco de parágrafo único, então a
+    // proteção aqui é para o #paper inteiro, não só para o título.
+    //
+    // Dentro de um bloco que já tem filhos de bloco (vários <p> dentro de um
+    // <div>, um <li> dentro do <ul> da impressão, uma célula da morfologia),
+    // é um desses filhos — sem data-blk próprio — que o Enter divide; o
+    // data-blk do container nunca é tocado, e por isso esse caso continua
+    // livre, sem precisar de proteção nenhuma.
+    if(paperEl.dataset.enterLineBreaksWired) return;
+    paperEl.dataset.enterLineBreaksWired = '1';
+
+    function cursorNoInicioDoTitulo(range){
+      const titleEl = paperEl.querySelector('h3.doctitle');
+      if(!titleEl || !range.collapsed || !titleEl.contains(range.startContainer)) return null;
+      const antes = document.createRange();
+      antes.selectNodeContents(titleEl);
+      antes.setEnd(range.startContainer, range.startOffset);
+      return antes.toString().length === 0 ? titleEl : null;
+    }
+    function passoEspacoTitulo(direcao){
+      const idCardGapSel = getIdCardGapSel();
+      if(!idCardGapSel) return;
+      const i = idCardGapSel.selectedIndex + direcao;
+      if(i < 0 || i >= idCardGapSel.options.length) return;
+      idCardGapSel.selectedIndex = i;
+      idCardGapSel.dispatchEvent(new Event('change'));
+    }
+    function enterDivideOProprioBlk(blk){
+      return !Array.from(blk.children).some(c => /^(P|DIV|H[1-6]|LI|UL|OL|TABLE)$/.test(c.tagName));
+    }
+    paperEl.addEventListener('keydown', e=>{
+      if(e.key !== 'Enter' && e.key !== 'Backspace') return;
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+
+      if(cursorNoInicioDoTitulo(range)){
+        e.preventDefault();
+        passoEspacoTitulo(e.key === 'Enter' ? 1 : -1);
+        return;
+      }
+      if(e.key !== 'Enter') return;
+
+      const anchorNode = sel.anchorNode;
+      const anchorEl = anchorNode ? (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement) : null;
+      const blk = anchorEl ? anchorEl.closest('[data-blk]') : null;
+      if(blk && enterDivideOProprioBlk(blk)){
+        e.preventDefault();
+        document.execCommand('insertLineBreak');
+      }
+    });
+  }
   function wireDecimalInputs(){
     document.querySelectorAll('input[data-decimals]').forEach(el=>{
       if(el.dataset.decimalsWired) return;
@@ -674,6 +739,7 @@ function criarMotorLaudo(cfg){
     v: v,
     vNoDot: vNoDot,
     wireDecimalInputs: wireDecimalInputs,
+    wireEnterLineBreaks: wireEnterLineBreaks,
     wirePastePlainText: wirePastePlainText
   };
 }
