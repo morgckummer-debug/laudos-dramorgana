@@ -351,6 +351,11 @@
           </div>
           <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
         </div>
+        <hr class="sep">
+        <p style="font-size:12px;color:var(--ink-soft);margin:0 0 8px;">Deixe as duas desmarcadas para o Abdome Total completo. Marcando uma delas, o laudo passa a trazer só os órgãos daquele pedido e o título muda sozinho.</p>
+        <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkHipocondrioDireito"><label for="chkHipocondrioDireito">Restringir a Hipocôndrio Direito (fígado, vesícula e hepatocolédoco)</label></div>
+        <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkAbdomeSuperior"><label for="chkAbdomeSuperior">Restringir a Abdome Superior (fígado, vesícula, colédoco e baço)</label></div>
+        <hr class="sep">
         <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkGasesIntestinais"><label for="chkGasesIntestinais">Exame com visualização prejudicada por gases intestinais</label></div>
       </div>
     </div>
@@ -474,7 +479,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="cardPancreas">
       <div class="card-head"><h2>Pâncreas</h2></div>
       <div class="card-body">
         <div class="field-row">
@@ -506,7 +511,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="cardRins">
       <div class="card-head"><h2>Rins</h2></div>
       <div class="card-body">
         <div class="field-row">
@@ -618,7 +623,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="cardBexiga">
       <div class="card-head"><h2>Bexiga</h2></div>
       <div class="card-body">
         <div class="field-row">
@@ -648,7 +653,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="cardVasos">
       <div class="card-head"><h2>Grandes vasos abdominais</h2></div>
       <div class="card-body">
         <div class="field-row">
@@ -676,7 +681,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="cardBaco">
       <div class="card-head"><h2>Baço</h2></div>
       <div class="card-body">
         <div class="field-row">
@@ -716,7 +721,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="cardAchadosAdicionais">
       <div class="card-head"><h2>Achados adicionais (avaliação direcionada)</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Não fazem parte da rotina do abdome total — só entram no laudo quando marcados.</p>
@@ -1248,6 +1253,14 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   })();
 
+  // ---------- Sub-laudo: Hipocôndrio Direito / Abdome Superior (mutuamente exclusivos) ----------
+  $('chkHipocondrioDireito').addEventListener('change', e=>{
+    if(e.target.checked) $('chkAbdomeSuperior').checked = false;
+  });
+  $('chkAbdomeSuperior').addEventListener('change', e=>{
+    if(e.target.checked) $('chkHipocondrioDireito').checked = false;
+  });
+
   wireDecimalInputs();
 
   // ---------- Reference values ----------
@@ -1537,6 +1550,25 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const sexo = v('sexoPaciente')==='masculino' ? 'masculino' : 'feminino';
 
+    // ----- Sub-laudo: Hipocôndrio Direito / Abdome Superior -----
+    // Sem nenhum dos dois marcados, o laudo é o Abdome Total de sempre. Marcar um
+    // deles restringe o corpo do laudo aos órgãos daquele pedido e troca o título —
+    // as seções que saem ficam ocultas no formulário e deixam de ser exigidas.
+    const chkHipocondrioDireito = $('chkHipocondrioDireito').checked;
+    const chkAbdomeSuperior = $('chkAbdomeSuperior').checked;
+    const modo = chkHipocondrioDireito ? 'hd' : (chkAbdomeSuperior ? 'sup' : 'total');
+    const modoTotal = modo === 'total';
+    function setCardVisible(id, visible){
+      const el = $(id);
+      if(el) el.style.display = visible ? '' : 'none';
+    }
+    setCardVisible('cardPancreas', modoTotal);
+    setCardVisible('cardRins', modoTotal);
+    setCardVisible('cardBexiga', modoTotal);
+    setCardVisible('cardVasos', modoTotal);
+    setCardVisible('cardAchadosAdicionais', modoTotal);
+    setCardVisible('cardBaco', modo !== 'hd');
+
     // ----- Fígado -----
     const figadoAspecto = v('figadoAspecto');
     const figadoDescricao = vNoDot('figadoDescricao');
@@ -1604,8 +1636,8 @@ if(typeof criarMotorLaudo !== 'function'){
       vesiculaImpressaoHD = 'Colecistite.';
     }
 
-    // ----- Pâncreas -----
-    const pancreasAspecto = v('pancreasAspecto');
+    // ----- Pâncreas ----- (só entra no Abdome Total)
+    const pancreasAspecto = modoTotal ? v('pancreasAspecto') : 'normal';
     const pancreasDescricao = vNoDot('pancreasDescricao');
     reqIf('pancreasDescricao', pancreasAspecto==='alterado');
     const pancreasCistoPosicao = v('pancreasCistoPosicao') || 'cabeça';
@@ -1616,12 +1648,12 @@ if(typeof criarMotorLaudo !== 'function'){
     if(pancreasAspecto==='cisto') pancreasImpressaoHD = 'Cisto pancreático.';
     if(pancreasAspecto==='nodulo') pancreasImpressaoHD = 'Nódulo pancreático a esclarecer — Seguir propedêutica.';
 
-    // ----- Rins -----
-    const rinsAspecto = v('rinsAspecto');
+    // ----- Rins ----- (só entra no Abdome Total)
+    const rinsAspecto = modoTotal ? v('rinsAspecto') : 'normal';
     const rinsDescricao = vNoDot('rinsDescricao');
     reqIf('rinsDescricao', rinsAspecto==='alterado');
-    const rimDireitoTexto = blankOrValue(req('rimDireitoMedida'));
-    const rimEsquerdoTexto = blankOrValue(req('rimEsquerdoMedida'));
+    const rimDireitoTexto = blankOrValue(reqIf('rimDireitoMedida', modoTotal));
+    const rimEsquerdoTexto = blankOrValue(reqIf('rimEsquerdoMedida', modoTotal));
 
     const rinsLado = v('rinsLadoSelect') || 'direito';
     const rinsLadoNome = rinsLado==='esquerdo' ? 'esquerdo' : 'direito';
@@ -1702,8 +1734,8 @@ if(typeof criarMotorLaudo !== 'function'){
       rinsTextoTail = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureteres sem sinais de dilatações. Espaço perirrenal livre.';
     }
 
-    // ----- Bexiga -----
-    const bexigaAspecto = v('bexigaAspecto');
+    // ----- Bexiga ----- (só entra no Abdome Total)
+    const bexigaAspecto = modoTotal ? v('bexigaAspecto') : 'normal';
     const bexigaDescricao = vNoDot('bexigaDescricao');
     reqIf('bexigaDescricao', bexigaAspecto==='alterado');
     const bexigaEsforcoNum = num('bexigaEsforcoEspessura'); reqIf('bexigaEsforcoEspessura', bexigaAspecto==='esforco');
@@ -1724,8 +1756,8 @@ if(typeof criarMotorLaudo !== 'function'){
       bexigaTexto = 'De topografia usual, boa repleção, contorno interno regular e conteúdo anecoico. Meatos ureterais pérvios, sem alterações.';
     }
 
-    // ----- Grandes vasos -----
-    const vasosAspecto = v('vasosAspecto');
+    // ----- Grandes vasos ----- (só entra no Abdome Total)
+    const vasosAspecto = modoTotal ? v('vasosAspecto') : 'normal';
     const vasosDescricao = vNoDot('vasosDescricao');
     reqIf('vasosDescricao', vasosAspecto==='alterado');
     const vasosAneurismaPosicao = v('vasosAneurismaPosicao') || 'abaixo';
@@ -1747,12 +1779,12 @@ if(typeof criarMotorLaudo !== 'function'){
       vasosTexto = 'Aorta abdominal, veia cava inferior e artérias ilíacas de trajeto e calibre normais. Ausência de sinais de linfonodomegalia periaórtico-caval.';
     }
 
-    // ----- Baço -----
-    const bacoAspecto = v('bacoAspecto');
+    // ----- Baço ----- (entra no Abdome Total e no Abdome Superior; sai no Hipocôndrio Direito)
+    const bacoAspecto = modo !== 'hd' ? v('bacoAspecto') : 'normal';
     const bacoDescricao = vNoDot('bacoDescricao');
     reqIf('bacoDescricao', bacoAspecto==='alterado');
     const bacoDiametroNum = num('bacoDiametro');
-    reqIf('bacoDiametro', bacoAspecto!=='esplenectomia');
+    reqIf('bacoDiametro', modo !== 'hd' && bacoAspecto!=='esplenectomia');
     const bacoDiametroTexto = blankOrValue(v('bacoDiametro'));
     const bacoMax = BACO_MAX[sexo];
     flag('bacoDiametro', bacoDiametroNum!==null && bacoDiametroNum > bacoMax);
@@ -1784,8 +1816,8 @@ if(typeof criarMotorLaudo !== 'function'){
       bacoHtml = 'Forma, dimensões e contornos normais. Parênquima esplênico de textura sólida, homogênea, sem evidência de lesões sólidas ou císticas. Veia esplênica de calibre normal. Diâmetro bipolar de '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+').';
     }
 
-    // ----- Achados adicionais (opcionais) -----
-    const chkApendice = $('chkApendice').checked;
+    // ----- Achados adicionais (opcionais) ----- (só entram no Abdome Total)
+    const chkApendice = modoTotal && $('chkApendice').checked;
     const apendiceAspecto = v('apendiceAspecto');
     let apendiceHtml = null;
     let apendiceImpressaoHD = null;
@@ -1798,10 +1830,10 @@ if(typeof criarMotorLaudo !== 'function'){
       if(apendiceAlterado) apendiceImpressaoHD = 'Achados sugestivos de apendicite aguda não complicada.';
     }
 
-    const chkAdenite = $('chkAdenite').checked;
+    const chkAdenite = modoTotal && $('chkAdenite').checked;
     const adeniteImpressaoHD = chkAdenite ? 'Linfonodos intraperitoneais levemente aumentados, dentre as hipóteses diagnósticas encontra-se a de adenite mesentérica.' : null;
 
-    const chkAscite = $('chkAscite').checked;
+    const chkAscite = modoTotal && $('chkAscite').checked;
     let asciteHtml = null;
     let asciteImpressaoHD = null;
     if(chkAscite){
@@ -1836,7 +1868,10 @@ if(typeof criarMotorLaudo !== 'function'){
       +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
       +'</div>'});
 
-    blocks.push({id:'doctitle', html: '<h3 class="doctitle">ULTRASSOM DE ABDOME TOTAL</h3>'});
+    const doctitleTexto = modo==='hd' ? 'ULTRASSOM DE HIPOCÔNDRIO DIREITO'
+      : modo==='sup' ? 'ULTRASSOM DE ABDOME SUPERIOR'
+      : 'ULTRASSOM DE ABDOME TOTAL';
+    blocks.push({id:'doctitle', html: '<h3 class="doctitle">'+doctitleTexto+'</h3>'});
 
     blocks.push({id:'aoExameLabel', html:'<p class="linha intro intro-last">Ao exame:</p>'});
 
@@ -1873,19 +1908,29 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       pancreasTexto = 'De topografia, dimensões e forma usuais, apresentando parênquima com ecogenicidade habitual. Não há evidência de dilatação do ducto pancreático principal. Região peri-pancreática sem alterações.';
     }
-    blocks.push({id:'pancreas', html:'<p class="linha"><strong>Pâncreas:</strong> '+pancreasTexto+'</p>'});
+    if(modoTotal){
+      blocks.push({id:'pancreas', html:'<p class="linha"><strong>Pâncreas:</strong> '+pancreasTexto+'</p>'});
+    }
 
-    blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> Topografia, forma, contornos e mobilidade normais. O rim direito mede '+span(rimDireitoTexto)+' cm, e o esquerdo, '+span(rimEsquerdoTexto)+' cm. '+rinsTextoTail+'</p>'});
+    if(modoTotal){
+      blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> Topografia, forma, contornos e mobilidade normais. O rim direito mede '+span(rimDireitoTexto)+' cm, e o esquerdo, '+span(rimEsquerdoTexto)+' cm. '+rinsTextoTail+'</p>'});
+    }
 
-    blocks.push({id:'bexiga', html:'<p class="linha"><strong>Bexiga:</strong> '+bexigaTexto+'</p>'});
+    if(modoTotal){
+      blocks.push({id:'bexiga', html:'<p class="linha"><strong>Bexiga:</strong> '+bexigaTexto+'</p>'});
+    }
 
-    blocks.push({id:'vasos', html:'<p class="linha"><strong>Grandes vasos abdominais:</strong> '+vasosTexto+'</p>'});
+    if(modoTotal){
+      blocks.push({id:'vasos', html:'<p class="linha"><strong>Grandes vasos abdominais:</strong> '+vasosTexto+'</p>'});
+    }
 
     if(apendiceHtml){
       blocks.push({id:'apendice', html:'<p class="linha"><strong>Apêndice cecal:</strong> '+apendiceHtml+'</p>'});
     }
 
-    blocks.push({id:'baco', html:'<p class="linha"><strong>Baço:</strong> '+bacoHtml+'</p>'});
+    if(modo !== 'hd'){
+      blocks.push({id:'baco', html:'<p class="linha"><strong>Baço:</strong> '+bacoHtml+'</p>'});
+    }
 
     if(asciteHtml){
       blocks.push({id:'ascite', html:'<p class="linha">'+asciteHtml+'</p>'});
@@ -2043,6 +2088,8 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
   function tituloExame(){
+    if($('chkHipocondrioDireito').checked) return 'Hipocôndrio Direito';
+    if($('chkAbdomeSuperior').checked) return 'Abdome Superior';
     return 'Abdome Total';
   }
   async function saveBlobAs(blob, suggestedName){
