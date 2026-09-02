@@ -434,12 +434,22 @@
       <div class="card-body">
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
-            <select id="vesiculaAspecto"><option value="normal">Normal (volume, paredes e conteúdo usuais, sem cálculos nem dilatação das vias biliares)</option><option value="alterado">Alterado (descrever)</option></select>
+            <select id="vesiculaAspecto">
+              <option value="normal">Normal (volume, paredes e conteúdo usuais, sem cálculos nem dilatação das vias biliares)</option>
+              <option value="calculo">Cálculo(s)</option>
+              <option value="alterado">Outro (descrever)</option>
+            </select>
           </div>
+        </div>
+        <div class="field-row conditional" id="wrap_vesiculaCalculoCampos">
+          <div class="field"><label>Quantidade</label>
+            <select id="vesiculaCalculoQtd"><option value="1">1 cálculo</option><option value="varios">Vários cálculos</option></select>
+          </div>
+          <div class="field"><label id="lbl_vesiculaCalculoTamanho">Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vesiculaCalculoTamanho" placeholder="mm"></div>
         </div>
         <div class="field conditional" id="wrap_vesiculaDescricao">
           <label>Descreva o achado</label>
-          <textarea id="vesiculaDescricao" rows="2" placeholder="ex: cálculo único medindo... ; parede espessada..."></textarea>
+          <textarea id="vesiculaDescricao" rows="2" placeholder="ex: parede espessada; pólipo medindo..."></textarea>
         </div>
         <hr class="sep">
         <div class="field-row field-row-compact">
@@ -1264,7 +1274,14 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_figadoDescricao', val==='alterado');
     updateFigadoGrauManualVisibility();
   });
-  $('vesiculaAspecto').addEventListener('change', e=> toggle('wrap_vesiculaDescricao', e.target.value==='alterado'));
+  function updateVesiculaCalculoLabel(){
+    $('lbl_vesiculaCalculoTamanho').textContent = v('vesiculaCalculoQtd')==='varios' ? 'Tamanho do maior' : 'Tamanho';
+  }
+  $('vesiculaAspecto').addEventListener('change', e=>{
+    toggle('wrap_vesiculaCalculoCampos', e.target.value==='calculo');
+    toggle('wrap_vesiculaDescricao', e.target.value==='alterado');
+  });
+  $('vesiculaCalculoQtd').addEventListener('change', updateVesiculaCalculoLabel);
   $('pancreasAspecto').addEventListener('change', e=> toggle('wrap_pancreasDescricao', e.target.value==='alterado'));
   function updateRinsCalculoCampos(){
     toggle('wrap_rinsCalc2', v('rinsCalculoQtd')==='2');
@@ -1362,6 +1379,9 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     if(state.figadoAspecto==='hemangioma'){
       items.push({key:'figado-hemangioma', label:'Nódulo(s) hepático(s) sugestivo(s) de hemangioma(s).', auto:true});
+    }
+    if(state.vesiculaImpressaoHD){
+      items.push({key:'vesicula-achado', label: state.vesiculaImpressaoHD, auto:true});
     }
     if(state.rinsImpressaoHD){
       items.push({key:'rins-achado', label: state.rinsImpressaoHD, auto:true});
@@ -1498,6 +1518,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const vesiculaDescricao = vNoDot('vesiculaDescricao');
     reqIf('vesiculaDescricao', vesiculaAspecto==='alterado');
     const hepatocoledocoTexto = blankOrValue(req('hepatocoledoco'));
+    const vesiculaCalculoQtd = v('vesiculaCalculoQtd') || '1';
+    const vesiculaCalculoTamanhoTexto = blankOrValue(reqIf('vesiculaCalculoTamanho', vesiculaAspecto==='calculo'));
+    let vesiculaImpressaoHD = null;
+    if(vesiculaAspecto==='calculo'){
+      vesiculaImpressaoHD = 'Colecistolitíase.';
+    }
 
     // ----- Pâncreas -----
     const pancreasAspecto = v('pancreasAspecto');
@@ -1686,7 +1712,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // ----- Impressão -----
     const state = {
       chkEsteatose, pctGorduraNum, pctGorduraTexto, grauInfo,
-      figadoAspecto, figadoImpressaoDeposito, rinsImpressaoHD, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
+      figadoAspecto, figadoImpressaoDeposito, vesiculaImpressaoHD, rinsImpressaoHD, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
       apendiceImpressaoHD, adeniteImpressaoHD, asciteImpressaoHD,
       obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
@@ -1709,9 +1735,17 @@ if(typeof criarMotorLaudo !== 'function'){
 
     blocks.push({id:'figado', html:'<p class="linha"><strong>Fígado:</strong> '+figadoTextoBase+' O lobo direito mede '+span(loboDTexto)+' cm e o lobo esquerdo mede '+span(loboETexto)+' cm no eixo longitudinal (VR: lobo direito até 15,5 cm e lobo esquerdo até 11,0 cm).</p>'});
 
-    const vesiculaTextoBase = (vesiculaAspecto==='alterado' && vesiculaDescricao)
-      ? escapeHtml(vesiculaDescricao)+'.'
-      : 'Vesícula de volume normal, forma anatômica, paredes finas e conteúdo anecoico. Ausência de cálculos no seu interior. Ausência de dilatação das vias biliares intra e extra-hepáticas.';
+    let vesiculaTextoBase;
+    if(vesiculaAspecto==='calculo'){
+      const vesiculaCalculoTexto = vesiculaCalculoQtd==='varios'
+        ? 'Em seu interior, observam-se várias imagens ovaladas hiperecogênicas, que condicionam sombra acústica posterior, a maior medindo '+span(vesiculaCalculoTamanhoTexto)+' mm.'
+        : 'Em seu interior, observa-se imagem ovalada hiperecogênica, que condiciona sombra acústica posterior, móvel às mudanças de decúbito, medindo '+span(vesiculaCalculoTamanhoTexto)+' mm.';
+      vesiculaTextoBase = 'Vesícula de volume normal, forma anatômica, paredes finas e conteúdo anecoico. '+vesiculaCalculoTexto+' Ausência de dilatação das vias biliares intra e extra-hepáticas.';
+    } else if(vesiculaAspecto==='alterado' && vesiculaDescricao){
+      vesiculaTextoBase = escapeHtml(vesiculaDescricao)+'.';
+    } else {
+      vesiculaTextoBase = 'Vesícula de volume normal, forma anatômica, paredes finas e conteúdo anecoico. Ausência de cálculos no seu interior. Ausência de dilatação das vias biliares intra e extra-hepáticas.';
+    }
     blocks.push({id:'vesicula', html:'<p class="linha"><strong>Vesícula e Vias Biliares:</strong> '+vesiculaTextoBase+' Hepatocolédoco com diâmetro de '+span(hepatocoledocoTexto)+' mm no segmento visibilizado.</p>'});
 
     const pancreasTexto = (pancreasAspecto==='alterado' && pancreasDescricao)
