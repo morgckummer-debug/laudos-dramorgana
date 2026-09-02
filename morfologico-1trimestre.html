@@ -240,20 +240,27 @@
   .paper .assinatura-info{font-size:0.791667em;color:var(--ink-soft);}
 
   /* Página de anexo (cálculo de risco da FMF): a médica cola ali o print da
-     tela do software (Ctrl+V) — não é campo de formulário, o conteúdo é
-     exatamente o que ela colou. Some da impressão/Word enquanto não tem
-     imagem nenhuma (ver .anexo-table.has-image no @media print). */
+     tela do software (Ctrl+V) — não é campo de formulário, o conteúdo colado
+     é exatamente o que ela colou. Some da impressão/Word enquanto não tem
+     imagem nenhuma (ver .anexo-table.has-image no @media print). A página é
+     uma coluna flex — logo no topo, imagens coladas no meio, assinatura
+     empurrada para o pé com margin-top:auto — para a assinatura sair sempre
+     no ponto mais baixo da folha, e não logo depois da última imagem. */
   .anexo-label{font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;color:var(--ink-soft);text-align:center;text-transform:uppercase;letter-spacing:.3px;margin:26px 0 8px;}
   .anexo-table{margin-top:0;}
-  #paperAnexo{min-height:200px;}
-  #paperAnexo:empty::before{
+  .anexo-paper{display:flex;flex-direction:column;min-height:24.2cm;}
+  .anexo-header{flex:0 0 auto;margin-bottom:0.75em;}
+  .anexo-header img{max-height:52px;width:auto;display:block;}
+  #anexoImgs{flex:1 0 auto;min-height:160px;}
+  #anexoImgs:empty::before{
     content:'Clique aqui e cole (Ctrl+V) a imagem do cálculo de risco da FMF.';
     display:flex;align-items:center;justify-content:center;text-align:center;
-    min-height:200px;color:var(--ink-soft);border:2px dashed var(--line);border-radius:12px;
+    min-height:160px;color:var(--ink-soft);border:2px dashed var(--line);border-radius:12px;
     font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;padding:24px;
   }
-  #paperAnexo img{max-width:100%;display:block;margin:0 auto 14px;}
-  #paperAnexo img:last-child{margin-bottom:0;}
+  #anexoImgs img{max-width:100%;display:block;margin:0 auto 14px;}
+  #anexoImgs img:last-child{margin-bottom:0;}
+  .anexo-paper .assinatura{margin-top:auto;padding-top:1em;}
   .anexo-actions{display:none;}
   .anexo-actions.show{display:flex;}
 
@@ -703,7 +710,15 @@
     <table class="paper-table anexo-table" id="anexoTable">
       <thead><tr><td></td></tr></thead>
       <tfoot><tr><td></td></tr></tfoot>
-      <tbody><tr><td><div class="paper" id="paperAnexo" contenteditable="true" spellcheck="false"></div></td></tr></tbody>
+      <tbody><tr><td>
+        <div class="paper anexo-paper" id="paperAnexo">
+          <div class="anexo-header">
+            <img id="anexoFmfLogo" src="logo-fmf.png" alt="Fetal Medicine Foundation" onerror="this.style.display='none';this.closest('.anexo-header').style.display='none';">
+          </div>
+          <div id="anexoImgs" contenteditable="true" spellcheck="false"></div>
+          <div class="assinatura" id="anexoAssinatura"></div>
+        </div>
+      </td></tr></tbody>
     </table>
     <div class="preview-actions anexo-actions" id="anexoActions">
       <button type="button" class="btn-clear" id="btnRemoverAnexo">Remover imagem(ns) da FMF</button>
@@ -1093,16 +1108,20 @@ if(typeof criarMotorLaudo !== 'function'){
   // ---------- Anexo: imagem do cálculo de risco (FMF) ----------
   // Página extra, colada à mão — a médica tira um print da tela do software
   // de cálculo de risco da FMF e cola (Ctrl+V) direto aqui, como já fazia no
-  // Word. Não é campo de formulário e não passa por render()/renderBlocks():
-  // o conteúdo é exatamente o que foi colado, guardado como está. Comprimida
-  // no canvas antes de entrar no #paperAnexo para não estourar o localStorage
-  // do rascunho com um print de tela cheia em PNG.
+  // Word. As imagens coladas em #anexoImgs não são campo de formulário e não
+  // passam por render()/renderBlocks(): o conteúdo é exatamente o que foi
+  // colado, guardado como está — comprimido no canvas antes de entrar, para
+  // não estourar o localStorage do rascunho com um print de tela cheia em
+  // PNG. Já o cabeçalho (logo da FMF) e a assinatura (#anexoAssinatura) são
+  // gerados, não colados: a assinatura é reconstruída a cada render() (ver
+  // buildAssinaturaHtml()), igual à do rodapé do laudo principal.
   const ANEXO_MAX_WIDTH = 1500;
   const ANEXO_JPEG_QUALITY = 0.85;
   const paperAnexoEl = $('paperAnexo');
+  const anexoImgsEl = $('anexoImgs');
 
   function updateAnexoVisibility(){
-    const temImagem = !!paperAnexoEl.querySelector('img');
+    const temImagem = !!anexoImgsEl.querySelector('img');
     $('anexoTable').classList.toggle('has-image', temImagem);
     toggle('anexoActions', temImagem);
   }
@@ -1110,12 +1129,12 @@ if(typeof criarMotorLaudo !== 'function'){
   function inserirImagemAnexo(dataUrl){
     const img = document.createElement('img');
     img.src = dataUrl;
-    paperAnexoEl.appendChild(img);
+    anexoImgsEl.appendChild(img);
     updateAnexoVisibility();
     draftSchedule();
   }
 
-  paperAnexoEl.addEventListener('paste', e=>{
+  anexoImgsEl.addEventListener('paste', e=>{
     e.preventDefault();
     const items = (e.clipboardData || window.clipboardData || {}).items || [];
     Array.from(items).forEach(item=>{
@@ -1140,8 +1159,8 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
   $('btnRemoverAnexo').addEventListener('click', ()=>{
-    if(paperAnexoEl.querySelector('img') && !confirm('Remover a(s) imagem(ns) coladas nesta página?')) return;
-    paperAnexoEl.innerHTML = '';
+    if(anexoImgsEl.querySelector('img') && !confirm('Remover a(s) imagem(ns) coladas nesta página?')) return;
+    anexoImgsEl.innerHTML = '';
     updateAnexoVisibility();
     draftSchedule();
   });
@@ -1877,6 +1896,16 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   }
 
+  // Mesma assinatura do rodapé do laudo principal — reusada também no rodapé
+  // da página de anexo (FMF), para as duas saírem sempre iguais.
+  function buildAssinaturaHtml(){
+    let html = '<p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
+    if(VR.medicoQual1) html += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
+    if(VR.medicoQual2) html += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
+    html += '<p class="assinatura-info">'+escapeHtml(VR.medicoCRM)+'</p>';
+    return html;
+  }
+
   function render(){
     if(st.draftRestoring) return;
     // Durante a impressão o #paper está remontado em folhas e será reposto
@@ -2199,12 +2228,13 @@ if(typeof criarMotorLaudo !== 'function'){
 
     let rodapeHtml = '<div class="rodape-final">';
     rodapeHtml += '<p class="footnote">'+phrase('footerImagens')+'</p>';
-    rodapeHtml += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
-    if(VR.medicoQual1) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
-    if(VR.medicoQual2) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
-    rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoCRM)+'</p></div>';
+    rodapeHtml += '<div class="assinatura">'+buildAssinaturaHtml()+'</div>';
     rodapeHtml += '</div>';
     blocks.push({id:'rodape', html:rodapeHtml});
+
+    // Assinatura da página de anexo (FMF) — mesmo médico executante, sempre
+    // no pé da folha (ver .anexo-paper .assinatura{margin-top:auto} no CSS).
+    $('anexoAssinatura').innerHTML = buildAssinaturaHtml();
 
     renderBlocks(blocks);
     alignMorfoWidth();
@@ -2333,13 +2363,22 @@ if(typeof criarMotorLaudo !== 'function'){
     const lineHeight = $('paper').style.lineHeight || '1.15';
     const fontSize = $('paper').style.fontSize || '12pt';
     let bodyHtml = clone.innerHTML;
-    // A página de anexo (imagem colada do cálculo de risco da FMF) fica de
-    // fora do #paper — só entra no Word se a médica realmente colou algo ali.
-    if(paperAnexoEl.querySelector('img')){
+    // A página de anexo (logo da FMF, imagem colada do cálculo de risco e
+    // assinatura) fica de fora do #paper — só entra no Word se a médica
+    // realmente colou alguma imagem ali. O Word ignora o <style> da página
+    // (só sobrevive o que está inline em cada elemento — mesma observação do
+    // clone do #paper acima), então o logo e a assinatura levam o mesmo
+    // estilo inline aplicado ao rodapé do laudo principal.
+    if(anexoImgsEl.querySelector('img')){
       const anexoClone = paperAnexoEl.cloneNode(true);
-      anexoClone.querySelectorAll('img').forEach(img=>{
+      anexoClone.querySelectorAll('#anexoImgs img').forEach(img=>{
         img.style.maxWidth = '100%'; img.style.display = 'block'; img.style.margin = '0 auto 14px';
       });
+      const anexoLogo = anexoClone.querySelector('.anexo-header img');
+      if(anexoLogo && anexoLogo.style.display !== 'none'){ anexoLogo.style.maxHeight = '52px'; anexoLogo.style.width = 'auto'; anexoLogo.style.display = 'block'; }
+      anexoClone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
+      anexoClone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
+      anexoClone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
       bodyHtml += '<br clear="all" style="page-break-before:always;mso-special-character:line-break;">' + anexoClone.innerHTML;
     }
     return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";\">"+bodyHtml+'</div>';
@@ -2454,7 +2493,7 @@ if(typeof criarMotorLaudo !== 'function'){
     relatoOverride = null;
     st.lastBlockHtml = {};
     $('paper').innerHTML = '';
-    paperAnexoEl.innerHTML = '';
+    anexoImgsEl.innerHTML = '';
     updateAnexoVisibility();
     printAttempted = false;
     $('printAlert').classList.remove('show');
@@ -2496,7 +2535,7 @@ if(typeof criarMotorLaudo !== 'function'){
       titleFontSize: titleFontSize,
       paper: draftPaperHtml(),
       blocks: st.lastBlockHtml,
-      anexoFmf: paperAnexoEl.innerHTML
+      anexoFmf: anexoImgsEl.innerHTML
     };
   }
 
@@ -2569,7 +2608,7 @@ if(typeof criarMotorLaudo !== 'function'){
       relatoOverride = null;
       st.lastBlockHtml = {};
       $('paper').innerHTML = '';
-      paperAnexoEl.innerHTML = '';
+      anexoImgsEl.innerHTML = '';
       updateAnexoVisibility();
       try{ localStorage.removeItem(DRAFT_KEY); }catch(e2){}
       return false;
@@ -2589,8 +2628,10 @@ if(typeof criarMotorLaudo !== 'function'){
       updatePagePreview();
     }
     // Rascunhos gravados antes desta funcionalidade não têm `anexoFmf` — volta
-    // vazia, mesmo estado de um laudo novo.
-    paperAnexoEl.innerHTML = typeof d.anexoFmf === 'string' ? d.anexoFmf : '';
+    // vazia, mesmo estado de um laudo novo. O cabeçalho (logo) e a assinatura
+    // não são salvos no rascunho — são gerados de novo pelo render() logo
+    // abaixo, a partir do médico executante atual.
+    anexoImgsEl.innerHTML = typeof d.anexoFmf === 'string' ? d.anexoFmf : '';
     updateAnexoVisibility();
     const note = $('draftNote');
     if(note){
