@@ -258,8 +258,22 @@
     min-height:160px;color:var(--ink-soft);border:2px dashed var(--line);border-radius:12px;
     font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;padding:24px;
   }
-  #anexoImgs img{max-width:100%;display:block;margin:0 auto 14px;}
-  #anexoImgs img:last-child{margin-bottom:0;}
+  /* Cada imagem colada vem envolvida num .anexo-img-wrap — é nele que mora o
+     "canto" que se arrasta para reduzir, do mesmo jeito que no Word: clica na
+     imagem (aparece a borda rosa com a bolinha no canto inferior direito) e
+     arrasta a bolinha para dentro. O gap entre imagens empilhadas é margem do
+     wrap, não da imagem — assim o canto fica exatamente no canto da imagem,
+     não abaixo dele. */
+  #anexoImgs .anexo-img-wrap{position:relative;display:block;margin-bottom:14px;}
+  #anexoImgs .anexo-img-wrap:last-child{margin-bottom:0;}
+  #anexoImgs .anexo-img-wrap img{max-width:100%;display:block;margin:0 auto;outline:2px solid transparent;outline-offset:2px;}
+  #anexoImgs .anexo-img-wrap.selected img{outline-color:var(--rose);}
+  #anexoImgs .anexo-resize-handle{
+    position:absolute;right:0;bottom:0;width:14px;height:14px;transform:translate(50%,50%);
+    background:var(--rose);border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.35);
+    cursor:nwse-resize;display:none;user-select:none;-webkit-user-select:none;
+  }
+  #anexoImgs .anexo-img-wrap.selected .anexo-resize-handle{display:block;}
   .anexo-paper .assinatura{margin-top:auto;padding-top:1em;}
   .anexo-actions{display:none;}
   .anexo-actions.show{display:flex;}
@@ -339,6 +353,8 @@
        imagem, ela sempre começa numa folha nova, depois de todo o resto. */
     .anexo-table{display:none;}
     .anexo-table.has-image{display:table;page-break-before:always;}
+    #anexoImgs .anexo-resize-handle{display:none !important;}
+    #anexoImgs .anexo-img-wrap img{outline:none !important;}
     /* .combo-list (a lista de médicos que aparece ao digitar) é movida para o
        <body> para não ser cortada pelo overflow:hidden do card — ou seja, ela
        NÃO é descendente de #formCol e não some com a regra acima. Sem esta
@@ -714,7 +730,7 @@
       <tbody><tr><td>
         <div class="paper anexo-paper" id="paperAnexo">
           <div class="anexo-header">
-            <img id="anexoFmfLogo" src="logo-fmf.png" alt="Fetal Medicine Foundation" onerror="this.style.display='none';this.closest('.anexo-header').style.display='none';">
+            <img id="anexoFmfLogo" src="fmf-icon.png" alt="Fetal Medicine Foundation" onerror="this.style.display='none';this.closest('.anexo-header').style.display='none';">
           </div>
           <div id="anexoImgs" contenteditable="true" spellcheck="false"></div>
           <div class="assinatura" id="anexoAssinatura"></div>
@@ -1128,12 +1144,57 @@ if(typeof criarMotorLaudo !== 'function'){
   }
 
   function inserirImagemAnexo(dataUrl){
+    const wrap = document.createElement('div');
+    wrap.className = 'anexo-img-wrap';
     const img = document.createElement('img');
     img.src = dataUrl;
-    anexoImgsEl.appendChild(img);
+    const handle = document.createElement('span');
+    handle.className = 'anexo-resize-handle';
+    handle.setAttribute('contenteditable', 'false');
+    handle.title = 'Arraste para reduzir';
+    wrap.appendChild(img);
+    wrap.appendChild(handle);
+    anexoImgsEl.appendChild(wrap);
     updateAnexoVisibility();
     draftSchedule();
   }
+
+  // Reduzir a imagem colada arrastando o canto — igual ao Word. Clicar numa
+  // imagem seleciona ela (aparece a borda rosa com a bolinha no canto
+  // inferior direito); arrastar a bolinha muda só a largura, e a altura
+  // acompanha sozinha porque a imagem nunca ganha altura fixa (o <img> não
+  // tem style.height, só style.width — a proporção original se mantém).
+  let anexoResize = null;
+  anexoImgsEl.addEventListener('mousedown', e=>{
+    const handle = e.target.closest('.anexo-resize-handle');
+    if(!handle) return;
+    e.preventDefault();
+    const wrap = handle.closest('.anexo-img-wrap');
+    const img = wrap.querySelector('img');
+    anexoResize = { img, startX: e.clientX, startWidth: img.getBoundingClientRect().width };
+  });
+  document.addEventListener('mousemove', e=>{
+    if(!anexoResize) return;
+    const delta = e.clientX - anexoResize.startX;
+    const maxWidth = anexoImgsEl.getBoundingClientRect().width;
+    const novaLargura = Math.min(maxWidth, Math.max(60, anexoResize.startWidth + delta));
+    anexoResize.img.style.width = novaLargura + 'px';
+  });
+  document.addEventListener('mouseup', ()=>{
+    if(!anexoResize) return;
+    anexoResize = null;
+    updateAnexoVisibility();
+    draftSchedule();
+  });
+  anexoImgsEl.addEventListener('click', e=>{
+    const wrap = e.target.closest('.anexo-img-wrap');
+    anexoImgsEl.querySelectorAll('.anexo-img-wrap.selected').forEach(w=>{ if(w !== wrap) w.classList.remove('selected'); });
+    if(wrap) wrap.classList.add('selected');
+  });
+  document.addEventListener('click', e=>{
+    if(anexoImgsEl.contains(e.target)) return;
+    anexoImgsEl.querySelectorAll('.anexo-img-wrap.selected').forEach(w=> w.classList.remove('selected'));
+  });
 
   anexoImgsEl.addEventListener('paste', e=>{
     e.preventDefault();
@@ -2372,8 +2433,13 @@ if(typeof criarMotorLaudo !== 'function'){
     // estilo inline aplicado ao rodapé do laudo principal.
     if(anexoImgsEl.querySelector('img')){
       const anexoClone = paperAnexoEl.cloneNode(true);
+      // A bolinha de redimensionar e a borda de seleção são só da edição na
+      // tela — não fazem sentido no Word. A largura arrastada na tela (o
+      // style.width do <img>, se a médica reduziu) segue no clone normalmente.
+      anexoClone.querySelectorAll('.anexo-resize-handle').forEach(el=>el.remove());
+      anexoClone.querySelectorAll('.anexo-img-wrap.selected').forEach(el=>el.classList.remove('selected'));
       anexoClone.querySelectorAll('#anexoImgs img').forEach(img=>{
-        img.style.maxWidth = '100%'; img.style.display = 'block'; img.style.margin = '0 auto 14px';
+        img.style.maxWidth = '100%'; img.style.display = 'block'; img.style.margin = '0 auto 14px'; img.style.outline = 'none';
       });
       const anexoLogo = anexoClone.querySelector('.anexo-header img');
       if(anexoLogo && anexoLogo.style.display !== 'none'){ anexoLogo.style.maxHeight = '52px'; anexoLogo.style.width = 'auto'; anexoLogo.style.display = 'block'; }
