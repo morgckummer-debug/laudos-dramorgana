@@ -110,8 +110,6 @@
   .format-warning{font-size:11px;color:#B4432F;font-weight:600;display:block;margin-top:3px;}
   .field .flag-note{font-size:11px;color:var(--amber);font-weight:600;display:none;}
   .field .flag-note.show{display:block;}
-  .grau-live{font-size:12.5px;font-weight:600;color:var(--sage);margin-top:6px;display:block;}
-  .grau-live.amber{color:var(--amber);}
 
   .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
   .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
@@ -477,32 +475,38 @@
     <div class="card">
       <div class="card-head"><h2>Tireóide — Dimensões</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">O volume de cada porção é calculado automaticamente pela fórmula do elipsoide (comprimento × AP × transversal × 0,523). O volume total da glândula soma os dois lobos.</p>
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">O volume de cada porção é digitado direto da tela do aparelho — não é recalculado aqui, para sair idêntico às fotos do exame.</p>
         <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Lobo direito</p>
         <div class="field-row field-row-compact">
           <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDLong" placeholder="cm"></div>
           <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDAP" placeholder="cm"></div>
           <div class="field"><label>Transversal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDTransv" placeholder="cm"></div>
+          <div class="field"><label>Volume</label><input type="text" inputmode="decimal" data-decimals="2" data-maxint="2" id="loboDVolume" placeholder="cm³"></div>
         </div>
-        <span class="grau-live" id="loboDVolumeLabel"></span>
         <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Lobo esquerdo</p>
         <div class="field-row field-row-compact">
           <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboELong" placeholder="cm"></div>
           <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboEAP" placeholder="cm"></div>
           <div class="field"><label>Transversal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboETransv" placeholder="cm"></div>
+          <div class="field"><label>Volume</label><input type="text" inputmode="decimal" data-decimals="2" data-maxint="2" id="loboEVolume" placeholder="cm³"></div>
         </div>
-        <span class="grau-live" id="loboEVolumeLabel"></span>
         <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Istmo</p>
         <div class="field-row field-row-compact">
           <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="istmoLong" placeholder="cm"></div>
           <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="istmoAP" placeholder="cm"></div>
           <div class="field"><label>Transversal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="istmoTransv" placeholder="cm"></div>
+          <div class="field"><label>Volume</label><input type="text" inputmode="decimal" data-decimals="2" data-maxint="2" id="istmoVolume" placeholder="cm³"></div>
         </div>
-        <span class="grau-live" id="istmoVolumeLabel"></span>
         <hr class="sep">
-        <span class="grau-live" id="volumeTotalLabel" style="font-size:13.5px;"></span>
+        <div class="field-row field-row-compact">
+          <div class="field"><label>Volume total da glândula</label>
+            <input type="text" inputmode="decimal" data-decimals="2" data-maxint="2" id="volumeTotal" placeholder="cm³">
+            <span class="vr">VR 6,0 a 15,0 cm³</span>
+            <span class="flag-note" id="flag_volumeTotal">Fora do valor de referência</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1150,13 +1154,6 @@ if(typeof criarMotorLaudo !== 'function'){
     if(note) note.classList.toggle('show', !!isAbnormal);
   }
 
-  // Volume do elipsoide (comprimento × AP × transversal × 0,523), o mesmo
-  // método usado pelo aparelho de ultrassom para estimar volume glandular.
-  function volumeElipsoide(long, ap, transv){
-    if(long===null || ap===null || transv===null) return null;
-    return long * ap * transv * 0.523;
-  }
-  function fmtVol(n){ return n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
 
   // ---------- Build impression checklist ----------
   // Como nos demais laudos, não há detecção automática de achado alterado —
@@ -1291,31 +1288,16 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     // ----- Dimensões -----
-    req('loboDLong'); req('loboDAP'); req('loboDTransv');
-    const loboDLongNum = num('loboDLong'), loboDAPNum = num('loboDAP'), loboDTransvNum = num('loboDTransv');
-    const loboDVol = volumeElipsoide(loboDLongNum, loboDAPNum, loboDTransvNum);
-    $('loboDVolumeLabel').textContent = loboDVol!==null ? ('→ Volume do lobo direito: '+fmtVol(loboDVol)+' cm³') : '';
+    // O volume de cada porção vem digitado direto da tela do aparelho — não é
+    // recalculado aqui, para sair idêntico às fotos do exame (pedido da Dra.
+    // Morgana: o app calculava pela fórmula do elipsoide e o valor podia
+    // divergir do que o aparelho mostra).
+    req('loboDLong'); req('loboDAP'); req('loboDTransv'); req('loboDVolume');
+    req('loboELong'); req('loboEAP'); req('loboETransv'); req('loboEVolume');
+    req('istmoLong'); req('istmoAP'); req('istmoTransv'); req('istmoVolume');
 
-    req('loboELong'); req('loboEAP'); req('loboETransv');
-    const loboELongNum = num('loboELong'), loboEAPNum = num('loboEAP'), loboETransvNum = num('loboETransv');
-    const loboEVol = volumeElipsoide(loboELongNum, loboEAPNum, loboETransvNum);
-    $('loboEVolumeLabel').textContent = loboEVol!==null ? ('→ Volume do lobo esquerdo: '+fmtVol(loboEVol)+' cm³') : '';
-
-    req('istmoLong'); req('istmoAP'); req('istmoTransv');
-    const istmoLongNum = num('istmoLong'), istmoAPNum = num('istmoAP'), istmoTransvNum = num('istmoTransv');
-    const istmoVol = volumeElipsoide(istmoLongNum, istmoAPNum, istmoTransvNum);
-    $('istmoVolumeLabel').textContent = istmoVol!==null ? ('→ Volume do istmo: '+fmtVol(istmoVol)+' cm³') : '';
-
-    const volumeTotal = (loboDVol!==null && loboEVol!==null) ? (loboDVol + loboEVol) : null;
-    const volumeTotalEl = $('volumeTotalLabel');
-    if(volumeTotal!==null){
-      const fora = volumeTotal < VOLUME_TOTAL_MIN || volumeTotal > VOLUME_TOTAL_MAX;
-      volumeTotalEl.textContent = '→ Volume total da glândula (lobo direito + lobo esquerdo): '+fmtVol(volumeTotal)+' cm³ (VR 6,0 a 15,0 cm³)'+(fora?' — fora da faixa de referência':'');
-      volumeTotalEl.classList.toggle('amber', fora);
-    } else {
-      volumeTotalEl.textContent = '';
-      volumeTotalEl.classList.remove('amber');
-    }
+    const volumeTotalNum = num('volumeTotal'); req('volumeTotal');
+    flag('volumeTotal', volumeTotalNum!==null && (volumeTotalNum < VOLUME_TOTAL_MIN || volumeTotalNum > VOLUME_TOTAL_MAX));
 
     // ----- Doppler -----
     const vascularizacaoAspecto = v('vascularizacaoAspecto') || 'normal';
@@ -1358,15 +1340,15 @@ if(typeof criarMotorLaudo !== 'function'){
     const loboDLongTexto = span(blankOrValue(v('loboDLong')))+' cm';
     const loboDAPTexto = span(blankOrValue(v('loboDAP')))+' cm';
     const loboDTransvTexto = span(blankOrValue(v('loboDTransv')))+' cm';
-    const loboDVolTexto = span(blankOrValue(loboDVol!==null ? fmtVol(loboDVol) : ''))+' cm³';
+    const loboDVolTexto = span(blankOrValue(v('loboDVolume')))+' cm³';
     const loboELongTexto = span(blankOrValue(v('loboELong')))+' cm';
     const loboEAPTexto = span(blankOrValue(v('loboEAP')))+' cm';
     const loboETransvTexto = span(blankOrValue(v('loboETransv')))+' cm';
-    const loboEVolTexto = span(blankOrValue(loboEVol!==null ? fmtVol(loboEVol) : ''))+' cm³';
+    const loboEVolTexto = span(blankOrValue(v('loboEVolume')))+' cm³';
     const istmoLongTexto = span(blankOrValue(v('istmoLong')))+' cm';
     const istmoAPTexto = span(blankOrValue(v('istmoAP')))+' cm';
     const istmoTransvTexto = span(blankOrValue(v('istmoTransv')))+' cm';
-    const istmoVolTexto = span(blankOrValue(istmoVol!==null ? fmtVol(istmoVol) : ''))+' cm³';
+    const istmoVolTexto = span(blankOrValue(v('istmoVolume')))+' cm³';
     blocks.push({id:'medidasTabela', html:
       '<table class="medidas">'
       +'<thead><tr><th></th><th>Longitudinal</th><th>AP</th><th>Transversal</th><th>Volume</th></tr></thead>'
@@ -1376,7 +1358,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<tr><td>Istmo</td><td>'+istmoLongTexto+'</td><td>'+istmoAPTexto+'</td><td>'+istmoTransvTexto+'</td><td>'+istmoVolTexto+'</td></tr>'
       +'</tbody></table>'});
 
-    const volumeTotalTexto = blankOrValue(volumeTotal!==null ? fmtVol(volumeTotal) : '');
+    const volumeTotalTexto = blankOrValue(v('volumeTotal'));
     blocks.push({id:'volumeTotal', html:'<p class="linha">O volume total da glândula é de '+span(volumeTotalTexto)+' cm³ (normal 6,0 a 15,0 cm³).</p>'});
 
     blocks.push({id:'parenquima', html:'<p class="linha">'+parenquimaTexto+'</p>'});
