@@ -463,8 +463,25 @@
       <div class="card-body">
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
-            <select id="pancreasAspecto"><option value="normal">Normal (topografia, dimensões e ecogenicidade usuais, sem dilatação do ducto principal)</option><option value="alterado">Alterado (descrever)</option></select>
+            <select id="pancreasAspecto">
+              <option value="normal">Normal (topografia, dimensões e ecogenicidade usuais, sem dilatação do ducto principal)</option>
+              <option value="cisto">Cisto pancreático</option>
+              <option value="nodulo">Nódulo pancreático</option>
+              <option value="alterado">Outro (descrever)</option>
+            </select>
           </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_pancreasCistoCampos">
+          <div class="field"><label>Localização</label>
+            <select id="pancreasCistoPosicao"><option value="cabeça">Cabeça</option><option value="corpo">Corpo</option><option value="cauda">Cauda</option></select>
+          </div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="pancreasCistoTamanho" placeholder="mm"></div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_pancreasNoduloCampos">
+          <div class="field"><label>Localização</label>
+            <select id="pancreasNoduloPosicao"><option value="cabeça">Cabeça</option><option value="corpo">Corpo</option><option value="cauda">Cauda</option></select>
+          </div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="pancreasNoduloTamanho" placeholder="mm"></div>
         </div>
         <div class="field conditional" id="wrap_pancreasDescricao">
           <label>Descreva o achado</label>
@@ -696,7 +713,7 @@
       <div class="card-body">
         <div class="field">
           <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
-          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
+          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um parágrafo no corpo do laudo — a conclusão sobre isso é escrita por você, direto na Impressão ao lado"></textarea>
         </div>
       </div>
     </div>
@@ -1282,7 +1299,12 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_vesiculaDescricao', e.target.value==='alterado');
   });
   $('vesiculaCalculoQtd').addEventListener('change', updateVesiculaCalculoLabel);
-  $('pancreasAspecto').addEventListener('change', e=> toggle('wrap_pancreasDescricao', e.target.value==='alterado'));
+  $('pancreasAspecto').addEventListener('change', e=>{
+    const val = e.target.value;
+    toggle('wrap_pancreasCistoCampos', val==='cisto');
+    toggle('wrap_pancreasNoduloCampos', val==='nodulo');
+    toggle('wrap_pancreasDescricao', val==='alterado');
+  });
   function updateRinsCalculoCampos(){
     toggle('wrap_rinsCalc2', v('rinsCalculoQtd')==='2');
   }
@@ -1383,6 +1405,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.vesiculaImpressaoHD){
       items.push({key:'vesicula-achado', label: state.vesiculaImpressaoHD, auto:true});
     }
+    if(state.pancreasImpressaoHD){
+      items.push({key:'pancreas-achado', label: state.pancreasImpressaoHD, auto:true});
+    }
     if(state.rinsImpressaoHD){
       items.push({key:'rins-achado', label: state.rinsImpressaoHD, auto:true});
     }
@@ -1404,9 +1429,6 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.asciteImpressaoHD){
       items.push({key:'ascite-achado', label: state.asciteImpressaoHD, auto:true});
     }
-    state.obsLinhas.forEach((linha, idx)=>{
-      items.push({key:'obs-'+idx, label: linha, auto:true});
-    });
     return items;
   }
 
@@ -1529,6 +1551,13 @@ if(typeof criarMotorLaudo !== 'function'){
     const pancreasAspecto = v('pancreasAspecto');
     const pancreasDescricao = vNoDot('pancreasDescricao');
     reqIf('pancreasDescricao', pancreasAspecto==='alterado');
+    const pancreasCistoPosicao = v('pancreasCistoPosicao') || 'cabeça';
+    const pancreasCistoTamanhoTexto = blankOrValue(reqIf('pancreasCistoTamanho', pancreasAspecto==='cisto'));
+    const pancreasNoduloPosicao = v('pancreasNoduloPosicao') || 'cabeça';
+    const pancreasNoduloTamanhoTexto = blankOrValue(reqIf('pancreasNoduloTamanho', pancreasAspecto==='nodulo'));
+    let pancreasImpressaoHD = null;
+    if(pancreasAspecto==='cisto') pancreasImpressaoHD = 'Cisto pancreático em '+pancreasCistoPosicao+'.';
+    if(pancreasAspecto==='nodulo') pancreasImpressaoHD = 'Nódulo pancreático em '+pancreasNoduloPosicao+'.';
 
     // ----- Rins -----
     const rinsAspecto = v('rinsAspecto');
@@ -1709,12 +1738,16 @@ if(typeof criarMotorLaudo !== 'function'){
       asciteImpressaoHD = 'Ascite '+asciteRotulo+'.';
     }
 
+    // Observações: descrição livre de achado fora dos campos acima. Vira parágrafo
+    // no corpo do laudo (documenta o que foi visto) — a médica decide, por conta
+    // própria, se e como isso entra na Impressão Diagnóstica, direto no texto.
+    const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
+
     // ----- Impressão -----
     const state = {
       chkEsteatose, pctGorduraNum, pctGorduraTexto, grauInfo,
-      figadoAspecto, figadoImpressaoDeposito, vesiculaImpressaoHD, rinsImpressaoHD, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
-      apendiceImpressaoHD, adeniteImpressaoHD, asciteImpressaoHD,
-      obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
+      figadoAspecto, figadoImpressaoDeposito, vesiculaImpressaoHD, pancreasImpressaoHD, rinsImpressaoHD, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
+      apendiceImpressaoHD, adeniteImpressaoHD, asciteImpressaoHD
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
@@ -1748,9 +1781,16 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     blocks.push({id:'vesicula', html:'<p class="linha"><strong>Vesícula e Vias Biliares:</strong> '+vesiculaTextoBase+' Hepatocolédoco com diâmetro de '+span(hepatocoledocoTexto)+' mm no segmento visibilizado.</p>'});
 
-    const pancreasTexto = (pancreasAspecto==='alterado' && pancreasDescricao)
-      ? escapeHtml(pancreasDescricao)+'.'
-      : 'De topografia, dimensões e forma usuais, apresentando parênquima com ecogenicidade habitual. Não há evidência de dilatação do ducto pancreático principal. Região peri-pancreática sem alterações.';
+    let pancreasTexto;
+    if(pancreasAspecto==='cisto'){
+      pancreasTexto = 'De topografia, dimensões e forma usuais, apresentando parênquima com ecogenicidade habitual. Não há evidência de dilatação do ducto pancreático principal. Observa-se imagem anecoica, de paredes finas e regulares, localizada em '+pancreasCistoPosicao+' do pâncreas, medindo '+span(pancreasCistoTamanhoTexto)+' mm.';
+    } else if(pancreasAspecto==='nodulo'){
+      pancreasTexto = 'De topografia, dimensões e forma usuais, apresentando parênquima com ecogenicidade habitual. Não há evidência de dilatação do ducto pancreático principal. Observa-se imagem nodular sólida, de contornos regulares, localizada em '+pancreasNoduloPosicao+' do pâncreas, medindo '+span(pancreasNoduloTamanhoTexto)+' mm.';
+    } else if(pancreasAspecto==='alterado' && pancreasDescricao){
+      pancreasTexto = escapeHtml(pancreasDescricao)+'.';
+    } else {
+      pancreasTexto = 'De topografia, dimensões e forma usuais, apresentando parênquima com ecogenicidade habitual. Não há evidência de dilatação do ducto pancreático principal. Região peri-pancreática sem alterações.';
+    }
     blocks.push({id:'pancreas', html:'<p class="linha"><strong>Pâncreas:</strong> '+pancreasTexto+'</p>'});
 
     blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> Topografia, forma, contornos e mobilidade normais. O rim direito mede '+span(rimDireitoTexto)+' cm, e o esquerdo, '+span(rimEsquerdoTexto)+' cm. '+rinsTextoTail+'</p>'});
@@ -1768,6 +1808,10 @@ if(typeof criarMotorLaudo !== 'function'){
     if(asciteHtml){
       blocks.push({id:'ascite', html:'<p class="linha">'+asciteHtml+'</p>'});
     }
+
+    obsLinhas.forEach((linha, idx)=>{
+      blocks.push({id:'obs-'+idx, html:'<p class="linha">'+escapeHtml(linha)+'</p>'});
+    });
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
