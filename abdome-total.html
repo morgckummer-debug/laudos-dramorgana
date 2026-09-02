@@ -1609,8 +1609,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const pancreasNoduloPosicao = v('pancreasNoduloPosicao') || 'cabeça';
     const pancreasNoduloTamanhoTexto = blankOrValue(reqIf('pancreasNoduloTamanho', pancreasAspecto==='nodulo'));
     let pancreasImpressaoHD = null;
-    if(pancreasAspecto==='cisto') pancreasImpressaoHD = 'Cisto pancreático em '+pancreasCistoPosicao+'.';
-    if(pancreasAspecto==='nodulo') pancreasImpressaoHD = 'Nódulo pancreático em '+pancreasNoduloPosicao+'.';
+    if(pancreasAspecto==='cisto') pancreasImpressaoHD = 'Cisto pancreático.';
+    if(pancreasAspecto==='nodulo') pancreasImpressaoHD = 'Nódulo pancreático a esclarecer — Seguir propedêutica.';
 
     // ----- Rins -----
     const rinsAspecto = v('rinsAspecto');
