@@ -175,9 +175,9 @@
   .paper p.linha.intro.intro-last{margin:0 0 var(--linha-margin, 16px);text-decoration:underline;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
-  .paper table.medidas{border-collapse:collapse;margin:0 0 var(--linha-margin, 16px);width:100%;}
-  .paper table.medidas th{border-top:1.25px solid #2b2b2e;border-bottom:0.75px solid #2b2b2e;padding:5px 12px 7px;text-align:center;font-weight:700;}
-  .paper table.medidas td{padding:6px 12px;text-align:center;}
+  .paper table.medidas{border-collapse:collapse;margin:0 0 var(--linha-margin, 16px);width:auto;font-size:0.8em;}
+  .paper table.medidas th{border-top:1.25px solid #2b2b2e;border-bottom:0.75px solid #2b2b2e;padding:3px 6px 4px;text-align:center;font-weight:700;}
+  .paper table.medidas td{padding:3px 6px;text-align:center;}
   .paper table.medidas td:first-child, .paper table.medidas th:first-child{text-align:left;}
   .paper table.medidas td:first-child{font-weight:700;}
   .paper table.medidas tbody tr:last-child td{border-bottom:1.25px solid #2b2b2e;}
@@ -1479,11 +1479,11 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
-    clone.querySelectorAll('table.medidas th').forEach(el=>{ el.style.borderTop='1.25px solid #2b2b2e'; el.style.borderBottom='0.75px solid #2b2b2e'; el.style.padding='5px 12px 7px'; el.style.textAlign='center'; el.style.fontWeight='700'; });
-    clone.querySelectorAll('table.medidas td').forEach(el=>{ el.style.padding='6px 12px'; el.style.textAlign='center'; });
+    clone.querySelectorAll('table.medidas th').forEach(el=>{ el.style.borderTop='1.25px solid #2b2b2e'; el.style.borderBottom='0.75px solid #2b2b2e'; el.style.padding='3px 6px 4px'; el.style.textAlign='center'; el.style.fontWeight='700'; });
+    clone.querySelectorAll('table.medidas td').forEach(el=>{ el.style.padding='3px 6px'; el.style.textAlign='center'; });
     clone.querySelectorAll('table.medidas td:first-child').forEach(el=>{ el.style.textAlign='left'; el.style.fontWeight='700'; });
     clone.querySelectorAll('table.medidas tbody tr:last-child td').forEach(el=>{ el.style.borderBottom='1.25px solid #2b2b2e'; });
-    clone.querySelectorAll('table.medidas').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='100%'; });
+    clone.querySelectorAll('table.medidas').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
