@@ -719,7 +719,7 @@ if(typeof criarMotorLaudo !== 'function'){
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
     nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
-    vNoDot, wireDecimalInputs, wirePastePlainText
+    vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText
   } = motor;
 
 
@@ -776,40 +776,7 @@ if(typeof criarMotorLaudo !== 'function'){
       else if(e.key === 'u' || e.key === 'U'){ e.preventDefault(); applyFormat('underline'); }
     });
 
-    function cursorNoInicioDoTitulo(range){
-      const titleEl = paperEl.querySelector('h3.doctitle');
-      if(!titleEl || !range.collapsed || !titleEl.contains(range.startContainer)) return null;
-      const antes = document.createRange();
-      antes.selectNodeContents(titleEl);
-      antes.setEnd(range.startContainer, range.startOffset);
-      return antes.toString().length === 0 ? titleEl : null;
-    }
-    function passoEspacoTitulo(direcao){
-      const i = idCardGapSel.selectedIndex + direcao;
-      if(i < 0 || i >= idCardGapSel.options.length) return;
-      idCardGapSel.selectedIndex = i;
-      idCardGapSel.dispatchEvent(new Event('change'));
-    }
-    paperEl.addEventListener('keydown', e=>{
-      if(e.key !== 'Enter' && e.key !== 'Backspace') return;
-      const sel = window.getSelection();
-      if(!sel || !sel.rangeCount) return;
-      const range = sel.getRangeAt(0);
-
-      if(cursorNoInicioDoTitulo(range)){
-        e.preventDefault();
-        passoEspacoTitulo(e.key === 'Enter' ? 1 : -1);
-        return;
-      }
-      if(e.key !== 'Enter') return;
-
-      const anchorNode = sel.anchorNode;
-      const anchorEl = anchorNode ? (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement) : null;
-      if(anchorEl && anchorEl.closest('h3.doctitle')){
-        e.preventDefault();
-        document.execCommand('insertLineBreak');
-      }
-    });
+    wireEnterLineBreaks(paperEl, () => idCardGapSel);
 
     let lastPaperSelectionRange = null;
     document.addEventListener('selectionchange', ()=>{
