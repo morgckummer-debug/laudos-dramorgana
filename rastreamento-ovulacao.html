@@ -2720,18 +2720,38 @@ if(typeof criarMotorLaudo !== 'function'){
       //    texto digitado à mão) — o mesmo que o rascunho automático já grava.
       const snap = draftSnapshot();
 
-      // 3) Insere um novo registro por visita (não sobrescreve o anterior).
-      const {error: errLaudo} = await cgClient.from('laudos_ovulacao').insert({
-        user_id: userId,
-        paciente_id: paciente.id,
-        cpf: cpfFormatado,
-        nome: nome,
-        data_exame: dataExameISO,
-        conteudo: snap
-      });
-      if(errLaudo) throw errLaudo;
+      // 3) Um registro por visita, não por clique: se já existe um laudo desta
+      //    paciente com a mesma data de exame, atualiza esse registro em vez de
+      //    inserir outro — salvar de novo no mesmo dia (depois de corrigir algo)
+      //    não deve empilhar duplicatas em "Buscar laudo anterior".
+      const {data: existente, error: errBuscaLaudo} = await cgClient
+        .from('laudos_ovulacao')
+        .select('id')
+        .eq('paciente_id', paciente.id)
+        .eq('data_exame', dataExameISO)
+        .limit(1);
+      if(errBuscaLaudo) throw errBuscaLaudo;
 
-      cgToast('Laudo salvo na Curva de Crescimento ✓', false);
+      let mensagemOk = 'Laudo salvo na Curva de Crescimento ✓';
+      if(existente && existente[0]){
+        const {error: errUpdate} = await cgClient.from('laudos_ovulacao')
+          .update({cpf: cpfFormatado, nome: nome, conteudo: snap})
+          .eq('id', existente[0].id);
+        if(errUpdate) throw errUpdate;
+        mensagemOk = 'Laudo atualizado na Curva de Crescimento ✓';
+      }else{
+        const {error: errInsert} = await cgClient.from('laudos_ovulacao').insert({
+          user_id: userId,
+          paciente_id: paciente.id,
+          cpf: cpfFormatado,
+          nome: nome,
+          data_exame: dataExameISO,
+          conteudo: snap
+        });
+        if(errInsert) throw errInsert;
+      }
+
+      cgToast(mensagemOk, false);
     }catch(e){
       console.error(e);
       cgToast('Erro ao salvar: ' + (e.message || 'tente novamente.'), true);
