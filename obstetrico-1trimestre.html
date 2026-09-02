@@ -133,7 +133,7 @@
   .subgroup{
     border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
   }
-  .saco-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .saco-remove, .mioma-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
@@ -217,6 +217,9 @@
   .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
   .paper table.biometria td:first-child{white-space:nowrap;}
   .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
+  .paper .nodulos-lista{margin:0 0 1em;}
+  .paper .nodulos-lista .nodulo-item{margin:0 0 0.375em;padding-left:2.4em;text-indent:-2.4em;}
+  .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -322,7 +325,7 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria{page-break-inside:avoid;}
+    .paper p.linha, .paper .nodulos-lista, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -407,8 +410,27 @@
 
   <h3>Bexiga / útero / anexos</h3>
   <div class="field" style="margin-bottom:8px;"><label>Bexiga — normal</label><textarea id="ph_bexigaNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Útero — use {POSICAO}, {MEDIDA} e {VOLUME}</label><textarea id="ph_utero" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero — sem miomas — use {POSICAO}, {MEDIDA} e {VOLUME}</label><textarea id="ph_utero" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero — com miomas — use {POSICAO}, {CONTORNOS}, {MEDIDA} e {VOLUME} (CONTORNOS vira "irregulares" automaticamente com mioma FIGO 5, 6 ou 7)</label><textarea id="ph_uteroComNodulos" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero — calcificação das artérias arqueadas — use {POSICAO}, {MEDIDA} e {VOLUME}</label><textarea id="ph_uteroCalcificacao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Regiões anexiais — normais</label><textarea id="ph_anexosNormais" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Miométrio / miomas</h3>
+  <div class="field" style="margin-bottom:8px;"><label>1 nódulo — use {F1}</label><textarea id="ph_miomaIntro1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>2 nódulos — use {F1} e {F2}</label><textarea id="ph_miomaIntro2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>3 ou mais nódulos (introdução da lista)</label><textarea id="ph_miomaIntroVarios" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 0 — use {POSICAO} e {MEDIDA}</label><textarea id="ph_figoF0" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 1 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 2 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 3 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF3" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 4 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF4" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 5 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF5" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 6 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF6" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 7 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF7" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 8 — use {DETALHE} e {MEDIDA}</label><textarea id="ph_figoF8" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Adenomiose (isolada, sem mioma) — use {SIMETRIA}</label><textarea id="ph_adenomiose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Adenomiose (junto com mioma — sem a cláusula "sem nódulos") — use {SIMETRIA}</label><textarea id="ph_adenomioseComMioma" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Saco gestacional e biometria</h3>
@@ -434,6 +456,10 @@
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — impressão</label><textarea id="ph_impHematoma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Bexiga alterada — use {DESCRICAO}</label><textarea id="ph_impBexigaAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Anexos alterados — use {DESCRICAO}</label><textarea id="ph_impAnexosAlterados" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>1 mioma</label><textarea id="ph_impMioma1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>2 ou mais miomas</label><textarea id="ph_impMiomaVarios" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero miomatoso (3 ou mais nódulos)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Adenomiose</label><textarea id="ph_impAdenomiose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Recomendação de morfológico de 1º trimestre — use {DATA_INICIO} e {DATA_FIM}</label><textarea id="ph_recomendacaoMorfologico" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -542,6 +568,37 @@
         <div class="field-row">
           <div class="field"><label>Medida (cm)</label><input type="text" id="uteroMedida" placeholder="ex: 9,4 x 6,7 x 7,2"></div>
           <div class="field"><label>Volume estimado (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder="cm³"></div>
+        </div>
+        <hr class="sep">
+        <div class="field-row">
+          <div class="field"><label>Miométrio</label>
+            <select id="miometrioAspecto">
+              <option value="homogeneo">Textura homogênea (sem nódulos)</option>
+              <option value="mioma">Heterogêneo — nódulo(s) sólido(s) (mioma)</option>
+              <option value="calcificacao">Calcificações das artérias arqueadas</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="conditional" id="wrap_miomaDetalhes">
+          <div class="field-row">
+            <div class="field"><label>Número de nódulos</label>
+              <select id="miomaCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
+            </div>
+          </div>
+          <div id="miomaNodulosContainer"></div>
+          <button type="button" class="btn-clear" id="btnAddMioma" style="margin:2px 0 12px;">+ Adicionar nódulo</button>
+          <div class="field" style="margin-top:4px;">
+            <label>Observações adicionais (opcional)</label>
+            <textarea id="miometrioDescricao" rows="2" placeholder="qualquer detalhe extra sobre os nódulos, ou demais nódulos além dos listados acima..."></textarea>
+          </div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkAdenomiose"><label for="chkAdenomiose">Adenomiose (pode coexistir com mioma)</label></div>
+        <div class="field-row conditional" id="wrap_adenomioseSimetria">
+          <div class="field"><label>Paredes miometriais</label>
+            <select id="adenomioseSimetria"><option value="simetricas">Simétricas</option><option value="assimetricas">Assimétricas</option></select>
+          </div>
         </div>
       </div>
     </div>
@@ -1147,7 +1204,24 @@ if(typeof criarMotorLaudo !== 'function'){
   const PHRASE_DEFAULTS = {
     bexigaNormal: 'de topografia usual, vazia durante o exame.',
     utero: '{POSICAO}, de configuração globosa e contornos regulares, medindo {MEDIDA} cm, com volume estimado em {VOLUME} cm³.',
+    uteroComNodulos: '{POSICAO}, de configuração globosa e contornos {CONTORNOS}, medindo {MEDIDA} cm, com volume estimado em {VOLUME} cm³.',
+    uteroCalcificacao: '{POSICAO}, de configuração globosa e contornos regulares, textura heterogênea às custas da calcificação das artérias arqueadas, medindo {MEDIDA} cm, com volume estimado em {VOLUME} cm³.',
     anexosNormais: 'Regiões anexiais sem alterações.',
+
+    miomaIntro1: 'Observa-se imagem nodular sólida, hipoecoica e heterogênea, localizada na {F1}.',
+    miomaIntro2: 'Observam-se duas imagens nodulares sólidas, hipoecogênicas e heterogêneas, uma localizada na {F1} e outra na {F2}.',
+    miomaIntroVarios: 'Observam-se algumas imagens nodulares sólidas, hipoecogênicas e heterogêneas, de localização e dimensões como descrito abaixo:',
+    figoF0: 'submucosa, inteiramente na cavidade uterina, em região {POSICAO} (FIGO 0), medindo {MEDIDA} mm',
+    figoF1: 'parede {PAREDE}, submucosa com menos de 50% do componente intramural (FIGO 1), medindo {MEDIDA} mm',
+    figoF2: 'parede {PAREDE}, submucosa com mais de 50% do componente intramural (FIGO 2), medindo {MEDIDA} mm',
+    figoF3: 'parede {PAREDE}, intramural, adjacente à cavidade endometrial, sem condicionar abaulamento da mesma (FIGO 3), medindo {MEDIDA} mm',
+    figoF4: 'parede {PAREDE}, totalmente intramural (FIGO 4), medindo {MEDIDA} mm',
+    figoF5: 'parede {PAREDE}, subserosa com mais de 50% do componente intramural (FIGO 5), medindo {MEDIDA} mm',
+    figoF6: 'parede {PAREDE}, subserosa com menos de 50% do componente intramural (FIGO 6), medindo {MEDIDA} mm',
+    figoF7: 'parede {PAREDE}, totalmente subserosa (FIGO 7), medindo {MEDIDA} mm',
+    figoF8: 'região cervical{DETALHE} (FIGO 8), medindo {MEDIDA} mm',
+    adenomiose: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque", sem identificação de nódulos sólidos.',
+    adenomioseComMioma: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque".',
 
     sacoGestacional: 'Saco gestacional identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos regulares e reação decidual habitual.',
     isgPequeno: 'Índice do saco gestacional (ISG): {ISG} mm (VR > 5 mm).',
@@ -1169,6 +1243,10 @@ if(typeof criarMotorLaudo !== 'function'){
     impHematoma: 'Hematoma subcoriônico - acompanhar.',
     impBexigaAlterada: 'Alteração vesical: {DESCRICAO}.',
     impAnexosAlterados: 'Achado em região anexial: {DESCRICAO}.',
+    impMioma1: 'Nódulo sólido sugestivo de mioma.',
+    impMiomaVarios: 'Nódulos sólidos sugestivos de miomas.',
+    impUteroMiomatoso: 'Útero de volume aumentado, miomatoso.',
+    impAdenomiose: 'Alteração difusa da ecotextura miometrial sugestiva de adenomiose.',
     recomendacaoMorfologico: 'Sugere-se a realização do Morfológico do 1º Trimestre para rastreamento de aneuploidias e pré-eclâmpsia entre {DATA_INICIO} e {DATA_FIM}.',
 
     footerImagens: 'Imagens em anexo.'
@@ -1288,6 +1366,13 @@ if(typeof criarMotorLaudo !== 'function'){
 
   $('bexigaAspecto').addEventListener('change', e=> toggle('wrap_bexigaDescricao', e.target.value==='alterado'));
   $('anexosAspecto').addEventListener('change', e=> toggle('wrap_anexosDescricao', e.target.value==='alterado'));
+  $('miometrioAspecto').addEventListener('change', e=>{
+    toggle('wrap_miomaDetalhes', e.target.value==='mioma');
+    if(e.target.value==='mioma' && $('miomaNodulosContainer').children.length===0){
+      addMiomaNodule();
+    }
+  });
+  $('chkAdenomiose').addEventListener('change', e=> toggle('wrap_adenomioseSimetria', e.target.checked));
   $('chkRecomendacao').addEventListener('change', e=> toggle('wrap_recomendacao', e.target.checked));
   $('cerclagemRealizada').addEventListener('change', e=> toggle('wrap_cerclagemIG', e.target.checked));
   toggle('wrap_recomendacao', $('chkRecomendacao').checked);
@@ -1402,9 +1487,107 @@ if(typeof criarMotorLaudo !== 'function'){
     render();
   }
   // Seeding the first saco is deferred to the loadPhrases/loadVR chain at the
-  // bottom of this script, for the same reason as transvaginal.html's mioma
-  // nodule: render() reads state declared with `let` further down, so calling
+  // bottom of this script, for the same reason as the myoma nodule below:
+  // render() reads state declared with `let` further down, so calling
   // addSaco() (and so render()) here would hit its temporal dead zone.
+
+  // ---------- Myoma nodules: dynamic list instead of a fixed 1/2/3-slot cap ----------
+  // Same pattern as transvaginal.html — each nodule keeps a stable uid once
+  // created (never reused after removal), so deleting one mid-list never
+  // disturbs the others' field ids/listeners. Display numbering (N1, N2, ...)
+  // is purely positional and recomputed on every add/remove.
+  let miomaNextUid = 1;
+  function miomaSubgroupHTML(uid){
+    const figoOptions = '<option value="F0">FIGO 0 — submucoso, inteiramente intracavitário</option><option value="F1">FIGO 1 — submucoso, &lt;50% intramural</option><option value="F2">FIGO 2 — submucoso, ≥50% intramural</option><option value="F3">FIGO 3 — intramural adjacente à cavidade (sem abaulamento)</option><option value="F4" selected>FIGO 4 — totalmente intramural</option><option value="F5">FIGO 5 — subseroso, ≥50% intramural</option><option value="F6">FIGO 6 — subseroso, &lt;50% intramural</option><option value="F7">FIGO 7 — totalmente subseroso</option><option value="F8">FIGO 8 — cervical</option>';
+    return ''
+      +'<div class="subgroup" id="wrap_mioma'+uid+'">'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Nódulo <span class="mioma-index"></span> — classificação FIGO</label><select id="mioma'+uid+'Figo">'+figoOptions+'</select></div>'
+      +'<div class="field conditional" id="wrap_mioma'+uid+'Parede"><label>Parede</label>'
+      +'<select id="mioma'+uid+'Parede"><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="fúndica">Fúndica</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option></select></div>'
+      +'<div class="field conditional" id="wrap_mioma'+uid+'Posicao"><label>Posição</label>'
+      +'<select id="mioma'+uid+'Posicao"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option></select></div>'
+      +'<div class="field conditional" id="wrap_mioma'+uid+'Cervical"><label>Detalhe cervical (opcional)</label><input type="text" id="mioma'+uid+'CervicalDetalhe" placeholder="ex: anterior"></div>'
+      +'<div class="field"><label>Medida (mm)</label><input type="text" id="mioma'+uid+'Medida" placeholder="ex: 22 x 20"></div>'
+      +'</div>'
+      +'<button type="button" class="mioma-remove" data-uid="'+uid+'">Remover nódulo</button>'
+      +'</div>';
+  }
+  function updateMiomaFigoWraps(uid){
+    const val = $('mioma'+uid+'Figo').value;
+    toggle('wrap_mioma'+uid+'Parede', val!=='F0' && val!=='F8');
+    toggle('wrap_mioma'+uid+'Posicao', val==='F0');
+    toggle('wrap_mioma'+uid+'Cervical', val==='F8');
+  }
+  function renumberMiomaNodules(){
+    const container = $('miomaNodulosContainer');
+    const nodules = Array.from(container.children);
+    nodules.forEach((el, idx)=>{
+      const label = el.querySelector('.mioma-index');
+      if(label) label.textContent = idx+1;
+      const removeBtn = el.querySelector('.mioma-remove');
+      if(removeBtn) removeBtn.style.display = nodules.length>1 ? 'inline' : 'none';
+    });
+    syncMiomaCountSelect();
+  }
+  function wireMiomaNodule(uid){
+    const el = $('wrap_mioma'+uid);
+    el.querySelectorAll('input, select').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    $('mioma'+uid+'Figo').addEventListener('change', ()=> updateMiomaFigoWraps(uid));
+    updateMiomaFigoWraps(uid);
+    el.querySelector('.mioma-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberMiomaNodules();
+      render();
+    });
+  }
+  function addMiomaNodule(){
+    const uid = miomaNextUid++;
+    $('miomaNodulosContainer').insertAdjacentHTML('beforeend', miomaSubgroupHTML(uid));
+    wireMiomaNodule(uid);
+    renumberMiomaNodules();
+    render();
+  }
+  $('btnAddMioma').addEventListener('click', addMiomaNodule);
+  function miomaNoduleUids(){
+    return Array.from($('miomaNodulosContainer').children).map(el=> el.id.replace('wrap_mioma',''));
+  }
+  // "Número de nódulos" é um atalho rápido para os casos comuns 1/2/3 — ele
+  // adiciona ou remove nódulos até bater com o número escolhido, igual a
+  // clicar "+ Adicionar nódulo"/"Remover nódulo" essas vezes. "3 ou mais" só
+  // define um piso; o botão "+" (e o próprio "Remover nódulo") continua
+  // disponível além dele para o caso real de "mais de 3", e fica sincronizado
+  // com quantos nódulos realmente existem para nunca mentir sobre a contagem.
+  function syncMiomaCountSelect(){
+    const n = $('miomaNodulosContainer').children.length;
+    $('miomaCount').value = String(Math.min(Math.max(n, 1), 3));
+  }
+  function setMiomaCount(n){
+    const container = $('miomaNodulosContainer');
+    while(container.children.length < n){ addMiomaNodule(); }
+    while(container.children.length > n){ container.lastElementChild.remove(); }
+    renumberMiomaNodules();
+    render();
+  }
+  $('miomaCount').addEventListener('change', e=> setMiomaCount(parseInt(e.target.value, 10)));
+  // Seeding do primeiro nódulo também fica para o final da cadeia
+  // loadPhrases/loadVR — mesmo motivo do saco: render() lê estado declarado
+  // com `let` mais abaixo, e chamá-la aqui cairia na TDZ.
+
+  const FIGO_TEXT = {
+    F0: (p,m,d,pos)=>phraseRaw('figoF0', {MEDIDA:m, POSICAO:(pos||'____')}),
+    F1: (p,m,d)=>phraseRaw('figoF1', {PAREDE:p, MEDIDA:m}),
+    F2: (p,m,d)=>phraseRaw('figoF2', {PAREDE:p, MEDIDA:m}),
+    F3: (p,m,d)=>phraseRaw('figoF3', {PAREDE:p, MEDIDA:m}),
+    F4: (p,m,d)=>phraseRaw('figoF4', {PAREDE:p, MEDIDA:m}),
+    F5: (p,m,d)=>phraseRaw('figoF5', {PAREDE:p, MEDIDA:m}),
+    F6: (p,m,d)=>phraseRaw('figoF6', {PAREDE:p, MEDIDA:m}),
+    F7: (p,m,d)=>phraseRaw('figoF7', {PAREDE:p, MEDIDA:m}),
+    F8: (p,m,d)=>phraseRaw('figoF8', {DETALHE:(d?' '+d:''), MEDIDA:m})
+  };
 
 
   // ---------- Date mask: auto-inserts dots as digits are typed (dd.mm.aaaa),
@@ -1547,6 +1730,17 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     if(state.anexosAspecto==='alterado' && state.anexosDescricao){
       items.push({key:'anexos-alterado', label:phraseRaw('impAnexosAlterados', {DESCRICAO:state.anexosDescricao}), auto:true});
+    }
+    if(state.miometrioAspecto==='mioma' && state.miomaTemDados){
+      if(state.miomaFrags.length>=3){
+        items.push({key:'miomatose', label:phraseRaw('impMiomaVarios'), auto:true});
+        items.push({key:'utero-miomatoso', label:phraseRaw('impUteroMiomatoso'), auto:true});
+      } else {
+        items.push({key:'miomatose', label: state.miomaFrags.length>1 ? phraseRaw('impMiomaVarios') : phraseRaw('impMioma1'), auto:true});
+      }
+    }
+    if(state.chkAdenomiose){
+      items.push({key:'adenomiose', label:phraseRaw('impAdenomiose'), auto:true});
     }
 
     // Observações livres: texto que a médica escreve fora de qualquer campo
@@ -1693,6 +1887,28 @@ if(typeof criarMotorLaudo !== 'function'){
     const uteroMedida = blankOrValue(req('uteroMedida'));
     const uteroVolume = blankOrValue(req('uteroVolume'));
 
+    const miometrioAspecto = v('miometrioAspecto');
+    const chkAdenomiose = $('chkAdenomiose').checked;
+    const adenomioseSimetria = v('adenomioseSimetria')==='assimetricas' ? 'assimétricas' : 'simétricas';
+    const miomaUids = miometrioAspecto==='mioma' ? miomaNoduleUids() : [];
+    const miomaFrags = [];
+    const miomaFigos = [];
+    miomaUids.forEach(uid=>{
+      const figo = v('mioma'+uid+'Figo');
+      const medida = reqIf('mioma'+uid+'Medida', true);
+      if(!medida) return;
+      const parede = v('mioma'+uid+'Parede');
+      const detalhe = v('mioma'+uid+'CervicalDetalhe');
+      const posicao = v('mioma'+uid+'Posicao');
+      miomaFrags.push(FIGO_TEXT[figo](parede, medida, detalhe, posicao));
+      miomaFigos.push(figo);
+    });
+    // FIGO 5/6/7 são miomas subserosos — distorcem a serosa uterina, então o
+    // contorno descrito na frase-base deve ser "irregulares" em vez do
+    // "regulares" padrão sempre que um deles estiver presente.
+    const uteroContornos = miomaFigos.some(f => f==='F5' || f==='F6' || f==='F7') ? 'irregulares' : 'regulares';
+    const miometrioDescricaoExtra = vNoDot('miometrioDescricao');
+
     const anexosAspecto = v('anexosAspecto');
     const anexosDescricao = vNoDot('anexosDescricao');
 
@@ -1734,6 +1950,7 @@ if(typeof criarMotorLaudo !== 'function'){
       isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
       algumObito, dpp, algumHematoma, algumIsgReduzido, algumEmbrioNaoIdentificado, cronologiaMetodo, tipoPerda,
       bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao,
+      miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose,
       obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
@@ -1768,7 +1985,32 @@ if(typeof criarMotorLaudo !== 'function'){
     const bexigaTexto = (bexigaAspecto==='alterado' && bexigaDescricao) ? escapeHtml(bexigaDescricao) : phrase('bexigaNormal');
     blocks.push({id:'bexiga', html:'<p class="linha">Bexiga '+bexigaTexto+'</p>'});
 
-    blocks.push({id:'utero', html:'<p class="linha">'+phraseRaw('utero', {POSICAO: UTERO_POSICAO_TEXTO[uteroPosicao], MEDIDA: span(uteroMedida), VOLUME: span(uteroVolume)})+'</p>'});
+    const uteroPhraseKey = (miometrioAspecto==='mioma' || chkAdenomiose) ? 'uteroComNodulos'
+      : miometrioAspecto==='calcificacao' ? 'uteroCalcificacao'
+      : 'utero';
+    let uteroLinha = phraseRaw(uteroPhraseKey, {POSICAO: UTERO_POSICAO_TEXTO[uteroPosicao], CONTORNOS: uteroContornos, MEDIDA: span(uteroMedida), VOLUME: span(uteroVolume)});
+    if(chkAdenomiose){
+      // Adenomiose (alteração difusa) é descrita antes dos nódulos focais de mioma.
+      uteroLinha += ' '+phrase(miometrioAspecto==='mioma' ? 'adenomioseComMioma' : 'adenomiose', {SIMETRIA: adenomioseSimetria});
+    }
+    if(miometrioAspecto==='mioma'){
+      if(miomaFrags.length===1){
+        uteroLinha += ' '+phrase('miomaIntro1', {F1: miomaFrags[0]});
+      } else if(miomaFrags.length===2){
+        uteroLinha += ' '+phrase('miomaIntro2', {F1: miomaFrags[0], F2: miomaFrags[1]});
+      } else if(miomaFrags.length>=3){
+        uteroLinha += ' '+phrase('miomaIntroVarios');
+      } else {
+        uteroLinha += ' <span class="blank">Preencha ao menos um nódulo (FIGO + medida) acima.</span>';
+      }
+    }
+    blocks.push({id:'utero', html:'<p class="linha">'+uteroLinha+'</p>'});
+    if(miometrioAspecto==='mioma' && miomaFrags.length>=3){
+      blocks.push({id:'uteroNodulosLista', html:'<div class="linha nodulos-lista">'+miomaFrags.map((f,i)=>'<p class="nodulo-item">- N'+(i+1)+': '+escapeHtml(f)+'</p>').join('')+'</div>'});
+    }
+    if(miometrioAspecto==='mioma' && miometrioDescricaoExtra){
+      blocks.push({id:'uteroDescricaoExtra', html:'<p class="linha">'+escapeHtml(miometrioDescricaoExtra)+'.</p>'});
+    }
 
     sacos.forEach(s=>{
       let sacoHtml = '<div class="saco-bloco">';
@@ -2082,6 +2324,9 @@ if(typeof criarMotorLaudo !== 'function'){
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
     $('sacosContainer').innerHTML = '';
+    // Volta a apenas um nódulo em branco, igual a uma carga pela primeira vez,
+    // em vez de deixar quantos tivessem sido adicionados para a paciente anterior.
+    $('miomaNodulosContainer').innerHTML = '';
     checkedState = {};
     impressaoOverrides = {};
     // Force every block to rebuild fresh for the new patient — otherwise a
@@ -2096,6 +2341,7 @@ if(typeof criarMotorLaudo !== 'function'){
     setDefaultDataExame();
     toggle('wrap_recomendacao', true);
     addSaco();
+    addMiomaNodule();
     // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
     draftDiscard();
   });
@@ -2105,7 +2351,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // Selects que definem quantos cards existem: ficam fora do disparo de 'change'
   // da restauração porque recriariam do zero os cards que acabaram de voltar com
   // os uids certos.
-  const DRAFT_SKIP_CHANGE = ['numeroEmbrioes'];    // não grava nada antes de a carga inicial terminar  // assinatura do formulário em branco (nada a salvar)
+  const DRAFT_SKIP_CHANGE = ['numeroEmbrioes', 'miomaCount'];    // não grava nada antes de a carga inicial terminar  // assinatura do formulário em branco (nada a salvar)
 
 
   function draftSnapshot(){
@@ -2121,6 +2367,7 @@ if(typeof criarMotorLaudo !== 'function'){
       ts: Date.now(),
       fields: fields,
       uids: sacoUids(),
+      miomaUids: miomaNoduleUids(),
       checked: checkedState,
       overrides: impressaoOverrides,
       titleFontSize: titleFontSize,
@@ -2155,6 +2402,18 @@ if(typeof criarMotorLaudo !== 'function'){
         addSaco();
       }
 
+      // Rascunhos gravados antes desta funcionalidade não têm `miomaUids` —
+      // nesse caso não há nódulo nenhum a recriar (o miométrio deles era
+      // sempre homogêneo, campo que nem existia ainda).
+      const miomaUids = Array.isArray(d.miomaUids) ? d.miomaUids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
+      $('miomaNodulosContainer').innerHTML = '';
+      miomaUids.forEach(uid=>{
+        miomaNextUid = Math.max(miomaNextUid, parseInt(uid, 10) + 1);
+        $('miomaNodulosContainer').insertAdjacentHTML('beforeend', miomaSubgroupHTML(uid));
+        wireMiomaNodule(uid);
+      });
+      if(miomaUids.length) renumberMiomaNodules();
+
       Object.keys(d.fields).forEach(id=>{
         const el = $(id);
         if(!el || !el.closest('#formCol')) return;
@@ -2184,6 +2443,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // branco do que deixar a tela quebrada.
       st.draftRestoring = false;
       $('sacosContainer').innerHTML = '';
+      $('miomaNodulosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
       st.lastBlockHtml = {};
@@ -2219,6 +2479,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const d = draftRead();
     if(!(d && draftRestore(d))){
       addSaco();
+      addMiomaNodule();
       render();
       st.draftReady = true;
       st.draftBaseline = draftFingerprint(draftSnapshot());
