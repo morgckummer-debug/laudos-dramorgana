@@ -203,15 +203,62 @@ diretamente no preview e ver "Ao exame" pular para depois da assinatura, sem
 conseguir mais desfazer digitando de novo.
 
 A correção — `wireEnterLineBreaks(paperEl, getIdCardGapSel)`, em
-`laudo-core.js` — generaliza a proteção do título para o `#paper` inteiro:
-sempre que o Enter dividiria o próprio elemento com `data-blk` (ele não tem
-nenhum filho de bloco — `<p>`, `<div>`, `<h1-6>`, `<li>`, `<ul>`, `<ol>`,
-`<table>`), o evento é interceptado e vira uma quebra de linha
-(`document.execCommand('insertLineBreak')`) dentro do mesmo nó, em vez de
-uma divisão. Dentro de um bloco que já tem filhos de bloco (várias `<p>`
-dentro de uma `<div>`, um `<li>` dentro do `<ul>` da impressão), o Enter
-continua livre: quem se divide é o filho, sem `data-blk` próprio, e o
-container nunca é tocado.
+`laudo-core.js` — generaliza a proteção do título para o `#paper` inteiro: o
+Enter é interceptado e vira uma quebra de linha
+(`document.execCommand('insertLineBreak')`) dentro do mesmo nó, em vez de uma
+divisão.
+
+**A primeira versão dessa correção, na manhã do mesmo dia, não bastou.** Ela
+protegia só os blocos "sem filhos de bloco", partindo da ideia de que num
+bloco com filhos quem se divide é o filho, sem `data-blk` próprio. Na mesma
+tarde a Dra. Morgana mandou um obstétrico simples impresso em duplicata: o
+navegador **não divide o elemento mais próximo do cursor**, divide o que ele
+considera "o parágrafo" ali, e no fim de uma cadeia aninhada isso sobe vários
+níveis de uma vez. Dois contraexemplos, os dois com filhos de bloco e os dois
+duplicando mesmo assim:
+
+- **Líquido amniótico do obstétrico** — `<div>` com `<p>` e `<table>` dentro.
+  Ela clica no fim do bloco para escrever uma observação extra; o texto entra
+  solto, irmão da `<table>`, e o Enter parte a `<div>` que carrega o `data-blk`.
+- **Risco fetal do morfológico de 1º trimestre** — `<div data-blk>` com um
+  `<div class="risk-card">` dentro. Mesmo com o cursor **dentro** do risk-card,
+  o Enter no fim dele parte a `<div>` de fora, a do `data-blk`.
+
+Por isso a regra deixou de adivinhar o alvo da divisão. Hoje o Enter só corre
+solto onde a divisão é presa por construção — dentro de um `<li>` (parte o
+item, nunca o `<ul>` em volta; é assim que se acrescenta uma linha à impressão
+diagnóstica) e dentro de uma célula de tabela. Em todo o resto do `#paper` ele
+vira quebra de linha, que é o que ela quer ao digitar uma observação a mais:
+linha nova, não bloco novo.
+
+### `dedupBlocos()`: a rede embaixo, para o estrago não ser permanente
+
+Prevenir o Enter e a colagem fecha os caminhos **conhecidos**. O que torna esse
+bug caro não é ele acontecer: é ele ser irreversível — uma vez duplicado, o
+laudo continua duplicado a cada `render()`, vai duplicado para o rascunho e
+volta duplicado na próxima abertura, sem nada que a médica possa digitar para
+desfazer.
+
+`dedupBlocos(root)`, no `laudo-core.js`, restabelece a invariante do `#paper`
+(um elemento por `data-blk`, sempre filho **direto**):
+
+- `data-blk` repetido → o segundo, o órfão, é removido.
+- `data-blk` aninhado dentro de outro elemento → **sobe** para filho direto, na
+  mesma posição; não é apagado. O Word (`buildReportHtml()`) e o rascunho
+  (`draftPaperHtml()`) saem desse mesmo caminho e nada é redesenhado depois
+  para repor o que se perdesse ali.
+
+Ela roda dentro do `unwrapPrintPages()`, antes do retorno adiantado — ou seja,
+em **todos** os caminhos que já chamavam essa função: `renderBlocks()`,
+`paginateForPrint()`, `draftPaperHtml()` e o `buildReportHtml()` dos onze
+laudos. Consequência prática: qualquer laudo que já tenha duplicado — inclusive
+um rascunho gravado torto antes deste conserto — se endireita sozinho no
+próximo desenho, sem a médica precisar recomeçar o laudo.
+
+**Ao mexer no pipeline do `#paper`, não troque essa subida por um `remove()`.**
+Apagar o bloco aninhado é uma linha mais curta e passa nos mesmos testes (o
+`renderBlocks()` regeneraria o bloco a partir do formulário), mas o Word e o
+rascunho sairiam sem ele.
 
 ## A integração com a Curva de Crescimento
 

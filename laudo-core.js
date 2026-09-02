@@ -109,8 +109,49 @@ function criarMotorLaudo(cfg){
     draftBaseline: null,
   };
 
+  function dedupBlocos(root){
+    // A invariante do #paper: um elemento por data-blk, sempre filho DIRETO.
+    // Tudo o que renderBlocks() reconcilia sai da consulta
+    // ':scope > [data-blk="id"]', que devolve um só nó — o primeiro. Qualquer
+    // segundo elemento com o mesmo data-blk, ou um data-blk enfiado dentro de
+    // outro bloco, fica invisível para essa consulta: vira um órfão que
+    // nenhum render() move nem remove, o laudo em duplicata que a médica vê
+    // na tela e na impressão, sem jeito de desfazer editando de novo.
+    //
+    // Isso não deveria acontecer — wireEnterLineBreaks() e wirePastePlainText()
+    // fecham os dois caminhos conhecidos —, mas o estrago é grande demais e o
+    // conserto é barato demais para depender só de prevenção. Aqui é a rede:
+    // roda a cada render(), a cada rascunho salvo e antes de cada impressão,
+    // então um laudo que já tenha duplicado (inclusive um rascunho gravado
+    // torto antes deste conserto) se conserta sozinho no próximo desenho.
+    if(!root) return;
+    const vistos = Object.create(null);
+    const involucros = [];
+    Array.from(root.querySelectorAll('[data-blk]')).forEach(el=>{
+      const id = el.getAttribute('data-blk');
+      // Segundo elemento com o mesmo id: é a cópia órfã, e some.
+      if(vistos[id]){ el.remove(); return; }
+      vistos[id] = true;
+      if(el.parentElement === root) return;
+      // Aninhado, mas único: o bloco é bom, só está na altura errada — sobe
+      // até virar filho direto, na mesma posição. Apagar aqui custaria a
+      // observação que a médica escreveu à mão dentro dele (o Word e o
+      // rascunho saem deste mesmo caminho, e nesses dois nada é redesenhado
+      // depois para repor o que se perdesse).
+      let topo = el;
+      while(topo.parentElement && topo.parentElement !== root) topo = topo.parentElement;
+      if(topo.parentElement !== root) return;
+      involucros.push(topo);
+      root.insertBefore(el, topo);
+    });
+    // O invólucro que ficou sem nada dentro era só andaime do navegador.
+    involucros.forEach(el=>{
+      if(el.parentElement === root && !el.querySelector('[data-blk]') && !el.textContent.trim()) el.remove();
+    });
+  }
   function unwrapPrintPages(root){
-    if(!root || !root.querySelector(':scope > .print-page')) return false;
+    if(!root) return false;
+    if(!root.querySelector(':scope > .print-page')){ dedupBlocos(root); return false; }
     Array.from(root.children).forEach(page=>{
       if(!page.classList || !page.classList.contains('print-page')) return;
       while(page.firstChild) root.insertBefore(page.firstChild, page);
@@ -127,6 +168,7 @@ function criarMotorLaudo(cfg){
       const id = el.getAttribute ? el.getAttribute('data-blk') : null;
       if(!id || vistos[id]) el.remove(); else vistos[id] = true;
     });
+    dedupBlocos(root);
     return true;
   }
   function renderBlocks(blocks){
@@ -594,11 +636,28 @@ function criarMotorLaudo(cfg){
     // divisão vale para qualquer outro bloco de parágrafo único, então a
     // proteção aqui é para o #paper inteiro, não só para o título.
     //
-    // Dentro de um bloco que já tem filhos de bloco (vários <p> dentro de um
-    // <div>, um <li> dentro do <ul> da impressão, uma célula da morfologia),
-    // é um desses filhos — sem data-blk próprio — que o Enter divide; o
-    // data-blk do container nunca é tocado, e por isso esse caso continua
-    // livre, sem precisar de proteção nenhuma.
+    // A primeira versão desta proteção (2026-09-02, de manhã) tentava adivinhar
+    // o alvo da divisão: se o bloco tivesse filhos de bloco, o Enter partiria
+    // um dos filhos e o data-blk ficaria intacto. Não é verdade. O navegador
+    // não divide o elemento mais próximo do cursor: divide o bloco que ele
+    // considera "o parágrafo" ali, e no fim de uma cadeia aninhada isso sobe
+    // vários níveis de uma vez. Dois contraexemplos, os dois com filhos de
+    // bloco e os dois duplicando mesmo assim:
+    //
+    //   - Líquido amniótico do obstétrico: <div> com <p> e <table> dentro. A
+    //     médica clica no fim do bloco e digita a observação extra; o texto
+    //     entra solto, irmão da <table>, e o Enter parte a <div> com data-blk.
+    //     Foi o laudo em duplicata que ela mandou em 2026-09-02.
+    //   - Risco fetal do morfológico de 1º trimestre: <div data-blk> com um
+    //     <div class="risk-card"> dentro. Mesmo com o cursor DENTRO do
+    //     risk-card, o Enter no fim dele parte a <div> de fora, a com data-blk.
+    //
+    // Então a regra deixou de adivinhar. O Enter só corre solto onde a divisão
+    // é presa por construção — dentro de um <li> (parte o item, nunca o <ul>
+    // em volta, e é assim que se acrescenta uma linha à impressão diagnóstica)
+    // e dentro de uma célula de tabela (a divisão fica dentro da célula). Em
+    // todo o resto do #paper ele vira quebra de linha, que é o que a médica
+    // quer quando digita uma observação a mais: linha nova, não bloco novo.
     if(paperEl.dataset.enterLineBreaksWired) return;
     paperEl.dataset.enterLineBreaksWired = '1';
 
@@ -618,8 +677,12 @@ function criarMotorLaudo(cfg){
       idCardGapSel.selectedIndex = i;
       idCardGapSel.dispatchEvent(new Event('change'));
     }
-    function enterDivideOProprioBlk(blk){
-      return !Array.from(blk.children).some(c => /^(P|DIV|H[1-6]|LI|UL|OL|TABLE)$/.test(c.tagName));
+    const ITEM_OU_CELULA = /^(LI|TD|TH)$/;
+    function enterDivideOProprioBlk(blk, anchorEl){
+      for(let el = anchorEl; el && el !== blk; el = el.parentElement){
+        if(ITEM_OU_CELULA.test(el.tagName)) return false;
+      }
+      return true;
     }
     paperEl.addEventListener('keydown', e=>{
       if(e.key !== 'Enter' && e.key !== 'Backspace') return;
@@ -637,7 +700,7 @@ function criarMotorLaudo(cfg){
       const anchorNode = sel.anchorNode;
       const anchorEl = anchorNode ? (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement) : null;
       const blk = anchorEl ? anchorEl.closest('[data-blk]') : null;
-      if(blk && enterDivideOProprioBlk(blk)){
+      if(blk && enterDivideOProprioBlk(blk, anchorEl)){
         e.preventDefault();
         document.execCommand('insertLineBreak');
       }
@@ -738,6 +801,7 @@ function criarMotorLaudo(cfg){
     span: span,
     toggle: toggle,
     unwrapPrintPages: unwrapPrintPages,
+    dedupBlocos: dedupBlocos,
     updatePagePreview: updatePagePreview,
     v: v,
     vNoDot: vNoDot,
