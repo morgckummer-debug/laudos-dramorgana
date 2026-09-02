@@ -351,6 +351,7 @@
           </div>
           <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
         </div>
+        <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkGasesIntestinais"><label for="chkGasesIntestinais">Exame com visualização prejudicada por gases intestinais</label></div>
       </div>
     </div>
 
@@ -437,6 +438,8 @@
             <select id="vesiculaAspecto">
               <option value="normal">Normal (volume, paredes e conteúdo usuais, sem cálculos nem dilatação das vias biliares)</option>
               <option value="calculo">Cálculo(s)</option>
+              <option value="polipo">Pólipo vesicular</option>
+              <option value="colecistite">Parede espessada (colecistite)</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
@@ -447,9 +450,19 @@
           </div>
           <div class="field"><label id="lbl_vesiculaCalculoTamanho">Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vesiculaCalculoTamanho" placeholder="mm"></div>
         </div>
+        <div class="field-row field-row-compact conditional" id="wrap_vesiculaPolipoCampos">
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vesiculaPolipoTamanho" placeholder="mm"></div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_vesiculaColecistiteCampos">
+          <div class="field"><label>Espessura da parede</label>
+            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="vesiculaColecistiteEspessura" placeholder="mm">
+            <span class="vr">VR até 3,0 mm</span>
+            <span class="flag-note" id="flag_vesiculaColecistiteEspessura">Acima do valor de referência</span>
+          </div>
+        </div>
         <div class="field conditional" id="wrap_vesiculaDescricao">
           <label>Descreva o achado</label>
-          <textarea id="vesiculaDescricao" rows="2" placeholder="ex: parede espessada; pólipo medindo..."></textarea>
+          <textarea id="vesiculaDescricao" rows="2" placeholder="descrição completa do achado..."></textarea>
         </div>
         <hr class="sep">
         <div class="field-row field-row-compact">
@@ -502,6 +515,7 @@
               <option value="cistoLeiteCalcio">Cisto de leite de cálcio</option>
               <option value="nodulo">Nódulo renal (angiomiolipoma)</option>
               <option value="hidronefrose">Hidronefrose acentuada</option>
+              <option value="nefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
@@ -574,6 +588,11 @@
             <span class="flag-note" id="flag_rinsHidroMedida">Acima do valor de referência</span>
           </div>
         </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsNefro">
+          <div class="field"><label>Lado</label>
+            <select id="rinsNefroLado"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option><option value="bilateral">Bilateral</option></select>
+          </div>
+        </div>
         <div class="field conditional" id="wrap_rinsDescricao">
           <label>Descreva o achado</label>
           <textarea id="rinsDescricao" rows="2" placeholder="ex: cálculo no rim direito medindo...; dilatação pielocalicinal..."></textarea>
@@ -594,6 +613,7 @@
             <select id="bexigaAspecto">
               <option value="normal">Normal (topografia e repleção normais)</option>
               <option value="esforco">Bexiga de esforço (paredes espessadas e trabeculadas)</option>
+              <option value="calculo">Cálculo vesical</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
@@ -604,6 +624,9 @@
             <span class="vr">VR até 3,0 mm</span>
             <span class="flag-note" id="flag_bexigaEsforcoEspessura">Acima do valor de referência</span>
           </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_bexigaCalculoCampos">
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="bexigaCalculoTamanho" placeholder="mm"></div>
         </div>
         <div class="field conditional" id="wrap_bexigaDescricao">
           <label>Descreva o achado</label>
@@ -1295,8 +1318,11 @@ if(typeof criarMotorLaudo !== 'function'){
     $('lbl_vesiculaCalculoTamanho').textContent = v('vesiculaCalculoQtd')==='varios' ? 'Tamanho do maior' : 'Tamanho';
   }
   $('vesiculaAspecto').addEventListener('change', e=>{
-    toggle('wrap_vesiculaCalculoCampos', e.target.value==='calculo');
-    toggle('wrap_vesiculaDescricao', e.target.value==='alterado');
+    const val = e.target.value;
+    toggle('wrap_vesiculaCalculoCampos', val==='calculo');
+    toggle('wrap_vesiculaPolipoCampos', val==='polipo');
+    toggle('wrap_vesiculaColecistiteCampos', val==='colecistite');
+    toggle('wrap_vesiculaDescricao', val==='alterado');
   });
   $('vesiculaCalculoQtd').addEventListener('change', updateVesiculaCalculoLabel);
   $('pancreasAspecto').addEventListener('change', e=>{
@@ -1326,13 +1352,16 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_rinsLeiteCalcio', val==='cistoLeiteCalcio');
     toggle('wrap_rinsNodulo', val==='nodulo');
     toggle('wrap_rinsHidro', val==='hidronefrose');
+    toggle('wrap_rinsNefro', val==='nefrocalcinose');
     toggle('wrap_rinsDescricao', val==='alterado');
   });
   $('rinsCalculoQtd').addEventListener('change', updateRinsCalculoCampos);
   $('rinsCistoQtd').addEventListener('change', updateRinsCistoCampos);
   $('bexigaAspecto').addEventListener('change', e=>{
-    toggle('wrap_bexigaEsforco', e.target.value==='esforco');
-    toggle('wrap_bexigaDescricao', e.target.value==='alterado');
+    const val = e.target.value;
+    toggle('wrap_bexigaEsforco', val==='esforco');
+    toggle('wrap_bexigaCalculoCampos', val==='calculo');
+    toggle('wrap_bexigaDescricao', val==='alterado');
   });
   $('vasosAspecto').addEventListener('change', e=>{
     toggle('wrap_vasosAneurismaCampos', e.target.value==='aneurisma');
@@ -1401,6 +1430,9 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     if(state.figadoAspecto==='hemangioma'){
       items.push({key:'figado-hemangioma', label:'Nódulo(s) hepático(s) sugestivo(s) de hemangioma(s).', auto:true});
+    }
+    if(state.figadoHepatomegalia){
+      items.push({key:'figado-hepatomegalia', label:'Hepatomegalia.', auto:true});
     }
     if(state.vesiculaImpressaoHD){
       items.push({key:'vesicula-achado', label: state.vesiculaImpressaoHD, auto:true});
@@ -1501,6 +1533,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const loboENum = num('figadoLoboEsquerdo'); req('figadoLoboEsquerdo');
     const loboETexto = blankOrValue(v('figadoLoboEsquerdo'));
     flag('figadoLoboEsquerdo', loboENum!==null && loboENum > LOBO_ESQUERDO_MAX);
+    const figadoHepatomegalia = (loboDNum!==null && loboDNum > LOBO_DIREITO_MAX) || (loboENum!==null && loboENum > LOBO_ESQUERDO_MAX);
 
     const chkEsteatose = $('chkEsteatose').checked;
     const pctGorduraNum = num('pctGordura');
@@ -1542,9 +1575,18 @@ if(typeof criarMotorLaudo !== 'function'){
     const hepatocoledocoTexto = blankOrValue(req('hepatocoledoco'));
     const vesiculaCalculoQtd = v('vesiculaCalculoQtd') || '1';
     const vesiculaCalculoTamanhoTexto = blankOrValue(reqIf('vesiculaCalculoTamanho', vesiculaAspecto==='calculo'));
+    const vesiculaPolipoTamanhoTexto = blankOrValue(reqIf('vesiculaPolipoTamanho', vesiculaAspecto==='polipo'));
+    const vesiculaColecistiteEspessuraNum = num('vesiculaColecistiteEspessura');
+    reqIf('vesiculaColecistiteEspessura', vesiculaAspecto==='colecistite');
+    const vesiculaColecistiteEspessuraTexto = blankOrValue(v('vesiculaColecistiteEspessura'));
+    flag('vesiculaColecistiteEspessura', vesiculaColecistiteEspessuraNum!==null && vesiculaColecistiteEspessuraNum > 3.0);
     let vesiculaImpressaoHD = null;
     if(vesiculaAspecto==='calculo'){
       vesiculaImpressaoHD = 'Colecistolitíase.';
+    } else if(vesiculaAspecto==='polipo'){
+      vesiculaImpressaoHD = 'Pólipo vesicular.';
+    } else if(vesiculaAspecto==='colecistite'){
+      vesiculaImpressaoHD = 'Colecistite.';
     }
 
     // ----- Pâncreas -----
@@ -1595,6 +1637,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const rinsHidroMedidaNum = num('rinsHidroMedida'); reqIf('rinsHidroMedida', rinsAspecto==='hidronefrose');
     const rinsHidroMedidaTexto = blankOrValue(v('rinsHidroMedida'));
     flag('rinsHidroMedida', rinsHidroMedidaNum!==null && rinsHidroMedidaNum > 10.0);
+    const rinsNefroLado = v('rinsNefroLado') || 'direito';
 
     let rinsTextoTail;
     let rinsImpressaoHD = null;
@@ -1626,6 +1669,10 @@ if(typeof criarMotorLaudo !== 'function'){
       const hidroLadoDescr = rinsHidroLado==='bilateral' ? 'bilateralmente' : (rinsHidroLado==='esquerdo' ? 'à esquerda' : 'à direita');
       rinsTextoTail = 'Observa-se dilatação de pelve renal '+hidroLadoDescr+', medindo '+span(rinsHidroMedidaTexto)+' mm (VR até 10,0 mm); além disso, há dilatação do sistema coletor que se estende até os pequenos cálices, ocasionando redução da espessura do parênquima renal.';
       rinsImpressaoHD = 'Hidronefrose acentuada.';
+    } else if(rinsAspecto==='nefrocalcinose'){
+      rinsTextoTail = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular evidente pelo aumento da ecogenicidade das medulares renais.';
+      const nefroLadoHD = rinsNefroLado==='bilateral' ? 'bilateral' : (rinsNefroLado==='esquerdo' ? 'à esquerda' : 'à direita');
+      rinsImpressaoHD = 'Nefrocalcinose medular '+nefroLadoHD+'.';
     } else if(rinsAspecto==='alterado' && rinsDescricao){
       rinsTextoTail = escapeHtml(rinsDescricao)+'.';
     } else {
@@ -1639,11 +1686,15 @@ if(typeof criarMotorLaudo !== 'function'){
     const bexigaEsforcoNum = num('bexigaEsforcoEspessura'); reqIf('bexigaEsforcoEspessura', bexigaAspecto==='esforco');
     const bexigaEsforcoTexto = blankOrValue(v('bexigaEsforcoEspessura'));
     flag('bexigaEsforcoEspessura', bexigaEsforcoNum!==null && bexigaEsforcoNum > 3.0);
+    const bexigaCalculoTamanhoTexto = blankOrValue(reqIf('bexigaCalculoTamanho', bexigaAspecto==='calculo'));
     let bexigaTexto;
     let bexigaImpressaoHD = null;
     if(bexigaAspecto==='esforco'){
       bexigaTexto = 'Com boa repleção, de forma anatômica, paredes difusamente espessadas, medindo '+span(bexigaEsforcoTexto)+' mm (VR: até 3,0 mm) e trabeculadas. Conteúdo de aspecto límpido. Ausência de dilatação dos ureteres distais. Meatos ureterais sem alterações.';
       bexigaImpressaoHD = 'Achados ecográficos sugestivos de bexiga de esforço.';
+    } else if(bexigaAspecto==='calculo'){
+      bexigaTexto = 'De topografia usual, boa repleção, contorno interno regular. Em seu interior, observa-se imagem ovalada hiperecogênica, móvel às mudanças de decúbito, que condiciona sombra acústica posterior, medindo '+span(bexigaCalculoTamanhoTexto)+' mm. Meatos ureterais pérvios, sem alterações.';
+      bexigaImpressaoHD = 'Cistolitíase.';
     } else if(bexigaAspecto==='alterado' && bexigaDescricao){
       bexigaTexto = escapeHtml(bexigaDescricao)+'.';
     } else {
@@ -1746,7 +1797,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // ----- Impressão -----
     const state = {
       chkEsteatose, pctGorduraNum, pctGorduraTexto, grauInfo,
-      figadoAspecto, figadoImpressaoDeposito, vesiculaImpressaoHD, pancreasImpressaoHD, rinsImpressaoHD, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
+      figadoAspecto, figadoImpressaoDeposito, figadoHepatomegalia, vesiculaImpressaoHD, pancreasImpressaoHD, rinsImpressaoHD, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
       apendiceImpressaoHD, adeniteImpressaoHD, asciteImpressaoHD
     };
     const impressaoItems = buildImpressao(state);
@@ -1766,6 +1817,10 @@ if(typeof criarMotorLaudo !== 'function'){
 
     blocks.push({id:'aoExameLabel', html:'<p class="linha intro intro-last">Ao exame:</p>'});
 
+    if($('chkGasesIntestinais').checked){
+      blocks.push({id:'gasesIntestinais', html:'<p class="linha">Exame com visualização parcialmente prejudicada pela presença de gases intestinais.</p>'});
+    }
+
     blocks.push({id:'figado', html:'<p class="linha"><strong>Fígado:</strong> '+figadoTextoBase+' O lobo direito mede '+span(loboDTexto)+' cm e o lobo esquerdo mede '+span(loboETexto)+' cm no eixo longitudinal (VR: lobo direito até 15,5 cm e lobo esquerdo até 11,0 cm).</p>'});
 
     let vesiculaTextoBase;
@@ -1774,6 +1829,10 @@ if(typeof criarMotorLaudo !== 'function'){
         ? 'Em seu interior, observam-se várias imagens ovaladas hiperecogênicas, que condicionam sombra acústica posterior, a maior medindo '+span(vesiculaCalculoTamanhoTexto)+' mm.'
         : 'Em seu interior, observa-se imagem ovalada hiperecogênica, que condiciona sombra acústica posterior, móvel às mudanças de decúbito, medindo '+span(vesiculaCalculoTamanhoTexto)+' mm.';
       vesiculaTextoBase = 'Vesícula de volume normal, forma anatômica, paredes finas e conteúdo anecoico. '+vesiculaCalculoTexto+' Ausência de dilatação das vias biliares intra e extra-hepáticas.';
+    } else if(vesiculaAspecto==='polipo'){
+      vesiculaTextoBase = 'Vesícula de volume normal, forma anatômica, paredes finas e conteúdo anecoico. Ausência de cálculos no seu interior. Nota-se imagem sólida, ecogênica, séssil, sem sombra acústica posterior e sem mobilidade às mudanças de decúbito, aderida à parede vesicular, medindo '+span(vesiculaPolipoTamanhoTexto)+' mm. Ausência de dilatação das vias biliares intra e extra-hepáticas.';
+    } else if(vesiculaAspecto==='colecistite'){
+      vesiculaTextoBase = 'Vesícula de volume normal, forma anatômica, paredes espessadas, medindo '+span(vesiculaColecistiteEspessuraTexto)+' mm (VR até 3,0 mm), e conteúdo anecoico. Ausência de cálculos no seu interior. Ausência de dilatação das vias biliares intra e extra-hepáticas.';
     } else if(vesiculaAspecto==='alterado' && vesiculaDescricao){
       vesiculaTextoBase = escapeHtml(vesiculaDescricao)+'.';
     } else {
