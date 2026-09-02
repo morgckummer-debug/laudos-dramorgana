@@ -687,7 +687,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.23-a</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.09.02-a</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -1782,10 +1782,15 @@ if(typeof criarMotorLaudo !== 'function'){
       if(sharedWidthEm === null || widthEm > sharedWidthEm) sharedWidthEm = widthEm;
     });
     if(sharedWidthEm !== null){
-      $('paper').querySelectorAll('table.doppler-materno').forEach(dopplerTable=>{
-        // Lado a lado com o Doppler Fetal (2 colunas de 50%): a tabela já
-        // ocupa só metade da linha, forçar a mesma largura da biometria
-        // (calculada para a página inteira) estouraria essa metade.
+      // Doppler Fetal ("Art. Cerebral Média:" é o rótulo mais longo dos três)
+      // e Doppler Materno entram na mesma régua da biometria/líquido
+      // amniótico — sem isto, essas duas tabelas tinham cada uma sua própria
+      // largura de coluna, e a linha entre rótulo e valor saía num ponto
+      // diferente em cada tabela da página.
+      $('paper').querySelectorAll('table.doppler-materno, table.doppler-fetal').forEach(dopplerTable=>{
+        // Lado a lado (feto único com os dois Dopplers, 2 colunas de 50%): a
+        // tabela já ocupa só metade da linha, forçar a mesma largura da
+        // biometria (calculada para a página inteira) estouraria essa metade.
         const wrapperTd = dopplerTable.closest('td');
         if(wrapperTd && wrapperTd.parentElement && wrapperTd.parentElement.children.length > 1) return;
         Array.from(dopplerTable.rows).forEach(row=>{
@@ -2081,7 +2086,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
       +'</table>';
     const tabelaDopplerFetal = f => ''
-      +'<table class="biometria" style="width:100%;">'
+      +'<table class="biometria doppler-fetal" style="width:100%;">'
       +'<tr><td><strong style="text-decoration:underline;">Doppler Fetal</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
       +'<tr><td>Art. Umbilical:</td><td>'+span(f.piUmbilicalVal)+'</td></tr>'
       +'<tr><td>Art. Cerebral Média:</td><td>'+span(f.piACMVal)+'</td></tr>'
