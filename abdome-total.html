@@ -312,6 +312,7 @@
       </optgroup>
     </select>
     <button class="btn-ghost" id="btnSettings">Assinatura do laudo</button>
+    <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
     <button class="btn-ghost" id="btnReset">Limpar</button>
   </div>
 </div>
@@ -327,6 +328,76 @@
   <div class="save-row">
     <button class="btn-copy" id="btnSaveVR">Salvar identificação do médico</button>
     <span class="saved-msg" id="vrSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="settings-panel" id="phrasesPanel">
+  <h3>Personalizar frases da impressão diagnóstica</h3>
+  <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases que entram na Impressão diagnóstica conforme o que você marca no formulário. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui.</p>
+
+  <h3 style="margin-top:4px;">Geral</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Nada alterado</label><textarea id="ph_impNormal" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Fígado</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Esteatose — dentro da normalidade (QUS) — use {PCT}</label><textarea id="ph_impEsteatoseNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Esteatose — alterada (QUS) — use {PCT} e {GRAU}</label><textarea id="ph_impEsteatoseAlterada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Doença de depósito (grau informado manualmente) — use {GRAU}</label><textarea id="ph_impFigadoDeposito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cisto hepático</label><textarea id="ph_impFigadoCisto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hemangioma hepático</label><textarea id="ph_impFigadoHemangioma" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hepatomegalia</label><textarea id="ph_impFigadoHepatomegalia" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Vesícula</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Colecistolitíase</label><textarea id="ph_impVesiculaCalculo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo vesicular</label><textarea id="ph_impVesiculaPolipo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colecistite</label><textarea id="ph_impVesiculaColecistite" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Pâncreas</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Cisto pancreático</label><textarea id="ph_impPancreasCisto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulo pancreático</label><textarea id="ph_impPancreasNodulo" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Rins</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Cálculo(s) renal(is) — use {LADO}</label><textarea id="ph_impRinsCalculo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>1 cisto renal simples — use {LADO}</label><textarea id="ph_impRinsCistoSingular" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>2 ou vários cistos renais simples — use {LADO}</label><textarea id="ph_impRinsCistoPlural" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cisto de leite de cálcio — use {LADO}</label><textarea id="ph_impRinsLeiteCalcio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulo renal (angiomiolipoma) — use {LADO}</label><textarea id="ph_impRinsNodulo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hidronefrose acentuada</label><textarea id="ph_impRinsHidronefrose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nefrocalcinose medular — use {LADO}</label><textarea id="ph_impRinsNefrocalcinose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ureterolitíase — use {TERCO} e {LADO}</label><textarea id="ph_impRinsUreterolitiase" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Bexiga</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Bexiga de esforço</label><textarea id="ph_impBexigaEsforco" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cistolitíase</label><textarea id="ph_impBexigaCalculo" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Grandes vasos</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Ateromatose da aorta abdominal</label><textarea id="ph_impVasosAteromatose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Aneurisma de aorta abdominal</label><textarea id="ph_impVasosAneurisma" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Baço</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Esplenectomia</label><textarea id="ph_impBacoEsplenectomia" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Baço acessório</label><textarea id="ph_impBacoAcessorio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Esplenomegalia leve</label><textarea id="ph_impBacoEsplenomegaliaLeve" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Esplenomegalia volumosa</label><textarea id="ph_impBacoEsplenomegaliaVolumosa" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hemangioma esplênico</label><textarea id="ph_impBacoHemangioma" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Achados adicionais</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Apendicite aguda não complicada</label><textarea id="ph_impApendice" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Adenite mesentérica</label><textarea id="ph_impAdenite" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ascite — use {GRAU}</label><textarea id="ph_impAscite" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <div class="save-row">
+    <button class="btn-copy" id="btnSavePhrases">Salvar frases</button>
+    <button class="btn-clear" id="btnResetPhrases">Restaurar padrão</button>
+    <span class="saved-msg" id="phrasesSavedMsg">Salvo ✓</span>
   </div>
 </div>
 
@@ -1281,6 +1352,90 @@ if(typeof criarMotorLaudo !== 'function'){
     render();
   });
 
+  // ---------- Frases da impressão diagnóstica ----------
+  const PHRASE_DEFAULTS = {
+    impNormal: 'Exame ecográfico dentro da normalidade.',
+    impEsteatoseNormal: 'Quantificação ultrassonográfica pelo método QUS estimou {PCT}% de gordura, valor dentro da faixa normal (S0), sem evidência de esteatose hepática significativa.',
+    impEsteatoseAlterada: 'Esteatose hepática: Quantificação ultrassonográfica pelo método QUS estimou {PCT}% de gordura, valor que se enquadra no grau {GRAU} de esteatose hepática.',
+    impFigadoDeposito: 'Aumento difuso da ecogenicidade hepática sugestivo de doença de depósito em grau {GRAU}.',
+    impFigadoCisto: 'Cisto hepático simples.',
+    impFigadoHemangioma: 'Nódulo(s) hepático(s) sugestivo(s) de hemangioma(s).',
+    impFigadoHepatomegalia: 'Hepatomegalia.',
+    impVesiculaCalculo: 'Colecistolitíase.',
+    impVesiculaPolipo: 'Imagem ecogênica em vesícula biliar sugestiva de pólipo.',
+    impVesiculaColecistite: 'Colecistite.',
+    impPancreasCisto: 'Cisto pancreático.',
+    impPancreasNodulo: 'Nódulo pancreático a esclarecer — Seguir propedêutica.',
+    impRinsCalculo: 'Nefrolitíase {LADO}.',
+    impRinsCistoSingular: 'Cisto renal simples {LADO}.',
+    impRinsCistoPlural: 'Cistos renais simples {LADO}.',
+    impRinsLeiteCalcio: 'Cisto renal simples {LADO} (leite de cálcio).',
+    impRinsNodulo: 'Nódulo renal {LADO} sugestivo de angiomiolipoma.',
+    impRinsHidronefrose: 'Hidronefrose acentuada.',
+    impRinsNefrocalcinose: 'Nefrocalcinose medular {LADO}.',
+    impRinsUreterolitiase: 'Ureterolitíase {TERCO} {LADO}.',
+    impBexigaEsforco: 'Achados ecográficos sugestivos de bexiga de esforço.',
+    impBexigaCalculo: 'Cistolitíase.',
+    impVasosAteromatose: 'Ateromatose da aorta abdominal.',
+    impVasosAneurisma: 'Aneurisma de aorta abdominal.',
+    impBacoEsplenectomia: 'Esplenectomia.',
+    impBacoAcessorio: 'Baço acessório.',
+    impBacoEsplenomegaliaLeve: 'Esplenomegalia leve.',
+    impBacoEsplenomegaliaVolumosa: 'Esplenomegalia volumosa.',
+    impBacoHemangioma: 'Nódulo esplênico sugestivo de hemangioma.',
+    impApendice: 'Achados sugestivos de apendicite aguda não complicada.',
+    impAdenite: 'Linfonodos intraperitoneais levemente aumentados, dentre as hipóteses diagnósticas encontra-se a de adenite mesentérica.',
+    impAscite: 'Ascite {GRAU}.'
+  };
+  let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
+
+  async function loadPhrases(){
+    try{
+      const val = await kvStore.get('abd-phrase-templates');
+      if(val){
+        const parsed = JSON.parse(val);
+        PHRASES = Object.assign({}, PHRASE_DEFAULTS, parsed);
+      }
+    }catch(e){ /* no saved phrases yet — use defaults */ }
+    applyPhrasesToInputs();
+  }
+  function applyPhrasesToInputs(){
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      if(el) el.value = PHRASES[key];
+    });
+  }
+  function phrase(key, repl){
+    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    if(repl){
+      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
+    }
+    return t;
+  }
+  $('btnPhrases').addEventListener('click', ()=>{
+    $('phrasesPanel').classList.toggle('show');
+  });
+  $('btnSavePhrases').addEventListener('click', async ()=>{
+    const updated = {};
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      updated[key] = el ? el.value : PHRASE_DEFAULTS[key];
+    });
+    PHRASES = updated;
+    try{
+      await kvStore.set('abd-phrase-templates', JSON.stringify(PHRASES));
+      const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
+    }catch(e){ /* storage unavailable — values still apply for this session */ }
+    render();
+  });
+  $('btnResetPhrases').addEventListener('click', async ()=>{
+    if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
+    PHRASES = Object.assign({}, PHRASE_DEFAULTS);
+    applyPhrasesToInputs();
+    try{ await kvStore.set('abd-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
+    render();
+  });
+
   $('medicoExecutante').addEventListener('change', e=>{
     kvStore.set('medico-executante-selecionado', e.target.value);
     if(e.target.value === 'outro'){
@@ -1407,26 +1562,26 @@ if(typeof criarMotorLaudo !== 'function'){
   // achado for outro que não a normalidade. A única exceção é a esteatose
   // hepática, que tem grau calculado a partir do % de gordura informado.
   function buildImpressao(state){
-    const items = [{key:'normal', label:'Exame ecográfico dentro da normalidade.', auto:true}];
+    const items = [{key:'normal', label:phrase('impNormal'), auto:true}];
     if(state.chkEsteatose && state.pctGorduraNum !== null){
       const pctStr = state.pctGorduraTexto;
       if(state.grauInfo.normal){
-        items.push({key:'esteatose', label:'Quantificação ultrassonográfica pelo método QUS estimou '+pctStr+'% de gordura, valor dentro da faixa normal (S0), sem evidência de esteatose hepática significativa.', auto:true});
+        items.push({key:'esteatose', label:phrase('impEsteatoseNormal', {PCT:pctStr}), auto:true});
       } else {
-        items.push({key:'esteatose', label:'Esteatose hepática: Quantificação ultrassonográfica pelo método QUS estimou '+pctStr+'% de gordura, valor que se enquadra no grau '+state.grauInfo.numero+' de esteatose hepática.', auto:true});
+        items.push({key:'esteatose', label:phrase('impEsteatoseAlterada', {PCT:pctStr, GRAU:state.grauInfo.numero}), auto:true});
       }
     }
     if(state.figadoImpressaoDeposito){
       items.push({key:'figado-deposito', label: state.figadoImpressaoDeposito, auto:true});
     }
     if(state.figadoAspecto==='cisto'){
-      items.push({key:'figado-cisto', label:'Cisto hepático simples.', auto:true});
+      items.push({key:'figado-cisto', label:phrase('impFigadoCisto'), auto:true});
     }
     if(state.figadoAspecto==='hemangioma'){
-      items.push({key:'figado-hemangioma', label:'Nódulo(s) hepático(s) sugestivo(s) de hemangioma(s).', auto:true});
+      items.push({key:'figado-hemangioma', label:phrase('impFigadoHemangioma'), auto:true});
     }
     if(state.figadoHepatomegalia){
-      items.push({key:'figado-hepatomegalia', label:'Hepatomegalia.', auto:true});
+      items.push({key:'figado-hepatomegalia', label:phrase('impFigadoHepatomegalia'), auto:true});
     }
     if(state.vesiculaImpressaoHD){
       items.push({key:'vesicula-achado', label: state.vesiculaImpressaoHD, auto:true});
@@ -1569,7 +1724,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(figadoAspecto==='esteatose'){
       figadoTextoBase = 'Dimensões '+(figadoVolume==='aumentadas'?'aumentadas':'usuais')+', forma globosa, contornos arredondados e regulares. Parênquima hepático apresentando aumento difuso da ecogenicidade, condicionando '+figadoAtenuacao+' atenuação dos feixes sonoros nos planos posteriores, dificultando a avaliação de lesões intraparenquimatosas ao método. Veia porta, seus ramos e veias hepáticas sem alterações.';
       if(!chkEsteatose){
-        figadoImpressaoDeposito = 'Aumento difuso da ecogenicidade hepática sugestivo de doença de depósito em grau '+figadoGrauManual+'.';
+        figadoImpressaoDeposito = phrase('impFigadoDeposito', {GRAU:figadoGrauManual});
       }
     } else if(figadoAspecto==='cisto'){
       figadoTextoBase = 'Observa-se imagem anecóica de paredes finas e regulares, localizada no segmento '+span(figadoCistoSegmentoTexto)+', medindo '+span(figadoCistoTamanhoTexto)+' mm.';
@@ -1596,11 +1751,11 @@ if(typeof criarMotorLaudo !== 'function'){
     flag('vesiculaColecistiteEspessura', vesiculaColecistiteEspessuraNum!==null && vesiculaColecistiteEspessuraNum > 3.0);
     let vesiculaImpressaoHD = null;
     if(vesiculaAspecto==='calculo'){
-      vesiculaImpressaoHD = 'Colecistolitíase.';
+      vesiculaImpressaoHD = phrase('impVesiculaCalculo');
     } else if(vesiculaAspecto==='polipo'){
-      vesiculaImpressaoHD = 'Imagem ecogênica em vesícula biliar sugestiva de pólipo.';
+      vesiculaImpressaoHD = phrase('impVesiculaPolipo');
     } else if(vesiculaAspecto==='colecistite'){
-      vesiculaImpressaoHD = 'Colecistite.';
+      vesiculaImpressaoHD = phrase('impVesiculaColecistite');
     }
 
     // ----- Pâncreas ----- (só entra no Abdome Total)
@@ -1612,8 +1767,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const pancreasNoduloPosicao = v('pancreasNoduloPosicao') || 'cabeça';
     const pancreasNoduloTamanhoTexto = blankOrValue(reqIf('pancreasNoduloTamanho', pancreasAspecto==='nodulo'));
     let pancreasImpressaoHD = null;
-    if(pancreasAspecto==='cisto') pancreasImpressaoHD = 'Cisto pancreático.';
-    if(pancreasAspecto==='nodulo') pancreasImpressaoHD = 'Nódulo pancreático a esclarecer — Seguir propedêutica.';
+    if(pancreasAspecto==='cisto') pancreasImpressaoHD = phrase('impPancreasCisto');
+    if(pancreasAspecto==='nodulo') pancreasImpressaoHD = phrase('impPancreasNodulo');
 
     // ----- Rins ----- (só entra no Abdome Total)
     const rinsAspecto = modoTotal ? v('rinsAspecto') : 'normal';
@@ -1665,36 +1820,36 @@ if(typeof criarMotorLaudo !== 'function'){
       } else {
         rinsTextoTail = 'Em rim '+rinsLadoNome+' observa-se imagem hiperecogênica ovalada, que condiciona sombra acústica posterior, localizada em terço '+rinsCalc1Terco+', medindo '+span(rinsCalc1TamanhoTexto)+' mm.';
       }
-      rinsImpressaoHD = 'Nefrolitíase '+rinsLadoHD+'.';
+      rinsImpressaoHD = phrase('impRinsCalculo', {LADO:rinsLadoHD});
     } else if(rinsAspecto==='cisto'){
       if(rinsCistoQtd==='2'){
         rinsTextoTail = 'Em rim '+rinsLadoNome+' observam-se duas imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, uma localizada no terço '+rinsCisto1Terco+', medindo '+span(rinsCisto1TamanhoTexto)+' mm, e outra no terço '+rinsCisto2Terco+', medindo '+span(rinsCisto2TamanhoTexto)+' mm.';
-        rinsImpressaoHD = 'Cistos renais simples '+rinsLadoHD+'.';
+        rinsImpressaoHD = phrase('impRinsCistoPlural', {LADO:rinsLadoHD});
       } else if(rinsCistoQtd==='varios'){
         rinsTextoTail = 'Em rim '+rinsLadoNome+' observam-se várias imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, dispersas pelo parênquima cortical, variando entre '+span(rinsCistoVariosMinTexto)+' e '+span(rinsCistoVariosMaxTexto)+' mm, a maior localizada no terço '+rinsCistoVariosTerco+'.';
-        rinsImpressaoHD = 'Cistos renais simples '+rinsLadoHD+'.';
+        rinsImpressaoHD = phrase('impRinsCistoPlural', {LADO:rinsLadoHD});
       } else {
         rinsTextoTail = 'Em rim '+rinsLadoNome+' observa-se imagem anecóica de paredes finas e regulares, condicionando reforço acústico posterior, localizada no terço '+rinsCisto1Terco+', medindo '+span(rinsCisto1TamanhoTexto)+' mm.';
-        rinsImpressaoHD = 'Cisto renal simples '+rinsLadoHD+'.';
+        rinsImpressaoHD = phrase('impRinsCistoSingular', {LADO:rinsLadoHD});
       }
     } else if(rinsAspecto==='cistoLeiteCalcio'){
       rinsTextoTail = 'Em rim '+rinsLadoNome+' observa-se imagem anecóica de paredes finas e regulares, apresentando imagem hiperecogênica depositada em sua parede posterior condicionando sombra acústica, localizada no terço superior, medindo '+span(rinsLeiteCalcioTamanhoTexto)+' mm.';
-      rinsImpressaoHD = 'Cisto renal simples '+rinsLadoHD+' (leite de cálcio).';
+      rinsImpressaoHD = phrase('impRinsLeiteCalcio', {LADO:rinsLadoHD});
     } else if(rinsAspecto==='nodulo'){
       rinsTextoTail = 'Presença de imagem nodular sólida, ecogênica, de contornos regulares, localizada em terço '+rinsNoduloTerco+', medindo '+span(rinsNoduloTamanhoTexto)+' mm, em rim '+rinsLadoNome+'.';
-      rinsImpressaoHD = 'Nódulo renal '+rinsLadoHD+' sugestivo de angiomiolipoma.';
+      rinsImpressaoHD = phrase('impRinsNodulo', {LADO:rinsLadoHD});
     } else if(rinsAspecto==='hidronefrose'){
       const hidroLadoDescr = rinsHidroLado==='bilateral' ? 'bilateralmente' : (rinsHidroLado==='esquerdo' ? 'à esquerda' : 'à direita');
       rinsTextoTail = 'Observa-se dilatação de pelve renal '+hidroLadoDescr+', medindo '+span(rinsHidroMedidaTexto)+' mm (VR até 10,0 mm); além disso, há dilatação do sistema coletor que se estende até os pequenos cálices, ocasionando redução da espessura do parênquima renal.';
-      rinsImpressaoHD = 'Hidronefrose acentuada.';
+      rinsImpressaoHD = phrase('impRinsHidronefrose');
     } else if(rinsAspecto==='nefrocalcinose'){
       rinsTextoTail = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular evidente pelo aumento da ecogenicidade das medulares renais.';
       const nefroLadoHD = rinsNefroLado==='bilateral' ? 'bilateral' : (rinsNefroLado==='esquerdo' ? 'à esquerda' : 'à direita');
-      rinsImpressaoHD = 'Nefrocalcinose medular '+nefroLadoHD+'.';
+      rinsImpressaoHD = phrase('impRinsNefrocalcinose', {LADO:nefroLadoHD});
     } else if(rinsAspecto==='ureterolitiase'){
       const hidroTexto = rinsUreterHidro==='com' ? 'condicionando' : 'sem condicionar';
       rinsTextoTail = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Presença de imagem ovalada hiperecogênica localizada no terço '+rinsUreterTerco+' do ureter '+rinsLadoNome+', medindo '+span(rinsUreterTamanhoTexto)+' mm, '+hidroTexto+' hidronefrose a montante. Espaço perirrenal livre.';
-      rinsImpressaoHD = 'Ureterolitíase '+rinsUreterTerco+' '+rinsLadoHD+'.';
+      rinsImpressaoHD = phrase('impRinsUreterolitiase', {TERCO:rinsUreterTerco, LADO:rinsLadoHD});
     } else if(rinsAspecto==='alterado' && rinsDescricao){
       rinsTextoTail = escapeHtml(rinsDescricao)+'.';
     } else {
@@ -1713,10 +1868,10 @@ if(typeof criarMotorLaudo !== 'function'){
     let bexigaImpressaoHD = null;
     if(bexigaAspecto==='esforco'){
       bexigaTexto = 'Com boa repleção, de forma anatômica, paredes difusamente espessadas, medindo '+span(bexigaEsforcoTexto)+' mm (VR: até 3,0 mm) e trabeculadas. Conteúdo de aspecto límpido. Ausência de dilatação dos ureteres distais. Meatos ureterais sem alterações.';
-      bexigaImpressaoHD = 'Achados ecográficos sugestivos de bexiga de esforço.';
+      bexigaImpressaoHD = phrase('impBexigaEsforco');
     } else if(bexigaAspecto==='calculo'){
       bexigaTexto = 'De topografia usual, boa repleção, contorno interno regular. Em seu interior, observa-se imagem ovalada hiperecogênica, móvel às mudanças de decúbito, que condiciona sombra acústica posterior, medindo '+span(bexigaCalculoTamanhoTexto)+' mm. Meatos ureterais pérvios, sem alterações.';
-      bexigaImpressaoHD = 'Cistolitíase.';
+      bexigaImpressaoHD = phrase('impBexigaCalculo');
     } else if(bexigaAspecto==='alterado' && bexigaDescricao){
       bexigaTexto = escapeHtml(bexigaDescricao)+'.';
     } else {
@@ -1736,10 +1891,10 @@ if(typeof criarMotorLaudo !== 'function'){
     let vasosImpressaoHD = null;
     if(vasosAspecto==='ateromatose'){
       vasosTexto = 'Aorta, vasos ilíacos e veia cava inferior apresentando trajeto e calibres normais. Na parede aórtica, observam-se focos hiperecogênicos compatíveis com ateromas.';
-      vasosImpressaoHD = 'Ateromatose da aorta abdominal.';
+      vasosImpressaoHD = phrase('impVasosAteromatose');
     } else if(vasosAspecto==='aneurisma'){
       vasosTexto = 'Observa-se dilatação fusiforme-sacular em aorta abdominal '+vasosAneurismaPosicao+' da emergência das artérias renais, cujo maior diâmetro ântero-posterior é de '+span(vasosAneurismaDiametroTexto)+' mm e a porção proximal à dilatação é de '+span(vasosAneurismaProximalTexto)+' mm. Sua porção distal está a aproximadamente '+span(vasosAneurismaDistalTexto)+' cm da sua bifurcação.';
-      vasosImpressaoHD = 'Aneurisma de aorta abdominal.';
+      vasosImpressaoHD = phrase('impVasosAneurisma');
     } else if(vasosAspecto==='alterado' && vasosDescricao){
       vasosTexto = escapeHtml(vasosDescricao)+'.';
     } else {
@@ -1764,19 +1919,19 @@ if(typeof criarMotorLaudo !== 'function'){
     let bacoImpressaoHD = null;
     if(bacoAspecto==='esplenectomia'){
       bacoHtml = 'Não visibilizado (relato de esplenectomia prévia).';
-      bacoImpressaoHD = 'Esplenectomia.';
+      bacoImpressaoHD = phrase('impBacoEsplenectomia');
     } else if(bacoAspecto==='acessorio'){
       bacoHtml = 'Forma, dimensões e contornos normais. Parênquima esplênico de textura sólida, homogênea, sem evidência de lesões sólidas ou císticas. Veia esplênica de calibre normal, medindo '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+'). Nota-se adjacente ao polo inferior, uma imagem nodular sólida, isoecogênica, bem delimitada, medindo '+span(bacoAcessorioTamanhoTexto)+', sugestiva de baço acessório.';
-      bacoImpressaoHD = 'Baço acessório.';
+      bacoImpressaoHD = phrase('impBacoAcessorio');
     } else if(bacoAspecto==='esplenomegaliaLeve'){
       bacoHtml = 'Morfologia, contornos e ecotextura normais, com dimensões aumentadas, medindo '+span(bacoDiametroTexto)+' cm (VR &lt; '+escapeHtml(bacoVrTexto)+').';
-      bacoImpressaoHD = 'Esplenomegalia leve.';
+      bacoImpressaoHD = phrase('impBacoEsplenomegaliaLeve');
     } else if(bacoAspecto==='esplenomegaliaVolumosa'){
       bacoHtml = 'Dimensões muito aumentadas, medindo cerca de '+span(bacoDiametroTexto)+' cm (normal &lt; '+escapeHtml(bacoVrTexto)+'), ultrapassando a linha média e estendendo-se para a fossa ilíaca esquerda, comprimindo órgãos adjacentes.';
-      bacoImpressaoHD = 'Esplenomegalia volumosa.';
+      bacoImpressaoHD = phrase('impBacoEsplenomegaliaVolumosa');
     } else if(bacoAspecto==='hemangioma'){
       bacoHtml = 'Forma, dimensões e contornos normais, medindo '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+'). Nota-se imagem nodular sólida, hiperecogênica e homogênea, de contornos bem definidos e regulares, sem artefato posterior e sem fluxo ao Doppler, localizada no terço '+bacoHemangiomaTerco+', medindo '+span(bacoHemangiomaTamanhoTexto)+' cm.';
-      bacoImpressaoHD = 'Nódulo esplênico sugestivo de hemangioma.';
+      bacoImpressaoHD = phrase('impBacoHemangioma');
     } else if(bacoAspecto==='alterado' && bacoDescricao){
       bacoHtml = escapeHtml(bacoDescricao)+'. Diâmetro bipolar de '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+').';
     } else {
@@ -1794,11 +1949,11 @@ if(typeof criarMotorLaudo !== 'function'){
       apendiceHtml = apendiceAlterado
         ? 'Em exame direcionado à fossa ilíaca direita observa-se apêndice cecal espessado, com espessura de '+span(apendiceEspessuraTexto)+' mm, com captação de fluxo em região infundibular e aumento da ecogenicidade mesentérica ao seu redor. Ausência de coleções. Não se identificou fecalito em seu interior ou linfonodos reacionais em fossa ilíaca direita.'
         : 'Em exame direcionado à fossa ilíaca direita, apêndice cecal não dilatado, sem sinais de espessamento parietal, na topografia habitual.';
-      if(apendiceAlterado) apendiceImpressaoHD = 'Achados sugestivos de apendicite aguda não complicada.';
+      if(apendiceAlterado) apendiceImpressaoHD = phrase('impApendice');
     }
 
     const chkAdenite = modoTotal && $('chkAdenite').checked;
-    const adeniteImpressaoHD = chkAdenite ? 'Linfonodos intraperitoneais levemente aumentados, dentre as hipóteses diagnósticas encontra-se a de adenite mesentérica.' : null;
+    const adeniteImpressaoHD = chkAdenite ? phrase('impAdenite') : null;
 
     const chkAscite = modoTotal && $('chkAscite').checked;
     let asciteHtml = null;
@@ -1808,7 +1963,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const asciteAdjetivo = {leve:'Discreta', moderada:'Moderada', acentuada:'Acentuada'}[asciteGrau];
       asciteHtml = asciteAdjetivo+' quantidade de líquido livre intraperitoneal, com aspecto anecoide homogêneo, se estendendo do fundo de saco posterior e goteiras parietocólicas até os espaços hepato e espleno-renais.';
       const asciteRotulo = {leve:'discreta', moderada:'moderada', acentuada:'acentuada'}[asciteGrau];
-      asciteImpressaoHD = 'Ascite '+asciteRotulo+'.';
+      asciteImpressaoHD = phrase('impAscite', {GRAU:asciteRotulo});
     }
 
     // Observações: descrição livre de achado fora dos campos acima. Vira parágrafo
@@ -2208,7 +2363,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $('draftNote').classList.remove('show');
   });
 
-  loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit()));
+  loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit())));
 })();
 </script>
 </body>
