@@ -248,19 +248,24 @@
      no ponto mais baixo da folha, e não logo depois da última imagem. */
   .anexo-label{font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;color:var(--ink-soft);text-align:center;text-transform:uppercase;letter-spacing:.3px;margin:26px 0 8px;}
   .anexo-table{margin-top:0;}
-  /* Fixa (não só min-height) e corta o que passar: sem isso, uma imagem colada
-     mais alta que o espaço disponível empurrava a assinatura — e o próprio
-     rodapé reservado de 2cm (ver .paper-table tfoot td) — para fora da folha,
-     em vez de simplesmente não caber. As imagens são ajustadas para caber
-     automaticamente ao colar (ver anexoAjustarImagem()); isto aqui é a
-     garantia final de que a margem inferior nunca é invadida.
+  /* Altura fixa (não só min-height): sem isso, uma imagem colada mais alta que
+     o espaço disponível empurrava a assinatura — e o próprio rodapé reservado
+     de 2cm (ver .paper-table tfoot td) — para fora da folha, em vez de
+     simplesmente não caber. As imagens são ajustadas para caber
+     automaticamente ao colar (ver anexoAjustarImagem()).
      max-height precisa ser repetido aqui: sem isso, o max-height:calc(100vh -
      150px) da regra genérica .paper (pensado só para o scroll do #paper
      principal na tela) ganha da altura fixa em telas mais baixas — a folha de
      anexo encolhia antes da hora, o aviso de "não coube" disparava sem
      motivo, e o ajuste automático da imagem calculava com um orçamento menor
-     que os 24,2cm reais da impressão. */
-  .anexo-paper{display:flex;flex-direction:column;height:24.2cm;max-height:24.2cm;overflow:hidden;}
+     que os 24,2cm reais da impressão.
+     overflow:hidden (a garantia final de que a margem nunca é invadida) só
+     entra no @media print, abaixo — na tela ela precisa ficar visível: senão,
+     uma imagem que ainda não coube empurra a bolinha de arrastar (que fica
+     no canto da própria imagem) para fora da área visível, e a médica não
+     consegue mais agarrar o canto para reduzir justamente a imagem que
+     precisa reduzir. */
+  .anexo-paper{display:flex;flex-direction:column;height:24.2cm;max-height:24.2cm;overflow:visible;}
   .anexo-header{flex:0 0 auto;margin-bottom:0.75em;}
   .anexo-header img{max-height:52px;width:auto;display:block;}
   #anexoImgs{flex:1 0 auto;min-height:160px;}
@@ -389,6 +394,13 @@
     .paper-table tfoot td{height:2cm;}
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
+    /* A regra .paper acima zera overflow para visible (certo para o #paper
+       principal, que já paginou em .print-page antes de chegar aqui) — mas
+       teria o efeito colateral de destravar o corte de segurança da folha de
+       anexo bem na hora de imprimir, exatamente quando ele precisa valer.
+       Reafirma hidden só para ela, depois da regra genérica (ordem importa:
+       mesma especificidade, quem vem depois ganha). */
+    .anexo-paper{overflow:hidden;}
 
     .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria, .paper .risk-card{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
