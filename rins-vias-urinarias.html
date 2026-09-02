@@ -568,7 +568,7 @@
       <div class="card-body">
         <div class="field">
           <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
-          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
+          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um parágrafo no corpo do laudo — a conclusão sobre isso é escrita por você, direto na Impressão ao lado"></textarea>
         </div>
       </div>
     </div>
@@ -1185,9 +1185,6 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.bexigaImpressaoHD){
       items.push({key:'bexiga-achado', label: state.bexigaImpressaoHD, auto:true});
     }
-    state.obsLinhas.forEach((linha, idx)=>{
-      items.push({key:'obs-'+idx, label: linha, auto:true});
-    });
     return items;
   }
 
@@ -1343,11 +1340,15 @@ if(typeof criarMotorLaudo !== 'function'){
         : 'Desprezível: 0–30 mL';
     }
 
+    // Observações: descrição livre de achado fora dos campos acima. Vira parágrafo
+    // no corpo do laudo (documenta o que foi visto) — a médica decide, por conta
+    // própria, se e como isso entra na Impressão, direto no texto.
+    const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
+
     // ----- Impressão -----
     const state = {
       rimDImpressaoHD: rimDAchado.hd, rimEImpressaoHD: rimEAchado.hd,
-      bexigaImpressaoHD: bexigaAspecto==='esforco' ? 'Achados ecográficos sugestivos de bexiga de esforço.' : null,
-      obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
+      bexigaImpressaoHD: bexigaAspecto==='esforco' ? 'Achados ecográficos sugestivos de bexiga de esforço.' : null
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
@@ -1396,6 +1397,10 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'volumeInicial', html:'<p class="linha">Volume urinário inicial: '+span(volumeInicialTexto)+' ml.</p>'});
     const desprezivel = (volumePosNum!==null && volumePosNum <= RESIDUO_MAX) ? ' (desprezível)' : '';
     blocks.push({id:'volumePos', html:'<p class="linha">Volume urinário pós-miccional: '+span(volumePosTexto)+' ml'+desprezivel+'.</p>'});
+
+    obsLinhas.forEach((linha, idx)=>{
+      blocks.push({id:'obs-'+idx, html:'<p class="linha">'+escapeHtml(linha)+'</p>'});
+    });
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
