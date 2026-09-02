@@ -339,6 +339,11 @@
   <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases que entram na Impressão conforme o exame estiver normal. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui. Achados alterados não geram frase automática: descreva-os nos campos do formulário e ajuste a Impressão diretamente no laudo, ao lado.</p>
   <div class="field" style="margin-bottom:8px;"><label>Tireóide sem alterações</label><textarea id="ph_impNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Estudo Doppler dentro da normalidade</label><textarea id="ph_impDopplerNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido — use {LADO} e {TIRADS}</label><textarea id="ph_impNodulo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cisto colóide (1) — use {LADO}</label><textarea id="ph_impCistoColoide1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cistos colóides (ao menos 3) — use {LADO}</label><textarea id="ph_impCistoColoideVarios" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Tireoidite de Hashimoto — use {VOLVASC}</label><textarea id="ph_impHashimoto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Linfonodo reacional — use {NIVEL}</label><textarea id="ph_impLinfonodo" rows="2"></textarea></div>
   <hr class="sep">
   <div class="save-row">
     <button class="btn-copy" id="btnSavePhrases">Salvar frases</button>
@@ -385,22 +390,80 @@
           <div class="field"><label>Parênquima</label>
             <select id="parenquimaAspecto">
               <option value="normal">Normal (textura homogênea, sem nódulos sólidos ou císticos)</option>
+              <option value="nodulo">Nódulo sólido</option>
+              <option value="cistoColoide1">Cisto colóide (1)</option>
+              <option value="cistoColoideVarios">Cistos colóides (ao menos 3)</option>
+              <option value="hashimoto">Tireoidite de Hashimoto</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
         </div>
+        <div class="field-row field-row-compact conditional" id="wrap_noduloCampos">
+          <div class="field"><label>Lobo</label>
+            <select id="noduloLobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
+          </div>
+          <div class="field"><label>Ecogenicidade</label>
+            <select id="noduloEcogenicidade"><option value="ecogênico">Ecogênico</option><option value="hipoecogênico">Hipoecogênico</option></select>
+          </div>
+          <div class="field"><label>Terço</label>
+            <select id="noduloTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_noduloCampos2">
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="noduloTamanho" placeholder="cm"></div>
+          <div class="field"><label>Captação de fluxo ao Doppler</label>
+            <select id="noduloCaptacao"><option value="sem">Sem captação periférica</option><option value="discreta">Discreta captação periférica</option></select>
+          </div>
+          <div class="field"><label>TI-RADS</label>
+            <select id="noduloTirads"><option value="2">Categoria 2</option><option value="3">Categoria 3</option><option value="4">Categoria 4</option><option value="5">Categoria 5</option></select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_cistoColoide1Campos">
+          <div class="field"><label>Lobo</label>
+            <select id="cistoLobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
+          </div>
+          <div class="field"><label>Terço</label>
+            <select id="cistoTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cistoTamanho" placeholder="mm"></div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_cistoColoideVariosCampos">
+          <div class="field"><label>Lobo</label>
+            <select id="cistosLobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
+          </div>
+          <div class="field"><label>Terço do maior</label>
+            <select id="cistosTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+          <div class="field"><label>Menor</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cistosMin" placeholder="mm"></div>
+          <div class="field"><label>Maior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cistosMax" placeholder="mm"></div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_hashimotoCampos">
+          <div class="field"><label>Volume e vascularização</label>
+            <select id="hashimotoVolVasc"><option value="normais">Normais</option><option value="aumentados">Aumentados</option></select>
+          </div>
+        </div>
         <div class="field conditional" id="wrap_parenquimaDescricao">
           <label>Descreva o achado</label>
-          <textarea id="parenquimaDescricao" rows="2" placeholder="ex: nódulo sólido, hipoecogênico, contornos regulares, localizado no terço médio do lobo direito, medindo..."></textarea>
+          <textarea id="parenquimaDescricao" rows="2" placeholder="para achados fora das opções acima — nódulo, cisto colóide (único ou múltiplo) e Hashimoto já têm campo próprio"></textarea>
         </div>
         <hr class="sep">
         <div class="field-row">
           <div class="field"><label>Demais estruturas cervicais</label>
             <select id="cervicaisAspecto">
               <option value="normal">Sem alterações (traqueia em posição anatômica)</option>
+              <option value="linfonodo">Linfonodo reacional</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_linfonodoCampos">
+          <div class="field"><label>Nível cervical</label>
+            <select id="linfonodoNivel">
+              <option value="I">I</option><option value="II">II</option><option value="III">III</option>
+              <option value="IV">IV</option><option value="V">V</option><option value="VI">VI</option>
+            </select>
+          </div>
+          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="linfonodoTamanho" placeholder="cm"></div>
         </div>
         <div class="field conditional" id="wrap_cervicaisDescricao">
           <label>Descreva o achado</label>
@@ -984,7 +1047,12 @@ if(typeof criarMotorLaudo !== 'function'){
   // ---------- Frases da impressão diagnóstica ----------
   const PHRASE_DEFAULTS = {
     impNormal: 'Tireóide sem alterações ao exame ecográfico.',
-    impDopplerNormal: 'Estudo Doppler dentro da normalidade.'
+    impDopplerNormal: 'Estudo Doppler dentro da normalidade.',
+    impNodulo: 'Nódulo sólido no lobo {LADO} (TI-RADS – Cat. {TIRADS}).',
+    impCistoColoide1: 'Cisto colóide no lobo {LADO}.',
+    impCistoColoideVarios: 'Cistos colóides no lobo {LADO}.',
+    impHashimoto: 'Tireoide de volume e vascularização {VOLVASC} com textura heterogênea, sugestiva de tireoidite crônica.',
+    impLinfonodo: 'Linfonodo reacional em nível cervical {NIVEL}.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
 
@@ -1004,8 +1072,12 @@ if(typeof criarMotorLaudo !== 'function'){
       if(el) el.value = PHRASES[key];
     });
   }
-  function phrase(key){
-    return PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+  function phrase(key, repl){
+    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    if(repl){
+      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
+    }
+    return t;
   }
   $('btnPhrases').addEventListener('click', ()=>{
     $('phrasesPanel').classList.toggle('show');
@@ -1052,9 +1124,22 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   }
   wireAspecto('contornosAspecto', 'wrap_contornosDescricao');
-  wireAspecto('parenquimaAspecto', 'wrap_parenquimaDescricao');
-  wireAspecto('cervicaisAspecto', 'wrap_cervicaisDescricao');
   wireAspecto('vascularizacaoAspecto', 'wrap_vascularizacaoDescricao');
+
+  $('parenquimaAspecto').addEventListener('change', e=>{
+    const val = e.target.value;
+    toggle('wrap_noduloCampos', val==='nodulo');
+    toggle('wrap_noduloCampos2', val==='nodulo');
+    toggle('wrap_cistoColoide1Campos', val==='cistoColoide1');
+    toggle('wrap_cistoColoideVariosCampos', val==='cistoColoideVarios');
+    toggle('wrap_hashimotoCampos', val==='hashimoto');
+    toggle('wrap_parenquimaDescricao', val==='alterado');
+  });
+  $('cervicaisAspecto').addEventListener('change', e=>{
+    const val = e.target.value;
+    toggle('wrap_linfonodoCampos', val==='linfonodo');
+    toggle('wrap_cervicaisDescricao', val==='alterado');
+  });
 
   function flag(id, isAbnormal){
     const el = $(id), note = $('flag_'+id);
@@ -1075,11 +1160,18 @@ if(typeof criarMotorLaudo !== 'function'){
   // Como nos demais laudos, não há detecção automática de achado alterado —
   // a médica reescreve o item marcado, à mão, direto no laudo, quando o
   // achado for outro que não a normalidade.
-  function buildImpressao(){
-    return [
+  function buildImpressao(state){
+    const items = [
       {key:'normal', label:phrase('impNormal'), auto:true},
       {key:'dopplerNormal', label:phrase('impDopplerNormal'), auto:true}
     ];
+    if(state.parenquimaImpressaoHD){
+      items.push({key:'parenquima-achado', label: state.parenquimaImpressaoHD, auto:true});
+    }
+    if(state.linfonodoImpressaoHD){
+      items.push({key:'linfonodo-achado', label: state.linfonodoImpressaoHD, auto:true});
+    }
+    return items;
   }
 
   let checkedState = {};
@@ -1150,16 +1242,51 @@ if(typeof criarMotorLaudo !== 'function'){
     const parenquimaAspecto = v('parenquimaAspecto') || 'normal';
     const parenquimaDescricao = vNoDot('parenquimaDescricao');
     reqIf('parenquimaDescricao', parenquimaAspecto==='alterado');
-    const parenquimaTexto = (parenquimaAspecto==='alterado' && parenquimaDescricao)
-      ? escapeHtml(parenquimaDescricao)+'.'
-      : 'Parênquima de textura homogênea, não se identificando nódulos sólidos ou císticos.';
+    let parenquimaTexto = 'Parênquima de textura homogênea, não se identificando nódulos sólidos ou císticos.';
+    let parenquimaImpressaoHD = null;
+    if(parenquimaAspecto==='nodulo'){
+      const lobo = v('noduloLobo') || 'direito';
+      const ecogenicidade = v('noduloEcogenicidade') || 'ecogênico';
+      const terco = v('noduloTerco') || 'superior';
+      const tamanho = blankOrValue(req('noduloTamanho'));
+      const captacao = v('noduloCaptacao')==='discreta' ? 'com discreta captação de fluxo periférica ao estudo Doppler' : 'sem captação de fluxo periférica ao estudo Doppler';
+      const tirads = v('noduloTirads') || '3';
+      parenquimaTexto = 'Nódulo sólido, '+ecogenicidade+', bem delimitado, paralelo a pele, contornos regulares, sem calcificações, sem halo periférico, '+captacao+', localizado no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' cm (TI-RADS – Cat. '+tirads+').';
+      parenquimaImpressaoHD = phrase('impNodulo', {LADO:'à '+(lobo==='direito'?'direita':'esquerda'), TIRADS:tirads});
+    } else if(parenquimaAspecto==='cistoColoide1'){
+      const lobo = v('cistoLobo') || 'direito';
+      const terco = v('cistoTerco') || 'superior';
+      const tamanho = blankOrValue(req('cistoTamanho'));
+      parenquimaTexto = 'Observa-se uma imagem cística, de paredes finas e regulares, com foco ecogênico em seu interior, que condiciona reverberação acústica posterior, localizada no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' mm, sugestiva de cisto colóide.';
+      parenquimaImpressaoHD = phrase('impCistoColoide1', {LADO:'à '+(lobo==='direito'?'direita':'esquerda')});
+    } else if(parenquimaAspecto==='cistoColoideVarios'){
+      const lobo = v('cistosLobo') || 'direito';
+      const terco = v('cistosTerco') || 'superior';
+      const min = blankOrValue(req('cistosMin'));
+      const max = blankOrValue(req('cistosMax'));
+      parenquimaTexto = 'Observam-se ao menos três imagens císticas, de paredes finas e regulares, com foco ecogênico em seu interior, que condicionam reverberação acústica posterior, localizadas no lobo '+lobo+', terço '+terco+', medindo entre '+span(min)+' e '+span(max)+' mm, sugestivas de cistos colóides.';
+      parenquimaImpressaoHD = phrase('impCistoColoideVarios', {LADO:'à '+(lobo==='direito'?'direita':'esquerda')});
+    } else if(parenquimaAspecto==='hashimoto'){
+      const volVasc = v('hashimotoVolVasc') || 'normais';
+      parenquimaTexto = 'Parênquima de textura difusamente heterogênea apresentando redução da ecogenicidade associada a septações ecogênicas de permeio e pseudonodulações.';
+      parenquimaImpressaoHD = phrase('impHashimoto', {VOLVASC:volVasc});
+    } else if(parenquimaAspecto==='alterado' && parenquimaDescricao){
+      parenquimaTexto = escapeHtml(parenquimaDescricao)+'.';
+    }
 
     const cervicaisAspecto = v('cervicaisAspecto') || 'normal';
     const cervicaisDescricao = vNoDot('cervicaisDescricao');
     reqIf('cervicaisDescricao', cervicaisAspecto==='alterado');
-    const cervicaisTexto = (cervicaisAspecto==='alterado' && cervicaisDescricao)
-      ? escapeHtml(cervicaisDescricao)+'.'
-      : 'Demais estruturas cervicais sem alterações à ecografia. Traqueia em posição anatômica.';
+    let cervicaisTexto = 'Demais estruturas cervicais sem alterações à ecografia. Traqueia em posição anatômica.';
+    let linfonodoImpressaoHD = null;
+    if(cervicaisAspecto==='linfonodo'){
+      const nivel = v('linfonodoNivel') || 'I';
+      const tamanho = blankOrValue(req('linfonodoTamanho'));
+      cervicaisTexto += ' Nota-se também, imagem nodular, fusiforme, globosa, hipoecogênica, com hilo central ecogênico, bem delimitada, localizada em nível cervical '+nivel+', medindo '+span(tamanho)+' cm.';
+      linfonodoImpressaoHD = phrase('impLinfonodo', {NIVEL:nivel});
+    } else if(cervicaisAspecto==='alterado' && cervicaisDescricao){
+      cervicaisTexto = escapeHtml(cervicaisDescricao)+'.';
+    }
 
     // ----- Dimensões -----
     req('loboDLong'); req('loboDAP'); req('loboDTransv');
@@ -1206,7 +1333,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
 
     // ----- Impressão -----
-    const impressaoItems = buildImpressao();
+    const impressaoItems = buildImpressao({parenquimaImpressaoHD, linfonodoImpressaoHD});
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
 
