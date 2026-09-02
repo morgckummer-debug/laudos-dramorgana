@@ -105,6 +105,8 @@
     border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);
   }
   .field input.flag-abnormal{border-color:var(--amber);background:var(--amber-light);}
+  .field input[readonly]{background:#efe9ef;color:var(--ink-soft);cursor:default;}
+  .field input[readonly].flag-abnormal{background:var(--amber-light);color:var(--amber);}
   .field input.format-error{border-color:#B4432F;background:#FBEAE6;}
   .field input.field-missing{border-color:#B4432F;}
   .format-warning{font-size:11px;color:#B4432F;font-weight:600;display:block;margin-top:3px;}
@@ -475,7 +477,7 @@
     <div class="card">
       <div class="card-head"><h2>Tireóide — Dimensões</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">O volume de cada porção é digitado direto da tela do aparelho — não é recalculado aqui, para sair idêntico às fotos do exame.</p>
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">O volume do lobo direito, do lobo esquerdo e do istmo é digitado direto da tela do aparelho — não é recalculado aqui, para sair idêntico às fotos do exame. Só o volume total soma os dois lobos já digitados.</p>
         <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Lobo direito</p>
         <div class="field-row field-row-compact">
           <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDLong" placeholder="cm"></div>
@@ -501,8 +503,8 @@
         </div>
         <hr class="sep">
         <div class="field-row field-row-compact">
-          <div class="field"><label>Volume total da glândula</label>
-            <input type="text" inputmode="decimal" data-decimals="2" data-maxint="2" id="volumeTotal" placeholder="cm³">
+          <div class="field"><label>Volume total da glândula (automático: lobo direito + lobo esquerdo)</label>
+            <input type="text" id="volumeTotal" placeholder="cm³" readonly>
             <span class="vr">VR 6,0 a 15,0 cm³</span>
             <span class="flag-note" id="flag_volumeTotal">Fora do valor de referência</span>
           </div>
@@ -1154,6 +1156,8 @@ if(typeof criarMotorLaudo !== 'function'){
     if(note) note.classList.toggle('show', !!isAbnormal);
   }
 
+  function fmtDecimal(n){ return n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
 
   // ---------- Build impression checklist ----------
   // Como nos demais laudos, não há detecção automática de achado alterado —
@@ -1288,15 +1292,21 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     // ----- Dimensões -----
-    // O volume de cada porção vem digitado direto da tela do aparelho — não é
-    // recalculado aqui, para sair idêntico às fotos do exame (pedido da Dra.
-    // Morgana: o app calculava pela fórmula do elipsoide e o valor podia
-    // divergir do que o aparelho mostra).
+    // O volume de cada lobo e do istmo vem digitado direto da tela do
+    // aparelho — não é recalculado aqui, para sair idêntico às fotos do
+    // exame (pedido da Dra. Morgana: o app calculava pela fórmula do
+    // elipsoide e o valor podia divergir do que o aparelho mostra). Já o
+    // volume total é só a soma dos dois lobos já digitados, então esse
+    // continua automático — não obriga a repetir uma conta que o próprio
+    // formulário já tem os dois números para fazer.
     req('loboDLong'); req('loboDAP'); req('loboDTransv'); req('loboDVolume');
     req('loboELong'); req('loboEAP'); req('loboETransv'); req('loboEVolume');
     req('istmoLong'); req('istmoAP'); req('istmoTransv'); req('istmoVolume');
 
-    const volumeTotalNum = num('volumeTotal'); req('volumeTotal');
+    const loboDVolumeNum = num('loboDVolume');
+    const loboEVolumeNum = num('loboEVolume');
+    const volumeTotalNum = (loboDVolumeNum!==null && loboEVolumeNum!==null) ? (loboDVolumeNum + loboEVolumeNum) : null;
+    $('volumeTotal').value = volumeTotalNum!==null ? fmtDecimal(volumeTotalNum) : '';
     flag('volumeTotal', volumeTotalNum!==null && (volumeTotalNum < VOLUME_TOTAL_MIN || volumeTotalNum > VOLUME_TOTAL_MAX));
 
     // ----- Doppler -----
