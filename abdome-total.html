@@ -451,6 +451,9 @@
           <div class="field"><label id="lbl_vesiculaCalculoTamanho">Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vesiculaCalculoTamanho" placeholder="mm"></div>
         </div>
         <div class="field-row field-row-compact conditional" id="wrap_vesiculaPolipoCampos">
+          <div class="field"><label>Parede</label>
+            <select id="vesiculaPolipoParede"><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="infundibular">Infundibular</option></select>
+          </div>
           <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vesiculaPolipoTamanho" placeholder="mm"></div>
         </div>
         <div class="field-row field-row-compact conditional" id="wrap_vesiculaColecistiteCampos">
@@ -1586,6 +1589,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const hepatocoledocoTexto = blankOrValue(req('hepatocoledoco'));
     const vesiculaCalculoQtd = v('vesiculaCalculoQtd') || '1';
     const vesiculaCalculoTamanhoTexto = blankOrValue(reqIf('vesiculaCalculoTamanho', vesiculaAspecto==='calculo'));
+    const vesiculaPolipoParede = v('vesiculaPolipoParede') || 'anterior';
     const vesiculaPolipoTamanhoTexto = blankOrValue(reqIf('vesiculaPolipoTamanho', vesiculaAspecto==='polipo'));
     const vesiculaColecistiteEspessuraNum = num('vesiculaColecistiteEspessura');
     reqIf('vesiculaColecistiteEspessura', vesiculaAspecto==='colecistite');
@@ -1595,7 +1599,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(vesiculaAspecto==='calculo'){
       vesiculaImpressaoHD = 'Colecistolitíase.';
     } else if(vesiculaAspecto==='polipo'){
-      vesiculaImpressaoHD = 'Pólipo vesicular.';
+      vesiculaImpressaoHD = 'Imagem ecogênica em vesícula biliar sugestiva de pólipo.';
     } else if(vesiculaAspecto==='colecistite'){
       vesiculaImpressaoHD = 'Colecistite.';
     }
@@ -1849,7 +1853,7 @@ if(typeof criarMotorLaudo !== 'function'){
         : 'Em seu interior, observa-se imagem ovalada hiperecogênica, que condiciona sombra acústica posterior, móvel às mudanças de decúbito, medindo '+span(vesiculaCalculoTamanhoTexto)+' mm.';
       vesiculaTextoBase = 'Vesícula de volume normal, forma anatômica, paredes finas e conteúdo anecoico. '+vesiculaCalculoTexto+' Ausência de dilatação das vias biliares intra e extra-hepáticas.';
     } else if(vesiculaAspecto==='polipo'){
-      vesiculaTextoBase = 'Vesícula de volume normal, forma anatômica, paredes finas e conteúdo anecoico. Ausência de cálculos no seu interior. Nota-se imagem sólida, ecogênica, séssil, sem sombra acústica posterior e sem mobilidade às mudanças de decúbito, aderida à parede vesicular, medindo '+span(vesiculaPolipoTamanhoTexto)+' mm. Ausência de dilatação das vias biliares intra e extra-hepáticas.';
+      vesiculaTextoBase = 'Vesícula de volume normal, forma anatômica, paredes finas e conteúdo anecoico. Ausência de cálculos no seu interior. Nota-se imagem sólida, ecogênica, séssil, sem sombra acústica posterior e sem mobilidade às mudanças de decúbito, aderida à parede '+vesiculaPolipoParede+', medindo '+span(vesiculaPolipoTamanhoTexto)+' mm. Ausência de dilatação das vias biliares intra e extra-hepáticas.';
     } else if(vesiculaAspecto==='colecistite'){
       vesiculaTextoBase = 'Vesícula de volume normal, forma anatômica, paredes espessadas, medindo '+span(vesiculaColecistiteEspessuraTexto)+' mm (VR até 3,0 mm), e conteúdo anecoico. Ausência de cálculos no seu interior. Ausência de dilatação das vias biliares intra e extra-hepáticas.';
     } else if(vesiculaAspecto==='alterado' && vesiculaDescricao){
