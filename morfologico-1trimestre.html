@@ -163,7 +163,7 @@
     background:#FEFCFE;border:1px solid var(--line);border-radius:4px;
     box-shadow:var(--shadow);
     padding:34px 36px 40px;
-    font-family:'Times New Roman', Times, serif;font-size:12pt;line-height:1.15;color:var(--ink);
+    font-family:'Times New Roman', Times, serif;font-size:11.5pt;line-height:1.15;color:var(--ink);
     max-height:calc(100vh - 150px);overflow-y:auto;
     width:calc(17cm + 72px);max-width:100%;margin:0 auto;
   }
@@ -211,7 +211,7 @@
   .paper h4.sec{
     text-decoration:underline;font-size:0.8125em;letter-spacing:.4px;margin:1.230769em 0 0.615385em;font-weight:600;color:var(--rose-dark);
   }
-  .paper p.linha{margin:0 0 var(--linha-margin, 1em);}
+  .paper p.linha{margin:0 0 var(--linha-margin, 1em);text-align:justify;}
   .paper p.linha strong{font-weight:700;}
   .paper p.linha.tight{margin-bottom:0.125em;}
   .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
@@ -248,7 +248,19 @@
      no ponto mais baixo da folha, e não logo depois da última imagem. */
   .anexo-label{font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;color:var(--ink-soft);text-align:center;text-transform:uppercase;letter-spacing:.3px;margin:26px 0 8px;}
   .anexo-table{margin-top:0;}
-  .anexo-paper{display:flex;flex-direction:column;min-height:24.2cm;}
+  /* Fixa (não só min-height) e corta o que passar: sem isso, uma imagem colada
+     mais alta que o espaço disponível empurrava a assinatura — e o próprio
+     rodapé reservado de 2cm (ver .paper-table tfoot td) — para fora da folha,
+     em vez de simplesmente não caber. As imagens são ajustadas para caber
+     automaticamente ao colar (ver anexoAjustarImagem()); isto aqui é a
+     garantia final de que a margem inferior nunca é invadida.
+     max-height precisa ser repetido aqui: sem isso, o max-height:calc(100vh -
+     150px) da regra genérica .paper (pensado só para o scroll do #paper
+     principal na tela) ganha da altura fixa em telas mais baixas — a folha de
+     anexo encolhia antes da hora, o aviso de "não coube" disparava sem
+     motivo, e o ajuste automático da imagem calculava com um orçamento menor
+     que os 24,2cm reais da impressão. */
+  .anexo-paper{display:flex;flex-direction:column;height:24.2cm;max-height:24.2cm;overflow:hidden;}
   .anexo-header{flex:0 0 auto;margin-bottom:0.75em;}
   .anexo-header img{max-height:52px;width:auto;display:block;}
   #anexoImgs{flex:1 0 auto;min-height:160px;}
@@ -277,6 +289,14 @@
   .anexo-paper .assinatura{margin-top:auto;padding-top:1em;}
   .anexo-actions{display:none;}
   .anexo-actions.show{display:flex;}
+  /* Só aparece na tela, nunca na impressão (ver @media print): avisa quando o
+     que foi colado não coube nem depois do ajuste automático — sinal de que
+     sobrou conteúdo cortado por .anexo-paper{overflow:hidden}. */
+  .anexo-overflow-warning{
+    display:none;background:#B4432F;color:#fff;font-weight:600;font-size:12.5px;
+    padding:10px 14px;border-radius:10px;margin:10px 0 0;
+  }
+  .anexo-overflow-warning.show{display:block;}
 
   .preview-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
   .preview-actions button{flex:1;min-width:110px;}
@@ -347,7 +367,7 @@
     margin: 0;
   }
   @media print{
-    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note, .anexo-label{display:none !important;}
+    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note, .anexo-label, .anexo-overflow-warning{display:none !important;}
     /* Sem imagem colada, a página de anexo não existe para a impressão/PDF —
        um laudo que não usa isso não ganha uma folha em branco a mais. Com
        imagem, ela sempre começa numa folha nova, depois de todo o resto. */
@@ -698,8 +718,8 @@
         <select id="fmtFontSize" title="Tamanho da fonte">
           <option value="10.5">10,5 pt</option>
           <option value="11">11 pt</option>
-          <option value="11.5">11,5 pt</option>
-          <option value="12" selected>12 pt (padrão)</option>
+          <option value="11.5" selected>11,5 pt (padrão)</option>
+          <option value="12">12 pt</option>
           <option value="12.5">12,5 pt</option>
           <option value="13">13 pt</option>
           <option value="14">14 pt</option>
@@ -711,7 +731,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.09.02-a</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.09.02-b</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -737,6 +757,7 @@
         </div>
       </td></tr></tbody>
     </table>
+    <div class="anexo-overflow-warning" id="anexoOverflowWarning">A imagem colada não coube inteira nesta página — arraste o canto para reduzir, ou remova e cole uma versão menor.</div>
     <div class="preview-actions anexo-actions" id="anexoActions">
       <button type="button" class="btn-clear" id="btnRemoverAnexo">Remover imagem(ns) da FMF</button>
     </div>
@@ -989,10 +1010,13 @@ if(typeof criarMotorLaudo !== 'function'){
     });
     (async function initFontSizePrefs(){
       const savedPaper = await kvStore.get('paper-font-size');
-      if(savedPaper){
-        fontSizeSel.value = savedPaper;
-        paperEl.style.fontSize = savedPaper + 'pt';
-      }
+      // Sempre grava o tamanho como estilo inline (o padrão 11,5pt incluído)
+      // — não só quando salvo — para o cálculo de autoFitPages()/paginateForPrint()
+      // no laudo-core.js (que lê paperEl.style.fontSize, não o CSS) partir do
+      // tamanho real, e não do fallback de 12pt do motor.
+      const paperSize = savedPaper || '11.5';
+      fontSizeSel.value = paperSize;
+      paperEl.style.fontSize = paperSize + 'pt';
       const savedTitle = await kvStore.get('title-font-size');
       if(savedTitle){
         titleFontSize = savedTitle;
@@ -1141,13 +1165,64 @@ if(typeof criarMotorLaudo !== 'function'){
     const temImagem = !!anexoImgsEl.querySelector('img');
     $('anexoTable').classList.toggle('has-image', temImagem);
     toggle('anexoActions', temImagem);
+    // .anexo-paper tem altura fixa e overflow:hidden (ver CSS) — se o
+    // conteúdo colado ainda estourar mesmo depois do ajuste automático de
+    // anexoAjustarImagem() (ex.: várias imagens já ocupando o espaço todo),
+    // isto aqui não empurra mais a margem inferior, só corta em silêncio.
+    // O aviso é o que impede o corte de passar despercebido.
+    const estourou = paperAnexoEl.scrollHeight > paperAnexoEl.clientHeight + 1;
+    toggle('anexoOverflowWarning', estourou);
+  }
+
+  // Calcula quanto espaço vertical ainda sobra dentro da folha de anexo (que
+  // tem altura fixa — ver .anexo-paper no CSS) para uma imagem, descontando
+  // cabeçalho, assinatura e as demais imagens já coladas. `excluirWrap` tira
+  // do cálculo o próprio wrap que está sendo ajustado.
+  function anexoAlturaDisponivelPx(excluirWrap){
+    // clientHeight inclui o padding do próprio .anexo-paper (34px em cima,
+    // 40px embaixo, vindos da regra genérica .paper) — na tela, quem soma
+    // nesse padding é o próprio elemento, não os filhos, então tem de sair
+    // do orçamento aqui. Na impressão esse padding é zerado (ver .paper no
+    // @media print), então sobra ainda mais espaço lá — o cálculo aqui, feito
+    // sempre na tela (é onde se cola), fica do lado seguro dos dois casos.
+    const paperStyle = getComputedStyle(paperAnexoEl);
+    let usada = (parseFloat(paperStyle.paddingTop) || 0) + (parseFloat(paperStyle.paddingBottom) || 0);
+    const headerEl = paperAnexoEl.querySelector('.anexo-header');
+    if(headerEl && headerEl.style.display !== 'none'){
+      const r = headerEl.getBoundingClientRect();
+      usada += r.height + (parseFloat(getComputedStyle(headerEl).marginBottom) || 0);
+    }
+    const assinaturaEl = $('anexoAssinatura');
+    if(assinaturaEl){
+      const r = assinaturaEl.getBoundingClientRect();
+      usada += r.height + (parseFloat(getComputedStyle(assinaturaEl).paddingTop) || 0);
+    }
+    Array.from(anexoImgsEl.children).forEach(wrap=>{
+      if(wrap === excluirWrap) return;
+      const r = wrap.getBoundingClientRect();
+      usada += r.height + (parseFloat(getComputedStyle(wrap).marginBottom) || 0);
+    });
+    return paperAnexoEl.clientHeight - usada;
+  }
+
+  // Encolhe a imagem recém-colada (só a largura — a altura acompanha sozinha,
+  // mesma lógica do arraste manual do canto) até caber no espaço que sobrou
+  // na página, para a médica não precisar notar e arrastar toda vez que o
+  // print da tela dela vier mais alto que o normal.
+  function anexoAjustarImagem(wrap){
+    const img = wrap.querySelector('img');
+    const disponivel = anexoAlturaDisponivelPx(wrap);
+    const alturaAtual = img.getBoundingClientRect().height;
+    if(alturaAtual > disponivel && disponivel > 40){
+      const larguraAtual = img.getBoundingClientRect().width;
+      img.style.width = Math.max(60, larguraAtual * (disponivel / alturaAtual)) + 'px';
+    }
   }
 
   function inserirImagemAnexo(dataUrl){
     const wrap = document.createElement('div');
     wrap.className = 'anexo-img-wrap';
     const img = document.createElement('img');
-    img.src = dataUrl;
     const handle = document.createElement('span');
     handle.className = 'anexo-resize-handle';
     handle.setAttribute('contenteditable', 'false');
@@ -1155,8 +1230,15 @@ if(typeof criarMotorLaudo !== 'function'){
     wrap.appendChild(img);
     wrap.appendChild(handle);
     anexoImgsEl.appendChild(wrap);
-    updateAnexoVisibility();
-    draftSchedule();
+    // O ajuste de tamanho precisa da altura renderizada da imagem, que só
+    // existe depois de carregada — por isso espera o onload em vez de medir
+    // logo após o appendChild (o <img> ainda estaria com altura 0 ali).
+    img.onload = () => {
+      anexoAjustarImagem(wrap);
+      updateAnexoVisibility();
+      draftSchedule();
+    };
+    img.src = dataUrl;
   }
 
   // Reduzir a imagem colada arrastando o canto — igual ao Word. Clicar numa
@@ -2423,7 +2505,7 @@ if(typeof criarMotorLaudo !== 'function'){
     });
 
     const lineHeight = $('paper').style.lineHeight || '1.15';
-    const fontSize = $('paper').style.fontSize || '12pt';
+    const fontSize = $('paper').style.fontSize || '11.5pt';
     let bodyHtml = clone.innerHTML;
     // A página de anexo (logo da FMF, imagem colada do cálculo de risco e
     // assinatura) fica de fora do #paper — só entra no Word se a médica
@@ -2700,6 +2782,17 @@ if(typeof criarMotorLaudo !== 'function'){
     // abaixo, a partir do médico executante atual.
     anexoImgsEl.innerHTML = typeof d.anexoFmf === 'string' ? d.anexoFmf : '';
     updateAnexoVisibility();
+    // O aviso de "não coube" depende da altura já carregada das imagens
+    // restauradas — como vieram de volta via innerHTML (não pelo onload do
+    // inserirImagemAnexo), confere de novo assim que elas terminarem de
+    // carregar, para o aviso não ficar errado até a próxima interação.
+    const imgsRestauradas = Array.from(anexoImgsEl.querySelectorAll('img'));
+    if(imgsRestauradas.length){
+      Promise.all(imgsRestauradas.map(img => img.complete
+        ? Promise.resolve()
+        : new Promise(res => { img.onload = img.onerror = res; })
+      )).then(updateAnexoVisibility);
+    }
     const note = $('draftNote');
     if(note){
       $('draftNoteText').textContent = 'Rascunho recuperado — este laudo voltou como estava '
