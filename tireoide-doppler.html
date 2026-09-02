@@ -176,9 +176,11 @@
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper table.medidas{border-collapse:collapse;margin:0 0 var(--linha-margin, 16px);width:100%;}
-  .paper table.medidas th, .paper table.medidas td{border:1px solid #2b2b2e;padding:4px 8px;text-align:center;}
-  .paper table.medidas th{font-weight:700;}
-  .paper table.medidas td:first-child, .paper table.medidas th:first-child{text-align:left;font-weight:700;}
+  .paper table.medidas th{border-top:1.25px solid #2b2b2e;border-bottom:0.75px solid #2b2b2e;padding:5px 12px 7px;text-align:center;font-weight:700;}
+  .paper table.medidas td{padding:6px 12px;text-align:center;}
+  .paper table.medidas td:first-child, .paper table.medidas th:first-child{text-align:left;}
+  .paper table.medidas td:first-child{font-weight:700;}
+  .paper table.medidas tbody tr:last-child td{border-bottom:1.25px solid #2b2b2e;}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
   .paper ul.impressao li{margin-bottom:2px;font-weight:700;text-align:justify;padding-left:1em;text-indent:-1em;}
   .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
@@ -1434,8 +1436,8 @@ if(typeof criarMotorLaudo !== 'function'){
     ['h4.sec', ['font-size','line-height'].concat(MARGINS)],
     ['p.linha', ['font-size','line-height'].concat(MARGINS)],
     ['table.medidas', ['font-size','line-height'].concat(MARGINS)],
-    ['table.medidas td', ['border','padding','text-align','font-weight']],
-    ['table.medidas th', ['border','padding','text-align','font-weight']],
+    ['table.medidas td', ['padding','text-align','font-weight']],
+    ['table.medidas th', ['padding','text-align','font-weight']],
     ['.id-card-row', ['font-size','line-height']],
     ['.footnote', ['font-size','line-height']],
     ['.assinatura', ['line-height']],
@@ -1477,9 +1479,10 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
-    clone.querySelectorAll('table.medidas th, table.medidas td').forEach(el=>{ el.style.border='1px solid #2b2b2e'; el.style.padding='4px 8px'; el.style.textAlign='center'; });
-    clone.querySelectorAll('table.medidas th, table.medidas td:first-child').forEach(el=>{ el.style.fontWeight='700'; });
-    clone.querySelectorAll('table.medidas td:first-child').forEach(el=>{ el.style.textAlign='left'; });
+    clone.querySelectorAll('table.medidas th').forEach(el=>{ el.style.borderTop='1.25px solid #2b2b2e'; el.style.borderBottom='0.75px solid #2b2b2e'; el.style.padding='5px 12px 7px'; el.style.textAlign='center'; el.style.fontWeight='700'; });
+    clone.querySelectorAll('table.medidas td').forEach(el=>{ el.style.padding='6px 12px'; el.style.textAlign='center'; });
+    clone.querySelectorAll('table.medidas td:first-child').forEach(el=>{ el.style.textAlign='left'; el.style.fontWeight='700'; });
+    clone.querySelectorAll('table.medidas tbody tr:last-child td').forEach(el=>{ el.style.borderBottom='1.25px solid #2b2b2e'; });
     clone.querySelectorAll('table.medidas').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='100%'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
