@@ -209,12 +209,12 @@
   .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
   .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
   .paper table.biometria td:first-child{white-space:nowrap;}
-  /* Linha do líquido amniótico (maior bolsão + ILA): aqui a biometria tem 2
-     pares por linha (DBP/diâmetro cerebelar, CC/prega nucal...), bem mais
-     larga que a do obstetrico.html — alinhar a 1ª célula com a 2ª coluna
-     daquela tabela (como lá) jogaria o "ILA" muito para a direita, longe do
-     "Maior bolsão". Aqui as duas células só usam o padding natural da
-     table.biometria, uma do lado da outra. */
+  /* Linha do líquido amniótico (maior bolsão + ILA): a largura da 1ª célula é
+     recalculada em JS (alignIlaColumns) a partir da própria tabela de
+     parâmetros biométricos do mesmo feto (1ª linha: DBP + diâmetro
+     cerebelar), para o "ILA" cair sempre na mesma coluna vertical do 2º par
+     — não numa posição que varia conforme o tamanho do valor do maior
+     bolsão. Mesma lógica do obstetrico.html. */
   .paper table.grade-la{margin-bottom:var(--linha-margin, 1em);}
   .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;font-size:9.5pt;}
   .paper .blank{color:#B4432F;font-weight:600;}
@@ -1713,6 +1713,35 @@ if(typeof criarMotorLaudo !== 'function'){
   let pendingCount = 0;
   let printAttempted = false;
 
+  // Alinha verticalmente o "ILA" com as colunas de medidas (diâmetro
+  // cerebelar): a 1ª célula da linha "Maior bolsão / ILA" de cada feto ganha
+  // a mesma largura, em px, das duas primeiras colunas (rótulo + valor) da
+  // tabela de parâmetros biométricos daquele mesmo feto — medida ao vivo no
+  // DOM, e não chutada em "em", porque o texto do rótulo ("Maior bolsão:") é
+  // mais longo que "Diâmetro biparietal (DBP):" mais o valor sozinhos e
+  // sairia da conta se calculada à mão. Roda depois de todo render(), já com
+  // os blocos no ar. Mesma função do obstetrico.html.
+  function alignIlaColumns(){
+    $('paper').querySelectorAll('table.grade-la').forEach(laTable=>{
+      const laBlk = laTable.closest('[data-blk^="la-"]');
+      if(!laBlk) return;
+      const sfx = laBlk.getAttribute('data-blk').slice('la'.length);
+      const bioTable = $('paper').querySelector('[data-blk="biometria'+sfx+'"] table.biometria');
+      const bioRow = bioTable && bioTable.rows[0];
+      const laRow = laTable.rows[0];
+      if(!bioRow || !laRow || bioRow.cells.length < 2 || laRow.cells.length < 1) return;
+      const widthPx = bioRow.cells[0].getBoundingClientRect().width + bioRow.cells[1].getBoundingClientRect().width;
+      // Em "em", não em px: a impressão/PDF pode reduzir o tamanho da fonte do
+      // laudo inteiro para caber nas páginas (autoFitPages), e uma largura
+      // fixa em px ficaria descalibrada depois desse encolhimento. Em "em"
+      // ela encolhe junto — biometria e ILA usam a mesma fonte — mantendo o
+      // alinhamento em qualquer tamanho de fonte.
+      const fontSizePx = parseFloat(getComputedStyle(laRow.cells[0]).fontSize) || 16;
+      const widthEm = widthPx / fontSizePx;
+      laRow.cells[0].style.width = widthEm + 'em';
+    });
+  }
+
   function render(){
     if(st.draftRestoring) return;
     // Durante a impressão o #paper está remontado em folhas e será reposto
@@ -1964,6 +1993,12 @@ if(typeof criarMotorLaudo !== 'function'){
 
     let tituloLinha2 = 'DO 2º TRIMESTRE';
     if(isMultiple) tituloLinha2 = (fetos.length >= 3 ? 'TRIGEMELAR' : 'GEMELAR') + ' DO 2º TRIMESTRE';
+    // O título acompanha Doppler e colo uterino quando ativados, na mesma
+    // lógica do obstetrico.html — só que aqui os dois complementos possíveis
+    // são só esses dois (sem PBF).
+    if(dopplerMaterno && colo) tituloLinha2 += ' COM DOPPLER E MEDIDA DO COLO UTERINO';
+    else if(dopplerMaterno) tituloLinha2 += ' COM DOPPLER';
+    else if(colo) tituloLinha2 += ' COM MEDIDA DO COLO UTERINO';
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml('ULTRASSOM OBSTÉTRICO MORFOLÓGICO')+'<br>'+escapeHtml(tituloLinha2)+'</h3>'});
     if(motivoExame){
       blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(motivoExame)+'.</p>'});
@@ -2075,6 +2110,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const titleEl = $('paper').querySelector('h3.doctitle');
       if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
     }
+    alignIlaColumns();
+
     const pill = $('statusPill');
     if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
     else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
