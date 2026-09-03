@@ -2232,12 +2232,13 @@ if(typeof criarMotorLaudo !== 'function'){
   const tituloPagina = document.title;
   window.addEventListener('beforeprint', ()=>{
     document.title = nomeArquivoLaudo();
-    if(printRestore) return;
+    if(st.printPaginated) return; // já paginado para esta impressão — beforeprint pode disparar mais de uma vez
     printRestore = paginateForPrint();
   });
   window.addEventListener('afterprint', ()=>{
     document.title = tituloPagina;
-    if(printRestore){ printRestore(); printRestore = null; }
+    if(printRestore && st.printPaginated){ printRestore(); }
+    printRestore = null;
   });
 
   $('btnPrint').addEventListener('click', ()=>{
