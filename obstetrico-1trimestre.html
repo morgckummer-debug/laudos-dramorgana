@@ -508,7 +508,7 @@
           <div class="field"><label>IG no 1º ultrassom — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
         </div>
         <p class="conditional" id="wrap_exameInfo" style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">Sem DUM nem ultrassom anterior: a idade gestacional usada será a informada em <strong>"Idade gestacional pela USG"</strong>, mais abaixo em Impressões diagnósticas.</p>
-        <p class="conditional" id="wrap_incertaInfo" style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">DUM incerta/ignorada: sem cronologia — não há DPP nem período do Morfológico do 1º Trimestre calculados a partir daqui. A idade gestacional informada em <strong>"Idade gestacional pela USG"</strong>, mais abaixo, entra só na conclusão.</p>
+        <p class="conditional" id="wrap_incertaInfo" style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">DUM incerta/ignorada: sem cronologia no cabeçalho (sem DUM/IG atual ali, sem "DUM estimada"). A DPP e o período do Morfológico do 1º Trimestre são calculados a partir da idade gestacional informada em <strong>"Idade gestacional pela USG"</strong>, mais abaixo, aplicada sobre a data deste exame.</p>
         <div class="field-row conditional" id="wrap_dumEstimada">
           <div class="field"><label>DUM estimada (para lançar na máquina de ultrassom)</label><input type="text" id="dumEstimada" readonly placeholder="calculada automaticamente"></div>
         </div>
@@ -1678,11 +1678,12 @@ if(typeof criarMotorLaudo !== 'function'){
     return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
   }
   function computeDataBase(metodo){
-    // DUM incerta/ignorada: por definição não há data de referência — a IG
-    // informada em "Idade gestacional pela USG" vira só um número solto para
-    // a conclusão, nunca uma cronologia (sem DPP, sem período do Morfológico
-    // do 1º Trimestre, sem "DUM estimada", sem gestação criada na Curva de
-    // Crescimento a partir daqui).
+    // DUM incerta/ignorada: por definição não há data de referência — sem
+    // "DUM estimada" no cabeçalho, sem gestação criada na Curva de
+    // Crescimento a partir daqui. A DPP e o período do Morfológico do 1º
+    // Trimestre continuam calculados a partir da IG informada (ver
+    // dataBaseDppMorfo, em render()) — só não entram nessa data-base
+    // "oficial" que o resto do laudo trataria como cronologia estabelecida.
     if(metodo === 'incerta') return null;
     if(metodo === 'exame'){
       return computeDataBaseFromIG(v('dataExame'), v('impSemanas'), v('impDias'));
@@ -1959,9 +1960,16 @@ if(typeof criarMotorLaudo !== 'function'){
     // Trimestre deixa de ser a DUM (que a própria médica marcou como não
     // confiável) e passa a ser a IG digitada na conclusão do laudo, aplicada
     // sobre a data do exame — igual ao método de datação "1ª Ecografia".
+    // DUM incerta/ignorada segue a mesma lógica: não há cronologia formal
+    // (sem "DUM estimada", sem gestação criada na Curva de Crescimento a
+    // partir daqui — ver computeDataBase), mas a DPP e o período do
+    // Morfológico do 1º Trimestre continuam úteis como estimativa e saem da
+    // mesma IG informada, aplicada sobre a data deste exame.
     // Concordante (ou cronologia por USG/ecografia, onde não há o que
     // discordar) mantém dataBase como já era.
-    const dataBaseDppMorfo = (cronologiaMetodo === 'dum' && dumConcordancia === 'discordante')
+    const usaIgInformadaParaDppMorfo = (cronologiaMetodo === 'dum' && dumConcordancia === 'discordante')
+      || cronologiaMetodo === 'incerta';
+    const dataBaseDppMorfo = usaIgInformadaParaDppMorfo
       ? computeDataBaseFromIG(dataExame, impSemanas, impDias)
       : dataBase;
     const dpp = computeDPP(dataBaseDppMorfo);
