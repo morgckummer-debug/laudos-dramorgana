@@ -769,6 +769,28 @@ function criarMotorLaudo(cfg){
     return JSON.stringify([s.fields, s.uids, s.miomaUids, s.checked, s.overrides, s.paper, s.anexoFmf]);
   }
 
+  // Rede de segurança: se o 'afterprint' do navegador não disparar depois de
+  // abrir a impressão (acontece — algumas combinações de navegador, SO e
+  // driver de impressora não avisam ao fechar o diálogo), o #paper fica preso
+  // em folhas para sempre: `st.printPaginated` nunca volta a `false`, e
+  // render() passa a sair sem fazer nada em toda chamada seguinte. A médica
+  // marca uma caixa a mais na Impressão diagnóstica — a caixa em si marca
+  // normalmente, é um <input> nativo —, mas o laudo na tela (e o que sairia
+  // impresso ou no Word) nunca mais acompanha, em silêncio. Ao voltar o foco
+  // pra aba — fechar o diálogo de impressão é o jeito mais comum disso
+  // acontecer — se ainda estiver preso, desfaz a paginação e redesenha. Se o
+  // 'afterprint' tiver disparado normalmente, st.printPaginated já está
+  // false e isso não faz nada.
+  function recoverFromStuckPrint(){
+    if(!st.printPaginated) return;
+    unwrapPrintPages($('paper'));
+    st.printPaginated = false;
+    st.renderPendingAfterPrint = false;
+    cfg.render();
+  }
+  window.addEventListener('focus', recoverFromStuckPrint);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) recoverFromStuckPrint(); });
+
   return {
     $: $, kvStore: kvStore, st: st, DRAFT_KEY: DRAFT_KEY,
     EXECUTANTES: EXECUTANTES, MARGINS: MARGINS, DRAFT_DEBOUNCE_MS: DRAFT_DEBOUNCE_MS,
