@@ -2098,9 +2098,11 @@ if(typeof criarMotorLaudo !== 'function'){
       +(cronologiaMetodo==='usg'
         ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+'+'+span(blankOrValue(usgDiasDatacaoTxt))+' semanas: '+span(blankOrValue(igAtualTxt))+'</span></div>'
         // DUM incerta/ignorada: sem DUM não há cronologia — a linha do
-        // cabeçalho simplesmente não existe (a IG informada só aparece na
-        // conclusão, como estimativa daquele exame, nunca como data-base).
-        : ehDumSemCronologia(cronologiaMetodo) ? ''
+        // cabeçalho mostra só "DUM: incerta"/"DUM: ignorada", sem IG atual
+        // nenhuma ao lado (a IG informada só aparece na conclusão, como
+        // estimativa daquele exame, nunca como data-base).
+        : ehDumSemCronologia(cronologiaMetodo)
+          ? '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(cronologiaMetodo))+'</span></div>'
         : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>IG atual:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
       +'</div>'});
 
