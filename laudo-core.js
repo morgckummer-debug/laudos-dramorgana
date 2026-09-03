@@ -81,7 +81,11 @@ function criarMotorLaudo(cfg){
 
   const LINE_HEIGHT_STEP = 0.03;
 
-  const MIN_FONT_SIZE = 11;
+  // Piso do ajuste automático de fonte na impressão: por padrão 11pt, mas um
+  // laudo pode elevar esse piso (cfg.minFontSize) quando 11pt fica pequeno
+  // demais para o conteúdo dele — o ajuste automático nunca desce abaixo
+  // disso, mesmo que precise estourar para uma segunda página.
+  const MIN_FONT_SIZE = cfg.minFontSize || 11;
 
   const FONT_SIZE_STEP = 0.5;
 

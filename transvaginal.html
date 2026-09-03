@@ -1098,6 +1098,10 @@ if(typeof criarMotorLaudo !== 'function'){
   // edição só, lá, e vale para os sete. Ver o cabeçalho do laudo-core.js.
   const motor = criarMotorLaudo({
     DRAFT_KEY: 'laudo-rascunho-transvaginal-v1',
+    // 11pt fica pequeno demais pra Dra. Morgana neste laudo: o ajuste
+    // automático de fonte da impressão não pode descer abaixo de 12pt aqui,
+    // mesmo que o laudo precise estourar para uma segunda página.
+    minFontSize: 12,
     render:          () => render(),
     draftSnapshot:   () => draftSnapshot(),
     tituloExame:     () => tituloExame(),
