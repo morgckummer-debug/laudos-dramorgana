@@ -23,6 +23,17 @@
   .cg-toast{position:fixed;bottom:24px;right:24px;background:#2b2b2e;color:#fff;padding:12px 18px;border-radius:12px;font-family:'Inter',sans-serif;font-size:13px;z-index:6000;box-shadow:0 10px 24px rgba(0,0,0,.25);max-width:320px;display:none;}
   .cg-toast.show{display:block;}
   .cg-toast.err{background:#B4432F;}
+  .cg-gpa-box{background:#fff;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);padding:28px 30px;width:420px;max-width:90vw;font-family:'Inter',sans-serif;}
+  .cg-gpa-box h3{font-family:'Poppins',sans-serif;margin:0 0 4px;font-size:17px;color:#6d3263;}
+  .cg-gpa-box p{font-size:12.5px;color:#9a7e95;margin:0 0 16px;}
+  .cg-gpa-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:480px){ .cg-gpa-cards{grid-template-columns:1fr;} }
+  .cg-gpa-card{display:flex;flex-direction:column;align-items:center;gap:10px;background:#f7e9f4;border:2px solid #ebe0e9;border-radius:16px;padding:20px 12px;cursor:pointer;font-family:'Inter',sans-serif;transition:border-color .15s ease, transform .06s ease, background .15s ease;}
+  .cg-gpa-card:hover{border-color:#ae5ba0;background:#f3ddef;transform:translateY(-2px);}
+  .cg-gpa-card:active{transform:scale(.98);}
+  .cg-gpa-card-label{font-size:11.5px;font-weight:600;color:#6d3263;text-transform:uppercase;letter-spacing:.4px;text-align:center;}
+  .cg-gpa-card-value{font-family:'Poppins',sans-serif;font-size:24px;font-weight:700;color:#4d2346;}
+  .cg-gpa-hint{font-size:11.5px;color:#9a7e95;text-align:center;margin-top:14px;}
   :root{
     --bg:#f9f5f9;
     --panel:#ffffff;
@@ -424,6 +435,24 @@
   </div>
 </div>
 <div class="cg-toast" id="cgToast"></div>
+
+<div class="cg-overlay hide" id="cgGpaOverlay">
+  <div class="cg-gpa-box">
+    <h3>Divergência no GPA</h3>
+    <p>O GPA deste laudo é diferente do que já está salvo na Curva de Crescimento para esta gestação. Escolha qual manter.</p>
+    <div class="cg-gpa-cards">
+      <div class="cg-gpa-card" id="cgGpaCardCurva" tabindex="0" role="button">
+        <span class="cg-gpa-card-label">Na Curva de Crescimento</span>
+        <span class="cg-gpa-card-value" id="cgGpaCardCurvaValue">G0 P0 A0</span>
+      </div>
+      <div class="cg-gpa-card" id="cgGpaCardLaudo" tabindex="0" role="button">
+        <span class="cg-gpa-card-label">Neste laudo</span>
+        <span class="cg-gpa-card-value" id="cgGpaCardLaudoValue">G0 P0 A0</span>
+      </div>
+    </div>
+    <div class="cg-gpa-hint">Clique no card com o GPA que deve valer.</div>
+  </div>
+</div>
 
 <div class="topbar">
   <div class="topbar-brand">
@@ -2877,6 +2906,39 @@ if(typeof criarMotorLaudo !== 'function'){
   }
 
   function cgOnlyDigits(s){ return (s||'').replace(/\D/g, ''); }
+
+  function fmtGPA(g,p,a){ return 'G'+(g??'?')+' P'+(p??'?')+' A'+(a??'?'); }
+
+  // Modal de escolha quando o GPA deste laudo diverge do que já está salvo
+  // na Curva de Crescimento — resolve com true (usar o do laudo) ou false
+  // (manter o que já está salvo na Curva).
+  function askGpaDivergencia(curva, laudo){
+    return new Promise(resolve=>{
+      const overlay = $('cgGpaOverlay');
+      const btnCurva = $('cgGpaCardCurva');
+      const btnLaudo = $('cgGpaCardLaudo');
+      $('cgGpaCardCurvaValue').textContent = fmtGPA(curva.gestas, curva.partos, curva.abortos);
+      $('cgGpaCardLaudoValue').textContent = fmtGPA(laudo.gestas, laudo.partos, laudo.abortos);
+      overlay.classList.remove('hide');
+
+      function escolher(usarLaudo){
+        overlay.classList.add('hide');
+        btnCurva.removeEventListener('click', onCurva);
+        btnLaudo.removeEventListener('click', onLaudo);
+        btnCurva.removeEventListener('keydown', onCurvaKey);
+        btnLaudo.removeEventListener('keydown', onLaudoKey);
+        resolve(usarLaudo);
+      }
+      function onCurva(){ escolher(false); }
+      function onLaudo(){ escolher(true); }
+      function onCurvaKey(e){ if(e.key==='Enter' || e.key===' ') onCurva(); }
+      function onLaudoKey(e){ if(e.key==='Enter' || e.key===' ') onLaudo(); }
+      btnCurva.addEventListener('click', onCurva);
+      btnLaudo.addEventListener('click', onLaudo);
+      btnCurva.addEventListener('keydown', onCurvaKey);
+      btnLaudo.addEventListener('keydown', onLaudoKey);
+    });
+  }
   function toISODateLocal(date){
     if(!date) return null;
     const y = date.getFullYear();
@@ -2931,6 +2993,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const uids = fetoUids();
     if(!uids.length){ cgToast('Nenhum feto preenchido.', true); return; }
     const isMultiple = uids.length > 1;
+    const gpaGVal = num('gpaG'), gpaPVal = num('gpaP'), gpaAVal = num('gpaA');
     const pptEspontaneoPrevioVal = $('pptEspontaneoPrevio').checked;
     const progesteronaVaginalEmUsoVal = $('progesteronaVaginalEmUso').checked;
     const cerclagemRealizadaVal = $('cerclagemRealizada').checked;
@@ -2968,7 +3031,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       // 2) Busca a gestação ativa dessa paciente — cria automaticamente se não houver
       let {data: gestacao, error: errGest} = await cgClient
-        .from('gestacoes').select('id, ppt_espontaneo_previo, progesterona_vaginal_em_uso, cerclagem_realizada').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
+        .from('gestacoes').select('id, gestas, partos, abortos, ppt_espontaneo_previo, progesterona_vaginal_em_uso, cerclagem_realizada').eq('paciente_id', paciente.id).eq('status', 'ativa').is('excluido_em', null).maybeSingle();
       if(errGest) throw errGest;
 
       if(!gestacao){
@@ -2986,11 +3049,42 @@ if(typeof criarMotorLaudo !== 'function'){
         const tipoGestacao = uids.length > 2 ? 'trigemelar' : (isMultiple ? 'gemelar' : 'unica');
         const corionicidadeAtual = isMultiple ? v('corionicidade') : null;
         const {data: novaGestacao, error: errCriaGest} = await cgClient
-          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: tipoGestacao, corionicidade: corionicidadeAtual, ppt_espontaneo_previo: pptEspontaneoPrevioVal, progesterona_vaginal_em_uso: progesteronaVaginalEmUsoVal, cerclagem_realizada: cerclagemRealizadaVal, cerclagem_ig_semanas: cerclagemIgSemanasVal})
+          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: tipoGestacao, corionicidade: corionicidadeAtual, gestas: gpaGVal, partos: gpaPVal, abortos: gpaAVal, ppt_espontaneo_previo: pptEspontaneoPrevioVal, progesterona_vaginal_em_uso: progesteronaVaginalEmUsoVal, cerclagem_realizada: cerclagemRealizadaVal, cerclagem_ig_semanas: cerclagemIgSemanasVal})
           .select('id').single();
         if(errCriaGest) throw errCriaGest;
         gestacao = novaGestacao;
       } else {
+        // A gestação já existia na Curva de Crescimento (visita anterior) com
+        // seu próprio G/P/A — se o que está digitado neste laudo diverge do
+        // que já está salvo, pergunta qual dos dois prevalece antes de gravar.
+        // Sem divergência (ex.: o que está salvo é nulo, primeira sincronização
+        // depois desta correção) só preenche, sem popup.
+        const divergeGPA = (gpaGVal!=null && gestacao.gestas!=null && gpaGVal!==gestacao.gestas)
+          || (gpaPVal!=null && gestacao.partos!=null && gpaPVal!==gestacao.partos)
+          || (gpaAVal!=null && gestacao.abortos!=null && gpaAVal!==gestacao.abortos);
+
+        let gestasFinal = gpaGVal!=null ? gpaGVal : gestacao.gestas;
+        let partosFinal = gpaPVal!=null ? gpaPVal : gestacao.partos;
+        let abortosFinal = gpaAVal!=null ? gpaAVal : gestacao.abortos;
+
+        if(divergeGPA){
+          const usarDoLaudo = await askGpaDivergencia(
+            {gestas: gestacao.gestas, partos: gestacao.partos, abortos: gestacao.abortos},
+            {gestas: gpaGVal, partos: gpaPVal, abortos: gpaAVal}
+          );
+          if(!usarDoLaudo){
+            gestasFinal = gestacao.gestas;
+            partosFinal = gestacao.partos;
+            abortosFinal = gestacao.abortos;
+          }
+        }
+
+        if(gestasFinal !== gestacao.gestas || partosFinal !== gestacao.partos || abortosFinal !== gestacao.abortos){
+          const {error: errUpdateGpa} = await cgClient
+            .from('gestacoes').update({gestas: gestasFinal, partos: partosFinal, abortos: abortosFinal}).eq('id', gestacao.id);
+          if(errUpdateGpa) throw errUpdateGpa;
+        }
+
         // Só grava quando marcado aqui e a gestação ainda não tinha o campo
         // registrado — nunca desmarca um "sim" já salvo (pelo app de curvas ou
         // por um laudo anterior) só porque esta tela abriu sem o checkbox marcado.
@@ -3026,6 +3120,7 @@ if(typeof criarMotorLaudo !== 'function'){
           gestacao_id: gestacao.id,
           data_exame: dataExameISO,
           ig_dias_manual: igDias,
+          ccn: num(pre+'CCN'),
           dbp: num(pre+'DBP'),
           cc: num(pre+'CC'),
           ca: num(pre+'CA'),
