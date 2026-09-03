@@ -422,6 +422,7 @@
 
   <h3 style="margin-top:4px;">Bexiga</h3>
   <div class="field" style="margin-bottom:8px;"><label>Normal (nenhum achado marcado)</label><textarea id="ph_bexigaNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Normal — exame transabdominal (bexiga repleta)</label><textarea id="ph_bexigaTransabdominal" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Útero</h3>
@@ -1592,6 +1593,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // ---------- Customizable report phrases (editable by the doctor, no code needed) ----------
   const PHRASE_DEFAULTS = {
     bexigaNormal: 'apresentando-se vazia durante a realização do exame',
+    bexigaTransabdominal: 'apresentando-se repleta durante a realização do exame',
     uteroBase: '{POSICAO}, situado na linha mediana, de configuração anatômica, textura homogênea e contornos regulares, sem identificação de nódulos sólidos.',
     uteroBaseComNodulos: '{POSICAO}, situado na linha mediana, de configuração anatômica e contornos {CONTORNOS}.',
     uteroBaseCalcificacao: '{POSICAO}, situado na linha mediana, de configuração anatômica, textura heterogênea às custas da calcificação das artérias arqueadas, sem identificação de nódulos sólidos.',
@@ -2166,10 +2168,10 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.chkEndometriose){
       items.push({key:'endometriose', label:phraseRaw('impEndometriose', {REGIAO:state.endometrioseRegiao}), auto:true});
     }
-    if(state.chkMobilidadeOvD){
+    if(state.chkMobilidadeOvD && !state.chkTransabdominal){
       items.push({key:'mobilidade-ov-d', label:phraseRaw('impMobilidadeOvarioReduzida', {LADO:'direito'}), auto:true});
     }
-    if(state.chkMobilidadeOvE){
+    if(state.chkMobilidadeOvE && !state.chkTransabdominal){
       items.push({key:'mobilidade-ov-e', label:phraseRaw('impMobilidadeOvarioReduzida', {LADO:'esquerdo'}), auto:true});
     }
 
@@ -2391,7 +2393,7 @@ if(typeof criarMotorLaudo !== 'function'){
       vrOvarioTipo,
       chkHidrossalpinge, hidrossalpingeLado, chkVarizes,
       chkEndometriose, endometrioseLocal, endometrioseRegiao,
-      chkMobilidadeOvD, chkMobilidadeOvE,
+      chkMobilidadeOvD, chkMobilidadeOvE, chkTransabdominal,
       obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
@@ -2428,7 +2430,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const bexigaTexto = (bexigaAspecto==='alterado' && bexigaDescricao)
       ? escapeHtml(bexigaDescricao)
-      : phrase('bexigaNormal');
+      : (chkTransabdominal ? phrase('bexigaTransabdominal') : phrase('bexigaNormal'));
     blocks.push({id:'bexiga', html:'<p class="linha"><strong>Bexiga:</strong> de topografia usual, '+bexigaTexto+'.</p>'});
 
     // "sem identificação de nódulos sólidos" must disappear as soon as mioma is selected —
@@ -2569,20 +2571,24 @@ if(typeof criarMotorLaudo !== 'function'){
       ? phraseRaw('liquidoLivrePresente', {MEDIDAS: span(liquidoLivreMedidas), VOLUME: span(liquidoLivre_Volume)})
       : phrase('liquidoLivreAusente'))+'</p>'});
 
-    // When uterus and both ovaries all have preserved mobility, collapse what
-    // would otherwise be two separate sentences into a single combined one.
-    if(mobilidadeUterina!=='reduzida' && !chkMobilidadeOvD && !chkMobilidadeOvE){
-      blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+phrase('mobilidadeTodosPreservados')+'</p>'});
-    } else {
-      blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+(mobilidadeUterina==='reduzida'
-        ? (phrase('mobilidadeUterinaReduzida')+' '+phrase('slidingSignNegativo'))
-        : phrase('mobilidadeUterinaPreservada'))+'</p>'});
+    // Mobilidade uterina e ovariana só se avalia às manobras bimanuais, por via
+    // transvaginal — sem como fazer essa avaliação por via transabdominal.
+    if(!chkTransabdominal){
+      // When uterus and both ovaries all have preserved mobility, collapse what
+      // would otherwise be two separate sentences into a single combined one.
+      if(mobilidadeUterina!=='reduzida' && !chkMobilidadeOvD && !chkMobilidadeOvE){
+        blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+phrase('mobilidadeTodosPreservados')+'</p>'});
+      } else {
+        blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+(mobilidadeUterina==='reduzida'
+          ? (phrase('mobilidadeUterinaReduzida')+' '+phrase('slidingSignNegativo'))
+          : phrase('mobilidadeUterinaPreservada'))+'</p>'});
 
-      let mobilidadeOvarianaKey = 'mobilidadeOvarianaAmbosPreservados';
-      if(chkMobilidadeOvD && chkMobilidadeOvE) mobilidadeOvarianaKey = 'mobilidadeOvarianaAmbosReduzidos';
-      else if(chkMobilidadeOvD) mobilidadeOvarianaKey = 'mobilidadeOvarianaDireitaReduzida';
-      else if(chkMobilidadeOvE) mobilidadeOvarianaKey = 'mobilidadeOvarianaEsquerdaReduzida';
-      blocks.push({id:'mobilidadeOvariana', html:'<p class="linha">'+phrase(mobilidadeOvarianaKey)+'</p>'});
+        let mobilidadeOvarianaKey = 'mobilidadeOvarianaAmbosPreservados';
+        if(chkMobilidadeOvD && chkMobilidadeOvE) mobilidadeOvarianaKey = 'mobilidadeOvarianaAmbosReduzidos';
+        else if(chkMobilidadeOvD) mobilidadeOvarianaKey = 'mobilidadeOvarianaDireitaReduzida';
+        else if(chkMobilidadeOvE) mobilidadeOvarianaKey = 'mobilidadeOvarianaEsquerdaReduzida';
+        blocks.push({id:'mobilidadeOvariana', html:'<p class="linha">'+phrase(mobilidadeOvarianaKey)+'</p>'});
+      }
     }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
