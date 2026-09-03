@@ -2035,7 +2035,7 @@ if(typeof criarMotorLaudo !== 'function'){
       }
       sacoHtml += '<p class="linha">'+phraseRaw('sacoGestacional', {INSERCAO: s.insercao})+'</p>';
       sacoHtml += '<p class="linha tight"><strong>Parâmetros biométricos:</strong></p>';
-      sacoHtml += '<table class="biometria">'
+      sacoHtml += '<table class="biometria" style="width:100%;">'
         +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
         +'<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
         +(s.vitalidade==='nao_identificado'
