@@ -534,6 +534,9 @@
           <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 28"></div>
           <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
         </div>
+        <div class="field-row conditional" id="wrap_dumEstimada">
+          <div class="field"><label>DUM estimada (para lançar na máquina de ultrassom)</label><input type="text" id="dumEstimada" readonly placeholder="calculada automaticamente"></div>
+        </div>
       </div>
     </div>
 
@@ -1238,9 +1241,11 @@ if(typeof criarMotorLaudo !== 'function'){
   $('cronologiaMetodo').addEventListener('change', e=>{
     toggle('wrap_usgDatacao', e.target.value==='usg');
     toggle('wrap_exameInfo', e.target.value==='exame');
+    toggle('wrap_dumEstimada', e.target.value==='usg' || e.target.value==='exame');
   });
   toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
   toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame');
+  toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg' || $('cronologiaMetodo').value==='exame');
 
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
   // Doppler fetal e PBF são escolhas únicas do laudo, mas seus campos moram
@@ -1508,6 +1513,10 @@ if(typeof criarMotorLaudo !== 'function'){
     return dt;
   }
   function addDays(date, days){ return new Date(date.getTime() + days*MS_DIA); }
+  function formatDateBR(date){
+    const pad = n => String(n).padStart(2,'0');
+    return pad(date.getDate())+'.'+pad(date.getMonth()+1)+'.'+date.getFullYear();
+  }
   function formatIG(totalDays){
     const semanas = Math.floor(totalDays/7);
     const dias = totalDays % 7;
@@ -1832,6 +1841,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
     const igAtualEl = $('igAtual');
     if(igAtualEl) igAtualEl.value = igAtualTxt;
+    // DUM estimada: só faz sentido quando a IG veio de ultrassom (anterior ou
+    // deste próprio exame) — é a data que ela digita na máquina de ultrassom
+    // para a máquina passar a calcular a partir da mesma cronologia. Pelo
+    // método DUM ela já tem a data, não precisa de uma "estimada".
+    const dumEstimadaEl = $('dumEstimada');
+    if(dumEstimadaEl) dumEstimadaEl.value = (cronologiaMetodo!=='dum' && dataBase) ? formatDateBR(dataBase) : '';
     // Datação por ultrassom do 1º trimestre: não há DUM informada, então o
     // cabeçalho troca a linha "DUM: ____" (sempre em branco nesse método)
     // pela frase que explica de onde veio a IG atual, com a mesma IG já
