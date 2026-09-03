@@ -437,7 +437,8 @@
             <select id="noduloMargem">
               <option value="regular">Regular (0 pts)</option>
               <option value="malDefinida">Mal definida (0 pts)</option>
-              <option value="irregular">Lobulada ou irregular (2 pts)</option>
+              <option value="lobulada">Lobulada (2 pts)</option>
+              <option value="irregular">Irregular (2 pts)</option>
               <option value="extratireoidiana">Extensão extratireoidiana (3 pts)</option>
             </select>
           </div>
@@ -1075,7 +1076,8 @@ if(typeof criarMotorLaudo !== 'function'){
   const NODULO_MARGEM_TEXTO = {
     regular: 'margem regular',
     malDefinida: 'margem mal definida',
-    irregular: 'margem lobulada ou irregular',
+    lobulada: 'margem lobulada',
+    irregular: 'margem irregular',
     extratireoidiana: 'margem com extensão extratireoidiana'
   };
   const NODULO_FOCOS_TEXTO = {
@@ -1091,7 +1093,7 @@ if(typeof criarMotorLaudo !== 'function'){
   const NODULO_COMPOSICAO_PONTOS = {solido:2, misto:1, espongiforme:0};
   const NODULO_ECOGENICIDADE_PONTOS = {'hiperecogênico':1, 'isoecogênico':1, 'hipoecogênico':2, 'acentuadamente hipoecogênico':3};
   const NODULO_FORMA_PONTOS = {paralelo:0, naoParalelo:3};
-  const NODULO_MARGEM_PONTOS = {regular:0, malDefinida:0, irregular:2, extratireoidiana:3};
+  const NODULO_MARGEM_PONTOS = {regular:0, malDefinida:0, lobulada:2, irregular:2, extratireoidiana:3};
   const NODULO_FOCOS_PONTOS = {nenhum:0, macro:1, margemCalcificada:2, micro:3};
 
   // Nódulo espongiforme é TR2 por definição do ACR TI-RADS (inerentemente
