@@ -174,7 +174,7 @@
     background:#FEFCFE;border:1px solid var(--line);border-radius:4px;
     box-shadow:var(--shadow);
     padding:34px 36px 40px;
-    font-family:'Times New Roman', Times, serif;font-size:11.5pt;line-height:1.15;color:var(--ink);
+    font-family:'Times New Roman', Times, serif;font-size:12pt;line-height:1.15;color:var(--ink);
     max-height:calc(100vh - 150px);overflow-y:auto;
     width:calc(17cm + 72px);max-width:100%;margin:0 auto;
   }
@@ -212,7 +212,7 @@
   }
   .paper .risk-card table.biometria{margin:0;}
   .paper .risk-card table.biometria td{font-weight:700;padding-top:0.1875em;padding-bottom:0.1875em;}
-  .paper .risk-card-title{text-align:center;}
+  .paper p.linha.risk-card-title{text-align:center;}
   .paper h3.doctitle{
     text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
     margin:0 0 1.125em;font-weight:700;
@@ -763,8 +763,8 @@
         <select id="fmtFontSize" title="Tamanho da fonte">
           <option value="10.5">10,5 pt</option>
           <option value="11">11 pt</option>
-          <option value="11.5" selected>11,5 pt (padrão)</option>
-          <option value="12">12 pt</option>
+          <option value="11.5">11,5 pt</option>
+          <option value="12" selected>12 pt (padrão)</option>
           <option value="12.5">12,5 pt</option>
           <option value="13">13 pt</option>
           <option value="14">14 pt</option>
@@ -1055,11 +1055,11 @@ if(typeof criarMotorLaudo !== 'function'){
     });
     (async function initFontSizePrefs(){
       const savedPaper = await kvStore.get('paper-font-size');
-      // Sempre grava o tamanho como estilo inline (o padrão 11,5pt incluído)
-      // — não só quando salvo — para o cálculo de autoFitPages()/paginateForPrint()
+      // Sempre grava o tamanho como estilo inline (o padrão 12pt incluído) —
+      // não só quando salvo — para o cálculo de autoFitPages()/paginateForPrint()
       // no laudo-core.js (que lê paperEl.style.fontSize, não o CSS) partir do
-      // tamanho real, e não do fallback de 12pt do motor.
-      const paperSize = savedPaper || '11.5';
+      // tamanho real.
+      const paperSize = savedPaper || '12';
       fontSizeSel.value = paperSize;
       paperEl.style.fontSize = paperSize + 'pt';
       const savedTitle = await kvStore.get('title-font-size');
@@ -2551,7 +2551,7 @@ if(typeof criarMotorLaudo !== 'function'){
     });
 
     const lineHeight = $('paper').style.lineHeight || '1.15';
-    const fontSize = $('paper').style.fontSize || '11.5pt';
+    const fontSize = $('paper').style.fontSize || '12pt';
     let bodyHtml = clone.innerHTML;
     // A página de anexo (logo da FMF, imagem colada do cálculo de risco e
     // assinatura) fica de fora do #paper — só entra no Word se a médica
