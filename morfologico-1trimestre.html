@@ -2070,26 +2070,16 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   }
 
-  // Alinha a margem direita das frases da AVALIAÇÃO MORFOLÓGICA FETAL (texto
-  // justificado) com a margem direita da tabela de Parâmetros Biométricos do
-  // mesmo feto: a tabela de parâmetros não tem largura fixa (as 4 colunas são
-  // nowrap, o tanto que ocupam depende dos valores digitados), então não dá
-  // pra chutar a largura da tabela de morfologia em CSS — mede-se a largura
-  // real da tabela de parâmetros no DOM e aplica-se em "em" (mesmo motivo do
-  // alignIlaColumns acima: acompanha o autoFitPages). Roda depois de todo
-  // render(), já com os blocos no ar.
-  function alignMorfoWidth(){
-    $('paper').querySelectorAll('[data-blk^="morfologia-f"]').forEach(morfoBlk=>{
-      const sfx = morfoBlk.getAttribute('data-blk').slice('morfologia'.length);
-      const bioTable = $('paper').querySelector('[data-blk="biometria'+sfx+'"] table.biometria');
-      const morfoTable = morfoBlk.querySelector('table.biometria');
-      if(!bioTable || !morfoTable) return;
-      const widthPx = bioTable.getBoundingClientRect().width;
-      if(!widthPx) return;
-      const fontSizePx = parseFloat(getComputedStyle(morfoTable).fontSize) || 16;
-      morfoTable.style.width = (widthPx / fontSizePx) + 'em';
-    });
-  }
+  // A margem direita da AVALIAÇÃO MORFOLÓGICA FETAL (texto justificado)
+  // acompanha a da tabela de Parâmetros Biométricos porque as duas têm
+  // width:100% (ver morfoHtml/biometriaHtml, mais abaixo) — não precisa de
+  // JS pra igualar as duas. Chegou a ser calculada aqui, medindo a largura em
+  // px da tabela de parâmetros e aplicando em "em" na de morfologia: virou
+  // conserto pior que o problema quando a impressão/PDF reduz a fonte
+  // (autoFitPages) — o valor em "em" já tinha sido calculado antes do
+  // encolhimento, com a fonte original, e saía descalibrado (mais estreito
+  // que a página) bem no papel, exatamente o oposto do que queria resolver.
+  // width:100% não sofre disso: não depende de tamanho de fonte nenhum.
 
   // Mesma assinatura do rodapé do laudo principal — reusada também no rodapé
   // da página de anexo (FMF), para as duas saírem sempre iguais.
@@ -2438,7 +2428,6 @@ if(typeof criarMotorLaudo !== 'function'){
     $('anexoAssinatura').innerHTML = buildAssinaturaHtml();
 
     renderBlocks(blocks);
-    alignMorfoWidth();
     if(titleFontSize){
       const titleEl = $('paper').querySelector('h3.doctitle');
       if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
