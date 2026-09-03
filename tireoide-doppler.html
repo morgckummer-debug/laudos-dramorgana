@@ -393,7 +393,7 @@
           <div class="field"><label>Parênquima</label>
             <select id="parenquimaAspecto">
               <option value="normal">Normal (textura homogênea, sem nódulos sólidos ou císticos)</option>
-              <option value="nodulo">Nódulo sólido</option>
+              <option value="nodulo">Nódulo</option>
               <option value="cistoColoide1">Cisto colóide (1)</option>
               <option value="cistoColoideVarios">Cistos colóides (ao menos 3)</option>
               <option value="hashimoto">Tireoidite de Hashimoto</option>
@@ -405,11 +405,35 @@
           <div class="field"><label>Lobo</label>
             <select id="noduloLobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
           </div>
+          <div class="field"><label>Composição</label>
+            <select id="noduloComposicao"><option value="solido">Sólido</option><option value="misto">Misto cístico-sólido</option><option value="espongiforme">Espongiforme</option></select>
+          </div>
           <div class="field"><label>Ecogenicidade</label>
             <select id="noduloEcogenicidade"><option value="ecogênico">Ecogênico</option><option value="hipoecogênico">Hipoecogênico</option></select>
           </div>
           <div class="field"><label>Terço</label>
             <select id="noduloTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_noduloCamposDescritores">
+          <div class="field"><label>Forma</label>
+            <select id="noduloForma"><option value="paralelo">Paralelo à pele</option><option value="naoParalelo">Não paralelo (mais alto que largo)</option></select>
+          </div>
+          <div class="field"><label>Margem</label>
+            <select id="noduloMargem">
+              <option value="regular">Regular</option>
+              <option value="malDefinida">Mal definida</option>
+              <option value="irregular">Lobulada ou irregular</option>
+              <option value="extratireoidiana">Extensão extratireoidiana</option>
+            </select>
+          </div>
+          <div class="field"><label>Focos ecogênicos</label>
+            <select id="noduloFocos">
+              <option value="nenhum">Nenhum</option>
+              <option value="macro">Macrocalcificações</option>
+              <option value="margemCalcificada">Margem calcificada periférica interrompida</option>
+              <option value="micro">Puntiformes (microcalcificações)</option>
+            </select>
           </div>
         </div>
         <div class="field-row field-row-compact conditional" id="wrap_noduloCampos2">
@@ -1020,6 +1044,32 @@ if(typeof criarMotorLaudo !== 'function'){
   const VOLUME_TOTAL_MAX = 15.0;
   const VELOCIDADE_ATI_MAX = 30.0;
 
+  // Descritores do nódulo tireoidiano, no padrão ACR TI-RADS (composição,
+  // ecogenicidade, forma, margem e focos ecogênicos) — a médica ainda escolhe
+  // a categoria final (2 a 5) à mão, este mapeamento só vira texto o que foi
+  // observado em cada categoria, para o corpo do laudo bater com ela.
+  const NODULO_COMPOSICAO_TEXTO = {
+    solido: 'sólido',
+    misto: 'misto cístico-sólido',
+    espongiforme: 'espongiforme'
+  };
+  const NODULO_FORMA_TEXTO = {
+    paralelo: 'paralelo à pele',
+    naoParalelo: 'não paralelo à pele (mais alto que largo)'
+  };
+  const NODULO_MARGEM_TEXTO = {
+    regular: 'margem regular',
+    malDefinida: 'margem mal definida',
+    irregular: 'margem lobulada ou irregular',
+    extratireoidiana: 'margem com extensão extratireoidiana'
+  };
+  const NODULO_FOCOS_TEXTO = {
+    nenhum: 'sem focos ecogênicos',
+    macro: 'com macrocalcificações',
+    margemCalcificada: 'com margem calcificada periférica interrompida',
+    micro: 'com focos ecogênicos puntiformes (microcalcificações)'
+  };
+
   async function loadVR(){
     try{
       const val = await kvStore.get('tireoide-doppler-vr-settings');
@@ -1139,6 +1189,7 @@ if(typeof criarMotorLaudo !== 'function'){
   $('parenquimaAspecto').addEventListener('change', e=>{
     const val = e.target.value;
     toggle('wrap_noduloCampos', val==='nodulo');
+    toggle('wrap_noduloCamposDescritores', val==='nodulo');
     toggle('wrap_noduloCampos2', val==='nodulo');
     toggle('wrap_cistoColoide1Campos', val==='cistoColoide1');
     toggle('wrap_cistoColoideVariosCampos', val==='cistoColoideVarios');
@@ -1251,12 +1302,16 @@ if(typeof criarMotorLaudo !== 'function'){
     let parenquimaImpressaoHD = null;
     if(parenquimaAspecto==='nodulo'){
       const lobo = v('noduloLobo') || 'direito';
+      const composicao = NODULO_COMPOSICAO_TEXTO[v('noduloComposicao')] || NODULO_COMPOSICAO_TEXTO.solido;
       const ecogenicidade = v('noduloEcogenicidade') || 'ecogênico';
+      const forma = NODULO_FORMA_TEXTO[v('noduloForma')] || NODULO_FORMA_TEXTO.paralelo;
+      const margem = NODULO_MARGEM_TEXTO[v('noduloMargem')] || NODULO_MARGEM_TEXTO.regular;
+      const focos = NODULO_FOCOS_TEXTO[v('noduloFocos')] || NODULO_FOCOS_TEXTO.nenhum;
       const terco = v('noduloTerco') || 'superior';
       const tamanho = blankOrValue(req('noduloTamanho'));
       const captacao = v('noduloCaptacao')==='discreta' ? 'com discreta captação de fluxo periférica ao estudo Doppler' : 'sem captação de fluxo periférica ao estudo Doppler';
       const tirads = v('noduloTirads') || '3';
-      parenquimaTexto = 'Nódulo sólido, '+ecogenicidade+', bem delimitado, paralelo a pele, contornos regulares, sem calcificações, sem halo periférico, '+captacao+', localizado no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' cm (TI-RADS – Cat. '+tirads+').';
+      parenquimaTexto = 'Nódulo '+composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+captacao+', localizado no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' cm (TI-RADS – Cat. '+tirads+').';
       // TI-RADS 2-3 é achado provavelmente benigno — a Impressão só registra a
       // categoria; a partir de 4 ela vira achado suspeito, com recomendação de
       // seguir a propedêutica, em vez do número da categoria.
