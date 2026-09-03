@@ -326,10 +326,13 @@
   .cg-bar .field label{font-size:12px;color:var(--ink-soft);display:block;margin-bottom:4px;}
   .cg-bar input{width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13.5px;box-sizing:border-box;}
   .cg-results-list{width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;}
-  .cg-result-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--line-soft);cursor:pointer;}
+  .cg-result-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--line-soft);}
   .cg-result-item:hover{background:var(--rose-light);}
+  .cg-result-item .ri-info{flex:1;min-width:0;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;}
   .cg-result-item .ri-name{font-weight:600;color:var(--ink);font-size:13.5px;}
   .cg-result-item .ri-meta{font-size:12px;color:var(--ink-soft);}
+  .cg-result-item .ri-del{flex:0 0 auto;background:#fff;border:1.5px solid var(--line);color:var(--ink-soft);border-radius:8px;padding:5px 10px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+  .cg-result-item .ri-del:hover{background:#B4432F;border-color:#B4432F;color:#fff;}
   .cg-result-empty{font-size:12.5px;color:var(--ink-soft);padding:6px 2px;}
 </style>
 </head>
@@ -2650,11 +2653,36 @@ if(typeof criarMotorLaudo !== 'function'){
     laudos.forEach(laudo=>{
       const item = document.createElement('div');
       item.className = 'cg-result-item';
-      item.innerHTML = '<span class="ri-name">'+(porNome[laudo.paciente_id] || 'Paciente')+'</span>'
-        + '<span class="ri-meta">Exame de '+cgFormatDateBR(laudo.data_exame)+'</span>';
-      item.addEventListener('click', ()=> cgCarregarLaudo(laudo));
+      item.innerHTML = '<span class="ri-info">'
+        + '<span class="ri-name">'+(porNome[laudo.paciente_id] || 'Paciente')+'</span>'
+        + '<span class="ri-meta">Exame de '+cgFormatDateBR(laudo.data_exame)+'</span>'
+        + '</span>'
+        + '<button type="button" class="ri-del" title="Excluir este laudo">Excluir</button>';
+      item.querySelector('.ri-info').addEventListener('click', ()=> cgCarregarLaudo(laudo));
+      item.querySelector('.ri-del').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        cgExcluirLaudo(laudo, item, porNome[laudo.paciente_id] || 'Paciente');
+      });
       resultsEl.appendChild(item);
     });
+  }
+
+  // ---- Excluir um laudo indesejado (ex.: duplicata antiga) ----
+  async function cgExcluirLaudo(laudo, itemEl, nomeExibido){
+    const ok = confirm('Excluir o laudo de '+nomeExibido+' (exame de '+cgFormatDateBR(laudo.data_exame)+')?\n\nEssa ação não pode ser desfeita.');
+    if(!ok) return;
+    try{
+      const {error} = await cgClient.from('laudos_ovulacao').delete().eq('id', laudo.id);
+      if(error) throw error;
+      itemEl.remove();
+      const resultsEl = $('cgResults');
+      if(!resultsEl.querySelector('.cg-result-item')){
+        resultsEl.innerHTML = '<div class="cg-result-empty">Nenhum laudo restante para esta busca.</div>';
+      }
+      cgToast('Laudo excluído.', false);
+    }catch(e){
+      cgToast('Erro ao excluir: ' + (e.message || 'tente novamente.'), true);
+    }
   }
 
   $('btnBuscarCG').addEventListener('click', cgBuscarLaudos);
