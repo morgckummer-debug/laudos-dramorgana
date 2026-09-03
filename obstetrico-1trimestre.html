@@ -443,7 +443,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Embrião — óbito embrionário</label><textarea id="ph_embriaoObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado</label><textarea id="ph_embriaoNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta com aspecto de mola hidatiforme — use {MEDIDA} e {VOLUME}</label><textarea id="ph_placentaMolar" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Mola hidatiforme — feto/embrião presente</label><textarea id="ph_molaFetoPresente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mola hidatiforme — feto/embrião presente — use {TERMO}, {CCN} e {IG}</label><textarea id="ph_molaFetoPresente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mola hidatiforme — feto/embrião ausente</label><textarea id="ph_molaFetoAusente" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -550,6 +550,11 @@
           </div>
           <div class="toggle-line"><input type="checkbox" id="molaFetoPresente"><label for="molaFetoPresente">Feto/embrião presente</label></div>
           <div class="toggle-line"><input type="checkbox" id="molaFetoAusente"><label for="molaFetoAusente">Feto/embrião ausente</label></div>
+          <div class="field-row conditional" id="wrap_molaFetoCampos">
+            <div class="field"><label>Comprimento cabeça-nádega — CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="molaCcn" placeholder="mm"></div>
+            <div class="field"><label>Idade gestacional pelo CCN — semanas</label><input type="text" inputmode="numeric" id="molaIgSemanas" placeholder="ex: 8"></div>
+            <div class="field"><label>Idade gestacional pelo CCN — dias</label><input type="text" inputmode="numeric" id="molaIgDias" placeholder="ex: 3"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1257,7 +1262,7 @@ if(typeof criarMotorLaudo !== 'function'){
     embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
     embriaoNaoIdentificado: 'Embrião ainda não identificado — gestação em fase muito inicial.',
     placentaMolar: 'Cavidade uterina preenchida por placenta heterogênea, com inúmeras vesículas de permeio, medindo {MEDIDA} cm, com volume de {VOLUME} cm³.',
-    molaFetoPresente: 'Identifica(m)-se estrutura(s) embrionária(s)/fetal(is) associada(s) às alterações placentárias descritas.',
+    molaFetoPresente: 'Identifica-se {TERMO} único, medindo {CCN} mm ao CCN, com datação do exame compatível com {IG}.',
     molaFetoAusente: 'Não há evidência de estruturas embrionárias/fetais associadas às alterações placentárias descritas.',
 
     impGestacaoUnica: 'Gestação única, eutópica, compatível com {IG} (DUM {CONCORDANCIA}).',
@@ -1413,8 +1418,14 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_sacosSection', !ativo);
     toggle('wrap_molaCampos', ativo);
   });
-  $('molaFetoPresente').addEventListener('change', e=>{ if(e.target.checked) $('molaFetoAusente').checked = false; });
-  $('molaFetoAusente').addEventListener('change', e=>{ if(e.target.checked) $('molaFetoPresente').checked = false; });
+  $('molaFetoPresente').addEventListener('change', e=>{
+    if(e.target.checked) $('molaFetoAusente').checked = false;
+    toggle('wrap_molaFetoCampos', $('molaFetoPresente').checked);
+  });
+  $('molaFetoAusente').addEventListener('change', e=>{
+    if(e.target.checked) $('molaFetoPresente').checked = false;
+    toggle('wrap_molaFetoCampos', $('molaFetoPresente').checked);
+  });
   toggle('wrap_recomendacao', $('chkRecomendacao').checked);
   $('cronologiaMetodo').addEventListener('change', e=>{
     toggle('wrap_usgDatacao', e.target.value==='usg');
@@ -1939,6 +1950,17 @@ if(typeof criarMotorLaudo !== 'function'){
     const molaVolume = blankOrValue(reqIf('molaVolume', molaAtiva));
     const molaFetoPresente = molaAtiva && $('molaFetoPresente').checked;
     const molaFetoAusente = molaAtiva && $('molaFetoAusente').checked;
+    const molaCcn = blankOrValue(reqIf('molaCcn', molaFetoPresente));
+    const molaIgSemanasTxt = reqIf('molaIgSemanas', molaFetoPresente);
+    const molaIgDiasTxt = reqIf('molaIgDias', molaFetoPresente);
+    const molaIgSemanasNum = parseInt(molaIgSemanasTxt, 10);
+    const molaIgDiasNum = parseInt(molaIgDiasTxt, 10);
+    const molaIgTotalDias = !isNaN(molaIgSemanasNum) ? (molaIgSemanasNum*7 + (isNaN(molaIgDiasNum) ? 0 : molaIgDiasNum)) : null;
+    // Embrião até 10 semanas completas (70 dias); feto a partir de 10
+    // semanas e 1 dia — corte pedido pela Dra. Morgana, baseado na IG
+    // datada pelo CCN, não num valor de CCN em mm direto.
+    const molaTermo = (molaIgTotalDias !== null && molaIgTotalDias > 70) ? 'feto' : 'embrião';
+    const molaIgTexto = molaIgTotalDias !== null ? formatIG(molaIgTotalDias) : '____ semanas e ____ dias';
 
     // Achados de mola tornam o(s) saco(s) gestacional(is) irrelevantes: os
     // campos ficam escondidos no formulário (ver toggle de #chkMola) e aqui
@@ -2159,7 +2181,7 @@ if(typeof criarMotorLaudo !== 'function'){
       if(molaFetoAusente){
         molaHtml += '<p class="linha">'+phrase('molaFetoAusente')+'</p>';
       } else if(molaFetoPresente){
-        molaHtml += '<p class="linha">'+phrase('molaFetoPresente')+'</p>';
+        molaHtml += '<p class="linha">'+phraseRaw('molaFetoPresente', {TERMO: molaTermo, CCN: span(molaCcn), IG: molaIgTexto})+'</p>';
       }
       molaHtml += '</div>';
       blocks.push({id:'mola', html:molaHtml});
