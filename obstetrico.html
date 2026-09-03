@@ -533,10 +533,6 @@
           <div class="field"><label>IG no ultrassom de datação — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 12"></div>
           <div class="field"><label>IG no ultrassom de datação — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
         </div>
-        <div class="field-row conditional" id="wrap_exameInfo">
-          <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 28"></div>
-          <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
-        </div>
         <div class="field-row conditional" id="wrap_dumEstimada">
           <div class="field"><label>DUM estimada (para lançar na máquina de ultrassom)</label><input type="text" id="dumEstimada" readonly placeholder="calculada automaticamente"></div>
         </div>
@@ -607,6 +603,16 @@
           <div class="field-row">
             <div class="field"><label>Comprimento do colo — via transvaginal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card conditional" id="wrap_exameInfo">
+      <div class="card-head"><h2>Idade gestacional informada neste exame</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 28"></div>
+          <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
         </div>
       </div>
     </div>
