@@ -499,7 +499,7 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Cronologia calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="exame">1ª Ecografia</option><option value="incerta">DUM incerta / ignorada</option></select>
+            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="exame">1ª Ecografia</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
           </div>
         </div>
         <div class="field-row conditional" id="wrap_usgDatacao">
@@ -1392,13 +1392,13 @@ if(typeof criarMotorLaudo !== 'function'){
   $('cronologiaMetodo').addEventListener('change', e=>{
     toggle('wrap_usgDatacao', e.target.value==='usg');
     toggle('wrap_exameInfo', e.target.value==='exame');
-    toggle('wrap_incertaInfo', e.target.value==='incerta');
+    toggle('wrap_incertaInfo', ehDumSemCronologia(e.target.value));
     toggle('wrap_dumConcordancia', e.target.value==='dum');
     toggle('wrap_dumEstimada', e.target.value==='usg' || e.target.value==='exame');
   });
   toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
   toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame');
-  toggle('wrap_incertaInfo', $('cronologiaMetodo').value==='incerta');
+  toggle('wrap_incertaInfo', ehDumSemCronologia($('cronologiaMetodo').value));
   toggle('wrap_dumConcordancia', $('cronologiaMetodo').value==='dum');
   toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg' || $('cronologiaMetodo').value==='exame');
 
@@ -1677,6 +1677,13 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!dataExameDt || isNaN(semanas)) return null;
     return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
   }
+  // "DUM incerta" (ela informou uma data, mas não confiável para datar) e
+  // "DUM ignorada" (ela não soube informar nenhuma data) são clinicamente
+  // diferentes, mas tratadas da mesma forma por todo o resto do laudo: sem
+  // cronologia nenhuma, só a IG informada valendo como número solto.
+  function ehDumSemCronologia(metodo){
+    return metodo === 'incerta' || metodo === 'ignorada';
+  }
   function computeDataBase(metodo){
     // DUM incerta/ignorada: por definição não há data de referência — sem
     // "DUM estimada" no cabeçalho, sem gestação criada na Curva de
@@ -1684,7 +1691,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // Trimestre continuam calculados a partir da IG informada (ver
     // dataBaseDppMorfo, em render()) — só não entram nessa data-base
     // "oficial" que o resto do laudo trataria como cronologia estabelecida.
-    if(metodo === 'incerta') return null;
+    if(ehDumSemCronologia(metodo)) return null;
     if(metodo === 'exame'){
       return computeDataBaseFromIG(v('dataExame'), v('impSemanas'), v('impDias'));
     }
@@ -1728,7 +1735,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // semanas informado, com a ressalva de onde veio (CCN antes de 14
     // semanas, biometria depois). Gemelar/trigemelar continua na frase
     // genérica de sempre (caso raro o bastante para não valer frase própria).
-    if(!state.isMultiple && state.cronologiaMetodo === 'incerta'){
+    if(!state.isMultiple && ehDumSemCronologia(state.cronologiaMetodo)){
       const semanasNum = parseInt(state.semanas, 10);
       const diasNum = parseInt(state.dias, 10);
       const igDias = !isNaN(semanasNum) ? (semanasNum*7 + (isNaN(diasNum) ? 0 : diasNum)) : null;
@@ -1853,7 +1860,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const medicoSolicitante = v('medicoSolicitante');
     const dum = v('dum');
     const cronologiaMetodoRaw = v('cronologiaMetodo');
-    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame' || cronologiaMetodoRaw==='incerta') ? cronologiaMetodoRaw : 'dum';
+    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
     reqIf('usgDataDatacao', cronologiaMetodo==='usg');
     reqIf('usgSemanasDatacao', cronologiaMetodo==='usg');
     reqIf('usgDiasDatacao', cronologiaMetodo==='usg');
@@ -1968,7 +1975,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // Concordante (ou cronologia por USG/ecografia, onde não há o que
     // discordar) mantém dataBase como já era.
     const usaIgInformadaParaDppMorfo = (cronologiaMetodo === 'dum' && dumConcordancia === 'discordante')
-      || cronologiaMetodo === 'incerta';
+      || ehDumSemCronologia(cronologiaMetodo);
     const dataBaseDppMorfo = usaIgInformadaParaDppMorfo
       ? computeDataBaseFromIG(dataExame, impSemanas, impDias)
       : dataBase;
@@ -2024,7 +2031,7 @@ if(typeof criarMotorLaudo !== 'function'){
         // DUM incerta/ignorada: sem DUM não há cronologia — a linha do
         // cabeçalho simplesmente não existe (a IG informada só aparece na
         // conclusão, como estimativa daquele exame, nunca como data-base).
-        : cronologiaMetodo==='incerta' ? ''
+        : ehDumSemCronologia(cronologiaMetodo) ? ''
         : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(cronologia))+'</span></div>')
       +'</div>'});
 
