@@ -442,6 +442,9 @@
   <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — óbito embrionário</label><textarea id="ph_embriaoObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado</label><textarea id="ph_embriaoNaoIdentificado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta com aspecto de mola hidatiforme — use {MEDIDA} e {VOLUME}</label><textarea id="ph_placentaMolar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mola hidatiforme — feto/embrião presente</label><textarea id="ph_molaFetoPresente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mola hidatiforme — feto/embrião ausente</label><textarea id="ph_molaFetoAusente" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Impressões diagnósticas</h3>
@@ -454,6 +457,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Perda gestacional — use {TIPO} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião não identificado — impressão</label><textarea id="ph_impEmbriaoNaoIdentificado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação molar — impressão</label><textarea id="ph_impGestacaoMolar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DPP — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG reduzido — impressão</label><textarea id="ph_impIsgReduzido" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — impressão</label><textarea id="ph_impHematoma" rows="2"></textarea></div>
@@ -530,7 +534,8 @@
     <div class="card">
       <div class="card-head"><h2>Gestação</h2></div>
       <div class="card-body">
-        <div class="field-row">
+        <div class="toggle-line"><input type="checkbox" id="chkMola"><label for="chkMola">Achados sugestivos de mola hidatiforme</label></div>
+        <div class="field-row conditional show" id="wrap_gestacaoNormal">
           <div class="field"><label>Número de sacos gestacionais / embriões</label>
             <select id="numeroEmbrioes"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">3 ou mais</option></select>
           </div>
@@ -538,11 +543,21 @@
             <select id="corionicidade"><option value="dicorionica_diamniotica">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica">Monocoriônica e monoamniótica</option></select>
           </div>
         </div>
+        <div class="conditional" id="wrap_molaCampos">
+          <div class="field-row">
+            <div class="field"><label>Medida (cm)</label><input type="text" id="molaMedida" placeholder="ex: 6,5 x 5,8 x 4,2"></div>
+            <div class="field"><label>Volume estimado (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="molaVolume" placeholder="cm³"></div>
+          </div>
+          <div class="toggle-line"><input type="checkbox" id="molaFetoPresente"><label for="molaFetoPresente">Feto/embrião presente</label></div>
+          <div class="toggle-line"><input type="checkbox" id="molaFetoAusente"><label for="molaFetoAusente">Feto/embrião ausente</label></div>
+        </div>
       </div>
     </div>
 
-    <div id="sacosContainer"></div>
-    <button type="button" class="btn-clear" id="btnAddSaco" style="margin:-8px 0 22px;">+ Adicionar saco gestacional</button>
+    <div class="conditional show" id="wrap_sacosSection">
+      <div id="sacosContainer"></div>
+      <button type="button" class="btn-clear" id="btnAddSaco" style="margin:-8px 0 22px;">+ Adicionar saco gestacional</button>
+    </div>
 
     <div class="card">
       <div class="card-head"><h2>Bexiga</h2></div>
@@ -1241,6 +1256,9 @@ if(typeof criarMotorLaudo !== 'function'){
     embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
     embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
     embriaoNaoIdentificado: 'Embrião ainda não identificado — gestação em fase muito inicial.',
+    placentaMolar: 'Cavidade uterina preenchida por placenta heterogênea, com inúmeras vesículas de permeio, medindo {MEDIDA} cm, com volume de {VOLUME} cm³.',
+    molaFetoPresente: 'Identifica(m)-se estrutura(s) embrionária(s)/fetal(is) associada(s) às alterações placentárias descritas.',
+    molaFetoAusente: 'Não há evidência de estruturas embrionárias/fetais associadas às alterações placentárias descritas.',
 
     impGestacaoUnica: 'Gestação única, eutópica, compatível com {IG} (DUM {CONCORDANCIA}).',
     impGestacaoUnicaSemDum: 'Gestação única, eutópica, compatível com {IG}.',
@@ -1251,6 +1269,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impBoaEvolucao: 'Boa evolução até o momento.',
     impObito: 'Perda gestacional {TIPO}, compatível com {IG}.',
     impEmbriaoNaoIdentificado: 'Embrião não identificado no momento — sugere-se reavaliação em 10-14 dias.',
+    impGestacaoMolar: 'Sinais ecográficos de gestação molar. Sugere-se correlação com dosagem sérica de beta-hCG e acompanhamento com confirmação histopatológica após o esvaziamento uterino.',
     impDPP: 'DPP: {DATA}.',
     impIsgReduzido: 'Saco gestacional de dimensões reduzidas.',
     impHematoma: 'Hematoma subcoriônico - acompanhar.',
@@ -1388,6 +1407,14 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkAdenomiose').addEventListener('change', e=> toggle('wrap_adenomioseSimetria', e.target.checked));
   $('chkRecomendacao').addEventListener('change', e=> toggle('wrap_recomendacao', e.target.checked));
   $('cerclagemRealizada').addEventListener('change', e=> toggle('wrap_cerclagemIG', e.target.checked));
+  $('chkMola').addEventListener('change', e=>{
+    const ativo = e.target.checked;
+    toggle('wrap_gestacaoNormal', !ativo);
+    toggle('wrap_sacosSection', !ativo);
+    toggle('wrap_molaCampos', ativo);
+  });
+  $('molaFetoPresente').addEventListener('change', e=>{ if(e.target.checked) $('molaFetoAusente').checked = false; });
+  $('molaFetoAusente').addEventListener('change', e=>{ if(e.target.checked) $('molaFetoPresente').checked = false; });
   toggle('wrap_recomendacao', $('chkRecomendacao').checked);
   $('cronologiaMetodo').addEventListener('change', e=>{
     toggle('wrap_usgDatacao', e.target.value==='usg');
@@ -1729,42 +1756,51 @@ if(typeof criarMotorLaudo !== 'function'){
   function buildImpressao(state){
     const items = [];
 
-    const baseadaEmDum = state.cronologiaMetodo === 'dum';
-    // DUM incerta/ignorada: sem cronologia, a conclusão não fala em "IG
-    // compatível com" (isso pressupõe uma data-base) — vira só o número de
-    // semanas informado, com a ressalva de onde veio (CCN antes de 14
-    // semanas, biometria depois). Gemelar/trigemelar continua na frase
-    // genérica de sempre (caso raro o bastante para não valer frase própria).
-    if(!state.isMultiple && ehDumSemCronologia(state.cronologiaMetodo)){
-      const semanasNum = parseInt(state.semanas, 10);
-      const diasNum = parseInt(state.dias, 10);
-      const igDias = !isNaN(semanasNum) ? (semanasNum*7 + (isNaN(diasNum) ? 0 : diasNum)) : null;
-      const key = (igDias != null && igDias < 14*7) ? 'impGestacaoUnicaDumIncertaCcn' : 'impGestacaoUnicaDumIncertaBiometria';
-      items.push({key:'gestacao', label: phraseRaw(key, {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
-    } else if(!state.isMultiple){
-      items.push({key:'gestacao', label: baseadaEmDum
-        ? phraseRaw('impGestacaoUnica', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
-        : phraseRaw('impGestacaoUnicaSemDum', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+    // Achados de mola hidatiforme substituem toda a conclusão de datação/
+    // evolução da gestação (IG, "boa evolução", ISG, hematoma, DPP) — nada
+    // disso faz sentido sem uma gestação viável em curso; só a conclusão de
+    // mola entra aqui, e os achados de bexiga/útero/anexos/miométrio abaixo
+    // continuam valendo normalmente.
+    if(state.molaAtiva){
+      items.push({key:'gestacao', label: phraseRaw('impGestacaoMolar'), auto:true});
     } else {
-      items.push({key:'gestacao', label: baseadaEmDum
-        ? phraseRaw('impGestacaoGemelar', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
-        : phraseRaw('impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
-    }
+      const baseadaEmDum = state.cronologiaMetodo === 'dum';
+      // DUM incerta/ignorada: sem cronologia, a conclusão não fala em "IG
+      // compatível com" (isso pressupõe uma data-base) — vira só o número de
+      // semanas informado, com a ressalva de onde veio (CCN antes de 14
+      // semanas, biometria depois). Gemelar/trigemelar continua na frase
+      // genérica de sempre (caso raro o bastante para não valer frase própria).
+      if(!state.isMultiple && ehDumSemCronologia(state.cronologiaMetodo)){
+        const semanasNum = parseInt(state.semanas, 10);
+        const diasNum = parseInt(state.dias, 10);
+        const igDias = !isNaN(semanasNum) ? (semanasNum*7 + (isNaN(diasNum) ? 0 : diasNum)) : null;
+        const key = (igDias != null && igDias < 14*7) ? 'impGestacaoUnicaDumIncertaCcn' : 'impGestacaoUnicaDumIncertaBiometria';
+        items.push({key:'gestacao', label: phraseRaw(key, {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+      } else if(!state.isMultiple){
+        items.push({key:'gestacao', label: baseadaEmDum
+          ? phraseRaw('impGestacaoUnica', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
+          : phraseRaw('impGestacaoUnicaSemDum', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+      } else {
+        items.push({key:'gestacao', label: baseadaEmDum
+          ? phraseRaw('impGestacaoGemelar', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
+          : phraseRaw('impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+      }
 
-    const suprimirBoaEvolucao = state.algumIsgReduzido || state.algumHematoma || state.algumEmbrioNaoIdentificado;
-    if(state.algumObito){
-      items.push({key:'evolucao', label:phraseRaw('impObito', {TIPO:state.tipoPerda, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
-    } else if(state.algumEmbrioNaoIdentificado){
-      items.push({key:'embriao-nao-identificado', label:phraseRaw('impEmbriaoNaoIdentificado'), auto:true});
-    } else if(!suprimirBoaEvolucao){
-      items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
-    }
+      const suprimirBoaEvolucao = state.algumIsgReduzido || state.algumHematoma || state.algumEmbrioNaoIdentificado;
+      if(state.algumObito){
+        items.push({key:'evolucao', label:phraseRaw('impObito', {TIPO:state.tipoPerda, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+      } else if(state.algumEmbrioNaoIdentificado){
+        items.push({key:'embriao-nao-identificado', label:phraseRaw('impEmbriaoNaoIdentificado'), auto:true});
+      } else if(!suprimirBoaEvolucao){
+        items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
+      }
 
-    if(state.algumIsgReduzido){
-      items.push({key:'isg-reduzido', label:phraseRaw('impIsgReduzido'), auto:true});
-    }
-    if(state.algumHematoma){
-      items.push({key:'hematoma', label:phraseRaw('impHematoma'), auto:true});
+      if(state.algumIsgReduzido){
+        items.push({key:'isg-reduzido', label:phraseRaw('impIsgReduzido'), auto:true});
+      }
+      if(state.algumHematoma){
+        items.push({key:'hematoma', label:phraseRaw('impHematoma'), auto:true});
+      }
     }
 
     if(state.bexigaAspecto==='alterado' && state.bexigaDescricao){
@@ -1792,8 +1828,10 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:'obs-'+idx, label: linha, auto:true});
     });
 
-    // DPP sempre por último na conclusão.
-    items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
+    // DPP sempre por último na conclusão — exceto na mola, que não tem DPP.
+    if(!state.molaAtiva){
+      items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
+    }
 
     return items;
   }
@@ -1896,7 +1934,17 @@ if(typeof criarMotorLaudo !== 'function'){
     };
     const corTxt = corTxtMap[corionicidade] || 'dicoriônica e diamniótica';
 
-    const uids = sacoUids();
+    const molaAtiva = $('chkMola').checked;
+    const molaMedida = blankOrValue(reqIf('molaMedida', molaAtiva));
+    const molaVolume = blankOrValue(reqIf('molaVolume', molaAtiva));
+    const molaFetoPresente = molaAtiva && $('molaFetoPresente').checked;
+    const molaFetoAusente = molaAtiva && $('molaFetoAusente').checked;
+
+    // Achados de mola tornam o(s) saco(s) gestacional(is) irrelevantes: os
+    // campos ficam escondidos no formulário (ver toggle de #chkMola) e aqui
+    // a lista de uids fica vazia de propósito, para não cobrar como
+    // pendentes campos que nem aparecem na tela.
+    const uids = molaAtiva ? [] : sacoUids();
     const sacos = uids.map((uid, idx)=>{
       const label = sacoLabel(idx, uids.length);
       const insercao = v('saco'+uid+'Insercao');
@@ -2005,7 +2053,7 @@ if(typeof criarMotorLaudo !== 'function'){
       isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
       algumObito, dpp, algumHematoma, algumIsgReduzido, algumEmbrioNaoIdentificado, cronologiaMetodo, tipoPerda,
       bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao,
-      miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose,
+      miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose, molaAtiva,
       obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
@@ -2104,6 +2152,18 @@ if(typeof criarMotorLaudo !== 'function'){
       sacoHtml += '</div>';
       blocks.push({id:'saco_'+s.uid, html:sacoHtml});
     });
+
+    if(molaAtiva){
+      let molaHtml = '<div class="saco-bloco">';
+      molaHtml += '<p class="linha">'+phraseRaw('placentaMolar', {MEDIDA: span(molaMedida), VOLUME: span(molaVolume)})+'</p>';
+      if(molaFetoAusente){
+        molaHtml += '<p class="linha">'+phrase('molaFetoAusente')+'</p>';
+      } else if(molaFetoPresente){
+        molaHtml += '<p class="linha">'+phrase('molaFetoPresente')+'</p>';
+      }
+      molaHtml += '</div>';
+      blocks.push({id:'mola', html:molaHtml});
+    }
 
     blocks.push({id:'anexos', html:'<p class="linha">'+(anexosAspecto==='alterado' && anexosDescricao ? escapeHtml(anexosDescricao) : phrase('anexosNormais'))+'</p>'});
 
@@ -2628,6 +2688,7 @@ if(typeof criarMotorLaudo !== 'function'){
   cgCheckSession();
 
   $('btnSalvarCG').addEventListener('click', async ()=>{
+    if($('chkMola').checked){ cgToast('Achados de mola hidatiforme não são gravados na Curva de Crescimento — não é uma gestação viável a acompanhar.', true); return; }
     const session = await cgCheckSession();
     if(!session){ cgToast('Faça login para salvar.', true); return; }
 
