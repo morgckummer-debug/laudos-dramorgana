@@ -112,6 +112,8 @@
   .format-warning{font-size:11px;color:#B4432F;font-weight:600;display:block;margin-top:3px;}
   .field .flag-note{font-size:11px;color:var(--amber);font-weight:600;display:none;}
   .field .flag-note.show{display:block;}
+  .tirads-sugestao{font-size:11.5px;font-weight:600;color:var(--sage);margin-top:6px;display:block;}
+  .tirads-sugestao.mismatch{color:var(--amber);}
 
   .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
   .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
@@ -406,10 +408,19 @@
             <select id="noduloLobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
           </div>
           <div class="field"><label>Composição</label>
-            <select id="noduloComposicao"><option value="solido">Sólido</option><option value="misto">Misto cístico-sólido</option><option value="espongiforme">Espongiforme</option></select>
+            <select id="noduloComposicao">
+              <option value="solido">Sólido (2 pts)</option>
+              <option value="misto">Misto cístico-sólido (1 pt)</option>
+              <option value="espongiforme">Espongiforme (0 pts)</option>
+            </select>
           </div>
           <div class="field"><label>Ecogenicidade</label>
-            <select id="noduloEcogenicidade"><option value="ecogênico">Ecogênico</option><option value="hipoecogênico">Hipoecogênico</option></select>
+            <select id="noduloEcogenicidade">
+              <option value="hiperecogênico">Hiperecogênico (1 pt)</option>
+              <option value="isoecogênico">Isoecogênico (1 pt)</option>
+              <option value="hipoecogênico">Hipoecogênico (2 pts)</option>
+              <option value="acentuadamente hipoecogênico">Acentuadamente hipoecogênico (3 pts)</option>
+            </select>
           </div>
           <div class="field"><label>Terço</label>
             <select id="noduloTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
@@ -417,22 +428,25 @@
         </div>
         <div class="field-row field-row-compact conditional" id="wrap_noduloCamposDescritores">
           <div class="field"><label>Forma</label>
-            <select id="noduloForma"><option value="paralelo">Paralelo à pele</option><option value="naoParalelo">Não paralelo (mais alto que largo)</option></select>
+            <select id="noduloForma">
+              <option value="paralelo">Paralelo à pele (0 pts)</option>
+              <option value="naoParalelo">Não paralelo — mais alto que largo (3 pts)</option>
+            </select>
           </div>
           <div class="field"><label>Margem</label>
             <select id="noduloMargem">
-              <option value="regular">Regular</option>
-              <option value="malDefinida">Mal definida</option>
-              <option value="irregular">Lobulada ou irregular</option>
-              <option value="extratireoidiana">Extensão extratireoidiana</option>
+              <option value="regular">Regular (0 pts)</option>
+              <option value="malDefinida">Mal definida (0 pts)</option>
+              <option value="irregular">Lobulada ou irregular (2 pts)</option>
+              <option value="extratireoidiana">Extensão extratireoidiana (3 pts)</option>
             </select>
           </div>
           <div class="field"><label>Focos ecogênicos</label>
             <select id="noduloFocos">
-              <option value="nenhum">Nenhum</option>
-              <option value="macro">Macrocalcificações</option>
-              <option value="margemCalcificada">Margem calcificada periférica interrompida</option>
-              <option value="micro">Puntiformes (microcalcificações)</option>
+              <option value="nenhum">Nenhum (0 pts)</option>
+              <option value="macro">Macrocalcificações (1 pt)</option>
+              <option value="margemCalcificada">Margem calcificada periférica interrompida (2 pts)</option>
+              <option value="micro">Puntiformes / microcalcificações (3 pts)</option>
             </select>
           </div>
         </div>
@@ -443,6 +457,7 @@
           </div>
           <div class="field"><label>TI-RADS</label>
             <select id="noduloTirads"><option value="2">Categoria 2</option><option value="3">Categoria 3</option><option value="4">Categoria 4</option><option value="5">Categoria 5</option></select>
+            <span class="tirads-sugestao" id="noduloTiradsSugestao"></span>
           </div>
         </div>
         <div class="field-row field-row-compact conditional" id="wrap_cistoColoide1Campos">
@@ -1070,6 +1085,35 @@ if(typeof criarMotorLaudo !== 'function'){
     micro: 'com focos ecogênicos puntiformes (microcalcificações)'
   };
 
+  // Pontuação de cada descritor, igual à tabela do ACR TI-RADS — usada só para
+  // sugerir a categoria (soma ao vivo), nunca para escolhê-la sozinha: quem
+  // decide a categoria final continua sendo a médica, no select de TI-RADS.
+  const NODULO_COMPOSICAO_PONTOS = {solido:2, misto:1, espongiforme:0};
+  const NODULO_ECOGENICIDADE_PONTOS = {'hiperecogênico':1, 'isoecogênico':1, 'hipoecogênico':2, 'acentuadamente hipoecogênico':3};
+  const NODULO_FORMA_PONTOS = {paralelo:0, naoParalelo:3};
+  const NODULO_MARGEM_PONTOS = {regular:0, malDefinida:0, irregular:2, extratireoidiana:3};
+  const NODULO_FOCOS_PONTOS = {nenhum:0, macro:1, margemCalcificada:2, micro:3};
+
+  // Nódulo espongiforme é TR2 por definição do ACR TI-RADS (inerentemente
+  // benigno) — não soma com os outros quatro descritores, que nesse caso nem
+  // chegam a ser avaliados no método original.
+  function sugerirTirads(){
+    const composicaoVal = v('noduloComposicao') || 'solido';
+    if(composicaoVal === 'espongiforme') return {pontos: 0, categoria: 2, espongiforme: true};
+    const pontos = (NODULO_COMPOSICAO_PONTOS[composicaoVal] || 0)
+      + (NODULO_ECOGENICIDADE_PONTOS[v('noduloEcogenicidade')] || 0)
+      + (NODULO_FORMA_PONTOS[v('noduloForma')] || 0)
+      + (NODULO_MARGEM_PONTOS[v('noduloMargem')] || 0)
+      + (NODULO_FOCOS_PONTOS[v('noduloFocos')] || 0);
+    let categoria;
+    if(pontos < 2) categoria = 1;
+    else if(pontos === 2) categoria = 2;
+    else if(pontos === 3) categoria = 3;
+    else if(pontos <= 6) categoria = 4;
+    else categoria = 5;
+    return {pontos, categoria, espongiforme: false};
+  }
+
   async function loadVR(){
     try{
       const val = await kvStore.get('tireoide-doppler-vr-settings');
@@ -1303,7 +1347,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(parenquimaAspecto==='nodulo'){
       const lobo = v('noduloLobo') || 'direito';
       const composicao = NODULO_COMPOSICAO_TEXTO[v('noduloComposicao')] || NODULO_COMPOSICAO_TEXTO.solido;
-      const ecogenicidade = v('noduloEcogenicidade') || 'ecogênico';
+      const ecogenicidade = v('noduloEcogenicidade') || 'hiperecogênico';
       const forma = NODULO_FORMA_TEXTO[v('noduloForma')] || NODULO_FORMA_TEXTO.paralelo;
       const margem = NODULO_MARGEM_TEXTO[v('noduloMargem')] || NODULO_MARGEM_TEXTO.regular;
       const focos = NODULO_FOCOS_TEXTO[v('noduloFocos')] || NODULO_FOCOS_TEXTO.nenhum;
@@ -1312,6 +1356,14 @@ if(typeof criarMotorLaudo !== 'function'){
       const captacao = v('noduloCaptacao')==='discreta' ? 'com discreta captação de fluxo periférica ao estudo Doppler' : 'sem captação de fluxo periférica ao estudo Doppler';
       const tirads = v('noduloTirads') || '3';
       parenquimaTexto = 'Nódulo '+composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+captacao+', localizado no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' cm (TI-RADS – Cat. '+tirads+').';
+
+      const sugestao = sugerirTirads();
+      const sugestaoEl = $('noduloTiradsSugestao');
+      const divergiu = sugestao.categoria !== parseInt(tirads, 10);
+      sugestaoEl.textContent = sugestao.espongiforme
+        ? '→ Sugestão: TR2 (espongiforme é benigno por definição)'
+        : '→ Sugestão: TR'+sugestao.categoria+' ('+sugestao.pontos+' pts)';
+      sugestaoEl.classList.toggle('mismatch', divergiu);
       // TI-RADS 2-3 é achado provavelmente benigno — a Impressão só registra a
       // categoria; a partir de 4 ela vira achado suspeito, com recomendação de
       // seguir a propedêutica, em vez do número da categoria.
@@ -1337,6 +1389,10 @@ if(typeof criarMotorLaudo !== 'function'){
       parenquimaImpressaoHD = phrase('impHashimoto', {VOLVASC:volVasc});
     } else if(parenquimaAspecto==='alterado' && parenquimaDescricao){
       parenquimaTexto = escapeHtml(parenquimaDescricao)+'.';
+    }
+    if(parenquimaAspecto !== 'nodulo'){
+      $('noduloTiradsSugestao').textContent = '';
+      $('noduloTiradsSugestao').classList.remove('mismatch');
     }
 
     const cervicaisAspecto = v('cervicaisAspecto') || 'normal';
