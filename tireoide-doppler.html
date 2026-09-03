@@ -344,7 +344,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Tireóide sem alterações</label><textarea id="ph_impNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Estudo Doppler dentro da normalidade</label><textarea id="ph_impDopplerNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido, TI-RADS 2 ou 3 — use {LOBO} e {TIRADS}</label><textarea id="ph_impNoduloBenigno" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido, TI-RADS 4 ou 5 — use {LOBO}</label><textarea id="ph_impNoduloSuspeito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido, TI-RADS 4 ou 5 — use {LOBO} e {TIRADS}</label><textarea id="ph_impNoduloSuspeito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto colóide (1) — use {LADO}</label><textarea id="ph_impCistoColoide1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cistos colóides (ao menos 3) — use {LADO}</label><textarea id="ph_impCistoColoideVarios" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Tireoidite de Hashimoto — use {VOLVASC}</label><textarea id="ph_impHashimoto" rows="2"></textarea></div>
@@ -1154,7 +1154,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impNormal: 'Tireóide sem alterações ao exame ecográfico.',
     impDopplerNormal: 'Estudo Doppler dentro da normalidade.',
     impNoduloBenigno: 'Nódulo sólido em Lobo {LOBO} - TIRADS-{TIRADS}.',
-    impNoduloSuspeito: 'Nódulo suspeito em Lobo {LOBO} - Seguir propedêutica.',
+    impNoduloSuspeito: 'Nódulo suspeito em Lobo {LOBO} - TIRADS-{TIRADS} - Seguir propedêutica.',
     impCistoColoide1: 'Cisto colóide no lobo {LADO}.',
     impCistoColoideVarios: 'Cistos colóides no lobo {LADO}.',
     impHashimoto: 'Tireoide de volume e vascularização {VOLVASC} com textura heterogênea, sugestiva de tireoidite crônica.',
@@ -1370,7 +1370,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // categoria; a partir de 4 ela vira achado suspeito, com recomendação de
       // seguir a propedêutica, em vez do número da categoria.
       parenquimaImpressaoHD = (parseInt(tirads, 10) >= 4)
-        ? phrase('impNoduloSuspeito', {LOBO:lobo})
+        ? phrase('impNoduloSuspeito', {LOBO:lobo, TIRADS:tirads})
         : phrase('impNoduloBenigno', {LOBO:lobo, TIRADS:tirads});
     } else if(parenquimaAspecto==='cistoColoide1'){
       const lobo = v('cistoLobo') || 'direito';
