@@ -472,6 +472,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Colo uterino — texto no corpo do laudo — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo normal — impressão</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo curto — impressão</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>DPP (com DUM incerta/ignorada) — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Rodapé</h3>
@@ -613,6 +614,9 @@
         <div class="field-row">
           <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 28"></div>
           <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_dppInformada">
+          <div class="field"><label>DPP (data provável do parto)</label><input type="text" id="dpp" placeholder="calculada automaticamente" readonly></div>
         </div>
       </div>
     </div>
@@ -1138,6 +1142,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impColoNormal: 'Colo uterino longo e fechado. Baixo risco de parto prematuro.',
     impColoAlterado: 'Colo curto. Aumento do risco de parto prematuro.',
 
+    impDPP: 'DPP: {DATA}.',
+
     footerImagens: 'Imagens em anexo.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
@@ -1256,10 +1262,12 @@ if(typeof criarMotorLaudo !== 'function'){
   $('cronologiaMetodo').addEventListener('change', e=>{
     toggle('wrap_usgDatacao', e.target.value==='usg');
     toggle('wrap_exameInfo', e.target.value==='exame' || ehDumSemCronologia(e.target.value));
+    toggle('wrap_dppInformada', ehDumSemCronologia(e.target.value));
     toggle('wrap_dumEstimada', e.target.value==='usg' || e.target.value==='exame');
   });
   toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
   toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame' || ehDumSemCronologia($('cronologiaMetodo').value));
+  toggle('wrap_dppInformada', ehDumSemCronologia($('cronologiaMetodo').value));
   toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg' || $('cronologiaMetodo').value==='exame');
 
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
@@ -1545,18 +1553,27 @@ if(typeof criarMotorLaudo !== 'function'){
   function ehDumSemCronologia(metodo){
     return metodo === 'incerta' || metodo === 'ignorada';
   }
+  // Mesma conta usada pelo método de datação "IG informada neste exame" (IG
+  // informada na data do exame atual, contada para trás) — extraída à parte
+  // porque também alimenta a DPP quando a DUM é incerta/ignorada, sem virar
+  // cronologia formal (ver computeDataBase e a DPP em render()).
+  function computeDataBaseFromIG(dataExameStr, semanasStr, diasStr){
+    const dataExameDt = parseDateBR(dataExameStr);
+    const semanas = parseInt(semanasStr, 10);
+    const dias = parseInt(diasStr, 10);
+    if(!dataExameDt || isNaN(semanas)) return null;
+    return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
+  }
   function computeDataBase(metodo){
     // DUM incerta/ignorada: por definição não há data de referência — a IG
     // informada abaixo vira só um número solto para a conclusão, nunca uma
     // cronologia (sem "DUM estimada", sem gestação criada na Curva de
-    // Crescimento a partir daqui).
+    // Crescimento a partir daqui). A DPP é exceção: primeiro exame da
+    // gestante, sem nenhuma cronologia ainda — ela precisa de uma DPP, ainda
+    // que estimada (ver dppTxt em render()).
     if(ehDumSemCronologia(metodo)) return null;
     if(metodo === 'exame'){
-      const dataExameDt = parseDateBR(v('dataExame'));
-      const semanas = parseInt(v('impSemanas'), 10);
-      const dias = parseInt(v('impDias'), 10);
-      if(!dataExameDt || isNaN(semanas)) return null;
-      return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
+      return computeDataBaseFromIG(v('dataExame'), v('impSemanas'), v('impDias'));
     }
     if(metodo === 'usg'){
       const usgDt = parseDateBR(v('usgDataDatacao'));
@@ -1572,6 +1589,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!dataBase || !dataExameDt) return null;
     const totalDays = Math.round((dataExameDt - dataBase)/MS_DIA);
     return totalDays >= 0 ? totalDays : null;
+  }
+  function computeDPP(dataBase){
+    return dataBase ? formatDateBR(addDays(dataBase, 280)) : '';
   }
 
   // ---------- Doppler: percentil do IP médio das artérias uterinas,
@@ -1737,6 +1757,13 @@ if(typeof criarMotorLaudo !== 'function'){
         : phraseRaw('impColoNormal'), auto:true});
     }
 
+    // DPP só entra na conclusão quando a DUM é incerta/ignorada — sem
+    // cronologia estabelecida, mas ainda assim útil se for o primeiro exame
+    // da gestante. Sempre por último, mesmo lugar do laudo de 1º trimestre.
+    if(ehDumSemCronologia(state.cronologiaMetodo)){
+      items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
+    }
+
     return items;
   }
 
@@ -1881,6 +1908,15 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       gaDays = computeIGDaysAtExam(dataBase, dataExame);
     }
+    // DPP: só aparece quando a DUM é incerta/ignorada — sem cronologia
+    // nenhuma estabelecida, mas se for o primeiro exame da gestante ela
+    // ainda precisa de uma DPP para levar daqui, ainda que estimada a
+    // partir da mesma IG informada acima.
+    const dppTxt = ehDumSemCronologia(cronologiaMetodo)
+      ? computeDPP(computeDataBaseFromIG(dataExame, v('impSemanas'), v('impDias')))
+      : '';
+    const dppEl = $('dpp');
+    if(dppEl) dppEl.value = dppTxt;
     const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
     const igAtualEl = $('igAtual');
     if(igAtualEl) igAtualEl.value = igAtualTxt;
@@ -2073,7 +2109,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // ----- Impressão -----
     const state = {
-      semanas: semanasTxt, dias: diasTxt, ig: igTxt, gaDays, cronologiaMetodo,
+      semanas: semanasTxt, dias: diasTxt, ig: igTxt, gaDays, cronologiaMetodo, dpp: dppTxt,
       isMultiple, corTxt, fetos,
       discordanciaTxt, discordanciaAlterada, discordanciaNum,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
