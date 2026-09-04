@@ -104,6 +104,7 @@
   .field input:focus, .field select:focus, .field textarea:focus{
     border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);
   }
+  .field input[readonly]{background:var(--line-soft);color:var(--ink-soft);cursor:not-allowed;}
   .field input.flag-abnormal{border-color:var(--amber);background:var(--amber-light);}
   .field input.format-error{border-color:#B4432F;background:#FBEAE6;}
   .field input.field-missing{border-color:#B4432F;}
@@ -530,7 +531,7 @@
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">A impressão reserva 3,5 cm em branco no topo para a folha timbrada; o cabeçalho de identificação abaixo entra logo após esse espaço.</p>
         <div class="field-row">
           <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
+          <div class="field"><label>Data do exame (1ª visita)</label><input type="text" id="dataExame" placeholder="calculada automaticamente" readonly></div>
         </div>
         <div class="field-row">
           <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
@@ -967,7 +968,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
     aplicarMascaraCPF, applyExecutante, blankOrValue, copyComputedToClone, draftDiscard, draftFingerprint,
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
-    nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview, setDefaultDataExame,
+    nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
     vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText
   } = motor;
@@ -1741,6 +1742,18 @@ if(typeof criarMotorLaudo !== 'function'){
     return Array.from($('visitasContainer').children).map(el=> el.id.replace('wrap_visita',''));
   }
 
+  // A "Data do exame" do cabeçalho é a data de liberação do laudo — como o
+  // rastreamento cobre várias visitas ao longo do ciclo, essa data é sempre a
+  // da 1ª visita (o campo é só leitura, não se digita nele à parte). Roda a
+  // cada render(), então qualquer mudança nas visitas (data editada, visita
+  // removida virando outra a 1ª, rascunho restaurado) já sai sincronizada.
+  function syncDataExameFromPrimeiraVisita(){
+    const uids = visitaUids();
+    const primeiraData = uids.length ? v('visita'+uids[0]+'Data') : '';
+    const el = $('dataExame');
+    if(el && el.value !== primeiraData) el.value = primeiraData;
+  }
+
   function flag(id, isAbnormal){
     const el = $(id), note = $('flag_'+id);
     if(!el) return;
@@ -1905,6 +1918,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // inteiro pelo 'afterprint': o que fosse renderizado agora seria jogado
     // fora ali. Fica anotado e roda assim que a impressão termina.
     if(st.printPaginated){ st.renderPendingAfterPrint = true; return; }
+    syncDataExameFromPrimeiraVisita();
     pendingCount = 0;
     function req(id){
       const val = v(id);
@@ -2031,7 +2045,12 @@ if(typeof criarMotorLaudo !== 'function'){
       // não há médico solicitante — tira a linha inteira do cabeçalho, em vez
       // de mostrar "Médico: ____" como se fosse um campo ainda não preenchido.
       +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
-      +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>'
+      // G0 P0 A0 é a mesma coisa que nuligesta: escrever "P:0 A:0" ao lado não
+      // acrescenta informação, só polui o cabeçalho — nesse caso específico
+      // mostra só o G.
+      +(gpaG==='0' && gpaP==='0' && gpaA==='0'
+        ? '<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+'</span></div>'
+        : '<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>')
       +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+'</span></div>'
       +'</div>'});
 
@@ -2391,7 +2410,6 @@ if(typeof criarMotorLaudo !== 'function'){
     $('paper').innerHTML = '';
     printAttempted = false;
     $('printAlert').classList.remove('show');
-    setDefaultDataExame();
     addVisita();
     addMiomaNodule();
     // Aspecto de ambos os ovários volta para "Normal": a seção de segunda
@@ -2402,8 +2420,6 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_ovE_segunda', true);
     draftDiscard();
   });
-
-  setDefaultDataExame();
 
   // "Número de nódulos" recria os cards ao disparar 'change' — pularia por
   // cima dos uids exatos que acabaram de voltar do rascunho.
@@ -2762,10 +2778,12 @@ if(typeof criarMotorLaudo !== 'function'){
       //    texto digitado à mão) — o mesmo que o rascunho automático já grava.
       const snap = draftSnapshot();
 
-      // 3) Um registro por visita, não por clique: se já existe um laudo desta
-      //    paciente com a mesma data de exame, atualiza esse registro em vez de
-      //    inserir outro — salvar de novo no mesmo dia (depois de corrigir algo)
-      //    não deve empilhar duplicatas em "Buscar laudo anterior".
+      // 3) Um registro por rastreamento, não por clique: a "Data do exame" é
+      //    sempre a da 1ª visita (campo só leitura, sincronizado em render()),
+      //    então salvar de novo depois de acrescentar a visita de hoje acha o
+      //    mesmo registro pelo par paciente+data_exame e atualiza o conteúdo
+      //    — em vez de empilhar uma linha nova por visita em "Buscar laudo
+      //    anterior".
       const {data: existente, error: errBuscaLaudo} = await cgClient
         .from('laudos_ovulacao')
         .select('id')
