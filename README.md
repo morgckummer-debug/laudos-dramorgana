@@ -19,6 +19,7 @@ Como o motor é um arquivo à parte, o `.html` não abre mais sozinho fora da pa
 - `tireoide-doppler.html` — Ultrassonografia da Tireóide com Estudo Doppler (lobo direito, lobo esquerdo e istmo, com o volume de cada porção digitado direto da tela do aparelho — não recalculado aqui, para sair idêntico às fotos do exame — e volume total automático somando os três; padrão de vascularização e velocidade da artéria tireoidea inferior ao Doppler). Mesma observação: sem CPF, sem integração com a Curva de Crescimento.
 
 ### Ginecológico
+- `mamas.html` — Ultrassonografia das Mamas e Axilas (achados — cisto único/2/3+, vários cistos dispersos, aglomerado cístico, nódulo sólido único/2/3+, fibroadenoma, linfonodo axilar, linfonodo intramamário e seroma — cada um em cards que se repetem, um por achado, com mama e lado próprios; checkbox de prótese mamária ao final do laudo, antes da Impressão). Sem CPF e sem integração com a Curva de Crescimento — não tem feto, nada a gravar em `patients`/`gestacoes`/`exams`.
 - `transvaginal.html` — Ultrassonografia Transvaginal
 - `rastreamento-ovulacao.html` — Ultrassonografia Transvaginal para Rastreamento de Ovulação (útero, ovários e acompanhamento folicular visita a visita, até a identificação do corpo lúteo)
 - `pelvico-infantil.html` — Ultrassonografia Pélvica Infantil (propedêutica de puberdade precoce)
