@@ -1495,13 +1495,12 @@ if(typeof criarMotorLaudo !== 'function'){
 
     function blocoMama(lado){
       const lista = achadosMama[lado];
-      const out = [];
+      const out = [{id:'mama-'+lado+'-label', html:'<p class="linha intro">Mama '+lado+':</p>'}];
       if(lista.length === 0){
-        out.push({id:'mama-'+lado, html:'<p class="linha"><strong>Mama '+lado+':</strong> Não se observam nódulos sólidos, císticos ou áreas de desorganização da estrutura mamária. Região retromamilar sem alterações.</p>'});
+        out.push({id:'mama-'+lado, html:'<p class="linha">Não se observam nódulos sólidos, císticos ou áreas de desorganização da estrutura mamária. Região retromamilar sem alterações.</p>'});
       } else {
-        lista.forEach((a, idx)=>{
-          const prefixo = idx===0 ? '<strong>Mama '+lado+':</strong> ' : '';
-          out.push({id:'mama-'+lado+'-'+a.uid, html:'<p class="linha">'+prefixo+a.corpo+'</p>'});
+        lista.forEach(a=>{
+          out.push({id:'mama-'+lado+'-'+a.uid, html:'<p class="linha">'+a.corpo+'</p>'});
           if(a.corpoLista){
             out.push({id:'mama-'+lado+'-lista-'+a.uid, html:'<div class="linha nodulos-lista">'+a.corpoLista.map(t=>'<p class="nodulo-item">- '+t+'</p>').join('')+'</div>'});
           }
@@ -1511,12 +1510,12 @@ if(typeof criarMotorLaudo !== 'function'){
       return out;
     }
 
-    function blocoAxilas(){
+    function blocoAxilasConteudo(){
       const lista = achadosAxilar.direita.concat(achadosAxilar.esquerda);
       if(lista.length === 0){
-        return '<strong>Axilas:</strong> Não há sinais de linfonodopatias. Pele, grupos musculares e vasos sem anormalidades.';
+        return 'Não há sinais de linfonodopatias. Pele, grupos musculares e vasos sem anormalidades.';
       }
-      return '<strong>Axilas:</strong> '+lista.map(a=>a.corpo).join(' ')+' Pele, grupos musculares e vasos sem anormalidades.';
+      return lista.map(a=>a.corpo).join(' ')+' Pele, grupos musculares e vasos sem anormalidades.';
     }
 
     // ----- Impressão -----
@@ -1562,10 +1561,11 @@ if(typeof criarMotorLaudo !== 'function'){
     blocoMama('direita').forEach(b=> blocks.push(b));
     blocoMama('esquerda').forEach(b=> blocks.push(b));
 
-    const peleTexto = peleAspecto==='alterado' && peleDescricao ? escapeHtml(peleDescricao)+'.' : 'De espessura usual, sem alterações.';
-    blocks.push({id:'pele', html:'<p class="linha"><strong>Pele e tecido subcutâneo:</strong> '+peleTexto+'</p>'});
+    const peleTexto = peleAspecto==='alterado' && peleDescricao ? escapeHtml(peleDescricao)+'.' : 'Pele e tecido subcutâneo de espessura usual, sem alterações.';
+    blocks.push({id:'pele', html:'<p class="linha">'+peleTexto+'</p>'});
 
-    blocks.push({id:'axilas', html:'<p class="linha">'+blocoAxilas()+'</p>'});
+    blocks.push({id:'axilas-label', html:'<p class="linha intro">Axilas:</p>'});
+    blocks.push({id:'axilas', html:'<p class="linha">'+blocoAxilasConteudo()+'</p>'});
 
     if(chkProtese){
       blocks.push({id:'protese', html:'<p class="linha">Próteses mamárias apresentando contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro.</p>'});
