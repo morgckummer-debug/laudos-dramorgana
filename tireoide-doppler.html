@@ -180,12 +180,12 @@
   .paper p.linha.intro.intro-last{margin:0 0 var(--linha-margin, 16px);text-decoration:underline;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
-  .paper table.medidas{border-collapse:collapse;margin:0 auto var(--linha-margin, 16px);width:auto;font-size:0.8em;}
-  .paper table.medidas th{border-top:1.25px solid #2b2b2e;border-bottom:0.75px solid #2b2b2e;padding:3px 6px 4px;text-align:center;font-weight:700;}
-  .paper table.medidas td{padding:3px 6px;text-align:center;}
+  .paper table.medidas{border-collapse:collapse;margin:0 auto var(--linha-margin, 16px);width:auto;font-size:0.8em;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.medidas th{border:1px solid #d9c3d3;padding:5px 10px;text-align:center;font-weight:700;background:var(--rose-light);color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .paper table.medidas td{border:1px solid #d9c3d3;padding:5px 10px;text-align:center;}
   .paper table.medidas td:first-child, .paper table.medidas th:first-child{text-align:left;}
   .paper table.medidas td:first-child{font-weight:700;}
-  .paper table.medidas tbody tr:last-child td{border-bottom:1.25px solid #2b2b2e;}
+  .paper table.medidas tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
   .paper ul.impressao li{margin-bottom:2px;font-weight:700;text-align:justify;padding-left:1em;text-indent:-1em;}
   .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
@@ -275,6 +275,7 @@
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
     .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.medidas{page-break-inside:avoid;}
+    .paper table.medidas{box-shadow:none;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -1636,10 +1637,10 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
-    clone.querySelectorAll('table.medidas th').forEach(el=>{ el.style.borderTop='1.25px solid #2b2b2e'; el.style.borderBottom='0.75px solid #2b2b2e'; el.style.padding='3px 6px 4px'; el.style.textAlign='center'; el.style.fontWeight='700'; });
-    clone.querySelectorAll('table.medidas td').forEach(el=>{ el.style.padding='3px 6px'; el.style.textAlign='center'; });
+    clone.querySelectorAll('table.medidas th').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='5px 10px'; el.style.textAlign='center'; el.style.fontWeight='700'; el.style.background='#f7e9f4'; el.style.color='#2b2b2e'; });
+    clone.querySelectorAll('table.medidas td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='5px 10px'; el.style.textAlign='center'; });
     clone.querySelectorAll('table.medidas td:first-child').forEach(el=>{ el.style.textAlign='left'; el.style.fontWeight='700'; });
-    clone.querySelectorAll('table.medidas tbody tr:last-child td').forEach(el=>{ el.style.borderBottom='1.25px solid #2b2b2e'; });
+    clone.querySelectorAll('table.medidas tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#f7f0f6'; });
     clone.querySelectorAll('table.medidas').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
