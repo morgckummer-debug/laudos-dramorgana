@@ -115,6 +115,8 @@
   .tirads-sugestao{font-size:15px;font-weight:700;color:#fff;margin-top:8px;padding:6px 14px;border-radius:8px;background:var(--rose);box-shadow:0 3px 10px rgba(174,91,160,0.4);display:inline-block;}
   .tirads-sugestao:empty{display:none;padding:0;box-shadow:none;}
   .tirads-sugestao.mismatch{background:var(--amber);box-shadow:0 3px 10px rgba(192,90,52,0.4);}
+  .subgroup{border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;}
+  .nodulo-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
 
   .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
   .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
@@ -405,63 +407,9 @@
             </select>
           </div>
         </div>
-        <div class="field-row field-row-compact conditional" id="wrap_noduloCampos">
-          <div class="field"><label>Lobo</label>
-            <select id="noduloLobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
-          </div>
-          <div class="field"><label>Composição</label>
-            <select id="noduloComposicao">
-              <option value="solido">Sólido (2 pts)</option>
-              <option value="misto">Misto cístico-sólido (1 pt)</option>
-              <option value="espongiforme">Espongiforme (0 pts)</option>
-            </select>
-          </div>
-          <div class="field"><label>Ecogenicidade</label>
-            <select id="noduloEcogenicidade">
-              <option value="hiperecogênico">Hiperecogênico (1 pt)</option>
-              <option value="isoecogênico">Isoecogênico (1 pt)</option>
-              <option value="hipoecogênico">Hipoecogênico (2 pts)</option>
-              <option value="acentuadamente hipoecogênico">Acentuadamente hipoecogênico (3 pts)</option>
-            </select>
-          </div>
-          <div class="field"><label>Terço</label>
-            <select id="noduloTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_noduloCamposDescritores">
-          <div class="field"><label>Forma</label>
-            <select id="noduloForma">
-              <option value="paralelo">Paralelo à pele (0 pts)</option>
-              <option value="naoParalelo">Não paralelo — mais alto que largo (3 pts)</option>
-            </select>
-          </div>
-          <div class="field"><label>Margem</label>
-            <select id="noduloMargem">
-              <option value="regular">Regular (0 pts)</option>
-              <option value="malDefinida">Mal definida (0 pts)</option>
-              <option value="lobulada">Lobulada (2 pts)</option>
-              <option value="irregular">Irregular (2 pts)</option>
-              <option value="extratireoidiana">Extensão extratireoidiana (3 pts)</option>
-            </select>
-          </div>
-          <div class="field"><label>Focos ecogênicos</label>
-            <select id="noduloFocos">
-              <option value="nenhum">Nenhum (0 pts)</option>
-              <option value="macro">Macrocalcificações (1 pt)</option>
-              <option value="margemCalcificada">Margem calcificada periférica interrompida (2 pts)</option>
-              <option value="micro">Puntiformes / microcalcificações (3 pts)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_noduloCampos2">
-          <div class="field"><label>Tamanho</label><input type="text" id="noduloTamanho" placeholder="ex: 22,1 x 23,4 x 25,3 mm"></div>
-          <div class="field"><label>Captação de fluxo ao Doppler</label>
-            <select id="noduloCaptacao"><option value="sem">Sem captação periférica</option><option value="discreta">Discreta captação periférica</option></select>
-          </div>
-          <div class="field"><label>TI-RADS</label>
-            <select id="noduloTirads"><option value="2">Categoria 2</option><option value="3">Categoria 3</option><option value="4">Categoria 4</option><option value="5">Categoria 5</option></select>
-            <span class="tirads-sugestao" id="noduloTiradsSugestao"></span>
-          </div>
+        <div class="conditional" id="wrap_noduloCampos">
+          <div id="noduloNodulosContainer"></div>
+          <button type="button" class="btn-clear" id="btnAddNodulo" style="margin:2px 0 12px;">+ Adicionar nódulo</button>
         </div>
         <div class="field-row field-row-compact conditional" id="wrap_cistoColoide1Campos">
           <div class="field"><label>Lobo</label>
@@ -1102,14 +1050,14 @@ if(typeof criarMotorLaudo !== 'function'){
   // Nódulo espongiforme é TR2 por definição do ACR TI-RADS (inerentemente
   // benigno) — não soma com os outros quatro descritores, que nesse caso nem
   // chegam a ser avaliados no método original.
-  function sugerirTirads(){
-    const composicaoVal = v('noduloComposicao') || 'solido';
+  function sugerirTirads(uid){
+    const composicaoVal = v('nodulo'+uid+'Composicao') || 'solido';
     if(composicaoVal === 'espongiforme') return {pontos: 0, categoria: 2, espongiforme: true};
     const pontos = (NODULO_COMPOSICAO_PONTOS[composicaoVal] || 0)
-      + (NODULO_ECOGENICIDADE_PONTOS[v('noduloEcogenicidade')] || 0)
-      + (NODULO_FORMA_PONTOS[v('noduloForma')] || 0)
-      + (NODULO_MARGEM_PONTOS[v('noduloMargem')] || 0)
-      + (NODULO_FOCOS_PONTOS[v('noduloFocos')] || 0);
+      + (NODULO_ECOGENICIDADE_PONTOS[v('nodulo'+uid+'Ecogenicidade')] || 0)
+      + (NODULO_FORMA_PONTOS[v('nodulo'+uid+'Forma')] || 0)
+      + (NODULO_MARGEM_PONTOS[v('nodulo'+uid+'Margem')] || 0)
+      + (NODULO_FOCOS_PONTOS[v('nodulo'+uid+'Focos')] || 0);
     let categoria;
     if(pontos < 2) categoria = 1;
     else if(pontos === 2) categoria = 2;
@@ -1236,11 +1184,86 @@ if(typeof criarMotorLaudo !== 'function'){
   wireAspecto('contornosAspecto', 'wrap_contornosDescricao');
   wireAspecto('vascularizacaoAspecto', 'wrap_vascularizacaoDescricao');
 
+  // ---------- Nódulos: lista dinâmica, igual ao mesmo padrão dos miomas no
+  // transvaginal.html. Cada nódulo mantém um uid estável desde a criação (nunca
+  // reaproveitado depois de removido), então apagar um no meio da lista nunca
+  // bagunça os ids/listeners dos outros. A numeração exibida (Nódulo 1, 2...) é
+  // só posicional e é recalculada a cada adição/remoção.
+  let noduloNextUid = 1;
+  function noduloSubgroupHTML(uid){
+    return ''
+      +'<div class="subgroup" id="wrap_nodulo'+uid+'">'
+      +'<p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Nódulo <span class="nodulo-index"></span></p>'
+      +'<div class="field-row field-row-compact">'
+      +'<div class="field"><label>Lobo</label><select id="nodulo'+uid+'Lobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select></div>'
+      +'<div class="field"><label>Composição</label><select id="nodulo'+uid+'Composicao">'
+      +'<option value="solido">Sólido (2 pts)</option><option value="misto">Misto cístico-sólido (1 pt)</option><option value="espongiforme">Espongiforme (0 pts)</option>'
+      +'</select></div>'
+      +'<div class="field"><label>Ecogenicidade</label><select id="nodulo'+uid+'Ecogenicidade">'
+      +'<option value="hiperecogênico">Hiperecogênico (1 pt)</option><option value="isoecogênico">Isoecogênico (1 pt)</option><option value="hipoecogênico">Hipoecogênico (2 pts)</option><option value="acentuadamente hipoecogênico">Acentuadamente hipoecogênico (3 pts)</option>'
+      +'</select></div>'
+      +'<div class="field"><label>Terço</label><select id="nodulo'+uid+'Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select></div>'
+      +'</div>'
+      +'<div class="field-row field-row-compact">'
+      +'<div class="field"><label>Forma</label><select id="nodulo'+uid+'Forma">'
+      +'<option value="paralelo">Paralelo à pele (0 pts)</option><option value="naoParalelo">Não paralelo — mais alto que largo (3 pts)</option>'
+      +'</select></div>'
+      +'<div class="field"><label>Margem</label><select id="nodulo'+uid+'Margem">'
+      +'<option value="regular">Regular (0 pts)</option><option value="malDefinida">Mal definida (0 pts)</option><option value="lobulada">Lobulada (2 pts)</option><option value="irregular">Irregular (2 pts)</option><option value="extratireoidiana">Extensão extratireoidiana (3 pts)</option>'
+      +'</select></div>'
+      +'<div class="field"><label>Focos ecogênicos</label><select id="nodulo'+uid+'Focos">'
+      +'<option value="nenhum">Nenhum (0 pts)</option><option value="macro">Macrocalcificações (1 pt)</option><option value="margemCalcificada">Margem calcificada periférica interrompida (2 pts)</option><option value="micro">Puntiformes / microcalcificações (3 pts)</option>'
+      +'</select></div>'
+      +'</div>'
+      +'<div class="field-row field-row-compact">'
+      +'<div class="field"><label>Tamanho</label><input type="text" id="nodulo'+uid+'Tamanho" placeholder="ex: 22,1 x 23,4 x 25,3 mm"></div>'
+      +'<div class="field"><label>Captação de fluxo ao Doppler</label><select id="nodulo'+uid+'Captacao"><option value="sem">Sem captação periférica</option><option value="discreta">Discreta captação periférica</option></select></div>'
+      +'<div class="field"><label>TI-RADS</label><select id="nodulo'+uid+'Tirads"><option value="2">Categoria 2</option><option value="3">Categoria 3</option><option value="4">Categoria 4</option><option value="5">Categoria 5</option></select>'
+      +'<span class="tirads-sugestao" id="nodulo'+uid+'TiradsSugestao"></span></div>'
+      +'</div>'
+      +'<button type="button" class="nodulo-remove" data-uid="'+uid+'">Remover nódulo</button>'
+      +'</div>';
+  }
+  function renumberNodulos(){
+    const container = $('noduloNodulosContainer');
+    const nodulos = Array.from(container.children);
+    nodulos.forEach((el, idx)=>{
+      const label = el.querySelector('.nodulo-index');
+      if(label) label.textContent = idx+1;
+      const removeBtn = el.querySelector('.nodulo-remove');
+      if(removeBtn) removeBtn.style.display = nodulos.length>1 ? 'inline' : 'none';
+    });
+  }
+  function wireNoduloNodule(uid){
+    const el = $('wrap_nodulo'+uid);
+    el.querySelectorAll('input, select').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    el.querySelector('.nodulo-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberNodulos();
+      render();
+    });
+  }
+  function addNodulo(){
+    const uid = noduloNextUid++;
+    $('noduloNodulosContainer').insertAdjacentHTML('beforeend', noduloSubgroupHTML(uid));
+    wireNoduloNodule(uid);
+    renumberNodulos();
+    render();
+  }
+  $('btnAddNodulo').addEventListener('click', addNodulo);
+  function noduloNoduleUids(){
+    return Array.from($('noduloNodulosContainer').children).map(el=> el.id.replace('wrap_nodulo',''));
+  }
+
   $('parenquimaAspecto').addEventListener('change', e=>{
     const val = e.target.value;
     toggle('wrap_noduloCampos', val==='nodulo');
-    toggle('wrap_noduloCamposDescritores', val==='nodulo');
-    toggle('wrap_noduloCampos2', val==='nodulo');
+    if(val==='nodulo' && $('noduloNodulosContainer').children.length===0){
+      addNodulo();
+    }
     toggle('wrap_cistoColoide1Campos', val==='cistoColoide1');
     toggle('wrap_cistoColoideVariosCampos', val==='cistoColoideVarios');
     toggle('wrap_hashimotoCampos', val==='hashimoto');
@@ -1271,6 +1294,9 @@ if(typeof criarMotorLaudo !== 'function'){
       {key:'normal', label: state.volumeAumentado ? phrase('impVolumeAumentado') : phrase('impNormal'), auto:true},
       {key:'dopplerNormal', label:phrase('impDopplerNormal'), auto:true}
     ];
+    (state.noduloImpressaoItems || []).forEach(it=>{
+      items.push({key:'parenquima-achado-nodulo'+it.uid, label: it.label, auto:true});
+    });
     if(state.parenquimaImpressaoHD){
       items.push({key:'parenquima-achado', label: state.parenquimaImpressaoHD, auto:true});
     }
@@ -1350,32 +1376,45 @@ if(typeof criarMotorLaudo !== 'function'){
     reqIf('parenquimaDescricao', parenquimaAspecto==='alterado');
     let parenquimaTexto = 'Parênquima de textura homogênea, não se identificando nódulos sólidos ou císticos.';
     let parenquimaImpressaoHD = null;
+    let noduloImpressaoItems = [];
     if(parenquimaAspecto==='nodulo'){
-      const lobo = v('noduloLobo') || 'direito';
-      const composicao = NODULO_COMPOSICAO_TEXTO[v('noduloComposicao')] || NODULO_COMPOSICAO_TEXTO.solido;
-      const ecogenicidade = v('noduloEcogenicidade') || 'hiperecogênico';
-      const forma = NODULO_FORMA_TEXTO[v('noduloForma')] || NODULO_FORMA_TEXTO.paralelo;
-      const margem = NODULO_MARGEM_TEXTO[v('noduloMargem')] || NODULO_MARGEM_TEXTO.regular;
-      const focos = NODULO_FOCOS_TEXTO[v('noduloFocos')] || NODULO_FOCOS_TEXTO.nenhum;
-      const terco = v('noduloTerco') || 'superior';
-      const tamanho = blankOrValue(req('noduloTamanho'));
-      const captacao = v('noduloCaptacao')==='discreta' ? 'com discreta captação de fluxo periférica ao estudo Doppler' : 'sem captação de fluxo periférica ao estudo Doppler';
-      const tirads = v('noduloTirads') || '3';
-      parenquimaTexto = 'Nódulo '+composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+captacao+', localizado no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' (TI-RADS – Cat. '+tirads+').';
+      const uids = noduloNoduleUids();
+      const multiplos = uids.length > 1;
+      const frags = uids.map((uid, idx)=>{
+        const lobo = v('nodulo'+uid+'Lobo') || 'direito';
+        const composicao = NODULO_COMPOSICAO_TEXTO[v('nodulo'+uid+'Composicao')] || NODULO_COMPOSICAO_TEXTO.solido;
+        const ecogenicidade = v('nodulo'+uid+'Ecogenicidade') || 'hiperecogênico';
+        const forma = NODULO_FORMA_TEXTO[v('nodulo'+uid+'Forma')] || NODULO_FORMA_TEXTO.paralelo;
+        const margem = NODULO_MARGEM_TEXTO[v('nodulo'+uid+'Margem')] || NODULO_MARGEM_TEXTO.regular;
+        const focos = NODULO_FOCOS_TEXTO[v('nodulo'+uid+'Focos')] || NODULO_FOCOS_TEXTO.nenhum;
+        const terco = v('nodulo'+uid+'Terco') || 'superior';
+        const tamanho = blankOrValue(req('nodulo'+uid+'Tamanho'));
+        const captacao = v('nodulo'+uid+'Captacao')==='discreta' ? 'com discreta captação de fluxo periférica ao estudo Doppler' : 'sem captação de fluxo periférica ao estudo Doppler';
+        const tirads = v('nodulo'+uid+'Tirads') || '3';
 
-      const sugestao = sugerirTirads();
-      const sugestaoEl = $('noduloTiradsSugestao');
-      const divergiu = sugestao.categoria !== parseInt(tirads, 10);
-      sugestaoEl.textContent = sugestao.espongiforme
-        ? '→ Sugestão: TR2 (espongiforme é benigno por definição)'
-        : '→ Sugestão: TR'+sugestao.categoria+' ('+sugestao.pontos+' pts)';
-      sugestaoEl.classList.toggle('mismatch', divergiu);
-      // TI-RADS 2-3 é achado provavelmente benigno — a Impressão só registra a
-      // categoria; a partir de 4 ela vira achado suspeito, com recomendação de
-      // seguir a propedêutica, em vez do número da categoria.
-      parenquimaImpressaoHD = (parseInt(tirads, 10) >= 4)
-        ? phrase('impNoduloSuspeito', {LOBO:lobo, TIRADS:tirads})
-        : phrase('impNoduloBenigno', {LOBO:lobo, TIRADS:tirads});
+        const sugestao = sugerirTirads(uid);
+        const sugestaoEl = $('nodulo'+uid+'TiradsSugestao');
+        if(sugestaoEl){
+          const divergiu = sugestao.categoria !== parseInt(tirads, 10);
+          sugestaoEl.textContent = sugestao.espongiforme
+            ? '→ Sugestão: TR2 (espongiforme é benigno por definição)'
+            : '→ Sugestão: TR'+sugestao.categoria+' ('+sugestao.pontos+' pts)';
+          sugestaoEl.classList.toggle('mismatch', divergiu);
+        }
+        // TI-RADS 2-3 é achado provavelmente benigno — a Impressão só registra a
+        // categoria; a partir de 4 ela vira achado suspeito, com recomendação de
+        // seguir a propedêutica, em vez do número da categoria.
+        noduloImpressaoItems.push({
+          uid,
+          label: (parseInt(tirads, 10) >= 4)
+            ? phrase('impNoduloSuspeito', {LOBO:lobo, TIRADS:tirads})
+            : phrase('impNoduloBenigno', {LOBO:lobo, TIRADS:tirads})
+        });
+
+        const corpo = composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+captacao+', localizado no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' (TI-RADS – Cat. '+tirads+').';
+        return multiplos ? ('Nódulo '+(idx+1)+' — '+corpo) : ('Nódulo '+corpo);
+      });
+      parenquimaTexto = frags.join(' ');
     } else if(parenquimaAspecto==='cistoColoide1'){
       const lobo = v('cistoLobo') || 'direito';
       const terco = v('cistoTerco') || 'superior';
@@ -1395,10 +1434,6 @@ if(typeof criarMotorLaudo !== 'function'){
       parenquimaImpressaoHD = phrase('impHashimoto', {VOLVASC:volVasc});
     } else if(parenquimaAspecto==='alterado' && parenquimaDescricao){
       parenquimaTexto = escapeHtml(parenquimaDescricao)+'.';
-    }
-    if(parenquimaAspecto !== 'nodulo'){
-      $('noduloTiradsSugestao').textContent = '';
-      $('noduloTiradsSugestao').classList.remove('mismatch');
     }
 
     const cervicaisAspecto = v('cervicaisAspecto') || 'normal';
@@ -1456,7 +1491,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
 
     // ----- Impressão -----
-    const impressaoItems = buildImpressao({parenquimaImpressaoHD, linfonodoImpressaoHD, volumeAumentado});
+    const impressaoItems = buildImpressao({parenquimaImpressaoHD, noduloImpressaoItems, linfonodoImpressaoHD, volumeAumentado});
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
 
@@ -1720,6 +1755,10 @@ if(typeof criarMotorLaudo !== 'function'){
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
+    // Volta a um único nódulo em branco, igual ao carregamento pela primeira
+    // vez, em vez de deixar quantos tivessem sido adicionados para a paciente
+    // anterior.
+    $('noduloNodulosContainer').innerHTML = '';
     checkedState = {};
     impressaoOverrides = {};
     st.lastBlockHtml = {};
@@ -1727,8 +1766,8 @@ if(typeof criarMotorLaudo !== 'function'){
     printAttempted = false;
     $('printAlert').classList.remove('show');
     setDefaultDataExame();
+    addNodulo();
     draftDiscard();
-    render();
   });
 
   setDefaultDataExame();
@@ -1743,6 +1782,7 @@ if(typeof criarMotorLaudo !== 'function'){
       v: 1,
       ts: Date.now(),
       fields: fields,
+      noduloUids: noduloNoduleUids(),
       checked: checkedState,
       overrides: impressaoOverrides,
       titleFontSize: titleFontSize,
@@ -1754,6 +1794,22 @@ if(typeof criarMotorLaudo !== 'function'){
   function draftRestore(d){
     st.draftRestoring = true;
     try{
+      // Os nódulos repetidos voltam com os mesmos uids de antes: os ids dos
+      // campos e as chaves da checklist de impressão derivam deles, então
+      // recriá-los com uid novo desalinharia tudo o que vem depois.
+      const noduloUids = Array.isArray(d.noduloUids) ? d.noduloUids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
+      $('noduloNodulosContainer').innerHTML = '';
+      if(noduloUids.length){
+        noduloUids.forEach(uid=>{
+          noduloNextUid = Math.max(noduloNextUid, parseInt(uid, 10) + 1);
+          $('noduloNodulosContainer').insertAdjacentHTML('beforeend', noduloSubgroupHTML(uid));
+          wireNoduloNodule(uid);
+        });
+        renumberNodulos();
+      }else{
+        addNodulo();
+      }
+
       Object.keys(d.fields).forEach(id=>{
         const el = $(id);
         if(!el || !el.closest('#formCol')) return;
@@ -1771,6 +1827,7 @@ if(typeof criarMotorLaudo !== 'function'){
       titleFontSize = d.titleFontSize || null;
     }catch(e){
       st.draftRestoring = false;
+      $('noduloNodulosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
       st.lastBlockHtml = {};
