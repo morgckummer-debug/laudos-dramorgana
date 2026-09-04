@@ -2391,9 +2391,18 @@ if(typeof criarMotorLaudo !== 'function'){
     // Risco de aneuploidias: sempre a última tabela antes da IMPRESSÃO, por
     // isso fica fora do forEach acima (depois da biometria/morfologia/
     // marcadores de todos os fetos e do Doppler materno), num laço à parte.
-    fetos.forEach(f=>{
+    //
+    // Gestação monocoriônica: os fetos compartilham a mesma placenta e vêm do
+    // mesmo óvulo fecundado, então o risco de trissomias é um só para a
+    // gestação inteira — um quadro só, não um por feto (que repetiria o
+    // mesmo risco sob dois rótulos "Feto A"/"Feto B" diferentes).
+    const corionicidadeAtualTxt = v('corionicidade');
+    const isMonocorionica = isMultiple && corionicidadeAtualTxt.indexOf('monocorionica') === 0;
+    const fetosParaRisco = isMonocorionica ? fetos.slice(0, 1) : fetos;
+    fetosParaRisco.forEach(f=>{
       const sfx = '-f'+f.uid;
-      const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+' (IM + ON + TN + DV + VT):';
+      const mostrarLabelFeto = isMultiple && !isMonocorionica;
+      const riscoTitulo = 'Risco Fetal para Trissomias'+(mostrarLabelFeto ? ' — '+escapeHtml(f.label) : '')+' (IM + ON + TN + DV + VT):';
       blocks.push({id:'riscos'+sfx, html:'<div style="text-align:center;">'
         +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
         +'<div class="risk-card"><table class="biometria" style="text-align:left;">'
