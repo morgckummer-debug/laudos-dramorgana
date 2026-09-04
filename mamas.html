@@ -1529,14 +1529,29 @@ if(typeof criarMotorLaudo !== 'function'){
       else achadosMama[a.lado].push(a);
     });
 
+    const ACHADO_CISTICOS = ['cisto1','cisto2','cisto3','cistosVarios','aglomeradoCistico'];
+    const ACHADO_SOLIDOS = ['nodulo1','nodulo2','nodulo3','fibroadenoma'];
+
+    function fraseSemAchado(lista){
+      const hasCistico = lista.some(a=> ACHADO_CISTICOS.includes(a.tipo));
+      const hasSolido = lista.some(a=> ACHADO_SOLIDOS.includes(a.tipo));
+      if(hasCistico && hasSolido) return null;
+      if(hasCistico) return 'Não se observam nódulos sólidos ou áreas de desorganização da estrutura mamária.';
+      if(hasSolido) return 'Não se observam nódulos císticos ou áreas de desorganização da estrutura mamária.';
+      return 'Não se observam nódulos sólidos, císticos ou áreas de desorganização da estrutura mamária.';
+    }
+
     function blocoMama(lado){
       const lista = achadosMama[lado];
       const out = [{id:'mama-'+lado+'-label', html:'<p class="linha intro">Mama '+lado+':</p>'}];
+      const semAchado = fraseSemAchado(lista);
       if(lista.length === 0){
-        const semAchado = 'Não se observam nódulos sólidos, císticos ou áreas de desorganização da estrutura mamária.'
-          + (chkMamasMasculinas ? '' : ' Região retromamilar sem alterações.');
-        out.push({id:'mama-'+lado, html:'<p class="linha">'+semAchado+'</p>'});
+        const texto = semAchado + (chkMamasMasculinas ? '' : ' Região retromamilar sem alterações.');
+        out.push({id:'mama-'+lado, html:'<p class="linha">'+texto+'</p>'});
       } else {
+        if(semAchado){
+          out.push({id:'mama-'+lado+'-semachado', html:'<p class="linha">'+semAchado+'</p>'});
+        }
         lista.forEach(a=>{
           out.push({id:'mama-'+lado+'-'+a.uid, html:'<p class="linha">'+a.corpo+'</p>'});
           if(a.corpoLista){
