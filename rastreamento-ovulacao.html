@@ -202,9 +202,9 @@
   .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
-  .paper table.acompanhamento{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;}
-  .paper table.acompanhamento th, .paper table.acompanhamento td{border:1px solid #2b2b2e;padding:4px 8px;text-align:center;vertical-align:middle;}
-  .paper table.acompanhamento th{font-weight:700;background:var(--rose-light);}
+  .paper table.acompanhamento{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.acompanhamento th, .paper table.acompanhamento td{border:1px solid #d9c3d3;padding:7px 10px;text-align:center;vertical-align:middle;}
+  .paper table.acompanhamento th{font-weight:700;background:var(--rose-dark);color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
   /* Recuo suspenso: o "* " que abre cada item mora fora do parágrafo
      (text-indent negativo), então quando a frase quebra de linha a
@@ -299,6 +299,7 @@
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
     .paper p.linha, .paper .nodulos-lista, .paper table.acompanhamento, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
+    .paper table.acompanhamento{box-shadow:none;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -2134,24 +2135,34 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'ovE', html: ovarioParagraph(ovE, 'esquerdo')});
 
     blocks.push({id:'acompHeader', html:'<h4 class="sec">Acompanhamento:</h4>'});
-    let tableHtml = '<table class="acompanhamento" style="width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;">'
+    // Cantos arredondados em <table border-collapse:collapse> só se sustentam
+    // com overflow:hidden no próprio <table> (cada <td>/<th> continua com
+    // canto reto — é o clip do overflow que "corta" os cantos externos em
+    // volta). Tudo aqui vai inline (não só na classe .acompanhamento do
+    // <style>) porque cor de fundo e borda em <style> não sobrevivem à cópia
+    // para o Word (buildReportHtml/WORD_COPY não copia essas propriedades) —
+    // e print-color-adjust:exact é o que evita o cabeçalho rosa sumir na
+    // impressão/PDF (sem isso o navegador omite cor de fundo ao imprimir).
+    const acompBorda = '1px solid #d9c3d3';
+    let tableHtml = '<table class="acompanhamento" style="width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);">'
       + '<tr>'
-      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Data do exame</th>'
-      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Dia do ciclo</th>'
-      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Ovário direito<br>maior folículo</th>'
-      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Ovário esquerdo<br>maior folículo</th>'
-      + '<th style="border:1px solid #2b2b2e;padding:4px 8px;background:#f7e9f4;">Endométrio</th>'
+      + '<th style="border:'+acompBorda+';padding:7px 10px;background:#6d3263;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Data do exame</th>'
+      + '<th style="border:'+acompBorda+';padding:7px 10px;background:#6d3263;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Dia do ciclo</th>'
+      + '<th style="border:'+acompBorda+';padding:7px 10px;background:#6d3263;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Ovário direito<br>maior folículo</th>'
+      + '<th style="border:'+acompBorda+';padding:7px 10px;background:#6d3263;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Ovário esquerdo<br>maior folículo</th>'
+      + '<th style="border:'+acompBorda+';padding:7px 10px;background:#6d3263;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Endométrio</th>'
       + '</tr>';
     if(visitaRows.length === 0){
-      tableHtml += '<tr><td colspan="5" style="border:1px solid #2b2b2e;padding:4px 8px;color:#B4432F;">Adicione ao menos uma visita no formulário à esquerda.</td></tr>';
+      tableHtml += '<tr><td colspan="5" style="border:'+acompBorda+';padding:7px 10px;color:#B4432F;">Adicione ao menos uma visita no formulário à esquerda.</td></tr>';
     } else {
-      visitaRows.forEach(row=>{
-        tableHtml += '<tr>'
-          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.data)+'</td>'
-          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.ciclo)+'</td>'
-          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.folD)+' mm</td>'
-          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+span(row.folE)+' mm</td>'
-          + '<td style="border:1px solid #2b2b2e;padding:4px 8px;">'+escapeHtml(row.endoPadrao)+' — '+span(row.endoEspessura)+' mm</td>'
+      visitaRows.forEach((row, idx)=>{
+        const zebraBg = idx % 2 === 1 ? 'background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;' : '';
+        tableHtml += '<tr style="'+zebraBg+'">'
+          + '<td style="border:'+acompBorda+';padding:7px 10px;">'+span(row.data)+'</td>'
+          + '<td style="border:'+acompBorda+';padding:7px 10px;">'+span(row.ciclo)+'</td>'
+          + '<td style="border:'+acompBorda+';padding:7px 10px;">'+span(row.folD)+' mm</td>'
+          + '<td style="border:'+acompBorda+';padding:7px 10px;">'+span(row.folE)+' mm</td>'
+          + '<td style="border:'+acompBorda+';padding:7px 10px;">'+escapeHtml(row.endoPadrao)+' — '+span(row.endoEspessura)+' mm</td>'
           + '</tr>';
       });
     }
