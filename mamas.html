@@ -1080,12 +1080,41 @@ if(typeof criarMotorLaudo !== 'function'){
     return ACHADO_TIPOS.map(([val,label])=>'<option value="'+val+'">'+label+'</option>').join('');
   }
 
-  function campoHoraDistTam(idPrefix, labelHora){
+  function campoHoraDistTam(idPrefix, labelHora, medidasLivres){
+    const campoTam = medidasLivres
+      ? '<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+idPrefix+'Tam" placeholder="ex: 22,3 x 11,0 x 33,0"></div>'
+      : '<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Tam" placeholder="mm"></div>';
     return '<div class="field-row">'
       +'<div class="field"><label>'+labelHora+'</label><input type="text" id="'+idPrefix+'Hora" placeholder="ex: 2"></div>'
       +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Dist" placeholder="cm"></div>'
-      +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Tam" placeholder="mm"></div>'
+      + campoTam
       +'</div>';
+  }
+
+  // Tamanho de nódulo em texto livre ("22,3 x 11,0 x 33,0"): extrai cada
+  // medida separada por x/×, aceitando ponto ou vírgula como decimal.
+  function parseMedidas(str){
+    return String(str||'')
+      .split(/[x×X]/)
+      .map(s=> parseFloat(s.replace(/[^0-9.,]/g,'').replace(',', '.')))
+      .filter(n=> !isNaN(n) && isFinite(n));
+  }
+
+  // Volume do elipsoide (0,523 × L × AP × T), só quando as 3 medidas vieram.
+  function volumeElipsoide(medidas){
+    if(medidas.length !== 3) return null;
+    return 0.523 * medidas[0] * medidas[1] * medidas[2] / 1000; // mm³ -> cm³
+  }
+
+  function fmtDecimal(n, casas){
+    const c = casas==null ? 2 : casas;
+    return n.toLocaleString('pt-BR', {minimumFractionDigits:c, maximumFractionDigits:c});
+  }
+
+  // Some remove um "mm" digitado por engano no fim, pra não duplicar a
+  // unidade que a frase já acrescenta.
+  function tamanhoSemUnidade(raw){
+    return String(raw||'').replace(/\s*mm\.?\s*$/i, '').trim();
   }
 
   function achadoSubgroupHTML(uid){
@@ -1171,7 +1200,7 @@ if(typeof criarMotorLaudo !== 'function'){
           +'<option value="sem condicionar fenômenos acústicos posteriores">Sem condicionar fenômenos acústicos</option>'
         +'</select></div>'
       +'</div>'
-      + campoHoraDistTam(p+'Nodulo1','Hora')
+      + campoHoraDistTam(p+'Nodulo1','Hora', true)
     +'</div>';
 
     // 2 nódulos sólidos
@@ -1435,8 +1464,11 @@ if(typeof criarMotorLaudo !== 'function'){
         const fenomeno = v('achado'+uid+'Nodulo1Fenomeno') || 'sem condicionar fenômenos acústicos posteriores';
         const hora=blankOrValue(req('achado'+uid+'Nodulo1Hora'));
         const dist=blankOrValue(req('achado'+uid+'Nodulo1Dist'));
-        const tam=blankOrValue(req('achado'+uid+'Nodulo1Tam'));
-        corpo = 'Observa-se imagem nodular sólida, de forma '+escapeHtml(forma)+', orientação '+escapeHtml(orientacao)+' e margens '+escapeHtml(margens)+', '+escapeHtml(eco)+', '+escapeHtml(fenomeno)+', localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.';
+        const tamRaw = req('achado'+uid+'Nodulo1Tam');
+        const volume = volumeElipsoide(parseMedidas(tamRaw));
+        const tam = blankOrValue(tamanhoSemUnidade(tamRaw));
+        corpo = 'Observa-se imagem nodular sólida, de forma '+escapeHtml(forma)+', orientação '+escapeHtml(orientacao)+' e margens '+escapeHtml(margens)+', '+escapeHtml(eco)+', '+escapeHtml(fenomeno)+', localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm'
+          + (volume!==null ? ', com volume estimado de '+fmtDecimal(volume)+' cm³.' : '.');
         hd = phrase('impNoduloSingular', {LADO: lado});
       } else if(tipo === 'nodulo2'){
         const contornos = v('achado'+uid+'Nodulo2Contornos') || 'regulares';
