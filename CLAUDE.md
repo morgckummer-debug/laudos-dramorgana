@@ -260,6 +260,35 @@ Apagar o bloco aninhado é uma linha mais curta e passa nos mesmos testes (o
 `renderBlocks()` regeneraria o bloco a partir do formulário), mas o Word e o
 rascunho sairiam sem ele.
 
+### `restoreMissingBlocks()`: a rede irmã, para bloco que sumiu em vez de duplicou
+
+`dedupBlocos()` conserta bloco duplicado; `restoreMissingBlocks()` (2026-09-04),
+também no `laudo-core.js`, conserta o oposto — bloco que sumiu inteiro. O
+`#paper` é uma única área `contenteditable`: uma seleção que se estende mais do
+que a médica pretendia (arrastar o mouse, um clique duplo que pega o parágrafo
+errado) e um Backspace, ou digitar por cima dela, apaga de uma vez todo mundo
+que estava no meio — blocos inteiros, inclusive os que ficam **antes** de onde
+ela estava mexendo. Foi assim que a Dra. Morgana viu "Motivo do exame" e "Ao
+exame:" sumirem do `transvaginal.html` depois de mexer em frases perto do fim
+do laudo: a seleção pegou mais do que devia e apagou os dois blocos, que ficam
+logo no topo.
+
+Diferente do Enter (`wireEnterLineBreaks()`) e do colar (`wirePastePlainText()`),
+essa seleção larga demais não tem como interceptar sem quebrar a edição normal
+— mas dá para consertar depois. Texto digitado direto no `#paper` não passa por
+`render()` (só o rascunho ouve o `'input'`), então nada reconciliaria o estrago
+até a médica mexer em outro campo do formulário — e ela pode nunca mexer, indo
+direto para a impressão com o laudo faltando pedaço.
+
+`restoreMissingBlocks()` roda a cada `'input'` dentro do `#paper` (é o motor
+quem liga esse listener sozinho, ao criar o motor — nenhum `.html` precisou
+mudar): qualquer `data-blk` que existia no último `render()` e não é mais
+filho direto do `#paper` volta, com o mesmo HTML gerado da última vez —
+`st.lastBlockHtml`, a mesma fonte que o rascunho já usa para diferenciar texto
+gerado de texto digitado à mão. Só faz sentido nos laudos com `data-blk`; nos
+de medicina interna `st.lastBlockHtml` nunca sai de `{}` e a função não faz
+nada.
+
 ## A integração com a Curva de Crescimento
 
 O app de curvas é outro repositório, **`morgckummer-debug/curva-fetal`** — página
