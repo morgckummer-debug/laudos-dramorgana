@@ -44,6 +44,8 @@
   .topbar-brand{display:flex;align-items:center;gap:16px;}
   .logo-badge{display:flex;align-items:center;flex:0 0 auto;}
   .logo-badge img{height:46px;width:auto;display:block;}
+  .topbar-divider{width:1px;align-self:stretch;min-height:36px;background:rgba(255,255,255,.25);flex:0 0 auto;}
+  .exam-icon-badge{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);}
   .topbar h1{
     font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;margin:0;letter-spacing:.1px;
   }
@@ -313,6 +315,15 @@
 <div class="topbar">
   <div class="topbar-brand">
     <div class="logo-badge"><img src="logo-horiz.png" alt="Clínica de Ultrassom — Dra. Morgana Kummer"></div>
+    <div class="topbar-divider"></div>
+    <div class="exam-icon-badge" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 6v5"/>
+        <path d="M8 11c-2.5 0-4.5-2-4.5-4.5"/>
+        <path d="M16 11c2.5 0 4.5-2 4.5-4.5"/>
+        <path d="M8 11c0 3.5 1.8 6.5 4 6.5s4-3 4-6.5"/>
+      </svg>
+    </div>
     <div>
       <h1>Pélvico Infantil</h1>
       <div class="sub">Propedêutica de puberdade precoce · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>

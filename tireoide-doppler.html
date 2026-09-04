@@ -44,6 +44,8 @@
   .topbar-brand{display:flex;align-items:center;gap:16px;}
   .logo-badge{display:flex;align-items:center;flex:0 0 auto;}
   .logo-badge img{height:46px;width:auto;display:block;}
+  .topbar-divider{width:1px;align-self:stretch;min-height:36px;background:rgba(255,255,255,.25);flex:0 0 auto;}
+  .exam-icon-badge{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);}
   .topbar h1{
     font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;margin:0;letter-spacing:.1px;
   }
@@ -289,6 +291,15 @@
 <div class="topbar">
   <div class="topbar-brand">
     <div class="logo-badge"><img src="logo-horiz.png" alt="Clínica de Ultrassom — Dra. Morgana Kummer"></div>
+    <div class="topbar-divider"></div>
+    <div class="exam-icon-badge" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9.5 6c-2.5 0-4.5 2-4.5 4.6c0 2.9 1.8 5.4 4 5.4c1.3 0 2-1 2-2.4v-5.2c0-1.3-.6-2.4-1.5-2.4z"/>
+        <path d="M14.5 6c2.5 0 4.5 2 4.5 4.6c0 2.9-1.8 5.4-4 5.4c-1.3 0-2-1-2-2.4v-5.2c0-1.3.6-2.4 1.5-2.4z"/>
+        <path d="M11 8.2h2"/>
+        <path d="M3.5 20h4l1-2.5l1.5 4l1.5-6l1.5 4.5l1-2h4.5"/>
+      </svg>
+    </div>
     <div>
       <h1>Tireóide com Doppler</h1>
       <div class="sub">Ultrassonografia da Tireóide com Estudo Doppler · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
