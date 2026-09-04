@@ -205,6 +205,42 @@ function criarMotorLaudo(cfg){
       if(!keepIds.has(id)){ el.remove(); delete st.lastBlockHtml[id]; }
     });
   }
+  function restoreMissingBlocks(paperEl){
+    // Rede de segurança irmã do dedupBlocos(): aquele conserta bloco duplicado,
+    // esta conserta bloco que sumiu. #paper é uma única área contenteditable —
+    // uma seleção que se estende mais do que a médica pretendia (arrastar o
+    // mouse, um clique duplo que pega o parágrafo errado) e um Backspace, ou
+    // digitar por cima dela, apaga de uma vez todo mundo que estava no meio,
+    // blocos inteiros inclusive, mesmo os que ficam ANTES de onde ela estava
+    // mexendo. Diferente do Enter e do colar, isso não tem como interceptar
+    // sem quebrar a edição normal — mas dá para consertar depois: texto
+    // digitado direto no #paper não passa por render() (só o rascunho ouve o
+    // 'input'), então nada reconciliaria isso até a médica mexer em outro
+    // campo do formulário, e ela pode nunca mexer, indo direto para a
+    // impressão com o laudo faltando pedaço.
+    //
+    // Roda a cada 'input' dentro do #paper: qualquer data-blk que existia no
+    // último render() e não é mais filho direto do #paper volta, com o mesmo
+    // HTML gerado da última vez — a mesma fonte que o rascunho (`st.
+    // lastBlockHtml`) já usa para saber o que é texto gerado.
+    if(!paperEl || st.printPaginated || st.draftRestoring) return;
+    let prevNode = null;
+    Object.keys(st.lastBlockHtml).forEach(id=>{
+      let node = paperEl.querySelector(':scope > [data-blk="'+id+'"]');
+      if(!node){
+        const tmp = document.createElement('div');
+        tmp.innerHTML = st.lastBlockHtml[id];
+        const fresh = tmp.firstElementChild;
+        if(fresh){
+          fresh.setAttribute('data-blk', id);
+          const wantedNext = prevNode ? prevNode.nextSibling : paperEl.firstChild;
+          paperEl.insertBefore(fresh, wantedNext);
+          node = fresh;
+        }
+      }
+      if(node) prevNode = node;
+    });
+  }
   function showFormatWarning(el, show, message){
     let msg = el.parentElement.querySelector('.format-warning');
     if(show){
@@ -792,6 +828,11 @@ function criarMotorLaudo(cfg){
   window.addEventListener('focus', recoverFromStuckPrint);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) recoverFromStuckPrint(); });
 
+  // Só existe #paper nos laudos que usam data-blk/renderBlocks(); nos outros
+  // (medicina interna) st.lastBlockHtml nunca sai de {} e isto não faz nada.
+  const paperEl0 = $('paper');
+  if(paperEl0) paperEl0.addEventListener('input', ()=> restoreMissingBlocks($('paper')));
+
   return {
     $: $, kvStore: kvStore, st: st, DRAFT_KEY: DRAFT_KEY,
     EXECUTANTES: EXECUTANTES, MARGINS: MARGINS, DRAFT_DEBOUNCE_MS: DRAFT_DEBOUNCE_MS,
@@ -829,6 +870,7 @@ function criarMotorLaudo(cfg){
     toggle: toggle,
     unwrapPrintPages: unwrapPrintPages,
     dedupBlocos: dedupBlocos,
+    restoreMissingBlocks: restoreMissingBlocks,
     updatePagePreview: updatePagePreview,
     v: v,
     vNoDot: vNoDot,
