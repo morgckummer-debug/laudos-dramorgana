@@ -404,9 +404,9 @@
       <div class="card-body">
         <div class="field-row">
           <div class="field"><label>Mamas</label>
-            <select id="mamasAspecto"><option value="normal">Regulares e simétricas</option><option value="alterado">Alterado (descrever)</option></select>
+            <select id="mamasAspecto"><option value="normal">Normal</option><option value="alterado">Alterado (descrever)</option></select>
           </div>
-          <div class="field"><label>Ecotextura do parênquima</label>
+          <div class="field conditional show" id="wrap_ecotextura"><label>Ecotextura do parênquima</label>
             <select id="ecotextura">
               <option value="gordurosa">Homogênea gordurosa</option>
               <option value="fibroglandular">Homogênea fibroglandular</option>
@@ -468,7 +468,7 @@
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base nos achados. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
         <hr class="sep">
-        <div class="field"><label>Categoria BI-RADS-US® (exame atual)</label>
+        <div class="field conditional show" id="wrap_biradsCategoria"><label>Categoria BI-RADS-US® (exame atual)</label>
           <select id="biradsCategoria">
             <option value="0">Cat 0</option><option value="1" selected>Cat 1</option><option value="2">Cat 2</option>
             <option value="3">Cat 3</option><option value="4A">Cat 4A</option><option value="4B">Cat 4B</option>
@@ -934,6 +934,10 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkMamografia').addEventListener('change', e=> toggle('wrap_mamografiaCampos', e.target.checked));
   $('mamasAspecto').addEventListener('change', e=> toggle('wrap_mamasDescricao', e.target.value==='alterado'));
   $('peleAspecto').addEventListener('change', e=> toggle('wrap_peleDescricao', e.target.value==='alterado'));
+  $('chkMamasMasculinas').addEventListener('change', e=>{
+    toggle('wrap_ecotextura', !e.target.checked);
+    toggle('wrap_biradsCategoria', !e.target.checked);
+  });
 
   wireDecimalInputs();
 
@@ -1497,7 +1501,9 @@ if(typeof criarMotorLaudo !== 'function'){
       const lista = achadosMama[lado];
       const out = [{id:'mama-'+lado+'-label', html:'<p class="linha intro">Mama '+lado+':</p>'}];
       if(lista.length === 0){
-        out.push({id:'mama-'+lado, html:'<p class="linha">Não se observam nódulos sólidos, císticos ou áreas de desorganização da estrutura mamária. Região retromamilar sem alterações.</p>'});
+        const semAchado = 'Não se observam nódulos sólidos, císticos ou áreas de desorganização da estrutura mamária.'
+          + (chkMamasMasculinas ? '' : ' Região retromamilar sem alterações.');
+        out.push({id:'mama-'+lado, html:'<p class="linha">'+semAchado+'</p>'});
       } else {
         lista.forEach(a=>{
           out.push({id:'mama-'+lado+'-'+a.uid, html:'<p class="linha">'+a.corpo+'</p>'});
@@ -1505,7 +1511,9 @@ if(typeof criarMotorLaudo !== 'function'){
             out.push({id:'mama-'+lado+'-lista-'+a.uid, html:'<div class="linha nodulos-lista">'+a.corpoLista.map(t=>'<p class="nodulo-item">- '+t+'</p>').join('')+'</div>'});
           }
         });
-        out.push({id:'mama-'+lado+'-retromamilar', html:'<p class="linha">Região retromamilar sem alterações.</p>'});
+        if(!chkMamasMasculinas){
+          out.push({id:'mama-'+lado+'-retromamilar', html:'<p class="linha">Região retromamilar sem alterações.</p>'});
+        }
       }
       return out;
     }
@@ -1533,7 +1541,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
       +'</div>'});
 
-    const doctitleTexto = chkMamasMasculinas ? 'ULTRASSOM DAS MAMAS MASCULINAS E AXILAS' : 'ULTRASSOM DAS MAMAS E AXILAS';
+    const doctitleTexto = chkMamasMasculinas ? 'ULTRASSOM DAS MAMAS MASCULINAS' : 'ULTRASSOM DAS MAMAS E AXILAS';
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+doctitleTexto+'</h3>'});
 
     if(chkMamografia){
@@ -1550,13 +1558,16 @@ if(typeof criarMotorLaudo !== 'function'){
 
     blocks.push({id:'aspectosLabel', html:'<p class="linha intro intro-last">Os seguintes aspectos foram observados:</p>'});
 
-    const mamasFraseBase = mamasAspecto==='alterado' && mamasDescricao ? escapeHtml(mamasDescricao)+'.' : 'Mamas regulares e simétricas.';
+    const mamasFraseBase = mamasAspecto==='alterado' && mamasDescricao
+      ? escapeHtml(mamasDescricao)+'.'
+      : (chkMamasMasculinas ? 'Mamas regulares.' : 'Mamas regulares e simétricas.');
     const ECOTEXTURA_TEXT = {
       gordurosa: 'Tecido mamário apresentando ecotextura homogênea gordurosa.',
       fibroglandular: 'Tecido mamário apresentando ecotextura homogênea fibroglandular.',
       heterogenea: 'Tecido mamário apresentando ecotextura heterogênea.'
     };
-    blocks.push({id:'mamasGeral', html:'<p class="linha">'+mamasFraseBase+' '+ECOTEXTURA_TEXT[ecotextura]+'</p>'});
+    const ecotexturaTexto = chkMamasMasculinas ? 'Tecido mamário com predominância de componente adiposo.' : ECOTEXTURA_TEXT[ecotextura];
+    blocks.push({id:'mamasGeral', html:'<p class="linha">'+mamasFraseBase+' '+ecotexturaTexto+'</p>'});
 
     blocoMama('direita').forEach(b=> blocks.push(b));
     blocoMama('esquerda').forEach(b=> blocks.push(b));
@@ -1564,8 +1575,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const peleTexto = peleAspecto==='alterado' && peleDescricao ? escapeHtml(peleDescricao)+'.' : 'Pele e tecido subcutâneo de espessura usual, sem alterações.';
     blocks.push({id:'pele', html:'<p class="linha">'+peleTexto+'</p>'});
 
-    blocks.push({id:'axilas-label', html:'<p class="linha intro">Axilas:</p>'});
-    blocks.push({id:'axilas', html:'<p class="linha">'+blocoAxilasConteudo()+'</p>'});
+    const temAchadoAxilar = achadosAxilar.direita.length>0 || achadosAxilar.esquerda.length>0;
+    if(!chkMamasMasculinas || temAchadoAxilar){
+      blocks.push({id:'axilas-label', html:'<p class="linha intro">Axilas:</p>'});
+      blocks.push({id:'axilas', html:'<p class="linha">'+blocoAxilasConteudo()+'</p>'});
+    }
 
     if(chkProtese){
       blocks.push({id:'protese', html:'<p class="linha">Próteses mamárias apresentando contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro.</p>'});
@@ -1576,7 +1590,7 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'obs-'+idx, html:'<p class="linha">'+escapeHtml(linha)+'</p>'});
     });
 
-    blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
+    blocks.push({id:'impressaoHeader', html:'<h4 class="sec">'+(chkMamasMasculinas ? 'IMPRESSÃO:' : 'IMPRESSÃO DIAGNÓSTICA:')+'</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
     if(checkedItems.length===0){
       impressaoListHtml += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
@@ -1589,7 +1603,9 @@ if(typeof criarMotorLaudo !== 'function'){
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
-    blocks.push({id:'biradsLine', html:'<p class="birads-line">BIRADS-US®: Cat '+escapeHtml(biradsCategoria)+'</p>'});
+    if(!chkMamasMasculinas){
+      blocks.push({id:'biradsLine', html:'<p class="birads-line">BIRADS-US®: Cat '+escapeHtml(biradsCategoria)+'</p>'});
+    }
 
     let rodapeHtml = '<div class="rodape-final">';
     rodapeHtml += '<p class="footnote">Imagens em anexo.</p>';
@@ -1734,7 +1750,7 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
   function tituloExame(){
-    return $('chkMamasMasculinas').checked ? 'Mamas Masculinas e Axilas' : 'Mamas e Axilas';
+    return $('chkMamasMasculinas').checked ? 'Mamas Masculinas' : 'Mamas e Axilas';
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
