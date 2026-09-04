@@ -1431,6 +1431,24 @@ if(typeof criarMotorLaudo !== 'function'){
     nenhum: v=>v.uteroNenhum, '1a2': v=>v.utero1a2, '3': v=>v.utero3,
     '4mais': v=>v.utero4mais, infancia: v=>v.uteroInfancia, adolescencia: v=>v.uteroAdolescencia
   };
+  // Categoria de VR do útero deduzida do número de partos (P do GPA) assim
+  // que a médica o preenche — continua um select editável à mão depois, e
+  // não mexe se "Infância"/"Adolescência" já estiver selecionado (essas duas
+  // são por faixa etária, não por paridade, e não devem ser sobrescritas só
+  // porque P veio preenchido).
+  function categoriaUteroPorPartos(partos){
+    if(partos <= 0) return 'nenhum';
+    if(partos <= 2) return '1a2';
+    if(partos === 3) return '3';
+    return '4mais';
+  }
+  $('gpaP').addEventListener('input', ()=>{
+    const partos = parseInt(($('gpaP').value||'').replace(/\D/g,''), 10);
+    if(isNaN(partos)) return;
+    const sel = $('vrUteroCategoria');
+    if(sel.value==='infancia' || sel.value==='adolescencia') return;
+    sel.value = categoriaUteroPorPartos(partos);
+  });
 
   async function loadVR(){
     try{
