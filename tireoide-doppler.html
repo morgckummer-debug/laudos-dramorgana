@@ -453,7 +453,7 @@
           </div>
         </div>
         <div class="field-row field-row-compact conditional" id="wrap_noduloCampos2">
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="noduloTamanho" placeholder="cm"></div>
+          <div class="field"><label>Tamanho</label><input type="text" id="noduloTamanho" placeholder="ex: 22,1 x 23,4 x 25,3 mm"></div>
           <div class="field"><label>Captação de fluxo ao Doppler</label>
             <select id="noduloCaptacao"><option value="sem">Sem captação periférica</option><option value="discreta">Discreta captação periférica</option></select>
           </div>
@@ -519,7 +519,7 @@
     <div class="card">
       <div class="card-head"><h2>Tireóide — Dimensões</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">O volume do lobo direito, do lobo esquerdo e do istmo é digitado direto da tela do aparelho — não é recalculado aqui, para sair idêntico às fotos do exame. Só o volume total soma os dois lobos já digitados.</p>
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">O volume do lobo direito, do lobo esquerdo e do istmo é digitado direto da tela do aparelho — não é recalculado aqui, para sair idêntico às fotos do exame. O volume total soma os três já digitados.</p>
         <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Lobo direito</p>
         <div class="field-row field-row-compact">
           <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDLong" placeholder="cm"></div>
@@ -545,7 +545,7 @@
         </div>
         <hr class="sep">
         <div class="field-row field-row-compact">
-          <div class="field"><label>Volume total da glândula (automático: lobo direito + lobo esquerdo)</label>
+          <div class="field"><label>Volume total da glândula (automático: lobo direito + lobo esquerdo + istmo)</label>
             <input type="text" id="volumeTotal" placeholder="cm³" readonly>
             <span class="vr">VR 6,0 a 15,0 cm³</span>
             <span class="flag-note" id="flag_volumeTotal">Fora do valor de referência</span>
@@ -1360,7 +1360,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const tamanho = blankOrValue(req('noduloTamanho'));
       const captacao = v('noduloCaptacao')==='discreta' ? 'com discreta captação de fluxo periférica ao estudo Doppler' : 'sem captação de fluxo periférica ao estudo Doppler';
       const tirads = v('noduloTirads') || '3';
-      parenquimaTexto = 'Nódulo '+composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+captacao+', localizado no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' cm (TI-RADS – Cat. '+tirads+').';
+      parenquimaTexto = 'Nódulo '+composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+captacao+', localizado no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' (TI-RADS – Cat. '+tirads+').';
 
       const sugestao = sugerirTirads();
       const sugestaoEl = $('noduloTiradsSugestao');
@@ -1419,16 +1419,18 @@ if(typeof criarMotorLaudo !== 'function'){
     // aparelho — não é recalculado aqui, para sair idêntico às fotos do
     // exame (pedido da Dra. Morgana: o app calculava pela fórmula do
     // elipsoide e o valor podia divergir do que o aparelho mostra). Já o
-    // volume total é só a soma dos dois lobos já digitados, então esse
+    // volume total é só a soma dos três já digitados, então esse
     // continua automático — não obriga a repetir uma conta que o próprio
-    // formulário já tem os dois números para fazer.
+    // formulário já tem os números para fazer.
     req('loboDLong'); req('loboDAP'); req('loboDTransv'); req('loboDVolume');
     req('loboELong'); req('loboEAP'); req('loboETransv'); req('loboEVolume');
     req('istmoLong'); req('istmoAP'); req('istmoTransv'); req('istmoVolume');
 
     const loboDVolumeNum = num('loboDVolume');
     const loboEVolumeNum = num('loboEVolume');
-    const volumeTotalNum = (loboDVolumeNum!==null && loboEVolumeNum!==null) ? (loboDVolumeNum + loboEVolumeNum) : null;
+    const istmoVolumeNum = num('istmoVolume');
+    const volumeTotalNum = (loboDVolumeNum!==null && loboEVolumeNum!==null && istmoVolumeNum!==null)
+      ? (loboDVolumeNum + loboEVolumeNum + istmoVolumeNum) : null;
     $('volumeTotal').value = volumeTotalNum!==null ? fmtDecimal(volumeTotalNum) : '';
     flag('volumeTotal', volumeTotalNum!==null && (volumeTotalNum < VOLUME_TOTAL_MIN || volumeTotalNum > VOLUME_TOTAL_MAX));
     const volumeAumentado = volumeTotalNum!==null && volumeTotalNum > VOLUME_TOTAL_MAX;
