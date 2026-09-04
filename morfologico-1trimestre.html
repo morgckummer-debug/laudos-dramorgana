@@ -519,6 +519,8 @@
   <h3>Ao exame — útero, placenta e colo</h3>
   <div class="field" style="margin-bottom:8px;"><label>Útero e saco gestacional</label><textarea id="ph_uteroTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta — use {INSERCAO}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero e saco gestacional — gemelar monocoriônica diamniótica</label><textarea id="ph_uteroTextoGemelarMonoDi" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta — gemelar monocoriônica diamniótica — use {INSERCAO}</label><textarea id="ph_placentaTextoGemelarMonoDi" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo uterino — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -1361,6 +1363,8 @@ if(typeof criarMotorLaudo !== 'function'){
   const PHRASE_DEFAULTS = {
     uteroTexto: 'Útero de volume aumentado e contornos normais, contendo em seu interior saco gestacional regular.',
     placentaTexto: 'Placenta de inserção na parede {INSERCAO} do útero, de aspecto e espessura normais.',
+    uteroTextoGemelarMonoDi: 'Útero de volume aumentado e contornos normais, contendo em seu interior saco gestacional regular e membrana amniótica separando os dois fetos.',
+    placentaTextoGemelarMonoDi: 'Placenta única de inserção na parede {INSERCAO} do útero, de aspecto e espessura normais.',
     coloTexto: 'Colo uterino apresentando orifícios interno e externo fechados e comprimento de {MEDIDA} mm.',
 
     morfoCranio: 'Calota craniana íntegra, com contornos regulares e conformação normal. Foice do cérebro de aspecto normal. Ventrículos laterais normais. Pedúnculo cerebral, cisterna magna e 4º ventrículo de aspectos usuais. "Crash-sign" ausente.',
@@ -2178,7 +2182,14 @@ if(typeof criarMotorLaudo !== 'function'){
       dicorionica_triamniotica: 'dicoriônica e triamniótica',
       monocorionica_triamniotica: 'monocoriônica e triamniótica'
     };
-    const corTxt = corTxtMap[v('corionicidade')] || 'dicoriônica e diamniótica';
+    const corionicidadeVal = v('corionicidade');
+    const corTxt = corTxtMap[corionicidadeVal] || 'dicoriônica e diamniótica';
+    // Gemelar monocoriônica e diamniótica: um único saco gestacional com uma
+    // membrana separando os dois fetos, e placenta única — texto de "Ao
+    // exame" e o quadro de risco de trissomias (mais abaixo) são diferentes
+    // desse caso em diante.
+    const isGemelarMonoDi = isMultiple && corionicidadeVal === 'monocorionica_diamniotica';
+    const isMonocorionica = isMultiple && corionicidadeVal.indexOf('monocorionica') === 0;
 
     // ----- Ao exame: útero, placenta e colo (medidas da mãe, uma vez só) -----
     const placentaInsercao = v('placentaInsercao');
@@ -2333,8 +2344,8 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'gestacaoMultipla', html:'<p class="linha">'+escapeHtml('Gestação múltipla, com '+fetos.length+' fetos, '+corTxt+'.')+'</p>'});
     }
     blocks.push({id:'aoExameTexto', html:'<div>'
-      +'<p class="linha tight">'+phrase('uteroTexto')+'</p>'
-      +'<p class="linha tight">'+phrase('placentaTexto', {INSERCAO: placentaInsercao})+'</p>'
+      +'<p class="linha tight">'+(isGemelarMonoDi ? phrase('uteroTextoGemelarMonoDi') : phrase('uteroTexto'))+'</p>'
+      +'<p class="linha tight">'+(isGemelarMonoDi ? phrase('placentaTextoGemelarMonoDi', {INSERCAO: placentaInsercao}) : phrase('placentaTexto', {INSERCAO: placentaInsercao}))+'</p>'
       +'<p class="linha">'+phraseRaw('coloTexto', {MEDIDA: span(coloComprimentoVal)})+'</p>'
       +'</div>'});
 
@@ -2396,8 +2407,6 @@ if(typeof criarMotorLaudo !== 'function'){
     // mesmo óvulo fecundado, então o risco de trissomias é um só para a
     // gestação inteira — um quadro só, não um por feto (que repetiria o
     // mesmo risco sob dois rótulos "Feto A"/"Feto B" diferentes).
-    const corionicidadeAtualTxt = v('corionicidade');
-    const isMonocorionica = isMultiple && corionicidadeAtualTxt.indexOf('monocorionica') === 0;
     const fetosParaRisco = isMonocorionica ? fetos.slice(0, 1) : fetos;
     fetosParaRisco.forEach(f=>{
       const sfx = '-f'+f.uid;
