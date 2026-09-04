@@ -560,6 +560,7 @@
           <div class="field"><label>Padrão de vascularização</label>
             <select id="vascularizacaoAspecto">
               <option value="normal">Normal (padrão normal ao mapeamento colorido)</option>
+              <option value="aumentado">Aumentado (padrão aumentado ao mapeamento colorido)</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
@@ -1435,7 +1436,9 @@ if(typeof criarMotorLaudo !== 'function'){
     reqIf('vascularizacaoDescricao', vascularizacaoAspecto==='alterado');
     const vascularizacaoTexto = (vascularizacaoAspecto==='alterado' && vascularizacaoDescricao)
       ? escapeHtml(vascularizacaoDescricao)+'.'
-      : 'Tireóide apresentando padrão de vascularização normal ao mapeamento colorido.';
+      : vascularizacaoAspecto==='aumentado'
+        ? 'Tireóide apresentando padrão de vascularização aumentado ao mapeamento colorido.'
+        : 'Tireóide apresentando padrão de vascularização normal ao mapeamento colorido.';
 
     const velocidadeATINum = num('velocidadeATI'); req('velocidadeATI');
     const velocidadeATITexto = blankOrValue(v('velocidadeATI'));
