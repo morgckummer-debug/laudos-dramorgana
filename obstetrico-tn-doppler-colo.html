@@ -41,6 +41,9 @@
     box-shadow: var(--shadow);
     position:sticky;top:0;z-index:50;
   }
+  @media (orientation: landscape) and (max-height: 500px){
+    .topbar{position:static;}
+  }
   .topbar-brand{display:flex;align-items:center;gap:16px;}
   .logo-badge{display:flex;align-items:center;flex:0 0 auto;}
   .logo-badge img{height:46px;width:auto;display:block;}

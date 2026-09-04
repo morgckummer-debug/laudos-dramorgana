@@ -33,6 +33,9 @@
     box-shadow: var(--shadow);
     position:sticky;top:0;z-index:50;
   }
+  @media (orientation: landscape) and (max-height: 500px){
+    .topbar{position:static;}
+  }
   .topbar h1{
     font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;margin:0;letter-spacing:.1px;
   }
