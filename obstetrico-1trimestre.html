@@ -458,7 +458,10 @@
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Perda gestacional — use {TIPO} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião não identificado — impressão</label><textarea id="ph_impEmbriaoNaoIdentificado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação molar — impressão</label><textarea id="ph_impGestacaoMolar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação molar — impressão (feto/embrião não especificado)</label><textarea id="ph_impGestacaoMolar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação molar completa — impressão (feto/embrião ausente)</label><textarea id="ph_impGestacaoMolarCompleta" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação molar parcial — impressão (feto/embrião presente, sem batimentos)</label><textarea id="ph_impGestacaoMolarParcial" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação molar parcial — impressão com IG (feto/embrião presente, com batimentos) — use {IG}</label><textarea id="ph_impGestacaoMolarParcialComIg" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DPP — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG reduzido — impressão</label><textarea id="ph_impIsgReduzido" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — impressão</label><textarea id="ph_impHematoma" rows="2"></textarea></div>
@@ -1283,6 +1286,9 @@ if(typeof criarMotorLaudo !== 'function'){
     impObito: 'Perda gestacional {TIPO}, compatível com {IG}.',
     impEmbriaoNaoIdentificado: 'Embrião não identificado no momento — sugere-se reavaliação em 10-14 dias.',
     impGestacaoMolar: 'Sinais ecográficos de gestação molar. Sugere-se correlação com dosagem sérica de beta-hCG e acompanhamento com confirmação histopatológica após o esvaziamento uterino.',
+    impGestacaoMolarCompleta: 'Sinais ecográficos de gestação molar completa. Sugere-se correlação com dosagem sérica de beta-hCG e acompanhamento com confirmação histopatológica após o esvaziamento uterino.',
+    impGestacaoMolarParcial: 'Sinais ecográficos de gestação molar parcial. Sugere-se correlação com dosagem sérica de beta-hCG e acompanhamento com confirmação histopatológica após o esvaziamento uterino.',
+    impGestacaoMolarParcialComIg: 'Sinais ecográficos de gestação molar parcial compatível com {IG}. Sugere-se correlação com dosagem sérica de beta-hCG e acompanhamento com confirmação histopatológica após o esvaziamento uterino.',
     impDPP: 'DPP: {DATA}.',
     impIsgReduzido: 'Saco gestacional de dimensões reduzidas.',
     impHematoma: 'Hematoma subcoriônico - acompanhar.',
@@ -1789,7 +1795,22 @@ if(typeof criarMotorLaudo !== 'function'){
     // mola entra aqui, e os achados de bexiga/útero/anexos/miométrio abaixo
     // continuam valendo normalmente.
     if(state.molaAtiva){
-      items.push({key:'gestacao', label: phraseRaw('impGestacaoMolar'), auto:true});
+      // Ausência de embrião/feto sugere mola completa; presença, parcial —
+      // e só com batimentos cardíacos presentes a IG (digitada à mão) entra
+      // na conclusão, porque só aí há uma datação de verdade para citar.
+      let molaKey = 'impGestacaoMolar';
+      let molaRepl = null;
+      if(state.molaFetoAusente){
+        molaKey = 'impGestacaoMolarCompleta';
+      } else if(state.molaFetoPresente){
+        if(state.molaVitalidade === 'presente'){
+          molaKey = 'impGestacaoMolarParcialComIg';
+          molaRepl = {IG: state.molaIgTexto};
+        } else {
+          molaKey = 'impGestacaoMolarParcial';
+        }
+      }
+      items.push({key:'gestacao', label: phraseRaw(molaKey, molaRepl), auto:true});
     } else {
       const baseadaEmDum = state.cronologiaMetodo === 'dum';
       // DUM incerta/ignorada: sem cronologia, a conclusão não fala em "IG
@@ -1975,10 +1996,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const molaIgDiasNum = parseInt(molaIgDiasTxt, 10);
     const molaIgTotalDias = !isNaN(molaIgSemanasNum) ? (molaIgSemanasNum*7 + (isNaN(molaIgDiasNum) ? 0 : molaIgDiasNum)) : null;
     // Embrião até 10 semanas completas (70 dias); feto a partir de 10
-    // semanas e 1 dia — corte pedido pela Dra. Morgana. A IG informada aqui
-    // só decide esse termo; não entra na frase impressa (ver molaFcPresente/
-    // molaFcAusente), que fala só de CCN e batimentos.
+    // semanas e 1 dia — corte pedido pela Dra. Morgana. Na frase de achado
+    // (molaFcPresente/molaFcAusente) essa IG não aparece, só decide o termo;
+    // na conclusão ela entra quando há batimentos cardíacos (molaIgTexto,
+    // usado em impGestacaoMolarParcialComIg).
     const molaTermo = (molaIgTotalDias !== null && molaIgTotalDias > 70) ? 'feto' : 'embrião';
+    const molaIgTexto = molaIgTotalDias !== null ? formatIG(molaIgTotalDias) : '____ semanas e ____ dias';
 
     // Achados de mola tornam o(s) saco(s) gestacional(is) irrelevantes: os
     // campos ficam escondidos no formulário (ver toggle de #chkMola) e aqui
@@ -2093,7 +2116,8 @@ if(typeof criarMotorLaudo !== 'function'){
       isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
       algumObito, dpp, algumHematoma, algumIsgReduzido, algumEmbrioNaoIdentificado, cronologiaMetodo, tipoPerda,
       bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao,
-      miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose, molaAtiva,
+      miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose,
+      molaAtiva, molaFetoPresente, molaFetoAusente, molaVitalidade, molaIgTexto,
       obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
