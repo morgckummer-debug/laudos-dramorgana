@@ -342,6 +342,7 @@
   <h3>Personalizar frases da impressão diagnóstica</h3>
   <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases que entram na Impressão conforme o exame estiver normal. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui. Achados alterados não geram frase automática: descreva-os nos campos do formulário e ajuste a Impressão diretamente no laudo, ao lado.</p>
   <div class="field" style="margin-bottom:8px;"><label>Tireóide sem alterações</label><textarea id="ph_impNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Volume aumentado (substitui a frase acima quando o volume total está fora da referência)</label><textarea id="ph_impVolumeAumentado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Estudo Doppler dentro da normalidade</label><textarea id="ph_impDopplerNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido, TI-RADS 2 ou 3 — use {LOBO} e {TIRADS}</label><textarea id="ph_impNoduloBenigno" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido, TI-RADS 4 ou 5 — use {LOBO} e {TIRADS}</label><textarea id="ph_impNoduloSuspeito" rows="2"></textarea></div>
@@ -1153,6 +1154,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // ---------- Frases da impressão diagnóstica ----------
   const PHRASE_DEFAULTS = {
     impNormal: 'Tireóide sem alterações ao exame ecográfico.',
+    impVolumeAumentado: 'Tireoide de volume aumentado apresentando parênquima de textura homogênea, sem nódulos sólidos ou císticos.',
     impDopplerNormal: 'Estudo Doppler dentro da normalidade.',
     impNoduloBenigno: 'Nódulo sólido em Lobo {LOBO} - TIRADS-{TIRADS}.',
     impNoduloSuspeito: 'Nódulo suspeito em Lobo {LOBO} - TIRADS-{TIRADS} - Seguir propedêutica.',
@@ -1265,7 +1267,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // achado for outro que não a normalidade.
   function buildImpressao(state){
     const items = [
-      {key:'normal', label:phrase('impNormal'), auto:true},
+      {key:'normal', label: state.volumeAumentado ? phrase('impVolumeAumentado') : phrase('impNormal'), auto:true},
       {key:'dopplerNormal', label:phrase('impDopplerNormal'), auto:true}
     ];
     if(state.parenquimaImpressaoHD){
@@ -1429,6 +1431,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const volumeTotalNum = (loboDVolumeNum!==null && loboEVolumeNum!==null) ? (loboDVolumeNum + loboEVolumeNum) : null;
     $('volumeTotal').value = volumeTotalNum!==null ? fmtDecimal(volumeTotalNum) : '';
     flag('volumeTotal', volumeTotalNum!==null && (volumeTotalNum < VOLUME_TOTAL_MIN || volumeTotalNum > VOLUME_TOTAL_MAX));
+    const volumeAumentado = volumeTotalNum!==null && volumeTotalNum > VOLUME_TOTAL_MAX;
 
     // ----- Doppler -----
     const vascularizacaoAspecto = v('vascularizacaoAspecto') || 'normal';
@@ -1450,7 +1453,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
 
     // ----- Impressão -----
-    const impressaoItems = buildImpressao({parenquimaImpressaoHD, linfonodoImpressaoHD});
+    const impressaoItems = buildImpressao({parenquimaImpressaoHD, linfonodoImpressaoHD, volumeAumentado});
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
 
