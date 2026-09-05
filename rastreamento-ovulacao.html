@@ -519,6 +519,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Ovário com folículo dominante — use {LADO}</label><textarea id="ph_impOvarioFoliculo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {LADO}</label><textarea id="ph_impOvarioDermoide" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {LADO}</label><textarea id="ph_impOvarioEndometrioma" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hiperestimulação ovariana (SHO)</label><textarea id="ph_impSHO" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Rodapé</h3>
@@ -819,6 +820,14 @@
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Uma linha por visita/exame do ciclo — a tabela sai no laudo na mesma ordem em que aparece aqui.</p>
         <div id="visitasContainer"></div>
         <button type="button" class="btn-clear" id="btnAddVisita" style="margin:2px 0 0;">+ Adicionar visita</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Hiperestimulação ovariana (SHO)</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Só o critério visível ao ultrassom — sinalizado na impressão quando o volume de algum ovário passar de 60 cm³ junto com a ascite.</p>
+        <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkAscite"><label for="chkAscite">Ascite</label></div>
       </div>
     </div>
 
@@ -1361,6 +1370,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impOvarioFoliculo: 'Ovário {LADO} de volume aumentado às custas de imagem sugestiva de folículo funcional.',
     impOvarioDermoide: 'Nódulo ovariano à {LADO} sugestivo de teratoma.',
     impOvarioEndometrioma: 'Imagem sugestiva de endometrioma à {LADO}.',
+    impSHO: 'Ovários de volume aumentado associado a ascite - achados sugestivos de hiperestimulação ovariana (SHO).',
     footerImagens: 'Imagens em anexo.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
@@ -1833,6 +1843,10 @@ if(typeof criarMotorLaudo !== 'function'){
   let checkedState = {};
   function buildImpressao(state){
     const items = [];
+    // SHO: só o critério visível ao ultrassom — volume ovariano >60 cm³ e ascite.
+    if(state.ovarioVolumeAlto && state.chkAscite){
+      items.push({key:'sho', label:phraseRaw('impSHO'), auto:true});
+    }
     if(state.uteroAspecto === 'mioma' && state.miomaTemDados){
       if(state.miomaFrags.length>=3){
         items.push({key:'miomatose', label:phraseRaw('impMiomaVarios'), auto:true});
@@ -2053,9 +2067,12 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const corpoLuteoLado = v('corpoLuteoLado');
     const endometrioConcordancia = v('endometrioConcordancia');
+    const chkAscite = $('chkAscite').checked;
+    const ovarioVolumeAlto = (ovD.volNum!=null && ovD.volNum>60) || (ovE.volNum!=null && ovE.volNum>60);
 
     const checklistItems = buildImpressao({
       corpoLuteoLado, endometrioConcordancia,
+      chkAscite, ovarioVolumeAlto,
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
