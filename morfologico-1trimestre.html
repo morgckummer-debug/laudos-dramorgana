@@ -608,7 +608,7 @@
           <div class="field"><label>IMC (calculado)</label><input type="text" id="imcCalc" readonly placeholder="calculado automaticamente"></div>
           <div class="field"><label>Pressão arterial média (PAM) (mmHg)</label><input type="text" id="pressaoArterial" placeholder="ex: 110x70"></div>
         </div>
-        <div class="field"><label>Em uso de — opcional</label><textarea id="medicacoes" rows="2" placeholder="ex: ácido fólico; AAS 100 mg..."></textarea></div>
+        <div class="field"><label>Observações — opcional</label><textarea id="medicacoes" rows="3" style="line-height:1;" placeholder="texto livre — até 3 linhas"></textarea></div>
         <div class="field" style="margin-top:14px;"><label>Motivo do exame — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de rastreamento de aneuploidias."></textarea></div>
       </div>
     </div>
@@ -2127,7 +2127,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
     const motivoExame = vNoDot('motivoExame');
-    const medicacoes = vNoDot('medicacoes');
+    const medicacoes = v('medicacoes');
     const dataNascimento = v('dataNascimento');
     const pesoMaterno = v('pesoMaterno');
     const alturaMaterna = v('alturaMaterna');
@@ -2336,7 +2336,7 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(relatoTxt)+'</p>'});
     }
     if(medicacoes){
-      blocks.push({id:'medicacoes', html:'<p class="linha"><strong>Em uso de:</strong> '+escapeHtml(medicacoes)+'.</p>'});
+      blocks.push({id:'medicacoes', html:'<p class="linha" style="line-height:1;">'+escapeHtml(medicacoes).replace(/\n/g, '<br>')+'</p>'});
     }
 
     blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
