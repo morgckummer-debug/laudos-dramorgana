@@ -2472,7 +2472,26 @@ if(typeof criarMotorLaudo !== 'function'){
     ['.assinatura', ['line-height']],
     ['.assinatura-info', ['font-size','line-height']]
   ];
+  // Imagens do anexo (o print do cálculo de risco da FMF colado pela médica,
+  // e o logo da FMF) chegam ao Word como <img src="data:...base64,...">. O
+  // Word não sabe exibir isso direto: ao abrir o .doc ele extrai cada uma
+  // para uma pasta "..._arquivos" do lado do arquivo — a pasta que aparece
+  // toda vez que a página de anexo tem imagem colada. embedImgAsCid() tira o
+  // data: URI do <img src> e guarda a imagem à parte, em wordImgParts; quem
+  // baixa o Word (btnDownloadWord) empacota essas partes como MHTML
+  // (multipart/related, o mesmo formato de um "Arquivo da Web" do Word) em
+  // vez de HTML puro — assim a imagem chega embutida de verdade, sem nada
+  // para o Word extrair.
+  let wordImgParts = [];
+  function embedImgAsCid(imgEl){
+    const m = /^data:([^;]+);base64,(.+)$/.exec(imgEl.src);
+    if(!m) return;
+    const cid = 'laudoimg' + wordImgParts.length + '.morgana.local';
+    wordImgParts.push({cid: cid, mime: m[1], base64: m[2]});
+    imgEl.src = 'cid:' + cid;
+  }
   function buildReportHtml(){
+    wordImgParts = [];
     const paperEl = $('paper');
     const clone = paperEl.cloneNode(true);
     copyComputedToClone(paperEl, clone);
@@ -2580,9 +2599,28 @@ if(typeof criarMotorLaudo !== 'function'){
       anexoClone.querySelectorAll('.anexo-img-wrap.selected').forEach(el=>el.classList.remove('selected'));
       anexoClone.querySelectorAll('#anexoImgs img').forEach(img=>{
         img.style.maxWidth = '100%'; img.style.display = 'block'; img.style.margin = '0 auto 14px'; img.style.outline = 'none';
+        embedImgAsCid(img);
       });
       const anexoLogo = anexoClone.querySelector('.anexo-header img');
-      if(anexoLogo && anexoLogo.style.display !== 'none'){ anexoLogo.style.maxHeight = '52px'; anexoLogo.style.width = 'auto'; anexoLogo.style.display = 'block'; }
+      if(anexoLogo && anexoLogo.style.display !== 'none'){
+        anexoLogo.style.maxHeight = '52px'; anexoLogo.style.width = 'auto'; anexoLogo.style.display = 'block';
+        // fmf-icon.png é um arquivo do site, resolvido por caminho relativo —
+        // no Word, aberto isolado de qualquer pasta do site, essa referência
+        // não acha nada e o logo sai quebrado. A imagem já carregada na tela
+        // (paperAnexoEl, não o clone) tem os pixels prontos; um canvas vira
+        // esses pixels em data: URI, que embedImgAsCid() embute do mesmo jeito
+        // que o print colado.
+        const liveLogoImg = paperAnexoEl.querySelector('.anexo-header img');
+        if(liveLogoImg && liveLogoImg.naturalWidth > 0){
+          try{
+            const c = document.createElement('canvas');
+            c.width = liveLogoImg.naturalWidth; c.height = liveLogoImg.naturalHeight;
+            c.getContext('2d').drawImage(liveLogoImg, 0, 0);
+            anexoLogo.src = c.toDataURL('image/png');
+            embedImgAsCid(anexoLogo);
+          }catch(e){ /* navegador sem canvas ou imagem bloqueada por CORS: fica só sem o logo no Word, em vez de travar o download */ }
+        }
+      }
       anexoClone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
       anexoClone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
       anexoClone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
@@ -2656,6 +2694,34 @@ if(typeof criarMotorLaudo !== 'function'){
     document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(url), 2000);
   }
+  // Sem imagem no anexo (o caso comum), o .doc continua sendo só HTML puro
+  // com a extensão trocada, como sempre foi. Com imagem, empacota como
+  // MHTML (multipart/related) — ver embedImgAsCid() e o comentário ali —
+  // para o Word receber a imagem de verdade embutida, em vez de um
+  // <img src="data:..."> que ele mesmo converte numa pasta "..._arquivos"
+  // ao abrir o arquivo.
+  function montarBlobWord(docHtml, imgParts){
+    if(!imgParts.length){
+      return new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
+    }
+    const boundary = '----=laudo.morgana.' + Date.now().toString(36);
+    let out = 'MIME-Version: 1.0\r\n'
+      + 'Content-Type: multipart/related; boundary="' + boundary + '"; type="text/html"\r\n\r\n'
+      + '--' + boundary + '\r\n'
+      + 'Content-Type: text/html; charset="utf-8"\r\n\r\n'
+      + docHtml + '\r\n\r\n';
+    imgParts.forEach(function(p){
+      out += '--' + boundary + '\r\n'
+        + 'Content-Type: ' + p.mime + '\r\n'
+        + 'Content-Transfer-Encoding: base64\r\n'
+        + 'Content-ID: <' + p.cid + '>\r\n\r\n'
+        // Quebra em linhas de 76 colunas — padrão MIME para base64.
+        + p.base64.replace(/.{1,76}/g, function(m){ return m + '\r\n'; })
+        + '\r\n';
+    });
+    out += '--' + boundary + '--\r\n';
+    return new Blob([out], {type:'application/msword;charset=utf-8'});
+  }
   $('btnDownloadWord').addEventListener('click', async ()=>{
     try{
       const html = buildReportHtml();
@@ -2669,7 +2735,7 @@ if(typeof criarMotorLaudo !== 'function'){
         // do Word, sem valor nenhum aqui para não mexer neles.
         + '<style>@page WordSection1{margin-left:2cm;margin-right:2cm;}div.WordSection1{page:WordSection1;}</style>'
         + '</head><body><div class="WordSection1">' + html + '</div></body></html>';
-      const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
+      const blob = montarBlobWord(docHtml, wordImgParts);
       await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
     }catch(e){
       alert('Não foi possível baixar o arquivo Word neste navegador.');
