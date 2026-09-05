@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laudo de Rastreamento de Ovulação — Dra. Morgana Kummer</title>
+<title>Laudo de Monitorização Folicular — Coleta de Óvulos (FIV) — Dra. Morgana Kummer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#f9f5f9;
@@ -124,8 +123,8 @@
   .subgroup{
     border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
   }
-  .visita-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
   .mioma-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .foliculo-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
@@ -209,9 +208,6 @@
   .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
-  .paper table.acompanhamento{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
-  .paper table.acompanhamento th, .paper table.acompanhamento td{border:1px solid #d9c3d3;padding:7px 10px;text-align:center;vertical-align:middle;}
-  .paper table.acompanhamento th{font-weight:700;background:var(--rose-light);color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
   /* Recuo suspenso: o "* " que abre cada item mora fora do parágrafo
      (text-indent negativo), então quando a frase quebra de linha a
@@ -296,7 +292,7 @@
     margin: 0;
   }
   @media print{
-    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note, .cg-bar, .cg-results-list, .cg-toast, #cgLoginOverlay{display:none !important;}
+    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note{display:none !important;}
     .pg-break-marker{display:none !important;}
     .layout{display:block;padding:0;margin:0;max-width:none;}
     .preview-wrap{position:static;}
@@ -305,58 +301,16 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper .nodulos-lista, .paper table.acompanhamento, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
-    .paper table.acompanhamento{box-shadow:none;}
+    .paper p.linha, .paper .nodulos-lista, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
     .paper .continua{font-style:italic;font-size:10pt;text-align:right;margin:0;}
     .paper .print-page .rodape-final{margin-top:0;}
   }
-  /* ---- Curva de Crescimento: login + buscar/salvar laudo anterior ---- */
-  .cg-overlay{position:fixed;inset:0;background:rgba(43,43,46,.55);z-index:5000;display:flex;align-items:center;justify-content:center;}
-  .cg-overlay.hide{display:none;}
-  .cg-box{background:#fff;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);padding:28px 30px;width:340px;max-width:90vw;font-family:'Inter',sans-serif;}
-  .cg-box h3{font-family:'Poppins',sans-serif;margin:0 0 4px;font-size:17px;color:#6d3263;}
-  .cg-box p{font-size:12.5px;color:#9a7e95;margin:0 0 16px;}
-  .cg-box input{width:100%;padding:10px 13px;border:1.5px solid #ebe0e9;border-radius:10px;font-size:13.5px;margin-bottom:10px;box-sizing:border-box;}
-  .cg-box button{width:100%;padding:10px;border:none;border-radius:999px;background:#ae5ba0;color:#fff;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;cursor:pointer;}
-  .cg-box button:hover{opacity:.9;}
-  .cg-err{color:#B4432F;font-size:12px;margin:-4px 0 10px;display:none;}
-  .cg-err.show{display:block;}
-  .cg-toast{position:fixed;bottom:24px;right:24px;background:#2b2b2e;color:#fff;padding:12px 18px;border-radius:12px;font-family:'Inter',sans-serif;font-size:13px;z-index:6000;box-shadow:0 10px 24px rgba(0,0,0,.25);max-width:320px;display:none;}
-  .cg-toast.show{display:block;}
-  .cg-toast.err{background:#B4432F;}
-  .btn-cg{background:#6d3263;color:#fff;}
-  .btn-cg:hover{opacity:.9;}
-  .cg-bar{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin:0 28px 14px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow);}
-  .cg-bar .field{flex:1;min-width:200px;margin:0;}
-  .cg-bar .field label{font-size:12px;color:var(--ink-soft);display:block;margin-bottom:4px;}
-  .cg-bar input{width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13.5px;box-sizing:border-box;}
-  .cg-results-list{width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;}
-  .cg-result-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--line-soft);}
-  .cg-result-item:hover{background:var(--rose-light);}
-  .cg-result-item .ri-info{flex:1;min-width:0;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;}
-  .cg-result-item .ri-name{font-weight:600;color:var(--ink);font-size:13.5px;}
-  .cg-result-item .ri-meta{font-size:12px;color:var(--ink-soft);}
-  .cg-result-item .ri-del{flex:0 0 auto;background:#fff;border:1.5px solid var(--line);color:var(--ink-soft);border-radius:8px;padding:5px 10px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
-  .cg-result-item .ri-del:hover{background:#B4432F;border-color:#B4432F;color:#fff;}
-  .cg-result-empty{font-size:12.5px;color:var(--ink-soft);padding:6px 2px;}
 </style>
 </head>
 <body>
-
-<div class="cg-overlay" id="cgLoginOverlay">
-  <div class="cg-box">
-    <h3>Entrar</h3>
-    <p>Login da Curva de Crescimento — necessário para salvar e buscar laudos anteriores.</p>
-    <input type="email" id="cgEmail" placeholder="E-mail" autocomplete="username">
-    <input type="password" id="cgSenha" placeholder="Senha" autocomplete="current-password">
-    <div class="cg-err" id="cgLoginErr"></div>
-    <button id="cgBtnLogin">Entrar</button>
-  </div>
-</div>
-<div class="cg-toast" id="cgToast"></div>
 
 <div class="topbar">
   <div class="topbar-brand">
@@ -366,7 +320,7 @@
       <img src="icone-rastream.png" alt="">
     </div>
     <div>
-      <h1>Rastreamento de Ovulação</h1>
+      <h1>Monitorização Folicular — Coleta de Óvulos (FIV)</h1>
       <div class="sub">Dra. Morgana Kummer · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
     </div>
   </div>
@@ -387,9 +341,9 @@
       </optgroup>
       <optgroup label="Ginecológico">
         <option value="mamas.html">Mamas e Axilas</option>
-        <option value="monitorizacao-folicular-fiv.html">Monitorização Folicular — Coleta de Óvulos (FIV)</option>
+        <option value="monitorizacao-folicular-fiv.html" selected>Monitorização Folicular — Coleta de Óvulos (FIV)</option>
         <option value="pelvico-infantil.html">Pélvico Infantil</option>
-        <option value="rastreamento-ovulacao.html" selected>Rastreamento de Ovulação</option>
+        <option value="rastreamento-ovulacao.html">Rastreamento de Ovulação</option>
         <option value="transvaginal.html">Transvaginal</option>
       </optgroup>
       <optgroup label="Obstétrico">
@@ -404,15 +358,6 @@
     <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
     <button class="btn-ghost" id="btnReset">Limpar</button>
   </div>
-</div>
-
-<div class="cg-bar" id="cgBar">
-  <div class="field">
-    <label>Buscar laudo anterior (nome ou CPF)</label>
-    <input type="text" id="cgBusca" placeholder="Digite o nome ou o CPF da paciente" autocomplete="off">
-  </div>
-  <button type="button" class="btn-cg" id="btnBuscarCG">Buscar</button>
-  <div class="cg-results-list" id="cgResults"></div>
 </div>
 
 <div class="settings-panel" id="settingsPanel">
@@ -469,40 +414,34 @@
   <div class="field" style="margin-bottom:8px;"><label>FIGO 8 — use {DETALHE} e {MEDIDA}</label><textarea id="ph_figoF8" rows="2"></textarea></div>
 
   <hr class="sep">
+  <h3>Endométrio</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Frase do endométrio — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_endometrioLinha" rows="2"></textarea></div>
+
+  <hr class="sep">
   <h3>Ovários</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Normal — use {L}, {AP}, {T}, {VOLUME}, {VRMIN} e {VRMAX}</label><textarea id="ph_ovarioNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Normal — use {L}, {AP}, {T}, {VOLUME}, {VRMIN}, {VRMAX} e {N} (nº de folículos dominantes)</label><textarea id="ph_ovarioNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Não identificado</label><textarea id="ph_ovarioNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Policístico — frase-base (substitui "Normal" quando policístico) — use {L}, {AP}, {T}, {VOLUME}, {VRMIN} e {VRMAX}</label><textarea id="ph_ovarioPolicisticoBase" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — complemento (achado, após a frase-base) — use {LADO}</label><textarea id="ph_ovarioPolicistico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 cisto simples — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioCisto1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 cistos simples — use {LADO}, {MEDIDA1} e {MEDIDA2}</label><textarea id="ph_ovarioCisto2" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Corpo lúteo (achado no ovário) — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioCorpoLuteo" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Folículo dominante (achado no ovário) — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioFoliculo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioDermoide" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioEndometrioma" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes no primeiro exame — use {N}</label><textarea id="ph_foliculosDominantes" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Nenhum folículo dominante no primeiro exame</label><textarea id="ph_foliculosDominantesZero" rows="2"></textarea></div>
 
   <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:12px 0 4px;">Segunda alteração no mesmo ovário (introduzida por "Observa-se também...")</p>
   <div class="field" style="margin-bottom:8px;"><label>1 cisto simples — use {MEDIDA}</label><textarea id="ph_ovarioCisto1Tambem" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 cistos simples — use {MEDIDA1} e {MEDIDA2}</label><textarea id="ph_ovarioCisto2Tambem" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Corpo lúteo — use {MEDIDA}</label><textarea id="ph_ovarioCorpoLuteoTambem" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Folículo dominante — use {MEDIDA}</label><textarea id="ph_ovarioFoliculoTambem" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {MEDIDA}</label><textarea id="ph_ovarioDermoideTambem" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {MEDIDA}</label><textarea id="ph_ovarioEndometriomaTambem" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Outro (descrever) — use {DESCRICAO}</label><textarea id="ph_ovarioAlteradoTambem" rows="2"></textarea></div>
 
   <hr class="sep">
-  <h3>Corpo lúteo</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Identificado — use {LADO}</label><textarea id="ph_corpoLuteoIdentificado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Não identificado</label><textarea id="ph_corpoLuteoNaoIdentificado" rows="2"></textarea></div>
-
-  <hr class="sep">
   <h3>Impressão diagnóstica</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Ciclo ovulatório</label><textarea id="ph_impCicloOvulatorio" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ciclo anovulatório (corpo lúteo não identificado)</label><textarea id="ph_impCicloAnovulatorio" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Endométrio concordante</label><textarea id="ph_impEndometrioConcordante" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Endométrio discordante (a palavra "discordante" sai sempre sublinhada no laudo, mesmo que você edite este texto)</label><textarea id="ph_impEndometrioDiscordante" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endométrio — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_impEndometrio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes bilaterais</label><textarea id="ph_impFoliculosBilaterais" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Liberação para coleta de óvulos</label><textarea id="ph_impLiberacao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 mioma</label><textarea id="ph_impMioma1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 ou mais miomas</label><textarea id="ph_impMiomaVarios" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Útero miomatoso (3 ou mais nódulos)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
@@ -516,7 +455,6 @@
   <div class="field" style="margin-bottom:8px;"><label>Ovário com 1 cisto simples — use {LADO}</label><textarea id="ph_impOvarioCisto1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário com 2 cistos simples — use {LADO}</label><textarea id="ph_impOvarioCisto2" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário com corpo lúteo — use {LADO}</label><textarea id="ph_impOvarioCorpoLuteo" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ovário com folículo dominante — use {LADO}</label><textarea id="ph_impOvarioFoliculo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {LADO}</label><textarea id="ph_impOvarioDermoide" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {LADO}</label><textarea id="ph_impOvarioEndometrioma" rows="2"></textarea></div>
 
@@ -542,7 +480,7 @@
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">A impressão reserva 3,5 cm em branco no topo para a folha timbrada; o cabeçalho de identificação abaixo entra logo após esse espaço.</p>
         <div class="field-row">
           <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>Data do exame (1ª visita)</label><input type="text" id="dataExame" placeholder="calculada automaticamente" readonly></div>
+          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
         </div>
         <div class="field-row">
           <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
@@ -555,8 +493,9 @@
           <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
           <div class="field"><label>DUM</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+          <div class="field"><label>Dia do ciclo (calculado pela DUM, editável)</label><input type="text" inputmode="numeric" id="diaCiclo" placeholder="ex: 12º"></div>
         </div>
-        <div class="field"><label>Medicações</label><textarea id="medicacoes" rows="2" placeholder="ex: Citrato de clomifeno 100mg/dia; Letrozol 5mg/dia... (deixe em branco para &quot;---&quot;)"></textarea></div>
+        <div class="field"><label>Medicações (protocolo de estimulação)</label><textarea id="medicacoes" rows="2" placeholder="ex: Gonadotrofina recombinante 225UI/dia; Antagonista do GnRH... (deixe em branco para &quot;---&quot;)"></textarea></div>
       </div>
     </div>
 
@@ -592,6 +531,10 @@
           </div>
         </div>
         <div class="field-row">
+          <div class="field"><label>Padrão endometrial</label><select id="endoPadrao"><option value="trilaminar">Trilaminar</option><option value="ecogenico">Ecogênico</option></select></div>
+          <div class="field"><label>Espessura endometrial (mm)</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endoEspessura" placeholder="mm"></div>
+        </div>
+        <div class="field-row">
           <div class="field"><label>Aspecto</label>
             <select id="uteroAspecto">
               <option value="normal">Normal (configuração anatômica, sem nódulos)</option>
@@ -625,7 +568,6 @@
     <div class="card">
       <div class="card-head"><h2>Ovários</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Contagem de folículos dominantes do primeiro exame do ciclo — o crescimento folicular ao longo das visitas é registrado no card "Acompanhamento" abaixo.</p>
         <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário direito</p>
         <div class="field-row">
           <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder="cm"></div>
@@ -636,8 +578,10 @@
             <span class="flag-note" id="flag_ovD_volume">Fora do valor de referência</span>
           </div>
         </div>
+        <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes</label></div>
+        <div id="ovDFoliculosContainer"></div>
+        <button type="button" class="btn-clear" id="btnAddFoliculoOvD" style="margin:2px 0 14px;">+ Adicionar folículo</button>
         <div class="field-row">
-          <div class="field"><label>Folículos dominantes (1º exame)</label><input type="text" inputmode="numeric" id="ovD_foliculos" placeholder="nº"></div>
           <div class="field"><label>Aspecto</label>
             <select id="ovD_aspecto">
               <option value="normal">Normal (dimensões e ecotextura preservadas)</option>
@@ -646,7 +590,6 @@
               <option value="cisto1">1 cisto simples</option>
               <option value="cisto2">2 cistos simples</option>
               <option value="corpoluteo">Corpo lúteo</option>
-              <option value="foliculo">Folículo dominante</option>
               <option value="dermoide">Cisto dermoide (teratoma)</option>
               <option value="endometrioma">Endometrioma</option>
               <option value="nao_identificado">Não identificado</option>
@@ -663,9 +606,6 @@
         </div>
         <div class="field-row conditional" id="wrap_ovD_corpoluteo">
           <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_corpoLuteoMedida" placeholder="ex: 15 x 12,2"></div>
-        </div>
-        <div class="field-row conditional" id="wrap_ovD_foliculo">
-          <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_foliculoMedida" placeholder="ex: 15 x 12,2"></div>
         </div>
         <div class="field-row conditional" id="wrap_ovD_dermoide">
           <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_dermoideMedida" placeholder="ex: 35 x 30"></div>
@@ -686,7 +626,6 @@
                 <option value="cisto1">1 cisto simples</option>
                 <option value="cisto2">2 cistos simples</option>
                 <option value="corpoluteo">Corpo lúteo</option>
-                <option value="foliculo">Folículo dominante</option>
                 <option value="dermoide">Cisto dermoide (teratoma)</option>
                 <option value="endometrioma">Endometrioma</option>
                 <option value="alterado">Outro (descrever)</option>
@@ -702,9 +641,6 @@
           </div>
           <div class="field-row conditional" id="wrap_ovD_corpoluteo_2">
             <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_corpoLuteoMedida2" placeholder="ex: 15 x 12,2"></div>
-          </div>
-          <div class="field-row conditional" id="wrap_ovD_foliculo_2">
-            <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_foliculoMedida2" placeholder="ex: 15 x 12,2"></div>
           </div>
           <div class="field-row conditional" id="wrap_ovD_dermoide_2">
             <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_dermoideMedida2" placeholder="ex: 35 x 30"></div>
@@ -729,8 +665,10 @@
             <span class="flag-note" id="flag_ovE_volume">Fora do valor de referência</span>
           </div>
         </div>
+        <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes</label></div>
+        <div id="ovEFoliculosContainer"></div>
+        <button type="button" class="btn-clear" id="btnAddFoliculoOvE" style="margin:2px 0 14px;">+ Adicionar folículo</button>
         <div class="field-row">
-          <div class="field"><label>Folículos dominantes (1º exame)</label><input type="text" inputmode="numeric" id="ovE_foliculos" placeholder="nº"></div>
           <div class="field"><label>Aspecto</label>
             <select id="ovE_aspecto">
               <option value="normal">Normal (dimensões e ecotextura preservadas)</option>
@@ -739,7 +677,6 @@
               <option value="cisto1">1 cisto simples</option>
               <option value="cisto2">2 cistos simples</option>
               <option value="corpoluteo">Corpo lúteo</option>
-              <option value="foliculo">Folículo dominante</option>
               <option value="dermoide">Cisto dermoide (teratoma)</option>
               <option value="endometrioma">Endometrioma</option>
               <option value="nao_identificado">Não identificado</option>
@@ -756,9 +693,6 @@
         </div>
         <div class="field-row conditional" id="wrap_ovE_corpoluteo">
           <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_corpoLuteoMedida" placeholder="ex: 15 x 12,2"></div>
-        </div>
-        <div class="field-row conditional" id="wrap_ovE_foliculo">
-          <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_foliculoMedida" placeholder="ex: 15 x 12,2"></div>
         </div>
         <div class="field-row conditional" id="wrap_ovE_dermoide">
           <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_dermoideMedida" placeholder="ex: 35 x 30"></div>
@@ -779,7 +713,6 @@
                 <option value="cisto1">1 cisto simples</option>
                 <option value="cisto2">2 cistos simples</option>
                 <option value="corpoluteo">Corpo lúteo</option>
-                <option value="foliculo">Folículo dominante</option>
                 <option value="dermoide">Cisto dermoide (teratoma)</option>
                 <option value="endometrioma">Endometrioma</option>
                 <option value="alterado">Outro (descrever)</option>
@@ -796,9 +729,6 @@
           <div class="field-row conditional" id="wrap_ovE_corpoluteo_2">
             <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_corpoLuteoMedida2" placeholder="ex: 15 x 12,2"></div>
           </div>
-          <div class="field-row conditional" id="wrap_ovE_foliculo_2">
-            <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_foliculoMedida2" placeholder="ex: 15 x 12,2"></div>
-          </div>
           <div class="field-row conditional" id="wrap_ovE_dermoide_2">
             <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_dermoideMedida2" placeholder="ex: 35 x 30"></div>
           </div>
@@ -814,34 +744,9 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Acompanhamento (visitas)</h2></div>
+      <div class="card-head"><h2>Impressão</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Uma linha por visita/exame do ciclo — a tabela sai no laudo na mesma ordem em que aparece aqui.</p>
-        <div id="visitasContainer"></div>
-        <button type="button" class="btn-clear" id="btnAddVisita" style="margin:2px 0 0;">+ Adicionar visita</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Corpo lúteo e impressão</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Corpo lúteo</label>
-            <select id="corpoLuteoLado">
-              <option value="direito">Identificado no ovário direito</option>
-              <option value="esquerdo">Identificado no ovário esquerdo</option>
-              <option value="nao_identificado">Não identificado</option>
-            </select>
-          </div>
-          <div class="field"><label>Endométrio</label>
-            <select id="endometrioConcordancia">
-              <option value="concordante">Concordante com a fase do ciclo</option>
-              <option value="discordante">Discordante</option>
-            </select>
-          </div>
-        </div>
-        <hr class="sep">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima, incluindo a liberação para coleta de óvulos. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
       </div>
     </div>
@@ -920,7 +825,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.08.26-a</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.09.05-a</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -930,7 +835,6 @@
     <div class="preview-actions">
       <button class="btn-print" id="btnPrint">Imprimir / PDF</button>
       <button class="btn-clear" id="btnDownloadWord">Baixar Word</button>
-      <button class="btn-cg" id="btnSalvarCG">Salvar na Curva de Crescimento</button>
     </div>
   </div>
 </div>
@@ -966,7 +870,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // máscara de CPF e validação de decimais. Consertar qualquer um deles é uma
   // edição só, lá, e vale para os sete. Ver o cabeçalho do laudo-core.js.
   const motor = criarMotorLaudo({
-    DRAFT_KEY: 'laudo-rascunho-rastreamento-ovulacao-v1',
+    DRAFT_KEY: 'laudo-rascunho-monitorizacao-folicular-fiv-v1',
     render:          () => render(),
     draftSnapshot:   () => draftSnapshot(),
     tituloExame:     () => tituloExame(),
@@ -1320,31 +1224,25 @@ if(typeof criarMotorLaudo !== 'function'){
     figoF6: 'parede {PAREDE}, subserosa com menos de 50% do componente intramural (FIGO 6), medindo {MEDIDA} mm',
     figoF7: 'parede {PAREDE}, totalmente subserosa (FIGO 7), medindo {MEDIDA} mm',
     figoF8: 'região cervical{DETALHE} (FIGO 8), medindo {MEDIDA} mm',
-    ovarioNormal: 'de topografia usual, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
+    ovarioNormal: 'polifolicular, de forma globosa, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³), apresentando {N} folículo(s) dominante(s), com diâmetros médios descritos abaixo.',
     ovarioNaoIdentificado: 'não identificado no presente estudo. Não são identificadas massas císticas ou sólidas em sua topografia.',
     ovarioPolicisticoBase: 'de topografia usual, forma globosa e textura micropolicística, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
     ovarioPolicistico: 'Ovário {LADO} apresentando folículos antrais de distribuição predominantemente periférica, com diâmetro médio de 5 mm, associado a aumento da ecogenicidade do estroma.',
     ovarioCisto1: 'Ovário {LADO}, em seu interior observa-se imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm.',
     ovarioCisto2: 'Ovário {LADO}, em seu interior observam-se duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm e {MEDIDA2} mm, respectivamente.',
     ovarioCorpoLuteo: 'Ovário {LADO}, em seu interior nota-se imagem cística heterogênea, de paredes espessadas e irregulares, conteúdo ecogênico e captação de fluxo periférico ao mapeamento Doppler colorido, medindo {MEDIDA} mm (corpo lúteo).',
-    ovarioFoliculo: 'Ovário {LADO}, em seu interior observa-se imagem folicular com discreta captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioDermoide: 'Ovário {LADO}, em seu interior observa-se imagem nodular ecogênica, bem delimitada, sem captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioEndometrioma: 'Em seu interior, nota-se imagem cística regular e unilocular, com conteúdo de textura em "vidro fosco", com mínima captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioCisto1Tambem: 'Observa-se também, em seu interior, imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm.',
     ovarioCisto2Tambem: 'Observam-se também, em seu interior, duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm e {MEDIDA2} mm, respectivamente.',
     ovarioCorpoLuteoTambem: 'Observa-se também, em seu interior, imagem cística heterogênea, de paredes espessadas e irregulares, conteúdo ecogênico e captação de fluxo periférico ao mapeamento Doppler colorido, medindo {MEDIDA} mm (corpo lúteo).',
-    ovarioFoliculoTambem: 'Observa-se também, em seu interior, imagem folicular com discreta captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioDermoideTambem: 'Observa-se também, em seu interior, imagem nodular ecogênica, bem delimitada, sem captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioEndometriomaTambem: 'Observa-se também, em seu interior, imagem cística regular e unilocular, com conteúdo de textura em "vidro fosco", com mínima captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioAlteradoTambem: 'Observa-se também {DESCRICAO}.',
-    foliculosDominantes: 'Presença de {N} folículo(s) dominante(s) no primeiro exame.',
-    foliculosDominantesZero: 'Nenhum folículo dominante no primeiro exame.',
-    corpoLuteoIdentificado: 'Corpo lúteo identificado no ovário {LADO}.',
-    corpoLuteoNaoIdentificado: 'Corpo lúteo não identificado no presente estudo.',
-    impCicloOvulatorio: 'Exame compatível com ciclo ovulatório.',
-    impCicloAnovulatorio: 'Corpo lúteo não identificado — sugestivo de ciclo anovulatório.',
-    impEndometrioConcordante: 'Endométrio concordante.',
-    impEndometrioDiscordante: 'Endométrio discordante.',
+    endometrioLinha: '{PADRAO}, medindo {ESPESSURA} mm de espessura.',
+    impEndometrio: 'Endométrio {PADRAO} com espessura de {ESPESSURA} mm.',
+    impFoliculosBilaterais: 'Folículos dominantes bilaterais.',
+    impLiberacao: 'Achados ecográficos favoráveis, sem contraindicação para a punção folicular guiada por ultrassonografia.',
     impMioma1: 'Nódulo sólido sugestivo de mioma.',
     impMiomaVarios: 'Nódulos sólidos sugestivos de miomas.',
     impUteroMiomatoso: 'Útero de volume aumentado, miomatoso.',
@@ -1358,7 +1256,6 @@ if(typeof criarMotorLaudo !== 'function'){
     impOvarioCisto1: 'Ovário {LADO} de volume aumentado às custas de cisto uniloculado.',
     impOvarioCisto2: 'Ovário {LADO} de volume aumentado às custas de cistos uniloculados.',
     impOvarioCorpoLuteo: 'Ovário {LADO} de volume aumentado, apresentando imagem compatível com corpo lúteo.',
-    impOvarioFoliculo: 'Ovário {LADO} de volume aumentado às custas de imagem sugestiva de folículo funcional.',
     impOvarioDermoide: 'Nódulo ovariano à {LADO} sugestivo de teratoma.',
     impOvarioEndometrioma: 'Imagem sugestiva de endometrioma à {LADO}.',
     footerImagens: 'Imagens em anexo.'
@@ -1367,7 +1264,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
   async function loadPhrases(){
     try{
-      const val = await kvStore.get('ov-phrase-templates');
+      const val = await kvStore.get('fiv-phrase-templates');
       if(val){
         const parsed = JSON.parse(val);
         PHRASES = Object.assign({}, PHRASE_DEFAULTS, parsed);
@@ -1406,7 +1303,7 @@ if(typeof criarMotorLaudo !== 'function'){
     });
     PHRASES = updated;
     try{
-      await kvStore.set('ov-phrase-templates', JSON.stringify(PHRASES));
+      await kvStore.set('fiv-phrase-templates', JSON.stringify(PHRASES));
       const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
     }catch(e){ /* storage unavailable — values still apply for this session */ }
     render();
@@ -1415,7 +1312,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
     PHRASES = Object.assign({}, PHRASE_DEFAULTS);
     applyPhrasesToInputs();
-    try{ await kvStore.set('ov-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
+    try{ await kvStore.set('fiv-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
     render();
   });
 
@@ -1453,7 +1350,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
   async function loadVR(){
     try{
-      const val = await kvStore.get('ov-vr-settings');
+      const val = await kvStore.get('fiv-vr-settings');
       if(val){
         const parsed = JSON.parse(val);
         VR = Object.assign(VR, parsed);
@@ -1523,7 +1420,7 @@ if(typeof criarMotorLaudo !== 'function'){
       ovarioMax: pf('vr_ovarioMax', 9)
     };
     try{
-      await kvStore.set('ov-vr-settings', JSON.stringify(VR));
+      await kvStore.set('fiv-vr-settings', JSON.stringify(VR));
       const m = $('vrSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
     }catch(e){ /* storage unavailable — values still apply for this session */ }
     updateVRLabels();
@@ -1545,7 +1442,6 @@ if(typeof criarMotorLaudo !== 'function'){
       toggle('wrap_'+prefix+'_cisto1', val==='cisto1');
       toggle('wrap_'+prefix+'_cisto2', val==='cisto2');
       toggle('wrap_'+prefix+'_corpoluteo', val==='corpoluteo');
-      toggle('wrap_'+prefix+'_foliculo', val==='foliculo');
       toggle('wrap_'+prefix+'_dermoide', val==='dermoide');
       toggle('wrap_'+prefix+'_endometrioma', val==='endometrioma');
       toggle('wrap_'+prefix+'_descricao', val==='alterado');
@@ -1563,7 +1459,6 @@ if(typeof criarMotorLaudo !== 'function'){
       toggle('wrap_'+prefix+'_cisto1_2', val==='cisto1');
       toggle('wrap_'+prefix+'_cisto2_2', val==='cisto2');
       toggle('wrap_'+prefix+'_corpoluteo_2', val==='corpoluteo');
-      toggle('wrap_'+prefix+'_foliculo_2', val==='foliculo');
       toggle('wrap_'+prefix+'_dermoide_2', val==='dermoide');
       toggle('wrap_'+prefix+'_endometrioma_2', val==='endometrioma');
       toggle('wrap_'+prefix+'_descricao_2', val==='alterado');
@@ -1646,46 +1541,48 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   $('miomaCount').addEventListener('change', e=> setMiomaCount(parseInt(e.target.value, 10)));
 
-  // ---------- Acompanhamento: repeating visita rows (uid-based, same pattern
-  // as the mioma nodules above) ----------
-  let visitaNextUid = 1;
-  function visitaSubgroupHTML(uid){
+  // ---------- Folículos dominantes: lista dinâmica por ovário (uid-based,
+  // mesmo padrão dos nódulos de mioma acima, um contador de uid por lado) ----------
+  const foliculoNextUid = {ovD:1, ovE:1};
+  function foliculoRowHTML(prefix, uid){
     return ''
-      +'<div class="subgroup" id="wrap_visita'+uid+'">'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Visita <span class="visita-index"></span> — Data</label><input type="text" inputmode="numeric" id="visita'+uid+'Data" placeholder="20.08.2026"></div>'
-      +'<div class="field"><label>Dia do ciclo</label><input type="text" inputmode="numeric" id="visita'+uid+'Ciclo" placeholder="ex: 12º"></div>'
-      +'<div class="field"><label>OD maior folículo</label><input type="text" id="visita'+uid+'FolD" placeholder="ex: 18 x 16"></div>'
-      +'<div class="field"><label>OE maior folículo</label><input type="text" id="visita'+uid+'FolE" placeholder="ex: 10 x 9"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Padrão endometrial</label><select id="visita'+uid+'EndoPadrao"><option value="trilaminar">Trilaminar</option><option value="ecogenico">Ecogênico</option></select></div>'
-      +'<div class="field"><label>Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="visita'+uid+'EndoEspessura" placeholder="mm"></div>'
-      +'</div>'
-      +'<button type="button" class="visita-remove" data-uid="'+uid+'">Remover visita</button>'
+      +'<div class="field-row" id="wrap_'+prefix+'Fol'+uid+'">'
+      +'<div class="field"><label>F<span class="foliculo-index"></span> — medida (mm)</label><input type="text" id="'+prefix+'Fol'+uid+'Medida" placeholder="ex: 18 x 16"></div>'
+      +'<button type="button" class="foliculo-remove" data-prefix="'+prefix+'" data-uid="'+uid+'" style="align-self:flex-end;">Remover</button>'
       +'</div>';
   }
-  function renumberVisitas(){
-    const container = $('visitasContainer');
-    const visitas = Array.from(container.children);
-    visitas.forEach((el, idx)=>{
-      const label = el.querySelector('.visita-index');
+  function renumberFoliculos(prefix){
+    const container = $(prefix+'FoliculosContainer');
+    Array.from(container.children).forEach((el, idx)=>{
+      const label = el.querySelector('.foliculo-index');
       if(label) label.textContent = idx+1;
-      const removeBtn = el.querySelector('.visita-remove');
-      if(removeBtn) removeBtn.style.display = visitas.length>1 ? 'inline' : 'none';
     });
   }
-  // Máscara de data (dd.mm.aaaa) para o campo "Data" de cada visita — mesmo
-  // padrão progressivo de pontos usado na máscara de CPF, mais abaixo.
-  function aplicarMascaraDataVisita(el){
-    const digits = el.value.replace(/\D/g, '').slice(0, 8);
-    let out = digits.slice(0,2);
-    if(digits.length > 2) out += '.'+digits.slice(2,4);
-    if(digits.length > 4) out += '.'+digits.slice(4,8);
-    if(out === el.value) return;
-    el.value = out;
-    try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
+  function wireFoliculo(prefix, uid){
+    const el = $('wrap_'+prefix+'Fol'+uid);
+    el.querySelectorAll('input').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    el.querySelector('.foliculo-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberFoliculos(prefix);
+      render();
+    });
   }
+  function addFoliculo(prefix){
+    const uid = foliculoNextUid[prefix]++;
+    $(prefix+'FoliculosContainer').insertAdjacentHTML('beforeend', foliculoRowHTML(prefix, uid));
+    wireFoliculo(prefix, uid);
+    renumberFoliculos(prefix);
+    render();
+  }
+  $('btnAddFoliculoOvD').addEventListener('click', ()=> addFoliculo('ovD'));
+  $('btnAddFoliculoOvE').addEventListener('click', ()=> addFoliculo('ovE'));
+  function foliculoUids(prefix){
+    return Array.from($(prefix+'FoliculosContainer').children).map(el=> el.id.replace('wrap_'+prefix+'Fol',''));
+  }
+
   // "Dia do ciclo" sempre com o "º" ordinal (12 -> 12º), igual ao modelo.
   function aplicarMascaraDiaCiclo(el){
     const digits = el.value.replace(/\D/g, '');
@@ -1694,94 +1591,23 @@ if(typeof criarMotorLaudo !== 'function'){
     el.value = out;
     try{ el.setSelectionRange(digits.length, digits.length); }catch(e){ /* not focused/selectable */ }
   }
-  function parseDataVisita(s){
+  function parseDataBR(s){
     const m = String(s||'').match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
     if(!m) return null;
     const d = new Date(parseInt(m[3],10), parseInt(m[2],10)-1, parseInt(m[1],10));
     return isNaN(d.getTime()) ? null : d;
   }
-  // Com a DUM preenchida, o 1º dia da menstruação é o 1º dia do ciclo: o dia
-  // do ciclo de cada visita é só a diferença de dias entre a data da visita
-  // e a DUM, mais 1. Recalcula todas as visitas de uma vez (a própria DUM
-  // conta como dia 1, então uma visita na mesma data da DUM dá "1º").
-  function recalcVisitaCiclosFromDUM(){
-    const dumDate = parseDataVisita(v('dum'));
-    if(!dumDate) return false;
-    visitaUids().forEach(uid=>{
-      const thisDate = parseDataVisita($('visita'+uid+'Data').value);
-      if(!thisDate) return;
-      const diaCiclo = Math.round((thisDate - dumDate) / 86400000) + 1;
-      if(diaCiclo > 0) $('visita'+uid+'Ciclo').value = diaCiclo + 'º';
-    });
-    return true;
+  // Com a DUM e a Data do exame preenchidas, o 1º dia da menstruação é o 1º
+  // dia do ciclo: o dia do ciclo é só a diferença de dias entre a data do
+  // exame e a DUM, mais 1 — continua editável à mão depois.
+  function recalcDiaCiclo(){
+    const dumDate = parseDataBR(v('dum'));
+    const exameDate = parseDataBR(v('dataExame'));
+    if(!dumDate || !exameDate) return;
+    const dia = Math.round((exameDate - dumDate) / 86400000) + 1;
+    if(dia > 0) $('diaCiclo').value = dia + 'º';
   }
-  // Sem DUM preenchida (ou inválida), cai no comportamento antigo: a 1ª
-  // visita vira a referência manual, e as seguintes têm o dia do ciclo
-  // calculado a partir dela (mesma diferença de dias entre as datas) —
-  // continua editável à mão depois, para o caso raro de precisar ajustar.
-  function recalcVisitaCiclos(){
-    if(recalcVisitaCiclosFromDUM()) return;
-    const uids = visitaUids();
-    if(uids.length < 2) return;
-    const firstUid = uids[0];
-    const firstDate = parseDataVisita($('visita'+firstUid+'Data').value);
-    const firstCiclo = parseInt(($('visita'+firstUid+'Ciclo').value||'').replace(/\D/g,''), 10);
-    if(!firstDate || isNaN(firstCiclo)) return;
-    uids.slice(1).forEach(uid=>{
-      const thisDate = parseDataVisita($('visita'+uid+'Data').value);
-      if(!thisDate) return;
-      const diffDays = Math.round((thisDate - firstDate) / 86400000);
-      const novoCiclo = firstCiclo + diffDays;
-      if(novoCiclo > 0) $('visita'+uid+'Ciclo').value = novoCiclo + 'º';
-    });
-  }
-  function wireVisita(uid){
-    const el = $('wrap_visita'+uid);
-    el.querySelectorAll('input, select').forEach(field=>{
-      field.addEventListener('input', render);
-      field.addEventListener('change', render);
-    });
-    const dataEl = $('visita'+uid+'Data');
-    dataEl.addEventListener('input', ()=>{ aplicarMascaraDataVisita(dataEl); recalcVisitaCiclos(); render(); });
-    const cicloEl = $('visita'+uid+'Ciclo');
-    cicloEl.addEventListener('input', ()=>{
-      aplicarMascaraDiaCiclo(cicloEl);
-      // Com DUM preenchida o dia do ciclo já é automático — recalcular aqui
-      // sobrescreveria a cada tecla o que a médica está digitando à mão.
-      // Sem DUM, o valor digitado é a própria referência (1ª visita), então
-      // precisa propagar para as demais.
-      if(!parseDataVisita(v('dum'))) recalcVisitaCiclos();
-      render();
-    });
-    el.querySelector('.visita-remove').addEventListener('click', ()=>{
-      el.remove();
-      renumberVisitas();
-      render();
-    });
-  }
-  function addVisita(){
-    const uid = visitaNextUid++;
-    $('visitasContainer').insertAdjacentHTML('beforeend', visitaSubgroupHTML(uid));
-    wireVisita(uid);
-    renumberVisitas();
-    render();
-  }
-  $('btnAddVisita').addEventListener('click', addVisita);
-  function visitaUids(){
-    return Array.from($('visitasContainer').children).map(el=> el.id.replace('wrap_visita',''));
-  }
-
-  // A "Data do exame" do cabeçalho é a data de liberação do laudo — como o
-  // rastreamento cobre várias visitas ao longo do ciclo, essa data é sempre a
-  // da 1ª visita (o campo é só leitura, não se digita nele à parte). Roda a
-  // cada render(), então qualquer mudança nas visitas (data editada, visita
-  // removida virando outra a 1ª, rascunho restaurado) já sai sincronizada.
-  function syncDataExameFromPrimeiraVisita(){
-    const uids = visitaUids();
-    const primeiraData = uids.length ? v('visita'+uids[0]+'Data') : '';
-    const el = $('dataExame');
-    if(el && el.value !== primeiraData) el.value = primeiraData;
-  }
+  $('diaCiclo').addEventListener('input', ()=> aplicarMascaraDiaCiclo($('diaCiclo')));
 
   function flag(id, isAbnormal){
     const el = $(id), note = $('flag_'+id);
@@ -1807,7 +1633,6 @@ if(typeof criarMotorLaudo !== 'function'){
     cisto1: (lado, m)=> phraseRaw('ovarioCisto1', {LADO:lado, MEDIDA:m}),
     cisto2: (lado, m1, m2)=> phraseRaw('ovarioCisto2', {LADO:lado, MEDIDA1:m1, MEDIDA2:m2}),
     corpoluteo: (lado, m)=> phraseRaw('ovarioCorpoLuteo', {LADO:lado, MEDIDA:m}),
-    foliculo: (lado, m)=> phraseRaw('ovarioFoliculo', {LADO:lado, MEDIDA:m}),
     dermoide: (lado, m)=> phraseRaw('ovarioDermoide', {LADO:lado, MEDIDA:m}),
     endometrioma: (lado, m)=> phraseRaw('ovarioEndometrioma', {LADO:lado, MEDIDA:m})
   };
@@ -1815,7 +1640,6 @@ if(typeof criarMotorLaudo !== 'function'){
     cisto1: (m)=> phraseRaw('ovarioCisto1Tambem', {MEDIDA:m}),
     cisto2: (m1, m2)=> phraseRaw('ovarioCisto2Tambem', {MEDIDA1:m1, MEDIDA2:m2}),
     corpoluteo: (m)=> phraseRaw('ovarioCorpoLuteoTambem', {MEDIDA:m}),
-    foliculo: (m)=> phraseRaw('ovarioFoliculoTambem', {MEDIDA:m}),
     dermoide: (m)=> phraseRaw('ovarioDermoideTambem', {MEDIDA:m}),
     endometrioma: (m)=> phraseRaw('ovarioEndometriomaTambem', {MEDIDA:m})
   };
@@ -1824,7 +1648,6 @@ if(typeof criarMotorLaudo !== 'function'){
     cisto1: (lado)=> phraseRaw('impOvarioCisto1', {LADO:lado}),
     cisto2: (lado)=> phraseRaw('impOvarioCisto2', {LADO:lado}),
     corpoluteo: (lado)=> phraseRaw('impOvarioCorpoLuteo', {LADO:lado}),
-    foliculo: (lado)=> phraseRaw('impOvarioFoliculo', {LADO:lado}),
     dermoide: (lado)=> phraseRaw('impOvarioDermoide', {LADO:lado}),
     endometrioma: (lado)=> phraseRaw('impOvarioEndometrioma', {LADO:lado})
   };
@@ -1833,6 +1656,10 @@ if(typeof criarMotorLaudo !== 'function'){
   let checkedState = {};
   function buildImpressao(state){
     const items = [];
+    if(state.ovDFoliculosCount>0 && state.ovEFoliculosCount>0){
+      items.push({key:'foliculos-bilaterais', label:phraseRaw('impFoliculosBilaterais'), auto:true});
+    }
+    items.push({key:'endometrio', label:phraseRaw('impEndometrio', {PADRAO: state.endoPadraoTexto, ESPESSURA: state.endoEspessuraTexto}), auto:true});
     if(state.uteroAspecto === 'mioma' && state.miomaTemDados){
       if(state.miomaFrags.length>=3){
         items.push({key:'miomatose', label:phraseRaw('impMiomaVarios'), auto:true});
@@ -1840,16 +1667,6 @@ if(typeof criarMotorLaudo !== 'function'){
       } else {
         items.push({key:'miomatose', label: state.miomaFrags.length>1 ? phraseRaw('impMiomaVarios') : phraseRaw('impMioma1'), auto:true});
       }
-    }
-    if(state.corpoLuteoLado === 'nao_identificado'){
-      items.push({key:'ciclo', label:phraseRaw('impCicloAnovulatorio'), auto:true});
-    } else {
-      items.push({key:'ciclo', label:phraseRaw('impCicloOvulatorio'), auto:true});
-    }
-    if(state.endometrioConcordancia === 'discordante'){
-      items.push({key:'endometrio', label:phraseRaw('impEndometrioDiscordante'), auto:true});
-    } else {
-      items.push({key:'endometrio', label:phraseRaw('impEndometrioConcordante'), auto:true});
     }
     if(state.uteroAspecto === 'alterado' && state.uteroDescricao){
       items.push({key:'utero-alterado', label:phraseRaw('impUteroAlterado', {DESCRICAO: state.uteroDescricao}), auto:true});
@@ -1904,6 +1721,7 @@ if(typeof criarMotorLaudo !== 'function'){
       }
     });
 
+    items.push({key:'liberacao', label:phraseRaw('impLiberacao'), auto:true});
     return items;
   }
   function renderChecklist(items){
@@ -1947,7 +1765,6 @@ if(typeof criarMotorLaudo !== 'function'){
     // inteiro pelo 'afterprint': o que fosse renderizado agora seria jogado
     // fora ali. Fica anotado e roda assim que a impressão termina.
     if(st.printPaginated){ st.renderPendingAfterPrint = true; return; }
-    syncDataExameFromPrimeiraVisita();
     pendingCount = 0;
     function req(id){
       const val = v(id);
@@ -1963,12 +1780,13 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     const nomePaciente = v('nomePaciente');
-    const dataExame = v('dataExame');
+    const dataExame = blankOrValue(req('dataExame'));
     const medicoSolicitante = v('medicoSolicitante');
     const gpaG = v('gpaG');
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
     const dum = v('dum');
+    const diaCiclo = v('diaCiclo');
     const medicacoes = vNoDot('medicacoes');
 
     const uteroPosicaoVal = v('uteroPosicao');
@@ -2013,15 +1831,12 @@ if(typeof criarMotorLaudo !== 'function'){
       const volNum = num(prefix+'_volume'); req(prefix+'_volume');
       const volume = blankOrValue(v(prefix+'_volume'));
       flag(prefix+'_volume', volNum!==null && (volNum < VR.ovarioMin || volNum > VR.ovarioMax));
-      const foliculosNum = num(prefix+'_foliculos');
-      const foliculos = blankOrValue(req(prefix+'_foliculos'));
       const aspecto = v(prefix+'_aspecto');
       const descricao = vNoDot(prefix+'_descricao');
       const cisto1Medida = reqIf(prefix+'_cisto1Medida', aspecto==='cisto1');
       const cisto2MedidaA = reqIf(prefix+'_cisto2MedidaA', aspecto==='cisto2');
       const cisto2MedidaB = reqIf(prefix+'_cisto2MedidaB', aspecto==='cisto2');
       const corpoLuteoMedida = reqIf(prefix+'_corpoLuteoMedida', aspecto==='corpoluteo');
-      const foliculoMedida = reqIf(prefix+'_foliculoMedida', aspecto==='foliculo');
       const dermoideMedida = reqIf(prefix+'_dermoideMedida', aspecto==='dermoide');
       const endometriomaMedida = reqIf(prefix+'_endometriomaMedida', aspecto==='endometrioma');
       const aspecto2 = v(prefix+'_aspecto2');
@@ -2030,34 +1845,26 @@ if(typeof criarMotorLaudo !== 'function'){
       const cisto2MedidaA2 = reqIf(prefix+'_cisto2MedidaA2', aspecto2==='cisto2');
       const cisto2MedidaB2 = reqIf(prefix+'_cisto2MedidaB2', aspecto2==='cisto2');
       const corpoLuteoMedida2 = reqIf(prefix+'_corpoLuteoMedida2', aspecto2==='corpoluteo');
-      const foliculoMedida2 = reqIf(prefix+'_foliculoMedida2', aspecto2==='foliculo');
       const dermoideMedida2 = reqIf(prefix+'_dermoideMedida2', aspecto2==='dermoide');
       const endometriomaMedida2 = reqIf(prefix+'_endometriomaMedida2', aspecto2==='endometrioma');
-      return {L, AP, T, volume, volNum, aspecto, descricao, foliculos, foliculosNum,
-        cisto1Medida, cisto2MedidaA, cisto2MedidaB, corpoLuteoMedida, foliculoMedida, dermoideMedida, endometriomaMedida,
-        aspecto2, descricao2, cisto1Medida2, cisto2MedidaA2, cisto2MedidaB2, corpoLuteoMedida2, foliculoMedida2, dermoideMedida2, endometriomaMedida2};
+      const foliculos = foliculoUids(prefix).map(uid=> blankOrValue(req(prefix+'Fol'+uid+'Medida')));
+      return {L, AP, T, volume, volNum, aspecto, descricao, foliculos,
+        cisto1Medida, cisto2MedidaA, cisto2MedidaB, corpoLuteoMedida, dermoideMedida, endometriomaMedida,
+        aspecto2, descricao2, cisto1Medida2, cisto2MedidaA2, cisto2MedidaB2, corpoLuteoMedida2, dermoideMedida2, endometriomaMedida2};
     }
     const ovD = readOvario('ovD');
     const ovE = readOvario('ovE');
 
-    const visitaUidsAtuais = visitaUids();
-    const visitaRows = visitaUidsAtuais.map(uid=>{
-      const data = blankOrValue(req('visita'+uid+'Data'));
-      const ciclo = blankOrValue(req('visita'+uid+'Ciclo'));
-      const folD = blankOrValue(req('visita'+uid+'FolD'));
-      const folE = blankOrValue(req('visita'+uid+'FolE'));
-      const endoPadrao = v('visita'+uid+'EndoPadrao')==='ecogenico' ? 'Ecogênico' : 'Trilaminar';
-      const endoEspessura = blankOrValue(req('visita'+uid+'EndoEspessura'));
-      return {data, ciclo, folD, folE, endoPadrao, endoEspessura};
-    });
-
-    const corpoLuteoLado = v('corpoLuteoLado');
-    const endometrioConcordancia = v('endometrioConcordancia');
+    const endoPadraoVal = v('endoPadrao');
+    const endoPadraoTexto = endoPadraoVal==='ecogenico' ? 'Ecogênico' : 'Trilaminar';
+    const endoPadraoTextoMinusculo = endoPadraoVal==='ecogenico' ? 'ecogênico' : 'trilaminar';
+    const endoEspessura = blankOrValue(req('endoEspessura'));
 
     const checklistItems = buildImpressao({
-      corpoLuteoLado, endometrioConcordancia,
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
+      endoPadraoTexto: endoPadraoTextoMinusculo, endoEspessuraTexto: endoEspessura.text,
+      ovDFoliculosCount: ovD.foliculos.length, ovEFoliculosCount: ovE.foliculos.length,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
       ovD_aspecto2: ovD.aspecto2, ovD_descricao2: ovD.descricao2,
       ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao, ovE_volNum: ovE.volNum,
@@ -2069,7 +1876,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const blocks = [];
     blocks.push({id:'idcard', html:''
       +'<div class="id-card">'
-      +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(dataExame)+'</span></div>'
       // "Nenhum" no combo de médico solicitante é uma escolha explícita de que
       // não há médico solicitante — tira a linha inteira do cabeçalho, em vez
       // de mostrar "Médico: ____" como se fosse um campo ainda não preenchido.
@@ -2080,7 +1887,9 @@ if(typeof criarMotorLaudo !== 'function'){
       +(gpaG==='0' && gpaP==='0' && gpaA==='0'
         ? '<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+'</span></div>'
         : '<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA))+'</span></div>')
-      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+'</span></div>'
+      +'<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+'</span>'
+      +(diaCiclo ? '<span><strong>Dia do ciclo:</strong> '+escapeHtml(diaCiclo)+'</span>' : '')
+      +'</div>'
       +'</div>'});
 
     // O <span> em volta da 1ª linha é necessário: sem ele o <br> seria o único
@@ -2088,7 +1897,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // (que existe para esconder um <br> solto no INÍCIO do título — ver CSS),
     // já que esse seletor conta só elementos-irmãos, ignorando o nó de texto
     // antes dele. O <span> garante que o <br> não seja mais o primeiro filho.
-    blocks.push({id:'doctitle', html:'<h3 class="doctitle"><span>ULTRASSONOGRAFIA TRANSVAGINAL</span><br>PARA RASTREAMENTO DE OVULAÇÃO</h3>'});
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle"><span>ULTRASSONOGRAFIA TRANSVAGINAL</span><br>PARA MONITORIZAÇÃO FOLICULAR — COLETA DE ÓVULOS</h3>'});
 
     blocks.push({id:'medicacoes', html:'<p class="linha"><strong>Medicações:</strong> '+(medicacoes ? escapeHtml(medicacoes) : '---')+'</p>'});
 
@@ -2119,6 +1928,7 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'uteroDescricaoExtra', html:'<p class="linha">'+escapeHtml(miometrioDescricaoExtra)+'.</p>'});
     }
     blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
+    blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+phrase('endometrioLinha', {PADRAO: endoPadraoTexto, ESPESSURA: endoEspessura.text})+'</p>'});
 
     // Dobra a frase do achado dentro da mesma sentença do volume, em vez de um
     // parágrafo à parte. A maioria das frases de achado começa com "Ovário
@@ -2141,8 +1951,6 @@ if(typeof criarMotorLaudo !== 'function'){
         extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto2(ladoM, ov.cisto2MedidaA||'____', ov.cisto2MedidaB||'____'));
       } else if(ov.aspecto==='corpoluteo'){
         extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.corpoluteo(ladoM, ov.corpoLuteoMedida||'____'));
-      } else if(ov.aspecto==='foliculo'){
-        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.foliculo(ladoM, ov.foliculoMedida||'____'));
       } else if(ov.aspecto==='dermoide'){
         extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.dermoide(ladoM, ov.dermoideMedida||'____'));
       } else if(ov.aspecto==='endometrioma'){
@@ -2160,8 +1968,6 @@ if(typeof criarMotorLaudo !== 'function'){
         extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto2(ov.cisto2MedidaA2||'____', ov.cisto2MedidaB2||'____');
       } else if(ov.aspecto2==='corpoluteo'){
         extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.corpoluteo(ov.corpoLuteoMedida2||'____');
-      } else if(ov.aspecto2==='foliculo'){
-        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.foliculo(ov.foliculoMedida2||'____');
       } else if(ov.aspecto2==='dermoide'){
         extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.dermoide(ov.dermoideMedida2||'____');
       } else if(ov.aspecto2==='endometrioma'){
@@ -2173,53 +1979,20 @@ if(typeof criarMotorLaudo !== 'function'){
       // micropolicística") em vez da "ovarioNormal" — usar a normal e deixar o
       // achado sobrescrever a forma logo em seguida seria contraditório.
       const baseKey = ov.aspecto==='policistico' ? 'ovarioPolicisticoBase' : 'ovarioNormal';
-      const base = phraseRaw(baseKey, {L: ov.L.text, AP: ov.AP.text, T: ov.T.text, VOLUME: ov.volume.text, VRMIN: VR.ovarioMin.toString().replace('.',','), VRMAX: VR.ovarioMax.toString().replace('.',',')});
-      const foliculosTxt = ov.foliculosNum===0
-        ? phraseRaw('foliculosDominantesZero')
-        : phraseRaw('foliculosDominantes', {N: ov.foliculos.text});
-      return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+escapeHtml(base+extra+extra2)+' '+escapeHtml(foliculosTxt)+'</p>';
+      const base = phraseRaw(baseKey, {L: ov.L.text, AP: ov.AP.text, T: ov.T.text, VOLUME: ov.volume.text, VRMIN: VR.ovarioMin.toString().replace('.',','), VRMAX: VR.ovarioMax.toString().replace('.',','), N: ov.foliculos.length});
+      return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+escapeHtml(base+extra+extra2)+'</p>';
+    }
+    // Lista "F1: __ mm.  F2: __ mm." abaixo da frase descritiva do ovário —
+    // um item por folículo dominante medido, na ordem em que foram
+    // adicionados. Sem folículos cadastrados, não sai linha nenhuma.
+    function foliculosLinha(ov){
+      if(!ov.foliculos.length) return '';
+      return '<p class="linha">'+ov.foliculos.map((f,i)=>'F'+(i+1)+': '+span(f)+' mm.').join('  ')+'</p>';
     }
     blocks.push({id:'ovD', html: ovarioParagraph(ovD, 'direito')});
+    if(foliculosLinha(ovD)) blocks.push({id:'ovDFoliculos', html: foliculosLinha(ovD)});
     blocks.push({id:'ovE', html: ovarioParagraph(ovE, 'esquerdo')});
-
-    blocks.push({id:'acompHeader', html:'<h4 class="sec">Acompanhamento:</h4>'});
-    // Cantos arredondados em <table border-collapse:collapse> só se sustentam
-    // com overflow:hidden no próprio <table> (cada <td>/<th> continua com
-    // canto reto — é o clip do overflow que "corta" os cantos externos em
-    // volta). Tudo aqui vai inline (não só na classe .acompanhamento do
-    // <style>) porque cor de fundo e borda em <style> não sobrevivem à cópia
-    // para o Word (buildReportHtml/WORD_COPY não copia essas propriedades) —
-    // e print-color-adjust:exact é o que evita o cabeçalho rosa sumir na
-    // impressão/PDF (sem isso o navegador omite cor de fundo ao imprimir).
-    const acompBorda = '1px solid #d9c3d3';
-    let tableHtml = '<table class="acompanhamento" style="width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);">'
-      + '<tr>'
-      + '<th style="border:'+acompBorda+';padding:7px 10px;background:#f7e9f4;color:#2b2b2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Data do exame</th>'
-      + '<th style="border:'+acompBorda+';padding:7px 10px;background:#f7e9f4;color:#2b2b2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Dia do ciclo</th>'
-      + '<th style="border:'+acompBorda+';padding:7px 10px;background:#f7e9f4;color:#2b2b2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Ovário direito<br>maior folículo</th>'
-      + '<th style="border:'+acompBorda+';padding:7px 10px;background:#f7e9f4;color:#2b2b2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Ovário esquerdo<br>maior folículo</th>'
-      + '<th style="border:'+acompBorda+';padding:7px 10px;background:#f7e9f4;color:#2b2b2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Endométrio</th>'
-      + '</tr>';
-    if(visitaRows.length === 0){
-      tableHtml += '<tr><td colspan="5" style="border:'+acompBorda+';padding:7px 10px;color:#B4432F;">Adicione ao menos uma visita no formulário à esquerda.</td></tr>';
-    } else {
-      visitaRows.forEach((row, idx)=>{
-        const zebraBg = idx % 2 === 1 ? 'background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;' : '';
-        tableHtml += '<tr style="'+zebraBg+'">'
-          + '<td style="border:'+acompBorda+';padding:7px 10px;">'+span(row.data)+'</td>'
-          + '<td style="border:'+acompBorda+';padding:7px 10px;">'+span(row.ciclo)+'</td>'
-          + '<td style="border:'+acompBorda+';padding:7px 10px;">'+span(row.folD)+' mm</td>'
-          + '<td style="border:'+acompBorda+';padding:7px 10px;">'+span(row.folE)+' mm</td>'
-          + '<td style="border:'+acompBorda+';padding:7px 10px;">'+escapeHtml(row.endoPadrao)+' — '+span(row.endoEspessura)+' mm</td>'
-          + '</tr>';
-      });
-    }
-    tableHtml += '</table>';
-    blocks.push({id:'acompTable', html: tableHtml});
-
-    blocks.push({id:'corpoLuteo', html:'<p class="linha">'+(corpoLuteoLado==='nao_identificado'
-      ? phrase('corpoLuteoNaoIdentificado')
-      : phrase('corpoLuteoIdentificado', {LADO: corpoLuteoLado==='esquerdo' ? 'esquerdo' : 'direito'}))+'</p>'});
+    if(foliculosLinha(ovE)) blocks.push({id:'ovEFoliculos', html: foliculosLinha(ovE)});
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
@@ -2229,13 +2002,7 @@ if(typeof criarMotorLaudo !== 'function'){
       checkedItems.forEach(it=>{
         const overridden = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key);
         const text = overridden ? impressaoOverrides[it.key] : ('* '+it.label);
-        let html = escapeHtml(text);
-        // A palavra "discordante" sai sempre sublinhada — só enquanto o item
-        // não foi reescrito à mão (edição manual vira texto puro, como os
-        // demais itens da lista).
-        if(!overridden && it.key==='endometrio' && endometrioConcordancia==='discordante'){
-          html = html.replace(/discordante/i, '<u>$&</u>');
-        }
+        const html = escapeHtml(text);
         impressaoListHtml += '<li data-key="'+it.key+'">'+html+'</li>';
       });
     }
@@ -2377,7 +2144,7 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
   function tituloExame(){
-    return 'Rastreamento de Ovulação';
+    return 'Monitorização Folicular';
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
@@ -2431,7 +2198,8 @@ if(typeof criarMotorLaudo !== 'function'){
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
-    $('visitasContainer').innerHTML = '';
+    $('ovDFoliculosContainer').innerHTML = '';
+    $('ovEFoliculosContainer').innerHTML = '';
     $('miomaNodulosContainer').innerHTML = '';
     checkedState = {};
     impressaoOverrides = {};
@@ -2439,7 +2207,6 @@ if(typeof criarMotorLaudo !== 'function'){
     $('paper').innerHTML = '';
     printAttempted = false;
     $('printAlert').classList.remove('show');
-    addVisita();
     addMiomaNodule();
     // Aspecto de ambos os ovários volta para "Normal": a seção de segunda
     // alteração fica visível de novo (só some quando o ovário não é
@@ -2465,7 +2232,8 @@ if(typeof criarMotorLaudo !== 'function'){
       v: 1,
       ts: Date.now(),
       fields: fields,
-      uids: visitaUids(),
+      foliculoUidsOvD: foliculoUids('ovD'),
+      foliculoUidsOvE: foliculoUids('ovE'),
       miomaUids: miomaNoduleUids(),
       checked: checkedState,
       overrides: impressaoOverrides,
@@ -2482,21 +2250,21 @@ if(typeof criarMotorLaudo !== 'function'){
 
 
 
+  function restoreFoliculos(prefix, savedUids){
+    const uids = Array.isArray(savedUids) ? savedUids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
+    $(prefix+'FoliculosContainer').innerHTML = '';
+    uids.forEach(uid=>{
+      foliculoNextUid[prefix] = Math.max(foliculoNextUid[prefix], parseInt(uid, 10) + 1);
+      $(prefix+'FoliculosContainer').insertAdjacentHTML('beforeend', foliculoRowHTML(prefix, uid));
+      wireFoliculo(prefix, uid);
+    });
+    renumberFoliculos(prefix);
+  }
   function draftRestore(d){
     st.draftRestoring = true;
     try{
-      const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
-      $('visitasContainer').innerHTML = '';
-      if(uids.length){
-        uids.forEach(uid=>{
-          visitaNextUid = Math.max(visitaNextUid, parseInt(uid, 10) + 1);
-          $('visitasContainer').insertAdjacentHTML('beforeend', visitaSubgroupHTML(uid));
-          wireVisita(uid);
-        });
-        renumberVisitas();
-      }else{
-        addVisita();
-      }
+      restoreFoliculos('ovD', d.foliculoUidsOvD);
+      restoreFoliculos('ovE', d.foliculoUidsOvE);
 
       const miomaUidsSaved = Array.isArray(d.miomaUids) ? d.miomaUids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
       $('miomaNodulosContainer').innerHTML = '';
@@ -2529,7 +2297,8 @@ if(typeof criarMotorLaudo !== 'function'){
       titleFontSize = d.titleFontSize || null;
     }catch(e){
       st.draftRestoring = false;
-      $('visitasContainer').innerHTML = '';
+      $('ovDFoliculosContainer').innerHTML = '';
+      $('ovEFoliculosContainer').innerHTML = '';
       $('miomaNodulosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
@@ -2561,7 +2330,6 @@ if(typeof criarMotorLaudo !== 'function'){
   function draftInit(){
     const d = draftRead();
     if(!(d && draftRestore(d))){
-      addVisita();
       addMiomaNodule();
       render();
       st.draftReady = true;
@@ -2583,39 +2351,6 @@ if(typeof criarMotorLaudo !== 'function'){
 
   loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit())));
 
-  // ---- Curva de Crescimento: login + buscar/salvar laudo anterior ----
-  // Mesmo Supabase do app de curvas (mesmo cadastro de paciente, por CPF),
-  // mas o histórico deste laudo fica só na tabela própria `laudos_ovulacao` —
-  // igual ao transvaginal.html com `laudos_tv`. O app de curvas nunca lê essa
-  // tabela; "buscar laudo anterior" é uma função só deste arquivo, que faz a
-  // própria consulta ao Supabase pelo navegador da médica.
-  const CG_URL = 'https://ulcqnqwxguydrpoaplcv.supabase.co';
-  const CG_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3FucXd4Z3V5ZHJwb2FwbGN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Njk2NjcsImV4cCI6MjEwMTA0NTY2N30.hNrszyJvaBzP08Oild4wivMrTvXnDoGfgL6My1bbtVU';
-  const cgClient = window.supabase.createClient(CG_URL, CG_ANON_KEY);
-
-  function cgToast(msg, isErr){
-    const el = $('cgToast');
-    el.textContent = msg;
-    el.className = 'cg-toast show' + (isErr ? ' err' : '');
-    clearTimeout(el._t);
-    el._t = setTimeout(()=> el.classList.remove('show'), 5000);
-  }
-  function cgOnlyDigits(s){ return (s||'').replace(/\D/g, ''); }
-  function cgFormatCPF(digits){ return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'); }
-  function cgDataExameToISO(){
-    // o campo dataExame usa dd.mm.aaaa (pontos), como nos demais laudos
-    const s = v('dataExame');
-    const m = s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-    if(!m) return null;
-    return m[3]+'-'+m[2]+'-'+m[1];
-  }
-  function cgFormatDateBR(iso){
-    if(!iso) return '';
-    const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if(!m) return String(iso);
-    return m[3]+'.'+m[2]+'.'+m[1];
-  }
-
   if($('cpfPaciente')) $('cpfPaciente').addEventListener('input', aplicarMascaraCPF);
 
   function wireDateMask(id){
@@ -2631,224 +2366,9 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   }
   wireDateMask('dum');
-  $('dum').addEventListener('input', recalcVisitaCiclos);
-
-  async function cgCheckSession(){
-    const {data} = await cgClient.auth.getSession();
-    $('cgLoginOverlay').classList.toggle('hide', !!data.session);
-    return data.session;
-  }
-
-  $('cgBtnLogin').addEventListener('click', async ()=>{
-    const email = v('cgEmail'), senha = v('cgSenha');
-    const errEl = $('cgLoginErr');
-    errEl.classList.remove('show');
-    const {error} = await cgClient.auth.signInWithPassword({email, password: senha});
-    if(error){
-      errEl.textContent = 'Login inválido. Confira e-mail e senha.';
-      errEl.classList.add('show');
-      return;
-    }
-    await cgCheckSession();
-  });
-
-  cgClient.auth.onAuthStateChange((_evt, session)=>{
-    $('cgLoginOverlay').classList.toggle('hide', !!session);
-  });
-  cgCheckSession();
-
-  // ---- Buscar laudo anterior por nome ou CPF ----
-  async function cgBuscarLaudos(){
-    const session = await cgCheckSession();
-    if(!session){ cgToast('Faça login para buscar laudos.', true); return; }
-    const term = v('cgBusca');
-    const digits = cgOnlyDigits(term);
-    const resultsEl = $('cgResults');
-    resultsEl.innerHTML = '';
-    if(!term){ cgToast('Digite nome ou CPF para buscar.', true); return; }
-
-    let pacientes = [];
-    try{
-      if(digits.length === 11){
-        const cpfFormatado = cgFormatCPF(digits);
-        const {data, error} = await cgClient.from('patients')
-          .select('id, nome, cpf').in('cpf', [digits, cpfFormatado]).is('excluido_em', null).limit(20);
-        if(error) throw error;
-        pacientes = data || [];
-      }else{
-        const nome = term.replace(/[%_]/g, '\\$&');
-        const {data, error} = await cgClient.from('patients')
-          .select('id, nome, cpf').ilike('nome', '%'+nome+'%').is('excluido_em', null).limit(20);
-        if(error) throw error;
-        pacientes = data || [];
-      }
-    }catch(e){
-      cgToast('Erro ao buscar: ' + (e.message || 'tente novamente.'), true);
-      return;
-    }
-    if(!pacientes.length){ resultsEl.innerHTML = '<div class="cg-result-empty">Nenhum paciente encontrado.</div>'; return; }
-
-    const ids = pacientes.map(p=> p.id);
-    let laudos = [];
-    try{
-      const {data, error} = await cgClient.from('laudos_ovulacao')
-        .select('id, data_exame, paciente_id, created_at, conteudo')
-        .in('paciente_id', ids).order('data_exame',{ascending:false}).order('created_at',{ascending:false}).limit(50);
-      if(error) throw error;
-      laudos = data || [];
-    }catch(e){
-      cgToast('Erro ao buscar laudos: ' + (e.message || 'tente novamente.'), true);
-      return;
-    }
-    if(!laudos.length){
-      resultsEl.innerHTML = '<div class="cg-result-empty">Paciente encontrada, mas sem laudo de rastreamento de ovulação anterior salvo.</div>';
-      return;
-    }
-
-    const porNome = {};
-    pacientes.forEach(p=> porNome[p.id] = p.nome);
-    laudos.forEach(laudo=>{
-      const item = document.createElement('div');
-      item.className = 'cg-result-item';
-      item.innerHTML = '<span class="ri-info">'
-        + '<span class="ri-name">'+(porNome[laudo.paciente_id] || 'Paciente')+'</span>'
-        + '<span class="ri-meta">Exame de '+cgFormatDateBR(laudo.data_exame)+'</span>'
-        + '</span>'
-        + '<button type="button" class="ri-del" title="Excluir este laudo">Excluir</button>';
-      item.querySelector('.ri-info').addEventListener('click', ()=> cgCarregarLaudo(laudo));
-      item.querySelector('.ri-del').addEventListener('click', (e)=>{
-        e.stopPropagation();
-        cgExcluirLaudo(laudo, item, porNome[laudo.paciente_id] || 'Paciente');
-      });
-      resultsEl.appendChild(item);
-    });
-  }
-
-  // ---- Excluir um laudo indesejado (ex.: duplicata antiga) ----
-  async function cgExcluirLaudo(laudo, itemEl, nomeExibido){
-    const ok = confirm('Excluir o laudo de '+nomeExibido+' (exame de '+cgFormatDateBR(laudo.data_exame)+')?\n\nEssa ação não pode ser desfeita.');
-    if(!ok) return;
-    try{
-      const {error} = await cgClient.from('laudos_ovulacao').delete().eq('id', laudo.id);
-      if(error) throw error;
-      itemEl.remove();
-      const resultsEl = $('cgResults');
-      if(!resultsEl.querySelector('.cg-result-item')){
-        resultsEl.innerHTML = '<div class="cg-result-empty">Nenhum laudo restante para esta busca.</div>';
-      }
-      cgToast('Laudo excluído.', false);
-    }catch(e){
-      cgToast('Erro ao excluir: ' + (e.message || 'tente novamente.'), true);
-    }
-  }
-
-  $('btnBuscarCG').addEventListener('click', cgBuscarLaudos);
-  $('cgBusca').addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); cgBuscarLaudos(); } });
-
-  // ---- Carregar um laudo anterior no formulário (snapshot completo) ----
-  function cgCarregarLaudo(laudo){
-    const snap = laudo.conteudo;
-    if(!snap || typeof snap !== 'object' || !snap.fields){
-      cgToast('Laudo sem conteúdo salvo (versão antiga).', true);
-      return;
-    }
-    if(!draftRestore(snap)){
-      cgToast('Não foi possível carregar este laudo.', true);
-      return;
-    }
-    const note = $('draftNote');
-    if(note){
-      $('draftNoteText').textContent = 'Laudo anterior carregado da Curva de Crescimento — continue preenchendo a visita de hoje. Para começar um laudo novo, use "Limpar" no alto da página.';
-      note.classList.add('show');
-    }
-    cgToast('Laudo carregado ✓', false);
-  }
-
-  // ---- Salvar o laudo atual na Curva (cria um novo registro por visita) ----
-  $('btnSalvarCG').addEventListener('click', async ()=>{
-    const session = await cgCheckSession();
-    if(!session){ cgToast('Faça login para salvar.', true); return; }
-    const cpf = cgOnlyDigits(v('cpfPaciente'));
-    if(cpf.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
-    const cpfFormatado = cgFormatCPF(cpf);
-    const nome = v('nomePaciente');
-    if(!nome){ cgToast('Preencha o nome da paciente.', true); return; }
-    const dataExameISO = cgDataExameToISO();
-    if(!dataExameISO){ cgToast('Data do exame inválida (use dd.mm.aaaa).', true); return; }
-
-    const btn = $('btnSalvarCG');
-    btn.disabled = true;
-    const originalLabel = btn.textContent;
-    btn.textContent = 'Salvando...';
-
-    try{
-      const userId = session.user.id;
-      // 1) Busca ou cria a paciente por CPF (mesmo cadastro do app de curvas).
-      let {data: pacientesEncontrados, error: errBusca} = await cgClient
-        .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
-      if(errBusca) throw errBusca;
-      let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
-      if(!paciente){
-        const {data: novaPaciente, error: errCria} = await cgClient
-          .from('patients').insert({user_id: userId, cpf: cpfFormatado, nome}).select('id').single();
-        if(errCria && errCria.code !== '23505') throw errCria;
-        if(errCria && errCria.code === '23505'){
-          const {data: pacienteExistente, error: errBusca2} = await cgClient
-            .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
-          if(errBusca2) throw errBusca2;
-          paciente = (pacienteExistente && pacienteExistente[0]) || null;
-        }else{
-          paciente = novaPaciente;
-        }
-      }
-      if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
-
-      // 2) Snapshot completo do laudo (todos os campos, visitas, impressão,
-      //    texto digitado à mão) — o mesmo que o rascunho automático já grava.
-      const snap = draftSnapshot();
-
-      // 3) Um registro por rastreamento, não por clique: a "Data do exame" é
-      //    sempre a da 1ª visita (campo só leitura, sincronizado em render()),
-      //    então salvar de novo depois de acrescentar a visita de hoje acha o
-      //    mesmo registro pelo par paciente+data_exame e atualiza o conteúdo
-      //    — em vez de empilhar uma linha nova por visita em "Buscar laudo
-      //    anterior".
-      const {data: existente, error: errBuscaLaudo} = await cgClient
-        .from('laudos_ovulacao')
-        .select('id')
-        .eq('paciente_id', paciente.id)
-        .eq('data_exame', dataExameISO)
-        .limit(1);
-      if(errBuscaLaudo) throw errBuscaLaudo;
-
-      let mensagemOk = 'Laudo salvo na Curva de Crescimento ✓';
-      if(existente && existente[0]){
-        const {error: errUpdate} = await cgClient.from('laudos_ovulacao')
-          .update({cpf: cpfFormatado, nome: nome, conteudo: snap})
-          .eq('id', existente[0].id);
-        if(errUpdate) throw errUpdate;
-        mensagemOk = 'Laudo atualizado na Curva de Crescimento ✓';
-      }else{
-        const {error: errInsert} = await cgClient.from('laudos_ovulacao').insert({
-          user_id: userId,
-          paciente_id: paciente.id,
-          cpf: cpfFormatado,
-          nome: nome,
-          data_exame: dataExameISO,
-          conteudo: snap
-        });
-        if(errInsert) throw errInsert;
-      }
-
-      cgToast(mensagemOk, false);
-    }catch(e){
-      console.error(e);
-      cgToast('Erro ao salvar: ' + (e.message || 'tente novamente.'), true);
-    }finally{
-      btn.disabled = false;
-      btn.textContent = originalLabel;
-    }
-  });
+  wireDateMask('dataExame');
+  $('dum').addEventListener('input', recalcDiaCiclo);
+  $('dataExame').addEventListener('input', recalcDiaCiclo);
 })();
 </script>
 </body>
