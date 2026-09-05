@@ -737,11 +737,38 @@ function criarMotorLaudo(cfg){
       }
       if(e.key !== 'Enter') return;
 
-      const anchorNode = sel.anchorNode;
-      const anchorEl = anchorNode ? (anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement) : null;
+      // O início da seleção em ordem de documento é range.startContainer, não
+      // sel.anchorNode — anchorNode é onde o clique começou, e um
+      // clique-arrasto de trás para frente (soltar o mouse antes de onde
+      // apertou) deixa o anchorNode depois do início de verdade. Usar o
+      // range garante que o bloco checado abaixo é sempre o de onde a quebra
+      // de linha vai realmente cair.
+      const anchorNode = range.startContainer;
+      const anchorEl = anchorNode.nodeType === 1 ? anchorNode : anchorNode.parentElement;
       const blk = anchorEl ? anchorEl.closest('[data-blk]') : null;
-      if(blk && enterDivideOProprioBlk(blk, anchorEl)){
+
+      // A exceção do <li>/<td> (deixar o Enter correr solto) só é segura
+      // quando a seleção INTEIRA mora dentro do mesmo bloco. Uma seleção que
+      // começa numa célula da tabela de risco e termina no título seguinte
+      // (um clique-arrasto que passou do fim de um bloco pro começo do
+      // próximo) tem o início dentro de um <td> — enterDivideOProprioBlk()
+      // deixaria passar — mas apagar essa seleção nativa mistura o conteúdo
+      // dos dois blocos, sem passar pelo data-blk de nenhum. Foi assim que
+      // "IMPRESSÃO:" virou "SSÃO:" colado dentro do card de risco anterior.
+      const endEl = range.endContainer.nodeType === 1 ? range.endContainer : range.endContainer.parentElement;
+      const endBlk = endEl ? endEl.closest('[data-blk]') : null;
+      const selecaoCruzaBloco = !range.collapsed && blk !== endBlk;
+
+      if(blk && (selecaoCruzaBloco || enterDivideOProprioBlk(blk, anchorEl))){
         e.preventDefault();
+        // Uma seleção não vazia (clique duplo numa palavra, clique-arrasto
+        // pegando o fim de um bloco e o começo do próximo) faria o
+        // insertLineBreak abaixo apagar o texto selecionado antes de quebrar
+        // a linha — e o que está selecionado aqui é laudo médico, não texto
+        // qualquer. Foi assim que "IMPRESSÃO:" virou só ":" ao selecionar a
+        // palavra e apertar Enter. Colapsa pro início da seleção primeiro:
+        // Enter nunca apaga o que já estava escrito, só posiciona a quebra.
+        if(!range.collapsed) sel.collapseToStart();
         document.execCommand('insertLineBreak');
       }
     });
