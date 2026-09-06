@@ -460,8 +460,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso antes de 21 semanas (sem percentil)</label><textarea id="ph_impPesoNormalidade" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso adequado — use {PERCENTIL} (já vem como "no percentil 20-30")</label><textarea id="ph_impPesoAdequado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso abaixo do percentil 10 (PIG) — use {PERCENTIL} (já vem como "no percentil 5-10" ou "abaixo do percentil 3")</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso acima do percentil 90 (GIG) — use {PERCENTIL} (já vem como "acima do percentil 90")</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 10 ou abaixo (PIG) — use {PERCENTIL} (já vem como "no percentil 5-10" ou "abaixo do percentil 3")</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 90 ou acima (GIG) — use {PERCENTIL} (já vem como "acima do percentil 90")</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — oligoâmnio (impressão)</label><textarea id="ph_impLaOligoamnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — polidrâmnio (impressão)</label><textarea id="ph_impLaPolidramnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta alterada — use {DESCRICAO}</label><textarea id="ph_impPlacentaAlterada" rows="2"></textarea></div>
@@ -1310,8 +1310,8 @@ if(typeof criarMotorLaudo !== 'function'){
   function faixaPercentilPeso(p){
     if(p == null) return '';
     if(p <= 3) return 'abaixo do percentil 3';
-    if(p < 10) return 'no percentil 5-10';
-    if(p > 90) return 'acima do percentil 90';
+    if(p <= 10) return 'no percentil 5-10';
+    if(p >= 90) return 'acima do percentil 90';
     if(p % 10 === 0) return 'no percentil '+p;
     const low = Math.floor(p/10)*10;
     return 'no percentil '+low+'-'+(low+10);
@@ -2039,8 +2039,8 @@ if(typeof criarMotorLaudo !== 'function'){
       // GIG mesmo antes das 21 semanas: chamar de "dentro da normalidade" um
       // achado que a médica marcou como alterado trocaria o alerta por silêncio.
       let pesoKey;
-      if(percentilNum !== null && percentilNum < 10) pesoKey = 'impPesoPIG';
-      else if(percentilNum !== null && percentilNum > 90) pesoKey = 'impPesoGIG';
+      if(percentilNum !== null && percentilNum <= 10) pesoKey = 'impPesoPIG';
+      else if(percentilNum !== null && percentilNum >= 90) pesoKey = 'impPesoGIG';
       else if(gaDays !== null && gaDays < PESO_PERCENTIL_IG_DIAS) pesoKey = 'impPesoNormalidade';
       else pesoKey = 'impPesoAdequado';
       const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: faixaPercentilPeso(percentilNum), PESO: peso.text});
