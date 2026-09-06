@@ -459,9 +459,9 @@
   <div class="field" style="margin-bottom:8px;"><label>Gestação com DUM incerta/ignorada, 14 semanas ou mais — use {SEMANAS}</label><textarea id="ph_impGestacaoDumIncertaBiometria" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso antes de 21 semanas (sem percentil)</label><textarea id="ph_impPesoNormalidade" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso adequado — use {PERCENTIL}</label><textarea id="ph_impPesoAdequado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso abaixo do percentil 10 (PIG) — use {PERCENTIL}</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso acima do percentil 90 (GIG) — use {PERCENTIL}</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso adequado — use {PERCENTIL} (já vem como "no percentil 20-30")</label><textarea id="ph_impPesoAdequado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso abaixo do percentil 10 (PIG) — use {PERCENTIL} (já vem como "no percentil 5-10" ou "abaixo do percentil 3")</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso acima do percentil 90 (GIG) — use {PERCENTIL} (já vem como "acima do percentil 90")</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — oligoâmnio (impressão)</label><textarea id="ph_impLaOligoamnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — polidrâmnio (impressão)</label><textarea id="ph_impLaPolidramnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta alterada — use {DESCRICAO}</label><textarea id="ph_impPlacentaAlterada" rows="2"></textarea></div>
@@ -1130,9 +1130,9 @@ if(typeof criarMotorLaudo !== 'function'){
     impGestacaoDumIncertaBiometria: 'Gestação eutópica com biometria de {SEMANAS} semanas.',
     impBoaEvolucao: 'Gestação com boa evolução.',
     impPesoNormalidade: 'Peso fetal dentro da normalidade.',
-    impPesoAdequado: 'Peso fetal no percentil {PERCENTIL} (Hadlock).',
-    impPesoPIG: 'Peso fetal no percentil {PERCENTIL} (Hadlock) — abaixo do percentil 10, sugestivo de restrição de crescimento fetal / pequeno para a idade gestacional.',
-    impPesoGIG: 'Peso fetal no percentil {PERCENTIL} (Hadlock) — acima do percentil 90, feto grande para a idade gestacional.',
+    impPesoAdequado: 'Peso fetal {PERCENTIL} (Hadlock).',
+    impPesoPIG: 'Peso fetal {PERCENTIL} (Hadlock) - Feto PIG.',
+    impPesoGIG: 'Peso fetal {PERCENTIL} (Hadlock) - feto GIG.',
     impLaOligoamnio: 'Oligoâmnio — redução do volume de líquido amniótico para a idade gestacional.',
     impLaPolidramnio: 'Polidrâmnio — aumento do volume de líquido amniótico para a idade gestacional.',
     impPlacentaAlterada: 'Placenta com espessura alterada: {DESCRICAO}.',
@@ -1298,6 +1298,21 @@ if(typeof criarMotorLaudo !== 'function'){
   // Fronteira do percentil de peso na impressão diagnóstica: antes de 21
   // semanas o laudo diz apenas que o peso está dentro da normalidade.
   const PESO_PERCENTIL_IG_DIAS = 21 * 7;
+  // A conclusão não leva o percentil exato digitado no formulário: leva a
+  // faixa de 10 em 10 em que ele cai (ex.: 23 -> "no percentil 20-30"), para
+  // não sugerir uma precisão que o método de Hadlock não tem. Abaixo de 10 e
+  // acima de 90 a faixa não é mais decimal — vira a fronteira do próprio
+  // PIG/GIG ("abaixo do percentil 3", "no percentil 5-10", "acima do
+  // percentil 90"). {PERCENTIL} nas frases de peso já recebe esse texto
+  // pronto, com o "no"/"abaixo do"/"acima do" incluído.
+  function faixaPercentilPeso(p){
+    if(p == null) return '';
+    if(p <= 3) return 'abaixo do percentil 3';
+    if(p < 10) return 'no percentil 5-10';
+    if(p > 90) return 'acima do percentil 90';
+    const low = Math.floor(p/10)*10;
+    return 'no percentil '+low+'-'+(low+10);
+  }
   let fetoNextUid = 1;
 
   function fetoCardHTML(uid){
@@ -2025,7 +2040,7 @@ if(typeof criarMotorLaudo !== 'function'){
       else if(percentilNum !== null && percentilNum > 90) pesoKey = 'impPesoGIG';
       else if(gaDays !== null && gaDays < PESO_PERCENTIL_IG_DIAS) pesoKey = 'impPesoNormalidade';
       else pesoKey = 'impPesoAdequado';
-      const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: percentil.text, PESO: peso.text});
+      const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: faixaPercentilPeso(percentilNum), PESO: peso.text});
 
       const placentaInsercao = v(pre+'PlacentaInsercao');
       const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
