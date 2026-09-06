@@ -445,9 +445,9 @@
   <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar (3 fetos) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso antes de 21 semanas (sem percentil)</label><textarea id="ph_impPesoNormalidade" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso adequado — use {PERCENTIL}</label><textarea id="ph_impPesoAdequado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso abaixo do percentil 10 (PIG) — use {PERCENTIL}</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso acima do percentil 90 (GIG) — use {PERCENTIL}</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso adequado — use {PERCENTIL} (já vem como "no percentil 20-30")</label><textarea id="ph_impPesoAdequado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 10 ou abaixo (PIG) — use {PERCENTIL} (já vem como "no percentil 5-10" ou "abaixo do percentil 3")</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 90 ou acima (GIG) — use {PERCENTIL} (já vem como "acima do percentil 90")</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Sem anomalia estrutural — todos os segmentos normais</label><textarea id="ph_impSemAnomalias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado morfológico alterado — use {SEGMENTO} e {DESCRICAO}</label><textarea id="ph_impMorfoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — oligoâmnio (impressão)</label><textarea id="ph_impLaOligoamnio" rows="2"></textarea></div>
@@ -1093,9 +1093,9 @@ if(typeof criarMotorLaudo !== 'function'){
     impGestacaoTrigemelar: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
     impBoaEvolucao: 'Gestação com boa evolução até o momento.',
     impPesoNormalidade: 'Peso fetal dentro da normalidade.',
-    impPesoAdequado: 'Peso fetal no percentil {PERCENTIL} (Hadlock).',
-    impPesoPIG: 'Peso fetal no percentil {PERCENTIL} (Hadlock) — abaixo do percentil 10, sugestivo de restrição de crescimento fetal / pequeno para a idade gestacional.',
-    impPesoGIG: 'Peso fetal no percentil {PERCENTIL} (Hadlock) — acima do percentil 90, feto grande para a idade gestacional.',
+    impPesoAdequado: 'Peso fetal {PERCENTIL} (Hadlock).',
+    impPesoPIG: 'Peso fetal {PERCENTIL} (Hadlock) - Feto PIG.',
+    impPesoGIG: 'Peso fetal {PERCENTIL} (Hadlock) - feto GIG.',
     impSemAnomalias: 'Ao exame morfológico não evidenciamos nenhuma anomalia estrutural, passível de identificação para essa idade gestacional.',
     impMorfoAlterado: '{SEGMENTO}: {DESCRICAO}.',
     impLaOligoamnio: 'Oligoâmnio — redução do volume de líquido amniótico para a idade gestacional.',
@@ -1247,6 +1247,24 @@ if(typeof criarMotorLaudo !== 'function'){
   // Fronteira do percentil de peso na impressão diagnóstica: antes de 21
   // semanas o laudo diz apenas que o peso está dentro da normalidade.
   const PESO_PERCENTIL_IG_DIAS = 21 * 7;
+  // A conclusão não leva o percentil exato digitado no formulário: leva a
+  // faixa de 10 em 10 em que ele cai (ex.: 23 -> "no percentil 20-30"), para
+  // não sugerir uma precisão que o método de Hadlock não tem. Quando o valor
+  // já cai exatamente numa dessas fronteiras (20, 30, 40...), não há faixa
+  // para arredondar: sai o próprio número. Abaixo de 10 e acima de 90 a
+  // faixa não é mais decimal — vira a fronteira do próprio PIG/GIG ("abaixo
+  // do percentil 3", "no percentil 5-10", "acima do percentil 90").
+  // {PERCENTIL} nas frases de peso já recebe esse texto pronto, com o
+  // "no"/"abaixo do"/"acima do" incluído.
+  function faixaPercentilPeso(p){
+    if(p == null) return '';
+    if(p <= 3) return 'abaixo do percentil 3';
+    if(p <= 10) return 'no percentil 5-10';
+    if(p >= 90) return 'acima do percentil 90';
+    if(p % 10 === 0) return 'no percentil '+p;
+    const low = Math.floor(p/10)*10;
+    return 'no percentil '+low+'-'+(low+10);
+  }
   let fetoNextUid = 1;
 
   // Segmentos da avaliação morfológica: a ordem aqui é a ordem no laudo.
@@ -1924,11 +1942,11 @@ if(typeof criarMotorLaudo !== 'function'){
       // GIG mesmo antes das 21 semanas: chamar de "dentro da normalidade" um
       // achado que a médica marcou como alterado trocaria o alerta por silêncio.
       let pesoKey;
-      if(percentilNum !== null && percentilNum < 10) pesoKey = 'impPesoPIG';
-      else if(percentilNum !== null && percentilNum > 90) pesoKey = 'impPesoGIG';
+      if(percentilNum !== null && percentilNum <= 10) pesoKey = 'impPesoPIG';
+      else if(percentilNum !== null && percentilNum >= 90) pesoKey = 'impPesoGIG';
       else if(gaDays !== null && gaDays < PESO_PERCENTIL_IG_DIAS) pesoKey = 'impPesoNormalidade';
       else pesoKey = 'impPesoAdequado';
-      const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: percentil.text, PESO: peso.text});
+      const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: faixaPercentilPeso(percentilNum), PESO: peso.text});
 
       const placentaInsercao = v(pre+'PlacentaInsercao');
       const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
