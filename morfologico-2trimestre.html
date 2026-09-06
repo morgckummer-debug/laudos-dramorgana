@@ -446,7 +446,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso antes de 21 semanas (sem percentil)</label><textarea id="ph_impPesoNormalidade" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso adequado — use {PERCENTIL} (já vem como "no percentil 20-30")</label><textarea id="ph_impPesoAdequado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 10 ou abaixo (PIG) — use {PERCENTIL} (já vem como "no percentil 5-10" ou "abaixo do percentil 3")</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 10 ou abaixo, acima de 3 (PIG) — use {PERCENTIL} (já vem como "no percentil 5-10")</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 3 ou abaixo (CIUR) — use {PERCENTIL} (já vem como "abaixo do percentil 3") e {CIUR} (estágio escolhido no formulário: I, II, III ou IV)</label><textarea id="ph_impPesoCIUR" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 90 ou acima (GIG) — use {PERCENTIL} (já vem como "acima do percentil 90")</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Sem anomalia estrutural — todos os segmentos normais</label><textarea id="ph_impSemAnomalias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado morfológico alterado — use {SEGMENTO} e {DESCRICAO}</label><textarea id="ph_impMorfoAlterado" rows="2"></textarea></div>
@@ -1095,6 +1096,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impPesoNormalidade: 'Peso fetal dentro da normalidade.',
     impPesoAdequado: 'Peso fetal {PERCENTIL} (Hadlock).',
     impPesoPIG: 'Peso fetal {PERCENTIL} (Hadlock) - Feto PIG.',
+    impPesoCIUR: 'Peso fetal {PERCENTIL} (Hadlock) - CIUR estágio {CIUR}.',
     impPesoGIG: 'Peso fetal {PERCENTIL} (Hadlock) - feto GIG.',
     impSemAnomalias: 'Ao exame morfológico não evidenciamos nenhuma anomalia estrutural, passível de identificação para essa idade gestacional.',
     impMorfoAlterado: '{SEGMENTO}: {DESCRICAO}.',
@@ -1334,6 +1336,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Fíbula (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Fibula" placeholder="mm"></div>'
       +'<div class="field"><label>Percentil de peso (Hadlock)</label><input type="text" inputmode="numeric" id="feto'+uid+'Percentil" placeholder="ex: 45"></div>'
       +'</div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'CiurEstagio"><label>CIUR — estágio</label><select id="feto'+uid+'CiurEstagio"><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>'
 
       +'<p class="feto-sub">Placenta e cordão umbilical</p>'
       +'<div class="field-row">'
@@ -1418,6 +1421,8 @@ if(typeof criarMotorLaudo !== 'function'){
       toggle('wrap_feto'+uid+seg.key+'Descricao', alt);
       toggle('wrap_feto'+uid+seg.key+'Resumo', alt);
     });
+    const percentilNum = num('feto'+uid+'Percentil');
+    toggle('wrap_feto'+uid+'CiurEstagio', percentilNum !== null && percentilNum <= 3);
   }
   function updateAllFetoWraps(){ fetoUids().forEach(updateFetoWraps); }
 
@@ -1450,6 +1455,7 @@ if(typeof criarMotorLaudo !== 'function'){
     ['Apresentacao','PlacentaEspessura'].concat(MORFO_SEGMENTOS.map(seg=>seg.key)).forEach(sufixo=>{
       $('feto'+uid+sufixo).addEventListener('change', ()=> updateFetoWraps(uid));
     });
+    $('feto'+uid+'Percentil').addEventListener('input', ()=> updateFetoWraps(uid));
     MORFO_SEGMENTOS.forEach(seg=>{
       const sel = $('feto'+uid+seg.key);
       if(sel) sel.addEventListener('change', ()=>{ if(prefillSegmentoDescricao(uid, seg)) render(); });
@@ -1645,7 +1651,7 @@ if(typeof criarMotorLaudo !== 'function'){
     items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
       {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
 
-    const algumAchado = state.fetos.some(f=> f.laAlterado || f.placentaAlterada || f.placentaPrevia || f.alteracoes.length>0 || f.pesoKey==='impPesoPIG')
+    const algumAchado = state.fetos.some(f=> f.laAlterado || f.placentaAlterada || f.placentaPrevia || f.alteracoes.length>0 || f.pesoKey==='impPesoPIG' || f.pesoKey==='impPesoCIUR')
       || state.discordanciaAlterada;
 
     // O percentil de peso fetal vai sempre no 2º item da conclusão, logo após
@@ -1938,15 +1944,20 @@ if(typeof criarMotorLaudo !== 'function'){
       // biometria. Antes de 21 semanas o percentil de Hadlock não é confiável,
       // então a impressão é só a frase de normalidade; a partir daí (e também
       // quando não há IG para decidir) entra o percentil, em branco se ainda
-      // não foi preenchido. Um percentil fora da faixa continua virando PIG ou
-      // GIG mesmo antes das 21 semanas: chamar de "dentro da normalidade" um
-      // achado que a médica marcou como alterado trocaria o alerta por silêncio.
+      // não foi preenchido. Um percentil fora da faixa continua virando PIG,
+      // CIUR ou GIG mesmo antes das 21 semanas: chamar de "dentro da
+      // normalidade" um achado que a médica marcou como alterado trocaria o
+      // alerta por silêncio. Percentil 3 ou menos é CIUR — pede o estágio
+      // (campo condicional feto{uid}CiurEstagio, mostrado por updateFetoWraps)
+      // em vez da tag "Feto PIG" genérica.
       let pesoKey;
-      if(percentilNum !== null && percentilNum <= 10) pesoKey = 'impPesoPIG';
+      if(percentilNum !== null && percentilNum <= 3) pesoKey = 'impPesoCIUR';
+      else if(percentilNum !== null && percentilNum <= 10) pesoKey = 'impPesoPIG';
       else if(percentilNum !== null && percentilNum >= 90) pesoKey = 'impPesoGIG';
       else if(gaDays !== null && gaDays < PESO_PERCENTIL_IG_DIAS) pesoKey = 'impPesoNormalidade';
       else pesoKey = 'impPesoAdequado';
-      const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: faixaPercentilPeso(percentilNum), PESO: peso.text});
+      const ciurEstagio = v(pre+'CiurEstagio') || 'I';
+      const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: faixaPercentilPeso(percentilNum), PESO: peso.text, CIUR: ciurEstagio});
 
       const placentaInsercao = v(pre+'PlacentaInsercao');
       const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
