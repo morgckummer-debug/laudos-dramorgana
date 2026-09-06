@@ -1300,16 +1300,19 @@ if(typeof criarMotorLaudo !== 'function'){
   const PESO_PERCENTIL_IG_DIAS = 21 * 7;
   // A conclusão não leva o percentil exato digitado no formulário: leva a
   // faixa de 10 em 10 em que ele cai (ex.: 23 -> "no percentil 20-30"), para
-  // não sugerir uma precisão que o método de Hadlock não tem. Abaixo de 10 e
-  // acima de 90 a faixa não é mais decimal — vira a fronteira do próprio
-  // PIG/GIG ("abaixo do percentil 3", "no percentil 5-10", "acima do
-  // percentil 90"). {PERCENTIL} nas frases de peso já recebe esse texto
-  // pronto, com o "no"/"abaixo do"/"acima do" incluído.
+  // não sugerir uma precisão que o método de Hadlock não tem. Quando o valor
+  // já cai exatamente numa dessas fronteiras (20, 30, 40...), não há faixa
+  // para arredondar: sai o próprio número. Abaixo de 10 e acima de 90 a
+  // faixa não é mais decimal — vira a fronteira do próprio PIG/GIG ("abaixo
+  // do percentil 3", "no percentil 5-10", "acima do percentil 90").
+  // {PERCENTIL} nas frases de peso já recebe esse texto pronto, com o
+  // "no"/"abaixo do"/"acima do" incluído.
   function faixaPercentilPeso(p){
     if(p == null) return '';
     if(p <= 3) return 'abaixo do percentil 3';
     if(p < 10) return 'no percentil 5-10';
     if(p > 90) return 'acima do percentil 90';
+    if(p % 10 === 0) return 'no percentil '+p;
     const low = Math.floor(p/10)*10;
     return 'no percentil '+low+'-'+(low+10);
   }
