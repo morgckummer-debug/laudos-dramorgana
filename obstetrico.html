@@ -218,16 +218,21 @@
   .paper p.linha{margin:0 0 var(--linha-margin, 1em);}
   .paper p.linha strong{font-weight:700;}
   .paper p.linha.tight{margin-bottom:0.125em;}
-  .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
-  .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
-  .paper table.biometria td:first-child{white-space:nowrap;}
-  .paper table.biometria td:last-child{padding-right:0;}
-  /* Linha do líquido amniótico (maior bolsão + ILA): a largura da 1ª célula é
-     recalculada em JS (alignIlaColumns) a partir da própria tabela de
-     parâmetros biométricos do mesmo feto, para o "ILA" cair sempre na mesma
-     coluna vertical de CF/CA — não numa posição que varia conforme o tamanho
-     do valor do maior bolsão. */
-  .paper table.grade-la{margin-bottom:var(--linha-margin, 1em);}
+  /* Quadro de biometria — mesmo visual arredondado com linhas alternadas do
+     obstétrico de 1º trimestre / TN, aplicado às tabelas deste laudo
+     (biometria, Doppler materno/fetal, PBF): width:auto encolhe a tabela
+     para caber só o conteúdo; max-width:100% é a rede de segurança para
+     quando Doppler materno e fetal ficam lado a lado, cada um em meia
+     página — só o rótulo (não o valor, que fica nowrap) pode quebrar linha
+     ali, senão a tabela estoura a coluna. Nos outros três (biometria, PBF,
+     Doppler sozinho) o teto nunca chega a valer, o conteúdo é bem menor
+     que a página inteira. O líquido amniótico saiu de tabela (ver JS):
+     virou texto corrido, então não precisa mais entrar nessa régua. */
+  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:100%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.biometria td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
+  .paper table.biometria td:nth-child(odd){font-weight:700;text-align:left;}
+  .paper table.biometria td:nth-child(even){text-align:center;white-space:nowrap;}
+  .paper table.biometria tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
@@ -1864,60 +1869,6 @@ if(typeof criarMotorLaudo !== 'function'){
   let pendingCount = 0;
   let printAttempted = false;
 
-  // Alinha verticalmente o "ILA" com as colunas de medidas (CF/CA): a 1ª
-  // célula da linha "Maior bolsão / ILA" de cada feto ganha a mesma largura,
-  // em px, das duas primeiras colunas (rótulo + valor) da tabela de
-  // parâmetros biométricos daquele mesmo feto — medida ao vivo no DOM, e não
-  // chutada em "em", porque o texto do rótulo ("Maior bolsão:") é mais longo
-  // que "Diâmetro biparietal (DBP):" mais o valor sozinhos e sairia da conta
-  // se calculada à mão. Roda depois de todo render(), já com os blocos no ar.
-  //
-  // O IP médio das artérias uterinas (Doppler Materno) mostra o valor na
-  // mesma posição de coluna que o CF/CA e o ILA — quando a tabela ocupa a
-  // linha inteira (não dividida meio a meio com o Doppler Fetal), a 1ª
-  // célula dela ganha a mesma largura, senão o rótulo "Artéria Uterina
-  // Direita:" (mais curto que "Diâmetro biparietal (DBP):" + valor) deixa o
-  // IP mais à frente que o ILA, descolado da coluna e quebrando a simetria.
-  function alignIlaColumns(){
-    let sharedWidthEm = null;
-    $('paper').querySelectorAll('table.grade-la').forEach(laTable=>{
-      const laBlk = laTable.closest('[data-blk^="la-"]');
-      if(!laBlk) return;
-      const sfx = laBlk.getAttribute('data-blk').slice('la'.length);
-      const bioTable = $('paper').querySelector('[data-blk="biometria'+sfx+'"] table.biometria');
-      const bioRow = bioTable && bioTable.rows[0];
-      const laRow = laTable.rows[0];
-      if(!bioRow || !laRow || bioRow.cells.length < 2 || laRow.cells.length < 1) return;
-      const widthPx = bioRow.cells[0].getBoundingClientRect().width + bioRow.cells[1].getBoundingClientRect().width;
-      // Em "em", não em px: a impressão/PDF pode reduzir o tamanho da fonte do
-      // laudo inteiro para caber nas páginas (autoFitPages), e uma largura
-      // fixa em px ficaria descalibrada depois desse encolhimento. Em "em"
-      // ela encolhe junto — biometria e ILA usam a mesma fonte — mantendo o
-      // alinhamento em qualquer tamanho de fonte.
-      const fontSizePx = parseFloat(getComputedStyle(laRow.cells[0]).fontSize) || 16;
-      const widthEm = widthPx / fontSizePx;
-      laRow.cells[0].style.width = widthEm + 'em';
-      if(sharedWidthEm === null || widthEm > sharedWidthEm) sharedWidthEm = widthEm;
-    });
-    if(sharedWidthEm !== null){
-      // Doppler Fetal ("Art. Cerebral Média:" é o rótulo mais longo dos três)
-      // e Doppler Materno entram na mesma régua da biometria/líquido
-      // amniótico — sem isto, essas duas tabelas tinham cada uma sua própria
-      // largura de coluna, e a linha entre rótulo e valor saía num ponto
-      // diferente em cada tabela da página.
-      $('paper').querySelectorAll('table.doppler-materno, table.doppler-fetal').forEach(dopplerTable=>{
-        // Lado a lado (feto único com os dois Dopplers, 2 colunas de 50%): a
-        // tabela já ocupa só metade da linha, forçar a mesma largura da
-        // biometria (calculada para a página inteira) estouraria essa metade.
-        const wrapperTd = dopplerTable.closest('td');
-        if(wrapperTd && wrapperTd.parentElement && wrapperTd.parentElement.children.length > 1) return;
-        Array.from(dopplerTable.rows).forEach(row=>{
-          if(row.cells.length > 0) row.cells[0].style.width = sharedWidthEm + 'em';
-        });
-      });
-    }
-  }
-
   function render(){
     if(st.draftRestoring) return;
     // Durante a impressão o #paper está remontado em folhas e será reposto
@@ -2233,14 +2184,14 @@ if(typeof criarMotorLaudo !== 'function'){
     // fetal entra dentro de cada feto e a materna, que é da mãe, vem uma vez
     // só depois de todos.
     const tabelaDopplerMaterno = ''
-      +'<table class="biometria doppler-materno" style="width:100%;">'
+      +'<table class="biometria doppler-materno">'
       +'<tr><td><strong style="text-decoration:underline;">Doppler Materno</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
       +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
       +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
       +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
       +'</table>';
     const tabelaDopplerFetal = f => ''
-      +'<table class="biometria doppler-fetal" style="width:100%;">'
+      +'<table class="biometria doppler-fetal">'
       +'<tr><td><strong style="text-decoration:underline;">Doppler Fetal</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
       +'<tr><td>Art. Umbilical:</td><td>'+span(f.piUmbilicalVal)+'</td></tr>'
       +'<tr><td>Art. Cerebral Média:</td><td>'+span(f.piACMVal)+'</td></tr>'
@@ -2262,10 +2213,12 @@ if(typeof criarMotorLaudo !== 'function'){
       }
 
       let biometriaHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Parâmetros Biométricos</strong></p>';
-      biometriaHtml += '<table class="biometria" style="width:100%;">'
-        +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;">'+span(f.dbp)+' mm</td><td style="white-space:nowrap;">Comprimento femoral (CF):</td><td style="white-space:nowrap;">'+span(f.cf)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Circunferência cefálica (CC):</td><td style="white-space:nowrap;">'+span(f.cc)+' mm</td><td style="white-space:nowrap;">Circunferência abdominal (CA):</td><td style="white-space:nowrap;">'+span(f.ca)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;"><strong>Peso fetal estimado:</strong></td><td colspan="3" style="white-space:nowrap;"><strong>'+span(f.peso)+' gramas</strong></td></tr>'
+      biometriaHtml += '<table class="biometria">'
+        +'<tr><td>Diâmetro biparietal (DBP)</td><td>'+span(f.dbp)+' mm</td></tr>'
+        +'<tr><td>Comprimento femoral (CF)</td><td>'+span(f.cf)+' mm</td></tr>'
+        +'<tr><td>Circunferência cefálica (CC)</td><td>'+span(f.cc)+' mm</td></tr>'
+        +'<tr><td>Circunferência abdominal (CA)</td><td>'+span(f.ca)+' mm</td></tr>'
+        +'<tr><td>Peso fetal estimado</td><td><strong>'+span(f.peso)+' gramas</strong></td></tr>'
         +'</table></div>';
       blocks.push({id:'biometria'+sfx, html:biometriaHtml});
 
@@ -2273,10 +2226,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
       laHtml += '<p class="linha tight">'+(f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormal'))+'</p>';
-      laHtml += '<table class="biometria grade-la"><tr>'
-        +'<td style="white-space:nowrap;">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'</td>'
-        +'<td style="white-space:nowrap;">'+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'</td>'
-        +'</tr></table></div>';
+      laHtml += '<p class="linha">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'. '+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'.</p></div>';
       blocks.push({id:'la'+sfx, html:laHtml});
 
       if(!isMultiple && doppler){
@@ -2347,8 +2297,6 @@ if(typeof criarMotorLaudo !== 'function'){
       const titleEl = $('paper').querySelector('h3.doctitle');
       if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
     }
-    alignIlaColumns();
-
     const pill = $('statusPill');
     if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
     else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
@@ -2409,17 +2357,22 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    // Quadro de biometria — mesmo tratamento do Word que o obstétrico de 1º
+    // trimestre/TN dá ao table.biometria: borda e fundo alternado não vêm do
+    // copyComputedToClone (que só copia o que muda com o auto-fit); largura
+    // auto/centralizada e align="center" porque o Word ignora margin:auto
+    // sozinho, igual ao id-card logo abaixo.
+    clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='4px 16px'; });
+    clone.querySelectorAll('table.biometria td:nth-child(odd)').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
+    clone.querySelectorAll('table.biometria td:nth-child(even)').forEach(el=>{ el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
+    clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#f7f0f6'; });
+    clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='100%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
     clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
-
-    // A largura da 1ª célula da linha do líquido amniótico já foi calculada em
-    // px pelo alignIlaColumns() e aplicada como estilo inline no #paper vivo
-    // (para o ILA cair na coluna de CF/CA) — cloneNode(true) já traz esse
-    // estilo junto, então nada extra é preciso aqui para o Word.
 
     clone.querySelectorAll('.id-card-row').forEach(el=>{
       el.style.fontSize = '12pt';
