@@ -219,7 +219,7 @@
   .paper p.linha{margin:0 0 var(--linha-margin, 1em);}
   .paper p.linha strong{font-weight:700;}
   .paper p.linha.tight{margin-bottom:0.125em;}
-  .paper table.biometria{border-collapse:collapse;margin:0 auto 0.75em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
   .paper table.biometria td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
   .paper table.biometria td:first-child{font-weight:700;text-align:left;}
   .paper table.biometria td:last-child{text-align:center;white-space:nowrap;}
@@ -981,8 +981,21 @@ if(typeof criarMotorLaudo !== 'function'){
       const range = captureSelectionInPaper();
       const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '1em';
       if(range){
-        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, p.recomendacao')).filter(el=> range.intersectsNode(el));
-        if(paragraphs.length > 1){
+        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, p.recomendacao, h4.sec')).filter(el=> range.intersectsNode(el));
+        // A seleção pode legitimamente cruzar de um p.linha/h4.sec para
+        // dentro de OUTRO bloco que esta lista de parágrafos não reconhece —
+        // uma tabela, um <div> com sua própria margem. Contar só os
+        // parágrafos "esperados" já causou corrupção: com um só parágrafo
+        // contado mas a seleção de verdade indo além dele, o código caía no
+        // ramo de span único (abaixo), que tenta envolver a seleção inteira
+        // num <span> — range.surroundContents() falha nesse caso, e o catch
+        // (extractContents + insertNode) duplica o data-blk de cada bloco na
+        // fronteira da seleção. blocosTocados usa TODO filho direto do
+        // #paper (não só os parágrafos) só para decidir o ramo — o bloco
+        // cruzado que não é parágrafo não ganha lineHeight/margin (não faria
+        // sentido nele), mas o span nunca chega a envolver essa fronteira.
+        const blocosTocados = Array.from(paperEl.querySelectorAll(':scope > [data-blk]')).filter(el=> range.intersectsNode(el));
+        if(blocosTocados.length > 1){
           // Seleção cruza mais de um parágrafo: aplica direto em cada um, em
           // vez de envolver num <span> — um <span> (inline) não pode conter
           // <p> (bloco) validamente, e a tentativa de "consertar" isso na
@@ -998,7 +1011,7 @@ if(typeof criarMotorLaudo !== 'function'){
           el.style.lineHeight = '';
           if(!el.getAttribute('style')) el.removeAttribute('style');
         });
-        paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(limparMargemParagrafo);
+        paperEl.querySelectorAll('p.linha, p.recomendacao, h4.sec').forEach(limparMargemParagrafo);
         paperEl.style.lineHeight = lineHeightSel.value;
         paperEl.style.setProperty('--linha-margin', margin);
         kvStore.set('paper-line-height', lineHeightSel.value);
@@ -1040,7 +1053,7 @@ if(typeof criarMotorLaudo !== 'function'){
         el.style.lineHeight = '';
         if(!el.getAttribute('style')) el.removeAttribute('style');
       });
-      paperEl.querySelectorAll('p.linha, p.recomendacao').forEach(limparMargemParagrafo);
+      paperEl.querySelectorAll('p.linha, p.recomendacao, h4.sec').forEach(limparMargemParagrafo);
       paperEl.style.lineHeight = '';
       paperEl.style.removeProperty('--linha-margin');
       paperEl.style.removeProperty('--idcard-gap');

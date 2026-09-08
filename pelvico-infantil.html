@@ -833,8 +833,21 @@ if(typeof criarMotorLaudo !== 'function'){
       const range = captureSelectionInPaper();
       const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '16px';
       if(range){
-        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha')).filter(el=> range.intersectsNode(el));
-        if(paragraphs.length > 1){
+        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, h4.sec')).filter(el=> range.intersectsNode(el));
+        // A seleção pode legitimamente cruzar de um p.linha/h4.sec para
+        // dentro de OUTRO bloco que esta lista de parágrafos não reconhece —
+        // uma tabela, um <div> com sua própria margem. Contar só os
+        // parágrafos "esperados" já causou corrupção: com um só parágrafo
+        // contado mas a seleção de verdade indo além dele, o código caía no
+        // ramo de span único (abaixo), que tenta envolver a seleção inteira
+        // num <span> — range.surroundContents() falha nesse caso, e o catch
+        // (extractContents + insertNode) duplica o data-blk de cada bloco na
+        // fronteira da seleção. blocosTocados usa TODO filho direto do
+        // #paper (não só os parágrafos) só para decidir o ramo — o bloco
+        // cruzado que não é parágrafo não ganha lineHeight/margin (não faria
+        // sentido nele), mas o span nunca chega a envolver essa fronteira.
+        const blocosTocados = Array.from(paperEl.querySelectorAll(':scope > [data-blk]')).filter(el=> range.intersectsNode(el));
+        if(blocosTocados.length > 1){
           paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; el.style.marginBottom = margin; });
         } else {
           wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
@@ -845,7 +858,7 @@ if(typeof criarMotorLaudo !== 'function'){
           el.style.lineHeight = '';
           if(!el.getAttribute('style')) el.removeAttribute('style');
         });
-        paperEl.querySelectorAll('p.linha').forEach(el=>{ el.style.marginBottom = ''; });
+        paperEl.querySelectorAll('p.linha, h4.sec').forEach(el=>{ el.style.marginBottom = ''; });
         paperEl.style.lineHeight = lineHeightSel.value;
         paperEl.style.setProperty('--linha-margin', margin);
         kvStore.set('paper-line-height', lineHeightSel.value);
@@ -870,7 +883,7 @@ if(typeof criarMotorLaudo !== 'function'){
         el.style.lineHeight = '';
         if(!el.getAttribute('style')) el.removeAttribute('style');
       });
-      paperEl.querySelectorAll('p.linha').forEach(el=>{ el.style.marginBottom = ''; });
+      paperEl.querySelectorAll('p.linha, h4.sec').forEach(el=>{ el.style.marginBottom = ''; });
       paperEl.style.lineHeight = '';
       paperEl.style.removeProperty('--linha-margin');
       paperEl.style.removeProperty('--idcard-gap');
