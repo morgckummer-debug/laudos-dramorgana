@@ -190,11 +190,6 @@
     font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink-soft);user-select:none;
   }
-  /* Quando a quebra cai dentro da tabela de morfologia o marcador é um <td>, e
-     ali `.paper table.biometria td` (mais específica) zeraria borda e padding. */
-  .paper table.biometria td.pg-break-marker{
-    border-top:1.5px dashed #b39ddb;padding:10px 0 4px;text-align:center;
-  }
   /* Daqui para baixo, todo espaçamento e todo tamanho de fonte do laudo é
      expresso em em (relativo à fonte do próprio elemento), e não em px/pt
      fixos. Os valores foram escolhidos para render exatamente o mesmo que
@@ -212,13 +207,7 @@
   .paper .id-card-row{display:flex;justify-content:space-between;gap:1em;font-size:1em;}
   .paper .id-card-row + .id-card-row{margin-top:0.125em;}
   .paper .id-card-row:last-child{border-top:1.5px solid #2b2b2e;margin-top:0.375em;padding-top:0.375em;}
-  .paper .risk-card{
-    display:inline-block;background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.75em 1.75em;margin:0 0 0.75em;
-    -webkit-print-color-adjust:exact;print-color-adjust:exact;
-  }
-  .paper .risk-card table.biometria{margin:0;}
-  .paper .risk-card table.biometria td{font-weight:700;padding-top:0.1875em;padding-bottom:0.1875em;}
-  .paper p.linha.risk-card-title{text-align:center;}
+  .paper .quadro-titulo{text-align:center;}
   .paper h3.doctitle{
     text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
     margin:0 0 1.125em;font-weight:700;
@@ -231,16 +220,32 @@
   .paper p.linha{margin:0 0 var(--linha-margin, 1em);text-align:justify;}
   .paper p.linha strong{font-weight:700;}
   .paper p.linha.tight{margin-bottom:0.125em;}
-  .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
-  .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
-  .paper table.biometria td:first-child{white-space:nowrap;}
-  .paper table.biometria td:last-child{padding-right:0;}
-  /* Linha do líquido amniótico (maior bolsão + ILA): a largura da 1ª célula é
-     recalculada em JS (alignIlaColumns) a partir da própria tabela de
-     parâmetros biométricos do mesmo feto, para o "ILA" cair sempre na mesma
-     coluna vertical de CF/CA — não numa posição que varia conforme o tamanho
-     do valor do maior bolsão. */
-  .paper table.grade-la{margin-bottom:var(--linha-margin, 1em);}
+  /* Quadro de biometria — mesmo visual arredondado com linhas alternadas dos
+     outros laudos, nas tabelas que são pares rótulo/valor (biometria,
+     marcadores, Doppler materno, risco). A tabela da AVALIAÇÃO MORFOLÓGICA
+     FETAL (.morfologia) fica de fora e mantém a aparência de sempre: não é
+     rótulo/valor, é texto justificado por estrutura anatômica, e
+     packAt()/paginateForPrint() quebram ela linha a linha
+     (data-split="rows", ver comentário mais abaixo) — uma caixa com cantos
+     arredondados sairia com meio-arredondado toda vez que a tabela
+     continua na folha seguinte. */
+  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:100%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.biometria td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
+  .paper table.biometria td:nth-child(odd){font-weight:700;text-align:left;}
+  .paper table.biometria td:nth-child(even){text-align:center;white-space:nowrap;}
+  .paper table.biometria tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .paper table.biometria.morfologia{margin:0 0 0.75em;width:100%;max-width:none;border-radius:0;overflow:visible;box-shadow:none;}
+  .paper table.biometria.morfologia td{border:none;padding:0 1.25em 0.125em 0;}
+  .paper table.biometria.morfologia td:nth-child(odd){font-weight:400;}
+  .paper table.biometria.morfologia td:nth-child(even){text-align:left;white-space:normal;}
+  .paper table.biometria.morfologia tbody tr:nth-child(even) td{background:none;}
+  /* Quando a quebra cai dentro da tabela de morfologia o marcador é um <td>,
+     e precisa vencer tanto a borda/padding quanto o negrito/centralização
+     por coluna acima (por isso o seletor repete .morfologia e vem depois:
+     mesma especificidade da regra de nth-child, ganha por ordem). */
+  .paper table.biometria.morfologia td.pg-break-marker{
+    border-top:1.5px dashed #b39ddb;padding:10px 0 4px;text-align:center;font-weight:400;
+  }
   .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
@@ -420,7 +425,7 @@
        mesma especificidade, quem vem depois ganha). */
     .anexo-paper{overflow:hidden;}
 
-    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria, .paper .risk-card{page-break-inside:avoid;}
+    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -2068,44 +2073,6 @@ if(typeof criarMotorLaudo !== 'function'){
   let pendingCount = 0;
   let printAttempted = false;
 
-  // Alinha verticalmente o "ILA" com as colunas de medidas (CF/CA): a 1ª
-  // célula da linha "Maior bolsão / ILA" de cada feto ganha a mesma largura,
-  // em px, das duas primeiras colunas (rótulo + valor) da tabela de
-  // parâmetros biométricos daquele mesmo feto — medida ao vivo no DOM, e não
-  // chutada em "em", porque o texto do rótulo ("Maior bolsão:") é mais longo
-  // que "Diâmetro biparietal (DBP):" mais o valor sozinhos e sairia da conta
-  // se calculada à mão. Roda depois de todo render(), já com os blocos no ar.
-  function alignIlaColumns(){
-    $('paper').querySelectorAll('table.grade-la').forEach(laTable=>{
-      const laBlk = laTable.closest('[data-blk^="la-"]');
-      if(!laBlk) return;
-      const sfx = laBlk.getAttribute('data-blk').slice('la'.length);
-      const bioTable = $('paper').querySelector('[data-blk="biometria'+sfx+'"] table.biometria');
-      const bioRow = bioTable && bioTable.rows[0];
-      const laRow = laTable.rows[0];
-      if(!bioRow || !laRow || bioRow.cells.length < 2 || laRow.cells.length < 1) return;
-      const widthPx = bioRow.cells[0].getBoundingClientRect().width + bioRow.cells[1].getBoundingClientRect().width;
-      // Em "em", não em px: a impressão/PDF pode reduzir o tamanho da fonte do
-      // laudo inteiro para caber nas páginas (autoFitPages), e uma largura
-      // fixa em px ficaria descalibrada depois desse encolhimento. Em "em"
-      // ela encolhe junto — biometria e ILA usam a mesma fonte — mantendo o
-      // alinhamento em qualquer tamanho de fonte.
-      const fontSizePx = parseFloat(getComputedStyle(laRow.cells[0]).fontSize) || 16;
-      laRow.cells[0].style.width = (widthPx / fontSizePx) + 'em';
-    });
-  }
-
-  // A margem direita da AVALIAÇÃO MORFOLÓGICA FETAL (texto justificado)
-  // acompanha a da tabela de Parâmetros Biométricos porque as duas têm
-  // width:100% (ver morfoHtml/biometriaHtml, mais abaixo) — não precisa de
-  // JS pra igualar as duas. Chegou a ser calculada aqui, medindo a largura em
-  // px da tabela de parâmetros e aplicando em "em" na de morfologia: virou
-  // conserto pior que o problema quando a impressão/PDF reduz a fonte
-  // (autoFitPages) — o valor em "em" já tinha sido calculado antes do
-  // encolhimento, com a fonte original, e saía descalibrado (mais estreito
-  // que a página) bem no papel, exatamente o oposto do que queria resolver.
-  // width:100% não sofre disso: não depende de tamanho de fonte nenhum.
-
   // Mesma assinatura do rodapé do laudo principal — reusada também no rodapé
   // da página de anexo (FMF), para as duas saírem sempre iguais.
   function buildAssinaturaHtml(){
@@ -2368,15 +2335,18 @@ if(typeof criarMotorLaudo !== 'function'){
         blocks.push({id:'fetoHeader'+sfx, html:'<h4 class="sec">'+escapeHtml(f.label.toUpperCase())+'</h4>'});
       }
 
-      blocks.push({id:'biometria'+sfx, html:'<div><p class="linha tight"><strong>Parâmetros Biométricos</strong></p>'
-        +'<table class="biometria" style="width:100%;">'
-        +'<tr><td style="white-space:nowrap;">Compr. cabeça-nádega (CCN):</td><td style="white-space:nowrap;">'+span(f.ccn)+' mm</td><td style="white-space:nowrap;">Circunferência abdominal (CA):</td><td style="white-space:nowrap;">'+span(f.ca)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;">'+span(f.dbp)+' mm</td><td style="white-space:nowrap;">Comprimento do fêmur (CF):</td><td style="white-space:nowrap;">'+span(f.cf)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Circunferência cefálica (CC):</td><td style="white-space:nowrap;">'+span(f.cc)+' mm</td><td style="white-space:nowrap;">Frequência cardíaca:</td><td style="white-space:nowrap;">'+span(f.fc)+' bpm</td></tr>'
+      blocks.push({id:'biometria'+sfx, html:'<div><p class="linha tight quadro-titulo"><strong>Parâmetros Biométricos</strong></p>'
+        +'<table class="biometria">'
+        +'<tr><td>Compr. cabeça-nádega (CCN)</td><td>'+span(f.ccn)+' mm</td></tr>'
+        +'<tr><td>Circunferência abdominal (CA)</td><td>'+span(f.ca)+' mm</td></tr>'
+        +'<tr><td>Diâmetro biparietal (DBP)</td><td>'+span(f.dbp)+' mm</td></tr>'
+        +'<tr><td>Comprimento do fêmur (CF)</td><td>'+span(f.cf)+' mm</td></tr>'
+        +'<tr><td>Circunferência cefálica (CC)</td><td>'+span(f.cc)+' mm</td></tr>'
+        +'<tr><td>Frequência cardíaca</td><td>'+span(f.fc)+' bpm</td></tr>'
         +'</table></div>'});
 
       let morfoHtml = '<div data-split="rows"><p class="linha tight"><strong style="text-decoration:underline;">AVALIAÇÃO MORFOLÓGICA FETAL:</strong></p>';
-      morfoHtml += '<table class="biometria" style="width:100%;">';
+      morfoHtml += '<table class="biometria morfologia" style="width:100%;">';
       f.segmentos.forEach(seg=>{
         morfoHtml += '<tr><td style="white-space:nowrap;vertical-align:top;"><strong>'+escapeHtml(seg.titulo)+'</strong></td>'
           +'<td style="white-space:normal;text-align:justify;">'+escapeHtml(seg.texto)+'</td></tr>';
@@ -2391,7 +2361,7 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'morfologia'+sfx, html:morfoHtml});
 
       blocks.push({id:'marcadores'+sfx, html:'<div>'
-        +'<p class="linha tight"><strong style="text-decoration:underline;">Marcadores Ultrassonográficos de Trissomias:</strong></p>'
+        +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Marcadores Ultrassonográficos de Trissomias:</strong></p>'
         +'<table class="biometria">'
         +'<tr><td>Translucência Nucal (TN):</td><td style="white-space:nowrap;">'+span(f.tn)+' mm ('+escapeHtml(f.tnClasse)+')</td></tr>'
         +'<tr><td>Osso Nasal (ON):</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
@@ -2404,8 +2374,9 @@ if(typeof criarMotorLaudo !== 'function'){
 
     if(dopplerMaterno){
       blocks.push({id:'dopplerMaterno', html:'<div>'
+        +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Dopplerfluxometria Materna</strong></p>'
         +'<table class="biometria">'
-        +'<tr><td><strong style="text-decoration:underline;">Dopplerfluxometria Materna</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
+        +'<tr><td></td><td><strong>IP</strong></td></tr>'
         +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
         +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
         +'<tr><td>IP médio das artérias uterinas:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
@@ -2418,13 +2389,13 @@ if(typeof criarMotorLaudo !== 'function'){
     fetos.forEach(f=>{
       const sfx = '-f'+f.uid;
       const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+' (IM + ON + TN + DV + VT):';
-      blocks.push({id:'riscos'+sfx, html:'<div style="text-align:center;">'
-        +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
-        +'<div class="risk-card"><table class="biometria" style="text-align:left;">'
-        +'<tr><td>Síndrome de Down (T21):</td><td style="white-space:nowrap;">1: '+span(f.riscoT21)+'</td></tr>'
-        +'<tr><td>Síndrome de Edwards (T18):</td><td style="white-space:nowrap;">1: '+span(f.riscoT18)+'</td></tr>'
-        +'<tr><td>Síndrome de Patau (T13):</td><td style="white-space:nowrap;">1: '+span(f.riscoT13)+'</td></tr>'
-        +'</table></div></div>'});
+      blocks.push({id:'riscos'+sfx, html:'<div>'
+        +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
+        +'<table class="biometria">'
+        +'<tr><td>Síndrome de Down (T21)</td><td>1: '+span(f.riscoT21)+'</td></tr>'
+        +'<tr><td>Síndrome de Edwards (T18)</td><td>1: '+span(f.riscoT18)+'</td></tr>'
+        +'<tr><td>Síndrome de Patau (T13)</td><td>1: '+span(f.riscoT13)+'</td></tr>'
+        +'</table></div>'});
     });
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
@@ -2535,34 +2506,31 @@ if(typeof criarMotorLaudo !== 'function'){
     const liveIdCardEl = paperEl.querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
-    // O Word (filtro HTML legado) ignora "display:table" num <div> — a
-    // caixa perdia o ajuste ao conteúdo, o respiro do padding e a
-    // centralização por margin:auto, mesmo com esses estilos inline. Uma
-    // <table> de verdade, com align="center" e o padding na <td>, é o que
-    // esse motor realmente sabe renderizar (mesma lógica do .id-card-row
-    // logo abaixo). Corda arredondada em si o Word não suporta de jeito
-    // nenhum (nem no .id-card do cabeçalho) — fica só na tela/PDF.
-    clone.querySelectorAll('.risk-card').forEach(el=>{
-      const table = document.createElement('table');
-      table.setAttribute('align', 'center');
-      table.setAttribute('style', 'border-collapse:collapse;margin:0 auto 10px;');
-      table.innerHTML = '<tr><td style="background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:14px 26px;">'+el.innerHTML+'</td></tr>';
-      el.replaceWith(table);
-    });
-    clone.querySelectorAll('.risk-card-title').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
+    clone.querySelectorAll('.quadro-titulo').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    // Quadro de biometria — mesmo tratamento do Word que os outros laudos dão
+    // ao table.biometria: borda e fundo alternado não vêm do
+    // copyComputedToClone (que só copia o que muda com o auto-fit); largura
+    // auto/centralizada e align="center" porque o Word ignora margin:auto
+    // sozinho, igual ao id-card acima. table.morfologia fica de fora — sem
+    // caixa, sem negrito/centralização por coluna — e sai por último de
+    // propósito, pra vencer a regra geral acima dela.
+    clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='4px 16px'; });
+    clone.querySelectorAll('table.biometria td:nth-child(odd)').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
+    clone.querySelectorAll('table.biometria td:nth-child(even)').forEach(el=>{ el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
+    clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#f7f0f6'; });
+    clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='100%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
+    clone.querySelectorAll('table.morfologia td').forEach(el=>{ el.style.border='none'; el.style.padding='0 20px 2px 0'; el.style.fontWeight='400'; });
+    clone.querySelectorAll('table.morfologia td:nth-child(even)').forEach(el=>{ el.style.textAlign='justify'; el.style.whiteSpace='normal'; });
+    clone.querySelectorAll('table.morfologia tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='none'; });
+    clone.querySelectorAll('table.morfologia').forEach(el=>{ el.style.width='100%'; el.style.maxWidth='none'; el.style.margin='0 0 12px'; el.removeAttribute('align'); });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
     clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
-
-    // A largura da 1ª célula da linha do líquido amniótico já foi calculada em
-    // px pelo alignIlaColumns() e aplicada como estilo inline no #paper vivo
-    // (para o ILA cair na coluna de CF/CA) — cloneNode(true) já traz esse
-    // estilo junto, então nada extra é preciso aqui para o Word.
 
     clone.querySelectorAll('.id-card-row').forEach(el=>{
       el.style.fontSize = '12pt';
