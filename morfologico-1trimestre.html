@@ -207,7 +207,14 @@
   .paper .id-card-row{display:flex;justify-content:space-between;gap:1em;font-size:1em;}
   .paper .id-card-row + .id-card-row{margin-top:0.125em;}
   .paper .id-card-row:last-child{border-top:1.5px solid #2b2b2e;margin-top:0.375em;padding-top:0.375em;}
-  .paper .quadro-titulo{text-align:center;}
+  /* .quadro-titulo é sempre um p.linha (ver blocks.push mais abaixo) — e
+     `.paper p.linha` (mais abaixo, com o texto justificado do corpo do
+     laudo) tem um seletor mais específico (o type "p" a mais) que um
+     `.paper .quadro-titulo` sozinho venceria, calado, sem erro nenhum: a
+     centralização nunca chegava a aparecer na tela nem no Word. Por isso
+     repete "p.linha" aqui — três classes contra duas de `.paper p.linha`,
+     especificidade maior de propósito, pra vencer sempre. */
+  .paper p.linha.quadro-titulo{text-align:center;}
   .paper h3.doctitle{
     text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
     margin:0 0 1.125em;font-weight:700;
