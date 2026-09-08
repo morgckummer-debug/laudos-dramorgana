@@ -208,6 +208,15 @@
   .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
   .paper table.biometria td:first-child{white-space:nowrap;}
   .paper table.biometria td:last-child{padding-right:0;}
+  /* Quadro de biometria — mesmo visual do "Parâmetros biométricos" do
+     obstétrico de 1º trimestre (caixa arredondada, linhas alternadas),
+     restrito à tabela de CCN/TN/osso nasal via .boxed: a tabela de Doppler e
+     a do risk-card continuam reaproveitando o table.biometria sem caixa. */
+  .paper table.biometria.boxed{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.biometria.boxed td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
+  .paper table.biometria.boxed td:first-child{font-weight:700;text-align:left;}
+  .paper table.biometria.boxed td:last-child{text-align:center;white-space:nowrap;}
+  .paper table.biometria.boxed tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   /* Linha do líquido amniótico (maior bolsão + ILA): a largura da 1ª célula é
      recalculada em JS (alignIlaColumns) a partir da própria tabela de
      parâmetros biométricos do mesmo feto, para o "ILA" cair sempre na mesma
@@ -1765,10 +1774,10 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'biometria'+sfx, html:'<div>'
         +'<p class="linha tight">'+phraseRaw('vitalidadeTexto', {FC: span(f.fc)})+'</p>'
         +'<p class="linha tight"><strong>Parâmetros Biométricos</strong></p>'
-        +'<table class="biometria" style="width:100%;">'
-        +'<tr><td>Compr. cabeça-nádega (CCN):</td><td style="white-space:nowrap;">'+span(f.ccn)+' mm</td></tr>'
-        +'<tr><td>Translucência Nucal (TN):</td><td style="white-space:nowrap;">'+span(f.tn)+' mm</td></tr>'
-        +'<tr><td>Osso nasal:</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
+        +'<table class="biometria boxed">'
+        +'<tr><td>Compr. cabeça-nádega (CCN)</td><td>'+span(f.ccn)+' mm</td></tr>'
+        +'<tr><td>Translucência Nucal (TN)</td><td>'+span(f.tn)+' mm</td></tr>'
+        +'<tr><td>Osso nasal</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
         +'</table></div>'});
     });
 
@@ -1933,6 +1942,15 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.risk-card-title').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    // Quadro de biometria (CCN/TN/osso nasal) — mesmo tratamento do Word que o
+    // obstétrico de 1º trimestre dá ao table.biometria: borda e fundo
+    // alternado não vêm do copyComputedToClone (que só copia o que muda com o
+    // auto-fit), border-radius/box-shadow o Word não suporta mesmo.
+    clone.querySelectorAll('table.biometria.boxed td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='4px 16px'; });
+    clone.querySelectorAll('table.biometria.boxed td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
+    clone.querySelectorAll('table.biometria.boxed td:last-child').forEach(el=>{ el.style.textAlign='center'; });
+    clone.querySelectorAll('table.biometria.boxed tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#f7f0f6'; });
+    clone.querySelectorAll('table.biometria.boxed').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='70%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='10pt'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
