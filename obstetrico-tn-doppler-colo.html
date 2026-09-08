@@ -185,7 +185,7 @@
   .paper .id-card-row{display:flex;justify-content:space-between;gap:1em;font-size:1em;}
   .paper .id-card-row + .id-card-row{margin-top:0.125em;}
   .paper .id-card-row:last-child{border-top:1.5px solid #2b2b2e;margin-top:0.375em;padding-top:0.375em;}
-  .paper .risk-card-title{text-align:center;}
+  .paper .quadro-titulo{text-align:center;}
   .paper h3.doctitle{
     text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
     margin:0 0 1.125em;font-weight:700;
@@ -202,7 +202,7 @@
      obstétrico de 1º trimestre (caixa arredondada, linhas alternadas), nas
      três tabelas do laudo que usam table.biometria: biometria por feto,
      Doppler e risco para Síndrome de Down — todas com a mesma cara. */
-  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 1.25em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
   .paper table.biometria td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
   .paper table.biometria td:first-child{font-weight:700;text-align:left;}
   .paper table.biometria td:last-child{text-align:center;white-space:nowrap;}
@@ -1763,7 +1763,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       blocks.push({id:'biometria'+sfx, html:'<div>'
         +'<p class="linha tight">'+phraseRaw('vitalidadeTexto', {FC: span(f.fc)})+'</p>'
-        +'<p class="linha tight"><strong>Parâmetros Biométricos</strong></p>'
+        +'<p class="linha tight quadro-titulo"><strong>Parâmetros Biométricos</strong></p>'
         +'<table class="biometria">'
         +'<tr><td>Compr. cabeça-nádega (CCN)</td><td>'+span(f.ccn)+' mm</td></tr>'
         +'<tr><td>Translucência Nucal (TN)</td><td>'+span(f.tn)+' mm</td></tr>'
@@ -1772,7 +1772,7 @@ if(typeof criarMotorLaudo !== 'function'){
     });
 
     if(dopplerMaterno){
-      let dopplerHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Estudo Doppler</strong></p>'
+      let dopplerHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Estudo Doppler</strong></p>'
         +'<table class="biometria">'
         +'<tr><td>Artéria Uterina Direita</td><td>'+span(utDireitaVal)+'</td></tr>'
         +'<tr><td>Artéria Uterina Esquerda</td><td>'+span(utEsquerdaVal)+'</td></tr>'
@@ -1795,7 +1795,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const todosTxt = fetos.length >= 3 ? 'todos os fetos' : 'ambos os fetos';
       const riscoTitulo = 'Risco para Síndrome de Down (T21) — '+todosTxt+':';
       blocks.push({id:'riscos-compartilhado', html:'<div>'
-        +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
+        +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
         +'<table class="biometria">'
         +'<tr><td>Risco basal (idade materna)</td><td>1: '+span(f.riscoBasal)+'</td></tr>'
         +'<tr><td>Risco pós-teste (IM + TN + DV)</td><td>1: '+span(f.riscoPosTeste)+'</td></tr>'
@@ -1805,7 +1805,7 @@ if(typeof criarMotorLaudo !== 'function'){
         const sfx = '-f'+f.uid;
         const riscoTitulo = 'Risco para Síndrome de Down (T21)'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+':';
         blocks.push({id:'riscos'+sfx, html:'<div>'
-          +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
+          +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
           +'<table class="biometria">'
           +'<tr><td>Risco basal (idade materna)</td><td>1: '+span(f.riscoBasal)+'</td></tr>'
           +'<tr><td>Risco pós-teste (IM + TN + DV)</td><td>1: '+span(f.riscoPosTeste)+'</td></tr>'
@@ -1915,7 +1915,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const liveIdCardEl = paperEl.querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
-    clone.querySelectorAll('.risk-card-title').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
+    clone.querySelectorAll('.quadro-titulo').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     // Quadro de biometria — mesmo tratamento do Word que o obstétrico de 1º
