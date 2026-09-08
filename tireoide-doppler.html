@@ -1050,6 +1050,15 @@ if(typeof criarMotorLaudo !== 'function'){
     margemCalcificada: 'com margem calcificada periférica interrompida',
     micro: 'com focos ecogênicos puntiformes (microcalcificações)'
   };
+  // Padrão de vascularização ao Doppler, na classificação de Chammas — não
+  // entra na pontuação do TI-RADS (que não avalia vascularização), é só texto.
+  const NODULO_CHAMMAS_TEXTO = {
+    '1': 'sem vascularização ao estudo Doppler (Chammas I)',
+    '2': 'com captação de fluxo periférica ao estudo Doppler (Chammas II)',
+    '3': 'com captação de fluxo periférica maior do que central ao estudo Doppler (Chammas III)',
+    '4': 'com captação de fluxo central maior do que periférica ao estudo Doppler (Chammas IV)',
+    '5': 'com captação de fluxo exclusivamente central ao estudo Doppler (Chammas V)'
+  };
   // O istmo não é um lobo — usado na Impressão Diagnóstica (phrase('impNodulo...',
   // {LOBO:...})) para não sair "em Lobo istmo".
   function loboRotulo(lobo){
@@ -1232,10 +1241,13 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Focos ecogênicos</label><select id="nodulo'+uid+'Focos">'
       +'<option value="nenhum">Nenhum (0 pts)</option><option value="macro">Macrocalcificações (1 pt)</option><option value="margemCalcificada">Margem calcificada periférica interrompida (2 pts)</option><option value="micro">Puntiformes / microcalcificações (3 pts)</option>'
       +'</select></div>'
+      +'<div class="field"><label>Halo periférico</label><select id="nodulo'+uid+'Halo"><option value="ausente">Ausente</option><option value="presente">Presente</option></select></div>'
       +'</div>'
       +'<div class="field-row field-row-compact">'
       +'<div class="field"><label>Tamanho</label><input type="text" id="nodulo'+uid+'Tamanho" placeholder="ex: 22,1 x 23,4 x 25,3 mm"></div>'
-      +'<div class="field"><label>Captação de fluxo ao Doppler</label><select id="nodulo'+uid+'Captacao"><option value="sem">Sem captação periférica</option><option value="discreta">Discreta captação periférica</option></select></div>'
+      +'<div class="field"><label>Doppler (Chammas)</label><select id="nodulo'+uid+'Chammas">'
+      +'<option value="1">Chammas I — sem vascularização</option><option value="2">Chammas II — periférica</option><option value="3">Chammas III — periférica maior que central</option><option value="4">Chammas IV — central maior que periférica</option><option value="5">Chammas V — exclusivamente central</option>'
+      +'</select></div>'
       +'<div class="field"><label>TI-RADS</label><select id="nodulo'+uid+'Tirads"><option value="2">Categoria 2</option><option value="3">Categoria 3</option><option value="4">Categoria 4</option><option value="5">Categoria 5</option></select>'
       +'<span class="tirads-sugestao" id="nodulo'+uid+'TiradsSugestao"></span></div>'
       +'</div>'
@@ -1398,16 +1410,22 @@ if(typeof criarMotorLaudo !== 'function'){
     if(parenquimaAspecto==='nodulo'){
       const uids = noduloNoduleUids();
       const multiplos = uids.length > 1;
-      const frags = uids.map((uid, idx)=>{
+      // Um nódulo por uid: guarda o lobo e as duas formas do corpo do texto —
+      // "comLobo" para o caso solitário (frase única, sem cabeçalho de grupo)
+      // e "semLobo" para quando há mais de um nódulo e eles saem agrupados
+      // por lobo (o cabeçalho do grupo já diz o lobo, repeti-lo no corpo de
+      // cada nódulo ficaria redundante).
+      const nodulos = uids.map(uid=>{
         const lobo = v('nodulo'+uid+'Lobo') || 'direito';
         const composicao = NODULO_COMPOSICAO_TEXTO[v('nodulo'+uid+'Composicao')] || NODULO_COMPOSICAO_TEXTO.solido;
         const ecogenicidade = v('nodulo'+uid+'Ecogenicidade') || 'hiperecogênico';
         const forma = NODULO_FORMA_TEXTO[v('nodulo'+uid+'Forma')] || NODULO_FORMA_TEXTO.paralelo;
         const margem = NODULO_MARGEM_TEXTO[v('nodulo'+uid+'Margem')] || NODULO_MARGEM_TEXTO.regular;
         const focos = NODULO_FOCOS_TEXTO[v('nodulo'+uid+'Focos')] || NODULO_FOCOS_TEXTO.nenhum;
+        const halo = v('nodulo'+uid+'Halo')==='presente' ? 'com halo periférico' : 'sem halo periférico';
         const terco = v('nodulo'+uid+'Terco') || 'superior';
         const tamanho = blankOrValue(req('nodulo'+uid+'Tamanho'));
-        const captacao = v('nodulo'+uid+'Captacao')==='discreta' ? 'com discreta captação de fluxo periférica ao estudo Doppler' : 'sem captação de fluxo periférica ao estudo Doppler';
+        const chammas = NODULO_CHAMMAS_TEXTO[v('nodulo'+uid+'Chammas')] || NODULO_CHAMMAS_TEXTO['1'];
         const tirads = v('nodulo'+uid+'Tirads') || '3';
 
         const sugestao = sugerirTirads(uid);
@@ -1428,16 +1446,49 @@ if(typeof criarMotorLaudo !== 'function'){
         const loboRot = loboRotulo(lobo);
         noduloImpressaoItems.push({
           uid,
+          tirads: parseInt(tirads, 10),
           label: (parseInt(tirads, 10) >= 4)
             ? phrase('impNoduloSuspeito', {LOBO:loboRot, TIRADS:tirads})
             : phrase('impNoduloBenigno', {LOBO:loboRot, TIRADS:tirads})
         });
 
-        const localizacaoTexto = lobo==='istmo' ? 'localizado no istmo' : ('localizado no lobo '+lobo+', terço '+terco);
-        const corpo = composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+captacao+', '+localizacaoTexto+', medindo '+span(tamanho)+' (TI-RADS – Cat. '+tirads+').';
-        return multiplos ? ('Nódulo '+(idx+1)+' — '+corpo) : ('Nódulo '+corpo);
+        const descritores = composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+halo+', '+chammas;
+        const localizacaoComLobo = lobo==='istmo' ? 'localizado no istmo' : ('localizado no lobo '+lobo+', terço '+terco);
+        const localizacaoSemLobo = lobo==='istmo' ? 'localizado no istmo' : ('localizado no terço '+terco);
+        const fim = ', medindo '+span(tamanho)+' (TI-RADS – Cat. '+tirads+').';
+        return {
+          lobo,
+          comLobo: 'Nódulo '+descritores+', '+localizacaoComLobo+fim,
+          semLobo: 'Nódulo '+descritores+', '+localizacaoSemLobo+fim
+        };
       });
-      parenquimaTexto = frags.join(' ');
+      // Com mais de um nódulo, a Impressão Diagnóstica só registra o(s) de
+      // maior categoria TI-RADS — os de categoria menor já estão descritos no
+      // corpo do laudo, não precisam repetir na conclusão. Empate na maior
+      // categoria mantém todos os empatados (nenhum achado do mesmo peso some
+      // da conclusão só porque outro empatou com ele).
+      if(noduloImpressaoItems.length > 1){
+        const maiorCategoria = Math.max(...noduloImpressaoItems.map(it=> it.tirads));
+        noduloImpressaoItems = noduloImpressaoItems.filter(it=> it.tirads === maiorCategoria);
+      }
+      if(!nodulos.length){
+        // Instante entre marcar "Nódulo" e addNodulo() inserir o primeiro
+        // subgrupo no DOM — render() pode cair aqui de passagem; o próximo
+        // render(), já com o subgrupo criado, substitui este texto.
+      }else if(!multiplos){
+        parenquimaTexto = nodulos[0].comLobo;
+      }else{
+        // Agrupado por lobo — "Lobo direito:" com N1, N2... dentro, só o(s)
+        // lobo(s) que tiverem nódulo aparecem, na ordem direito/esquerdo/istmo.
+        const linhas = ['Parênquima de textura heterogênea, destacando-se em:'];
+        ['direito','esquerdo','istmo'].forEach(lobo=>{
+          const doLobo = nodulos.filter(n=> n.lobo===lobo);
+          if(!doLobo.length) return;
+          linhas.push('<span style="display:block;margin-top:1mm;">'+loboRotulo(lobo)+':</span>');
+          doLobo.forEach((n, i)=> linhas.push('<span style="display:block;">- N'+(i+1)+': '+n.semLobo+'</span>'));
+        });
+        parenquimaTexto = linhas.join('');
+      }
     } else if(parenquimaAspecto==='cistoColoide1'){
       const lobo = v('cistoLobo') || 'direito';
       const terco = v('cistoTerco') || 'superior';
