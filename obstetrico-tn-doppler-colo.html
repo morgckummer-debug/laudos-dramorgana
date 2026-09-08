@@ -185,12 +185,6 @@
   .paper .id-card-row{display:flex;justify-content:space-between;gap:1em;font-size:1em;}
   .paper .id-card-row + .id-card-row{margin-top:0.125em;}
   .paper .id-card-row:last-child{border-top:1.5px solid #2b2b2e;margin-top:0.375em;padding-top:0.375em;}
-  .paper .risk-card{
-    display:inline-block;background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.75em 1.75em;margin:0 0 0.75em;
-    -webkit-print-color-adjust:exact;print-color-adjust:exact;
-  }
-  .paper .risk-card table.biometria{margin:0;}
-  .paper .risk-card table.biometria td{font-weight:700;padding-top:0.1875em;padding-bottom:0.1875em;}
   .paper .risk-card-title{text-align:center;}
   .paper h3.doctitle{
     text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
@@ -204,19 +198,15 @@
   .paper p.linha{margin:0 0 var(--linha-margin, 1em);}
   .paper p.linha strong{font-weight:700;}
   .paper p.linha.tight{margin-bottom:0.125em;}
-  .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
-  .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
-  .paper table.biometria td:first-child{white-space:nowrap;}
-  .paper table.biometria td:last-child{padding-right:0;}
   /* Quadro de biometria — mesmo visual do "Parâmetros biométricos" do
-     obstétrico de 1º trimestre (caixa arredondada, linhas alternadas),
-     restrito à tabela de CCN/TN/osso nasal via .boxed: a tabela de Doppler e
-     a do risk-card continuam reaproveitando o table.biometria sem caixa. */
-  .paper table.biometria.boxed{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
-  .paper table.biometria.boxed td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
-  .paper table.biometria.boxed td:first-child{font-weight:700;text-align:left;}
-  .paper table.biometria.boxed td:last-child{text-align:center;white-space:nowrap;}
-  .paper table.biometria.boxed tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+     obstétrico de 1º trimestre (caixa arredondada, linhas alternadas), nas
+     três tabelas do laudo que usam table.biometria: biometria por feto,
+     Doppler e risco para Síndrome de Down — todas com a mesma cara. */
+  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.biometria td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
+  .paper table.biometria td:first-child{font-weight:700;text-align:left;}
+  .paper table.biometria td:last-child{text-align:center;white-space:nowrap;}
+  .paper table.biometria tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   /* Linha do líquido amniótico (maior bolsão + ILA): a largura da 1ª célula é
      recalculada em JS (alignIlaColumns) a partir da própria tabela de
      parâmetros biométricos do mesmo feto, para o "ILA" cair sempre na mesma
@@ -324,7 +314,7 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria, .paper .risk-card{page-break-inside:avoid;}
+    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -1774,7 +1764,7 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'biometria'+sfx, html:'<div>'
         +'<p class="linha tight">'+phraseRaw('vitalidadeTexto', {FC: span(f.fc)})+'</p>'
         +'<p class="linha tight"><strong>Parâmetros Biométricos</strong></p>'
-        +'<table class="biometria boxed">'
+        +'<table class="biometria">'
         +'<tr><td>Compr. cabeça-nádega (CCN)</td><td>'+span(f.ccn)+' mm</td></tr>'
         +'<tr><td>Translucência Nucal (TN)</td><td>'+span(f.tn)+' mm</td></tr>'
         +'<tr><td>Osso nasal</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
@@ -1784,11 +1774,11 @@ if(typeof criarMotorLaudo !== 'function'){
     if(dopplerMaterno){
       let dopplerHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Estudo Doppler</strong></p>'
         +'<table class="biometria">'
-        +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
-        +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
-        +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>';
+        +'<tr><td>Artéria Uterina Direita</td><td>'+span(utDireitaVal)+'</td></tr>'
+        +'<tr><td>Artéria Uterina Esquerda</td><td>'+span(utEsquerdaVal)+'</td></tr>'
+        +'<tr><td>IP médio</td><td>'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>';
       fetos.forEach(f=>{
-        dopplerHtml += '<tr><td>Ducto Venoso'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+':</td><td style="white-space:nowrap;">'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+')</td></tr>';
+        dopplerHtml += '<tr><td>Ducto Venoso'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+'</td><td>'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+')</td></tr>';
       });
       dopplerHtml += '</table></div>';
       blocks.push({id:'dopplerMaterno', html:dopplerHtml});
@@ -1804,22 +1794,22 @@ if(typeof criarMotorLaudo !== 'function'){
       const f = fetos[0];
       const todosTxt = fetos.length >= 3 ? 'todos os fetos' : 'ambos os fetos';
       const riscoTitulo = 'Risco para Síndrome de Down (T21) — '+todosTxt+':';
-      blocks.push({id:'riscos-compartilhado', html:'<div style="text-align:center;">'
+      blocks.push({id:'riscos-compartilhado', html:'<div>'
         +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
-        +'<div class="risk-card"><table class="biometria" style="text-align:left;">'
-        +'<tr><td>Risco basal (idade materna):</td><td style="white-space:nowrap;">1: '+span(f.riscoBasal)+'</td></tr>'
-        +'<tr><td>Risco pós-teste (IM + TN + DV):</td><td style="white-space:nowrap;">1: '+span(f.riscoPosTeste)+'</td></tr>'
-        +'</table></div></div>'});
+        +'<table class="biometria">'
+        +'<tr><td>Risco basal (idade materna)</td><td>1: '+span(f.riscoBasal)+'</td></tr>'
+        +'<tr><td>Risco pós-teste (IM + TN + DV)</td><td>1: '+span(f.riscoPosTeste)+'</td></tr>'
+        +'</table></div>'});
     } else {
       fetos.forEach(f=>{
         const sfx = '-f'+f.uid;
         const riscoTitulo = 'Risco para Síndrome de Down (T21)'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+':';
-        blocks.push({id:'riscos'+sfx, html:'<div style="text-align:center;">'
+        blocks.push({id:'riscos'+sfx, html:'<div>'
           +'<p class="linha tight risk-card-title"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
-          +'<div class="risk-card"><table class="biometria" style="text-align:left;">'
-          +'<tr><td>Risco basal (idade materna):</td><td style="white-space:nowrap;">1: '+span(f.riscoBasal)+'</td></tr>'
-          +'<tr><td>Risco pós-teste (IM + TN + DV):</td><td style="white-space:nowrap;">1: '+span(f.riscoPosTeste)+'</td></tr>'
-          +'</table></div></div>'});
+          +'<table class="biometria">'
+          +'<tr><td>Risco basal (idade materna)</td><td>1: '+span(f.riscoBasal)+'</td></tr>'
+          +'<tr><td>Risco pós-teste (IM + TN + DV)</td><td>1: '+span(f.riscoPosTeste)+'</td></tr>'
+          +'</table></div>'});
       });
     }
 
@@ -1925,32 +1915,19 @@ if(typeof criarMotorLaudo !== 'function'){
     const liveIdCardEl = paperEl.querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
-    // O Word (filtro HTML legado) ignora "display:table" num <div> — a
-    // caixa perdia o ajuste ao conteúdo, o respiro do padding e a
-    // centralização por margin:auto, mesmo com esses estilos inline. Uma
-    // <table> de verdade, com align="center" e o padding na <td>, é o que
-    // esse motor realmente sabe renderizar (mesma lógica do .id-card-row
-    // logo abaixo). Borda arredondada em si o Word não suporta de jeito
-    // nenhum (nem no .id-card do cabeçalho) — fica só na tela/PDF.
-    clone.querySelectorAll('.risk-card').forEach(el=>{
-      const table = document.createElement('table');
-      table.setAttribute('align', 'center');
-      table.setAttribute('style', 'border-collapse:collapse;margin:0 auto 10px;');
-      table.innerHTML = '<tr><td style="background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:14px 26px;">'+el.innerHTML+'</td></tr>';
-      el.replaceWith(table);
-    });
     clone.querySelectorAll('.risk-card-title').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
-    // Quadro de biometria (CCN/TN/osso nasal) — mesmo tratamento do Word que o
-    // obstétrico de 1º trimestre dá ao table.biometria: borda e fundo
-    // alternado não vêm do copyComputedToClone (que só copia o que muda com o
-    // auto-fit), border-radius/box-shadow o Word não suporta mesmo.
-    clone.querySelectorAll('table.biometria.boxed td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='4px 16px'; });
-    clone.querySelectorAll('table.biometria.boxed td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
-    clone.querySelectorAll('table.biometria.boxed td:last-child').forEach(el=>{ el.style.textAlign='center'; });
-    clone.querySelectorAll('table.biometria.boxed tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#f7f0f6'; });
-    clone.querySelectorAll('table.biometria.boxed').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='70%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
+    // Quadro de biometria — mesmo tratamento do Word que o obstétrico de 1º
+    // trimestre dá ao table.biometria, agora nas três tabelas do laudo
+    // (biometria, Doppler e risco): borda e fundo alternado não vêm do
+    // copyComputedToClone (que só copia o que muda com o auto-fit),
+    // border-radius/box-shadow o Word não suporta mesmo.
+    clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='4px 16px'; });
+    clone.querySelectorAll('table.biometria td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
+    clone.querySelectorAll('table.biometria td:last-child').forEach(el=>{ el.style.textAlign='center'; });
+    clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#f7f0f6'; });
+    clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='70%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='10pt'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
