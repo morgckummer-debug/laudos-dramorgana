@@ -773,6 +773,58 @@ function criarMotorLaudo(cfg){
       }
     });
   }
+  function wireBlockBoundaryGuard(paperEl){
+    // Irmã de wireEnterLineBreaks(), para o resto do teclado. Aquela função só
+    // intercepta Enter (e o Backspace bem no início do título) — qualquer
+    // outra tecla com uma seleção não vazia que cruze dois data-blk (digitar
+    // uma letra por cima da seleção, Backspace, Delete, colar substituindo,
+    // recortar) segue o comportamento nativo do contenteditable, que NÃO
+    // remove os blocos de forma limpa: ele mescla o que sobra de um bloco
+    // dentro do outro, ou esvazia um deles por dentro — o elemento com
+    // data-blk continua lá, então nem dedupBlocos() nem restoreMissingBlocks()
+    // enxergam problema (as duas só sabem reconhecer bloco duplicado ou bloco
+    // que sumiu do #paper, não bloco que sobrou vazio ou com o texto errado).
+    // Foi assim que uma observação digitada por cima de uma seleção larga
+    // apagou "Ao exame:" e deixou o título em branco no abdome total, sem
+    // qualquer rede de segurança para consertar depois.
+    //
+    // Aqui a seleção larga cruzando blocos nunca chega a ser apagada: o
+    // 'beforeinput' é cancelado e a seleção colapsa para o início dela, igual
+    // já se faz para o Enter — nunca apaga o que já estava escrito, só
+    // reposiciona o cursor. Quando dá para saber o texto que entraria
+    // (digitar ou colar, ambos chegam aqui como inputType 'insertText' — o
+    // colar já vira execCommand('insertText', ...) em wirePastePlainText()),
+    // ele é inserido normalmente no ponto colapsado, então nada do que a
+    // médica estava escrevendo se perde — só o texto que já estava no laudo,
+    // dentro da seleção larga, continua intacto em vez de ser apagado.
+    if(paperEl.dataset.blockBoundaryGuardWired) return;
+    paperEl.dataset.blockBoundaryGuardWired = '1';
+    // Um limite de seleção entre dois blocos (ex.: um clique-arrasto que
+    // começa antes do título e termina depois de "Ao exame:") tem como
+    // container o próprio #paper, não um nó de texto dentro do bloco — o
+    // offset é que aponta o índice do filho vizinho. closest('[data-blk]')
+    // direto no container erraria (devolveria null, o #paper não tem
+    // data-blk), então aqui se pega o nó vizinho de verdade antes de subir.
+    function blocoDoLimite(container, offset){
+      let node = container;
+      if(node.nodeType === 1) node = node.childNodes[offset] || node.childNodes[offset - 1] || node;
+      const el = node.nodeType === 1 ? node : node.parentElement;
+      return el ? el.closest('[data-blk]') : null;
+    }
+    paperEl.addEventListener('beforeinput', e=>{
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount || sel.isCollapsed) return;
+      const range = sel.getRangeAt(0);
+      const startBlk = blocoDoLimite(range.startContainer, range.startOffset);
+      const endBlk = blocoDoLimite(range.endContainer, range.endOffset);
+      if(!startBlk || startBlk === endBlk) return;
+      e.preventDefault();
+      sel.collapseToStart();
+      if((e.inputType === 'insertText' || e.inputType === 'insertReplacementText') && e.data){
+        document.execCommand('insertText', false, e.data);
+      }
+    });
+  }
   function wireDecimalInputs(){
     document.querySelectorAll('input[data-decimals]').forEach(el=>{
       if(el.dataset.decimalsWired) return;
@@ -855,10 +907,14 @@ function criarMotorLaudo(cfg){
   window.addEventListener('focus', recoverFromStuckPrint);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) recoverFromStuckPrint(); });
 
-  // Só existe #paper nos laudos que usam data-blk/renderBlocks(); nos outros
-  // (medicina interna) st.lastBlockHtml nunca sai de {} e isto não faz nada.
+  // Todo laudo que usa este motor tem #paper e reconcilia por data-blk,
+  // incluindo os de medicina interna — o guard de `if(paperEl0)` é só para um
+  // eventual laudo futuro que não tenha #paper nenhum.
   const paperEl0 = $('paper');
-  if(paperEl0) paperEl0.addEventListener('input', ()=> restoreMissingBlocks($('paper')));
+  if(paperEl0){
+    paperEl0.addEventListener('input', ()=> restoreMissingBlocks($('paper')));
+    wireBlockBoundaryGuard(paperEl0);
+  }
 
   return {
     $: $, kvStore: kvStore, st: st, DRAFT_KEY: DRAFT_KEY,
