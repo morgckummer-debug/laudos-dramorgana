@@ -2087,19 +2087,39 @@ if(typeof criarMotorLaudo !== 'function'){
         blocks.push({id:'observacoes'+sfx, html:'<p class="linha">'+escapeHtml(f.observacoes)+'.</p>'});
       }
 
-      let biometriaHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Biometria</strong></p>';
-      biometriaHtml += '<table class="biometria tabela-simples" style="width:100%;">'
-        +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;">'+span(f.dbp)+' mm</td><td style="white-space:nowrap;">Diâmetro cerebelar:</td><td style="white-space:nowrap;">'+span(f.diamCerebelar)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Diâmetro occipitofrontal (DOF):</td><td style="white-space:nowrap;">'+span(f.dof)+' mm</td><td style="white-space:nowrap;">Cisterna magna:</td><td style="white-space:nowrap;">'+span(f.cisternaMagna)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Circunferência cefálica (CC):</td><td style="white-space:nowrap;">'+span(f.cc)+' mm</td><td style="white-space:nowrap;">Prega nucal:</td><td style="white-space:nowrap;">'+span(f.pregaNucal)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Circunferência abdominal (CA):</td><td style="white-space:nowrap;">'+span(f.ca)+' mm</td><td style="white-space:nowrap;">Ventrículo posterior:</td><td style="white-space:nowrap;">'+span(f.ventriculoPosterior)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Comprimento femoral:</td><td style="white-space:nowrap;">'+span(f.cf)+' mm</td><td style="white-space:nowrap;">Osso nasal:</td><td style="white-space:nowrap;">'+span(f.ossoNasal)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Comprimento umeral:</td><td style="white-space:nowrap;">'+span(f.umero)+' mm</td><td style="white-space:nowrap;">Prega pré-nasal:</td><td style="white-space:nowrap;">'+span(f.pregaPreNasal)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Rádio:</td><td style="white-space:nowrap;">'+span(f.radio)+' mm</td><td style="white-space:nowrap;">Distância orbitária externa:</td><td style="white-space:nowrap;">'+span(f.doe)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Ulna:</td><td style="white-space:nowrap;">'+span(f.ulna)+' mm</td><td style="white-space:nowrap;">Distância orbitária interna:</td><td style="white-space:nowrap;">'+span(f.doi)+' mm</td></tr>'
-        +'<tr><td style="white-space:nowrap;">Tíbia:</td><td style="white-space:nowrap;">'+span(f.tibia)+' mm</td><td style="white-space:nowrap;"><strong>Peso fetal estimado:</strong></td><td style="white-space:nowrap;"><strong>'+span(f.peso)+' gramas</strong></td></tr>'
-        +'<tr><td style="white-space:nowrap;">Fíbula:</td><td colspan="3" style="white-space:nowrap;">'+span(f.fibula)+' mm</td></tr>'
-        +'</table></div>';
+      // Duas tabelas lado a lado (mesmo padrão do Doppler materno/fetal do
+      // obstétrico de 2º/3º trimestre) em vez de uma só: 19 medidas não cabem
+      // centralizadas numa caixa só, nem em 4 colunas (rótulo comprido
+      // demais) — cada metade currentemente vira um quadro de 2 colunas,
+      // estreito o bastante pra cada meia-página.
+      const tabelaBiometriaA = '<table class="biometria">'
+        +'<tr><td>Diâmetro biparietal (DBP)</td><td>'+span(f.dbp)+' mm</td></tr>'
+        +'<tr><td>Diâmetro occipitofrontal (DOF)</td><td>'+span(f.dof)+' mm</td></tr>'
+        +'<tr><td>Circunferência cefálica (CC)</td><td>'+span(f.cc)+' mm</td></tr>'
+        +'<tr><td>Circunferência abdominal (CA)</td><td>'+span(f.ca)+' mm</td></tr>'
+        +'<tr><td>Comprimento femoral</td><td>'+span(f.cf)+' mm</td></tr>'
+        +'<tr><td>Comprimento umeral</td><td>'+span(f.umero)+' mm</td></tr>'
+        +'<tr><td>Rádio</td><td>'+span(f.radio)+' mm</td></tr>'
+        +'<tr><td>Ulna</td><td>'+span(f.ulna)+' mm</td></tr>'
+        +'<tr><td>Tíbia</td><td>'+span(f.tibia)+' mm</td></tr>'
+        +'<tr><td>Fíbula</td><td>'+span(f.fibula)+' mm</td></tr>'
+        +'</table>';
+      const tabelaBiometriaB = '<table class="biometria">'
+        +'<tr><td>Diâmetro cerebelar</td><td>'+span(f.diamCerebelar)+' mm</td></tr>'
+        +'<tr><td>Cisterna magna</td><td>'+span(f.cisternaMagna)+' mm</td></tr>'
+        +'<tr><td>Prega nucal</td><td>'+span(f.pregaNucal)+' mm</td></tr>'
+        +'<tr><td>Ventrículo posterior</td><td>'+span(f.ventriculoPosterior)+' mm</td></tr>'
+        +'<tr><td>Osso nasal</td><td>'+span(f.ossoNasal)+' mm</td></tr>'
+        +'<tr><td>Prega pré-nasal</td><td>'+span(f.pregaPreNasal)+' mm</td></tr>'
+        +'<tr><td>Distância orbitária externa</td><td>'+span(f.doe)+' mm</td></tr>'
+        +'<tr><td>Distância orbitária interna</td><td>'+span(f.doi)+' mm</td></tr>'
+        +'<tr><td>Peso fetal estimado</td><td><strong>'+span(f.peso)+' gramas</strong></td></tr>'
+        +'</table>';
+      const biometriaHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Biometria</strong></p>'
+        +'<table style="width:100%;border-collapse:collapse;"><tr>'
+        +'<td style="vertical-align:top;padding:0 12px 0 0;width:50%;">'+tabelaBiometriaA+'</td>'
+        +'<td style="vertical-align:top;padding:0 0 0 12px;width:50%;">'+tabelaBiometriaB+'</td>'
+        +'</tr></table></div>';
       blocks.push({id:'biometria'+sfx, html:biometriaHtml});
 
       let morfoHtml = '<div data-split="rows"><p class="linha tight"><strong style="text-decoration:underline;">Morfologia Fetal</strong></p>';
