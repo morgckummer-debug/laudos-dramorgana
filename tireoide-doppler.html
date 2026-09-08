@@ -1050,6 +1050,11 @@ if(typeof criarMotorLaudo !== 'function'){
     margemCalcificada: 'com margem calcificada periférica interrompida',
     micro: 'com focos ecogênicos puntiformes (microcalcificações)'
   };
+  // O istmo não é um lobo — usado na Impressão Diagnóstica (phrase('impNodulo...',
+  // {LOBO:...})) para não sair "em Lobo istmo".
+  function loboRotulo(lobo){
+    return lobo==='istmo' ? 'Istmo' : ('Lobo '+lobo);
+  }
 
   // Pontuação de cada descritor, igual à tabela do ACR TI-RADS — usada só para
   // sugerir a categoria (soma ao vivo), nunca para escolhê-la sozinha: quem
@@ -1118,8 +1123,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impNormal: 'Tireóide sem alterações ao exame ecográfico.',
     impVolumeAumentado: 'Tireoide de volume aumentado apresentando parênquima de textura homogênea, sem nódulos sólidos ou císticos.',
     impDopplerNormal: 'Estudo Doppler dentro da normalidade.',
-    impNoduloBenigno: 'Nódulo sólido em Lobo {LOBO} - TIRADS-{TIRADS}.',
-    impNoduloSuspeito: 'Nódulo suspeito em Lobo {LOBO} - TIRADS-{TIRADS} - Seguir propedêutica.',
+    impNoduloBenigno: 'Nódulo sólido em {LOBO} - TIRADS-{TIRADS}.',
+    impNoduloSuspeito: 'Nódulo suspeito em {LOBO} - TIRADS-{TIRADS} - Seguir propedêutica.',
     impCistoColoide1: 'Cisto colóide no lobo {LADO}.',
     impCistoColoideVarios: 'Cistos colóides no lobo {LADO}.',
     impHashimoto: 'Tireoide de volume e vascularização {VOLVASC} com textura heterogênea, sugestiva de tireoidite crônica.',
@@ -1208,7 +1213,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="subgroup" id="wrap_nodulo'+uid+'">'
       +'<p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Nódulo <span class="nodulo-index"></span></p>'
       +'<div class="field-row field-row-compact">'
-      +'<div class="field"><label>Lobo</label><select id="nodulo'+uid+'Lobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select></div>'
+      +'<div class="field"><label>Lobo</label><select id="nodulo'+uid+'Lobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option><option value="istmo">Istmo</option></select></div>'
       +'<div class="field"><label>Composição</label><select id="nodulo'+uid+'Composicao">'
       +'<option value="solido">Sólido (2 pts)</option><option value="misto">Misto cístico-sólido (1 pt)</option><option value="espongiforme">Espongiforme (0 pts)</option>'
       +'</select></div>'
@@ -1417,14 +1422,19 @@ if(typeof criarMotorLaudo !== 'function'){
         // TI-RADS 2-3 é achado provavelmente benigno — a Impressão só registra a
         // categoria; a partir de 4 ela vira achado suspeito, com recomendação de
         // seguir a propedêutica, em vez do número da categoria.
+        // O istmo não é um lobo — "em Lobo istmo" ficaria errado. loboRotulo()
+        // devolve "Lobo direito"/"Lobo esquerdo" (como já saía antes) ou só
+        // "Istmo" quando for o caso, sem o "Lobo" na frente.
+        const loboRot = loboRotulo(lobo);
         noduloImpressaoItems.push({
           uid,
           label: (parseInt(tirads, 10) >= 4)
-            ? phrase('impNoduloSuspeito', {LOBO:lobo, TIRADS:tirads})
-            : phrase('impNoduloBenigno', {LOBO:lobo, TIRADS:tirads})
+            ? phrase('impNoduloSuspeito', {LOBO:loboRot, TIRADS:tirads})
+            : phrase('impNoduloBenigno', {LOBO:loboRot, TIRADS:tirads})
         });
 
-        const corpo = composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+captacao+', localizado no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' (TI-RADS – Cat. '+tirads+').';
+        const localizacaoTexto = lobo==='istmo' ? 'localizado no istmo' : ('localizado no lobo '+lobo+', terço '+terco);
+        const corpo = composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+captacao+', '+localizacaoTexto+', medindo '+span(tamanho)+' (TI-RADS – Cat. '+tirads+').';
         return multiplos ? ('Nódulo '+(idx+1)+' — '+corpo) : ('Nódulo '+corpo);
       });
       parenquimaTexto = frags.join(' ');
