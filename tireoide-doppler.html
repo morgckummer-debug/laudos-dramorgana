@@ -1446,6 +1446,7 @@ if(typeof criarMotorLaudo !== 'function'){
         const loboRot = loboRotulo(lobo);
         noduloImpressaoItems.push({
           uid,
+          tirads: parseInt(tirads, 10),
           label: (parseInt(tirads, 10) >= 4)
             ? phrase('impNoduloSuspeito', {LOBO:loboRot, TIRADS:tirads})
             : phrase('impNoduloBenigno', {LOBO:loboRot, TIRADS:tirads})
@@ -1461,6 +1462,15 @@ if(typeof criarMotorLaudo !== 'function'){
           semLobo: 'Nódulo '+descritores+', '+localizacaoSemLobo+fim
         };
       });
+      // Com mais de um nódulo, a Impressão Diagnóstica só registra o(s) de
+      // maior categoria TI-RADS — os de categoria menor já estão descritos no
+      // corpo do laudo, não precisam repetir na conclusão. Empate na maior
+      // categoria mantém todos os empatados (nenhum achado do mesmo peso some
+      // da conclusão só porque outro empatou com ele).
+      if(noduloImpressaoItems.length > 1){
+        const maiorCategoria = Math.max(...noduloImpressaoItems.map(it=> it.tirads));
+        noduloImpressaoItems = noduloImpressaoItems.filter(it=> it.tirads === maiorCategoria);
+      }
       if(!nodulos.length){
         // Instante entre marcar "Nódulo" e addNodulo() inserir o primeiro
         // subgrupo no DOM — render() pode cair aqui de passagem; o próximo
