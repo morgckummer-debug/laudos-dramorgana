@@ -339,6 +339,58 @@ bloco — o offset é que aponta o índice do filho vizinho. `closest()` direto 
 ou o anterior se o offset for o último) antes de subir procurando o
 `data-blk`.
 
+### "Espaçamento entre linhas": o mesmo bug de seleção larga, mas fora do motor
+
+O seletor "Espaçamento entre linhas" da barra de formatação — `lineHeightSel`,
+presente nos onze laudos com `#paper` — deixa a médica **escopar** a mudança a
+um trecho: selecionar um pedaço do laudo e só então escolher Mínimo/Compacto/
+Estreito/Normal/Largo aplica a margem só ali, em vez de mudar o laudo inteiro.
+Diferente de `wireEnterLineBreaks()`/`wireBlockBoundaryGuard()`, **esse recurso
+nunca foi extraído para o `laudo-core.js`** — cada um dos treze `.html` tem sua
+própria cópia de `captureSelectionInPaper()`, `wrapSelectionInStyledSpan()` e
+do `lineHeightSel.addEventListener('change', ...)`, e já tinha divergido antes
+disso ser notado: cinco laudos (`morfologico-1trimestre`, `morfologico-2trimestre`,
+`obstetrico-1trimestre`, `obstetrico-tn-doppler-colo`, `obstetrico`) usavam
+margens em `em` (acompanham o auto-fit reduzindo a fonte); os outros oito ainda
+usavam `mm` fixos, do jeito antigo.
+
+Em 2026-09-08 a Dra. Morgana relatou que, no `obstetrico-1trimestre.html`,
+tentar abrir espaço antes de "IMPRESSÕES DIAGNÓSTICAS:" (selecionando um
+trecho e escolhendo "Largo") duplicava o cabeçalho. A causa: o código só
+contava quantos `p.linha`/`p.recomendacao` a seleção tocava para decidir entre
+dois caminhos — mais de um, aplica a margem direto em cada um; um só (ou
+zero), envolve a seleção inteira num `<span>` via `wrapSelectionInStyledSpan()`.
+Uma seleção que sai de um `p.linha` reconhecido e invade um bloco que essa
+lista não contava — um `<h4 class="sec">`, uma tabela — ainda contava "1
+parágrafo", caía no caminho do `<span>`, e `range.surroundContents()` falha ao
+envolver uma seleção que cruza blocos: o `catch` (`extractContents()` +
+`insertNode()`) parte os dois blocos da fronteira em dois, cada metade
+carregando o mesmo `data-blk` do original — o mesmo estrago do Enter em
+`wireEnterLineBreaks()` (ver acima), só que por um caminho diferente, sem
+passar pelo teclado.
+
+O conserto (replicado nos treze arquivos, já que o recurso não está no motor):
+a decisão de qual caminho seguir passou a contar **todo filho direto do
+`#paper` com `data-blk`** que a seleção toca (`:scope > [data-blk]`), não só
+os parágrafos reconhecidos — qualquer seleção que saia de um bloco cai no
+caminho seguro. A lista de parágrafos que de fato recebem a margem continua
+restrita (`p.linha`, `p.recomendacao` onde já existia, e agora também
+`h4.sec`) — **não** virou `:scope > [data-blk]` também, e essa distinção
+importa: a primeira tentativa de conserto usou a mesma lista ampla para as
+duas coisas, e uma tabela com margem própria (`table.acompanhamento`, no
+`rastreamento-ovulacao.html`) entrou na lista de "parágrafos" a limpar —
+`el.style.marginBottom = ''` numa tabela cujo `style="margin:0 0 16px"` era um
+valor abreviado (`shorthand`) fez o navegador espalhá-lo em
+`margin-top`/`right`/`left` explícitos, mudando o HTML servido sem mudar nada
+visualmente, mas quebrando a suíte de comparação. Ao mexer aqui de novo,
+manter as duas listas separadas: uma ampla só para contar blocos, outra
+restrita para aplicar estilo.
+
+Se esse recurso precisar de outro conserto, vale considerar extraí-lo para o
+`laudo-core.js` de uma vez — évidente candidato ao mesmo problema que motivou
+a extração original (2026-09-01): treze cópias que já divergiram uma vez
+(`em` vs `mm`) e não vão parar de divergir sozinhas.
+
 ## A integração com a Curva de Crescimento
 
 O app de curvas é outro repositório, **`morgckummer-debug/curva-fetal`** — página
