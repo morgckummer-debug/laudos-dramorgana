@@ -273,21 +273,71 @@ exame:" sumirem do `transvaginal.html` depois de mexer em frases perto do fim
 do laudo: a seleção pegou mais do que devia e apagou os dois blocos, que ficam
 logo no topo.
 
-Diferente do Enter (`wireEnterLineBreaks()`) e do colar (`wirePastePlainText()`),
-essa seleção larga demais não tem como interceptar sem quebrar a edição normal
-— mas dá para consertar depois. Texto digitado direto no `#paper` não passa por
-`render()` (só o rascunho ouve o `'input'`), então nada reconciliaria o estrago
-até a médica mexer em outro campo do formulário — e ela pode nunca mexer, indo
-direto para a impressão com o laudo faltando pedaço.
+Na época em que isto foi escrito, essa seleção larga demais não tinha como ser
+interceptada sem quebrar a edição normal — mas dava para consertar depois.
+Texto digitado direto no `#paper` não passa por `render()` (só o rascunho ouve
+o `'input'`), então nada reconciliaria o estrago até a médica mexer em outro
+campo do formulário — e ela pode nunca mexer, indo direto para a impressão com
+o laudo faltando pedaço. (Isso mudou em 2026-09-08 — ver
+`wireBlockBoundaryGuard()` abaixo —, mas `restoreMissingBlocks()` continua
+valendo: é quem conserta um rascunho já salvo torto antes desse dia, e
+qualquer caminho de edição que a interceptação não cubra.)
 
 `restoreMissingBlocks()` roda a cada `'input'` dentro do `#paper` (é o motor
 quem liga esse listener sozinho, ao criar o motor — nenhum `.html` precisou
 mudar): qualquer `data-blk` que existia no último `render()` e não é mais
 filho direto do `#paper` volta, com o mesmo HTML gerado da última vez —
 `st.lastBlockHtml`, a mesma fonte que o rascunho já usa para diferenciar texto
-gerado de texto digitado à mão. Só faz sentido nos laudos com `data-blk`; nos
-de medicina interna `st.lastBlockHtml` nunca sai de `{}` e a função não faz
-nada.
+gerado de texto digitado à mão. Só faz sentido nos laudos com `data-blk` — e
+isso inclui os de medicina interna: `abdome-total.html`, `rins-vias-urinarias.html`
+e `tireoide-doppler.html` também montam o `#paper` por `blocks.push()` +
+`renderBlocks()`, igual aos demais.
+
+### `wireBlockBoundaryGuard()`: quando o bloco não some, sobra vazio ou com o texto errado
+
+As três redes acima (`wireEnterLineBreaks()`, `dedupBlocos()`,
+`restoreMissingBlocks()`) resolvem bloco dividido, duplicado ou que sumiu
+inteiro. Ficava de fora um quarto jeito de estragar o `#paper`, relatado pela
+Dra. Morgana em 2026-09-08 no `abdome-total.html`: ela escreveu uma observação
+livre com uma seleção que sobrou maior do que pretendia — cobrindo o fim do
+`<h3 class="doctitle">` e o começo do `<p data-blk="aoExameLabel">` de "Ao
+exame:" — e viu os dois **sumirem** da tela; ao redigitar o título, o que
+tinha acabado de escrever na observação sumiu de novo.
+
+O motivo é diferente do que `restoreMissingBlocks()` cobre: apagar (ou digitar
+por cima de) uma seleção que cruza dois `data-blk` nem sempre remove o
+elemento do segundo bloco do DOM — o navegador às vezes só **esvazia** o
+título (`<h3 data-blk="doctitle"><br></h3>`) ou mescla o resto de um parágrafo
+dentro do outro. O elemento com `data-blk` continua lá, um por id, filho
+direto do `#paper` — exatamente a invariante que `dedupBlocos()` e
+`restoreMissingBlocks()` verificam —, então nenhuma das duas rede enxerga
+problema. O estrago é silencioso e definitivo do mesmo jeito: o bloco fica
+vazio ou com o texto errado, o rascunho grava esse estado, e reabrir o laudo
+não devolve nada.
+
+`wireBlockBoundaryGuard(paperEl)`, no `laudo-core.js`, fecha esse caminho na
+origem, ouvindo `'beforeinput'` no `#paper`: sempre que a seleção não está
+colapsada e o início e o fim dela caem em `data-blk` diferentes — digitar uma
+letra por cima, Backspace, Delete, colar (que já vira
+`execCommand('insertText', ...)` em `wirePastePlainText()`), recortar —, o
+evento é cancelado e a seleção colapsa para o início dela, igual já se fazia
+para o Enter: **nunca apaga o que já estava escrito nos blocos vizinhos**. Para
+digitar ou colar (`inputType` `insertText`/`insertReplacementText`), o texto
+que a médica estava inserindo ainda entra normalmente no ponto colapsado —
+só o texto que já estava no laudo, dentro da seleção larga demais, é que
+continua intacto em vez de ser apagado ou misturado. Auto-wired junto com
+`restoreMissingBlocks()` ao criar o motor — nenhum `.html` precisou mudar, e
+vale para os onze laudos com `#paper`, incluindo os de medicina interna.
+
+Achar o `data-blk` de cada ponta da seleção não é só `closest()` no container:
+quando a seleção começa ou termina **entre** dois blocos (um clique-arrasto que
+solta antes do título e recomeça depois de "Ao exame:"), o `startContainer`/
+`endContainer` do Range é o próprio `#paper`, não um nó de texto dentro do
+bloco — o offset é que aponta o índice do filho vizinho. `closest()` direto no
+`#paper` sempre devolveria `null` (ele não tem `data-blk`), por isso
+`blocoDoLimite()` primeiro acha o nó vizinho de verdade (`childNodes[offset]`,
+ou o anterior se o offset for o último) antes de subir procurando o
+`data-blk`.
 
 ## A integração com a Curva de Crescimento
 
