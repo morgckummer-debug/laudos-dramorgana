@@ -219,10 +219,11 @@
   .paper p.linha{margin:0 0 var(--linha-margin, 1em);}
   .paper p.linha strong{font-weight:700;}
   .paper p.linha.tight{margin-bottom:0.125em;}
-  .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
-  .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
-  .paper table.biometria td:first-child{white-space:nowrap;}
-  .paper table.biometria td:last-child{padding-right:0;}
+  .paper table.biometria{border-collapse:collapse;margin:0 auto 0.75em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.biometria td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
+  .paper table.biometria td:first-child{font-weight:700;text-align:left;}
+  .paper table.biometria td:last-child{text-align:center;white-space:nowrap;}
+  .paper table.biometria tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
   .paper .nodulos-lista{margin:0 0 1em;}
   .paper .nodulos-lista .nodulo-item{margin:0 0 0.375em;padding-left:2.4em;text-indent:-2.4em;}
@@ -2204,7 +2205,7 @@ if(typeof criarMotorLaudo !== 'function'){
       }
       sacoHtml += '<p class="linha">'+phraseRaw('sacoGestacional', {INSERCAO: s.insercao})+'</p>';
       sacoHtml += '<p class="linha tight"><strong>Parâmetros biométricos:</strong></p>';
-      sacoHtml += '<table class="biometria" style="width:100%;">'
+      sacoHtml += '<table class="biometria">'
         +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
         +'<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
         +(s.vitalidade==='nao_identificado'
@@ -2376,8 +2377,11 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
-    clone.querySelectorAll('table.biometria').forEach(t=>{ t.setAttribute('border','0'); t.style.borderCollapse='collapse'; });
-    clone.querySelectorAll('table.biometria td').forEach(td=>{ td.style.border='none'; });
+    clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='4px 16px'; });
+    clone.querySelectorAll('table.biometria td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
+    clone.querySelectorAll('table.biometria td:last-child').forEach(el=>{ el.style.textAlign='center'; });
+    clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#f7f0f6'; });
+    clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='70%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.margin='0'; });
