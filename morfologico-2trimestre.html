@@ -179,11 +179,6 @@
     font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink-soft);user-select:none;
   }
-  /* Quando a quebra cai dentro da tabela de morfologia o marcador é um <td>, e
-     ali `.paper table.biometria td` (mais específica) zeraria borda e padding. */
-  .paper table.biometria td.pg-break-marker{
-    border-top:1.5px dashed #b39ddb;padding:10px 0 4px;text-align:center;
-  }
   /* Daqui para baixo, todo espaçamento e todo tamanho de fonte do laudo é
      expresso em em (relativo à fonte do próprio elemento), e não em px/pt
      fixos. Os valores foram escolhidos para render exatamente o mesmo que
@@ -200,6 +195,11 @@
   }
   .paper .id-card-row{display:flex;justify-content:space-between;gap:1em;font-size:1em;}
   .paper .id-card-row + .id-card-row{margin-top:0.125em;}
+  /* .quadro-titulo é sempre um p.linha — "p.linha" aqui de propósito, não só
+     ".quadro-titulo", pra especificidade nunca depender de se algum dia
+     p.linha ganhar um text-align próprio (foi exatamente isso que quebrou a
+     centralização, calada, no morfológico de 1º trimestre). */
+  .paper p.linha.quadro-titulo{text-align:center;}
   .paper h3.doctitle{
     text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
     margin:0 0 1.125em;font-weight:700;
@@ -212,17 +212,35 @@
   .paper p.linha{margin:0 0 var(--linha-margin, 1em);}
   .paper p.linha strong{font-weight:700;}
   .paper p.linha.tight{margin-bottom:0.125em;}
-  .paper table.biometria{border-collapse:collapse;margin:0 0 0.75em;}
-  .paper table.biometria td{border:none;padding:0 1.25em 0.125em 0;vertical-align:top;}
-  .paper table.biometria td:first-child{white-space:nowrap;}
-  .paper table.biometria td:last-child{padding-right:0;}
-  /* Linha do líquido amniótico (maior bolsão + ILA): a largura da 1ª célula é
-     recalculada em JS (alignIlaColumns) a partir da 1ª coluna da tabela do
-     Doppler Materno (a mesma página, logo abaixo), para o "ILA" cair sempre
-     na coluna vertical do "IP" — não numa posição que varia conforme o
-     tamanho do valor do maior bolsão. Sem Doppler materno no laudo, a
-     tabela fica no layout automático de sempre (nada para alinhar com). */
-  .paper table.grade-la{margin-bottom:var(--linha-margin, 1em);}
+  /* Quadro de biometria — mesmo visual arredondado com linhas alternadas dos
+     outros laudos, só na tabela do Doppler materno (a única que é de fato um
+     par rótulo/valor curto). Biometria e Morfologia Fetal (.tabela-simples)
+     ficam de fora: a Dra. Morgana pediu a biometria de volta em colunas
+     (são até 19 medidas — uma por linha, centralizada, não cabia sem
+     estourar a página) e a Morfologia Fetal nunca teve caixa, porque é
+     texto justificado por estrutura anatômica cuja paginação quebra linha a
+     linha (data-split="rows", ver comentário mais abaixo) — uma caixa com
+     cantos arredondados sairia com meio-arredondado toda vez que a tabela
+     continua na folha seguinte. O líquido amniótico saiu de tabela (ver
+     JS): virou texto corrido. */
+  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:100%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.biometria td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
+  .paper table.biometria td:nth-child(odd){font-weight:700;text-align:left;}
+  .paper table.biometria td:nth-child(even){text-align:center;white-space:nowrap;}
+  .paper table.biometria tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .paper table.biometria.tabela-simples{margin:0 0 0.75em;width:100%;max-width:none;border-radius:0;overflow:visible;box-shadow:none;}
+  .paper table.biometria.tabela-simples td{border:none;padding:0 1.25em 0.125em 0;}
+  .paper table.biometria.tabela-simples td:nth-child(odd){font-weight:400;}
+  .paper table.biometria.tabela-simples td:nth-child(even){text-align:left;}
+  .paper table.biometria.tabela-simples tbody tr:nth-child(even) td{background:none;}
+  /* Quando a quebra cai dentro da tabela de morfologia o marcador é um <td>,
+     e precisa vencer tanto a borda/padding quanto o negrito/centralização
+     por coluna acima (por isso o seletor repete .morfologia e vem depois:
+     mesma especificidade da regra de nth-child, ganha por ordem). Só a
+     Morfologia Fetal quebra assim — a biometria não é data-split="rows". */
+  .paper table.biometria.morfologia td.pg-break-marker{
+    border-top:1.5px dashed #b39ddb;padding:10px 0 4px;text-align:center;font-weight:400;
+  }
   .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;font-size:9.5pt;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
@@ -1773,34 +1791,6 @@ if(typeof criarMotorLaudo !== 'function'){
   let pendingCount = 0;
   let printAttempted = false;
 
-  // Alinha verticalmente o "ILA" com a coluna de valores do Doppler Materno
-  // (o "IP" logo abaixo, mesma página): a 1ª célula da linha "Maior bolsão /
-  // ILA" de cada feto ganha a mesma largura, em px, da 1ª coluna (rótulo) da
-  // tabela do Doppler Materno — medida ao vivo no DOM, e não chutada em
-  // "em", porque o texto do rótulo ("Maior bolsão:") é mais longo que
-  // "Artéria Uterina Esquerda:" sozinho e sairia da conta se calculada à
-  // mão. Sem Doppler materno no laudo (checkbox desmarcado) não há com o que
-  // alinhar: a tabela fica no layout automático de sempre. Roda depois de
-  // todo render(), já com os blocos no ar.
-  function alignIlaColumns(){
-    const dopplerTable = $('paper').querySelector('[data-blk="dopplerMaterno"] table.biometria');
-    const dopplerRow = dopplerTable && dopplerTable.rows[0];
-    if(!dopplerRow || dopplerRow.cells.length < 1) return;
-    const widthPx = dopplerRow.cells[0].getBoundingClientRect().width;
-    $('paper').querySelectorAll('table.grade-la').forEach(laTable=>{
-      const laRow = laTable.rows[0];
-      if(!laRow || laRow.cells.length < 1) return;
-      // Em "em", não em px: a impressão/PDF pode reduzir o tamanho da fonte do
-      // laudo inteiro para caber nas páginas (autoFitPages), e uma largura
-      // fixa em px ficaria descalibrada depois desse encolhimento. Em "em"
-      // ela encolhe junto — Doppler Materno e ILA usam a mesma fonte —
-      // mantendo o alinhamento em qualquer tamanho de fonte.
-      const fontSizePx = parseFloat(getComputedStyle(laRow.cells[0]).fontSize) || 16;
-      const widthEm = widthPx / fontSizePx;
-      laRow.cells[0].style.width = widthEm + 'em';
-    });
-  }
-
   function render(){
     if(st.draftRestoring) return;
     // Durante a impressão o #paper está remontado em folhas e será reposto
@@ -2098,7 +2088,7 @@ if(typeof criarMotorLaudo !== 'function'){
       }
 
       let biometriaHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Biometria</strong></p>';
-      biometriaHtml += '<table class="biometria" style="width:100%;">'
+      biometriaHtml += '<table class="biometria tabela-simples" style="width:100%;">'
         +'<tr><td style="white-space:nowrap;">Diâmetro biparietal (DBP):</td><td style="white-space:nowrap;">'+span(f.dbp)+' mm</td><td style="white-space:nowrap;">Diâmetro cerebelar:</td><td style="white-space:nowrap;">'+span(f.diamCerebelar)+' mm</td></tr>'
         +'<tr><td style="white-space:nowrap;">Diâmetro occipitofrontal (DOF):</td><td style="white-space:nowrap;">'+span(f.dof)+' mm</td><td style="white-space:nowrap;">Cisterna magna:</td><td style="white-space:nowrap;">'+span(f.cisternaMagna)+' mm</td></tr>'
         +'<tr><td style="white-space:nowrap;">Circunferência cefálica (CC):</td><td style="white-space:nowrap;">'+span(f.cc)+' mm</td><td style="white-space:nowrap;">Prega nucal:</td><td style="white-space:nowrap;">'+span(f.pregaNucal)+' mm</td></tr>'
@@ -2113,7 +2103,7 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'biometria'+sfx, html:biometriaHtml});
 
       let morfoHtml = '<div data-split="rows"><p class="linha tight"><strong style="text-decoration:underline;">Morfologia Fetal</strong></p>';
-      morfoHtml += '<table class="biometria" style="width:100%;">';
+      morfoHtml += '<table class="biometria tabela-simples morfologia" style="width:100%;">';
       f.segmentos.forEach(seg=>{
         morfoHtml += '<tr><td style="white-space:nowrap;vertical-align:top;"><strong>'+escapeHtml(seg.titulo)+'</strong></td>'
           +'<td style="white-space:normal;text-align:justify;">'+escapeHtml(seg.texto)+'</td></tr>';
@@ -2125,10 +2115,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
       laHtml += '<p class="linha tight">'+(f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormal'))+'</p>';
-      laHtml += '<table class="biometria grade-la"><tr>'
-        +'<td style="white-space:nowrap;">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'</td>'
-        +'<td style="white-space:nowrap;">'+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'</td>'
-        +'</tr></table></div>';
+      laHtml += '<p class="linha">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'. '+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'.</p></div>';
       blocks.push({id:'la'+sfx, html:laHtml});
     });
 
@@ -2138,8 +2125,9 @@ if(typeof criarMotorLaudo !== 'function'){
 
     if(dopplerMaterno){
       const tabelaDopplerMaterno = ''
+        +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Materno</strong></p>'
         +'<table class="biometria">'
-        +'<tr><td><strong style="text-decoration:underline;">Doppler Materno</strong></td><td><strong style="text-decoration:underline;">IP</strong></td></tr>'
+        +'<tr><td></td><td><strong>IP</strong></td></tr>'
         +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
         +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
         +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+(utAlterado ? ' (<span class="filled" style="text-decoration:underline;">acima do percentil 95</span>)' : ' (P'+span(blankOrValue(utPercentilTxt))+')')+'</td></tr>'
@@ -2180,8 +2168,6 @@ if(typeof criarMotorLaudo !== 'function'){
       const titleEl = $('paper').querySelector('h3.doctitle');
       if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
     }
-    alignIlaColumns();
-
     const pill = $('statusPill');
     if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
     else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
@@ -2242,6 +2228,27 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    clone.querySelectorAll('.quadro-titulo').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
+    // Quadro de biometria — mesmo tratamento do Word que os outros laudos dão
+    // ao table.biometria: borda e fundo alternado não vêm do
+    // copyComputedToClone (que só copia o que muda com o auto-fit); largura
+    // auto/centralizada e align="center" porque o Word ignora margin:auto
+    // sozinho, igual ao id-card. table.tabela-simples (biometria e
+    // Morfologia Fetal) fica de fora — sem caixa, sem negrito/centralização
+    // por coluna — e sai por último de propósito, pra vencer a regra geral
+    // acima dela; table.morfologia (só a Morfologia Fetal) roda por cima
+    // dessa de novo, pro texto sair justificado e sem nowrap, não à
+    // esquerda como a biometria.
+    clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='4px 16px'; });
+    clone.querySelectorAll('table.biometria td:nth-child(odd)').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
+    clone.querySelectorAll('table.biometria td:nth-child(even)').forEach(el=>{ el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
+    clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#f7f0f6'; });
+    clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='100%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
+    clone.querySelectorAll('table.tabela-simples td').forEach(el=>{ el.style.border='none'; el.style.padding='0 20px 2px 0'; el.style.fontWeight='400'; });
+    clone.querySelectorAll('table.tabela-simples td:nth-child(even)').forEach(el=>{ el.style.textAlign='left'; });
+    clone.querySelectorAll('table.tabela-simples tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='none'; });
+    clone.querySelectorAll('table.tabela-simples').forEach(el=>{ el.style.width='100%'; el.style.maxWidth='none'; el.style.margin='0 0 12px'; el.removeAttribute('align'); });
+    clone.querySelectorAll('table.morfologia td:nth-child(even)').forEach(el=>{ el.style.textAlign='justify'; el.style.whiteSpace='normal'; });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='9.5pt'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
