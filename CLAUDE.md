@@ -339,6 +339,42 @@ bloco — o offset é que aponta o índice do filho vizinho. `closest()` direto 
 ou o anterior se o offset for o último) antes de subir procurando o
 `data-blk`.
 
+### O mesmo estrago sem seleção nenhuma: Backspace no início / Delete no fim de um bloco
+
+`wireBlockBoundaryGuard()` só cobria seleção **não colapsada** cruzando dois
+blocos. Faltava o caso mais comum de todos, sem seleção nenhuma: cursor
+colapsado bem no início de um bloco e Backspace, ou bem no fim e Delete — o
+gesto normal de "apagar a última letra da linha de cima" ou "juntar duas
+frases". O contenteditable trata isso como uma mesclagem de bloco, igual ao
+Enter que divide (`wireEnterLineBreaks()`), só que ao contrário: cola o
+conteúdo de um `data-blk` dentro do vizinho. E faz isso sem remover nenhum
+dos dois elementos de forma limpa — reproduzido em 2026-09-09 no
+`abdome-total.html`: cursor no início de `<p data-blk="aoExameLabel">Ao
+exame:</p>` e Backspace colou "Ao exame:" dentro do `<h3 data-blk="doctitle">`
+anterior (virou "ULTRASSOM DE ABDOME TOTALAo exame:"), mas o `<p
+data-blk="aoExameLabel">` **continuou existindo**, intacto, embaixo — os dois
+elementos com `data-blk` sobreviveram, um cada, filho direto do `#paper`,
+então nem `dedupBlocos()` nem `restoreMissingBlocks()` veem problema (a
+mesma cegueira do caso acima, por um caminho diferente: aqui não há seleção
+para o cheque de `startBlk !== endBlk` examinar). O resultado na tela e na
+impressão é a frase "Ao exame:" literalmente duplicada, sem apagar nada e
+sem qualquer clique-arrasto — só digitando normalmente.
+
+O conserto ficou na mesma função, no mesmo `'beforeinput'`: quando a seleção
+**é** colapsada e o evento é algum `delete*Backward`/`delete*Forward`
+(`deleteContentBackward`/`Forward`, `deleteWordBackward`/`Forward`, etc.), se
+o cursor está na borda do bloco voltada para a mesclagem — nada de texto
+entre o início do bloco e o cursor (Backspace) ou entre o cursor e o fim do
+bloco (Delete) — **e** o vizinho nessa direção (`previousElementSibling`/
+`nextElementSibling`) também carrega `data-blk`, o evento é cancelado sem
+mais nada: nunca chega a mesclar. Se o cursor não estiver na borda (apagando
+um caractere no meio do texto) ou o vizinho não tiver `data-blk` próprio
+(mesclar dois `<li>` dentro do mesmo `<ul data-blk="impressaoList">`, que é
+como se acrescenta uma linha à impressão diagnóstica), o Backspace/Delete
+segue normal — a checagem olha o `data-blk` mais próximo por `closest()`, que
+para um `<li>` sobe direto para o `<ul>` que os dois compartilham, então
+mesclar dois itens da mesma lista nunca é bloqueado.
+
 ### "Espaçamento entre linhas": o mesmo bug de seleção larga, mas fora do motor
 
 O seletor "Espaçamento entre linhas" da barra de formatação — `lineHeightSel`,

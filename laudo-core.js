@@ -804,6 +804,18 @@ function criarMotorLaudo(cfg){
     // ele é inserido normalmente no ponto colapsado, então nada do que a
     // médica estava escrevendo se perde — só o texto que já estava no laudo,
     // dentro da seleção larga, continua intacto em vez de ser apagado.
+    //
+    // A mesma família de estrago acontece SEM seleção nenhuma: cursor
+    // colapsado bem no início de um bloco + Backspace (ou no fim + Delete)
+    // mescla o bloco com o vizinho — o navegador cola o texto de um dentro
+    // do outro, preservando os dois elementos com data-blk, então nem esse
+    // caso as duas redes veem. Foi assim que um Backspace no começo de "Ao
+    // exame:" colou o texto dentro do <h3 class="doctitle"> mantendo o
+    // parágrafo "Ao exame:" intacto embaixo — duplicado, sem apagar nada e
+    // sem cruzar seleção. O mesmo 'beforeinput' cobre os dois: perto do fim
+    // da função, quando não há seleção, cancela a mesclagem se o cursor
+    // estiver na borda do bloco voltada para um vizinho com data-blk
+    // diferente.
     if(paperEl.dataset.blockBoundaryGuardWired) return;
     paperEl.dataset.blockBoundaryGuardWired = '1';
     // Um limite de seleção entre dois blocos (ex.: um clique-arrasto que
@@ -818,18 +830,47 @@ function criarMotorLaudo(cfg){
       const el = node.nodeType === 1 ? node : node.parentElement;
       return el ? el.closest('[data-blk]') : null;
     }
+    // Cursor colapsado (nenhum texto selecionado) bem na borda de um bloco:
+    // Backspace no início ou Delete no fim tentam mesclar o bloco com o
+    // vizinho — igual ao Enter que divide, só que ao contrário, e sem
+    // seleção nenhuma para o cheque de startBlk/endBlk acima enxergar. O
+    // navegador não remove o bloco de forma limpa: cola o texto do vizinho
+    // dentro dele (ou vice-versa) preservando o data-blk dos dois, então nem
+    // dedupBlocos() nem restoreMissingBlocks() veem problema — foi assim que
+    // um Backspace no início de "Ao exame:" colou o texto dentro do
+    // <h3 class="doctitle"> mantendo o parágrafo "Ao exame:" intacto embaixo,
+    // duplicado.
+    function cursorNaBordaDoBloco(range, blk, inicio){
+      const r = document.createRange();
+      r.selectNodeContents(blk);
+      if(inicio) r.setEnd(range.startContainer, range.startOffset);
+      else r.setStart(range.startContainer, range.startOffset);
+      return r.toString().length === 0;
+    }
     paperEl.addEventListener('beforeinput', e=>{
       const sel = window.getSelection();
-      if(!sel || !sel.rangeCount || sel.isCollapsed) return;
+      if(!sel || !sel.rangeCount) return;
       const range = sel.getRangeAt(0);
-      const startBlk = blocoDoLimite(range.startContainer, range.startOffset);
-      const endBlk = blocoDoLimite(range.endContainer, range.endOffset);
-      if(!startBlk || startBlk === endBlk) return;
-      e.preventDefault();
-      sel.collapseToStart();
-      if((e.inputType === 'insertText' || e.inputType === 'insertReplacementText') && e.data){
-        document.execCommand('insertText', false, e.data);
+      if(!sel.isCollapsed){
+        const startBlk = blocoDoLimite(range.startContainer, range.startOffset);
+        const endBlk = blocoDoLimite(range.endContainer, range.endOffset);
+        if(!startBlk || startBlk === endBlk) return;
+        e.preventDefault();
+        sel.collapseToStart();
+        if((e.inputType === 'insertText' || e.inputType === 'insertReplacementText') && e.data){
+          document.execCommand('insertText', false, e.data);
+        }
+        return;
       }
+      const direcao = /Backward$/.test(e.inputType || '') ? 'tras' : /Forward$/.test(e.inputType || '') ? 'frente' : null;
+      if(!direcao || !/^delete/.test(e.inputType)) return;
+      const anchorEl = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement;
+      const blk = anchorEl ? anchorEl.closest('[data-blk]') : null;
+      if(!blk) return;
+      const vizinho = direcao === 'tras' ? blk.previousElementSibling : blk.nextElementSibling;
+      if(!vizinho || !vizinho.hasAttribute('data-blk')) return;
+      if(!cursorNaBordaDoBloco(range, blk, direcao === 'tras')) return;
+      e.preventDefault();
     });
   }
   function wireDecimalInputs(){
