@@ -474,7 +474,14 @@ function criarMotorLaudo(cfg){
         const r = measureChild.getBoundingClientRect();
         boxes.push({top:r.top-measureRect.top, bottom:r.bottom-measureRect.top, kind:(realChild.tagName==='H4' ? 'heading' : 'block'), html: realChild.outerHTML, node: realChild});
         if(realChild.classList && realChild.classList.contains('id-card')){
-          idCardHtml = realChild.outerHTML;
+          // Uma linha marcada com "id-card-row-once" (ex.: peso/altura/PAM do
+          // morfológico de 1º trimestre) vale só na página 1 — a cópia do
+          // cabeçalho que repete no topo das folhas seguintes sai sem ela,
+          // sem precisar mexer no id-card da página 1 nem no de outro laudo
+          // que não use essa classe.
+          const idCardClone = realChild.cloneNode(true);
+          idCardClone.querySelectorAll('.id-card-row-once').forEach(el => el.remove());
+          idCardHtml = idCardClone.outerHTML;
           const marginBottom = parseFloat(getComputedStyle(measureChild).marginBottom) || 0;
           idCardRepeatHeight = (r.bottom - r.top) + marginBottom;
         }
