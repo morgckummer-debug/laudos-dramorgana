@@ -178,7 +178,7 @@
      escalando tudo junto, o mesmo passo ganha ~8%. Ao mexer nestas regras,
      mantenha em — um px fixo aqui volta a "travar" o auto-fit. */
   .paper .id-card{
-    background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.625em 1em;margin:0 0 var(--idcard-gap, 1.25em);
+    background:#f8f7f7;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.625em 1em;margin:0 0 var(--idcard-gap, 1.25em);
     font-weight:700;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
@@ -202,11 +202,11 @@
      obstétrico de 1º trimestre (caixa arredondada, linhas alternadas), nas
      três tabelas do laudo que usam table.biometria: biometria por feto,
      Doppler e risco para Síndrome de Down — todas com a mesma cara. */
-  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 1.25em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 1.25em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(109,50,99,.06);}
   .paper table.biometria td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
   .paper table.biometria td:first-child{font-weight:700;text-align:left;}
   .paper table.biometria td:last-child{text-align:center;white-space:nowrap;}
-  .paper table.biometria tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .paper table.biometria tbody tr:nth-child(even) td{background:#fbf8fa;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   /* Linha do líquido amniótico (maior bolsão + ILA): a largura da 1ª célula é
      recalculada em JS (alignIlaColumns) a partir da própria tabela de
      parâmetros biométricos do mesmo feto, para o "ILA" cair sempre na mesma
@@ -1958,7 +1958,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
     const liveIdCardEl = paperEl.querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
-    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
+    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f8f7f7'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('.quadro-titulo').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
@@ -1970,7 +1970,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='4px 16px'; });
     clone.querySelectorAll('table.biometria td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
     clone.querySelectorAll('table.biometria td:last-child').forEach(el=>{ el.style.textAlign='center'; });
-    clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#f7f0f6'; });
+    clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#fbf8fa'; });
     clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='70%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='10pt'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });

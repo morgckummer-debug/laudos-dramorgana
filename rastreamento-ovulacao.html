@@ -185,7 +185,7 @@
     color:var(--ink-soft);user-select:none;
   }
   .paper .id-card{
-    background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:10px 16px;margin:0 0 var(--idcard-gap, 20px);
+    background:#f8f7f7;border:2.5px solid #2b2b2e;border-radius:16px;padding:10px 16px;margin:0 0 var(--idcard-gap, 20px);
     font-weight:700;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
@@ -209,7 +209,7 @@
   .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
-  .paper table.acompanhamento{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.acompanhamento{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(109,50,99,.06);}
   .paper table.acompanhamento th, .paper table.acompanhamento td{border:1px solid #d9c3d3;padding:7px 10px;text-align:center;vertical-align:middle;}
   .paper table.acompanhamento th{font-weight:700;background:var(--rose-light);color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -2222,7 +2222,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // e print-color-adjust:exact é o que evita o cabeçalho rosa sumir na
     // impressão/PDF (sem isso o navegador omite cor de fundo ao imprimir).
     const acompBorda = '1px solid #d9c3d3';
-    let tableHtml = '<table class="acompanhamento" style="width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);">'
+    let tableHtml = '<table class="acompanhamento" style="width:100%;border-collapse:collapse;margin:0 0 16px;font-size:11pt;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(109,50,99,.06);">'
       + '<tr>'
       + '<th style="border:'+acompBorda+';padding:7px 10px;background:#f7e9f4;color:#2b2b2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Data do exame</th>'
       + '<th style="border:'+acompBorda+';padding:7px 10px;background:#f7e9f4;color:#2b2b2e;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Dia do ciclo</th>'
@@ -2234,7 +2234,7 @@ if(typeof criarMotorLaudo !== 'function'){
       tableHtml += '<tr><td colspan="5" style="border:'+acompBorda+';padding:7px 10px;color:#B4432F;">Adicione ao menos uma visita no formulário à esquerda.</td></tr>';
     } else {
       visitaRows.forEach((row, idx)=>{
-        const zebraBg = idx % 2 === 1 ? 'background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;' : '';
+        const zebraBg = idx % 2 === 1 ? 'background:#fbf8fa;-webkit-print-color-adjust:exact;print-color-adjust:exact;' : '';
         tableHtml += '<tr style="'+zebraBg+'">'
           + '<td style="border:'+acompBorda+';padding:7px 10px;">'+span(row.data)+'</td>'
           + '<td style="border:'+acompBorda+';padding:7px 10px;">'+span(row.ciclo)+'</td>'
@@ -2340,7 +2340,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
     const liveIdCardEl = paperEl.querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
-    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
+    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f8f7f7'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });

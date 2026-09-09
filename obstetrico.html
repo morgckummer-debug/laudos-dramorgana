@@ -200,7 +200,7 @@
      escalando tudo junto, o mesmo passo ganha ~8%. Ao mexer nestas regras,
      mantenha em — um px fixo aqui volta a "travar" o auto-fit. */
   .paper .id-card{
-    background:#f2f0f1;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.625em 1em;margin:0 0 var(--idcard-gap, 1.25em);
+    background:#f8f7f7;border:2.5px solid #2b2b2e;border-radius:16px;padding:0.625em 1em;margin:0 0 var(--idcard-gap, 1.25em);
     font-weight:700;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
@@ -229,11 +229,11 @@
      Doppler sozinho) o teto nunca chega a valer, o conteúdo é bem menor
      que a página inteira. O líquido amniótico saiu de tabela (ver JS):
      virou texto corrido, então não precisa mais entrar nessa régua. */
-  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:100%;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(109,50,99,.12);}
+  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:100%;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(109,50,99,.06);}
   .paper table.biometria td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
   .paper table.biometria td:nth-child(odd){font-weight:700;text-align:left;}
   .paper table.biometria td:nth-child(even){text-align:center;white-space:nowrap;}
-  .paper table.biometria tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .paper table.biometria tbody tr:nth-child(even) td{background:#fbf8fa;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
@@ -2357,7 +2357,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
     const liveIdCardEl = paperEl.querySelector('.id-card');
     const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
-    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f2f0f1'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
+    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f8f7f7'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.color='#C0392B'; h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.quadro-titulo').forEach(el=>{ el.style.textAlign='center'; el.setAttribute('align','center'); });
@@ -2369,7 +2369,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='4px 16px'; });
     clone.querySelectorAll('table.biometria td:nth-child(odd)').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
     clone.querySelectorAll('table.biometria td:nth-child(even)').forEach(el=>{ el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
-    clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#f7f0f6'; });
+    clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#fbf8fa'; });
     clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='100%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
