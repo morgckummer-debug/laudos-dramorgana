@@ -204,7 +204,6 @@
     text-align:center;text-decoration:underline;font-size:1.333333em;letter-spacing:.5px;
     margin:0 0 1.125em;font-weight:700;
   }
-  .paper h3.doctitle > br:first-child{display:none;}
   .paper .relato{color:#C0392B;font-weight:700;margin:0 0 0.75em;}
   .paper h4.sec{
     text-decoration:underline;font-size:0.8125em;letter-spacing:.4px;margin:1.230769em 0 0.615385em;font-weight:600;color:var(--rose-dark);
@@ -228,6 +227,13 @@
   .paper table.biometria td:nth-child(odd){font-weight:700;text-align:left;}
   .paper table.biometria td:nth-child(even){text-align:center;white-space:nowrap;}
   .paper table.biometria tbody tr:nth-child(even) td{background:#f7f0f6;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  /* Nomes de estrutura mais compridos ("Distância orbitária externa",
+     "Diâmetro occipitofrontal (DOF)"...) quebravam linha dentro da metade de
+     página de cada tabela lado a lado — fonte um pouco menor e nowrap no
+     rótulo evitam a quebra sem mexer nas outras tabelas (Doppler, Morfologia
+     Fetal) que também usam table.biometria. */
+  .paper table.biometria.biometria-fetal{font-size:0.875em;}
+  .paper table.biometria.biometria-fetal td:nth-child(odd){white-space:nowrap;}
   .paper table.biometria.tabela-simples{margin:0 0 0.75em;width:100%;max-width:none;border-radius:0;overflow:visible;box-shadow:none;}
   .paper table.biometria.tabela-simples td{border:none;padding:0 1.25em 0.125em 0;}
   .paper table.biometria.tabela-simples td:nth-child(odd){font-weight:400;}
@@ -2092,7 +2098,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // centralizadas numa caixa só, nem em 4 colunas (rótulo comprido
       // demais) — cada metade currentemente vira um quadro de 2 colunas,
       // estreito o bastante pra cada meia-página.
-      const tabelaBiometriaA = '<table class="biometria">'
+      const tabelaBiometriaA = '<table class="biometria biometria-fetal">'
         +'<tr><td>Diâmetro biparietal (DBP)</td><td>'+span(f.dbp)+' mm</td></tr>'
         +'<tr><td>Diâmetro occipitofrontal (DOF)</td><td>'+span(f.dof)+' mm</td></tr>'
         +'<tr><td>Circunferência cefálica (CC)</td><td>'+span(f.cc)+' mm</td></tr>'
@@ -2104,7 +2110,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Tíbia</td><td>'+span(f.tibia)+' mm</td></tr>'
         +'<tr><td>Fíbula</td><td>'+span(f.fibula)+' mm</td></tr>'
         +'</table>';
-      const tabelaBiometriaB = '<table class="biometria">'
+      const tabelaBiometriaB = '<table class="biometria biometria-fetal">'
         +'<tr><td>Diâmetro cerebelar</td><td>'+span(f.diamCerebelar)+' mm</td></tr>'
         +'<tr><td>Cisterna magna</td><td>'+span(f.cisternaMagna)+' mm</td></tr>'
         +'<tr><td>Prega nucal</td><td>'+span(f.pregaNucal)+' mm</td></tr>'
@@ -2115,7 +2121,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Distância orbitária interna</td><td>'+span(f.doi)+' mm</td></tr>'
         +'<tr><td>Peso fetal estimado</td><td><strong>'+span(f.peso)+' gramas</strong></td></tr>'
         +'</table>';
-      const biometriaHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Biometria</strong></p>'
+      const biometriaHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Biometria Fetal</strong></p>'
         +'<table style="width:100%;border-collapse:collapse;"><tr>'
         +'<td style="vertical-align:top;padding:0 12px 0 0;width:50%;">'+tabelaBiometriaA+'</td>'
         +'<td style="vertical-align:top;padding:0 0 0 12px;width:50%;">'+tabelaBiometriaB+'</td>'
@@ -2156,7 +2162,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(colo){
-      blocks.push({id:'colo', html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Colo uterino</strong></p><p class="linha">'+phraseRaw('coloTexto', {MEDIDA: coloComprimentoVal.text})+'</p></div>'});
+      blocks.push({id:'colo', html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Colo uterino</strong></p><p class="linha" style="text-align:justify;">'+phraseRaw('coloTexto', {MEDIDA: coloComprimentoVal.text})+'</p></div>'});
     }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
