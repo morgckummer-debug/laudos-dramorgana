@@ -394,12 +394,13 @@
   <h3>Ao exame</h3>
   <div class="field" style="margin-bottom:8px;"><label>Útero e saco gestacional — use {FETO} (some com gestação múltipla)</label><textarea id="ph_uteroTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade — use {FC}</label><textarea id="ph_vitalidadeTexto" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Placenta e líquido amniótico</label><textarea id="ph_placentaLiquidoTexto" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta e líquido amniótico — use {INSERCAO}</label><textarea id="ph_placentaLiquidoTexto" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo uterino — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Impressões diagnósticas</h3>
   <div class="field" style="margin-bottom:8px;"><label>Gestação — use {IG} e {METODO} (DUM/ecografia/exame, conforme a cronologia escolhida; também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação única, DUM incerta/ignorada — use {SEMANAS}</label><textarea id="ph_impGestacaoDumIncerta" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {IG} e {METODO} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar — use {CORIONICIDADE}, {IG} e {METODO} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa vitalidade fetal</label><textarea id="ph_impVitalidade" rows="2"></textarea></div>
@@ -456,7 +457,7 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Idade gestacional calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">Ultrassom de datação (1º trimestre)</option><option value="exame">IG informada neste exame</option></select>
+            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">Ultrassom de datação (1º trimestre)</option><option value="exame">IG informada neste exame</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
           </div>
         </div>
         <div class="field-row conditional" id="wrap_usgDatacao">
@@ -468,6 +469,7 @@
           <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 12"></div>
           <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
         </div>
+        <p class="conditional" id="wrap_incertaInfo" style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">DUM incerta/ignorada: sem cronologia no cabeçalho (sem DUM/IG atual ali). A IG usada no laudo é a informada acima, em "IG neste exame".</p>
       </div>
     </div>
 
@@ -1022,10 +1024,11 @@ if(typeof criarMotorLaudo !== 'function'){
   const PHRASE_DEFAULTS = {
     uteroTexto: 'Útero globoso, de dimensões aumentadas, apresentando saco gestacional regular{FETO}.',
     vitalidadeTexto: 'Feto apresentando movimentação ativa e batimentos cardíacos rítmicos, com frequência de {FC} bpm.',
-    placentaLiquidoTexto: 'Placenta anterior/posterior, homogênea/heterogênea, (grau 0 de Grannum) e espessura normal. Líquido amniótico com volume normal para a idade gestacional.',
+    placentaLiquidoTexto: 'Placenta {INSERCAO}, homogênea/heterogênea, (grau 0 de Grannum) e espessura normal. Líquido amniótico com volume normal para a idade gestacional.',
     coloTexto: 'Colo uterino: de textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm. "Sludge" não identificado.',
 
     impGestacao: 'Gestação única, compatível com {IG} de acordo com {METODO}.',
+    impGestacaoDumIncerta: 'Gestação única, de {SEMANAS} semanas pelo CCN.',
     impGestacaoMultipla: 'Gestação gemelar, {CORIONICIDADE}, compatível com {IG} de acordo com {METODO}.',
     impGestacaoTrigemelar: 'Gestação trigemelar, {CORIONICIDADE}, compatível com {IG} de acordo com {METODO}.',
     impVitalidade: 'Boa vitalidade fetal.',
@@ -1154,10 +1157,12 @@ if(typeof criarMotorLaudo !== 'function'){
 
   $('cronologiaMetodo').addEventListener('change', e=>{
     toggle('wrap_usgDatacao', e.target.value==='usg');
-    toggle('wrap_exameInfo', e.target.value==='exame');
+    toggle('wrap_exameInfo', e.target.value==='exame' || ehDumSemCronologia(e.target.value));
+    toggle('wrap_incertaInfo', ehDumSemCronologia(e.target.value));
   });
   toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
-  toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame');
+  toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame' || ehDumSemCronologia($('cronologiaMetodo').value));
+  toggle('wrap_incertaInfo', ehDumSemCronologia($('cronologiaMetodo').value));
 
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
@@ -1357,7 +1362,19 @@ if(typeof criarMotorLaudo !== 'function'){
     const semanasTxt = semanas + (semanas===1 ? ' semana' : ' semanas');
     return dias>0 ? (semanasTxt+' e '+dias+(dias===1?' dia':' dias')) : semanasTxt;
   }
+  // "DUM incerta" (ela informou uma data, mas não confiável para datar) e
+  // "DUM ignorada" (ela não soube informar nenhuma data) são clinicamente
+  // diferentes, mas tratadas da mesma forma por todo o resto do laudo: sem
+  // cronologia nenhuma, só a IG informada valendo como número solto.
+  function ehDumSemCronologia(metodo){
+    return metodo === 'incerta' || metodo === 'ignorada';
+  }
   function computeDataBase(metodo){
+    // DUM incerta/ignorada: por definição não há data de referência — sem
+    // cronologia no cabeçalho. A IG usada no resto do laudo (percentis,
+    // conclusão) vem direto da IG informada (ver gaDays em render()), nunca
+    // desta data-base "oficial".
+    if(ehDumSemCronologia(metodo)) return null;
     if(metodo === 'exame'){
       const dataExameDt = parseDateBR(v('dataExame'));
       const semanas = parseInt(v('impSemanas'), 10);
@@ -1479,10 +1496,19 @@ if(typeof criarMotorLaudo !== 'function'){
     const pre = f => state.isMultiple ? (f.label+': ') : '';
     const k = (base, f) => state.isMultiple ? (base+'-f'+f.uid) : base;
 
-    const gestacaoKey = !state.isMultiple ? 'impGestacao'
-      : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla');
-    items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
-      {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, METODO:state.metodoTxt}), auto:true});
+    // DUM incerta/ignorada: sem cronologia, a conclusão não fala em
+    // "compatível com IG de acordo com" (isso pressupõe uma data-base) —
+    // vira só o número de semanas informado. Gemelar/trigemelar continua na
+    // frase genérica de sempre (caso raro o bastante para não valer frase
+    // própria).
+    if(!state.isMultiple && ehDumSemCronologia(state.cronologiaMetodo)){
+      items.push({key:'gestacao', label: phraseRaw('impGestacaoDumIncerta', {SEMANAS:state.semanas}), auto:true});
+    } else {
+      const gestacaoKey = !state.isMultiple ? 'impGestacao'
+        : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla');
+      items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
+        {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, METODO:state.metodoTxt}), auto:true});
+    }
 
     items.push({key:'vitalidade', label: phraseRaw('impVitalidade'), auto:true});
 
@@ -1609,15 +1635,26 @@ if(typeof criarMotorLaudo !== 'function'){
     const medicacoes = vNoDot('medicacoes');
 
     const cronologiaMetodoRaw = v('cronologiaMetodo');
-    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame') ? cronologiaMetodoRaw : 'dum';
+    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
     // Mesma cronologia usada pra calcular a IG (campo "Idade gestacional
     // calculada com base em") também nomeia a referência na frase da
     // conclusão — sem isto, "de acordo com a DUM/primeira ecografia" ficava
     // ambíguo sobre qual das duas datas o laudo realmente seguiu.
-    const METODO_TXT = {dum:'a DUM', usg:'a primeira ecografia', exame:'a IG informada neste exame'};
+    const METODO_TXT = {dum:'a DUM', usg:'a primeira ecografia', exame:'a IG informada neste exame', incerta:'a IG informada neste exame', ignorada:'a IG informada neste exame'};
     const metodoTxt = METODO_TXT[cronologiaMetodo];
     const dataBase = computeDataBase(cronologiaMetodo);
-    const gaDays = computeIGDaysAtExam(dataBase, dataExame);
+    // DUM incerta/ignorada: sem data base, então a IG não sai da conta com a
+    // data do exame (não há cronologia) — vem direto dos campos de IG
+    // informada, só para virar número solto na conclusão e alimentar os
+    // percentis (Doppler das uterinas) que dependem da IG.
+    let gaDays;
+    if(ehDumSemCronologia(cronologiaMetodo)){
+      const semanasInformadas = parseInt(v('impSemanas'), 10);
+      const diasInformados = parseInt(v('impDias'), 10);
+      gaDays = !isNaN(semanasInformadas) ? (semanasInformadas*7 + (isNaN(diasInformados) ? 0 : diasInformados)) : null;
+    } else {
+      gaDays = computeIGDaysAtExam(dataBase, dataExame);
+    }
     const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
     const igAtualEl = $('igAtual');
     if(igAtualEl) igAtualEl.value = igAtualTxt;
@@ -1654,6 +1691,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // ----- Ao exame: útero e placenta (medidas da mãe, uma vez só) -----
     const placentaInsercao = v('placentaInsercao');
+    const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
 
     // ----- Colo uterino (opcional — só entra no laudo se estiver no pedido médico) -----
     const colo = $('chkColo').checked;
@@ -1707,7 +1745,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // ----- Impressão -----
     const state = {
-      semanas: semanasTxt, dias: diasTxt, ig: igTxt, metodoTxt,
+      semanas: semanasTxt, dias: diasTxt, ig: igTxt, metodoTxt, cronologiaMetodo,
       isMultiple, corTxt, fetos, monoCompartilhado,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       colo, coloAlterado
@@ -1732,6 +1770,12 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+(gpaG==='0' ? '' : ' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>'
       +(cronologiaMetodo==='usg'
         ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+'+'+span(blankOrValue(usgDiasDatacaoTxt))+' semanas: '+span(blankOrValue(igAtualTxt))+'</span></div>'
+        // DUM incerta/ignorada: sem DUM não há cronologia — a linha do
+        // cabeçalho mostra só "DUM: incerta"/"DUM: ignorada", sem cronologia
+        // nenhuma ao lado (a IG informada só aparece na conclusão, como
+        // estimativa daquele exame, nunca como data-base).
+        : ehDumSemCronologia(cronologiaMetodo)
+          ? '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(cronologiaMetodo))+'</span></div>'
         : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
       +'</div>'});
 
@@ -1813,7 +1857,7 @@ if(typeof criarMotorLaudo !== 'function'){
       });
     }
 
-    blocks.push({id:'placentaLiquido', html:'<p class="linha">'+phrase('placentaLiquidoTexto')+'</p>'});
+    blocks.push({id:'placentaLiquido', html:'<p class="linha">'+phrase('placentaLiquidoTexto', {INSERCAO: placentaInsercaoTxt})+'</p>'});
 
     if(colo){
       blocks.push({id:'colo', html:'<p class="linha">'+phraseRaw('coloTexto', {MEDIDA: span(coloComprimentoVal)})+'</p>'});
