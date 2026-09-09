@@ -335,6 +335,21 @@
 
   .preview-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
   .preview-actions button{flex:1;min-width:110px;}
+  /* Fixos na tela (não em fluxo, depois do texto) para não depender de rolar
+     até o fim do laudo — num laudo de 3+ folhas isso ficava vários scrolls
+     de distância, com a coluna do preview presa no topo por causa do
+     position:sticky do .preview-wrap. Só o grupo principal (Imprimir/Baixar
+     Word/Salvar na Curva) — o .anexo-actions ("Remover imagem(ns) da FMF")
+     reaproveita a classe preview-actions mas fica de fora, senão os dois
+     grupos ficariam sobrepostos no mesmo canto da tela. */
+  .preview-actions:not(.anexo-actions){
+    margin-top:0;position:fixed;right:28px;bottom:18px;z-index:40;max-width:380px;
+    background:#fff;padding:10px 14px;border-radius:16px;
+    border:1px solid var(--line);box-shadow:var(--shadow);
+  }
+  @media (max-width:980px){
+    .preview-actions:not(.anexo-actions){left:12px;right:12px;bottom:12px;max-width:none;}
+  }
   .btn-copy{background:var(--rose);color:#fff;}
   .btn-copy:hover{background:var(--rose-dark);}
   .btn-print{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
