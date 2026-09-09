@@ -449,49 +449,45 @@
         <div class="field-row">
           <div class="field"><label>Parênquima</label>
             <select id="parenquimaAspecto">
-              <option value="normal">Normal (textura homogênea, sem nódulos sólidos ou císticos)</option>
-              <option value="nodulo">Nódulo</option>
-              <option value="cistoColoide1">Cisto colóide (1)</option>
-              <option value="cistoColoideVarios">Cistos colóides (ao menos 3)</option>
+              <option value="normal">Normal (textura homogênea)</option>
               <option value="hashimoto">Tireoidite de Hashimoto</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
         </div>
+        <div class="field-row field-row-compact conditional" id="wrap_hashimotoCampos">
+          <div class="field"><label>Volume e vascularização</label>
+            <select id="hashimotoVolVasc"><option value="normais">Normais</option><option value="aumentados">Aumentados</option></select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_parenquimaDescricao">
+          <label>Descreva o achado</label>
+          <textarea id="parenquimaDescricao" rows="2" placeholder="para achados fora das opções acima — nódulo, cisto colóide (único ou múltiplo) e Hashimoto já têm campo próprio"></textarea>
+        </div>
+        <!-- Nódulo e cisto colóide são achados independentes um do outro — a
+             médica pode ter só um, só o outro, ou os dois no mesmo exame
+             (mesmo lobo ou lobo diferente), por isso são dois checkboxes
+             próprios em vez de opções de um mesmo select exclusivo. -->
+        <div class="field-row">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="temNodulo" style="accent-color:#6d3263;"> Há nódulo(s)
+          </label>
+        </div>
         <div class="conditional" id="wrap_noduloCampos">
           <div id="noduloNodulosContainer"></div>
           <button type="button" class="btn-clear" id="btnAddNodulo" style="margin:2px 0 12px;">+ Adicionar nódulo</button>
-          <div class="field-row">
-            <label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
-              <input type="checkbox" id="noduloTemCisto" style="accent-color:#6d3263;"> Também há cisto colóide
-            </label>
-          </div>
-          <div class="field-row field-row-compact conditional" id="wrap_noduloCistoTipo">
-            <div class="field"><label>Cisto colóide</label>
-              <select id="noduloCistoTipo">
-                <option value="1">Único (1)</option>
-                <option value="varios">Vários (ao menos 3)</option>
-              </select>
-            </div>
-          </div>
-          <div class="field-row field-row-compact conditional" id="wrap_noduloCisto1Campos">
-            <div class="field"><label>Lobo</label>
-              <select id="noduloCistoLobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
-            </div>
-            <div class="field"><label>Terço</label>
-              <select id="noduloCistoTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-            </div>
-            <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="noduloCistoTamanho" placeholder="mm"></div>
-          </div>
-          <div class="field-row field-row-compact conditional" id="wrap_noduloCistosCampos">
-            <div class="field"><label>Lobo</label>
-              <select id="noduloCistosLobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
-            </div>
-            <div class="field"><label>Terço do maior</label>
-              <select id="noduloCistosTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-            </div>
-            <div class="field"><label>Menor</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="noduloCistosMin" placeholder="mm"></div>
-            <div class="field"><label>Maior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="noduloCistosMax" placeholder="mm"></div>
+        </div>
+        <div class="field-row">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="temCisto" style="accent-color:#6d3263;"> Há cisto colóide
+          </label>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_cistoTipo">
+          <div class="field"><label>Cisto colóide</label>
+            <select id="cistoTipo">
+              <option value="1">Único (1)</option>
+              <option value="varios">Vários (ao menos 3)</option>
+            </select>
           </div>
         </div>
         <div class="field-row field-row-compact conditional" id="wrap_cistoColoide1Campos">
@@ -512,15 +508,6 @@
           </div>
           <div class="field"><label>Menor</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cistosMin" placeholder="mm"></div>
           <div class="field"><label>Maior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cistosMax" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_hashimotoCampos">
-          <div class="field"><label>Volume e vascularização</label>
-            <select id="hashimotoVolVasc"><option value="normais">Normais</option><option value="aumentados">Aumentados</option></select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_parenquimaDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="parenquimaDescricao" rows="2" placeholder="para achados fora das opções acima — nódulo, cisto colóide (único ou múltiplo) e Hashimoto já têm campo próprio"></textarea>
         </div>
         <hr class="sep">
         <div class="field-row">
@@ -1335,30 +1322,29 @@ if(typeof criarMotorLaudo !== 'function'){
 
   $('parenquimaAspecto').addEventListener('change', e=>{
     const val = e.target.value;
-    toggle('wrap_noduloCampos', val==='nodulo');
-    if(val==='nodulo' && $('noduloNodulosContainer').children.length===0){
-      addNodulo();
-    }
-    toggle('wrap_cistoColoide1Campos', val==='cistoColoide1');
-    toggle('wrap_cistoColoideVariosCampos', val==='cistoColoideVarios');
     toggle('wrap_hashimotoCampos', val==='hashimoto');
     toggle('wrap_parenquimaDescricao', val==='alterado');
   });
 
-  // Cisto colóide associado a um nódulo: diferente de "Cisto colóide (1)"/
-  // "Cistos colóides (vários)" no select de aspecto do parênquima (que são
-  // achado único, sem nódulo junto), este é um segundo achado que convive com
-  // o(s) nódulo(s) já descritos — mesmo lobo ou lobo diferente. Sem isso não
-  // havia como o laudo registrar as duas coisas ao mesmo tempo.
-  function updateNoduloCistoVisibility(){
-    const temCisto = $('noduloTemCisto').checked;
-    toggle('wrap_noduloCistoTipo', temCisto);
-    const tipo = $('noduloCistoTipo').value || '1';
-    toggle('wrap_noduloCisto1Campos', temCisto && tipo==='1');
-    toggle('wrap_noduloCistosCampos', temCisto && tipo==='varios');
+  // Nódulo e cisto colóide são achados independentes, cada um com seu próprio
+  // checkbox (ver comentário no HTML) — convivem no mesmo exame, mesmo lobo
+  // ou lobo diferente, e nenhum deles depende do outro estar marcado.
+  $('temNodulo').addEventListener('change', ()=>{
+    const on = $('temNodulo').checked;
+    toggle('wrap_noduloCampos', on);
+    if(on && $('noduloNodulosContainer').children.length===0){
+      addNodulo();
+    }
+  });
+  function updateCistoVisibility(){
+    const temCisto = $('temCisto').checked;
+    toggle('wrap_cistoTipo', temCisto);
+    const tipo = $('cistoTipo').value || '1';
+    toggle('wrap_cistoColoide1Campos', temCisto && tipo==='1');
+    toggle('wrap_cistoColoideVariosCampos', temCisto && tipo==='varios');
   }
-  $('noduloTemCisto').addEventListener('change', updateNoduloCistoVisibility);
-  $('noduloCistoTipo').addEventListener('change', updateNoduloCistoVisibility);
+  $('temCisto').addEventListener('change', updateCistoVisibility);
+  $('cistoTipo').addEventListener('change', updateCistoVisibility);
   $('cervicaisAspecto').addEventListener('change', e=>{
     const val = e.target.value;
     toggle('wrap_linfonodoCampos', val==='linfonodo');
@@ -1390,8 +1376,8 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.parenquimaImpressaoHD){
       items.push({key:'parenquima-achado', label: state.parenquimaImpressaoHD, auto:true});
     }
-    if(state.cistoAssociadoImpressaoHD){
-      items.push({key:'parenquima-achado-cistoAssociado', label: state.cistoAssociadoImpressaoHD, auto:true});
+    if(state.cistoImpressaoHD){
+      items.push({key:'parenquima-achado-cisto', label: state.cistoImpressaoHD, auto:true});
     }
     if(state.linfonodoImpressaoHD){
       items.push({key:'linfonodo-achado', label: state.linfonodoImpressaoHD, auto:true});
@@ -1467,11 +1453,23 @@ if(typeof criarMotorLaudo !== 'function'){
     const parenquimaAspecto = v('parenquimaAspecto') || 'normal';
     const parenquimaDescricao = vNoDot('parenquimaDescricao');
     reqIf('parenquimaDescricao', parenquimaAspecto==='alterado');
-    let parenquimaTexto = 'Parênquima de textura homogênea, não se identificando nódulos sólidos ou císticos.';
+    // Padrão de fundo do parênquima — normal, Hashimoto ou outro achado
+    // difuso — fica em parenquimaBaseTexto; nódulo(s) e cisto colóide são
+    // achados focais independentes (cada um com seu checkbox, ver acima) que
+    // se somam a esse fundo, um não exclui o outro.
+    let parenquimaBaseTexto = null;
     let parenquimaImpressaoHD = null;
+    if(parenquimaAspecto==='hashimoto'){
+      const volVasc = v('hashimotoVolVasc') || 'normais';
+      parenquimaBaseTexto = 'Parênquima de textura difusamente heterogênea apresentando redução da ecogenicidade associada a septações ecogênicas de permeio e pseudonodulações.';
+      parenquimaImpressaoHD = phrase('impHashimoto', {VOLVASC:volVasc});
+    } else if(parenquimaAspecto==='alterado' && parenquimaDescricao){
+      parenquimaBaseTexto = escapeHtml(parenquimaDescricao)+'.';
+    }
+
     let noduloImpressaoItems = [];
-    let cistoAssociadoImpressaoHD = null;
-    if(parenquimaAspecto==='nodulo'){
+    let noduloTexto = null;
+    if($('temNodulo').checked){
       const uids = noduloNoduleUids();
       const multiplos = uids.length > 1;
       // Um nódulo por uid: guarda o lobo e as duas formas do corpo do texto —
@@ -1536,11 +1534,11 @@ if(typeof criarMotorLaudo !== 'function'){
         noduloImpressaoItems = noduloImpressaoItems.filter(it=> it.tirads === maiorCategoria);
       }
       if(!nodulos.length){
-        // Instante entre marcar "Nódulo" e addNodulo() inserir o primeiro
-        // subgrupo no DOM — render() pode cair aqui de passagem; o próximo
-        // render(), já com o subgrupo criado, substitui este texto.
+        // Instante entre marcar "Há nódulo(s)" e addNodulo() inserir o
+        // primeiro subgrupo no DOM — render() pode cair aqui de passagem; o
+        // próximo render(), já com o subgrupo criado, substitui este texto.
       }else if(!multiplos){
-        parenquimaTexto = nodulos[0].comLobo;
+        noduloTexto = nodulos[0].comLobo;
       }else{
         // Agrupado por lobo — "Lobo direito:" com N1, N2... dentro, só o(s)
         // lobo(s) que tiverem nódulo aparecem, na ordem direito/esquerdo/istmo.
@@ -1551,47 +1549,41 @@ if(typeof criarMotorLaudo !== 'function'){
           linhas.push('<span style="display:block;margin-top:1mm;">'+loboRotulo(lobo)+':</span>');
           doLobo.forEach((n, i)=> linhas.push('<span style="display:block;">- N'+(i+1)+': '+n.semLobo+'</span>'));
         });
-        parenquimaTexto = linhas.join('');
+        noduloTexto = linhas.join('');
       }
-      // Cisto colóide associado — acrescenta ao mesmo parágrafo do nódulo em
-      // vez de substituí-lo: as duas coisas convivem no mesmo laudo, mesmo
-      // lobo ou lobo diferente.
-      if($('noduloTemCisto').checked){
-        const tipo = v('noduloCistoTipo') || '1';
-        if(tipo==='varios'){
-          const lobo = v('noduloCistosLobo') || 'direito';
-          const terco = v('noduloCistosTerco') || 'superior';
-          const min = blankOrValue(req('noduloCistosMin'));
-          const max = blankOrValue(req('noduloCistosMax'));
-          parenquimaTexto += ' Observam-se ainda ao menos três imagens císticas, de paredes finas e regulares, com foco ecogênico em seu interior, que condicionam reverberação acústica posterior, localizadas no lobo '+lobo+', terço '+terco+', medindo entre '+span(min)+' e '+span(max)+' mm, sugestivas de cistos colóides.';
-          cistoAssociadoImpressaoHD = phrase('impCistoColoideVarios', {LADO:'à '+(lobo==='direito'?'direita':'esquerda')});
-        }else{
-          const lobo = v('noduloCistoLobo') || 'direito';
-          const terco = v('noduloCistoTerco') || 'superior';
-          const tamanho = blankOrValue(req('noduloCistoTamanho'));
-          parenquimaTexto += ' Observa-se ainda uma imagem cística, de paredes finas e regulares, com foco ecogênico em seu interior, que condiciona reverberação acústica posterior, localizada no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' mm, sugestiva de cisto colóide.';
-          cistoAssociadoImpressaoHD = phrase('impCistoColoide1', {LADO:'à '+(lobo==='direito'?'direita':'esquerda')});
-        }
+    }
+
+    let cistoImpressaoHD = null;
+    let cistoTexto = null;
+    if($('temCisto').checked){
+      const tipo = v('cistoTipo') || '1';
+      if(tipo==='varios'){
+        const lobo = v('cistosLobo') || 'direito';
+        const terco = v('cistosTerco') || 'superior';
+        const min = blankOrValue(req('cistosMin'));
+        const max = blankOrValue(req('cistosMax'));
+        cistoTexto = 'Observam-se ao menos três imagens císticas, de paredes finas e regulares, com foco ecogênico em seu interior, que condicionam reverberação acústica posterior, localizadas no lobo '+lobo+', terço '+terco+', medindo entre '+span(min)+' e '+span(max)+' mm, sugestivas de cistos colóides.';
+        cistoImpressaoHD = phrase('impCistoColoideVarios', {LADO:'à '+(lobo==='direito'?'direita':'esquerda')});
+      }else{
+        const lobo = v('cistoLobo') || 'direito';
+        const terco = v('cistoTerco') || 'superior';
+        const tamanho = blankOrValue(req('cistoTamanho'));
+        cistoTexto = 'Observa-se uma imagem cística, de paredes finas e regulares, com foco ecogênico em seu interior, que condiciona reverberação acústica posterior, localizada no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' mm, sugestiva de cisto colóide.';
+        cistoImpressaoHD = phrase('impCistoColoide1', {LADO:'à '+(lobo==='direito'?'direita':'esquerda')});
       }
-    } else if(parenquimaAspecto==='cistoColoide1'){
-      const lobo = v('cistoLobo') || 'direito';
-      const terco = v('cistoTerco') || 'superior';
-      const tamanho = blankOrValue(req('cistoTamanho'));
-      parenquimaTexto = 'Observa-se uma imagem cística, de paredes finas e regulares, com foco ecogênico em seu interior, que condiciona reverberação acústica posterior, localizada no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' mm, sugestiva de cisto colóide.';
-      parenquimaImpressaoHD = phrase('impCistoColoide1', {LADO:'à '+(lobo==='direito'?'direita':'esquerda')});
-    } else if(parenquimaAspecto==='cistoColoideVarios'){
-      const lobo = v('cistosLobo') || 'direito';
-      const terco = v('cistosTerco') || 'superior';
-      const min = blankOrValue(req('cistosMin'));
-      const max = blankOrValue(req('cistosMax'));
-      parenquimaTexto = 'Observam-se ao menos três imagens císticas, de paredes finas e regulares, com foco ecogênico em seu interior, que condicionam reverberação acústica posterior, localizadas no lobo '+lobo+', terço '+terco+', medindo entre '+span(min)+' e '+span(max)+' mm, sugestivas de cistos colóides.';
-      parenquimaImpressaoHD = phrase('impCistoColoideVarios', {LADO:'à '+(lobo==='direito'?'direita':'esquerda')});
-    } else if(parenquimaAspecto==='hashimoto'){
-      const volVasc = v('hashimotoVolVasc') || 'normais';
-      parenquimaTexto = 'Parênquima de textura difusamente heterogênea apresentando redução da ecogenicidade associada a septações ecogênicas de permeio e pseudonodulações.';
-      parenquimaImpressaoHD = phrase('impHashimoto', {VOLVASC:volVasc});
-    } else if(parenquimaAspecto==='alterado' && parenquimaDescricao){
-      parenquimaTexto = escapeHtml(parenquimaDescricao)+'.';
+    }
+
+    // Monta o parágrafo final: fundo (se houver) + achados focais, na ordem
+    // em que os checkboxes aparecem na tela. Sem fundo e sem achado focal
+    // nenhum, cai na frase padrão de normalidade.
+    const achadosFocais = [noduloTexto, cistoTexto].filter(Boolean);
+    let parenquimaTexto;
+    if(parenquimaBaseTexto !== null){
+      parenquimaTexto = achadosFocais.length ? parenquimaBaseTexto+' '+achadosFocais.join(' ') : parenquimaBaseTexto;
+    }else if(achadosFocais.length){
+      parenquimaTexto = achadosFocais.join(' ');
+    }else{
+      parenquimaTexto = 'Parênquima de textura homogênea, não se identificando nódulos sólidos ou císticos.';
     }
 
     const cervicaisAspecto = v('cervicaisAspecto') || 'normal';
@@ -1649,7 +1641,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
 
     // ----- Impressão -----
-    const impressaoItems = buildImpressao({parenquimaImpressaoHD, noduloImpressaoItems, cistoAssociadoImpressaoHD, linfonodoImpressaoHD, volumeAumentado});
+    const impressaoItems = buildImpressao({parenquimaImpressaoHD, noduloImpressaoItems, cistoImpressaoHD, linfonodoImpressaoHD, volumeAumentado});
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
 
