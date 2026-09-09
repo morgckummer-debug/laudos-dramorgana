@@ -203,7 +203,7 @@
      três tabelas do laudo que usam table.biometria: biometria por feto,
      Doppler e risco para Síndrome de Down — todas com a mesma cara. */
   .paper table.biometria{border-collapse:collapse;margin:0.375em auto 1.25em;width:auto;max-width:70%;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(109,50,99,.06);}
-  .paper table.biometria td{border:1px solid #d9c3d3;padding:4px 16px;vertical-align:top;}
+  .paper table.biometria td{border:1px solid #d9c3d3;padding:2px 16px;vertical-align:top;}
   .paper table.biometria td:first-child{font-weight:700;text-align:left;}
   .paper table.biometria td:last-child{text-align:center;white-space:nowrap;}
   .paper table.biometria tbody tr:nth-child(even) td{background:#fbf8fa;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -1967,7 +1967,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // (biometria, Doppler e risco): borda e fundo alternado não vêm do
     // copyComputedToClone (que só copia o que muda com o auto-fit),
     // border-radius/box-shadow o Word não suporta mesmo.
-    clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='4px 16px'; });
+    clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='2px 16px'; });
     clone.querySelectorAll('table.biometria td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
     clone.querySelectorAll('table.biometria td:last-child').forEach(el=>{ el.style.textAlign='center'; });
     clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#fbf8fa'; });
