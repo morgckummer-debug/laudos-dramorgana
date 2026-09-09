@@ -400,7 +400,7 @@
   <hr class="sep">
   <h3>Impressões diagnósticas</h3>
   <div class="field" style="margin-bottom:8px;"><label>Gestação — use {IG} e {METODO} (DUM/ecografia/exame, conforme a cronologia escolhida; também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação única, DUM incerta/ignorada — use {SEMANAS}</label><textarea id="ph_impGestacaoDumIncerta" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação única, DUM incerta/ignorada — use {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoDumIncerta" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {IG} e {METODO} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar — use {CORIONICIDADE}, {IG} e {METODO} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa vitalidade fetal</label><textarea id="ph_impVitalidade" rows="2"></textarea></div>
@@ -1028,7 +1028,7 @@ if(typeof criarMotorLaudo !== 'function'){
     coloTexto: 'Colo uterino: de textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm. "Sludge" não identificado.',
 
     impGestacao: 'Gestação única, compatível com {IG} de acordo com {METODO}.',
-    impGestacaoDumIncerta: 'Gestação única, de {SEMANAS} semanas pelo CCN.',
+    impGestacaoDumIncerta: 'Gestação única, de {IG} pelo CCN.',
     impGestacaoMultipla: 'Gestação gemelar, {CORIONICIDADE}, compatível com {IG} de acordo com {METODO}.',
     impGestacaoTrigemelar: 'Gestação trigemelar, {CORIONICIDADE}, compatível com {IG} de acordo com {METODO}.',
     impVitalidade: 'Boa vitalidade fetal.',
@@ -1502,7 +1502,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // frase genérica de sempre (caso raro o bastante para não valer frase
     // própria).
     if(!state.isMultiple && ehDumSemCronologia(state.cronologiaMetodo)){
-      items.push({key:'gestacao', label: phraseRaw('impGestacaoDumIncerta', {SEMANAS:state.semanas}), auto:true});
+      items.push({key:'gestacao', label: phraseRaw('impGestacaoDumIncerta', {SEMANAS:state.semanas, DIAS:state.dias, IG:state.ig}), auto:true});
     } else {
       const gestacaoKey = !state.isMultiple ? 'impGestacao'
         : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla');
