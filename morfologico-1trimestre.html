@@ -1018,7 +1018,23 @@ if(typeof criarMotorLaudo !== 'function'){
         // cruzado que não é parágrafo não ganha lineHeight/margin (não faria
         // sentido nele), mas o span nunca chega a envolver essa fronteira.
         const blocosTocados = Array.from(paperEl.querySelectorAll(':scope > [data-blk]')).filter(el=> range.intersectsNode(el));
-        if(blocosTocados.length > 1){
+        // Uma tabela (morfologia, biometria) é UM data-blk só: blocosTocados
+        // nunca vê mais de um ali, e uma seleção que cruza duas <td> (rótulo
+        // pra descrição, linha pra linha) caía no ramo do <span> — que não
+        // pode envolver duas <td> validamente. surroundContents() falha, e o
+        // catch reinsere o conteúdo extraído partindo a linha da tabela. Foi
+        // assim que selecionar do rótulo "Crânio / cérebro" até a descrição e
+        // escolher "Compacto" quebrou as colunas da morfologia.
+        const celulaDoLimite = (container, offset) => {
+          let node = container;
+          if(node.nodeType === 1) node = node.childNodes[offset] || node.childNodes[offset - 1] || node;
+          const el = node.nodeType === 1 ? node : node.parentElement;
+          return el ? el.closest('td, th') : null;
+        };
+        const startCel = celulaDoLimite(range.startContainer, range.startOffset);
+        const endCel = celulaDoLimite(range.endContainer, range.endOffset);
+        const cruzaCelula = (!!startCel || !!endCel) && startCel !== endCel;
+        if(blocosTocados.length > 1 || cruzaCelula){
           paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; el.style.marginBottom = margin; });
         } else {
           wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
