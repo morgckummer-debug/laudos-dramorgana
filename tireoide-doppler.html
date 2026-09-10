@@ -1540,14 +1540,17 @@ if(typeof criarMotorLaudo !== 'function'){
       }else if(!multiplos){
         noduloTexto = nodulos[0].comLobo;
       }else{
-        // Agrupado por lobo — "Lobo direito:" com N1, N2... dentro, só o(s)
-        // lobo(s) que tiverem nódulo aparecem, na ordem direito/esquerdo/istmo.
-        const linhas = ['Parênquima de textura heterogênea, destacando-se em:'];
-        ['direito','esquerdo','istmo'].forEach(lobo=>{
+        // Agrupado por lobo — "Lobo direito:" (sublinhado) com N1, N2... listados
+        // embaixo, um por linha, só o(s) lobo(s) que tiverem nódulo aparecem, na
+        // ordem direito/istmo/esquerdo, com linha em branco entre os grupos.
+        const linhas = ['<span style="display:block;margin-bottom:12px;">Parênquima de textura heterogênea, apresentando os seguintes nódulos:</span>'];
+        let grupoAnterior = false;
+        ['direito','istmo','esquerdo'].forEach(lobo=>{
           const doLobo = nodulos.filter(n=> n.lobo===lobo);
           if(!doLobo.length) return;
-          linhas.push('<span style="display:block;margin-top:1mm;">'+loboRotulo(lobo)+':</span>');
+          linhas.push('<span style="display:block;text-decoration:underline;margin:'+(grupoAnterior?'12px':'0')+' 0 4px;">'+loboRotulo(lobo)+':</span>');
           doLobo.forEach((n, i)=> linhas.push('<span style="display:block;">- N'+(i+1)+': '+n.semLobo+'</span>'));
+          grupoAnterior = true;
         });
         noduloTexto = linhas.join('');
       }
