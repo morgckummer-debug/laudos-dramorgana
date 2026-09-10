@@ -626,11 +626,11 @@ if(typeof criarMotorLaudo !== 'function'){
   });
   const {
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
-    applyExecutante, blankOrValue, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
+    applyExecutante, blankOrValue, buildIdCardTable, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
     nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
-    vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText
+    vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml
   } = motor;
 
   // Título e edições manuais dentro de itens da "IMPRESSÃO" não sobrevivem ao
@@ -1720,7 +1720,6 @@ if(typeof criarMotorLaudo !== 'function'){
     ['p.relato', ['font-size','line-height'].concat(MARGINS)],
     ['.nodulo-item', ['font-size','line-height'].concat(MARGINS)],
     ['.birads-line', ['font-size','line-height'].concat(MARGINS)],
-    ['.id-card-row', ['font-size','line-height']],
     ['.footnote', ['font-size','line-height']],
     ['.assinatura', ['line-height']],
     ['.assinatura-info', ['font-size','line-height']]
@@ -1758,9 +1757,7 @@ if(typeof criarMotorLaudo !== 'function'){
       el.style.margin = '0 0 '+liveMargin;
       if(el.classList.contains('intro-last')) el.style.textDecoration = 'underline';
     });
-    const liveIdCardEl = paperEl.querySelector('.id-card');
-    const idCardMargin = liveIdCardEl ? getComputedStyle(liveIdCardEl).marginBottom : '20px';
-    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f8f7f7'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.padding='10px 16px'; el.style.marginBottom=idCardMargin; el.style.fontWeight='700'; });
+    buildIdCardTable(clone, paperEl);
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.nodulo-item').forEach(el=>{ el.style.margin='0 0 6px'; el.style.paddingLeft='2.4em'; el.style.textIndent='-2.4em'; });
@@ -1770,18 +1767,6 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
     clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#9a7e95'; el.style.margin='0'; });
 
-    clone.querySelectorAll('.id-card-row').forEach(el=>{
-      el.style.fontSize = '12pt';
-      if(el.children.length !== 2) return;
-      const [left, right] = el.children;
-      const table = document.createElement('table');
-      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;');
-      table.innerHTML = '<tr>'
-        + '<td style="border:none;padding:0;text-align:left;">'+left.innerHTML+'</td>'
-        + '<td style="border:none;padding:0;text-align:right;">'+right.innerHTML+'</td>'
-        + '</tr>';
-      el.replaceWith(table);
-    });
     clone.querySelectorAll('.rodape-final').forEach(el=>{
       const footnote = el.querySelector('.footnote');
       const assinatura = el.querySelector('.assinatura');
@@ -1857,14 +1842,7 @@ if(typeof criarMotorLaudo !== 'function'){
   $('btnDownloadWord').addEventListener('click', async ()=>{
     try{
       const html = buildReportHtml();
-      const docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
-        + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
-        + 'xmlns="http://www.w3.org/TR/REC-html40">'
-        + '<head><meta charset="utf-8"><title>'+escapeHtml(nomeArquivoLaudo())+'</title>'
-        + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
-        + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
-        + '<style>@page WordSection1{margin-left:2cm;margin-right:2cm;}div.WordSection1{page:WordSection1;}</style>'
-        + '</head><body><div class="WordSection1">' + html + '</div></body></html>';
+      const docHtml = wordDocHtml(html, nomeArquivoLaudo());
       const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
       await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
     }catch(e){

@@ -844,11 +844,11 @@ if(typeof criarMotorLaudo !== 'function'){
   });
   const {
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
-    aplicarMascaraCPF, applyExecutante, blankOrValue, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
+    aplicarMascaraCPF, applyExecutante, blankOrValue, buildIdCardTable, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
     nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
-    vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText
+    vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml
   } = motor;
 
 
@@ -2316,8 +2316,8 @@ if(typeof criarMotorLaudo !== 'function'){
   // ---------- Montagem do HTML que vira o arquivo do Word ----------
   // O .doc é um HTML que o Word abre, e ele chega lá SEM nenhuma folha de
   // estilo desta página: só sobrevive o que estiver escrito em style="" no
-  // próprio elemento (e o <style> de @page que o botão "Baixar Word" injeta,
-  // que define a folha e zera o espaçamento que o Word inventa sozinho).
+  // próprio elemento (e o <style> de @page que wordDocHtml() injeta, no
+  // motor — define a folha e zera o espaçamento que o Word inventa sozinho).
   // Tudo que o laudo desenha por classe — a margem entre parágrafos, o corpo
   // menor dos títulos de seção, o respiro das colunas da tabela de biometria,
   // o recuo do cartão de identificação — some se não for copiado para o clone.
@@ -2328,11 +2328,6 @@ if(typeof criarMotorLaudo !== 'function'){
   // abaixo copia do elemento VIVO o valor já calculado pelo navegador: o que
   // está na tela é o que vai para o Word, inclusive quando a médica muda o
   // corpo da fonte ou o espaçamento pela barra de formatação.
-  //
-  // Topo / direita / pé / esquerda da folha do Word. Topo, pé e lateral
-  // seguem a impressão (veja o @media print: <thead> 3,5cm para o timbrado,
-  // <tfoot> 2cm, padding lateral 2cm).
-  const WORD_PAGE_MARGIN = '3.5cm 2cm 2cm 2cm';
   const PADDINGS = ['padding-top','padding-right','padding-bottom','padding-left'];
   const WORD_COPY = [
     ['h3.doctitle', ['font-size','line-height','letter-spacing'].concat(MARGINS)],
@@ -2342,8 +2337,6 @@ if(typeof criarMotorLaudo !== 'function'){
     ['p.recomendacao', ['font-size','line-height','text-align'].concat(MARGINS)],
     ['table.biometria', ['font-size','line-height','border-collapse'].concat(MARGINS)],
     ['table.biometria td', ['vertical-align','white-space'].concat(PADDINGS)],
-    ['.id-card', PADDINGS.concat(MARGINS)],
-    ['.id-card-row', ['font-size','line-height','margin-top']],
     ['.footnote', ['font-size','line-height','color']],
     ['.assinatura', ['line-height']],
     ['.assinatura-nome', PADDINGS.concat(['margin-bottom'])],
@@ -2394,7 +2387,7 @@ if(typeof criarMotorLaudo !== 'function'){
       ul.replaceWith(div);
     });
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
-    clone.querySelectorAll('.id-card').forEach(el=>{ el.style.background='#f8f7f7'; el.style.border='2.5px solid #2b2b2e'; el.style.borderRadius='16px'; el.style.fontWeight='700'; });
+    buildIdCardTable(clone, paperEl);
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.fontWeight='700'; });
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='2px 16px'; });
@@ -2409,21 +2402,9 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; });
     clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.margin='0'; });
 
-    // O Word não faz flexbox: as linhas lado a lado abaixo (nome/data do
-    // cartão e o par nota-à-esquerda/assinatura-à-direita do rodapé) viravam
-    // blocos empilhados. Tabela o Word renderiza igual a todo mundo, então
-    // toda linha que dependia do flex é remontada como uma.
-    clone.querySelectorAll('.id-card-row').forEach(el=>{
-      if(el.children.length !== 2) return;
-      const [left, right] = el.children;
-      const table = document.createElement('table');
-      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;font-size:'+(el.style.fontSize||'12pt')+';');
-      table.innerHTML = '<tr>'
-        + '<td style="border:none;padding:0;text-align:left;">'+left.innerHTML+'</td>'
-        + '<td style="border:none;padding:0;text-align:right;">'+right.innerHTML+'</td>'
-        + '</tr>';
-      el.replaceWith(table);
-    });
+    // O Word não faz flexbox: o par nota-à-esquerda/assinatura-à-direita do
+    // rodapé virava dois blocos empilhados. Tabela o Word renderiza igual a
+    // todo mundo, então a linha que dependia do flex é remontada como uma.
     clone.querySelectorAll('.rodape-final').forEach(el=>{
       const footnote = el.querySelector('.footnote');
       const assinatura = el.querySelector('.assinatura');
@@ -2505,32 +2486,7 @@ if(typeof criarMotorLaudo !== 'function'){
   $('btnDownloadWord').addEventListener('click', async ()=>{
     try{
       const html = buildReportHtml();
-      // A folha do Word tem que ser a mesma folha do PDF. Na impressão, o
-      // @page tem margem 0 e quem reserva o espaço é a tabela do laudo: 3,5cm
-      // no topo (o timbrado) pelo <thead>, 2cm no pé pelo <tfoot> e 2cm de
-      // cada lado pelo padding do <tbody> — sobrando 17cm de texto. Aqui isso
-      // é dito de uma vez só no @page, senão o Word usa a margem padrão dele
-      // (2,54cm em volta, nada reservado para o timbrado) e o texto quebra em
-      // outros pontos, que é o que fazia o arquivo parecer outro laudo.
-      const docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
-        + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
-        + 'xmlns="http://www.w3.org/TR/REC-html40">'
-        + '<head><meta charset="utf-8"><title>'+escapeHtml(nomeArquivoLaudo())+'</title>'
-        + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
-        + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
-        + '<style>'
-        + '@page WordSection1{size:21.0cm 29.7cm;margin:' + WORD_PAGE_MARGIN + ';}'
-        + 'div.WordSection1{page:WordSection1;}'
-        // O Word aplica o estilo "Normal" dele (espaço entre parágrafos,
-        // Calibri 11) em tudo que chega sem estilo próprio. Como cada bloco do
-        // laudo já traz a sua margem inline, o padrão aqui é zero — e o inline
-        // continua ganhando de qualquer forma.
-        + 'body,div,p,h1,h2,h3,h4,td,li{font-family:\'Times New Roman\',Times,serif;}'
-        + 'p,h1,h2,h3,h4,ul,ol,li{margin:0;}'
-        + 'table{border-collapse:collapse;}'
-        + 'td{border:none;}'
-        + '</style>'
-        + '</head><body><div class="WordSection1">' + html + '</div></body></html>';
+      const docHtml = wordDocHtml(html, nomeArquivoLaudo());
       const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
       await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
     }catch(e){

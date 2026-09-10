@@ -470,6 +470,70 @@ Se esse recurso precisar de outro conserto, vale considerar extraí-lo para o
 a extração original (2026-09-01): treze cópias que já divergiram uma vez
 (`em` vs `mm`) e não vão parar de divergir sozinhas.
 
+## O botão "Baixar Word": o cabeçalho triplicava e a página não batia com o PDF
+
+O `.doc` que o botão gera é HTML puro (o Word abre HTML como se fosse um
+documento seu) — e chega lá **sem a folha de estilo da página**: só sobrevive
+o que estiver em `style=""` no próprio elemento, mais o `<style>` que o motor
+injeta no `<head>` do documento. `buildReportHtml()`, em cada laudo, clona o
+`#paper` e usa `copyComputedToClone()` (WORD_COPY) para inlinar o que o CSS
+faria — mas cobre só os seletores que cada laudo lista, e o resto (a régua da
+página, o reset do estilo "Normal" do próprio Word) não tinha nenhum lugar
+para morar antes de 2026-09-10, então cada um dos treze `.html` reescrevia à
+mão o HTML do documento inteiro no handler do `#btnDownloadWord` — e essa
+cópia já tinha divergido: só o `obstetrico-1trimestre.html` tinha corrigido a
+margem de página e o reset do "Normal", os outros doze nunca receberam esse
+conserto.
+
+Relatado pela Dra. Morgana em 2026-09-10: o Word saía com entrelinha maior
+que o PDF, o cabeçalho de identificação (nome/médico/GPA/DUM) não parecia
+nada com o cartão do PDF, e a paragrafação vinha diferente. Três causas
+distintas, confirmadas abrindo o `.doc` gerado no LibreOffice Writer (que
+compartilha boa parte das mesmas manhas de importação de HTML do Word de
+verdade — nenhum dos dois entende flexbox, `border-radius` ou margem de div
+em volta de parágrafos):
+
+- **O cartão de identificação saía em três caixas**, uma por linha, em vez do
+  cartão único do PDF. `.id-card` é um `<div>` com borda ao redor de vários
+  `<p>`/`<div class="id-card-row">`; o Word não sabe desenhar borda de div, e
+  reaplica a borda em CADA parágrafo de dentro dele — exatamente o mesmo tipo
+  de estrago que uma `<table>` evita (célula de tabela é objeto à parte, sem
+  essa "propagação"). A primeira linha (Nome/Data) já virava uma `<table>`
+  interna sem borda por outro motivo (o Word não faz flexbox) e por isso
+  escapava do bug; as demais linhas, que ficavam como `<div>` puro, eram as
+  que triplicavam.
+- **A entrelinha vinha maior**: o Word, além do `line-height` em px copiado
+  pelo `copyComputedToClone()`, também aplica a própria regra de espaçamento
+  entre linhas por cima, calculada pela métrica dele para a fonte — que pode
+  dar um valor maior que o navegador usou. `mso-line-height-rule:exact`
+  desliga essa segunda conta.
+- **A paragrafação vinha diferente**: sem um reset do estilo "Normal" do Word
+  (o que `obstetrico-1trimestre.html` já tinha, sozinho: `p,h1-h4,ul,ol,li
+  {margin:0}`, mais a família de fonte), o Word soma o espaçamento dele por
+  cima da margem inline de cada bloco. E a margem de página do `@page` não
+  reservava o mesmo espaço que a impressão reserva para o timbrado físico
+  (3,5cm no topo, 2cm no pé e nas laterais — ver `.paper-table` no
+  `@media print` de cada laudo): sem isso o Word usa a margem padrão dele
+  (2,54cm iguais), o texto começa mais alto na folha e quebra em pontos
+  diferentes do PDF.
+
+O conserto foi para o motor — `buildIdCardTable(clone, paperEl)` e
+`wordDocHtml(html, titulo)`, em `laudo-core.js` — pelo mesmo motivo de sempre:
+as treze cópias já tinham divergido (só uma tinha a correção de margem) e iam
+continuar divergindo. `buildIdCardTable()` troca o `.id-card` inteiro por uma
+`<table>` de uma célula só, com a borda na `<td>` — a linha Nome/Data continua
+uma tabela interna sem borda para alinhar as pontas, as demais viram `<p>`; o
+morfológico de 1º trimestre e o TN+Doppler+colo, que separam a última linha
+(risco calculado) com uma borda por cima via `.id-card-row:last-child` no
+CSS, têm essa borda replicada lendo o computed style da própria linha ao
+vivo, não hardcoded — só esses dois laudos, cujo CSS aplica a regra, acabam
+reproduzindo o divisor. `wordDocHtml()` monta o `<html>` inteiro (xmlns do
+Word, `@page` com a margem de 3,5cm/2cm/2cm/2cm, o reset do "Normal"), e
+`copyComputedToClone()` passou a acrescentar `mso-line-height-rule:exact`
+toda vez que copia `line-height`. Cada um dos treze `.html` só chama as duas
+funções; nenhum HTML de `<html xmlns:o=...>` sobrou copiado à mão em arquivo
+nenhum.
+
 ## A integração com a Curva de Crescimento
 
 O app de curvas é outro repositório, **`morgckummer-debug/curva-fetal`** — página
