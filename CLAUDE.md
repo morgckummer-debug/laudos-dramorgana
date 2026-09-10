@@ -375,7 +375,50 @@ segue normal — a checagem olha o `data-blk` mais próximo por `closest()`, que
 para um `<li>` sobe direto para o `<ul>` que os dois compartilham, então
 mesclar dois itens da mesma lista nunca é bloqueado.
 
-### "Espaçamento entre linhas": o mesmo bug de seleção larga, mas fora do motor
+### O marcador "Fim da página N" também é um vizinho sem `data-blk` — e esse não é seguro de ignorar
+
+A frase acima — "mesclar dois itens da mesma lista nunca é bloqueado" — parte
+de um pressuposto que quebrou em 2026-09-10: o único jeito de um `<li>` da
+`<ul data-blk="impressaoList">` ter um vizinho sem `data-blk` seria outro
+`<li>` de verdade. Não é mais assim desde que `updatePagePreview()` existe.
+Esse marcador (`.pg-break-marker`, ver mais abaixo) mostra ao vivo, na tela,
+onde a impressão vai quebrar de página — e quando a quebra cai no meio da
+lista de impressão diagnóstica, ele entra como mais um `<li>`,
+`contenteditable="false"`, irmão dos itens de verdade. Sem `data-blk`, do
+mesmo jeito que um `<li>` comum.
+
+A médica relatou: foi ao fim da última frase da conclusão e apertou Delete
+para "subir a assinatura" — um gesto normal, sem seleção nenhuma. O Delete
+caiu bem na borda de um `<li>` cujo vizinho seguinte era o marcador de
+página. A checagem de `wireBlockBoundaryGuard()` olha `closest('[data-blk]')`
+a partir do `<li>`, sobe até o `<ul>`, e só verifica o vizinho DO `<ul>` — não
+o vizinho do `<li>` onde o cursor realmente está. Pelas regras de então, um
+`<li>` vizinho sem `data-blk` é "seguro" (mesclar duas linhas da lista é
+esperado). Só que o `contenteditable="false"` do marcador não impede o
+Backspace/Delete nativo: o navegador pula por cima dele e mescla o `<li>`
+atual com o item de VERDADE do outro lado — sumindo com uma linha inteira da
+impressão diagnóstica, colada sem espaço na anterior, sem apagar nada visível
+na tela. Reproduzido preenchendo o `obstetrico.html` até estourar 2 páginas e
+apertando Delete no fim de "Gestação eutópica...": "Peso fetal (Hadlock)."
+sumiu, colado no fim da frase anterior. Nem `dedupBlocos()` nem
+`restoreMissingBlocks()` veem problema — o `<ul data-blk="impressaoList">`
+continua um só, íntegro, filho direto do `#paper`; a rede das duas é cega ao
+que acontece **dentro** dele.
+
+O conserto, na mesma função: antes de olhar o vizinho do `<ul>`, olha primeiro
+o vizinho do próprio `<li>` mais próximo do cursor (`closest('li')`) — se ele
+for um `.pg-break-marker` e o cursor estiver na borda do `<li>` voltada para
+lá, cancela, igual ao resto da função. O cheque do `<ul>` (nível de bloco)
+também passou a tratar `.pg-break-marker` como vizinho perigoso, não só
+`data-blk` — mesmo que o Chrome, na prática, já remova sozinho um marcador
+que seja filho direto do `#paper` sem chegar a mesclar o resto (testado e
+confirmado com Playwright), não vale depender desse comportamento não
+documentado do navegador para o caso mais grave, dentro da lista.
+
+Qualquer marcador de página que sobreviver a um Delete/Backspace bloqueado
+aqui não é perda nenhuma: ele é descartado e recriado do zero a cada
+`updatePagePreview()`, então volta (ou muda de lugar) sozinho no próximo
+`render()`.
 
 O seletor "Espaçamento entre linhas" da barra de formatação — `lineHeightSel`,
 presente nos onze laudos com `#paper` — deixa a médica **escopar** a mudança a
