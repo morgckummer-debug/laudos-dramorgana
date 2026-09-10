@@ -98,6 +98,16 @@ function criarMotorLaudo(cfg){
     carolina: {nome:'Dra. Carolina Piedade Martins', qual1:'', qual2:'', crm:'CRMMG: 75.163'}
   };
 
+  // A digitadora que está no editor agora — puramente informativa, não é
+  // "quem assina" (isso é EXECUTANTES/VR). Some no rodapé impresso, coladas
+  // nas iniciais depois de "Imagens em anexo.": ver comDigitadora() abaixo.
+  const DIGITADORAS = {
+    smg: {nome:'Samira Marielle', iniciais:'SMG'},
+    tpsl: {nome:'Thays Pereira', iniciais:'TPSL'},
+    mel: {nome:'Maria Eduarda', iniciais:'MEL'},
+    emo: {nome:'Eduarda Marques', iniciais:'EMO'}
+  };
+
   const DRAFT_DEBOUNCE_MS = 800;
 
   // Estado que o motor e o laudo compartilham. Ver o aviso do cabeçalho: no
@@ -111,6 +121,7 @@ function criarMotorLaudo(cfg){
     draftReady: false,
     draftRestoring: false,
     draftBaseline: null,
+    digitadoraIniciais: '',
   };
 
   function dedupBlocos(root){
@@ -922,6 +933,29 @@ function criarMotorLaudo(cfg){
     cfg.applyVRToInputs();
     cfg.render();
   }
+
+  // Select #digitadoraAtual, quando o laudo tem um (auto-wired mais abaixo):
+  // troca st.digitadoraIniciais e manda redesenhar para o rodapé acompanhar.
+  function applyDigitadora(id){
+    st.digitadoraIniciais = (DIGITADORAS[id] && DIGITADORAS[id].iniciais) || '';
+    cfg.render();
+  }
+  function loadDigitadoraSelecionada(){
+    return kvStore.get('digitadora-selecionada').then(saved=>{
+      const sel = $('digitadoraAtual');
+      const id = (saved && DIGITADORAS[saved]) ? saved : '';
+      if(sel) sel.value = id;
+      applyDigitadora(id);
+    });
+  }
+  // Cola " - INICIAIS" no fim da frase do rodapé (normalmente "Imagens em
+  // anexo.") quando há uma digitadora selecionada; sem digitadora, devolve o
+  // texto como veio. Troca o ponto final por " - INICIAIS." em vez de
+  // simplesmente concatenar, para não sair "anexo. - SMG".
+  function comDigitadora(texto){
+    if(!st.digitadoraIniciais) return texto;
+    return texto.replace(/\.\s*$/, '') + ' - ' + st.digitadoraIniciais + '.';
+  }
   function draftFingerprint(s){
     // Superconjunto das chaves que os laudos usam: as que este laudo não tem
     // entram como null, e a impressão digital só precisa ser estável entre
@@ -964,13 +998,26 @@ function criarMotorLaudo(cfg){
     wireBlockBoundaryGuard(paperEl0);
   }
 
+  // Select #digitadoraAtual, quando o laudo tem um: liga a troca e já carrega
+  // a digitadora salva do navegador. Auto-wired igual ao guard acima — nenhum
+  // .html precisa chamar nada, só ter o <select id="digitadoraAtual"> no topo.
+  const digitadoraSel0 = $('digitadoraAtual');
+  if(digitadoraSel0){
+    digitadoraSel0.addEventListener('change', e=>{
+      kvStore.set('digitadora-selecionada', e.target.value);
+      applyDigitadora(e.target.value);
+    });
+    loadDigitadoraSelecionada();
+  }
+
   return {
     $: $, kvStore: kvStore, st: st, DRAFT_KEY: DRAFT_KEY,
-    EXECUTANTES: EXECUTANTES, MARGINS: MARGINS, DRAFT_DEBOUNCE_MS: DRAFT_DEBOUNCE_MS,
+    EXECUTANTES: EXECUTANTES, DIGITADORAS: DIGITADORAS, MARGINS: MARGINS, DRAFT_DEBOUNCE_MS: DRAFT_DEBOUNCE_MS,
     PAGE_SAFETY_PX: PAGE_SAFETY_PX, MIN_LINE_HEIGHT: MIN_LINE_HEIGHT,
     LINE_HEIGHT_STEP: LINE_HEIGHT_STEP, MIN_FONT_SIZE: MIN_FONT_SIZE, FONT_SIZE_STEP: FONT_SIZE_STEP,
     aplicarMascaraCPF: aplicarMascaraCPF,
     applyExecutante: applyExecutante,
+    comDigitadora: comDigitadora,
     autoFitPages: autoFitPages,
     blankOrValue: blankOrValue,
     checkDecimalFormat: checkDecimalFormat,
