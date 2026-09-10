@@ -236,8 +236,8 @@
      (data-split="rows", ver comentário mais abaixo) — uma caixa com cantos
      arredondados sairia com meio-arredondado toda vez que a tabela
      continua na folha seguinte. */
-  .paper table.biometria{border-collapse:collapse;margin:0.375em auto 0.75em;width:auto;max-width:100%;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(109,50,99,.06);}
-  .paper table.biometria td{border:1px solid #d9c3d3;padding:2px 16px;vertical-align:top;}
+  .paper table.biometria{border-collapse:collapse;margin:0.25em auto 0.5em;width:auto;max-width:100%;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(109,50,99,.06);}
+  .paper table.biometria td{border:1px solid #d9c3d3;padding:1px 16px;vertical-align:top;line-height:1;}
   .paper table.biometria td:nth-child(odd){font-weight:700;text-align:left;}
   .paper table.biometria td:nth-child(even){text-align:center;white-space:nowrap;}
   .paper table.biometria tbody tr:nth-child(even) td{background:#fbf8fa;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -2542,7 +2542,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // sozinho, igual ao id-card acima. table.morfologia fica de fora — sem
     // caixa, sem negrito/centralização por coluna — e sai por último de
     // propósito, pra vencer a regra geral acima dela.
-    clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='2px 16px'; });
+    clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='1px 16px'; el.style.lineHeight='1'; });
     clone.querySelectorAll('table.biometria td:nth-child(odd)').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
     clone.querySelectorAll('table.biometria td:nth-child(even)').forEach(el=>{ el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
     clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#fbf8fa'; });
