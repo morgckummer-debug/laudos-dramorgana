@@ -80,14 +80,14 @@
   .btn-ghost:hover{background:rgba(255,255,255,.26);}
   .btn-primary{background:#fff;color:var(--rose-dark);}
   .btn-primary:hover{opacity:.9;}
-  .laudo-switch, .medico-switch{
+  .laudo-switch, .medico-switch, .digitadora-switch{
     background:var(--rose-darker) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.25 7.5L10 12.25L14.75 7.5' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
     background-size:14px;color:#fff;border:none;border-radius:999px;
     font-family:'Poppins',sans-serif;cursor:pointer;font-size:13px;font-weight:600;
     padding:9px 32px 9px 18px;-webkit-appearance:none;appearance:none;
   }
-  .laudo-switch:hover, .medico-switch:hover{filter:brightness(1.18);}
-  .laudo-switch option, .medico-switch option{color:var(--ink);background:#fff;}
+  .laudo-switch:hover, .medico-switch:hover, .digitadora-switch:hover{filter:brightness(1.18);}
+  .laudo-switch option, .medico-switch option, .digitadora-switch option{color:var(--ink);background:#fff;}
 
   .layout{
     display:grid;grid-template-columns: 1.15fr 1fr;gap:22px;
@@ -375,6 +375,13 @@
       <option value="paulo">Dr. Paulo M. Gontijo Junior</option>
       <option value="carolina">Dra. Carolina P. Martins</option>
       <option value="outro">Outro (digitar manualmente)</option>
+    </select>
+    <select class="digitadora-switch" id="digitadoraAtual" title="Digitadora responsável por este laudo">
+      <option value="">Digitadora…</option>
+      <option value="smg">Samira Marielle (SMG)</option>
+      <option value="tpsl">Thays Pereira (TPSL)</option>
+      <option value="mel">Maria Eduarda (MEL)</option>
+      <option value="emo">Eduarda Marques (EMO)</option>
     </select>
     <select class="laudo-switch" id="laudoSwitch" onchange="if(this.value) location.href=this.value;" title="Trocar de laudo">
       <option value="index.html">Todos os laudos</option>
@@ -837,7 +844,7 @@ if(typeof criarMotorLaudo !== 'function'){
   });
   const {
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
-    aplicarMascaraCPF, applyExecutante, blankOrValue, copyComputedToClone, draftDiscard, draftFingerprint,
+    aplicarMascaraCPF, applyExecutante, blankOrValue, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
     nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
@@ -2277,7 +2284,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     let rodapeHtml = '<div class="rodape-final">';
-    rodapeHtml += '<p class="footnote">'+phrase('footerImagens')+'</p>';
+    rodapeHtml += '<p class="footnote">'+comDigitadora(phrase('footerImagens'))+'</p>';
     rodapeHtml += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
     if(VR.medicoQual1) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
     if(VR.medicoQual2) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
