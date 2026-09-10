@@ -876,10 +876,38 @@ function criarMotorLaudo(cfg){
       const direcao = /Backward$/.test(e.inputType || '') ? 'tras' : /Forward$/.test(e.inputType || '') ? 'frente' : null;
       if(!direcao || !/^delete/.test(e.inputType)) return;
       const anchorEl = range.startContainer.nodeType === 1 ? range.startContainer : range.startContainer.parentElement;
+
+      // O marcador "Fim da página N" (updatePagePreview(), mais abaixo) é
+      // andaime de preview — recriado a cada render(), nunca parte do laudo —
+      // mas dentro de uma lista que atravessa a quebra ele entra como um <li>
+      // irmão dos itens de verdade, sem data-blk (só o <ul> em volta tem). O
+      // cheque de vizinho logo abaixo só enxerga blk-a-blk (o <ul> inteiro
+      // contra o próximo bloco), então um Backspace/Delete na borda de um
+      // <li> vizinho do marcador passava batido por ali: o contenteditable=
+      // false não impede o navegador de pular por cima do marcador e mesclar
+      // o <li> com o item DO OUTRO LADO dele, sumindo com uma linha inteira
+      // da impressão diagnóstica sem apagar nada visível — só clicando no fim
+      // da frase anterior e apertando Delete. Reproduzido clicando no fim de
+      // "Gestação eutópica..." com o marcador logo depois: o Delete apagou
+      // "Peso fetal (Hadlock)." inteiro, colado sem espaço no final da frase
+      // anterior, e nem dedupBlocos() nem restoreMissingBlocks() veem
+      // problema (o <ul data-blk="impressaoList"> continua um só, íntegro).
+      const itemEl = anchorEl ? anchorEl.closest('li') : null;
+      if(itemEl){
+        const itemVizinho = direcao === 'tras' ? itemEl.previousElementSibling : itemEl.nextElementSibling;
+        if(itemVizinho && itemVizinho.classList.contains('pg-break-marker') && cursorNaBordaDoBloco(range, itemEl, direcao === 'tras')){
+          e.preventDefault();
+          return;
+        }
+      }
       const blk = anchorEl ? anchorEl.closest('[data-blk]') : null;
       if(!blk) return;
       const vizinho = direcao === 'tras' ? blk.previousElementSibling : blk.nextElementSibling;
-      if(!vizinho || !vizinho.hasAttribute('data-blk')) return;
+      // O mesmo marcador pode cair também como filho direto do #paper (fora
+      // de lista/tabela) quando a quebra separa dois blocos inteiros — sem
+      // data-blk, do mesmo jeito. Tratado aqui como o próprio bloco vizinho
+      // para não depender de o navegador só apagar o marcador sozinho.
+      if(!vizinho || (!vizinho.hasAttribute('data-blk') && !vizinho.classList.contains('pg-break-marker'))) return;
       if(!cursorNaBordaDoBloco(range, blk, direcao === 'tras')) return;
       e.preventDefault();
     });
