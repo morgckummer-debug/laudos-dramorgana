@@ -39,6 +39,15 @@
  *   É esse o ponto: um conserto, um lugar. O que é de um laudo só (o render(),
  *   as impressões diagnósticas, o WORD_COPY, a integração com a Curva de
  *   Crescimento) continua dentro do .html dele.
+ *
+ * O EXPORT PARA WORD (botão "Baixar Word") também é do motor, desde
+ * 2026-09-10: `buildIdCardTable(clone, paperEl)` troca o `.id-card` clonado
+ * (que buildReportHtml() de cada laudo monta antes) por uma <table> com a
+ * borda na célula, e `wordDocHtml(html, titulo)` monta o documento inteiro —
+ * xmlns do Word, margem de página igual à reserva do timbrado impresso e o
+ * reset do estilo "Normal" do Word. Cada laudo só chama as duas; ver o
+ * comentário de `buildIdCardTable` e `wordDocHtml`, mais abaixo, para o
+ * porquê de cada parte.
  */
 function criarMotorLaudo(cfg){
   const DRAFT_KEY = cfg.DRAFT_KEY;
@@ -657,9 +666,111 @@ function criarMotorLaudo(cfg){
         props.forEach(function(p){
           const val = cs.getPropertyValue(p);
           if(val) copy[i].style.setProperty(p, val);
+          // O Word, ao importar o HTML, pode aplicar a própria regra de
+          // espaçamento entre linhas ("pelo menos X", calculada pela métrica
+          // dele para a fonte) por cima do valor em px copiado acima, deixando
+          // o texto visivelmente mais espaçado do que no PDF. mso-line-height-
+          // rule:exact força o Word a usar exatamente esse valor, como o
+          // navegador já usa.
+          if(p === 'line-height' && val) copy[i].style.setProperty('mso-line-height-rule', 'exact');
         });
       }
     });
+  }
+  function buildIdCardTable(clone, liveRoot){
+    // Um <div> com borda ao redor de vários parágrafos não é seguro no Word:
+    // ele reaplica a borda do div em CADA parágrafo de dentro, em vez de
+    // desenhar uma borda só ao redor do conjunto — é assim que o cartão de
+    // identificação (nome, médico, GPA, DUM) sai em três caixas separadas na
+    // exportação para Word, uma por linha, em vez do cartão único do PDF.
+    // Uma <table> com a borda na <td> não sofre disso: o Word trata célula de
+    // tabela como um objeto à parte, sem reaplicar borda por parágrafo.
+    const cardEl = clone.querySelector('.id-card');
+    if(!cardEl) return;
+    const liveCardEl = liveRoot && liveRoot.querySelector('.id-card');
+    // Padding em em (encolhe junto com o auto-fit da impressão — ver o
+    // comentário no CSS de cada laudo) — lida do elemento vivo, não fixada em
+    // px, para não destoar do card real quando a fonte reduziu para caber
+    // numa folha só.
+    const cardCs = liveCardEl ? getComputedStyle(liveCardEl) : null;
+    const marginBottom = cardCs ? cardCs.marginBottom : '20px';
+    const padding = cardCs ? (cardCs.paddingTop+' '+cardCs.paddingRight+' '+cardCs.paddingBottom+' '+cardCs.paddingLeft) : '10px 16px';
+    const liveRows = liveCardEl ? Array.from(liveCardEl.children).filter(el => el.classList.contains('id-card-row')) : [];
+    const rowLineHeight = liveRows[0] ? getComputedStyle(liveRows[0]).lineHeight : '';
+    const rows = Array.from(cardEl.children).filter(el => el.classList.contains('id-card-row'));
+    const td = document.createElement('td');
+    td.setAttribute('style', 'background:#f8f7f7;border:2.5px solid #2b2b2e;border-radius:16px;padding:'+padding+';font-weight:700;font-size:12pt;'
+      + (rowLineHeight ? 'line-height:'+rowLineHeight+';mso-line-height-rule:exact;' : ''));
+    rows.forEach(function(row, i){
+      // O morfológico de 1º trimestre e o TN+Doppler+colo separam a última
+      // linha do cartão (o risco calculado) com uma borda por cima — regra
+      // `.id-card-row:last-child` no CSS, que copyComputedToClone não
+      // alcança (só olha o seletor literal '.id-card-row'). Em vez de repetir
+      // "1.5px solid #2b2b2e" à mão aqui feito antes desta extração, lê o
+      // computed style da própria linha ao vivo: só os laudos cujo CSS
+      // aplica essa borda a reproduzem, sem precisar de um sinalizador extra.
+      const liveRow = liveRows[i];
+      let divider = '';
+      if(liveRow){
+        const cs = getComputedStyle(liveRow);
+        if(parseFloat(cs.borderTopWidth) > 0){
+          divider = 'border-top:'+cs.borderTopWidth+' '+cs.borderTopStyle+' '+cs.borderTopColor+';'
+            + 'margin-top:'+cs.marginTop+';padding-top:'+cs.paddingTop+';';
+        }
+      }
+      // A linha "Nome ... Data" tem dois filhos (rótulo à esquerda, à
+      // direita) e precisa da mesma tabela interna sem borda que já existia
+      // para alinhar as pontas; as demais linhas são só texto corrido.
+      if(row.children.length === 2){
+        const left = row.children[0], right = row.children[1];
+        const inner = document.createElement('table');
+        inner.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;'+divider);
+        inner.innerHTML = '<tr>'
+          + '<td style="border:none;padding:0;text-align:left;">'+left.innerHTML+'</td>'
+          + '<td style="border:none;padding:0;text-align:right;">'+right.innerHTML+'</td>'
+          + '</tr>';
+        td.appendChild(inner);
+      }else{
+        const p = document.createElement('p');
+        p.setAttribute('style', 'margin:'+(i===0 ? '0' : '2px 0 0')+';'+divider);
+        p.innerHTML = row.innerHTML;
+        td.appendChild(p);
+      }
+    });
+    const table = document.createElement('table');
+    table.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0 0 '+marginBottom+';');
+    const tr = document.createElement('tr');
+    tr.appendChild(td);
+    table.appendChild(tr);
+    cardEl.replaceWith(table);
+  }
+  function wordDocHtml(bodyHtml, titulo){
+    return '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
+      + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
+      + 'xmlns="http://www.w3.org/TR/REC-html40">'
+      + '<head><meta charset="utf-8"><title>'+escapeHtml(titulo)+'</title>'
+      + '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View>'
+      + '<w:Zoom>100</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->'
+      + '<style>'
+      // A margem de página é a mesma reserva de espaço que o @media print usa
+      // para o timbrado físico — 3,5cm no topo (.paper-table thead td), 2cm no
+      // pé (tfoot) e 2cm nas laterais (padding do tbody), a mesma régua nos
+      // treze laudos. Sem fixar isso aqui o Word usa a margem padrão dele
+      // (2,54cm iguais nos quatro lados) e o texto começa mais alto na folha,
+      // sobrepondo o timbrado quando impresso na mesma papelaria do PDF.
+      + '@page WordSection1{size:21.0cm 29.7cm;margin:3.5cm 2cm 2cm 2cm;}'
+      + 'div.WordSection1{page:WordSection1;}'
+      // O Word aplica o próprio estilo "Normal" (espaço extra depois de cada
+      // parágrafo, Calibri 11) em qualquer coisa que chegue sem um estilo que
+      // ele reconheça — e é isso, não o HTML em si, que fazia a paragrafação
+      // sair diferente do PDF: cada bloco do laudo já traz sua margem inline,
+      // mas o Word soma a dele por cima a menos que o padrão seja zerado.
+      + 'body,div,p,h1,h2,h3,h4,td,li{font-family:\'Times New Roman\',Times,serif;}'
+      + 'p,h1,h2,h3,h4,ul,ol,li{margin:0;}'
+      + 'table{border-collapse:collapse;}'
+      + 'td{border:none;}'
+      + '</style>'
+      + '</head><body><div class="WordSection1">' + bodyHtml + '</div></body></html>';
   }
   function wirePastePlainText(paperEl){
     // Colar dentro do #paper com o HTML original do clipboard é o mesmo risco
@@ -1053,6 +1164,7 @@ function criarMotorLaudo(cfg){
     comDigitadora: comDigitadora,
     autoFitPages: autoFitPages,
     blankOrValue: blankOrValue,
+    buildIdCardTable: buildIdCardTable,
     checkDecimalFormat: checkDecimalFormat,
     copyComputedToClone: copyComputedToClone,
     decimalFormatOk: decimalFormatOk,
@@ -1087,6 +1199,7 @@ function criarMotorLaudo(cfg){
     vNoDot: vNoDot,
     wireDecimalInputs: wireDecimalInputs,
     wireEnterLineBreaks: wireEnterLineBreaks,
-    wirePastePlainText: wirePastePlainText
+    wirePastePlainText: wirePastePlainText,
+    wordDocHtml: wordDocHtml
   };
 }
