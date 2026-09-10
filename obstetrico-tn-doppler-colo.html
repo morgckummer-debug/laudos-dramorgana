@@ -1031,7 +1031,7 @@ if(typeof criarMotorLaudo !== 'function'){
   const PHRASE_DEFAULTS = {
     uteroTexto: 'Útero globoso, de dimensões aumentadas, apresentando saco gestacional regular{FETO}.',
     vitalidadeTexto: 'Feto apresentando movimentação ativa e batimentos cardíacos rítmicos, com frequência de {FC} bpm.',
-    placentaLiquidoTexto: 'Placenta {INSERCAO}, homogênea/heterogênea, (grau 0 de Grannum) e espessura normal. Líquido amniótico com volume normal para a idade gestacional.',
+    placentaLiquidoTexto: 'Placenta {INSERCAO}, homogênea, (grau 0 de Grannum) e espessura normal. Líquido amniótico com volume normal para a idade gestacional.',
     coloTexto: 'Colo uterino: de textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm. "Sludge" não identificado.',
 
     impGestacao: 'Gestação única, compatível com {IG} de acordo com {METODO}.',
@@ -1171,7 +1171,11 @@ if(typeof criarMotorLaudo !== 'function'){
   toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame' || ehDumSemCronologia($('cronologiaMetodo').value));
   toggle('wrap_incertaInfo', ehDumSemCronologia($('cronologiaMetodo').value));
 
-  $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
+  $('chkDopplerMaterno').addEventListener('change', e=>{
+    toggle('dopplerMaternoFields', e.target.checked);
+    fetoUids().forEach(uid=> toggle('feto'+uid+'DVWrap', e.target.checked));
+    render();
+  });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
 
   // ---------- Feto(s): lista dinâmica, mesmo padrão dos sacos gestacionais do
@@ -1201,10 +1205,13 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Osso nasal</label><select id="feto'+uid+'OssoNasal"><option value="Presente">Presente</option><option value="Ausente">Ausente</option><option value="Hipoplásico">Hipoplásico</option></select></div>'
       +'</div>'
 
+      +'<div id="feto'+uid+'DVWrap" class="conditional'+(($('chkDopplerMaterno') && $('chkDopplerMaterno').checked) ? ' show' : '')+'">'
       +'<p class="feto-sub">Ducto venoso <span style="font-weight:400;color:var(--ink-soft);">(entra no laudo se o card "Doppler" estiver marcado)</span></p>'
       +'<div class="field-row">'
       +'<div class="field"><label>Ducto venoso — IPV</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'DuctoVenoso" placeholder="ex: 0,95"></div>'
       +'<div class="field"><label>Ducto venoso — percentil</label><select id="feto'+uid+'DVClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
+      +'<div class="field"><label>Ducto venoso — onda A</label><select id="feto'+uid+'DVOndaA"><option value="Positiva">Onda A positiva</option><option value="Negativa">Onda A negativa</option></select></div>'
+      +'</div>'
       +'</div>'
 
       +'<div id="feto'+uid+'RiscoWrap">'
@@ -1742,12 +1749,13 @@ if(typeof criarMotorLaudo !== 'function'){
       // desligado não devia acender o aviso de "campos pendentes" do laudo.
       const dv = blankOrValue(dopplerMaterno ? req(pre+'DuctoVenoso') : v(pre+'DuctoVenoso'));
       const dvClasse = v(pre+'DVClasse') || '<P95';
+      const dvOndaA = v(pre+'DVOndaA') || 'Positiva';
 
       const riscoBasal = blankOrValue(v(pre+'RiscoBasal'));
       const riscoPosTeste = blankOrValue(v(pre+'RiscoPosTeste'));
       const riscoAlto = v(pre+'RiscoClasse')==='alto';
 
-      return {uid, label, ccn, fc, tn, ossoNasal, dv, dvClasse, riscoBasal, riscoPosTeste, riscoAlto};
+      return {uid, label, ccn, fc, tn, ossoNasal, dv, dvClasse, dvOndaA, riscoBasal, riscoPosTeste, riscoAlto};
     });
 
     // ----- Impressão -----
@@ -1829,7 +1837,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Artéria Uterina Esquerda</td><td>'+span(utEsquerdaVal)+'</td></tr>'
         +'<tr><td>IP médio</td><td>'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>';
       fetos.forEach(f=>{
-        dopplerHtml += '<tr><td>Ducto Venoso'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+'</td><td>'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+')</td></tr>';
+        dopplerHtml += '<tr><td>Ducto Venoso'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+'</td><td>'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+', onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>';
       });
       dopplerHtml += '</table></div>';
       blocks.push({id:'dopplerMaterno', html:dopplerHtml});
