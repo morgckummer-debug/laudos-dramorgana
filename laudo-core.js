@@ -957,6 +957,26 @@ function criarMotorLaudo(cfg){
       const el = node.nodeType === 1 ? node : node.parentElement;
       return el ? el.closest('[data-blk]') : null;
     }
+    // Irmã de blocoDoLimite(), para tabela. Uma tabela como a de morfologia
+    // (rótulo numa célula, descrição na vizinha, uma <tr> por segmento) é UM
+    // data-blk só — o guard acima nunca vê problema numa seleção que cruza
+    // células ou linhas dentro dela, porque startBlk === endBlk os dois lados.
+    // O navegador não mescla células por Delete/Backspace como faz com <p>:
+    // ele desmembra a seleção em duas edições independentes, uma em cada
+    // célula, cortando o texto de cada lado pela metade sem juntar nada —
+    // reproduzido selecionando da descrição de "Crânio / cérebro" até a
+    // descrição da linha seguinte e apertando Delete: "Calota craniana
+    // íntegra..." virou "Calot", a linha seguinte perdeu as primeiras letras,
+    // e a tabela continuou com o mesmo número de linhas e de datablk — nem
+    // dedupBlocos() nem restoreMissingBlocks() enxergam esse tipo de estrago.
+    // Tratar toda célula como fronteira, igual já se faz para data-blk, fecha
+    // esse caminho para qualquer tabela do #paper, não só a da morfologia.
+    function celulaDoLimite(container, offset){
+      let node = container;
+      if(node.nodeType === 1) node = node.childNodes[offset] || node.childNodes[offset - 1] || node;
+      const el = node.nodeType === 1 ? node : node.parentElement;
+      return el ? el.closest('td, th') : null;
+    }
     // Cursor colapsado (nenhum texto selecionado) bem na borda de um bloco:
     // Backspace no início ou Delete no fim tentam mesclar o bloco com o
     // vizinho — igual ao Enter que divide, só que ao contrário, e sem
@@ -981,7 +1001,11 @@ function criarMotorLaudo(cfg){
       if(!sel.isCollapsed){
         const startBlk = blocoDoLimite(range.startContainer, range.startOffset);
         const endBlk = blocoDoLimite(range.endContainer, range.endOffset);
-        if(!startBlk || startBlk === endBlk) return;
+        const startCel = celulaDoLimite(range.startContainer, range.startOffset);
+        const endCel = celulaDoLimite(range.endContainer, range.endOffset);
+        const cruzaBloco = !!startBlk && startBlk !== endBlk;
+        const cruzaCelula = (!!startCel || !!endCel) && startCel !== endCel;
+        if(!cruzaBloco && !cruzaCelula) return;
         e.preventDefault();
         sel.collapseToStart();
         if((e.inputType === 'insertText' || e.inputType === 'insertReplacementText') && e.data){
