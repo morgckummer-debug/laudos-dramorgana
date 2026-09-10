@@ -75,7 +75,12 @@ function criarMotorLaudo(cfg){
     }
   };
 
-  const PAGE_SAFETY_PX = 38;
+  // 0,5cm a 96dpi — colchão contra variação de renderização entre navegador e
+  // impressora. Era 38px (~1cm) até 2026-09-10; a Dra. Morgana notou a
+  // assinatura parando bem mais alto que a margem inferior de 2cm real
+  // (tfoot td{height:2cm} no CSS de impressão de cada laudo), fazendo laudos
+  // irem para uma 2ª folha sem precisar.
+  const PAGE_SAFETY_PX = 18.9;
 
   const MIN_LINE_HEIGHT = 1.0;
 
