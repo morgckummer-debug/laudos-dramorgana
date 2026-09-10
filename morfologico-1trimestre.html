@@ -1667,6 +1667,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Ducto venoso — percentil</label><select id="feto'+uid+'DVClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
+      +'<div class="field"><label>Ducto venoso — onda A</label><select id="feto'+uid+'DVOndaA"><option value="Positiva">Onda A positiva</option><option value="Negativa">Onda A negativa</option></select></div>'
       +'<div class="field"><label>Válvula tricúspide</label><select id="feto'+uid+'Tricuspide"><option value="Sem regurgitação">Sem regurgitação</option><option value="Com regurgitação">Com regurgitação</option></select></div>'
       +'</div>'
       +'<div class="field-row">'
@@ -2289,6 +2290,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const ossoNasal = v(pre+'OssoNasal') || 'Presente';
       const dv = blankOrValue(req(pre+'DuctoVenoso'));
       const dvClasse = v(pre+'DVClasse') || '<P95';
+      const dvOndaA = v(pre+'DVOndaA') || 'Positiva';
       const tricuspide = v(pre+'Tricuspide') || 'Sem regurgitação';
       const pelves = v(pre+'Pelves') || 'Sem dilatação';
       const bexiga = blankOrValue(v(pre+'Bexiga'));
@@ -2300,7 +2302,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       return {uid, label, ccn, dbp, cc, ca, cf, fc, segmentos, alteracoes,
         tic, ponte, ponteOcc, ppoTxt, cordaoTxt,
-        tn, tnClasse, ossoNasal, dv, dvClasse, tricuspide, pelves, bexiga,
+        tn, tnClasse, ossoNasal, dv, dvClasse, dvOndaA, tricuspide, pelves, bexiga,
         riscoT21, riscoT18, riscoT13, riscoAlto};
     });
 
@@ -2398,7 +2400,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<table class="biometria">'
         +'<tr><td>Translucência Nucal (TN):</td><td style="white-space:nowrap;">'+span(f.tn)+' mm ('+escapeHtml(f.tnClasse)+')</td></tr>'
         +'<tr><td>Osso Nasal (ON):</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
-        +'<tr><td>Ducto Venoso (DV - IPV):</td><td style="white-space:nowrap;">'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+')</td></tr>'
+        +'<tr><td>Ducto Venoso (DV - IPV):</td><td style="white-space:nowrap;">'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+', onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>'
         +'<tr><td>Válvula Tricúspide (VT):</td><td>'+escapeHtml(f.tricuspide)+'</td></tr>'
         +'<tr><td>Dilatação das pelves renais:</td><td>'+escapeHtml(f.pelves)+'</td></tr>'
         +'<tr><td>Bexiga fetal:</td><td style="white-space:nowrap;">'+span(f.bexiga)+' mm</td></tr>'
