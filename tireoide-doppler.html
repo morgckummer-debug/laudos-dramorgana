@@ -1579,7 +1579,7 @@ if(typeof criarMotorLaudo !== 'function'){
         ['direito','esquerdo','istmo'].forEach(lobo=>{
           const doLobo = nodulos.filter(n=> n.lobo===lobo);
           if(!doLobo.length) return;
-          linhas.push('<span style="display:block;margin-top:1mm;"><strong>'+loboRotulo(lobo)+':</strong></span>');
+          linhas.push('<span style="display:block;margin-top:3mm;"><strong>'+loboRotulo(lobo)+':</strong></span>');
           doLobo.forEach((n, i)=> linhas.push('<span style="display:block;">- N'+(i+1)+': '+n.texto+'</span>'));
         });
         noduloTexto = linhas.join('');
