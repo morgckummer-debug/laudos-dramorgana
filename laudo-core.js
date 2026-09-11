@@ -229,6 +229,23 @@ function criarMotorLaudo(cfg){
       const id = el.getAttribute('data-blk');
       if(!keepIds.has(id)){ el.remove(); delete st.lastBlockHtml[id]; }
     });
+    autoCompactTitle(paperEl);
+  }
+  function autoCompactTitle(paperEl){
+    // Título longo (nome de exame composto) quebra em 2-3 linhas com o
+    // mesmo espaçamento do resto do laudo — largo demais para um título,
+    // que já é maiúsculo/negrito/sublinhado e não precisa de tanto ar entre
+    // as próprias linhas quando quebra. Um Range sobre o conteúdo do <h3>
+    // gera um retângulo por linha visual (o jeito padrão de contar quantas
+    // linhas um texto quebrou, sem prender a nada além da largura atual) —
+    // com 2 ou mais, aperta pro mesmo valor de "Mínimo" no seletor de
+    // espaçamento; com 1 só, volta pro padrão do laudo (herdado de .paper).
+    const el = paperEl.querySelector('h3.doctitle');
+    if(!el) return;
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const linhas = range.getClientRects().length;
+    el.style.lineHeight = linhas >= 2 ? '1' : '';
   }
   function restoreMissingBlocks(paperEl){
     // Rede de segurança irmã do dedupBlocos(): aquele conserta bloco duplicado,

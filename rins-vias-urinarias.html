@@ -847,12 +847,26 @@ if(typeof criarMotorLaudo !== 'function'){
     wireEnterLineBreaks(paperEl, () => idCardGapSel);
 
     let lastPaperSelectionRange = null;
-    document.addEventListener('selectionchange', ()=>{
+    function capturarSelecaoSeAtiva(){
       const sel = window.getSelection();
       if(sel && sel.rangeCount && !sel.isCollapsed && paperEl.contains(sel.anchorNode) && paperEl.contains(sel.focusNode)){
         lastPaperSelectionRange = sel.getRangeAt(0).cloneRange();
       }
-    });
+    }
+    document.addEventListener('selectionchange', capturarSelecaoSeAtiva);
+    // Abrir o <select> nativo (mousedown nele) pode, dependendo do navegador
+    // e do momento, disparar 'selectionchange' já com a seleção do #paper
+    // limpa, ou atrasar esse evento até depois do popup nativo fechar — nos
+    // dois casos o 'change' do <select> leria lastPaperSelectionRange como
+    // null mesmo com o trecho ainda selecionado na tela, e cairia sem
+    // querer no ramo que aplica o espaçamento no laudo INTEIRO em vez de só
+    // na seleção (foi assim que a Dra. Morgana viu o espaçamento mudar em
+    // tudo, inclusive no título, escolhendo um espaçamento com um trecho
+    // selecionado). Capturar de novo aqui, no mousedown do próprio <select>
+    // — antes do popup abrir, sem depender da corrida com o
+    // selectionchange —, garante que a seleção mais recente nunca se perde
+    // por essa via.
+    lineHeightSel.addEventListener('mousedown', capturarSelecaoSeAtiva);
     function captureSelectionInPaper(){
       const range = lastPaperSelectionRange;
       lastPaperSelectionRange = null;
@@ -972,6 +986,7 @@ if(typeof criarMotorLaudo !== 'function'){
     })();
 
     const fontSizeSel = $('fmtFontSize');
+    fontSizeSel.addEventListener('mousedown', capturarSelecaoSeAtiva);
     fontSizeSel.addEventListener('change', ()=>{
       const size = fontSizeSel.value;
       const range = captureSelectionInPaper();
