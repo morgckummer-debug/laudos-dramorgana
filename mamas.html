@@ -365,6 +365,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Aglomerado cístico — use {LADO}</label><textarea id="ph_impAglomeradoCistico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido (único) — use {LADO}</label><textarea id="ph_impNoduloSingular" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos (2 ou mais) — use {LADO}</label><textarea id="ph_impNoduloPlural" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos bilaterais</label><textarea id="ph_impNoduloBilateral" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cistos simples bilaterais</label><textarea id="ph_impCistoBilateral" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Fibroadenoma (FAD) — use {LADO}</label><textarea id="ph_impFibroadenoma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Linfonodo axilar atípico — use {LADO}</label><textarea id="ph_impLinfonodoAxilar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Linfonodo intramamário — use {LADO}</label><textarea id="ph_impLinfonodoIntramamario" rows="2"></textarea></div>
@@ -1052,6 +1054,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impAglomeradoCistico: 'Aglomerado cístico em mama {LADO}.',
     impNoduloSingular: 'Nódulo sólido em mama {LADO}.',
     impNoduloPlural: 'Nódulos sólidos em mama {LADO}.',
+    impNoduloBilateral: 'Nódulos sólidos bilaterais.',
+    impCistoBilateral: 'Cistos simples bilaterais.',
     impFibroadenoma: 'Nódulo mamário à {LADO}.',
     impLinfonodoAxilar: 'Linfonodo axilar atípico à {LADO}.',
     impLinfonodoIntramamario: 'Linfonodo intramamário à {LADO}.',
@@ -1429,11 +1433,42 @@ if(typeof criarMotorLaudo !== 'function'){
 
   let checkedState = {};
 
+  // Achados de nódulo sólido e cisto simples repetiam uma linha idêntica na
+  // Impressão para cada achado — dois nódulos na mesma mama viravam duas
+  // linhas "Nódulo sólido em mama direita.", um em cada mama viravam duas
+  // linhas de lados diferentes em vez de uma só "bilaterais". Essas duas
+  // categorias (nodulo1/2/3 e cisto1/2/3/cistosVarios) resumem numa linha só,
+  // cobrindo os dois lados de uma vez. Aglomerado cístico, fibroadenoma,
+  // linfonodo (axilar/intramamário) e seroma continuam uma linha por achado —
+  // são diagnósticos específicos, não entram no resumo genérico.
+  const RESUMO_PLURAL_TIPOS = ['nodulo2','nodulo3','cisto2','cisto3','cistosVarios'];
+  function buildResumoAchado(achados, tipos, key, singularKey, pluralKey, bilateralKey){
+    const doTipo = achados.filter(a=> tipos.includes(a.tipo));
+    if(!doTipo.length) return null;
+    const direita = doTipo.filter(a=> a.lado==='direita');
+    const esquerda = doTipo.filter(a=> a.lado==='esquerda');
+    if(direita.length && esquerda.length){
+      return {key, label:phrase(bilateralKey), auto:true};
+    }
+    const lista = direita.length ? direita : esquerda;
+    const lado = direita.length ? 'direita' : 'esquerda';
+    const plural = lista.length > 1 || lista.some(a=> RESUMO_PLURAL_TIPOS.includes(a.tipo));
+    return {key, label:phrase(plural ? pluralKey : singularKey, {LADO:lado}), auto:true};
+  }
+
   function buildImpressao(state){
     const items = [{key:'normal', label:phrase('impNormal'), auto:true}];
+
+    const INDIVIDUAIS = ['aglomeradoCistico','fibroadenoma','linfonodoAxilar','linfonodoIntramamario','seroma'];
     state.achados.forEach(a=>{
-      items.push({key:'achado-'+a.uid, label:a.hd, auto:true});
+      if(INDIVIDUAIS.includes(a.tipo)) items.push({key:'achado-'+a.uid, label:a.hd, auto:true});
     });
+
+    const resumoNodulo = buildResumoAchado(state.achados, ['nodulo1','nodulo2','nodulo3'], 'resumo-nodulo', 'impNoduloSingular', 'impNoduloPlural', 'impNoduloBilateral');
+    if(resumoNodulo) items.push(resumoNodulo);
+    const resumoCisto = buildResumoAchado(state.achados, ['cisto1','cisto2','cisto3','cistosVarios'], 'resumo-cisto', 'impCistoSingular', 'impCistoPlural', 'impCistoBilateral');
+    if(resumoCisto) items.push(resumoCisto);
+
     return items;
   }
 
