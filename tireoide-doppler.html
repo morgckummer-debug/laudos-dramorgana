@@ -1509,12 +1509,9 @@ if(typeof criarMotorLaudo !== 'function'){
     let noduloTexto = null;
     if($('temNodulo').checked){
       const uids = noduloNoduleUids();
-      const multiplos = uids.length > 1;
-      // Um nódulo por uid: guarda o lobo e as duas formas do corpo do texto —
-      // "comLobo" para o caso solitário (frase única, sem cabeçalho de grupo)
-      // e "semLobo" para quando há mais de um nódulo e eles saem agrupados
-      // por lobo (o cabeçalho do grupo já diz o lobo, repeti-lo no corpo de
-      // cada nódulo ficaria redundante).
+      // Um nódulo por uid: localização sempre relativa ao terço, sem repetir
+      // o lobo no corpo — o cabeçalho do grupo ("Lobo direito:"/"Istmo:") já
+      // diz o lobo, mesmo havendo um único nódulo.
       const nodulos = uids.map(uid=>{
         const lobo = v('nodulo'+uid+'Lobo') || 'direito';
         const composicao = NODULO_COMPOSICAO_TEXTO[v('nodulo'+uid+'Composicao')] || NODULO_COMPOSICAO_TEXTO.solido;
@@ -1553,13 +1550,11 @@ if(typeof criarMotorLaudo !== 'function'){
         });
 
         const descritores = composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+halo+', '+chammas;
-        const localizacaoComLobo = lobo==='istmo' ? 'localizado no istmo' : ('localizado no lobo '+lobo+', terço '+terco);
-        const localizacaoSemLobo = lobo==='istmo' ? 'localizado no istmo' : ('localizado no terço '+terco);
+        const localizacao = lobo==='istmo' ? 'localizado no istmo' : ('localizado no terço '+terco);
         const fim = ', medindo '+span(tamanho)+' (TI-RADS – Cat. '+tirads+').';
         return {
           lobo,
-          comLobo: 'Nódulo '+descritores+', '+localizacaoComLobo+fim,
-          semLobo: 'Nódulo '+descritores+', '+localizacaoSemLobo+fim
+          texto: 'Nódulo '+descritores+', '+localizacao+fim
         };
       });
       // Com mais de um nódulo, a Impressão Diagnóstica só registra o(s) de
@@ -1575,17 +1570,17 @@ if(typeof criarMotorLaudo !== 'function'){
         // Instante entre marcar "Há nódulo(s)" e addNodulo() inserir o
         // primeiro subgrupo no DOM — render() pode cair aqui de passagem; o
         // próximo render(), já com o subgrupo criado, substitui este texto.
-      }else if(!multiplos){
-        noduloTexto = nodulos[0].comLobo;
       }else{
-        // Agrupado por lobo — "Lobo direito:" com N1, N2... dentro, só o(s)
-        // lobo(s) que tiverem nódulo aparecem, na ordem direito/esquerdo/istmo.
+        // Sempre agrupado por lobo/istmo, mesmo com um único nódulo — "Lobo
+        // direito:" com N1, N2... dentro; só o(s) lobo(s) que tiverem nódulo
+        // aparecem, na ordem direito/esquerdo/istmo. Substitui (em vez de
+        // apagar) a frase padrão de parênquima homogêneo.
         const linhas = ['Parênquima de textura heterogênea, destacando-se em:'];
         ['direito','esquerdo','istmo'].forEach(lobo=>{
           const doLobo = nodulos.filter(n=> n.lobo===lobo);
           if(!doLobo.length) return;
-          linhas.push('<span style="display:block;margin-top:1mm;">'+loboRotulo(lobo)+':</span>');
-          doLobo.forEach((n, i)=> linhas.push('<span style="display:block;">- N'+(i+1)+': '+n.semLobo+'</span>'));
+          linhas.push('<span style="display:block;margin-top:1mm;"><strong>'+loboRotulo(lobo)+':</strong></span>');
+          doLobo.forEach((n, i)=> linhas.push('<span style="display:block;">- N'+(i+1)+': '+n.texto+'</span>'));
         });
         noduloTexto = linhas.join('');
       }
