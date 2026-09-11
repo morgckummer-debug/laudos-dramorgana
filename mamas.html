@@ -1142,15 +1142,41 @@ if(typeof criarMotorLaudo !== 'function'){
     return ACHADO_TIPOS.map(([val,label])=>'<option value="'+val+'">'+label+'</option>').join('');
   }
 
-  function campoHoraDistTam(idPrefix, labelHora, medidasLivres){
+  function campoHoraDistTam(idPrefix, labelHora, medidasLivres, comLocalizacao){
     const campoTam = medidasLivres
       ? '<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+idPrefix+'Tam" placeholder="ex: 22,3 x 11,0 x 33,0"></div>'
       : '<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Tam" placeholder="mm"></div>';
+    // Sem localização alternativa: o campo de hora/distância continua sempre
+    // visível e o "Tamanho" fica na mesma field-row, como sempre foi.
+    if(!comLocalizacao){
+      return '<div class="field-row">'
+        +'<div class="field"><label>'+labelHora+'</label><input type="text" id="'+idPrefix+'Hora" placeholder="ex: 2"></div>'
+        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Dist" placeholder="cm"></div>'
+        + campoTam
+        +'</div>';
+    }
+    // Com localização: um seletor Horário/Retroareolar decide se a linha de
+    // hora+distância aparece — retroareolar não usa nem uma nem outra. O
+    // Tamanho fica fora dessa linha e continua sempre visível, porque a
+    // medida existe independente de onde o achado está.
     return '<div class="field-row">'
-      +'<div class="field"><label>'+labelHora+'</label><input type="text" id="'+idPrefix+'Hora" placeholder="ex: 2"></div>'
-      +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Dist" placeholder="cm"></div>'
-      + campoTam
-      +'</div>';
+        +'<div class="field"><label>Localização</label><select id="'+idPrefix+'Local" class="local-toggle">'
+          +'<option value="horario">Horário e distância da borda areolar</option>'
+          +'<option value="retroareolar">Retroareolar</option>'
+        +'</select></div>'
+      +'</div>'
+      +'<div class="field-row conditional show" id="wrap_'+idPrefix+'_horario">'
+        +'<div class="field"><label>'+labelHora+'</label><input type="text" id="'+idPrefix+'Hora" placeholder="ex: 2"></div>'
+        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Dist" placeholder="cm"></div>'
+      +'</div>'
+      +'<div class="field-row">'+campoTam+'</div>';
+  }
+
+  // Texto de localização do achado dentro da frase: "às 2 horas, distando 1,5
+  // cm da borda areolar" no padrão de sempre, ou "na região retroareolar"
+  // quando a médica marcou o achado como retroareolar (sem hora/distância).
+  function localizacaoTexto(retro, hora, dist){
+    return retro ? 'na região retroareolar' : 'às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar';
   }
 
   // Tamanho de nódulo em texto livre ("22,3 x 11,0 x 33,0"): extrai cada
@@ -1190,7 +1216,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>';
 
     // Cisto único
-    html += '<div class="conditional" id="wrap_'+p+'_cisto1">'+campoHoraDistTam(p+'Cisto1','Hora')+'</div>';
+    html += '<div class="conditional" id="wrap_'+p+'_cisto1">'+campoHoraDistTam(p+'Cisto1','Hora', true, true)+'</div>';
 
     // 2 cistos
     html += '<div class="conditional" id="wrap_'+p+'_cisto2">'
@@ -1262,7 +1288,7 @@ if(typeof criarMotorLaudo !== 'function'){
           +'<option value="sem condicionar fenômenos acústicos posteriores">Sem condicionar fenômenos acústicos</option>'
         +'</select></div>'
       +'</div>'
-      + campoHoraDistTam(p+'Nodulo1','Hora', true)
+      + campoHoraDistTam(p+'Nodulo1','Hora', true, true)
     +'</div>';
 
     // 2 nódulos sólidos
@@ -1360,6 +1386,16 @@ if(typeof criarMotorLaudo !== 'function'){
     const qtdSel = $('achado'+uid+'Nodulo3Qtd');
     if(qtdSel) qtdSel.addEventListener('change', ()=> updateAchadoVisibility(uid));
     updateAchadoVisibility(uid);
+    // Cisto único e nódulo único têm um seletor de Localização (Horário /
+    // Retroareolar): retroareolar esconde a linha de hora+distância, que não
+    // se aplica a esse caso.
+    ['Cisto1','Nodulo1'].forEach(key=>{
+      const localSel = $('achado'+uid+key+'Local');
+      if(!localSel) return;
+      const applyLocal = ()=> toggle('wrap_achado'+uid+key+'_horario', localSel.value !== 'retroareolar');
+      localSel.addEventListener('change', applyLocal);
+      applyLocal();
+    });
     el.querySelector('.achado-remove').addEventListener('click', ()=>{
       el.remove();
       renumberAchados();
@@ -1484,10 +1520,12 @@ if(typeof criarMotorLaudo !== 'function'){
       let corpoLista = null;
       let hd = '';
       if(tipo === 'cisto1'){
-        const hora = blankOrValue(req('achado'+uid+'Cisto1Hora'));
-        const dist = blankOrValue(req('achado'+uid+'Cisto1Dist'));
-        const tam = blankOrValue(req('achado'+uid+'Cisto1Tam'));
-        corpo = 'Observa-se imagem anecóica de paredes finas e regulares, condicionando reforço acústico posterior, localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.';
+        const retro = v('achado'+uid+'Cisto1Local') === 'retroareolar';
+        const hora = blankOrValue(reqIf('achado'+uid+'Cisto1Hora', !retro));
+        const dist = blankOrValue(reqIf('achado'+uid+'Cisto1Dist', !retro));
+        const tamRaw = req('achado'+uid+'Cisto1Tam');
+        const tam = blankOrValue(tamanhoSemUnidade(tamRaw));
+        corpo = 'Observa-se imagem anecóica de paredes finas e regulares, condicionando reforço acústico posterior, localizada '+localizacaoTexto(retro, hora, dist)+', medindo '+span(tam)+' mm.';
         hd = phrase('impCistoSingular', {LADO: lado});
       } else if(tipo === 'cisto2'){
         const h1=blankOrValue(req('achado'+uid+'Cisto2Hora1')), d1=blankOrValue(req('achado'+uid+'Cisto2Dist1')), t1=blankOrValue(req('achado'+uid+'Cisto2Tam1'));
@@ -1524,12 +1562,13 @@ if(typeof criarMotorLaudo !== 'function'){
         const margens = v('achado'+uid+'Nodulo1Margens') || 'circunscritas';
         const eco = v('achado'+uid+'Nodulo1Ecogenicidade') || 'hipoecóica';
         const fenomeno = v('achado'+uid+'Nodulo1Fenomeno') || 'sem condicionar fenômenos acústicos posteriores';
-        const hora=blankOrValue(req('achado'+uid+'Nodulo1Hora'));
-        const dist=blankOrValue(req('achado'+uid+'Nodulo1Dist'));
+        const retro = v('achado'+uid+'Nodulo1Local') === 'retroareolar';
+        const hora=blankOrValue(reqIf('achado'+uid+'Nodulo1Hora', !retro));
+        const dist=blankOrValue(reqIf('achado'+uid+'Nodulo1Dist', !retro));
         const tamRaw = req('achado'+uid+'Nodulo1Tam');
         const volume = volumeElipsoide(parseMedidas(tamRaw));
         const tam = blankOrValue(tamanhoSemUnidade(tamRaw));
-        corpo = 'Observa-se imagem nodular sólida, de forma '+escapeHtml(forma)+', orientação '+escapeHtml(orientacao)+' e margens '+escapeHtml(margens)+', '+escapeHtml(eco)+', '+escapeHtml(fenomeno)+', localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm'
+        corpo = 'Observa-se imagem nodular sólida, de forma '+escapeHtml(forma)+', orientação '+escapeHtml(orientacao)+' e margens '+escapeHtml(margens)+', '+escapeHtml(eco)+', '+escapeHtml(fenomeno)+', localizada '+localizacaoTexto(retro, hora, dist)+', medindo '+span(tam)+' mm'
           + (volume!==null ? ', com volume estimado de '+fmtDecimal(volume)+' cm³.' : '.');
         hd = phrase('impNoduloSingular', {LADO: lado});
       } else if(tipo === 'nodulo2'){
