@@ -426,7 +426,7 @@
 
   <hr class="sep">
   <h3>Ovários</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Normal — use {L}, {AP}, {T}, {VOLUME}, {VRMIN}, {VRMAX} e {N} (nº de folículos dominantes)</label><textarea id="ph_ovarioNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Normal — use {L}, {AP}, {T}, {VOLUME}, {VRMIN}, {VRMAX}, {N} (nº de folículos dominantes) e {PL} (vira "s" no plural, nada no singular)</label><textarea id="ph_ovarioNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Não identificado</label><textarea id="ph_ovarioNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Policístico — frase-base (substitui "Normal" quando policístico) — use {L}, {AP}, {T}, {VOLUME}, {VRMIN} e {VRMAX}</label><textarea id="ph_ovarioPolicisticoBase" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — complemento (achado, após a frase-base) — use {LADO}</label><textarea id="ph_ovarioPolicistico" rows="2"></textarea></div>
@@ -1284,7 +1284,7 @@ if(typeof criarMotorLaudo !== 'function'){
     figoF6: 'parede {PAREDE}, subserosa com menos de 50% do componente intramural (FIGO 6), medindo {MEDIDA} mm',
     figoF7: 'parede {PAREDE}, totalmente subserosa (FIGO 7), medindo {MEDIDA} mm',
     figoF8: 'região cervical{DETALHE} (FIGO 8), medindo {MEDIDA} mm',
-    ovarioNormal: 'polifolicular, de forma globosa, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³), apresentando {N} folículo(s) dominante(s), com diâmetros médios descritos abaixo.',
+    ovarioNormal: 'polifolicular, de forma globosa, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³), apresentando {N} folículo{PL} dominante{PL}, com diâmetros médios descritos abaixo.',
     ovarioNaoIdentificado: 'não identificado no presente estudo. Não são identificadas massas císticas ou sólidas em sua topografia.',
     ovarioPolicisticoBase: 'de topografia usual, forma globosa e textura micropolicística, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
     ovarioPolicistico: 'Ovário {LADO} apresentando folículos antrais de distribuição predominantemente periférica, com diâmetro médio de 5 mm, associado a aumento da ecogenicidade do estroma.',
@@ -2048,7 +2048,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // micropolicística") em vez da "ovarioNormal" — usar a normal e deixar o
       // achado sobrescrever a forma logo em seguida seria contraditório.
       const baseKey = ov.aspecto==='policistico' ? 'ovarioPolicisticoBase' : 'ovarioNormal';
-      const base = phraseRaw(baseKey, {L: ov.L.text, AP: ov.AP.text, T: ov.T.text, VOLUME: ov.volume.text, VRMIN: VR.ovarioMin.toString().replace('.',','), VRMAX: VR.ovarioMax.toString().replace('.',','), N: ov.foliculos.length});
+      const base = phraseRaw(baseKey, {L: ov.L.text, AP: ov.AP.text, T: ov.T.text, VOLUME: ov.volume.text, VRMIN: VR.ovarioMin.toString().replace('.',','), VRMAX: VR.ovarioMax.toString().replace('.',','), N: ov.foliculos.length, PL: ov.foliculos.length===1 ? '' : 's'});
       return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+escapeHtml(base+extra+extra2)+'</p>';
     }
     // Lista "F1: __ mm.  F2: __ mm." abaixo da frase descritiva do ovário —
