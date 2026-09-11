@@ -487,7 +487,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Folículo dominante (achado no ovário) — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioFoliculo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioDermoide" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioEndometrioma" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes no primeiro exame — use {N}</label><textarea id="ph_foliculosDominantes" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes no primeiro exame — use {N} e {PL} (vira "s" no plural, nada no singular)</label><textarea id="ph_foliculosDominantes" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nenhum folículo dominante no primeiro exame</label><textarea id="ph_foliculosDominantesZero" rows="2"></textarea></div>
 
   <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:12px 0 4px;">Segunda alteração no mesmo ovário (introduzida por "Observa-se também...")</p>
@@ -1397,7 +1397,7 @@ if(typeof criarMotorLaudo !== 'function'){
     ovarioDermoideTambem: 'Observa-se também, em seu interior, imagem nodular ecogênica, bem delimitada, sem captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioEndometriomaTambem: 'Observa-se também, em seu interior, imagem cística regular e unilocular, com conteúdo de textura em "vidro fosco", com mínima captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioAlteradoTambem: 'Observa-se também {DESCRICAO}.',
-    foliculosDominantes: 'Presença de {N} folículo(s) dominante(s) no primeiro exame.',
+    foliculosDominantes: 'Presença de {N} folículo{PL} dominante{PL} no primeiro exame.',
     foliculosDominantesZero: 'Nenhum folículo dominante no primeiro exame.',
     corpoLuteoIdentificado: 'Corpo lúteo identificado no ovário {LADO}.',
     corpoLuteoNaoIdentificado: 'Corpo lúteo não identificado no presente estudo.',
@@ -2244,7 +2244,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const base = phraseRaw(baseKey, {L: ov.L.text, AP: ov.AP.text, T: ov.T.text, VOLUME: ov.volume.text, VRMIN: VR.ovarioMin.toString().replace('.',','), VRMAX: VR.ovarioMax.toString().replace('.',',')});
       const foliculosTxt = ov.foliculosNum===0
         ? phraseRaw('foliculosDominantesZero')
-        : phraseRaw('foliculosDominantes', {N: ov.foliculos.text});
+        : phraseRaw('foliculosDominantes', {N: ov.foliculos.text, PL: ov.foliculosNum===1 ? '' : 's'});
       return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+escapeHtml(base+extra+extra2)+' '+escapeHtml(foliculosTxt)+'</p>';
     }
     blocks.push({id:'ovD', html: ovarioParagraph(ovD, 'direito')});
