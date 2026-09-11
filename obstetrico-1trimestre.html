@@ -2752,9 +2752,18 @@ if(typeof criarMotorLaudo !== 'function'){
     return m[3]+'-'+m[2]+'-'+m[1];
   }
 
+  // A checagem roda sozinha ao abrir a página e de novo cada vez que o SDK
+  // renova o token em segundo plano — não pode mais escancarar o modal
+  // sozinha nesses casos: o cg-overlay é fixed/inset:0/z-index:5000, cobre o
+  // laudo inteiro, e já apareceu sem aviso no meio de uma edição, travando
+  // clique e teclado até a médica notar (a rolagem continua funcionando —
+  // nada aqui bloqueia scroll, só clique e digitação). Por isso esta função
+  // só ESCONDE o modal quando encontra sessão; quem decide abri-lo é só o
+  // clique em "Salvar na Curva de Crescimento", quando ela realmente foi
+  // tentar usar a integração.
   async function cgCheckSession(){
     const {data} = await cgClient.auth.getSession();
-    $('cgLoginOverlay').classList.toggle('hide', !!data.session);
+    if(data.session) $('cgLoginOverlay').classList.add('hide');
     return data.session;
   }
 
@@ -2772,14 +2781,15 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
   cgClient.auth.onAuthStateChange((_evt, session)=>{
-    $('cgLoginOverlay').classList.toggle('hide', !!session);
+    if(session) $('cgLoginOverlay').classList.add('hide');
   });
+  $('cgLoginOverlay').classList.add('hide');
   cgCheckSession();
 
   $('btnSalvarCG').addEventListener('click', async ()=>{
     if($('chkMola').checked){ cgToast('Achados de mola hidatiforme não são gravados na Curva de Crescimento — não é uma gestação viável a acompanhar.', true); return; }
     const session = await cgCheckSession();
-    if(!session){ cgToast('Faça login para salvar.', true); return; }
+    if(!session){ $('cgLoginOverlay').classList.remove('hide'); cgToast('Faça login para salvar.', true); return; }
 
     const cpfDigits = cgOnlyDigits(v('cpfPaciente'));
     if(cpfDigits.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
