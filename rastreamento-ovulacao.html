@@ -200,7 +200,7 @@
   .paper h3.doctitle > br:first-child{display:none;}
   .paper .relato{color:#C0392B;font-weight:700;margin:0 0 12px;}
   .paper h4.sec{
-    text-decoration:underline;font-size:13px;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
+    text-decoration:underline;font-size:11.5pt;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
   }
   .paper p.linha{margin:0 0 var(--linha-margin, 16px);}
   .paper p.linha strong{font-weight:700;}
@@ -2362,22 +2362,44 @@ if(typeof criarMotorLaudo !== 'function'){
     const liStyle = liveLi ? getComputedStyle(liveLi) : null;
     clone.querySelectorAll('ul.impressao').forEach(ul=>{
       const div = document.createElement('div');
+      // Indentação pendurada em valor absoluto (px), não 'em': o importador de
+      // HTML do Word nem sempre resolve text-indent relativo direito, e os
+      // asteriscos saíam desalinhados só no .doc, nunca no PDF/tela.
+      const indent = liStyle ? liStyle.fontSize : '12pt';
       Array.from(ul.children).forEach(li=>{
         const p = document.createElement('p');
         p.style.margin = '0 0 6px';
         p.style.fontWeight = '700';
         p.style.textAlign = 'justify';
-        p.style.paddingLeft = '1em';
-        p.style.textIndent = '-1em';
+        p.style.paddingLeft = indent;
+        p.style.textIndent = '-'+indent;
         if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; }
         p.innerHTML = li.innerHTML;
         div.appendChild(p);
       });
       ul.replaceWith(div);
     });
-    clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
+    clone.querySelectorAll('h3.doctitle').forEach(h=>{
+      h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700';
+      if(!h.style.fontSize) h.style.fontSize='16pt';
+      // <h3>/<h4> viram "Título N" no Word, com nível de tópico — e o Word
+      // desenha uma setinha de recolher/expandir na margem ao lado de todo
+      // título com nível de tópico (nunca imprime, mas aparece na tela do
+      // Word e confunde). Trocar para <p> com o mesmo estilo tira o nível de
+      // tópico sem mudar nada visualmente.
+      const p = document.createElement('p');
+      Array.from(h.attributes).forEach(attr=> p.setAttribute(attr.name, attr.value));
+      p.innerHTML = h.innerHTML;
+      h.replaceWith(p);
+    });
     buildIdCardTable(clone, paperEl);
-    clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    clone.querySelectorAll('h4.sec').forEach(h=>{
+      h.style.textDecoration='underline'; h.style.fontWeight='600';
+      const p = document.createElement('p');
+      Array.from(h.attributes).forEach(attr=> p.setAttribute(attr.name, attr.value));
+      p.innerHTML = h.innerHTML;
+      h.replaceWith(p);
+    });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
