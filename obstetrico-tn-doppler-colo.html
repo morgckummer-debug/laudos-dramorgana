@@ -680,7 +680,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
     applyExecutante, autoFitPages, blankOrValue, buildIdCardTable, comDigitadora, copyComputedToClone, draftDiscard,
     draftFingerprint, draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule,
-    escapeHtml, nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview,
+    escapeHtml, nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview,
     setDefaultDataExame, setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview,
     v, vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml
   } = motor;
@@ -2050,6 +2050,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // (para o ILA cair na coluna de CF/CA) — cloneNode(true) já traz esse
     // estilo junto, então nada extra é preciso aqui para o Word.
 
+    pinAssinaturaWord(clone, paperEl);
     clone.querySelectorAll('.rodape-final').forEach(el=>{
       const footnote = el.querySelector('.footnote');
       const assinatura = el.querySelector('.assinatura');
