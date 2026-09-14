@@ -91,6 +91,21 @@ function criarMotorLaudo(cfg){
   // irem para uma 2ª folha sem precisar.
   const PAGE_SAFETY_PX = 18.9;
 
+  // Colchão extra só para o espaçador que prende a assinatura no pé da
+  // página (impressão e Word) — sem isso o espaçador some com 100% da folga
+  // que sobra, encostando a assinatura exatamente na borda inferior do
+  // orçamento de página. Isso sempre funcionou na impressão (o navegador não
+  // precisa de nada depois do último elemento), mas quebrou no "Baixar
+  // Word" quando pinAssinaturaWord() passou a fazer a mesma conta ali
+  // (2026-09-14): o .doc sempre termina com uma marca de parágrafo implícita
+  // que o Word/LibreOffice não consegue eliminar, e quando a página já está
+  // ocupada até a última borda essa marca não tem onde ficar a não ser numa
+  // 2ª folha em branco — que o Word se recusa a deixar apagar. Reservar
+  // esse tanto a mais (imperceptível a olho nu) dá lugar pra essa marca no
+  // Word e ainda ajuda a impressão a não estourar por uma diferença mínima
+  // de métrica de fonte entre navegadores.
+  const PINNED_BOTTOM_BUFFER_PX = 14;
+
   const MIN_LINE_HEIGHT = 1.0;
 
   const LINE_HEIGHT_STEP = 0.03;
@@ -609,7 +624,7 @@ function criarMotorLaudo(cfg){
       const pinnedHeight = isLast ? (pinned ? (pinned.bottom - pinned.top) : 0) : continuaHeight;
       if(pinnedHtml){
         const idCardExtra = pageIdx > 0 ? idCardRepeatHeight : 0;
-        const spacerPx = Math.max(0, packBudgetPx - idCardExtra - contentHeight - pinnedHeight);
+        const spacerPx = Math.max(0, packBudgetPx - idCardExtra - contentHeight - pinnedHeight - PINNED_BOTTOM_BUFFER_PX);
         const spacer = document.createElement('div');
         spacer.style.height = spacerPx + 'px';
         pageEl.appendChild(spacer);
@@ -652,7 +667,7 @@ function criarMotorLaudo(cfg){
     const contentBoxes = pageBoxes.slice(0, -1);
     const contentHeight = contentBoxes.length ? (contentBoxes[contentBoxes.length-1].bottom - contentBoxes[0].top) : 0;
     const pinnedHeight = pinned.bottom - pinned.top;
-    const spacerPx = Math.max(0, budgetPx - contentHeight - pinnedHeight);
+    const spacerPx = Math.max(0, budgetPx - contentHeight - pinnedHeight - PINNED_BOTTOM_BUFFER_PX);
     if(spacerPx < 1) return;
     const rodape = clone.querySelector('.rodape-final');
     if(!rodape || !rodape.parentNode) return;
