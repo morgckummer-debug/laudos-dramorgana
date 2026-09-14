@@ -1821,16 +1821,10 @@ if(typeof criarMotorLaudo !== 'function'){
       if(state.dopplerFetal && !dopplerFetalTodosNormais){
         items.push({key:k('doppler-fetal', f), label: pre(f) + dopplerFetalLabelFor(f), auto:true});
       }
-      if(state.pbf && !pbfTodosNormais){
-        items.push({key:k('pbf', f), label: pre(f) + phraseRaw('impPbf', {SCORE: f.pbfScore}), auto:true});
-      }
     });
 
     if(dopplerFetalTodosNormais){
       items.push({key:'doppler-fetal-todos', label: phraseRaw('impDopplerFetalNormalTodos', {TERMO: termoTodos}), auto:true});
-    }
-    if(pbfTodosNormais){
-      items.push({key:'pbf-todos', label: phraseRaw('impPbfTodos', {TERMO: termoTodos, SCORE: 8}), auto:true});
     }
 
     if(state.discordanciaTxt){
@@ -1849,6 +1843,16 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:'colo', label: state.coloAlterado
         ? phraseRaw('impColoAlterado')
         : phraseRaw('impColoNormal'), auto:true});
+    }
+
+    // PBF sempre por último na conclusão (só cede lugar para a DPP abaixo,
+    // que tem a mesma regra e é ainda mais rara de coexistir com o PBF).
+    if(pbfTodosNormais){
+      items.push({key:'pbf-todos', label: phraseRaw('impPbfTodos', {TERMO: termoTodos, SCORE: 8}), auto:true});
+    } else if(state.pbf){
+      state.fetos.forEach(f=>{
+        items.push({key:k('pbf', f), label: pre(f) + phraseRaw('impPbf', {SCORE: f.pbfScore}), auto:true});
+      });
     }
 
     // DPP só entra na conclusão quando a DUM é incerta/ignorada — sem
