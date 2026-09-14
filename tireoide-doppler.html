@@ -1738,7 +1738,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const ecoTxt = ECO_TEXTO[eco] || ECO_TEXTO.normal;
       const dopplerTxt = DOPPLER_LINFONODO_TEXTO[doppler] || DOPPLER_LINFONODO_TEXTO.normal;
       const sufixo = aumentado ? ' (acima do valor de referência para o nível)' : '';
-      cervicaisTexto += ' Nota-se também linfonodo '+formaTxt+', '+ecoTxt+', localizado em nível cervical '+nivel+', medindo '+span(tamanho)+' mm no menor eixo'+sufixo+', apresentando '+dopplerTxt+'.';
+      const linfonodoLinha = 'Observa-se imagem compatível com linfonodo, localizado em nível cervical '+nivel+', '+formaTxt+', '+ecoTxt+', medindo '+span(tamanho)+' mm no menor eixo'+sufixo+', apresentando '+dopplerTxt+'.';
+      cervicaisTexto = '<span style="display:block;">'+cervicaisTexto+'</span><span style="display:block;margin-top:1mm;">'+linfonodoLinha+'</span>';
       linfonodoImpressaoHD = suspeito
         ? phrase('impLinfonodoSuspeito', {NIVEL:nivel})
         : phrase('impLinfonodoReacional', {NIVEL:nivel});
