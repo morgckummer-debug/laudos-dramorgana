@@ -478,7 +478,15 @@
     <div class="card">
       <div class="card-head"><h2>Finalização</h2></div>
       <div class="card-body">
-        <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkProtese"><label for="chkProtese">Prótese mamária — incluir observação padrão no fim do laudo, antes da Impressão</label></div>
+        <div class="toggle-line"><input type="checkbox" id="chkProtese"><label for="chkProtese">Prótese mamária — incluir observação padrão no fim do laudo, antes da Impressão</label></div>
+        <div class="field conditional" id="wrap_proteseAspecto">
+          <label>Aspecto da prótese</label>
+          <select id="proteseAspecto"><option value="normal">Contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro</option><option value="alterado">Alterado (descrever)</option></select>
+        </div>
+        <div class="field conditional" id="wrap_proteseDescricao">
+          <label>Descreva a alteração</label>
+          <textarea id="proteseDescricao" rows="2" placeholder="ex: coleção periprotética, dobras do invólucro, sinais de ruptura..."></textarea>
+        </div>
       </div>
     </div>
 
@@ -998,6 +1006,11 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkMamografia').addEventListener('change', e=> toggle('wrap_mamografiaCampos', e.target.checked));
   $('mamasAspecto').addEventListener('change', e=> toggle('wrap_mamasDescricao', e.target.value==='alterado'));
   $('peleAspecto').addEventListener('change', e=> toggle('wrap_peleDescricao', e.target.value==='alterado'));
+  $('chkProtese').addEventListener('change', e=>{
+    toggle('wrap_proteseAspecto', e.target.checked);
+    toggle('wrap_proteseDescricao', e.target.checked && $('proteseAspecto').value==='alterado');
+  });
+  $('proteseAspecto').addEventListener('change', e=> toggle('wrap_proteseDescricao', $('chkProtese').checked && e.target.value==='alterado'));
   $('chkMamasMasculinas').addEventListener('change', e=>{
     toggle('wrap_ecotextura', !e.target.checked);
     toggle('wrap_biradsCategoria', !e.target.checked);
@@ -1545,6 +1558,9 @@ if(typeof criarMotorLaudo !== 'function'){
     reqIf('peleDescricao', peleAspecto==='alterado');
 
     const chkProtese = $('chkProtese').checked;
+    const proteseAspecto = v('proteseAspecto');
+    const proteseDescricao = vNoDot('proteseDescricao');
+    reqIf('proteseDescricao', chkProtese && proteseAspecto==='alterado');
     const biradsCategoria = v('biradsCategoria') || '1';
 
     // ----- Achados -----
@@ -1765,7 +1781,10 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(chkProtese){
-      blocks.push({id:'protese', html:'<p class="linha">Próteses mamárias apresentando contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro.</p>'});
+      const proteseTexto = proteseAspecto==='alterado' && proteseDescricao
+        ? 'Próteses mamárias apresentando '+escapeHtml(proteseDescricao)+'.'
+        : 'Próteses mamárias apresentando contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro.';
+      blocks.push({id:'protese', html:'<p class="linha">'+proteseTexto+'</p>'});
     }
 
     const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
