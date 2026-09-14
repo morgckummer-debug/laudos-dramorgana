@@ -715,8 +715,19 @@ function criarMotorLaudo(cfg){
     const liveRows = liveCardEl ? Array.from(liveCardEl.children).filter(el => el.classList.contains('id-card-row')) : [];
     const rowLineHeight = liveRows[0] ? getComputedStyle(liveRows[0]).lineHeight : '';
     const rows = Array.from(cardEl.children).filter(el => el.classList.contains('id-card-row'));
+    // background/font-weight/font-size do cartão, extraídos uma vez para
+    // repetir também dentro da tabela interna da linha Nome/Data logo abaixo:
+    // o Word (e o LibreOffice, que importa HTML pelas mesmas manhas) não
+    // herda propriedade nenhuma através de uma fronteira de <table> aninhada —
+    // por isso, sem repetir aqui, só essa linha (a única que vira uma <table>
+    // dentro da célula) saía sem o fundo cinza do cartão e com o texto sem
+    // negrito, enquanto as demais linhas (só <p>, filhas diretas da célula)
+    // saíam certas.
+    const cardBg = cardCs ? cardCs.backgroundColor : '#f8f7f7';
+    const cardFontWeight = cardCs ? cardCs.fontWeight : '700';
+    const cardFontSize = cardCs ? cardCs.fontSize : '12pt';
     const td = document.createElement('td');
-    td.setAttribute('style', 'background:#f8f7f7;border:2.5px solid #2b2b2e;border-radius:16px;padding:'+padding+';font-weight:700;font-size:12pt;'
+    td.setAttribute('style', 'background:'+cardBg+';border:2.5px solid #2b2b2e;border-radius:16px;padding:'+padding+';font-weight:'+cardFontWeight+';font-size:'+cardFontSize+';'
       + (rowLineHeight ? 'line-height:'+rowLineHeight+';mso-line-height-rule:exact;' : ''));
     rows.forEach(function(row, i){
       // O morfológico de 1º trimestre e o TN+Doppler+colo separam a última
@@ -741,10 +752,16 @@ function criarMotorLaudo(cfg){
       if(row.children.length === 2){
         const left = row.children[0], right = row.children[1];
         const inner = document.createElement('table');
-        inner.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;'+divider);
+        // background/font-weight/font-size repetidos aqui e em cada <td> de
+        // dentro — ver o comentário acima de cardBg — senão essa linha some
+        // do fundo cinza e do negrito assim que o Word entra na tabela
+        // interna, mesmo estando dentro da célula que já tem os dois.
+        const innerCellStyle = 'border:none;padding:0;background:'+cardBg+';font-weight:'+cardFontWeight+';font-size:'+cardFontSize+';'
+          + (rowLineHeight ? 'line-height:'+rowLineHeight+';mso-line-height-rule:exact;' : '');
+        inner.setAttribute('style', 'border-collapse:collapse;width:100%;margin:0;background:'+cardBg+';'+divider);
         inner.innerHTML = '<tr>'
-          + '<td style="border:none;padding:0;text-align:left;">'+left.innerHTML+'</td>'
-          + '<td style="border:none;padding:0;text-align:right;">'+right.innerHTML+'</td>'
+          + '<td style="'+innerCellStyle+'text-align:left;">'+left.innerHTML+'</td>'
+          + '<td style="'+innerCellStyle+'text-align:right;">'+right.innerHTML+'</td>'
           + '</tr>';
         td.appendChild(inner);
       }else{
