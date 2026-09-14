@@ -198,6 +198,7 @@
   .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
   .paper .footnote{font-style:italic;font-size:9pt;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
   .paper .footnote a{color:inherit;}
+  .paper .footnote.nota-cbr{margin:16px 0 0;}
   .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
   .paper .assinatura p{margin:0;}
   .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:3px 14px 0;margin-bottom:2px!important;}
@@ -283,7 +284,7 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
+    .paper p.linha, .paper ul.impressao li, .paper .rodape-final, .paper .footnote.nota-cbr{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -1392,8 +1393,18 @@ if(typeof criarMotorLaudo !== 'function'){
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
+    // Nota do CBR em parágrafo próprio, largura cheia — antes ela ficava
+    // espremida na mesma coluna estreita da assinatura, dentro do
+    // .rodape-final (largura flex dividida com o bloco da assinatura, que já
+    // é largo por conta do nome/qualificação da médica). Isso enrolava a nota
+    // em ~10 linhas curtas, empurrando a altura do rodapé perto do limite da
+    // página mesmo num laudo comum, sem achado nenhum — e, num navegador com
+    // métricas de fonte um pouco diferentes, chegava a jogar a assinatura
+    // sozinha para a 2ª folha. Em largura cheia a nota cabe em poucas linhas.
+    blocks.push({id:'notaCBR', html:'<p class="footnote nota-cbr">*Nota: segundo a Normatização de Exames de Ultrassonografia do Colégio Brasileiro de Radiologia (2018), o estudo da Tireóide não faz parte desta avaliação cervical. Para estudo direcionado, solicitar Ultrassom da Tireoide. Saiba mais em <a href="https://cbr.org.br/normatizacao-de-exames-de-ultrassonografia/" target="_blank" rel="noopener">cbr.org.br/normatizacao-de-exames-de-ultrassonografia</a>.'});
+
     let rodapeHtml = '<div class="rodape-final">';
-    rodapeHtml += '<p class="footnote">'+comDigitadora('Imagens em anexo. <br>*Nota: segundo a Normatização de Exames de Ultrassonografia do Colégio Brasileiro de Radiologia (2018), o estudo da Tireóide não faz parte desta avaliação cervical. Para estudo direcionado, solicitar Ultrassom da Tireoide. Saiba mais em <a href="https://cbr.org.br/normatizacao-de-exames-de-ultrassonografia/" target="_blank" rel="noopener">cbr.org.br/normatizacao-de-exames-de-ultrassonografia</a>.')+'</p>';
+    rodapeHtml += '<p class="footnote">'+comDigitadora('Imagens em anexo.')+'</p>';
     rodapeHtml += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
     if(VR.medicoQual1) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
     if(VR.medicoQual2) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
@@ -1462,7 +1473,7 @@ if(typeof criarMotorLaudo !== 'function'){
     buildIdCardTable(clone, paperEl);
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
-    clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
+    clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin = el.classList.contains('nota-cbr') ? '16px 0 0' : '0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
     clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#9a7e95'; el.style.margin='0'; });
