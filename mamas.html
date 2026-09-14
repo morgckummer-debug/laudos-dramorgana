@@ -181,9 +181,10 @@
   .paper p.linha strong{font-weight:700;}
   .paper p.linha.intro{font-weight:700;margin:0 0 2px;}
   .paper p.linha.intro.intro-last{margin:0 0 var(--linha-margin, 16px);text-decoration:underline;}
+  .paper p.linha.compacta{margin:0 0 12px;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
-  .paper .nodulos-lista{margin:0 0 16px;}
+  .paper .nodulos-lista{margin:0 0 var(--linha-margin, 16px);}
   .paper .nodulos-lista .nodulo-item{margin:0 0 6px;padding-left:2.4em;text-indent:-2.4em;}
   .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -1764,7 +1765,7 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+doctitleTexto+'</h3>'});
 
     if(chkMamografia){
-      blocks.push({id:'mamografia', html:'<p class="linha">Mamografia de '+span(mamografiaData)+': Cat '+escapeHtml(mamografiaCategoria)+'.</p>'});
+      blocks.push({id:'mamografia', html:'<p class="linha compacta">Mamografia de '+span(mamografiaData)+': Cat '+escapeHtml(mamografiaCategoria)+'.</p>'});
     }
 
     if(motivoExame){
