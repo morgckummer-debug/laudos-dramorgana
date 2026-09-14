@@ -1003,14 +1003,33 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   })();
 
+  // Ao trocar um select de aspecto para "alterado", a caixa de descrição já
+  // nasce com o texto do normal — a alteração costuma ser mínima, e editar em
+  // cima do texto padrão é mais rápido que escrever do zero. Só preenche se a
+  // caixa ainda estiver vazia: o que a médica já tiver escrito nunca é pisado.
+  function prefillAspectoDescricao(boxId, textoNormal){
+    const box = $(boxId);
+    if(!box || box.value.trim()) return;
+    box.value = typeof textoNormal === 'function' ? textoNormal() : textoNormal;
+  }
+
   $('chkMamografia').addEventListener('change', e=> toggle('wrap_mamografiaCampos', e.target.checked));
-  $('mamasAspecto').addEventListener('change', e=> toggle('wrap_mamasDescricao', e.target.value==='alterado'));
-  $('peleAspecto').addEventListener('change', e=> toggle('wrap_peleDescricao', e.target.value==='alterado'));
+  $('mamasAspecto').addEventListener('change', e=>{
+    toggle('wrap_mamasDescricao', e.target.value==='alterado');
+    if(e.target.value==='alterado') prefillAspectoDescricao('mamasDescricao', ()=> $('chkMamasMasculinas').checked ? 'Mamas regulares' : 'Mamas regulares e simétricas');
+  });
+  $('peleAspecto').addEventListener('change', e=>{
+    toggle('wrap_peleDescricao', e.target.value==='alterado');
+    if(e.target.value==='alterado') prefillAspectoDescricao('peleDescricao', 'Pele e tecido subcutâneo de espessura usual, sem alterações');
+  });
   $('chkProtese').addEventListener('change', e=>{
     toggle('wrap_proteseAspecto', e.target.checked);
     toggle('wrap_proteseDescricao', e.target.checked && $('proteseAspecto').value==='alterado');
   });
-  $('proteseAspecto').addEventListener('change', e=> toggle('wrap_proteseDescricao', $('chkProtese').checked && e.target.value==='alterado'));
+  $('proteseAspecto').addEventListener('change', e=>{
+    toggle('wrap_proteseDescricao', $('chkProtese').checked && e.target.value==='alterado');
+    if(e.target.value==='alterado') prefillAspectoDescricao('proteseDescricao', 'contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro');
+  });
   $('chkMamasMasculinas').addEventListener('change', e=>{
     toggle('wrap_ecotextura', !e.target.checked);
     toggle('wrap_biradsCategoria', !e.target.checked);
