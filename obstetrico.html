@@ -1205,7 +1205,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impDopplerFetalNormal: 'Não há sinais de centralização de fluxo fetal.',
     impDopplerFetalAlterado: 'Sinais de centralização de fluxo fetal, sugerindo redistribuição hemodinâmica — sugere-se avaliação e acompanhamento especializado.',
     impDopplerFetalNormalTodos: 'Não há sinais de centralização de fluxo em {TERMO} os fetos.',
-    impRcpBaixoP5: 'Relação Cérebro-Placentária abaixo do P5 — Sinal de redistribuição de fluxo fetal.',
+    impRcpBaixoP5: 'RCP abaixo do percentil 5 - Sugere redistribuição hemodinâmica fetal.',
 
     impPbf: 'PBF: {SCORE}/8.',
     impPbfTodos: 'PBF de {TERMO} os fetos: {SCORE}/8.',
@@ -1446,7 +1446,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Percentil do RCP (calculado, editável)</label><input type="text" inputmode="numeric" id="feto'+uid+'CprPercentil" placeholder="calculado automaticamente"><button type="button" class="cpr-recalc" id="feto'+uid+'CprRecalc" data-uid="'+uid+'" style="margin-top:6px;background:none;border:none;padding:0;font-size:12px;color:var(--rose-dark);text-decoration:underline;cursor:pointer;">Recalcular percentil</button></div>'
       +'</div>'
       +'<div class="field-row">'
-      +'<div class="field"><label>Classificação (umbilical + ACM + relação cérebro-placentária)</label><select id="feto'+uid+'DopplerClassificacao"><option value="normal">Dentro da normalidade</option><option value="alterado">Alterado (centralização de fluxo)</option></select></div>'
+      +'<div class="field"><label>Classificação (umbilical + ACM + relação cérebro-placentária)</label><select id="feto'+uid+'DopplerClassificacao"><option value="normal">Dentro da normalidade</option><option value="alterado">Alterado - Redistribuição de fluxo</option></select></div>'
       +'</div>'
       +'</div>'
 
