@@ -121,6 +121,8 @@
   .tirads-sugestao{font-size:15px;font-weight:700;color:#fff;margin-top:8px;padding:6px 14px;border-radius:8px;background:var(--rose);box-shadow:0 3px 10px rgba(174,91,160,0.4);display:inline-block;}
   .tirads-sugestao:empty{display:none;padding:0;box-shadow:none;}
   .tirads-sugestao.mismatch{background:var(--amber);box-shadow:0 3px 10px rgba(192,90,52,0.4);}
+  .medida-sugestao{font-size:11.5px;font-weight:700;color:var(--amber);margin-top:6px;display:none;}
+  .medida-sugestao.show{display:block;}
   .subgroup{border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;}
   .nodulo-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
 
@@ -144,6 +146,13 @@
   .combo-list .combo-empty{padding:10px 14px;font-size:12.5px;color:var(--ink-soft);}
 
   hr.sep{border:none;border-top:1px dashed var(--line);margin:14px 0;}
+
+  .img-modal-overlay{display:none;position:fixed;inset:0;background:rgba(43,43,46,.78);z-index:2000;align-items:center;justify-content:center;padding:24px;}
+  .img-modal-overlay.show{display:flex;}
+  .img-modal-box{background:#fff;border-radius:16px;padding:16px;max-width:min(640px,90vw);max-height:90vh;overflow:auto;position:relative;box-shadow:var(--shadow);}
+  .img-modal-box img{max-width:100%;display:block;border-radius:8px;}
+  .img-modal-box .img-modal-missing{font-family:'Inter',sans-serif;font-size:13px;color:var(--ink-soft);max-width:340px;padding:20px 4px;}
+  .img-modal-close{position:absolute;top:-12px;right:-12px;background:var(--rose-dark);color:#fff;border:none;border-radius:999px;width:30px;height:30px;cursor:pointer;font-size:16px;line-height:1;box-shadow:0 4px 10px rgba(0,0,0,.25);}
 
   .preview-wrap{position:sticky;top:88px;}
   .paper-table{width:100%;border-collapse:collapse;table-layout:fixed;}
@@ -272,6 +281,7 @@
   @media print{
     .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note{display:none !important;}
     .combo-list{display:none !important;}
+    .img-modal-overlay{display:none !important;}
     .pg-break-marker{display:none !important;}
     .layout{display:block;padding:0;margin:0;max-width:none;}
     .preview-wrap{position:static;}
@@ -373,12 +383,20 @@
   <div class="field" style="margin-bottom:8px;"><label>Cisto colóide (1) — use {LADO}</label><textarea id="ph_impCistoColoide1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cistos colóides (ao menos 3) — use {LADO}</label><textarea id="ph_impCistoColoideVarios" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Tireoidite de Hashimoto — use {VOLVASC}</label><textarea id="ph_impHashimoto" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Linfonodo reacional — use {NIVEL}</label><textarea id="ph_impLinfonodo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Linfonodo reacional — use {NIVEL}</label><textarea id="ph_impLinfonodoReacional" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Linfonodo suspeito — use {NIVEL}</label><textarea id="ph_impLinfonodoSuspeito" rows="2"></textarea></div>
   <hr class="sep">
   <div class="save-row">
     <button class="btn-copy" id="btnSavePhrases">Salvar frases</button>
     <button class="btn-clear" id="btnResetPhrases">Restaurar padrão</button>
     <span class="saved-msg" id="phrasesSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="img-modal-overlay" id="niveisModal">
+  <div class="img-modal-box">
+    <button type="button" class="img-modal-close" id="btnFecharNiveisModal" title="Fechar">✕</button>
+    <img src="linfonodos.png" alt="Mapa dos níveis cervicais" id="niveisModalImg" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className:'img-modal-missing', textContent:'Não foi possível carregar linfonodos.png — confira se esse arquivo está na mesma pasta deste laudo.'}))">
   </div>
 </div>
 
@@ -522,19 +540,50 @@
           <div class="field"><label>Demais estruturas cervicais</label>
             <select id="cervicaisAspecto">
               <option value="normal">Sem alterações (traqueia em posição anatômica)</option>
-              <option value="linfonodo">Linfonodo reacional</option>
+              <option value="linfonodo">Linfonodo cervical</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
         </div>
-        <div class="field-row field-row-compact conditional" id="wrap_linfonodoCampos">
-          <div class="field"><label>Nível cervical</label>
-            <select id="linfonodoNivel">
-              <option value="I">I</option><option value="II">II</option><option value="III">III</option>
-              <option value="IV">IV</option><option value="V">V</option><option value="VI">VI</option>
-            </select>
+        <div class="conditional" id="wrap_linfonodoCampos">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+            <button type="button" class="btn-clear" id="btnVerMapaNiveis" style="font-size:11.5px;padding:6px 12px;">Ver mapa dos níveis</button>
           </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="linfonodoTamanho" placeholder="cm"></div>
+          <div class="field-row field-row-compact">
+            <div class="field"><label>Nível cervical</label><select id="linfonodoNivel">
+              <option value="I">I — submandibular/submentual</option>
+              <option value="IIA">IIA — jugular superior (anterior ao NAE)</option>
+              <option value="IIB">IIB — jugular superior (posterior ao NAE)</option>
+              <option value="III">III — jugular médio</option>
+              <option value="IV">IV — jugular inferior</option>
+              <option value="V">V — triângulo posterior</option>
+              <option value="VI">VI — compartimento central</option>
+              <option value="VII">VII — mediastinal superior</option>
+            </select></div>
+            <div class="field"><label>Forma</label><select id="linfonodoForma">
+              <option value="oval">Oval/fusiforme (preservada)</option><option value="arredondado">Arredondada/globosa (suspeita)</option>
+            </select></div>
+          </div>
+          <div class="field-row field-row-compact">
+            <div class="field"><label>Ecogenicidade</label><select id="linfonodoEco">
+              <option value="normal">Hipoecoico com hilo ecogênico (padrão normal)</option>
+              <option value="calcificacoes">Calcificações</option>
+              <option value="microcalcificacoes">Microcalcificações</option>
+              <option value="cisticas">Alterações císticas</option>
+              <option value="ecoAumentada">Ecogenicidade aumentada</option>
+              <option value="perdaHilo">Perda do hilo ecogênico</option>
+            </select></div>
+            <div class="field"><label>Doppler</label><select id="linfonodoDoppler">
+              <option value="normal">Normal (pouca vascularização central, ramos do hilo)</option>
+              <option value="periferica">Predominantemente periférica</option>
+              <option value="mista">Mista (central e periférica)</option>
+              <option value="aumentada">Aumentada em relação ao padrão habitual</option>
+            </select></div>
+          </div>
+          <div class="field-row field-row-compact">
+            <div class="field"><label>Menor eixo</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="linfonodoTamanho" placeholder="mm">
+              <span class="medida-sugestao" id="linfonodoSugestao"></span></div>
+          </div>
         </div>
         <div class="field conditional" id="wrap_cervicaisDescricao">
           <label>Descreva o achado</label>
@@ -662,7 +711,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.09.02-a</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.09.14-a</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -1082,6 +1131,15 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   })();
 
+  // ---------- Mapa dos níveis cervicais: popup de apoio para o campo Nível ----------
+  (function(){
+    const modal = $('niveisModal');
+    $('btnVerMapaNiveis').addEventListener('click', ()=> modal.classList.add('show'));
+    $('btnFecharNiveisModal').addEventListener('click', ()=> modal.classList.remove('show'));
+    modal.addEventListener('click', e=>{ if(e.target === modal) modal.classList.remove('show'); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') modal.classList.remove('show'); });
+  })();
+
   wireDecimalInputs();
 
   // ---------- Reference values ----------
@@ -1094,6 +1152,30 @@ if(typeof criarMotorLaudo !== 'function'){
   const VOLUME_TOTAL_MIN = 6.0;
   const VOLUME_TOTAL_MAX = 15.0;
   const VELOCIDADE_ATI_MAX = 30.0;
+
+  // Mesmos critérios de avaliação linfonodal do cervical-doppler.html — limite
+  // de normalidade do menor eixo por nível (10 mm no nível II, 9 mm nos
+  // demais), forma e ecogenicidade. Ver o comentário equivalente lá para o
+  // porquê de não haver um limite de 7 mm específico para IA.
+  const NIVEL_LIMITE = {I:9, IIA:10, IIB:10, III:9, IV:9, V:9, VI:9, VII:9};
+  const FORMA_TEXTO = {
+    oval: 'de contorno oval/fusiforme, com hilo preservado',
+    arredondado: 'de contorno arredondado (globoso), com perda da relação eixo longo/eixo curto'
+  };
+  const ECO_TEXTO = {
+    normal: 'hipoecogênico, com hilo central ecogênico preservado',
+    calcificacoes: 'com calcificações grosseiras de permeio',
+    microcalcificacoes: 'com microcalcificações de permeio',
+    cisticas: 'com áreas de alteração cística de permeio',
+    ecoAumentada: 'com ecogenicidade aumentada',
+    perdaHilo: 'com perda do hilo ecogênico central'
+  };
+  const DOPPLER_LINFONODO_TEXTO = {
+    normal: 'padrão de vascularização hilar preservado ao Doppler',
+    periferica: 'padrão de vascularização predominantemente periférico ao Doppler',
+    mista: 'padrão de vascularização mista (central e periférica) ao Doppler',
+    aumentada: 'vascularização aumentada em relação ao padrão habitual ao Doppler'
+  };
 
   // Descritores do nódulo tireoidiano, no padrão ACR TI-RADS (composição,
   // ecogenicidade, forma, margem e focos ecogênicos) — a médica ainda escolhe
@@ -1208,7 +1290,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impCistoColoide1: 'Cisto colóide no lobo {LADO}.',
     impCistoColoideVarios: 'Cistos colóides no lobo {LADO}.',
     impHashimoto: 'Tireoide de volume e vascularização {VOLVASC} com textura heterogênea, sugestiva de tireoidite crônica.',
-    impLinfonodo: 'Linfonodo reacional em nível cervical {NIVEL}.'
+    impLinfonodoReacional: 'Linfonodo reacional em nível cervical {NIVEL}.',
+    impLinfonodoSuspeito: 'Linfonodo suspeito em nível cervical {NIVEL} — sugere-se correlação clínica e seguimento.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
 
@@ -1389,6 +1472,22 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_linfonodoCampos', val==='linfonodo');
     toggle('wrap_cervicaisDescricao', val==='alterado');
   });
+
+  // Mesmo aviso de "acima do valor de referência para o nível" do
+  // cervical-doppler.html, aqui para o único linfonodo deste laudo.
+  function updateLinfonodoSugestao(){
+    const nivel = v('linfonodoNivel') || 'I';
+    const medidaNum = num('linfonodoTamanho');
+    const limite = NIVEL_LIMITE[nivel] || 9;
+    const sugestaoEl = $('linfonodoSugestao');
+    if(!sugestaoEl) return;
+    const aumentado = medidaNum!==null && medidaNum > limite;
+    sugestaoEl.textContent = aumentado ? '→ acima do valor de referência para o nível (limite '+limite+' mm)' : '';
+    sugestaoEl.classList.toggle('show', aumentado);
+  }
+  $('linfonodoNivel').addEventListener('change', updateLinfonodoSugestao);
+  $('linfonodoTamanho').addEventListener('input', updateLinfonodoSugestao);
+  $('linfonodoTamanho').addEventListener('change', updateLinfonodoSugestao);
 
   function flag(id, isAbnormal){
     const el = $(id), note = $('flag_'+id);
@@ -1627,9 +1726,22 @@ if(typeof criarMotorLaudo !== 'function'){
     let linfonodoImpressaoHD = null;
     if(cervicaisAspecto==='linfonodo'){
       const nivel = v('linfonodoNivel') || 'I';
+      const forma = v('linfonodoForma') || 'oval';
+      const eco = v('linfonodoEco') || 'normal';
+      const doppler = v('linfonodoDoppler') || 'normal';
       const tamanho = blankOrValue(req('linfonodoTamanho'));
-      cervicaisTexto += ' Nota-se também, imagem nodular, fusiforme, globosa, hipoecogênica, com hilo central ecogênico, bem delimitada, localizada em nível cervical '+nivel+', medindo '+span(tamanho)+' cm.';
-      linfonodoImpressaoHD = phrase('impLinfonodo', {NIVEL:nivel});
+      const medidaNum = num('linfonodoTamanho');
+      const limite = NIVEL_LIMITE[nivel] || 9;
+      const aumentado = medidaNum!==null && medidaNum > limite;
+      const suspeito = aumentado || forma==='arredondado' || eco!=='normal' || doppler!=='normal';
+      const formaTxt = FORMA_TEXTO[forma] || FORMA_TEXTO.oval;
+      const ecoTxt = ECO_TEXTO[eco] || ECO_TEXTO.normal;
+      const dopplerTxt = DOPPLER_LINFONODO_TEXTO[doppler] || DOPPLER_LINFONODO_TEXTO.normal;
+      const sufixo = aumentado ? ' (acima do valor de referência para o nível)' : '';
+      cervicaisTexto += ' Nota-se também linfonodo '+formaTxt+', '+ecoTxt+', localizado em nível cervical '+nivel+', medindo '+span(tamanho)+' mm no menor eixo'+sufixo+', apresentando '+dopplerTxt+'.';
+      linfonodoImpressaoHD = suspeito
+        ? phrase('impLinfonodoSuspeito', {NIVEL:nivel})
+        : phrase('impLinfonodoReacional', {NIVEL:nivel});
     } else if(cervicaisAspecto==='alterado' && cervicaisDescricao){
       cervicaisTexto = escapeHtml(cervicaisDescricao)+'.';
     }
