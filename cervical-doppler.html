@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laudo Mamas e Axilas — Dra. Morgana Kummer</title>
+<title>Laudo Cervical com Doppler — Dra. Morgana Kummer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -95,6 +95,7 @@
     font-family:'Poppins',sans-serif;font-size:14px;letter-spacing:.2px;
     color:var(--rose-dark);margin:0;font-weight:600;
   }
+  .card-head .btn-clear{font-size:11.5px;padding:6px 12px;}
   .card-body{padding:18px 20px 20px;}
 
   .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:14px;}
@@ -111,19 +112,20 @@
     border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);
   }
   .field input.flag-abnormal{border-color:var(--amber);background:var(--amber-light);}
+  .field input[readonly]{background:#efe9ef;color:var(--ink-soft);cursor:default;}
+  .field input[readonly].flag-abnormal{background:var(--amber-light);color:var(--amber);}
   .field input.format-error{border-color:#B4432F;background:#FBEAE6;}
   .field input.field-missing{border-color:#B4432F;}
   .format-warning{font-size:11px;color:#B4432F;font-weight:600;display:block;margin-top:3px;}
   .field .flag-note{font-size:11px;color:var(--amber);font-weight:600;display:none;}
   .field .flag-note.show{display:block;}
+  .medida-sugestao{font-size:11.5px;font-weight:700;color:var(--amber);margin-top:6px;display:none;}
+  .medida-sugestao.show{display:block;}
+  .subgroup{border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;}
+  .linfonodo-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
 
   .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
   .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
-
-  .subgroup{
-    border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:14px;
-  }
-  .achado-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
 
   .conditional{display:none;}
   .conditional.show{display:block;}
@@ -142,6 +144,13 @@
   .combo-list .combo-empty{padding:10px 14px;font-size:12.5px;color:var(--ink-soft);}
 
   hr.sep{border:none;border-top:1px dashed var(--line);margin:14px 0;}
+
+  .img-modal-overlay{display:none;position:fixed;inset:0;background:rgba(43,43,46,.78);z-index:2000;align-items:center;justify-content:center;padding:24px;}
+  .img-modal-overlay.show{display:flex;}
+  .img-modal-box{background:#fff;border-radius:16px;padding:16px;max-width:min(640px,90vw);max-height:90vh;overflow:auto;position:relative;box-shadow:var(--shadow);}
+  .img-modal-box img{max-width:100%;display:block;border-radius:8px;}
+  .img-modal-box .img-modal-missing{font-family:'Inter',sans-serif;font-size:13px;color:var(--ink-soft);max-width:340px;padding:20px 4px;}
+  .img-modal-close{position:absolute;top:-12px;right:-12px;background:var(--rose-dark);color:#fff;border:none;border-radius:999px;width:30px;height:30px;cursor:pointer;font-size:16px;line-height:1;box-shadow:0 4px 10px rgba(0,0,0,.25);}
 
   .preview-wrap{position:sticky;top:88px;}
   .paper-table{width:100%;border-collapse:collapse;table-layout:fixed;}
@@ -173,6 +182,7 @@
     margin:0 0 24px;font-weight:700;
   }
   .paper h3.doctitle > br:first-child{display:none;}
+  .paper h3.doctitle > br.quebra-doppler{display:inline !important;}
   .paper .relato{color:#C0392B;font-weight:700;margin:0 0 12px;}
   .paper h4.sec{
     text-decoration:underline;font-size:13px;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
@@ -183,14 +193,11 @@
   .paper p.linha.intro.intro-last{margin:0 0 var(--linha-margin, 16px);text-decoration:underline;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
-  .paper .nodulos-lista{margin:0 0 16px;}
-  .paper .nodulos-lista .nodulo-item{margin:0 0 6px;padding-left:2.4em;text-indent:-2.4em;}
-  .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
   .paper ul.impressao li{margin-bottom:2px;font-weight:700;text-align:justify;padding-left:1em;text-indent:-1em;}
-  .paper .birads-line{margin:4px 0 0;padding-left:1em;font-weight:700;}
   .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
   .paper .footnote{font-style:italic;font-size:9pt;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
+  .paper .footnote a{color:inherit;}
   .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
   .paper .assinatura p{margin:0;}
   .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:3px 14px 0;margin-bottom:2px!important;}
@@ -267,6 +274,7 @@
   @media print{
     .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note{display:none !important;}
     .combo-list{display:none !important;}
+    .img-modal-overlay{display:none !important;}
     .pg-break-marker{display:none !important;}
     .layout{display:block;padding:0;margin:0;max-width:none;}
     .preview-wrap{position:static;}
@@ -275,7 +283,7 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper .nodulos-lista, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
+    .paper p.linha, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -291,11 +299,11 @@
     <div class="logo-badge"><img src="logo-horiz.png" alt="Clínica de Ultrassom — Dra. Morgana Kummer"></div>
     <div class="topbar-divider"></div>
     <div class="exam-icon-badge" aria-hidden="true">
-      <img src="icon-mamas.png" alt="">
+      <img src="icon-tireoide.png" alt="">
     </div>
     <div>
-      <h1>Mamas e Axilas</h1>
-      <div class="sub">Ultrassonografia das Mamas e Axilas · preencha os achados obtidos — o laudo é montado automaticamente ao lado</div>
+      <h1>Cervical com Doppler</h1>
+      <div class="sub">Ultrassonografia da Região Cervical com Estudo Doppler · preencha os achados — o laudo é montado automaticamente ao lado</div>
     </div>
   </div>
   <div class="topbar-actions">
@@ -317,12 +325,12 @@
       <option value="index.html">Todos os laudos</option>
       <optgroup label="Medicina Interna">
         <option value="abdome-total.html">Abdome Total</option>
-        <option value="cervical-doppler.html">Cervical com Doppler</option>
+        <option value="cervical-doppler.html" selected>Cervical com Doppler</option>
         <option value="rins-vias-urinarias.html">Rins e Vias Urinárias</option>
         <option value="tireoide-doppler.html">Tireóide com Doppler</option>
       </optgroup>
       <optgroup label="Ginecológico">
-        <option value="mamas.html" selected>Mamas e Axilas</option>
+        <option value="mamas.html">Mamas e Axilas</option>
         <option value="monitorizacao-folicular-fiv.html">Monitorização Folicular (FIV)</option>
         <option value="pelvico-infantil.html">Pélvico Infantil</option>
         <option value="rastreamento-ovulacao.html">Rastreamento de Ovulação</option>
@@ -358,26 +366,23 @@
 
 <div class="settings-panel" id="phrasesPanel">
   <h3>Personalizar frases da impressão diagnóstica</h3>
-  <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases que entram na Impressão diagnóstica conforme os achados adicionados. Use {LADO} onde deve entrar "direita"/"esquerda" e, no seroma, {LOCAL} para a localização digitada. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui.</p>
-
-  <div class="field" style="margin-bottom:8px;"><label>Nada alterado</label><textarea id="ph_impNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Cisto simples (único) — use {LADO}</label><textarea id="ph_impCistoSingular" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Cistos simples (2 ou mais) — use {LADO}</label><textarea id="ph_impCistoPlural" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Aglomerado cístico — use {LADO}</label><textarea id="ph_impAglomeradoCistico" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido (único) — use {LADO}</label><textarea id="ph_impNoduloSingular" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos (2 ou mais) — use {LADO}</label><textarea id="ph_impNoduloPlural" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos bilaterais</label><textarea id="ph_impNoduloBilateral" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Cistos simples bilaterais</label><textarea id="ph_impCistoBilateral" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Fibroadenoma (FAD) — use {LADO}</label><textarea id="ph_impFibroadenoma" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Linfonodo axilar atípico — use {LADO}</label><textarea id="ph_impLinfonodoAxilar" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Linfonodo intramamário — use {LADO}</label><textarea id="ph_impLinfonodoIntramamario" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Seroma — use {LADO} e {LOCAL}</label><textarea id="ph_impSeroma" rows="2"></textarea></div>
-
+  <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases que entram na Impressão conforme o exame estiver normal. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui. Achados alterados não geram frase automática: descreva-os nos campos do formulário e ajuste a Impressão diretamente no laudo, ao lado.</p>
+  <div class="field" style="margin-bottom:8px;"><label>Ultrassom cervical sem alterações</label><textarea id="ph_impNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Estudo Doppler dentro da normalidade</label><textarea id="ph_impDopplerNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Linfonodo(s) reacional(is) — use {NIVEIS}</label><textarea id="ph_impLinfonodoReacional" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Linfonodo(s) suspeito(s) — use {NIVEIS}</label><textarea id="ph_impLinfonodoSuspeito" rows="2"></textarea></div>
   <hr class="sep">
   <div class="save-row">
     <button class="btn-copy" id="btnSavePhrases">Salvar frases</button>
     <button class="btn-clear" id="btnResetPhrases">Restaurar padrão</button>
     <span class="saved-msg" id="phrasesSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="img-modal-overlay" id="niveisModal">
+  <div class="img-modal-box">
+    <button type="button" class="img-modal-close" id="btnFecharNiveisModal" title="Fechar">✕</button>
+    <img src="linfonodos.png" alt="Mapa dos níveis cervicais" id="niveisModalImg" onerror="this.replaceWith(Object.assign(document.createElement('div'), {className:'img-modal-missing', textContent:'Não foi possível carregar linfonodos.png — confira se esse arquivo está na mesma pasta deste laudo.'}))">
   </div>
 </div>
 
@@ -388,11 +393,9 @@
     <div class="card">
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
-        <div class="toggle-line" style="margin-top:0;"><input type="checkbox" id="chkMamasMasculinas"><label for="chkMamasMasculinas">Exame de mamas masculinas — troca o título do laudo automaticamente</label></div>
-        <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">A impressão reserva 3,5 cm em branco no topo para a folha timbrada; o cabeçalho de identificação abaixo entra logo após esse espaço.</p>
         <div class="field-row">
-          <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+          <div class="field"><label>Nome do(a) paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
           <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
         </div>
         <div class="field-row">
@@ -402,66 +405,65 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Indicação clínica e mamografia prévia</h2></div>
+      <div class="card-head"><h2>Ao exame</h2></div>
       <div class="card-body">
-        <div class="field"><label>Relato / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de nodularidade em mama direita.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
-        <hr class="sep">
-        <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkMamografia"><label for="chkMamografia">Incluir referência a mamografia prévia</label></div>
-        <div class="field-row conditional" id="wrap_mamografiaCampos">
-          <div class="field"><label>Mês/ano da mamografia</label><input type="text" id="mamografiaData" placeholder="mm/aaaa"></div>
-          <div class="field"><label>Categoria BI-RADS (mamografia)</label>
-            <select id="mamografiaCategoria">
-              <option value="0">Cat 0</option><option value="1">Cat 1</option><option value="2">Cat 2</option>
-              <option value="3">Cat 3</option><option value="4A">Cat 4A</option><option value="4B">Cat 4B</option>
-              <option value="4C">Cat 4C</option><option value="5">Cat 5</option><option value="6">Cat 6</option>
+        <div class="field-row">
+          <div class="field"><label>Planos musculares e tecido subcutâneo</label>
+            <select id="planosAspecto">
+              <option value="normal">Preservados</option>
+              <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
         </div>
+        <div class="field conditional" id="wrap_planosDescricao">
+          <label>Descreva o achado</label>
+          <textarea id="planosDescricao" rows="2"></textarea>
+        </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Aspecto geral das mamas</h2></div>
+      <div class="card-head">
+        <h2>Linfonodos cervicais</h2>
+        <button type="button" class="btn-clear" id="btnVerMapaNiveis">Ver mapa dos níveis</button>
+      </div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Sem achado marcado abaixo, o laudo sai com "Ausência de sinais de linfonodomegalia." O que importa para o tamanho é sempre o menor eixo do linfonodo — o eixo longo não é avaliado.</p>
+        <div class="field-row">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="temLinfonodo" style="accent-color:#6d3263;"> Há linfonodo(s) a descrever
+          </label>
+        </div>
+        <div class="conditional" id="wrap_linfonodoCampos">
+          <hr class="sep">
+          <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">À direita</p>
+          <div id="linfoDContainer"></div>
+          <button type="button" class="btn-clear" id="btnAddLinfoD" style="margin:2px 0 12px;">+ Adicionar linfonodo à direita</button>
+          <hr class="sep">
+          <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">À esquerda</p>
+          <div id="linfoEContainer"></div>
+          <button type="button" class="btn-clear" id="btnAddLinfoE" style="margin:2px 0 12px;">+ Adicionar linfonodo à esquerda</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Estudo Doppler</h2></div>
       <div class="card-body">
         <div class="field-row">
-          <div class="field"><label>Mamas</label>
-            <select id="mamasAspecto"><option value="normal">Normal</option><option value="alterado">Alterado (descrever)</option></select>
-          </div>
-          <div class="field conditional show" id="wrap_ecotextura"><label>Ecotextura do parênquima</label>
-            <select id="ecotextura">
-              <option value="gordurosa">Homogênea gordurosa</option>
-              <option value="fibroglandular">Homogênea fibroglandular</option>
-              <option value="heterogenea">Heterogênea</option>
+          <div class="field"><label>Padrão de vascularização</label>
+            <select id="vascularizacaoAspecto">
+              <option value="normal">Normal (pouca vascularização central, ramos partindo do hilo)</option>
+              <option value="aumentada">Aumentada em relação ao padrão habitual</option>
+              <option value="periferica">Predominantemente periférica</option>
+              <option value="mista">Mista (central e periférica)</option>
+              <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
         </div>
-        <div class="field conditional" id="wrap_mamasDescricao">
+        <div class="field conditional" id="wrap_vascularizacaoDescricao">
           <label>Descreva o achado</label>
-          <textarea id="mamasDescricao" rows="2" placeholder="ex: assimetria de volume, mama direita maior que a esquerda..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Achados (mamas e axilas)</h2></div>
-      <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Sem nenhum achado adicionado, mama direita e esquerda saem com o texto normal do modelo. Cada achado gera seu parágrafo no corpo do laudo e sua linha na Impressão Diagnóstica — os de linfonodo axilar entram na seção Axilas, não na mama.</p>
-        <div id="achadosContainer"></div>
-        <button type="button" class="btn-clear" id="btnAddAchado">+ Adicionar achado</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Pele e tecido subcutâneo</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="peleAspecto"><option value="normal">De espessura usual, sem alterações</option><option value="alterado">Alterado (descrever)</option></select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_peleDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="peleDescricao" rows="2" placeholder="ex: espessamento cutâneo em quadrante..."></textarea>
+          <textarea id="vascularizacaoDescricao" rows="2"></textarea>
         </div>
       </div>
     </div>
@@ -471,22 +473,7 @@
       <div class="card-body">
         <div class="field">
           <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
-          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um parágrafo no corpo do laudo"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Finalização</h2></div>
-      <div class="card-body">
-        <div class="toggle-line"><input type="checkbox" id="chkProtese"><label for="chkProtese">Prótese mamária — incluir observação padrão no fim do laudo, antes da Impressão</label></div>
-        <div class="field conditional" id="wrap_proteseAspecto">
-          <label>Aspecto da prótese</label>
-          <select id="proteseAspecto"><option value="normal">Contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro</option><option value="alterado">Alterado (descrever)</option></select>
-        </div>
-        <div class="field conditional" id="wrap_proteseDescricao">
-          <label>Descreva a alteração</label>
-          <textarea id="proteseDescricao" rows="2" placeholder="ex: coleção periprotética, dobras do invólucro, sinais de ruptura..."></textarea>
+          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um parágrafo no corpo do laudo — a conclusão sobre isso é escrita por você, direto na Impressão ao lado"></textarea>
         </div>
       </div>
     </div>
@@ -494,16 +481,8 @@
     <div class="card">
       <div class="card-head"><h2>Impressão diagnóstica</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base nos achados. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base no exame normal. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
-        <hr class="sep">
-        <div class="field conditional show" id="wrap_biradsCategoria"><label>Categoria BI-RADS-US® (exame atual)</label>
-          <select id="biradsCategoria">
-            <option value="0">Cat 0</option><option value="1" selected>Cat 1</option><option value="2">Cat 2</option>
-            <option value="3">Cat 3</option><option value="4A">Cat 4A</option><option value="4B">Cat 4B</option>
-            <option value="4C">Cat 4C</option><option value="5">Cat 5</option><option value="6">Cat 6</option>
-          </select>
-        </div>
       </div>
     </div>
 
@@ -581,7 +560,7 @@
       </span>
       <span class="fmt-sep"></span>
       <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
-      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.09.04-a</span>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.09.14-a</span>
     </div>
     <table class="paper-table">
       <thead><tr><td></td></tr></thead>
@@ -626,7 +605,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // máscara de CPF e validação de decimais. Consertar qualquer um deles é uma
   // edição só, lá, e vale para todos. Ver o cabeçalho do laudo-core.js.
   const motor = criarMotorLaudo({
-    DRAFT_KEY: 'laudo-rascunho-mamas-v1',
+    DRAFT_KEY: 'laudo-rascunho-cervical-doppler-v1',
     render:          () => render(),
     draftSnapshot:   () => draftSnapshot(),
     tituloExame:     () => tituloExame(),
@@ -644,9 +623,6 @@ if(typeof criarMotorLaudo !== 'function'){
     vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml
   } = motor;
 
-  // Título e edições manuais dentro de itens da "IMPRESSÃO" não sobrevivem ao
-  // render() remontando o HTML do #paper do zero — espelhados fora do DOM para
-  // o render() reaplicar sempre (mesmo padrão dos outros laudos).
   let titleFontSize = null;
   let impressaoOverrides = {};
 
@@ -705,18 +681,6 @@ if(typeof criarMotorLaudo !== 'function'){
       }
     }
     document.addEventListener('selectionchange', capturarSelecaoSeAtiva);
-    // Abrir o <select> nativo (mousedown nele) pode, dependendo do navegador
-    // e do momento, disparar 'selectionchange' já com a seleção do #paper
-    // limpa, ou atrasar esse evento até depois do popup nativo fechar — nos
-    // dois casos o 'change' do <select> leria lastPaperSelectionRange como
-    // null mesmo com o trecho ainda selecionado na tela, e cairia sem
-    // querer no ramo que aplica o espaçamento no laudo INTEIRO em vez de só
-    // na seleção (foi assim que a Dra. Morgana viu o espaçamento mudar em
-    // tudo, inclusive no título, escolhendo um espaçamento com um trecho
-    // selecionado). Capturar de novo aqui, no mousedown do próprio <select>
-    // — antes do popup abrir, sem depender da corrida com o
-    // selectionchange —, garante que a seleção mais recente nunca se perde
-    // por essa via.
     lineHeightSel.addEventListener('mousedown', capturarSelecaoSeAtiva);
     function captureSelectionInPaper(){
       const range = lastPaperSelectionRange;
@@ -746,26 +710,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '16px';
       if(range){
         const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, h4.sec')).filter(el=> range.intersectsNode(el));
-        // A seleção pode legitimamente cruzar de um p.linha/h4.sec para
-        // dentro de OUTRO bloco que esta lista de parágrafos não reconhece —
-        // uma tabela, um <div> com sua própria margem. Contar só os
-        // parágrafos "esperados" já causou corrupção: com um só parágrafo
-        // contado mas a seleção de verdade indo além dele, o código caía no
-        // ramo de span único (abaixo), que tenta envolver a seleção inteira
-        // num <span> — range.surroundContents() falha nesse caso, e o catch
-        // (extractContents + insertNode) duplica o data-blk de cada bloco na
-        // fronteira da seleção. blocosTocados usa TODO filho direto do
-        // #paper (não só os parágrafos) só para decidir o ramo — o bloco
-        // cruzado que não é parágrafo não ganha lineHeight/margin (não faria
-        // sentido nele), mas o span nunca chega a envolver essa fronteira.
         const blocosTocados = Array.from(paperEl.querySelectorAll(':scope > [data-blk]')).filter(el=> range.intersectsNode(el));
-        // Uma tabela (morfologia, biometria) é UM data-blk só: blocosTocados
-        // nunca vê mais de um ali, e uma seleção que cruza duas <td> (rótulo
-        // pra descrição, linha pra linha) caía no ramo do <span> — que não
-        // pode envolver duas <td> validamente. surroundContents() falha, e o
-        // catch reinsere o conteúdo extraído partindo a linha da tabela. Foi
-        // assim que selecionar do rótulo "Crânio / cérebro" até a descrição e
-        // escolher "Compacto" quebrou as colunas da morfologia.
         const celulaDoLimite = (container, offset) => {
           let node = container;
           if(node.nodeType === 1) node = node.childNodes[offset] || node.childNodes[offset - 1] || node;
@@ -1004,37 +949,14 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   })();
 
-  // Ao trocar um select de aspecto para "alterado", a caixa de descrição já
-  // nasce com o texto do normal — a alteração costuma ser mínima, e editar em
-  // cima do texto padrão é mais rápido que escrever do zero. Só preenche se a
-  // caixa ainda estiver vazia: o que a médica já tiver escrito nunca é pisado.
-  function prefillAspectoDescricao(boxId, textoNormal){
-    const box = $(boxId);
-    if(!box || box.value.trim()) return;
-    box.value = typeof textoNormal === 'function' ? textoNormal() : textoNormal;
-  }
-
-  $('chkMamografia').addEventListener('change', e=> toggle('wrap_mamografiaCampos', e.target.checked));
-  $('mamasAspecto').addEventListener('change', e=>{
-    toggle('wrap_mamasDescricao', e.target.value==='alterado');
-    if(e.target.value==='alterado') prefillAspectoDescricao('mamasDescricao', ()=> $('chkMamasMasculinas').checked ? 'Mamas regulares' : 'Mamas regulares e simétricas');
-  });
-  $('peleAspecto').addEventListener('change', e=>{
-    toggle('wrap_peleDescricao', e.target.value==='alterado');
-    if(e.target.value==='alterado') prefillAspectoDescricao('peleDescricao', 'Pele e tecido subcutâneo de espessura usual, sem alterações');
-  });
-  $('chkProtese').addEventListener('change', e=>{
-    toggle('wrap_proteseAspecto', e.target.checked);
-    toggle('wrap_proteseDescricao', e.target.checked && $('proteseAspecto').value==='alterado');
-  });
-  $('proteseAspecto').addEventListener('change', e=>{
-    toggle('wrap_proteseDescricao', $('chkProtese').checked && e.target.value==='alterado');
-    if(e.target.value==='alterado') prefillAspectoDescricao('proteseDescricao', 'contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro');
-  });
-  $('chkMamasMasculinas').addEventListener('change', e=>{
-    toggle('wrap_ecotextura', !e.target.checked);
-    toggle('wrap_biradsCategoria', !e.target.checked);
-  });
+  // ---------- Mapa dos níveis cervicais: popup de apoio para o campo Nível ----------
+  (function(){
+    const modal = $('niveisModal');
+    $('btnVerMapaNiveis').addEventListener('click', ()=> modal.classList.add('show'));
+    $('btnFecharNiveisModal').addEventListener('click', ()=> modal.classList.remove('show'));
+    modal.addEventListener('click', e=>{ if(e.target === modal) modal.classList.remove('show'); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') modal.classList.remove('show'); });
+  })();
 
   wireDecimalInputs();
 
@@ -1046,9 +968,40 @@ if(typeof criarMotorLaudo !== 'function'){
     medicoCRM:'CRMMG: 45.304 - RQE: 39.156'
   };
 
+  // Limite de normalidade do menor eixo, por nível — Nível II (10 mm) e os
+  // demais níveis (9 mm), conforme os dois patamares que a Dra. Morgana pediu.
+  // Sem um nível "IA" separado na lista (ela optou por manter só "I"), o nível
+  // I usa o mesmo limite geral de 9 mm dos demais — não o de 7 mm que valeria
+  // só para IA isoladamente.
+  const NIVEL_LIMITE = {I:9, IIA:10, IIB:10, III:9, IV:9, V:9, VI:9, VII:9};
+  const NIVEL_ROTULO = {
+    I:'I — submandibular/submentual',
+    IIA:'IIA — jugular superior (anterior ao NAE)',
+    IIB:'IIB — jugular superior (posterior ao NAE)',
+    III:'III — jugular médio',
+    IV:'IV — jugular inferior',
+    V:'V — triângulo posterior',
+    VI:'VI — compartimento central',
+    VII:'VII — mediastinal superior'
+  };
+  const NIVEL_ORDEM = ['I','IIA','IIB','III','IV','V','VI','VII'];
+
+  const FORMA_TEXTO = {
+    oval: 'de contorno oval/fusiforme, com hilo preservado',
+    arredondado: 'de contorno arredondado (globoso), com perda da relação eixo longo/eixo curto'
+  };
+  const ECO_TEXTO = {
+    normal: 'hipoecoico, com hilo ecogênico central preservado',
+    calcificacoes: 'com calcificações grosseiras de permeio',
+    microcalcificacoes: 'com microcalcificações de permeio',
+    cisticas: 'com áreas de alteração cística de permeio',
+    ecoAumentada: 'com ecogenicidade aumentada',
+    perdaHilo: 'com perda do hilo ecogênico central'
+  };
+
   async function loadVR(){
     try{
-      const val = await kvStore.get('mamas-vr-settings');
+      const val = await kvStore.get('cervical-doppler-vr-settings');
       if(val){
         const parsed = JSON.parse(val);
         VR = Object.assign(VR, parsed);
@@ -1073,7 +1026,7 @@ if(typeof criarMotorLaudo !== 'function'){
       medicoCRM: $('vr_medicoCRM').value || VR.medicoCRM
     };
     try{
-      await kvStore.set('mamas-vr-settings', JSON.stringify(VR));
+      await kvStore.set('cervical-doppler-vr-settings', JSON.stringify(VR));
       const m = $('vrSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
     }catch(e){ /* storage unavailable — values still apply for this session */ }
     render();
@@ -1081,24 +1034,16 @@ if(typeof criarMotorLaudo !== 'function'){
 
   // ---------- Frases da impressão diagnóstica ----------
   const PHRASE_DEFAULTS = {
-    impNormal: 'Exame ecográfico dentro da normalidade.',
-    impCistoSingular: 'Cisto simples em mama {LADO}.',
-    impCistoPlural: 'Cistos simples em mama {LADO}.',
-    impAglomeradoCistico: 'Aglomerado cístico em mama {LADO}.',
-    impNoduloSingular: 'Nódulo sólido em mama {LADO}.',
-    impNoduloPlural: 'Nódulos sólidos em mama {LADO}.',
-    impNoduloBilateral: 'Nódulos sólidos bilaterais.',
-    impCistoBilateral: 'Cistos simples bilaterais.',
-    impFibroadenoma: 'Nódulo mamário à {LADO}.',
-    impLinfonodoAxilar: 'Linfonodo axilar atípico à {LADO}.',
-    impLinfonodoIntramamario: 'Linfonodo intramamário à {LADO}.',
-    impSeroma: 'Coleção densa {LOCAL} da mama {LADO} – Seroma?'
+    impNormal: 'Ultrassom cervical sem alterações.',
+    impDopplerNormal: 'Estudo Doppler dentro da normalidade.',
+    impLinfonodoReacional: 'Linfonodo(s) reacional(is) em nível cervical {NIVEIS}.',
+    impLinfonodoSuspeito: 'Linfonodo(s) suspeito(s) em nível cervical {NIVEIS} — sugere-se correlação clínica e seguimento.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
 
   async function loadPhrases(){
     try{
-      const val = await kvStore.get('mamas-phrase-templates');
+      const val = await kvStore.get('cervical-doppler-phrase-templates');
       if(val){
         const parsed = JSON.parse(val);
         PHRASES = Object.assign({}, PHRASE_DEFAULTS, parsed);
@@ -1130,7 +1075,7 @@ if(typeof criarMotorLaudo !== 'function'){
     });
     PHRASES = updated;
     try{
-      await kvStore.set('mamas-phrase-templates', JSON.stringify(PHRASES));
+      await kvStore.set('cervical-doppler-phrase-templates', JSON.stringify(PHRASES));
       const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
     }catch(e){ /* storage unavailable — values still apply for this session */ }
     render();
@@ -1139,7 +1084,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
     PHRASES = Object.assign({}, PHRASE_DEFAULTS);
     applyPhrasesToInputs();
-    try{ await kvStore.set('mamas-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
+    try{ await kvStore.set('cervical-doppler-phrase-templates', JSON.stringify(PHRASES)); }catch(e){}
     render();
   });
 
@@ -1158,352 +1103,129 @@ if(typeof criarMotorLaudo !== 'function'){
     if(sel.value !== 'outro') applyExecutante(sel.value);
   }
 
-  // ---------- Achados (cards que se repetem — um por achado, em qualquer mama) ----------
-  const ACHADO_TIPOS = [
-    ['cisto1','Cisto único'],
-    ['cisto2','2 cistos'],
-    ['cisto3','3 ou mais cistos'],
-    ['cistosVarios','Vários cistos dispersos pelo parênquima'],
-    ['aglomeradoCistico','Aglomerado cístico'],
-    ['nodulo1','Nódulo sólido único'],
-    ['nodulo2','2 nódulos sólidos'],
-    ['nodulo3','3 ou mais nódulos sólidos'],
-    ['fibroadenoma','Fibroadenoma (FAD)'],
-    ['linfonodoAxilar','Linfonodo axilar atípico'],
-    ['linfonodoIntramamario','Linfonodo intramamário'],
-    ['seroma','Seroma']
-  ];
-  let achadoNextUid = 1;
-
-  function achadoTipoOptions(){
-    return ACHADO_TIPOS.map(([val,label])=>'<option value="'+val+'">'+label+'</option>').join('');
+  // Ao trocar um select de aspecto para "alterado", a caixa de descrição já
+  // nasce com o texto do normal — a alteração costuma ser mínima, e editar em
+  // cima do texto padrão é mais rápido que escrever do zero. Só preenche se a
+  // caixa ainda estiver vazia: o que a médica já tiver escrito nunca é pisado.
+  function prefillAspectoDescricao(boxId, textoNormal){
+    const box = $(boxId);
+    if(!box || box.value.trim()) return;
+    box.value = typeof textoNormal === 'function' ? textoNormal() : textoNormal;
   }
 
-  function campoHoraDistTam(idPrefix, labelHora, medidasLivres, comLocalizacao){
-    const campoTam = medidasLivres
-      ? '<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+idPrefix+'Tam" placeholder="ex: 22,3 x 11,0 x 33,0"></div>'
-      : '<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Tam" placeholder="mm"></div>';
-    // Sem localização alternativa: o campo de hora/distância continua sempre
-    // visível e o "Tamanho" fica na mesma field-row, como sempre foi.
-    if(!comLocalizacao){
-      return '<div class="field-row">'
-        +'<div class="field"><label>'+labelHora+'</label><input type="text" id="'+idPrefix+'Hora" placeholder="ex: 2"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Dist" placeholder="cm"></div>'
-        + campoTam
-        +'</div>';
-    }
-    // Com localização: um seletor Horário/Retroareolar decide se a linha de
-    // hora+distância aparece — retroareolar não usa nem uma nem outra. O
-    // Tamanho fica fora dessa linha e continua sempre visível, porque a
-    // medida existe independente de onde o achado está.
-    return '<div class="field-row">'
-        +'<div class="field"><label>Localização</label><select id="'+idPrefix+'Local" class="local-toggle">'
-          +'<option value="horario">Horário e distância da borda areolar</option>'
-          +'<option value="retroareolar">Retroareolar</option>'
-        +'</select></div>'
+  $('planosAspecto').addEventListener('change', e=>{
+    toggle('wrap_planosDescricao', e.target.value==='alterado');
+    if(e.target.value==='alterado') prefillAspectoDescricao('planosDescricao', 'Planos musculares e tecido subcutâneo preservados');
+  });
+  $('vascularizacaoAspecto').addEventListener('change', e=>{
+    toggle('wrap_vascularizacaoDescricao', e.target.value==='alterado');
+    if(e.target.value==='alterado') prefillAspectoDescricao('vascularizacaoDescricao', 'Sem alterações significativas ao estudo Doppler');
+  });
+
+  // ---------- Linfonodos: duas listas dinâmicas (direita/esquerda), mesmo
+  // padrão dos nódulos no tireoide-doppler.html. O uid é único entre os dois
+  // lados (contador compartilhado, nunca reaproveitado), então o lado de cada
+  // linha vem só de qual container ela está — sem precisar de um campo "lado"
+  // dentro do próprio subgrupo. ----------
+  let linfoNextUid = 1;
+  function linfonodoSubgroupHTML(uid){
+    const options = NIVEL_ORDEM.map(n=> '<option value="'+n+'">'+NIVEL_ROTULO[n]+'</option>').join('');
+    return ''
+      +'<div class="subgroup" id="wrap_linfo'+uid+'">'
+      +'<p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Linfonodo <span class="linfo-index"></span></p>'
+      +'<div class="field-row field-row-compact">'
+      +'<div class="field"><label>Nível</label><select id="linfo'+uid+'Nivel">'+options+'</select></div>'
+      +'<div class="field"><label>Forma</label><select id="linfo'+uid+'Forma">'
+      +'<option value="oval">Oval/fusiforme (preservada)</option><option value="arredondado">Arredondada/globosa (suspeita)</option>'
+      +'</select></div>'
       +'</div>'
-      +'<div class="field-row conditional show" id="wrap_'+idPrefix+'_horario">'
-        +'<div class="field"><label>'+labelHora+'</label><input type="text" id="'+idPrefix+'Hora" placeholder="ex: 2"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Dist" placeholder="cm"></div>'
+      +'<div class="field-row field-row-compact">'
+      +'<div class="field"><label>Ecogenicidade</label><select id="linfo'+uid+'Eco">'
+      +'<option value="normal">Hipoecoico com hilo ecogênico (padrão normal)</option>'
+      +'<option value="calcificacoes">Calcificações</option>'
+      +'<option value="microcalcificacoes">Microcalcificações</option>'
+      +'<option value="cisticas">Alterações císticas</option>'
+      +'<option value="ecoAumentada">Ecogenicidade aumentada</option>'
+      +'<option value="perdaHilo">Perda do hilo ecogênico</option>'
+      +'</select></div>'
+      +'<div class="field"><label>Menor eixo</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="linfo'+uid+'Medida" placeholder="mm">'
+      +'<span class="medida-sugestao" id="linfo'+uid+'Sugestao"></span></div>'
       +'</div>'
-      +'<div class="field-row">'+campoTam+'</div>';
-  }
-
-  // Texto de localização do achado dentro da frase: "às 2 horas, distando 1,5
-  // cm da borda areolar" no padrão de sempre, ou "na região retroareolar"
-  // quando a médica marcou o achado como retroareolar (sem hora/distância).
-  function localizacaoTexto(retro, hora, dist){
-    return retro ? 'na região retroareolar' : 'às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar';
-  }
-
-  // Tamanho de nódulo em texto livre ("22,3 x 11,0 x 33,0"): extrai cada
-  // medida separada por x/×, aceitando ponto ou vírgula como decimal.
-  function parseMedidas(str){
-    return String(str||'')
-      .split(/[x×X]/)
-      .map(s=> parseFloat(s.replace(/[^0-9.,]/g,'').replace(',', '.')))
-      .filter(n=> !isNaN(n) && isFinite(n));
-  }
-
-  // Volume do elipsoide (0,523 × L × AP × T), só quando as 3 medidas vieram.
-  function volumeElipsoide(medidas){
-    if(medidas.length !== 3) return null;
-    return 0.523 * medidas[0] * medidas[1] * medidas[2] / 1000; // mm³ -> cm³
-  }
-
-  function fmtDecimal(n, casas){
-    const c = casas==null ? 2 : casas;
-    return n.toLocaleString('pt-BR', {minimumFractionDigits:c, maximumFractionDigits:c});
-  }
-
-  // Some remove um "mm" digitado por engano no fim, pra não duplicar a
-  // unidade que a frase já acrescenta.
-  function tamanhoSemUnidade(raw){
-    return String(raw||'').replace(/\s*mm\.?\s*$/i, '').trim();
-  }
-
-  function achadoSubgroupHTML(uid){
-    const p = 'achado'+uid;
-    let html = '';
-    html += '<div class="subgroup" id="wrap_'+p+'">';
-    html += '<p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Achado <span class="achado-index"></span></p>';
-    html += '<div class="field-row">'
-      +'<div class="field"><label>Mama</label><select id="'+p+'Lado"><option value="direita">Direita</option><option value="esquerda">Esquerda</option></select></div>'
-      +'<div class="field"><label>Tipo de achado</label><select id="'+p+'Tipo">'+achadoTipoOptions()+'</select></div>'
+      +'<button type="button" class="linfonodo-remove" data-uid="'+uid+'">Remover linfonodo</button>'
       +'</div>';
-
-    // Cisto único
-    html += '<div class="conditional" id="wrap_'+p+'_cisto1">'+campoHoraDistTam(p+'Cisto1','Hora', true, true)+'</div>';
-
-    // 2 cistos
-    html += '<div class="conditional" id="wrap_'+p+'_cisto2">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>1º cisto — hora</label><input type="text" id="'+p+'Cisto2Hora1" placeholder="ex: 2"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto2Dist1" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto2Tam1" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>2º cisto — hora</label><input type="text" id="'+p+'Cisto2Hora2" placeholder="ex: 8"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto2Dist2" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto2Tam2" placeholder="mm"></div>'
-      +'</div>'
-    +'</div>';
-
-    // 3 ou mais cistos (C1-C3)
-    html += '<div class="conditional" id="wrap_'+p+'_cisto3">';
-    [1,2,3].forEach(n=>{
-      html += '<div class="field-row">'
-        +'<div class="field"><label>C'+n+' — hora</label><input type="text" id="'+p+'Cisto3C'+n+'Hora" placeholder="ex: 2"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto3C'+n+'Dist" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto3C'+n+'Tam" placeholder="mm"></div>'
-      +'</div>';
+  }
+  function renumberLinfonodos(lado){
+    const container = $('linfo'+lado+'Container');
+    const itens = Array.from(container.children);
+    itens.forEach((el, idx)=>{
+      const label = el.querySelector('.linfo-index');
+      if(label) label.textContent = idx+1;
+      const removeBtn = el.querySelector('.linfonodo-remove');
+      if(removeBtn) removeBtn.style.display = itens.length>1 ? 'inline' : 'none';
     });
-    html += '</div>';
-
-    // Vários cistos dispersos
-    html += '<div class="conditional" id="wrap_'+p+'_cistosVarios">'
-      +'<div class="field-row field-row-compact">'
-        +'<div class="field"><label>Tamanho mínimo</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CistosVariosTamMin" placeholder="mm"></div>'
-        +'<div class="field"><label>Tamanho máximo</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CistosVariosTamMax" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Maior cisto — hora</label><input type="text" id="'+p+'CistosVariosHora" placeholder="ex: 2"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CistosVariosDist" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CistosVariosTam" placeholder="mm"></div>'
-      +'</div>'
-    +'</div>';
-
-    // Aglomerado cístico
-    html += '<div class="conditional" id="wrap_'+p+'_aglomeradoCistico">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Hora</label><input type="text" id="'+p+'AglomeradoHora" placeholder="ex: 2"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'AglomeradoDist" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho em conjunto</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'AglomeradoTam" placeholder="mm"></div>'
-      +'</div>'
-    +'</div>';
-
-    // Nódulo sólido único
-    html += '<div class="conditional" id="wrap_'+p+'_nodulo1">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Forma</label><select id="'+p+'Nodulo1Forma"><option value="oval">Oval</option><option value="irregular">Irregular</option></select></div>'
-        +'<div class="field"><label>Orientação</label><select id="'+p+'Nodulo1Orientacao"><option value="paralela à pele">Paralela à pele</option><option value="não paralela à pele">Não paralela à pele</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Margens</label><select id="'+p+'Nodulo1Margens">'
-          +'<option value="circunscritas">Circunscritas</option>'
-          +'<option value="não circunscritas (indistintas)">Não circunscritas — indistintas</option>'
-          +'<option value="não circunscritas (anguladas)">Não circunscritas — anguladas</option>'
-          +'<option value="não circunscritas (espiculadas)">Não circunscritas — espiculadas</option>'
-          +'<option value="não circunscritas (microlobuladas)">Não circunscritas — microlobuladas</option>'
-        +'</select></div>'
-        +'<div class="field"><label>Ecogenicidade</label><select id="'+p+'Nodulo1Ecogenicidade"><option value="hipoecóica">Hipoecóica</option><option value="ecogênica">Ecogênica</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Fenômeno acústico posterior</label><select id="'+p+'Nodulo1Fenomeno">'
-          +'<option value="com reforço acústico posterior">Reforço acústico</option>'
-          +'<option value="com sombra acústica posterior">Sombra acústica</option>'
-          +'<option value="sem condicionar fenômenos acústicos posteriores">Sem condicionar fenômenos acústicos</option>'
-        +'</select></div>'
-      +'</div>'
-      + campoHoraDistTam(p+'Nodulo1','Hora', true, true)
-    +'</div>';
-
-    // 2 nódulos sólidos
-    html += '<div class="conditional" id="wrap_'+p+'_nodulo2">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Contornos</label><select id="'+p+'Nodulo2Contornos"><option value="regulares">Regulares</option><option value="lobulados">Lobulados</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>1º nódulo — hora</label><input type="text" id="'+p+'Nodulo2Hora1" placeholder="ex: 2"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo2Dist1" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo2Tam1" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>2º nódulo — hora</label><input type="text" id="'+p+'Nodulo2Hora2" placeholder="ex: 8"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo2Dist2" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo2Tam2" placeholder="mm"></div>'
-      +'</div>'
-    +'</div>';
-
-    // 3 ou mais nódulos sólidos (N1-N4)
-    html += '<div class="conditional" id="wrap_'+p+'_nodulo3">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Contornos</label><select id="'+p+'Nodulo3Contornos"><option value="regulares">Regulares</option><option value="lobulados">Lobulados</option></select></div>'
-        +'<div class="field"><label>Quantidade</label><select id="'+p+'Nodulo3Qtd"><option value="3">3 nódulos</option><option value="4">4 nódulos</option></select></div>'
-      +'</div>';
-    [1,2,3,4].forEach(n=>{
-      html += '<div class="field-row conditional" id="wrap_'+p+'_nodulo3N'+n+'">'
-        +'<div class="field"><label>N'+n+' — hora</label><input type="text" id="'+p+'Nodulo3N'+n+'Hora" placeholder="ex: 2"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo3N'+n+'Dist" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo3N'+n+'Tam" placeholder="mm"></div>'
-      +'</div>';
-    });
-    html += '</div>';
-
-    // Fibroadenoma
-    html += '<div class="conditional" id="wrap_'+p+'_fibroadenoma">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Fenômeno acústico posterior</label><select id="'+p+'FadFenomeno"><option value="sem causar alteração sônica posterior">Sem causar alteração sônica posterior</option><option value="causando reforço acústico posterior">Causando reforço acústico posterior</option></select></div>'
-      +'</div>'
-      + campoHoraDistTam(p+'Fad','Hora')
-    +'</div>';
-
-    // Linfonodo axilar atípico
-    html += '<div class="conditional" id="wrap_'+p+'_linfonodoAxilar">'
-      +'<div class="field-row field-row-compact">'
-        +'<div class="field"><label>Maior diâmetro</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'LnaxTam" placeholder="mm"><span class="vr">VR até 20,0 mm</span></div>'
-        +'<div class="field"><label>Forma</label><select id="'+p+'LnaxForma"><option value="oval">Oval</option><option value="arredondada">Arredondada</option><option value="irregular">Irregular</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Espessamento cortical</label><select id="'+p+'LnaxEspessamento"><option value="focal">Focal</option><option value="uniforme">Uniforme</option></select></div>'
-        +'<div class="field"><label>Margens</label><select id="'+p+'LnaxMargens"><option value="circunscritas">Circunscritas</option><option value="não circunscritas">Não circunscritas</option></select></div>'
-        +'<div class="field"><label>Hilo</label><select id="'+p+'LnaxHilo"><option value="central">Central</option><option value="deslocado">Deslocado</option></select></div>'
-      +'</div>'
-    +'</div>';
-
-    // Linfonodo intramamário
-    html += '<div class="conditional" id="wrap_'+p+'_linfonodoIntramamario">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Hora</label><input type="text" id="'+p+'LnimHora" placeholder="ex: 10"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'LnimDist" placeholder="cm"></div>'
-      +'</div>'
-      +'<div class="field-row field-row-compact">'
-        +'<div class="field"><label>Tamanho — eixo 1</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'LnimTam1" placeholder="mm"></div>'
-        +'<div class="field"><label>Tamanho — eixo 2</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'LnimTam2" placeholder="mm"></div>'
-      +'</div>'
-    +'</div>';
-
-    // Seroma
-    html += '<div class="conditional" id="wrap_'+p+'_seroma">'
-      +'<div class="field"><label>Localização (com a preposição — ex: nos quadrantes inferiores)</label><input type="text" id="'+p+'SeromaLocal" placeholder="ex: nos quadrantes inferiores"></div>'
-      +'<div class="field-row field-row-compact">'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'SeromaTam" placeholder="cm"></div>'
-        +'<div class="field"><label>Volume</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'SeromaVol" placeholder="ml"></div>'
-      +'</div>'
-    +'</div>';
-
-    html += '<button type="button" class="achado-remove" data-uid="'+uid+'">Remover achado</button>';
-    html += '</div>';
-    return html;
   }
-
-  function updateAchadoVisibility(uid){
-    const tipo = $('achado'+uid+'Tipo').value;
-    ACHADO_TIPOS.forEach(([val])=> toggle('wrap_achado'+uid+'_'+val, val===tipo));
-    if(tipo === 'nodulo3'){
-      const qtd = parseInt($('achado'+uid+'Nodulo3Qtd').value || '3', 10);
-      [1,2,3,4].forEach(n=> toggle('wrap_achado'+uid+'_nodulo3N'+n, n<=qtd));
-    }
+  function updateLinfonodoSugestao(uid){
+    const nivel = v('linfo'+uid+'Nivel') || 'I';
+    const medidaNum = num('linfo'+uid+'Medida');
+    const limite = NIVEL_LIMITE[nivel] || 9;
+    const sugestaoEl = $('linfo'+uid+'Sugestao');
+    if(!sugestaoEl) return;
+    const aumentado = medidaNum!==null && medidaNum > limite;
+    sugestaoEl.textContent = aumentado ? '→ acima do valor de referência para o nível (limite '+limite+' mm)' : '';
+    sugestaoEl.classList.toggle('show', aumentado);
   }
-
-  function wireAchado(uid){
-    const el = $('wrap_achado'+uid);
-    if(!el) return;
-    $('achado'+uid+'Tipo').addEventListener('change', ()=> updateAchadoVisibility(uid));
-    const qtdSel = $('achado'+uid+'Nodulo3Qtd');
-    if(qtdSel) qtdSel.addEventListener('change', ()=> updateAchadoVisibility(uid));
-    updateAchadoVisibility(uid);
-    // Cisto único e nódulo único têm um seletor de Localização (Horário /
-    // Retroareolar): retroareolar esconde a linha de hora+distância, que não
-    // se aplica a esse caso.
-    ['Cisto1','Nodulo1'].forEach(key=>{
-      const localSel = $('achado'+uid+key+'Local');
-      if(!localSel) return;
-      const applyLocal = ()=> toggle('wrap_achado'+uid+key+'_horario', localSel.value !== 'retroareolar');
-      localSel.addEventListener('change', applyLocal);
-      applyLocal();
+  function wireLinfonodoRow(uid, lado){
+    const el = $('wrap_linfo'+uid);
+    el.querySelectorAll('input, select').forEach(field=>{
+      field.addEventListener('input', ()=>{ updateLinfonodoSugestao(uid); render(); });
+      field.addEventListener('change', ()=>{ updateLinfonodoSugestao(uid); render(); });
     });
-    el.querySelector('.achado-remove').addEventListener('click', ()=>{
+    el.querySelector('.linfonodo-remove').addEventListener('click', ()=>{
       el.remove();
-      renumberAchados();
+      renumberLinfonodos(lado);
       render();
     });
-    el.querySelectorAll('input, select').forEach(input=>{
-      input.addEventListener('input', render);
-      input.addEventListener('change', render);
-    });
-    wireDecimalInputs();
+    updateLinfonodoSugestao(uid);
   }
-
-  function renumberAchados(){
-    const container = $('achadosContainer');
-    Array.from(container.children).forEach((el, i)=>{
-      const label = el.querySelector('.achado-index');
-      if(label) label.textContent = String(i+1);
-    });
-  }
-  function achadoUids(){
-    return Array.from($('achadosContainer').children).map(el=> el.id.replace('wrap_achado',''));
-  }
-  function addAchado(){
-    const uid = achadoNextUid++;
-    $('achadosContainer').insertAdjacentHTML('beforeend', achadoSubgroupHTML(uid));
-    wireAchado(uid);
-    renumberAchados();
+  function addLinfonodo(lado){
+    const uid = linfoNextUid++;
+    $('linfo'+lado+'Container').insertAdjacentHTML('beforeend', linfonodoSubgroupHTML(uid));
+    wireLinfonodoRow(uid, lado);
+    renumberLinfonodos(lado);
     render();
   }
-  $('btnAddAchado').addEventListener('click', addAchado);
-
-  let checkedState = {};
-
-  // Achados de nódulo sólido e cisto simples repetiam uma linha idêntica na
-  // Impressão para cada achado — dois nódulos na mesma mama viravam duas
-  // linhas "Nódulo sólido em mama direita.", um em cada mama viravam duas
-  // linhas de lados diferentes em vez de uma só "bilaterais". Essas duas
-  // categorias (nodulo1/2/3 e cisto1/2/3/cistosVarios) resumem numa linha só,
-  // cobrindo os dois lados de uma vez. Aglomerado cístico, fibroadenoma,
-  // linfonodo (axilar/intramamário) e seroma continuam uma linha por achado —
-  // são diagnósticos específicos, não entram no resumo genérico.
-  const RESUMO_PLURAL_TIPOS = ['nodulo2','nodulo3','cisto2','cisto3','cistosVarios'];
-  function buildResumoAchado(achados, tipos, key, singularKey, pluralKey, bilateralKey){
-    const doTipo = achados.filter(a=> tipos.includes(a.tipo));
-    if(!doTipo.length) return null;
-    const direita = doTipo.filter(a=> a.lado==='direita');
-    const esquerda = doTipo.filter(a=> a.lado==='esquerda');
-    if(direita.length && esquerda.length){
-      return {key, label:phrase(bilateralKey), auto:true};
-    }
-    const lista = direita.length ? direita : esquerda;
-    const lado = direita.length ? 'direita' : 'esquerda';
-    const plural = lista.length > 1 || lista.some(a=> RESUMO_PLURAL_TIPOS.includes(a.tipo));
-    return {key, label:phrase(plural ? pluralKey : singularKey, {LADO:lado}), auto:true};
+  $('btnAddLinfoD').addEventListener('click', ()=> addLinfonodo('D'));
+  $('btnAddLinfoE').addEventListener('click', ()=> addLinfonodo('E'));
+  function linfonodoUids(lado){
+    return Array.from($('linfo'+lado+'Container').children).map(el=> el.id.replace('wrap_linfo',''));
   }
 
+  $('temLinfonodo').addEventListener('change', ()=>{
+    const on = $('temLinfonodo').checked;
+    toggle('wrap_linfonodoCampos', on);
+    if(on && linfonodoUids('D').length===0 && linfonodoUids('E').length===0){
+      addLinfonodo('D');
+    }
+  });
+
+  function fmtDecimal1(n){ return n.toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}); }
+
+  // ---------- Build impression checklist ----------
+  // Como nos demais laudos, não há detecção automática de achado alterado —
+  // a médica reescreve o item marcado, à mão, direto no laudo, quando o
+  // achado for outro que não a normalidade.
   function buildImpressao(state){
-    const items = [{key:'normal', label:phrase('impNormal'), auto:true}];
-
-    const INDIVIDUAIS = ['aglomeradoCistico','fibroadenoma','linfonodoAxilar','linfonodoIntramamario','seroma'];
-    state.achados.forEach(a=>{
-      if(INDIVIDUAIS.includes(a.tipo)) items.push({key:'achado-'+a.uid, label:a.hd, auto:true});
-    });
-
-    const resumoNodulo = buildResumoAchado(state.achados, ['nodulo1','nodulo2','nodulo3'], 'resumo-nodulo', 'impNoduloSingular', 'impNoduloPlural', 'impNoduloBilateral');
-    if(resumoNodulo) items.push(resumoNodulo);
-    const resumoCisto = buildResumoAchado(state.achados, ['cisto1','cisto2','cisto3','cistosVarios'], 'resumo-cisto', 'impCistoSingular', 'impCistoPlural', 'impCistoBilateral');
-    if(resumoCisto) items.push(resumoCisto);
-
+    const items = [
+      {key:'normal', label: phrase('impNormal'), auto: !state.temLinfonodo},
+      {key:'dopplerNormal', label: phrase('impDopplerNormal'), auto: state.vascularizacaoAspecto==='normal'}
+    ];
+    if(state.linfonodoImpressaoHD){
+      items.push({key:'linfonodo-achado', label: state.linfonodoImpressaoHD, auto:true});
+    }
     return items;
   }
+
+  let checkedState = {};
 
   function renderChecklist(items){
     const box = $('impressaoChecklist');
@@ -1560,194 +1282,78 @@ if(typeof criarMotorLaudo !== 'function'){
     const medicoSolicitante = v('medicoSolicitante');
     req('nomePaciente'); req('dataExame');
 
-    const chkMamasMasculinas = $('chkMamasMasculinas').checked;
+    // ----- Ao exame -----
+    const planosAspecto = v('planosAspecto') || 'normal';
+    const planosDescricao = vNoDot('planosDescricao');
+    reqIf('planosDescricao', planosAspecto==='alterado');
+    const planosTexto = (planosAspecto==='alterado' && planosDescricao)
+      ? escapeHtml(planosDescricao)+'.'
+      : 'Planos musculares e tecido subcutâneo preservados.';
 
-    const chkMamografia = $('chkMamografia').checked;
-    const mamografiaData = blankOrValue(reqIf('mamografiaData', chkMamografia));
-    const mamografiaCategoria = v('mamografiaCategoria') || '1';
-
-    const motivoExame = vNoDot('motivoExame');
-
-    const mamasAspecto = v('mamasAspecto');
-    const mamasDescricao = vNoDot('mamasDescricao');
-    reqIf('mamasDescricao', mamasAspecto==='alterado');
-    const ecotextura = v('ecotextura') || 'gordurosa';
-
-    const peleAspecto = v('peleAspecto');
-    const peleDescricao = vNoDot('peleDescricao');
-    reqIf('peleDescricao', peleAspecto==='alterado');
-
-    const chkProtese = $('chkProtese').checked;
-    const proteseAspecto = v('proteseAspecto');
-    const proteseDescricao = vNoDot('proteseDescricao');
-    reqIf('proteseDescricao', chkProtese && proteseAspecto==='alterado');
-    const biradsCategoria = v('biradsCategoria') || '1';
-
-    // ----- Achados -----
-    function lerAchado(uid){
-      const lado = $('achado'+uid+'Lado').value === 'esquerda' ? 'esquerda' : 'direita';
-      const tipo = $('achado'+uid+'Tipo').value;
-      let corpo = '';
-      let corpoLista = null;
-      let hd = '';
-      if(tipo === 'cisto1'){
-        const retro = v('achado'+uid+'Cisto1Local') === 'retroareolar';
-        const hora = blankOrValue(reqIf('achado'+uid+'Cisto1Hora', !retro));
-        const dist = blankOrValue(reqIf('achado'+uid+'Cisto1Dist', !retro));
-        const tamRaw = req('achado'+uid+'Cisto1Tam');
-        const tam = blankOrValue(tamanhoSemUnidade(tamRaw));
-        corpo = 'Observa-se imagem anecóica de paredes finas e regulares, condicionando reforço acústico posterior, localizada '+localizacaoTexto(retro, hora, dist)+', medindo '+span(tam)+' mm.';
-        hd = phrase('impCistoSingular', {LADO: lado});
-      } else if(tipo === 'cisto2'){
-        const h1=blankOrValue(req('achado'+uid+'Cisto2Hora1')), d1=blankOrValue(req('achado'+uid+'Cisto2Dist1')), t1=blankOrValue(req('achado'+uid+'Cisto2Tam1'));
-        const h2=blankOrValue(req('achado'+uid+'Cisto2Hora2')), d2=blankOrValue(req('achado'+uid+'Cisto2Dist2')), t2=blankOrValue(req('achado'+uid+'Cisto2Tam2'));
-        corpo = 'Observam-se duas imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, uma localizada às '+span(h1)+' horas, distando '+span(d1)+' cm da borda areolar, medindo '+span(t1)+' mm e outra às '+span(h2)+' horas, distando '+span(d2)+' cm da borda areolar, medindo '+span(t2)+' mm.';
-        hd = phrase('impCistoPlural', {LADO: lado});
-      } else if(tipo === 'cisto3'){
-        const itens = [1,2,3].map(n=>{
-          const hora=blankOrValue(req('achado'+uid+'Cisto3C'+n+'Hora'));
-          const dist=blankOrValue(req('achado'+uid+'Cisto3C'+n+'Dist'));
-          const tam=blankOrValue(req('achado'+uid+'Cisto3C'+n+'Tam'));
-          return 'C'+n+': localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.';
+    // ----- Linfonodos -----
+    const temLinfonodo = $('temLinfonodo').checked;
+    let linfonodosTexto = 'Ausência de sinais de linfonodomegalia.';
+    let linfonodoImpressaoHD = null;
+    if(temLinfonodo){
+      const construirLado = (lado, rotulo)=>{
+        const uids = linfonodoUids(lado);
+        if(!uids.length) return {linhas: [], suspeitoNiveis: [], reacionalNiveis: []};
+        const linhasLado = ['<span style="display:block;margin-top:3mm;"><strong>À '+rotulo+':</strong></span>'];
+        const suspeitoNiveis = [];
+        const reacionalNiveis = [];
+        uids.forEach(uid=>{
+          const nivel = v('linfo'+uid+'Nivel') || 'I';
+          const forma = v('linfo'+uid+'Forma') || 'oval';
+          const eco = v('linfo'+uid+'Eco') || 'normal';
+          const medida = blankOrValue(req('linfo'+uid+'Medida'));
+          const medidaNum = num('linfo'+uid+'Medida');
+          const limite = NIVEL_LIMITE[nivel] || 9;
+          const aumentado = medidaNum!==null && medidaNum > limite;
+          const suspeito = aumentado || forma==='arredondado' || eco!=='normal';
+          (suspeito ? suspeitoNiveis : reacionalNiveis).push(nivel);
+          const formaTxt = FORMA_TEXTO[forma] || FORMA_TEXTO.oval;
+          const ecoTxt = ECO_TEXTO[eco] || ECO_TEXTO.normal;
+          const sufixo = aumentado ? ' (acima do valor de referência para o nível)' : '';
+          linhasLado.push('<span style="display:block;">- Nível '+nivel+': linfonodo '+formaTxt+', '+ecoTxt+', medindo '+span(medida)+' mm no menor eixo'+sufixo+'.</span>');
         });
-        corpo = 'Observam-se algumas imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, destacando-se as descritas abaixo:';
-        corpoLista = itens;
-        hd = phrase('impCistoPlural', {LADO: lado});
-      } else if(tipo === 'cistosVarios'){
-        const min=blankOrValue(req('achado'+uid+'CistosVariosTamMin'));
-        const max=blankOrValue(req('achado'+uid+'CistosVariosTamMax'));
-        const hora=blankOrValue(req('achado'+uid+'CistosVariosHora'));
-        const dist=blankOrValue(req('achado'+uid+'CistosVariosDist'));
-        const tam=blankOrValue(req('achado'+uid+'CistosVariosTam'));
-        corpo = 'Observam-se algumas imagens anecóicas de paredes finas e regulares, dispersas pelo parênquima, variando entre '+span(min)+' e '+span(max)+' mm, a maior localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.';
-        hd = phrase('impCistoPlural', {LADO: lado});
-      } else if(tipo === 'aglomeradoCistico'){
-        const hora=blankOrValue(req('achado'+uid+'AglomeradoHora'));
-        const dist=blankOrValue(req('achado'+uid+'AglomeradoDist'));
-        const tam=blankOrValue(req('achado'+uid+'AglomeradoTam'));
-        corpo = 'Observam-se algumas imagens anecóicas agrupadas, variando entre 2 e 3 mm cada, localizadas às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo em conjunto '+span(tam)+' mm.';
-        hd = phrase('impAglomeradoCistico', {LADO: lado});
-      } else if(tipo === 'nodulo1'){
-        const forma = v('achado'+uid+'Nodulo1Forma') || 'oval';
-        const orientacao = v('achado'+uid+'Nodulo1Orientacao') || 'paralela à pele';
-        const margens = v('achado'+uid+'Nodulo1Margens') || 'circunscritas';
-        const eco = v('achado'+uid+'Nodulo1Ecogenicidade') || 'hipoecóica';
-        const fenomeno = v('achado'+uid+'Nodulo1Fenomeno') || 'sem condicionar fenômenos acústicos posteriores';
-        const retro = v('achado'+uid+'Nodulo1Local') === 'retroareolar';
-        const hora=blankOrValue(reqIf('achado'+uid+'Nodulo1Hora', !retro));
-        const dist=blankOrValue(reqIf('achado'+uid+'Nodulo1Dist', !retro));
-        const tamRaw = req('achado'+uid+'Nodulo1Tam');
-        const volume = volumeElipsoide(parseMedidas(tamRaw));
-        const tam = blankOrValue(tamanhoSemUnidade(tamRaw));
-        corpo = 'Observa-se imagem nodular sólida, de forma '+escapeHtml(forma)+', orientação '+escapeHtml(orientacao)+' e margens '+escapeHtml(margens)+', '+escapeHtml(eco)+', '+escapeHtml(fenomeno)+', localizada '+localizacaoTexto(retro, hora, dist)+', medindo '+span(tam)+' mm'
-          + (volume!==null ? ', com volume estimado de '+fmtDecimal(volume)+' cm³.' : '.');
-        hd = phrase('impNoduloSingular', {LADO: lado});
-      } else if(tipo === 'nodulo2'){
-        const contornos = v('achado'+uid+'Nodulo2Contornos') || 'regulares';
-        const h1=blankOrValue(req('achado'+uid+'Nodulo2Hora1')), d1=blankOrValue(req('achado'+uid+'Nodulo2Dist1')), t1=blankOrValue(req('achado'+uid+'Nodulo2Tam1'));
-        const h2=blankOrValue(req('achado'+uid+'Nodulo2Hora2')), d2=blankOrValue(req('achado'+uid+'Nodulo2Dist2')), t2=blankOrValue(req('achado'+uid+'Nodulo2Tam2'));
-        corpo = 'Observam-se duas imagens nodulares sólidas, hipoecogênicas de contornos '+escapeHtml(contornos)+' e orientação paralela à pele, uma localizada às '+span(h1)+' horas, distando '+span(d1)+' cm da borda areolar, medindo '+span(t1)+' mm e outra às '+span(h2)+' horas, distando '+span(d2)+' cm da borda areolar, medindo '+span(t2)+' mm.';
-        hd = phrase('impNoduloPlural', {LADO: lado});
-      } else if(tipo === 'nodulo3'){
-        const contornos = v('achado'+uid+'Nodulo3Contornos') || 'regulares';
-        const qtd = parseInt(v('achado'+uid+'Nodulo3Qtd') || '3', 10);
-        const itens = [];
-        for(let n=1; n<=qtd; n++){
-          const hora=blankOrValue(req('achado'+uid+'Nodulo3N'+n+'Hora'));
-          const dist=blankOrValue(req('achado'+uid+'Nodulo3N'+n+'Dist'));
-          const tam=blankOrValue(req('achado'+uid+'Nodulo3N'+n+'Tam'));
-          itens.push('N'+n+': às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.');
-        }
-        corpo = 'Observam-se algumas imagens nodulares sólidas, hipoecogênicas de contornos '+escapeHtml(contornos)+' e orientação paralela à pele, de localização e dimensões como descrito abaixo:';
-        corpoLista = itens;
-        hd = phrase('impNoduloPlural', {LADO: lado});
-      } else if(tipo === 'fibroadenoma'){
-        const fenomeno = v('achado'+uid+'FadFenomeno') || 'sem causar alteração sônica posterior';
-        const hora=blankOrValue(req('achado'+uid+'FadHora'));
-        const dist=blankOrValue(req('achado'+uid+'FadDist'));
-        const tam=blankOrValue(req('achado'+uid+'FadTam'));
-        corpo = 'Presença de nódulo sólido, hipoecogênico e homogêneo, de limites bem definidos e contornos regulares, formato ovalado, com maior eixo paralelo à pele, '+escapeHtml(fenomeno)+', sem captação de fluxo ao color Doppler, localizado às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.';
-        hd = phrase('impFibroadenoma', {LADO: lado});
-      } else if(tipo === 'linfonodoAxilar'){
-        const tam=blankOrValue(req('achado'+uid+'LnaxTam'));
-        const forma = v('achado'+uid+'LnaxForma') || 'oval';
-        const espessamento = v('achado'+uid+'LnaxEspessamento') || 'focal';
-        const margens = v('achado'+uid+'LnaxMargens') || 'circunscritas';
-        const hilo = v('achado'+uid+'LnaxHilo') || 'central';
-        corpo = 'Observa-se imagem ovalada compatível com linfonodo, medindo '+span(tam)+' mm em seu maior diâmetro (VR até 20,0 mm), de forma '+escapeHtml(forma)+', apresentando espessamento cortical '+escapeHtml(espessamento)+', margens '+escapeHtml(margens)+' e hilo '+escapeHtml(hilo)+', à '+lado+'.';
-        hd = phrase('impLinfonodoAxilar', {LADO: lado});
-      } else if(tipo === 'linfonodoIntramamario'){
-        const hora=blankOrValue(req('achado'+uid+'LnimHora'));
-        const dist=blankOrValue(req('achado'+uid+'LnimDist'));
-        const t1=blankOrValue(req('achado'+uid+'LnimTam1'));
-        const t2=blankOrValue(req('achado'+uid+'LnimTam2'));
-        corpo = 'Observa-se imagem ovalada, fusiforme, margens circunscritas, com hilo central ecogênico, cortical de aspecto usual, localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(t1)+' x '+span(t2)+' mm.';
-        hd = phrase('impLinfonodoIntramamario', {LADO: lado});
-      } else if(tipo === 'seroma'){
-        const local = blankOrValue(req('achado'+uid+'SeromaLocal'));
-        const tam=blankOrValue(req('achado'+uid+'SeromaTam'));
-        const vol=blankOrValue(req('achado'+uid+'SeromaVol'));
-        corpo = 'Presença de coleção ecogênica com debris em seu interior, localizada '+span(local)+', medindo aproximadamente '+span(tam)+' cm, com volume de '+span(vol)+' ml.';
-        hd = phrase('impSeroma', {LADO: lado, LOCAL: local.text});
+        return {linhas: linhasLado, suspeitoNiveis, reacionalNiveis};
+      };
+      const direita = construirLado('D', 'direita');
+      const esquerda = construirLado('E', 'esquerda');
+      const todasLinhas = direita.linhas.concat(esquerda.linhas);
+      if(todasLinhas.length){
+        linfonodosTexto = 'Observam-se linfonodos, com as seguintes características:'+todasLinhas.join('');
       }
-      return {uid, lado, tipo, corpo, corpoLista, hd};
-    }
-
-    const achados = achadoUids().map(lerAchado);
-    const achadosMama = {direita:[], esquerda:[]};
-    const achadosAxilar = {direita:[], esquerda:[]};
-    achados.forEach(a=>{
-      if(a.tipo === 'linfonodoAxilar') achadosAxilar[a.lado].push(a);
-      else achadosMama[a.lado].push(a);
-    });
-
-    const ACHADO_CISTICOS = ['cisto1','cisto2','cisto3','cistosVarios','aglomeradoCistico'];
-    const ACHADO_SOLIDOS = ['nodulo1','nodulo2','nodulo3','fibroadenoma'];
-
-    function fraseSemAchado(lista){
-      const hasCistico = lista.some(a=> ACHADO_CISTICOS.includes(a.tipo));
-      const hasSolido = lista.some(a=> ACHADO_SOLIDOS.includes(a.tipo));
-      if(hasCistico && hasSolido) return null;
-      if(hasCistico) return 'Não se observam nódulos sólidos ou áreas de desorganização da estrutura mamária.';
-      if(hasSolido) return 'Não se observam nódulos císticos ou áreas de desorganização da estrutura mamária.';
-      return 'Não se observam nódulos sólidos, císticos ou áreas de desorganização da estrutura mamária.';
-    }
-
-    function blocoMama(lado){
-      const lista = achadosMama[lado];
-      const out = [{id:'mama-'+lado+'-label', html:'<p class="linha intro">Mama '+lado+':</p>'}];
-      const semAchado = fraseSemAchado(lista);
-      if(lista.length === 0){
-        const texto = semAchado + (chkMamasMasculinas ? '' : ' Região retromamilar sem alterações.');
-        out.push({id:'mama-'+lado, html:'<p class="linha">'+texto+'</p>'});
-      } else {
-        if(semAchado){
-          out.push({id:'mama-'+lado+'-semachado', html:'<p class="linha">'+semAchado+'</p>'});
-        }
-        lista.forEach(a=>{
-          out.push({id:'mama-'+lado+'-'+a.uid, html:'<p class="linha">'+a.corpo+'</p>'});
-          if(a.corpoLista){
-            out.push({id:'mama-'+lado+'-lista-'+a.uid, html:'<div class="linha nodulos-lista">'+a.corpoLista.map(t=>'<p class="nodulo-item">- '+t+'</p>').join('')+'</div>'});
-          }
-        });
-        if(!chkMamasMasculinas){
-          out.push({id:'mama-'+lado+'-retromamilar', html:'<p class="linha">Região retromamilar sem alterações.</p>'});
-        }
+      const todosSuspeitos = direita.suspeitoNiveis.concat(esquerda.suspeitoNiveis);
+      const todosReacionais = direita.reacionalNiveis.concat(esquerda.reacionalNiveis);
+      if(todosSuspeitos.length){
+        linfonodoImpressaoHD = phrase('impLinfonodoSuspeito', {NIVEIS: Array.from(new Set(todosSuspeitos)).join(', ')});
+      } else if(todosReacionais.length){
+        linfonodoImpressaoHD = phrase('impLinfonodoReacional', {NIVEIS: Array.from(new Set(todosReacionais)).join(', ')});
       }
-      return out;
     }
 
-    function blocoAxilasConteudo(){
-      const lista = achadosAxilar.direita.concat(achadosAxilar.esquerda);
-      if(lista.length === 0){
-        return 'Não há sinais de linfonodopatias. Pele, grupos musculares e vasos sem anormalidades.';
-      }
-      return lista.map(a=>a.corpo).join(' ')+' Pele, grupos musculares e vasos sem anormalidades.';
-    }
+    // ----- Doppler -----
+    const vascularizacaoAspecto = v('vascularizacaoAspecto') || 'normal';
+    const vascularizacaoDescricao = vNoDot('vascularizacaoDescricao');
+    reqIf('vascularizacaoDescricao', vascularizacaoAspecto==='alterado');
+    const VASCULARIZACAO_TEXTO = {
+      normal: 'Ao mapeamento Doppler colorido, observa-se padrão de vascularização preservado, com discreta vascularização central e ramos partindo do hilo — sem alterações significativas.',
+      aumentada: 'Ao mapeamento Doppler colorido, observa-se aumento da vascularização em relação ao padrão habitual.',
+      periferica: 'Ao mapeamento Doppler colorido, observa-se padrão de vascularização predominantemente periférico.',
+      mista: 'Ao mapeamento Doppler colorido, observa-se padrão de vascularização mista (central e periférica).'
+    };
+    const vascularizacaoTexto = (vascularizacaoAspecto==='alterado' && vascularizacaoDescricao)
+      ? escapeHtml(vascularizacaoDescricao)+'.'
+      : (VASCULARIZACAO_TEXTO[vascularizacaoAspecto] || VASCULARIZACAO_TEXTO.normal);
+
+    // Observações: descrição livre de achado fora dos campos acima. Vira parágrafo
+    // no corpo do laudo (documenta o que foi visto) — a médica decide, por conta
+    // própria, se e como isso entra na Impressão, direto no texto.
+    const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
 
     // ----- Impressão -----
-    const state = { achados };
-    const impressaoItems = buildImpressao(state);
+    const impressaoItems = buildImpressao({temLinfonodo, vascularizacaoAspecto, linfonodoImpressaoHD});
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
 
@@ -1760,59 +1366,21 @@ if(typeof criarMotorLaudo !== 'function'){
       +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
       +'</div>'});
 
-    const doctitleTexto = chkMamasMasculinas ? 'ULTRASSOM DAS MAMAS MASCULINAS' : 'ULTRASSOM DAS MAMAS E AXILAS';
-    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+doctitleTexto+'</h3>'});
+    blocks.push({id:'doctitle', html: '<h3 class="doctitle">ULTRASSOM DA REGIÃO CERVICAL<br class="quebra-doppler">COM ESTUDO DOPPLER</h3>'});
 
-    if(chkMamografia){
-      blocks.push({id:'mamografia', html:'<p class="linha">Mamografia de '+span(mamografiaData)+': Cat '+escapeHtml(mamografiaCategoria)+'.</p>'});
-    }
+    blocks.push({id:'observadosLabel', html:'<p class="linha intro intro-last">Ao exame:</p>'});
 
-    if(motivoExame){
-      const linhas = motivoExame.split('\n').map(l=>l.trim()).filter(Boolean);
-      const relatoHtml = linhas.map((linha, idx)=>
-        '<span style="display:block;'+(idx>0?'margin-top:1mm;':'')+'">'+escapeHtml(linha)+(idx===linhas.length-1?'.':'')+'</span>'
-      ).join('');
-      blocks.push({id:'relato', html:'<p class="relato">'+relatoHtml+'</p>'});
-    }
+    blocks.push({id:'planos', html:'<p class="linha">'+planosTexto+'</p>'});
+    blocks.push({id:'linfonodos', html:'<p class="linha">'+linfonodosTexto+'</p>'});
 
-    blocks.push({id:'aspectosLabel', html:'<p class="linha intro intro-last">Os seguintes aspectos foram observados:</p>'});
+    blocks.push({id:'dopplerHeader', html:'<h4 class="sec">ESTUDO DOPPLER:</h4>'});
+    blocks.push({id:'vascularizacao', html:'<p class="linha">'+vascularizacaoTexto+'</p>'});
 
-    const mamasFraseBase = mamasAspecto==='alterado' && mamasDescricao
-      ? escapeHtml(mamasDescricao)+'.'
-      : (chkMamasMasculinas ? 'Mamas regulares.' : 'Mamas regulares e simétricas.');
-    const ECOTEXTURA_TEXT = {
-      gordurosa: 'Tecido mamário apresentando ecotextura homogênea gordurosa.',
-      fibroglandular: 'Tecido mamário apresentando ecotextura homogênea fibroglandular.',
-      heterogenea: 'Tecido mamário apresentando ecotextura heterogênea.'
-    };
-    const ecotexturaTexto = chkMamasMasculinas ? 'Tecido mamário com predominância de componente adiposo.' : ECOTEXTURA_TEXT[ecotextura];
-    blocks.push({id:'mamasGeral', html:'<p class="linha">'+mamasFraseBase+' '+ecotexturaTexto+'</p>'});
-
-    blocoMama('direita').forEach(b=> blocks.push(b));
-    blocoMama('esquerda').forEach(b=> blocks.push(b));
-
-    const peleTexto = peleAspecto==='alterado' && peleDescricao ? escapeHtml(peleDescricao)+'.' : 'Pele e tecido subcutâneo de espessura usual, sem alterações.';
-    blocks.push({id:'pele', html:'<p class="linha">'+peleTexto+'</p>'});
-
-    const temAchadoAxilar = achadosAxilar.direita.length>0 || achadosAxilar.esquerda.length>0;
-    if(!chkMamasMasculinas || temAchadoAxilar){
-      blocks.push({id:'axilas-label', html:'<p class="linha intro">Axilas:</p>'});
-      blocks.push({id:'axilas', html:'<p class="linha">'+blocoAxilasConteudo()+'</p>'});
-    }
-
-    if(chkProtese){
-      const proteseTexto = proteseAspecto==='alterado' && proteseDescricao
-        ? 'Próteses mamárias apresentando '+escapeHtml(proteseDescricao)+'.'
-        : 'Próteses mamárias apresentando contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro.';
-      blocks.push({id:'protese', html:'<p class="linha">'+proteseTexto+'</p>'});
-    }
-
-    const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
     obsLinhas.forEach((linha, idx)=>{
       blocks.push({id:'obs-'+idx, html:'<p class="linha">'+escapeHtml(linha)+'</p>'});
     });
 
-    blocks.push({id:'impressaoHeader', html:'<h4 class="sec">'+(chkMamasMasculinas ? 'IMPRESSÃO:' : 'IMPRESSÃO DIAGNÓSTICA:')+'</h4>'});
+    blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
     if(checkedItems.length===0){
       impressaoListHtml += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
@@ -1825,12 +1393,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
-    if(!chkMamasMasculinas){
-      blocks.push({id:'biradsLine', html:'<p class="birads-line">BIRADS-US®: Cat '+escapeHtml(biradsCategoria)+'</p>'});
-    }
-
     let rodapeHtml = '<div class="rodape-final">';
-    rodapeHtml += '<p class="footnote">'+comDigitadora('Imagens em anexo.')+'</p>';
+    rodapeHtml += '<p class="footnote">'+comDigitadora('Imagens em anexo. <br>*Nota: segundo a Normatização de Exames de Ultrassonografia do Colégio Brasileiro de Radiologia (2018), o estudo da Tireóide não faz parte desta avaliação cervical. Para estudo direcionado, solicitar Ultrassom da Tireoide. Saiba mais em <a href="https://cbr.org.br/normatizacao-de-exames-de-ultrassonografia/" target="_blank" rel="noopener">cbr.org.br/normatizacao-de-exames-de-ultrassonografia</a>.')+'</p>';
     rodapeHtml += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
     if(VR.medicoQual1) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
     if(VR.medicoQual2) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
@@ -1861,14 +1425,10 @@ if(typeof criarMotorLaudo !== 'function'){
     ['h3.doctitle', ['font-size','line-height'].concat(MARGINS)],
     ['h4.sec', ['font-size','line-height'].concat(MARGINS)],
     ['p.linha', ['font-size','line-height'].concat(MARGINS)],
-    ['p.relato', ['font-size','line-height'].concat(MARGINS)],
-    ['.nodulo-item', ['font-size','line-height'].concat(MARGINS)],
-    ['.birads-line', ['font-size','line-height'].concat(MARGINS)],
     ['.footnote', ['font-size','line-height']],
     ['.assinatura', ['line-height']],
     ['.assinatura-info', ['font-size','line-height']]
   ];
-
   function buildReportHtml(){
     const paperEl = $('paper');
     const clone = paperEl.cloneNode(true);
@@ -1893,7 +1453,6 @@ if(typeof criarMotorLaudo !== 'function'){
       ul.replaceWith(div);
     });
     clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
-    clone.querySelectorAll('.relato').forEach(el=>{ el.style.color='#C0392B'; el.style.fontWeight='700'; });
     const liveIntroEls = Array.from(paperEl.querySelectorAll('p.linha.intro'));
     clone.querySelectorAll('p.linha.intro').forEach((el, i)=>{
       el.style.fontWeight = '700';
@@ -1904,8 +1463,6 @@ if(typeof criarMotorLaudo !== 'function'){
     buildIdCardTable(clone, paperEl);
     clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
-    clone.querySelectorAll('.nodulo-item').forEach(el=>{ el.style.margin='0 0 6px'; el.style.paddingLeft='2.4em'; el.style.textIndent='-2.4em'; });
-    clone.querySelectorAll('.birads-line').forEach(el=>{ el.style.fontWeight='700'; el.style.paddingLeft='1em'; el.style.margin='4px 0 0'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
@@ -1932,7 +1489,7 @@ if(typeof criarMotorLaudo !== 'function'){
   const tituloPagina = document.title;
   window.addEventListener('beforeprint', ()=>{
     document.title = nomeArquivoLaudo();
-    if(st.printPaginated) return;
+    if(st.printPaginated) return; // já paginado para esta impressão — beforeprint pode disparar mais de uma vez
     printRestore = paginateForPrint();
   });
   window.addEventListener('afterprint', ()=>{
@@ -1957,7 +1514,7 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
   function tituloExame(){
-    return $('chkMamasMasculinas').checked ? 'Mamas Masculinas' : 'Mamas e Axilas';
+    return 'Cervical com Doppler';
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
@@ -2002,7 +1559,8 @@ if(typeof criarMotorLaudo !== 'function'){
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
-    $('achadosContainer').innerHTML = '';
+    $('linfoDContainer').innerHTML = '';
+    $('linfoEContainer').innerHTML = '';
     checkedState = {};
     impressaoOverrides = {};
     st.lastBlockHtml = {};
@@ -2011,7 +1569,6 @@ if(typeof criarMotorLaudo !== 'function'){
     $('printAlert').classList.remove('show');
     setDefaultDataExame();
     draftDiscard();
-    render();
   });
 
   setDefaultDataExame();
@@ -2026,7 +1583,8 @@ if(typeof criarMotorLaudo !== 'function'){
       v: 1,
       ts: Date.now(),
       fields: fields,
-      uids: achadoUids(),
+      linfoDUids: linfonodoUids('D'),
+      linfoEUids: linfonodoUids('E'),
       checked: checkedState,
       overrides: impressaoOverrides,
       titleFontSize: titleFontSize,
@@ -2038,14 +1596,26 @@ if(typeof criarMotorLaudo !== 'function'){
   function draftRestore(d){
     st.draftRestoring = true;
     try{
-      const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
-      $('achadosContainer').innerHTML = '';
-      uids.forEach(uid=>{
-        achadoNextUid = Math.max(achadoNextUid, parseInt(uid, 10) + 1);
-        $('achadosContainer').insertAdjacentHTML('beforeend', achadoSubgroupHTML(uid));
-        wireAchado(uid);
+      // Os linfonodos repetidos voltam com os mesmos uids de antes: os ids dos
+      // campos e as chaves da checklist de impressão derivam deles, então
+      // recriá-los com uid novo desalinharia tudo o que vem depois.
+      const validUids = arr => Array.isArray(arr) ? arr.filter(u=> /^[0-9]+$/.test(String(u))) : [];
+      const linfoDUids = validUids(d.linfoDUids);
+      const linfoEUids = validUids(d.linfoEUids);
+      $('linfoDContainer').innerHTML = '';
+      $('linfoEContainer').innerHTML = '';
+      linfoDUids.forEach(uid=>{
+        linfoNextUid = Math.max(linfoNextUid, parseInt(uid, 10) + 1);
+        $('linfoDContainer').insertAdjacentHTML('beforeend', linfonodoSubgroupHTML(uid));
+        wireLinfonodoRow(uid, 'D');
       });
-      renumberAchados();
+      linfoEUids.forEach(uid=>{
+        linfoNextUid = Math.max(linfoNextUid, parseInt(uid, 10) + 1);
+        $('linfoEContainer').insertAdjacentHTML('beforeend', linfonodoSubgroupHTML(uid));
+        wireLinfonodoRow(uid, 'E');
+      });
+      renumberLinfonodos('D');
+      renumberLinfonodos('E');
 
       Object.keys(d.fields).forEach(id=>{
         const el = $(id);
@@ -2064,7 +1634,8 @@ if(typeof criarMotorLaudo !== 'function'){
       titleFontSize = d.titleFontSize || null;
     }catch(e){
       st.draftRestoring = false;
-      $('achadosContainer').innerHTML = '';
+      $('linfoDContainer').innerHTML = '';
+      $('linfoEContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
       st.lastBlockHtml = {};
