@@ -1134,7 +1134,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
     aplicarMascaraCPF, applyExecutante, blankOrValue, buildIdCardTable, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
-    nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview, setDefaultDataExame,
+    nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
     vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml
   } = motor;
@@ -2776,6 +2776,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // collapsed into stacked blocks instead, which is the "desformatado"
     // rodapé. Tables render identically in Word as everywhere else, so any
     // row that relied on flex for its side-by-side layout is rebuilt as one.
+    pinAssinaturaWord(clone, paperEl);
     clone.querySelectorAll('.rodape-final').forEach(el=>{
       const footnote = el.querySelector('.footnote');
       const assinatura = el.querySelector('.assinatura');

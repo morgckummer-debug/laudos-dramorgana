@@ -846,7 +846,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
     aplicarMascaraCPF, applyExecutante, blankOrValue, buildIdCardTable, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
-    nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview, setDefaultDataExame,
+    nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
     vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml
   } = motor;
@@ -2454,6 +2454,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // O Word não faz flexbox: o par nota-à-esquerda/assinatura-à-direita do
     // rodapé virava dois blocos empilhados. Tabela o Word renderiza igual a
     // todo mundo, então a linha que dependia do flex é remontada como uma.
+    pinAssinaturaWord(clone, paperEl);
     clone.querySelectorAll('.rodape-final').forEach(el=>{
       const footnote = el.querySelector('.footnote');
       const assinatura = el.querySelector('.assinatura');

@@ -477,6 +477,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 10 ou abaixo, acima de 3 (PIG) — use {PERCENTIL} (já vem como "no percentil 5-10")</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 3 ou abaixo (CIUR) — use {PERCENTIL} (já vem como "abaixo do percentil 3") e {CIUR} (estágio escolhido no formulário: I, II, III ou IV)</label><textarea id="ph_impPesoCIUR" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 90 ou acima (GIG) — use {PERCENTIL} (já vem como "acima do percentil 90")</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Apresentação pélvica acima de 35 semanas — use {LABEL} ("Feto" ou "Feto N" na múltipla)</label><textarea id="ph_impFetoPelvico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — oligoâmnio (impressão)</label><textarea id="ph_impLaOligoamnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — polidrâmnio (impressão)</label><textarea id="ph_impLaPolidramnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta alterada — use {DESCRICAO}</label><textarea id="ph_impPlacentaAlterada" rows="2"></textarea></div>
@@ -793,7 +794,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
     aplicarMascaraCPF, applyExecutante, autoFitPages, blankOrValue, buildIdCardTable, comDigitadora, copyComputedToClone, draftDiscard,
     draftFingerprint, draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule,
-    escapeHtml, nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview,
+    escapeHtml, nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview,
     setDefaultDataExame, setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview,
     v, vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml
   } = motor;
@@ -1193,6 +1194,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impPesoPIG: 'Peso fetal {PERCENTIL} (Hadlock) - Feto PIG.',
     impPesoCIUR: 'Peso fetal {PERCENTIL} (Hadlock) - CIUR estágio {CIUR}.',
     impPesoGIG: 'Peso fetal {PERCENTIL} (Hadlock) - feto GIG.',
+    impFetoPelvico: '{LABEL} PÉLVICO.',
     impLaOligoamnio: 'Oligoâmnio — redução do volume de líquido amniótico para a idade gestacional.',
     impLaPolidramnio: 'Polidrâmnio — aumento do volume de líquido amniótico para a idade gestacional.',
     impPlacentaAlterada: 'Placenta com espessura alterada: {DESCRICAO}.',
@@ -1801,6 +1803,18 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:k('peso', f), label: pre(f) + f.pesoLabel, auto:true});
     });
 
+    // Pélvico acima de 35 semanas: sinalizado à parte na conclusão, sempre
+    // que houver IG (não dá para avaliar "acima de 35 semanas" sem ela) —
+    // não entra no algumAchado acima porque apresentação pélvica não é, por
+    // si só, uma intercorrência da gestação (ao contrário de PIG/CIUR/
+    // placenta alterada), e "Gestação com boa evolução." continua valendo
+    // junto com ela.
+    state.fetos.forEach(f=>{
+      if(f.apresentacao === 'pélvica' && state.gaDays != null && state.gaDays > 35*7){
+        items.push({key:k('feto-pelvico', f), label: phraseRaw('impFetoPelvico', {LABEL: f.label}), auto:true});
+      }
+    });
+
     if(!algumAchado){
       items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
     }
@@ -2121,7 +2135,7 @@ if(typeof criarMotorLaudo !== 'function'){
         ].filter(Boolean).join(', ');
       }
 
-      return {uid, label, apresentacaoHtml, fc, observacoes,
+      return {uid, label, apresentacao, apresentacaoHtml, fc, observacoes,
         dbp, cf, cc, ca, peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
@@ -2440,6 +2454,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
     clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
 
+    pinAssinaturaWord(clone, paperEl);
     clone.querySelectorAll('.rodape-final').forEach(el=>{
       const footnote = el.querySelector('.footnote');
       const assinatura = el.querySelector('.assinatura');

@@ -507,32 +507,9 @@
             <input type="checkbox" id="temCisto" style="accent-color:#6d3263;"> Há cisto colóide
           </label>
         </div>
-        <div class="field-row field-row-compact conditional" id="wrap_cistoTipo">
-          <div class="field"><label>Cisto colóide</label>
-            <select id="cistoTipo">
-              <option value="1">Único (1)</option>
-              <option value="varios">Vários (ao menos 3)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_cistoColoide1Campos">
-          <div class="field"><label>Lobo</label>
-            <select id="cistoLobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
-          </div>
-          <div class="field"><label>Terço</label>
-            <select id="cistoTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cistoTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_cistoColoideVariosCampos">
-          <div class="field"><label>Lobo</label>
-            <select id="cistosLobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select>
-          </div>
-          <div class="field"><label>Terço do maior</label>
-            <select id="cistosTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Menor</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cistosMin" placeholder="mm"></div>
-          <div class="field"><label>Maior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cistosMax" placeholder="mm"></div>
+        <div class="conditional" id="wrap_cistoCampos">
+          <div id="cistoCistosContainer"></div>
+          <button type="button" class="btn-clear" id="btnAddCisto" style="margin:2px 0 12px;">+ Adicionar cisto</button>
         </div>
         <hr class="sep">
         <div class="field-row">
@@ -768,7 +745,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
     applyExecutante, blankOrValue, buildIdCardTable, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
-    nomeArquivoLaudo, num, paginateForPrint, renderBlocks, schedulePagePreview, setDefaultDataExame,
+    nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
     vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml
   } = motor;
@@ -1441,6 +1418,74 @@ if(typeof criarMotorLaudo !== 'function'){
     return Array.from($('noduloNodulosContainer').children).map(el=> el.id.replace('wrap_nodulo',''));
   }
 
+  // ---------- Cistos colóides: mesma lista dinâmica dos nódulos, acima —
+  // antes só existia um cisto colóide por laudo (único ou "vários", sempre
+  // no mesmo lobo/terço); com o botão "+ Adicionar cisto" dá para registrar
+  // quantos achados forem necessários, cada um com seu próprio lobo/terço e
+  // tipo único/vários.
+  let cistoNextUid = 1;
+  function cistoSubgroupHTML(uid){
+    return ''
+      +'<div class="subgroup" id="wrap_cisto'+uid+'">'
+      +'<p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Cisto <span class="cisto-index"></span></p>'
+      +'<div class="field-row field-row-compact">'
+      +'<div class="field"><label>Cisto colóide</label><select id="cisto'+uid+'Tipo"><option value="1">Único (1)</option><option value="varios">Vários (ao menos 3)</option></select></div>'
+      +'<div class="field"><label>Lobo</label><select id="cisto'+uid+'Lobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select></div>'
+      +'<div class="field"><label id="cisto'+uid+'TercoLabel">Terço</label><select id="cisto'+uid+'Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select></div>'
+      +'</div>'
+      +'<div class="field-row field-row-compact conditional" id="wrap_cisto'+uid+'Unico">'
+      +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cisto'+uid+'Tamanho" placeholder="mm"></div>'
+      +'</div>'
+      +'<div class="field-row field-row-compact conditional" id="wrap_cisto'+uid+'Varios">'
+      +'<div class="field"><label>Menor</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cisto'+uid+'Min" placeholder="mm"></div>'
+      +'<div class="field"><label>Maior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cisto'+uid+'Max" placeholder="mm"></div>'
+      +'</div>'
+      +'<button type="button" class="nodulo-remove cisto-remove" data-uid="'+uid+'">Remover cisto</button>'
+      +'</div>';
+  }
+  function renumberCistos(){
+    const container = $('cistoCistosContainer');
+    const cistos = Array.from(container.children);
+    cistos.forEach((el, idx)=>{
+      const label = el.querySelector('.cisto-index');
+      if(label) label.textContent = idx+1;
+      const removeBtn = el.querySelector('.cisto-remove');
+      if(removeBtn) removeBtn.style.display = cistos.length>1 ? 'inline' : 'none';
+    });
+  }
+  function updateCistoTipoVisibility(uid){
+    const tipo = v('cisto'+uid+'Tipo') || '1';
+    toggle('wrap_cisto'+uid+'Unico', tipo==='1');
+    toggle('wrap_cisto'+uid+'Varios', tipo==='varios');
+    const label = $('cisto'+uid+'TercoLabel');
+    if(label) label.textContent = tipo==='varios' ? 'Terço do maior' : 'Terço';
+  }
+  function wireCistoCisto(uid){
+    const el = $('wrap_cisto'+uid);
+    el.querySelectorAll('input, select').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    $('cisto'+uid+'Tipo').addEventListener('change', ()=> updateCistoTipoVisibility(uid));
+    updateCistoTipoVisibility(uid);
+    el.querySelector('.cisto-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberCistos();
+      render();
+    });
+  }
+  function addCisto(){
+    const uid = cistoNextUid++;
+    $('cistoCistosContainer').insertAdjacentHTML('beforeend', cistoSubgroupHTML(uid));
+    wireCistoCisto(uid);
+    renumberCistos();
+    render();
+  }
+  $('btnAddCisto').addEventListener('click', addCisto);
+  function cistoCistoUids(){
+    return Array.from($('cistoCistosContainer').children).map(el=> el.id.replace('wrap_cisto',''));
+  }
+
   $('parenquimaAspecto').addEventListener('change', e=>{
     const val = e.target.value;
     toggle('wrap_hashimotoCampos', val==='hashimoto');
@@ -1457,15 +1502,13 @@ if(typeof criarMotorLaudo !== 'function'){
       addNodulo();
     }
   });
-  function updateCistoVisibility(){
-    const temCisto = $('temCisto').checked;
-    toggle('wrap_cistoTipo', temCisto);
-    const tipo = $('cistoTipo').value || '1';
-    toggle('wrap_cistoColoide1Campos', temCisto && tipo==='1');
-    toggle('wrap_cistoColoideVariosCampos', temCisto && tipo==='varios');
-  }
-  $('temCisto').addEventListener('change', updateCistoVisibility);
-  $('cistoTipo').addEventListener('change', updateCistoVisibility);
+  $('temCisto').addEventListener('change', ()=>{
+    const on = $('temCisto').checked;
+    toggle('wrap_cistoCampos', on);
+    if(on && $('cistoCistosContainer').children.length===0){
+      addCisto();
+    }
+  });
   $('cervicaisAspecto').addEventListener('change', e=>{
     const val = e.target.value;
     toggle('wrap_linfonodoCampos', val==='linfonodo');
@@ -1513,9 +1556,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.parenquimaImpressaoHD){
       items.push({key:'parenquima-achado', label: state.parenquimaImpressaoHD, auto:true});
     }
-    if(state.cistoImpressaoHD){
-      items.push({key:'parenquima-achado-cisto', label: state.cistoImpressaoHD, auto:true});
-    }
+    (state.cistoImpressaoItems || []).forEach(it=>{
+      items.push({key:'parenquima-achado-cisto'+it.uid, label: it.label, auto:true});
+    });
     if(state.linfonodoImpressaoHD){
       items.push({key:'linfonodo-achado', label: state.linfonodoImpressaoHD, auto:true});
     }
@@ -1685,23 +1728,32 @@ if(typeof criarMotorLaudo !== 'function'){
       }
     }
 
-    let cistoImpressaoHD = null;
+    let cistoImpressaoItems = [];
     let cistoTexto = null;
     if($('temCisto').checked){
-      const tipo = v('cistoTipo') || '1';
-      if(tipo==='varios'){
-        const lobo = v('cistosLobo') || 'direito';
-        const terco = v('cistosTerco') || 'superior';
-        const min = blankOrValue(req('cistosMin'));
-        const max = blankOrValue(req('cistosMax'));
-        cistoTexto = 'Observam-se ao menos três imagens císticas, de paredes finas e regulares, com foco ecogênico em seu interior, que condicionam reverberação acústica posterior, localizadas no lobo '+lobo+', terço '+terco+', medindo entre '+span(min)+' e '+span(max)+' mm, sugestivas de cistos colóides.';
-        cistoImpressaoHD = phrase('impCistoColoideVarios', {LADO:'à '+(lobo==='direito'?'direita':'esquerda')});
-      }else{
-        const lobo = v('cistoLobo') || 'direito';
-        const terco = v('cistoTerco') || 'superior';
-        const tamanho = blankOrValue(req('cistoTamanho'));
-        cistoTexto = 'Observa-se uma imagem cística, de paredes finas e regulares, com foco ecogênico em seu interior, que condiciona reverberação acústica posterior, localizada no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' mm, sugestiva de cisto colóide.';
-        cistoImpressaoHD = phrase('impCistoColoide1', {LADO:'à '+(lobo==='direito'?'direita':'esquerda')});
+      const uids = cistoCistoUids();
+      const cistos = uids.map(uid=>{
+        const tipo = v('cisto'+uid+'Tipo') || '1';
+        const lobo = v('cisto'+uid+'Lobo') || 'direito';
+        const terco = v('cisto'+uid+'Terco') || 'superior';
+        const ladoTxt = 'à '+(lobo==='direito'?'direita':'esquerda');
+        if(tipo==='varios'){
+          const min = blankOrValue(req('cisto'+uid+'Min'));
+          const max = blankOrValue(req('cisto'+uid+'Max'));
+          return {
+            texto: 'Observam-se ao menos três imagens císticas, de paredes finas e regulares, com foco ecogênico em seu interior, que condicionam reverberação acústica posterior, localizadas no lobo '+lobo+', terço '+terco+', medindo entre '+span(min)+' e '+span(max)+' mm, sugestivas de cistos colóides.',
+            impressao: phrase('impCistoColoideVarios', {LADO:ladoTxt})
+          };
+        }
+        const tamanho = blankOrValue(req('cisto'+uid+'Tamanho'));
+        return {
+          texto: 'Observa-se uma imagem cística, de paredes finas e regulares, com foco ecogênico em seu interior, que condiciona reverberação acústica posterior, localizada no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' mm, sugestiva de cisto colóide.',
+          impressao: phrase('impCistoColoide1', {LADO:ladoTxt})
+        };
+      });
+      if(cistos.length){
+        cistoTexto = cistos.map(c=> c.texto).join(' ');
+        cistoImpressaoItems = cistos.map((c, i)=> ({uid: uids[i], label: c.impressao}));
       }
     }
 
@@ -1787,7 +1839,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
 
     // ----- Impressão -----
-    const impressaoItems = buildImpressao({parenquimaImpressaoHD, noduloImpressaoItems, cistoImpressaoHD, linfonodoImpressaoHD, volumeAumentado});
+    const impressaoItems = buildImpressao({parenquimaImpressaoHD, noduloImpressaoItems, cistoImpressaoItems, linfonodoImpressaoHD, volumeAumentado});
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
 
@@ -1960,6 +2012,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
     clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#9a7e95'; el.style.margin='0'; });
 
+    pinAssinaturaWord(clone, paperEl);
     clone.querySelectorAll('.rodape-final').forEach(el=>{
       const footnote = el.querySelector('.footnote');
       const assinatura = el.querySelector('.assinatura');
@@ -2055,6 +2108,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // vez, em vez de deixar quantos tivessem sido adicionados para a paciente
     // anterior.
     $('noduloNodulosContainer').innerHTML = '';
+    $('cistoCistosContainer').innerHTML = '';
     checkedState = {};
     impressaoOverrides = {};
     st.lastBlockHtml = {};
@@ -2063,6 +2117,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $('printAlert').classList.remove('show');
     setDefaultDataExame();
     addNodulo();
+    addCisto();
     draftDiscard();
   });
 
@@ -2079,6 +2134,7 @@ if(typeof criarMotorLaudo !== 'function'){
       ts: Date.now(),
       fields: fields,
       noduloUids: noduloNoduleUids(),
+      cistoUids: cistoCistoUids(),
       checked: checkedState,
       overrides: impressaoOverrides,
       titleFontSize: titleFontSize,
@@ -2106,6 +2162,19 @@ if(typeof criarMotorLaudo !== 'function'){
         addNodulo();
       }
 
+      const cistoUids = Array.isArray(d.cistoUids) ? d.cistoUids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
+      $('cistoCistosContainer').innerHTML = '';
+      if(cistoUids.length){
+        cistoUids.forEach(uid=>{
+          cistoNextUid = Math.max(cistoNextUid, parseInt(uid, 10) + 1);
+          $('cistoCistosContainer').insertAdjacentHTML('beforeend', cistoSubgroupHTML(uid));
+          wireCistoCisto(uid);
+        });
+        renumberCistos();
+      }else{
+        addCisto();
+      }
+
       Object.keys(d.fields).forEach(id=>{
         const el = $(id);
         if(!el || !el.closest('#formCol')) return;
@@ -2124,6 +2193,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }catch(e){
       st.draftRestoring = false;
       $('noduloNodulosContainer').innerHTML = '';
+      $('cistoCistosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
       st.lastBlockHtml = {};

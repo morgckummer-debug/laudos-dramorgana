@@ -629,6 +629,37 @@ function criarMotorLaudo(cfg){
       updatePagePreview();
     };
   }
+  // O "Baixar Word" nunca passou pelo paginateForPrint() — buildReportHtml()
+  // clona o #paper como ele está, fluindo normalmente, sem o espaçador que
+  // prende a assinatura no pé da folha na impressão/PDF. Num laudo curto
+  // (comum nos de medicina interna, sem achado nenhum) isso deixa a
+  // assinatura no meio da página no .doc, mesmo saindo certa no PDF.
+  // Aqui mede com o mesmo packAt() do PDF e, só quando o laudo cabe numa
+  // única página, insere antes do '.rodape-final' do clone um espaçador do
+  // tamanho que falta até a margem inferior — a mesma conta que
+  // paginateForPrint() já faz. Com mais de uma página não dá para saber onde
+  // o Word vai realmente quebrar (a paginação dele não é a nossa, e um
+  // espaçador de tamanho errado ficaria pior do que nenhum), então nesse
+  // caso a função não mexe em nada.
+  function pinAssinaturaWord(clone, paperEl){
+    const budgetPx = pageBudgetPx();
+    const fit = autoFitPages(paperEl, budgetPx);
+    const pages = fit.packed.pages;
+    if(pages.length !== 1) return;
+    const pageBoxes = pages[0];
+    if(!pageBoxes.length) return;
+    const pinned = pageBoxes[pageBoxes.length - 1];
+    const contentBoxes = pageBoxes.slice(0, -1);
+    const contentHeight = contentBoxes.length ? (contentBoxes[contentBoxes.length-1].bottom - contentBoxes[0].top) : 0;
+    const pinnedHeight = pinned.bottom - pinned.top;
+    const spacerPx = Math.max(0, budgetPx - contentHeight - pinnedHeight);
+    if(spacerPx < 1) return;
+    const rodape = clone.querySelector('.rodape-final');
+    if(!rodape || !rodape.parentNode) return;
+    const spacer = document.createElement('div');
+    spacer.style.height = spacerPx + 'px';
+    rodape.parentNode.insertBefore(spacer, rodape);
+  }
   function updatePagePreview(){
     // O debounce de 250 ms pode vencer com a impressão já em curso: aí o #paper
     // está em folhas e a contagem sairia sobre a remontagem, não sobre o laudo.
@@ -1241,6 +1272,7 @@ function criarMotorLaudo(cfg){
     packAt: packAt,
     pageBudgetPx: pageBudgetPx,
     paginateForPrint: paginateForPrint,
+    pinAssinaturaWord: pinAssinaturaWord,
     renderBlocks: renderBlocks,
     sanitizeChars: sanitizeChars,
     sanitizeFilenamePart: sanitizeFilenamePart,
