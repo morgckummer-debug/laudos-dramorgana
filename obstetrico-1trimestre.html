@@ -214,7 +214,7 @@
   .paper h3.doctitle > br:first-child{display:none;}
   .paper .relato{color:#C0392B;font-weight:700;margin:0 0 0.75em;}
   .paper h4.sec{
-    text-decoration:underline;font-size:0.8125em;letter-spacing:.4px;margin:1.230769em 0 0.615385em;font-weight:600;color:var(--rose-dark);
+    text-decoration:underline;font-size:0.958333em;letter-spacing:.4px;margin:1.043478em 0 0.521739em;font-weight:600;color:var(--rose-dark);
   }
   .paper p.linha{margin:0 0 var(--linha-margin, 1em);}
   .paper p.linha strong{font-weight:700;}
@@ -2417,10 +2417,28 @@ if(typeof criarMotorLaudo !== 'function'){
       });
       ul.replaceWith(div);
     });
-    clone.querySelectorAll('h3.doctitle').forEach(h=>{ h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700'; if(!h.style.fontSize) h.style.fontSize='16pt'; });
+    clone.querySelectorAll('h3.doctitle').forEach(h=>{
+      h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='700';
+      if(!h.style.fontSize) h.style.fontSize='16pt';
+      // <h3>/<h4> viram "Título N" no Word, com nível de tópico — e o Word
+      // desenha uma setinha de recolher/expandir na margem ao lado de todo
+      // título com nível de tópico (nunca imprime, mas aparece na tela do
+      // Word e confunde). Trocar para <p> com o mesmo estilo tira o nível de
+      // tópico sem mudar nada visualmente.
+      const p = document.createElement('p');
+      Array.from(h.attributes).forEach(attr=> p.setAttribute(attr.name, attr.value));
+      p.innerHTML = h.innerHTML;
+      h.replaceWith(p);
+    });
     buildIdCardTable(clone, paperEl);
     clone.querySelectorAll('.relato').forEach(h=>{ h.style.fontWeight='700'; });
-    clone.querySelectorAll('h4.sec').forEach(h=>{ h.style.textDecoration='underline'; h.style.fontWeight='600'; });
+    clone.querySelectorAll('h4.sec').forEach(h=>{
+      h.style.textDecoration='underline'; h.style.fontWeight='600';
+      const p = document.createElement('p');
+      Array.from(h.attributes).forEach(attr=> p.setAttribute(attr.name, attr.value));
+      p.innerHTML = h.innerHTML;
+      h.replaceWith(p);
+    });
     clone.querySelectorAll('table.biometria td').forEach(el=>{ el.style.border='1px solid #d9c3d3'; el.style.padding='2px 16px'; });
     clone.querySelectorAll('table.biometria td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
     clone.querySelectorAll('table.biometria td:last-child').forEach(el=>{ el.style.textAlign='center'; });
