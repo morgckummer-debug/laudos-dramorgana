@@ -401,6 +401,7 @@
         <div class="field-row">
           <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
         </div>
+        <div class="field"><label>Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" rows="2" placeholder="ex: Linfonodomegalia cervical palpável.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
       </div>
     </div>
 
@@ -1280,6 +1281,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const nomePaciente = v('nomePaciente');
     const dataExame = v('dataExame');
     const medicoSolicitante = v('medicoSolicitante');
+    const motivoExame = vNoDot('motivoExame');
     req('nomePaciente'); req('dataExame');
 
     // ----- Ao exame -----
@@ -1367,6 +1369,14 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'});
 
     blocks.push({id:'doctitle', html: '<h3 class="doctitle">ULTRASSOM DA REGIÃO CERVICAL<br class="quebra-doppler">COM ESTUDO DOPPLER</h3>'});
+
+    if(motivoExame){
+      const linhas = motivoExame.split('\n').map(l=>l.trim()).filter(Boolean);
+      const relatoHtml = linhas.map((linha, idx)=>
+        '<span style="display:block;'+(idx>0?'margin-top:1mm;':'')+'">'+escapeHtml(linha)+(idx===linhas.length-1?'.':'')+'</span>'
+      ).join('');
+      blocks.push({id:'relato', html:'<p class="relato">'+relatoHtml+'</p>'});
+    }
 
     blocks.push({id:'observadosLabel', html:'<p class="linha intro intro-last">Ao exame:</p>'});
 
