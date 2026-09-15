@@ -1583,7 +1583,10 @@ if(typeof criarMotorLaudo !== 'function'){
   const RINS_TAIL_PADRAO = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Espaço perirrenal livre.';
   function prefillAlteradoIfEmpty(textareaId, texto){
     const el = $(textareaId);
-    if(el && !el.value.trim()) el.value = texto;
+    // As constantes acima também alimentam o HTML do render() — RINS_TAIL_PADRAO
+    // usa "&gt;" para escapar o texto ali. Numa textarea isso é texto puro (sem
+    // interpretação de HTML), então precisa voltar a ">" antes de entrar aqui.
+    if(el && !el.value.trim()) el.value = texto.replace(/&gt;/g,'>').replace(/&lt;/g,'<').replace(/&amp;/g,'&');
   }
 
   function updateFigadoGrauManualVisibility(){

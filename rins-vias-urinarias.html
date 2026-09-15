@@ -1326,6 +1326,26 @@ if(typeof criarMotorLaudo !== 'function'){
     render();
   }
 
+  // ---------- Texto "normal" de cada órgão com opção "Outro (descrever)" ----------
+  // Ao trocar para "alterado" o campo de descrição livre nasce vazio, e ao
+  // digitar só a alteração pontual a médica acaba perdendo o resto da
+  // descrição normal — que sairia junto se "Normal" tivesse ficado marcado.
+  // Pré-preenche com essa mesma frase, editável: ela troca só o trecho que
+  // mudou. BEXIGA_NORMAL é usada também no render() mais abaixo, na
+  // frase-padrão de "Normal" (mesma constante nos dois lugares, para não
+  // divergir); RIM_TAIL_PADRAO não — o parágrafo do rim quebra essas frases
+  // em linhas com <br> no render(), e aqui o campo é texto livre puro, sem
+  // HTML, então fica como uma constante à parte, só para o pré-preenchimento.
+  const RIM_TAIL_PADRAO = 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).';
+  const BEXIGA_NORMAL = 'De topografia usual, boa repleção, contorno interno regular e conteúdo anecoico. Meatos ureterais pérvios, sem alterações.';
+  function prefillAlteradoIfEmpty(textareaId, texto){
+    const el = $(textareaId);
+    // RIM_TAIL_PADRAO usa "&gt;" (pensado para o HTML do render()); numa
+    // textarea isso é texto puro, sem interpretação de HTML — volta a ">"
+    // antes de entrar aqui.
+    if(el && !el.value.trim()) el.value = texto.replace(/&gt;/g,'>').replace(/&lt;/g,'<').replace(/&amp;/g,'&');
+  }
+
   // ---------- Achados por rim: checkboxes combináveis (cisto e cálculo, por
   // exemplo, podem coexistir no mesmo rim), não mais um select único — "Normal"
   // continua exclusivo com todo o resto.
@@ -1353,6 +1373,16 @@ if(typeof criarMotorLaudo !== 'function'){
           $(p+'Normal').checked = false;
           const kind = Object.keys(LISTA_ACHADO_NOME).find(k=> LISTA_ACHADO_NOME[k]===a);
           if(kind && $(p+kind+'NodulosContainer').children.length===0) addListaItem(p, kind);
+          // "Alterado" sozinho (nenhum outro achado marcado neste rim)
+          // substitui a descrição inteira do rim por texto livre — pré-
+          // preenche com o texto padrão de rim normal para não perder o
+          // resto da descrição ao editar só o trecho que mudou. Combinado
+          // com outro achado (cisto, cálculo...) o texto de "Alterado" é só
+          // mais um fragmento depois deles, então não se aplica.
+          if(a==='Alterado' && !RIM_ACHADOS.some(x=> x!=='Alterado' && $(p+x).checked)){
+            const ladoNome = p==='rimD' ? 'direito' : 'esquerdo';
+            prefillAlteradoIfEmpty(p+'Descricao', RIM_TAIL_PADRAO+' Ureter '+ladoNome+' sem sinais de dilatações.');
+          }
         } else if(!RIM_ACHADOS.some(x=> $(p+x).checked)){
           $(p+'Normal').checked = true;
         }
@@ -1371,6 +1401,7 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_bexigaEsforco', val==='esforco');
     toggle('wrap_bexigaCalculoCampos', val==='calculo');
     toggle('wrap_bexigaDescricao', val==='alterado');
+    if(val==='alterado') prefillAlteradoIfEmpty('bexigaDescricao', BEXIGA_NORMAL);
   });
 
   function classificacaoVolumePos(ml){
@@ -1682,7 +1713,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else if(bexigaAspecto==='alterado' && bexigaDescricao){
       bexigaTexto = escapeHtml(bexigaDescricao)+'.';
     } else {
-      bexigaTexto = 'De topografia usual, boa repleção, contorno interno regular e conteúdo anecoico. Meatos ureterais pérvios, sem alterações.';
+      bexigaTexto = BEXIGA_NORMAL;
     }
     blocks.push({id:'bexiga', html:'<p class="linha"><strong>Bexiga:</strong> '+bexigaTexto+'</p>'});
     blocks.push({id:'volumeInicial', html:'<p class="linha">Volume urinário inicial: '+span(volumeInicialTexto)+' ml.</p>'});

@@ -1182,10 +1182,34 @@ if(typeof criarMotorLaudo !== 'function'){
   }
 
 
-  $('bexigaAspecto').addEventListener('change', e=> toggle('wrap_bexigaDescricao', e.target.value==='alterado'));
-  $('uteroTexturaContornos').addEventListener('change', e=> toggle('wrap_uteroTexturaContornosDescricao', e.target.value==='alterado'));
-  $('endometrioAspecto').addEventListener('change', e=> toggle('wrap_endometrioDescricao', e.target.value==='alterado'));
-  $('anexiaisAspecto').addEventListener('change', e=> toggle('wrap_anexiaisDescricao', e.target.value==='alterado'));
+  // Ao trocar um select de aspecto para "alterado", a caixa de descrição já
+  // nasce com o texto do normal — a alteração costuma ser mínima, e editar em
+  // cima do texto padrão é mais rápido que escrever do zero. Só preenche se a
+  // caixa ainda estiver vazia: o que a médica já tiver escrito nunca é pisado.
+  // Não vale para "liquidoAspecto": ali "alterado" significa líquido
+  // PRESENTE, o oposto do texto de ausência — pré-preencher com ele
+  // atrapalharia mais do que ajudaria.
+  function prefillAspectoDescricao(boxId, textoNormal){
+    const box = $(boxId);
+    if(!box || box.value.trim()) return;
+    box.value = typeof textoNormal === 'function' ? textoNormal() : textoNormal;
+  }
+  $('bexigaAspecto').addEventListener('change', e=>{
+    toggle('wrap_bexigaDescricao', e.target.value==='alterado');
+    if(e.target.value==='alterado') prefillAspectoDescricao('bexigaDescricao', 'de topografia e repleção normais. Parede de espessura regular, apresentando contornos regulares e conteúdo anecóico');
+  });
+  $('uteroTexturaContornos').addEventListener('change', e=>{
+    toggle('wrap_uteroTexturaContornosDescricao', e.target.value==='alterado');
+    if(e.target.value==='alterado') prefillAspectoDescricao('uteroTexturaContornosDescricao', 'regulares');
+  });
+  $('endometrioAspecto').addEventListener('change', e=>{
+    toggle('wrap_endometrioDescricao', e.target.value==='alterado');
+    if(e.target.value==='alterado') prefillAspectoDescricao('endometrioDescricao', ()=> 'regular, ecogênico, com espessura máxima de '+(v('endometrioEspessura')||'____')+' mm');
+  });
+  $('anexiaisAspecto').addEventListener('change', e=>{
+    toggle('wrap_anexiaisDescricao', e.target.value==='alterado');
+    if(e.target.value==='alterado') prefillAspectoDescricao('anexiaisDescricao', 'Regiões anexiais sem evidência de lesões expansivas sólidas ou císticas');
+  });
   $('liquidoAspecto').addEventListener('change', e=> toggle('wrap_liquidoDescricao', e.target.value==='alterado'));
   $('chkDoppler').addEventListener('change', e=> toggle('cardDoppler', e.target.checked));
 

@@ -1333,13 +1333,23 @@ if(typeof criarMotorLaudo !== 'function'){
     if(sel.value !== 'outro') applyExecutante(sel.value);
   }
 
-  function wireAspecto(aspectoId, wrapId){
+  // Ao trocar um select de aspecto para "alterado", a caixa de descrição já
+  // nasce com o texto do normal — a alteração costuma ser mínima, e editar em
+  // cima do texto padrão é mais rápido que escrever do zero. Só preenche se a
+  // caixa ainda estiver vazia: o que a médica já tiver escrito nunca é pisado.
+  function prefillAspectoDescricao(boxId, textoNormal){
+    const box = $(boxId);
+    if(!box || box.value.trim()) return;
+    box.value = typeof textoNormal === 'function' ? textoNormal() : textoNormal;
+  }
+  function wireAspecto(aspectoId, wrapId, descricaoId, textoNormal){
     $(aspectoId).addEventListener('change', e=>{
       toggle(wrapId, e.target.value==='alterado');
+      if(e.target.value==='alterado' && descricaoId) prefillAspectoDescricao(descricaoId, textoNormal);
     });
   }
-  wireAspecto('contornosAspecto', 'wrap_contornosDescricao');
-  wireAspecto('vascularizacaoAspecto', 'wrap_vascularizacaoDescricao');
+  wireAspecto('contornosAspecto', 'wrap_contornosDescricao', 'contornosDescricao', 'Glândula tireóidea de topografia usual apresentando contornos regulares.');
+  wireAspecto('vascularizacaoAspecto', 'wrap_vascularizacaoDescricao', 'vascularizacaoDescricao', 'Tireóide apresentando padrão de vascularização normal ao mapeamento colorido.');
 
   // ---------- Nódulos: lista dinâmica, igual ao mesmo padrão dos miomas no
   // transvaginal.html. Cada nódulo mantém um uid estável desde a criação (nunca
@@ -1490,6 +1500,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const val = e.target.value;
     toggle('wrap_hashimotoCampos', val==='hashimoto');
     toggle('wrap_parenquimaDescricao', val==='alterado');
+    if(val==='alterado') prefillAspectoDescricao('parenquimaDescricao', 'Parênquima de textura homogênea, não se identificando nódulos sólidos ou císticos.');
   });
 
   // Nódulo e cisto colóide são achados independentes, cada um com seu próprio
@@ -1513,6 +1524,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const val = e.target.value;
     toggle('wrap_linfonodoCampos', val==='linfonodo');
     toggle('wrap_cervicaisDescricao', val==='alterado');
+    if(val==='alterado') prefillAspectoDescricao('cervicaisDescricao', 'Demais estruturas cervicais sem alterações à ecografia. Traqueia em posição anatômica.');
   });
 
   // Mesmo aviso de "acima do valor de referência para o nível" do

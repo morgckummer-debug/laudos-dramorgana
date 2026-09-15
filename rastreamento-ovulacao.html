@@ -1592,11 +1592,28 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
 
+  // Ao trocar o aspecto do útero para "alterado", a caixa de descrição já
+  // nasce com o texto do normal — a alteração costuma ser mínima, e editar
+  // em cima do texto padrão é mais rápido que escrever do zero. Só preenche
+  // se a caixa ainda estiver vazia: o que a médica já tiver escrito nunca é
+  // pisado. (O achado "alterado" de cada ovário não precisa disso: ali é só
+  // um fragmento somado à frase-base, que continua sempre presente.)
+  function prefillAspectoDescricao(boxId, textoNormal){
+    const box = $(boxId);
+    if(!box || box.value.trim()) return;
+    box.value = typeof textoNormal === 'function' ? textoNormal() : textoNormal;
+  }
   $('uteroAspecto').addEventListener('change', e=>{
     toggle('wrap_uteroDescricao', e.target.value==='alterado');
     toggle('wrap_miomaDetalhes', e.target.value==='mioma');
     if(e.target.value==='mioma' && $('miomaNodulosContainer').children.length===0){
       addMiomaNodule();
+    }
+    if(e.target.value==='alterado'){
+      prefillAspectoDescricao('uteroDescricao', ()=>{
+        const posicao = {AVF:'em anteversoflexão', RVF:'em retroversoflexão', MVF:'em posição intermediária (medioversão)'}[v('uteroPosicao')];
+        return phraseRaw('uteroBase', {POSICAO: posicao});
+      });
     }
   });
   function wireOvario(prefix){
