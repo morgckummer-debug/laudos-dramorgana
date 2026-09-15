@@ -452,8 +452,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Apresentação córmica — gestação múltipla</label><textarea id="ph_apresentacaoTextoTransversaMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Movimentação</label><textarea id="ph_movimentacaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade — use {FC}</label><textarea id="ph_vitalidadeTexto" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Placenta normal — use {INSERCAO}, {TEXTURA} e {GRAU}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {TEXTURA}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta normal — use {INSERCAO} e {GRAU}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cordão umbilical — use {VASOS}</label><textarea id="ph_cordaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — volume reduzido (oligoâmnio)</label><textarea id="ph_laAspectoOligoamnio" rows="2"></textarea></div>
@@ -1149,10 +1149,10 @@ if(typeof criarMotorLaudo !== 'function'){
     apresentacaoTextoTransversaMultiplo: 'Em situação transversa, apresentação córmica.',
     movimentacaoTexto: 'Observa-se movimentação corporal e respiratória.',
     vitalidadeTexto: 'Batimentos cardíacos rítmicos com frequência de {FC} bpm.',
-    placentaTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
-    placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
+    placentaTexto: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura normal.',
+    placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura alterada: {DESCRICAO}.',
     cordaoTexto: 'Cordão umbilical apresentando {VASOS}.',
-    laAspectoNormal: 'Aspecto e volume normais para a idade gestacional.',
+    laAspectoNormal: 'Volume normal para a idade gestacional.',
     laAspectoOligoamnio: 'Volume de líquido amniótico reduzido para a idade gestacional (oligoâmnio).',
     laAspectoPolidramnio: 'Volume de líquido amniótico aumentado para a idade gestacional (polidrâmnio).',
     laValoresBolsao: 'Maior bolsão: {BOLSAO} cm',
