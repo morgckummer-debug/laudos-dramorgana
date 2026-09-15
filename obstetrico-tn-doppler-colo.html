@@ -1450,6 +1450,19 @@ if(typeof criarMotorLaudo !== 'function'){
   function italicizeFMF(html){
     return html.replace(/Fetal Medicine Foundation/g, '<em>Fetal Medicine Foundation</em>');
   }
+  // A ressalva de que a TN é teste de rastreamento, não de diagnóstico, vai
+  // em itálico dentro do item de recomendação final — acompanhando a frase
+  // do protocolo da FMF, que já sai em itálico por estar num bloco
+  // p.recomendacao à parte. Mesmo padrão do italicizeFMF: aplicado depois de
+  // escapeHtml, por busca de texto literal, do marcador até o fim da frase.
+  function italicizeTNDisclaimer(html){
+    const marca = 'A medida da Translucência Nucal consiste';
+    const idx = html.indexOf(marca);
+    if(idx !== -1){
+      html = html.slice(0, idx) + '<em>' + html.slice(idx) + '</em>';
+    }
+    return html;
+  }
   // Dentro do item de TN normal (negrito por padrão via CSS), a ressalva —
   // "Não podemos excluir essa possibilidade somente através da
   // ultrassonografia." — fica em peso normal, pra não competir visualmente
@@ -1917,7 +1930,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       checkedItems.forEach(it=>{
         const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
-        let itemHtml = italicizeFMF(deemphasizeSecondary(escapeHtml(text)));
+        let itemHtml = italicizeTNDisclaimer(italicizeFMF(deemphasizeSecondary(escapeHtml(text))));
         if(it.italic) itemHtml = '<em>'+itemHtml+'</em>';
         impressaoListHtml += '<li data-key="'+it.key+'">'+itemHtml+'</li>';
       });
