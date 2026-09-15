@@ -879,12 +879,20 @@
         </div>
         <hr class="sep">
         <div class="toggle-line"><input type="checkbox" id="chkAdenite"><label for="chkAdenite">Linfonodos mesentéricos aumentados (sugestivo de adenite mesentérica)</label></div>
+        <div class="field conditional" id="wrap_adeniteDescricao">
+          <label>Descrição no laudo</label>
+          <textarea id="adeniteDescricao" rows="2" placeholder="descrição completa do achado..."></textarea>
+        </div>
         <hr class="sep">
         <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkAscite"><label for="chkAscite">Líquido livre intracavitário (ascite)</label></div>
         <div class="field-row conditional" id="wrap_asciteGrau">
           <div class="field"><label>Quantidade</label>
             <select id="asciteGrau"><option value="leve">Discreta</option><option value="moderada">Moderada</option><option value="acentuada">Acentuada</option></select>
           </div>
+        </div>
+        <div class="field conditional" id="wrap_asciteDescricao">
+          <label>Descrição no laudo</label>
+          <textarea id="asciteDescricao" rows="2" placeholder="descrição completa do achado..."></textarea>
         </div>
       </div>
     </div>
@@ -1580,6 +1588,11 @@ if(typeof criarMotorLaudo !== 'function'){
   const BEXIGA_NORMAL = 'De topografia usual, boa repleção, contorno interno regular e conteúdo anecoico. Meatos ureterais pérvios, sem alterações.';
   const VASOS_NORMAL = 'Aorta abdominal, veia cava inferior e artérias ilíacas de trajeto e calibre normais. Ausência de sinais de linfonodomegalia periaórtico-caval.';
   const BACO_NORMAL = 'Forma, dimensões e contornos normais. Parênquima esplênico de textura sólida, homogênea, sem evidência de lesões sólidas ou císticas. Veia esplênica de calibre normal.';
+  const ADENITE_DESCRICAO_PADRAO = 'Observam-se linfonodos mesentéricos com espessura aumentada, de aspecto reacional, sem sinais de coleção ou plastrão associado, achado inespecífico e que pode estar relacionado a processo inflamatório/infeccioso intestinal';
+  function asciteFraseGrau(grau){
+    const adjetivo = {leve:'Discreta', moderada:'Moderada', acentuada:'Acentuada'}[grau] || 'Discreta';
+    return adjetivo+' quantidade de líquido livre intraperitoneal, com aspecto anecoide homogêneo, se estendendo do fundo de saco posterior e goteiras parietocólicas até os espaços hepato e espleno-renais';
+  }
   const RINS_TAIL_PADRAO = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Espaço perirrenal livre.';
   function prefillAlteradoIfEmpty(textareaId, texto){
     const el = $(textareaId);
@@ -1776,7 +1789,20 @@ if(typeof criarMotorLaudo !== 'function'){
   $('apendiceAspecto').addEventListener('change', e=>{
     toggle('wrap_apendiceEspessura', $('chkApendice').checked && e.target.value==='alterado');
   });
-  $('chkAscite').addEventListener('change', e=> toggle('wrap_asciteGrau', e.target.checked));
+  $('chkAdenite').addEventListener('change', e=>{
+    const checked = e.target.checked;
+    toggle('wrap_adeniteDescricao', checked);
+    if(checked) prefillAlteradoIfEmpty('adeniteDescricao', ADENITE_DESCRICAO_PADRAO);
+  });
+  $('chkAscite').addEventListener('change', e=>{
+    const checked = e.target.checked;
+    toggle('wrap_asciteGrau', checked);
+    toggle('wrap_asciteDescricao', checked);
+    if(checked) prefillAlteradoIfEmpty('asciteDescricao', asciteFraseGrau(v('asciteGrau')||'leve'));
+  });
+  $('asciteGrau').addEventListener('change', e=>{
+    prefillAlteradoIfEmpty('asciteDescricao', asciteFraseGrau(e.target.value));
+  });
 
   function updateVrBacoLabel(){
     const sexo = v('sexoPaciente')==='masculino' ? 'masculino' : 'feminino';
@@ -2255,6 +2281,12 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     const chkAdenite = modoTotal && $('chkAdenite').checked;
+    let adeniteHtml = null;
+    if(chkAdenite){
+      const adeniteDescricao = vNoDot('adeniteDescricao');
+      reqIf('adeniteDescricao', true);
+      adeniteHtml = escapeHtml(adeniteDescricao || ADENITE_DESCRICAO_PADRAO)+'.';
+    }
     const adeniteImpressaoHD = chkAdenite ? phrase('impAdenite') : null;
 
     const chkAscite = modoTotal && $('chkAscite').checked;
@@ -2262,8 +2294,9 @@ if(typeof criarMotorLaudo !== 'function'){
     let asciteImpressaoHD = null;
     if(chkAscite){
       const asciteGrau = v('asciteGrau') || 'leve';
-      const asciteAdjetivo = {leve:'Discreta', moderada:'Moderada', acentuada:'Acentuada'}[asciteGrau];
-      asciteHtml = asciteAdjetivo+' quantidade de líquido livre intraperitoneal, com aspecto anecoide homogêneo, se estendendo do fundo de saco posterior e goteiras parietocólicas até os espaços hepato e espleno-renais.';
+      const asciteDescricao = vNoDot('asciteDescricao');
+      reqIf('asciteDescricao', true);
+      asciteHtml = escapeHtml(asciteDescricao || asciteFraseGrau(asciteGrau))+'.';
       const asciteRotulo = {leve:'discreta', moderada:'moderada', acentuada:'acentuada'}[asciteGrau];
       asciteImpressaoHD = phrase('impAscite', {GRAU:asciteRotulo});
     }
@@ -2369,12 +2402,16 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'vasos', html:'<p class="linha"><strong>Grandes vasos abdominais:</strong> '+vasosTexto+'</p>'});
     }
 
+    if(modo !== 'hd'){
+      blocks.push({id:'baco', html:'<p class="linha"><strong>Baço:</strong> '+bacoHtml+'</p>'});
+    }
+
     if(apendiceHtml){
       blocks.push({id:'apendice', html:'<p class="linha"><strong>Apêndice cecal:</strong> '+apendiceHtml+'</p>'});
     }
 
-    if(modo !== 'hd'){
-      blocks.push({id:'baco', html:'<p class="linha"><strong>Baço:</strong> '+bacoHtml+'</p>'});
+    if(adeniteHtml){
+      blocks.push({id:'adenite', html:'<p class="linha"><strong>Linfonodos mesentéricos:</strong> '+adeniteHtml+'</p>'});
     }
 
     if(asciteHtml){
