@@ -466,6 +466,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação anembrionada)</label><textarea id="ph_embriaoAnembrionado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Abortamento sem saco — cavidade vazia (completo) — use {ESPESSURA}</label><textarea id="ph_achadoCavidadeVazia" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Abortamento sem saco — conteúdo residual (incompleto) — use {ESPESSURA}</label><textarea id="ph_achadoConteudoResidual" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Captação de fluxo ao Doppler no conteúdo residual (só no incompleto) — use {LOCAL} e {FACE}</label><textarea id="ph_fluxoResidual" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta com aspecto de mola hidatiforme — use {MEDIDA} e {VOLUME}</label><textarea id="ph_placentaMolar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mola hidatiforme — feto/embrião com batimentos presentes — use {TERMO}, {CCN} e {FC}</label><textarea id="ph_molaFcPresente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mola hidatiforme — feto/embrião sem batimentos — use {TERMO} e {CCN}</label><textarea id="ph_molaFcAusente" rows="2"></textarea></div>
@@ -597,6 +598,11 @@
               <select id="perdaSemSacoTipo"><option value="incompleto">Incompleto (conteúdo residual/coágulos na cavidade)</option><option value="completo">Completo (cavidade uterina vazia)</option></select>
             </div>
             <div class="field"><label>Espessura endometrial (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="espessuraEndometrial" placeholder="mm"></div>
+          </div>
+          <div class="toggle-line conditional show" id="wrap_chkFluxoResidual"><input type="checkbox" id="chkFluxoResidual"><label for="chkFluxoResidual">Captação de fluxo ao Doppler no conteúdo residual</label></div>
+          <div class="field-row conditional" id="wrap_fluxoResidualCampos">
+            <div class="field"><label>Localização</label><select id="fluxoResidualLocal"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option></select></div>
+            <div class="field"><label>Face</label><select id="fluxoResidualFace"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select></div>
           </div>
           <div class="field"><label>Observações adicionais (opcional)</label><textarea id="perdaSemSacoDescricao" rows="2" placeholder="ex: conteúdo heterogêneo com áreas anecoicas de permeio..."></textarea></div>
         </div>
@@ -1352,6 +1358,7 @@ if(typeof criarMotorLaudo !== 'function'){
     embriaoAnembrionado: 'Saco gestacional sem embrião ou vesícula vitelínica identificáveis — achado compatível com gestação anembrionada.',
     achadoCavidadeVazia: 'Cavidade uterina vazia, sem saco gestacional ou conteúdo residual identificável, endométrio medindo {ESPESSURA} mm.',
     achadoConteudoResidual: 'Cavidade uterina sem saco gestacional identificável, com conteúdo heterogêneo de permeio na cavidade endometrial (compatível com coágulos/restos ovulares), endométrio medindo {ESPESSURA} mm.',
+    fluxoResidual: 'Ao mapeamento Doppler colorido, nota-se captação de fluxo em meio ao conteúdo residual, de localização {LOCAL}, face {FACE} — sugestivo de tecido trofoblástico residual vascularizado.',
     placentaMolar: 'Cavidade uterina preenchida por placenta heterogênea, com inúmeras vesículas de permeio, medindo {MEDIDA} cm, com volume de {VOLUME} cm³.',
     molaFcPresente: 'Identifica-se {TERMO} único, com CCN de {CCN} mm e batimentos cardíacos presentes ({FC}bpm).',
     molaFcAusente: 'Identifica-se {TERMO} único, com CCN de {CCN} mm e ausência de batimentos cardíacos.',
@@ -1518,6 +1525,7 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_sacosSection', !mola && !perda);
     toggle('wrap_molaCampos', mola);
     toggle('wrap_perdaSemSacoCampos', perda);
+    updatePerdaSemSacoWraps();
   }
   $('chkMola').addEventListener('change', e=>{
     if(e.target.checked) $('chkPerdaSemSaco').checked = false;
@@ -1528,6 +1536,15 @@ if(typeof criarMotorLaudo !== 'function'){
     updateGestacaoModo();
   });
   $('chkEmCurso').addEventListener('change', e=> toggle('wrap_emCursoDescricao', e.target.checked));
+  // Captação de fluxo ao Doppler só faz sentido no conteúdo residual do
+  // incompleto — a cavidade vazia do completo não tem o que captar.
+  function updatePerdaSemSacoWraps(){
+    const tipoIncompleto = v('perdaSemSacoTipo')==='incompleto';
+    toggle('wrap_chkFluxoResidual', tipoIncompleto);
+    toggle('wrap_fluxoResidualCampos', tipoIncompleto && $('chkFluxoResidual').checked);
+  }
+  $('perdaSemSacoTipo').addEventListener('change', updatePerdaSemSacoWraps);
+  $('chkFluxoResidual').addEventListener('change', updatePerdaSemSacoWraps);
   function updateMolaFetoWraps(){
     const presente = $('molaFetoPresente').checked;
     toggle('wrap_molaFetoCampos', presente);
@@ -2115,6 +2132,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const perdaSemSacoTipo = v('perdaSemSacoTipo')==='completo' ? 'completo' : 'incompleto';
     const espessuraEndometrial = blankOrValue(reqIf('espessuraEndometrial', perdaSemSacoAtiva));
     const perdaSemSacoDescricao = vNoDot('perdaSemSacoDescricao');
+    // Só existe conteúdo residual a captar fluxo no incompleto — no completo a
+    // cavidade está vazia, não há o que descrever aqui.
+    const fluxoResidualAtiva = perdaSemSacoAtiva && perdaSemSacoTipo==='incompleto' && $('chkFluxoResidual').checked;
+    const fluxoResidualLocal = v('fluxoResidualLocal');
+    const fluxoResidualFace = v('fluxoResidualFace');
 
     // Achados de mola (ou de abortamento sem saco) tornam o(s) saco(s)
     // gestacional(is) irrelevantes: os campos ficam escondidos no formulário
@@ -2385,6 +2407,9 @@ if(typeof criarMotorLaudo !== 'function'){
       perdaHtml += '<p class="linha">'+(perdaSemSacoTipo==='completo'
         ? phraseRaw('achadoCavidadeVazia', {ESPESSURA: span(espessuraEndometrial)})
         : phraseRaw('achadoConteudoResidual', {ESPESSURA: span(espessuraEndometrial)}))+'</p>';
+      if(fluxoResidualAtiva){
+        perdaHtml += '<p class="linha">'+phraseRaw('fluxoResidual', {LOCAL: fluxoResidualLocal, FACE: fluxoResidualFace})+'</p>';
+      }
       if(perdaSemSacoDescricao){
         perdaHtml += '<p class="linha">'+escapeHtml(perdaSemSacoDescricao)+'.</p>';
       }
