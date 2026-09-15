@@ -740,6 +740,34 @@ function criarMotorLaudo(cfg){
       }
     });
   }
+  // O navegador colapsa margens verticais entre blocos adjacentes (fica o
+  // maior dos dois, nunca a soma) — o Word, ao importar HTML, não: soma
+  // margin-bottom de um bloco com o margin-top do seguinte. Todo laudo tem
+  // h4.sec com margin-top de 16px (ou o em equivalente) logo depois de um
+  // p.linha com margin-bottom de 16px — no navegador vira 16px de espaço
+  // (colapsado), no Word virava 32px, abrindo um vão bem maior antes de
+  // cada título de seção ("ESTUDO DOPPLER:", "IMPRESSÃO:" etc.) do que na
+  // tela/PDF. Rodando depois de copyComputedToClone() já ter copiado as
+  // margens computadas para o clone, abate de cada margin-top o que já foi
+  // coberto pelo margin-bottom do irmão anterior, deixando a soma igual ao
+  // maior dos dois — o mesmo resultado visual do colapso do navegador.
+  function colapsarMargensParaWord(root){
+    const toPx = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+    // Um <div>/<table> sem margin próprio (o wrapper da lista de Impressão,
+    // por exemplo) deixa a margem do último filho "vazar" para fora dele no
+    // navegador (colapso através do container) — sem isso o abatimento do
+    // próximo irmão ficaria sempre zerado nesses casos.
+    const margemInferiorEfetiva = el => el.style.marginBottom
+      ? toPx(el.style.marginBottom)
+      : (el.children.length ? margemInferiorEfetiva(el.children[el.children.length-1]) : 0);
+    let margemAnterior = 0;
+    Array.from(root.children).forEach(el=>{
+      if(el.style.marginTop){
+        el.style.marginTop = Math.max(0, toPx(el.style.marginTop) - margemAnterior) + 'px';
+      }
+      margemAnterior = margemInferiorEfetiva(el);
+    });
+  }
   function buildIdCardTable(clone, liveRoot){
     // Um <div> com borda ao redor de vários parágrafos não é seguro no Word:
     // ele reaplica a borda do div em CADA parágrafo de dentro, em vez de
@@ -1271,6 +1299,7 @@ function criarMotorLaudo(cfg){
     blankOrValue: blankOrValue,
     buildIdCardTable: buildIdCardTable,
     checkDecimalFormat: checkDecimalFormat,
+    colapsarMargensParaWord: colapsarMargensParaWord,
     copyComputedToClone: copyComputedToClone,
     decimalFormatOk: decimalFormatOk,
     draftDiscard: draftDiscard,
