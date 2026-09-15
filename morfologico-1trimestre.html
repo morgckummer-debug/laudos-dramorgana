@@ -589,6 +589,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Regurgitação da válvula tricúspide</label><textarea id="ph_impTricuspideAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>IP médio das uterinas — use {PERCENTIL}</label><textarea id="ph_impUterinas" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pré-eclâmpsia — opção 1 (baixo risco) — use {RISCO}</label><textarea id="ph_impPreEclampsia1" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pré-eclâmpsia — opção 4 (risco intermediário, 1:101 a 1:999) — use {RISCO}</label><textarea id="ph_impPreEclampsia4" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pré-eclâmpsia — opção 2 (risco aumentado, PA e/ou IP alterados) — use {RISCO}</label><textarea id="ph_impPreEclampsia2" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pré-eclâmpsia — opção 3 (risco aumentado, PA e IP normais) — use {RISCO}</label><textarea id="ph_impPreEclampsia3" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo normal</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
@@ -731,6 +732,7 @@
             <div class="field"><label>Texto da impressão</label>
               <select id="preEclampsiaOpcao">
                 <option value="1">Opção 1 — baixo risco</option>
+                <option value="4">Opção 4 — risco intermediário (1:101 a 1:999)</option>
                 <option value="2">Opção 2 — risco aumentado (PA e/ou IP alterados)</option>
                 <option value="3">Opção 3 — risco aumentado (PA e IP normais)</option>
               </select>
@@ -1473,6 +1475,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impPreEclampsia1: 'Rastreamento combinado do 1º trimestre: baixo risco (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e, no presente caso, não evidenciou aumento relevante do risco para pré-eclâmpsia pré-termo.',
     impPreEclampsia2: 'Rastreamento combinado do 1º trimestre: risco aumentado (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e, no presente caso, associa-se à elevação da pressão arterial e/ou do IP médio das artérias uterinas, reforçando a relevância clínica do achado. Há indicação de profilaxia com AAS em baixa dose, de início precoce.',
     impPreEclampsia3: 'Rastreamento combinado do 1º trimestre: risco aumentado (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e mantém relevância clínica mesmo na presença isolada de pressão arterial e IP médio das artérias uterinas dentro da normalidade. Há indicação de profilaxia com AAS em baixa dose, de início precoce.',
+    impPreEclampsia4: 'Rastreamento combinado do 1º trimestre: risco intermediário (1:{RISCO}) para pré-eclâmpsia pré-termo segundo algoritmo da Fetal Medicine Foundation. O resultado do rastreio é multifatorial e, no presente caso, situa-se em faixa intermediária de risco para pré-eclâmpsia pré-termo. A gestante pode se beneficiar do uso de AAS em baixa dose, de início precoce, a critério clínico.',
     impColoNormal: 'Colo uterino sem anormalidades.',
     impColoAlterado: 'Colo curto para a idade gestacional - Sugere-se reavaliação para risco de prematuridade com 16-18 semanas.',
     impMorfologico2T: 'Sugere-se a realização do morfológico do 2º trimestre entre 22 e 24 semanas.',

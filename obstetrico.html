@@ -2506,13 +2506,21 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
   // Nome usado tanto no Word quanto no PDF: nome completo da paciente seguido
-  // do título do exame ("Ana Maria Braga - Obstétrico 2º-3º trimestre"), para
-  // o arquivo já sair identificado e ir direto para a pasta da paciente.
+  // do título do exame ("Ana Maria Braga - Obstétrico com Doppler"), para o
+  // arquivo já sair identificado e ir direto para a pasta da paciente. O
+  // complemento (Doppler/PBF) reflete o que foi de fato solicitado/marcado
+  // neste laudo, não um rótulo fixo de trimestre.
   function tituloExame(){
     const n = fetoUids().length;
-    if(n >= 3) return 'Obstétrico Trigemelar 2º-3º trimestre';
-    if(n === 2) return 'Obstétrico Gemelar 2º-3º trimestre';
-    return 'Obstétrico 2º-3º trimestre';
+    const prefixo = n >= 3 ? 'Obstétrico Trigemelar'
+      : n === 2 ? 'Obstétrico Gemelar'
+      : 'Obstétrico';
+    const doppler = $('chkDopplerMaterno').checked || $('chkDopplerFetal').checked;
+    const pbf = $('chkPBF').checked;
+    if(doppler && pbf) return prefixo + ' com Doppler e PBF';
+    if(doppler) return prefixo + ' com Doppler';
+    if(pbf) return prefixo + ' com PBF';
+    return prefixo;
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
