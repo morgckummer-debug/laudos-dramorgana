@@ -1566,6 +1566,26 @@ if(typeof criarMotorLaudo !== 'function'){
     if(sel.value !== 'outro') applyExecutante(sel.value);
   }
 
+  // ---------- Texto "normal" de cada órgão com opção "Outro (descrever)" ----------
+  // Ao trocar para "alterado" o campo de descrição livre nasce vazio, e ao
+  // digitar só a alteração pontual a médica acaba perdendo o resto da
+  // descrição normal — que sairia junto se "Normal" tivesse ficado marcado.
+  // Usadas tanto aqui, para pré-preencher o campo (editável: ela troca só o
+  // trecho que mudou), quanto no render() mais abaixo, na frase-padrão de
+  // "Normal" — a mesma constante nos dois lugares evita as duas cópias
+  // divergirem, o problema de sempre com texto repetido neste arquivo.
+  const FIGADO_NORMAL = 'Dimensões normais, forma anatômica e contornos lisos e regulares. Parênquima com ecogenicidade usual e textura homogênea, sem identificação de lesões intraparenquimatosas. Veia porta, seus ramos e veias hepáticas sem alterações.';
+  const VESICULA_NORMAL = 'Vesícula de volume normal, forma anatômica, paredes finas e conteúdo anecoico. Ausência de cálculos no seu interior. Ausência de dilatação das vias biliares intrahepáticas.';
+  const PANCREAS_NORMAL = 'De topografia e dimensões usuais, apresentando parênquima com ecogenicidade habitual. Não há evidência de dilatação do ducto pancreático principal.';
+  const BEXIGA_NORMAL = 'De topografia usual, boa repleção, contorno interno regular e conteúdo anecoico. Meatos ureterais pérvios, sem alterações.';
+  const VASOS_NORMAL = 'Aorta abdominal, veia cava inferior e artérias ilíacas de trajeto e calibre normais. Ausência de sinais de linfonodomegalia periaórtico-caval.';
+  const BACO_NORMAL = 'Forma, dimensões e contornos normais. Parênquima esplênico de textura sólida, homogênea, sem evidência de lesões sólidas ou císticas. Veia esplênica de calibre normal.';
+  const RINS_TAIL_PADRAO = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Espaço perirrenal livre.';
+  function prefillAlteradoIfEmpty(textareaId, texto){
+    const el = $(textareaId);
+    if(el && !el.value.trim()) el.value = texto;
+  }
+
   function updateFigadoGrauManualVisibility(){
     toggle('wrap_figadoGrauManual', v('figadoAspecto')==='esteatose' && !$('chkEsteatose').checked);
   }
@@ -1575,6 +1595,7 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_figadoCistoCampos', val==='cisto');
     toggle('wrap_figadoHemangiomaCampos', val==='hemangioma');
     toggle('wrap_figadoDescricao', val==='alterado');
+    if(val==='alterado') prefillAlteradoIfEmpty('figadoDescricao', FIGADO_NORMAL);
     updateFigadoGrauManualVisibility();
   });
   function updateVesiculaCalculoLabel(){
@@ -1586,6 +1607,7 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_vesiculaPolipoCampos', val==='polipo');
     toggle('wrap_vesiculaColecistiteCampos', val==='colecistite');
     toggle('wrap_vesiculaDescricao', val==='alterado');
+    if(val==='alterado') prefillAlteradoIfEmpty('vesiculaDescricao', VESICULA_NORMAL);
   });
   $('vesiculaCalculoQtd').addEventListener('change', updateVesiculaCalculoLabel);
   $('pancreasAspecto').addEventListener('change', e=>{
@@ -1593,6 +1615,7 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_pancreasCistoCampos', val==='cisto');
     toggle('wrap_pancreasNoduloCampos', val==='nodulo');
     toggle('wrap_pancreasDescricao', val==='alterado');
+    if(val==='alterado') prefillAlteradoIfEmpty('pancreasDescricao', PANCREAS_NORMAL);
   });
   const NUMEROS_EXTENSO = {3:'três',4:'quatro',5:'cinco',6:'seis',7:'sete',8:'oito',9:'nove',10:'dez'};
   function numeroExtenso(n){ return NUMEROS_EXTENSO[n] || String(n); }
@@ -1691,6 +1714,16 @@ if(typeof criarMotorLaudo !== 'function'){
           $(p+'Normal').checked = false;
           const kind = Object.keys(LISTA_ACHADO_NOME).find(k=> LISTA_ACHADO_NOME[k]===a);
           if(kind && $(p+kind+'NodulosContainer').children.length===0) addListaItem(p, kind);
+          // "Alterado" sozinho (nenhum outro achado marcado neste rim)
+          // substitui a descrição inteira do rim por texto livre — pré-
+          // preenche com o texto padrão de rim normal para não perder o
+          // resto da descrição ao editar só o trecho que mudou. Combinado
+          // com outro achado (cisto, cálculo...) o texto de "Alterado" é só
+          // mais um fragmento depois deles, então não se aplica.
+          if(a==='Alterado' && !RINS_ACHADOS.some(x=> x!=='Alterado' && $(p+x).checked)){
+            const ladoNome = p==='rinsD' ? 'direito' : 'esquerdo';
+            prefillAlteradoIfEmpty(p+'Descricao', RINS_TAIL_PADRAO+' Ureter '+ladoNome+' sem sinais de dilatações.');
+          }
         } else if(!RINS_ACHADOS.some(x=> $(p+x).checked)){
           $(p+'Normal').checked = true;
         }
@@ -1709,10 +1742,12 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_bexigaEsforco', val==='esforco');
     toggle('wrap_bexigaCalculoCampos', val==='calculo');
     toggle('wrap_bexigaDescricao', val==='alterado');
+    if(val==='alterado') prefillAlteradoIfEmpty('bexigaDescricao', BEXIGA_NORMAL);
   });
   $('vasosAspecto').addEventListener('change', e=>{
     toggle('wrap_vasosAneurismaCampos', e.target.value==='aneurisma');
     toggle('wrap_vasosDescricao', e.target.value==='alterado');
+    if(e.target.value==='alterado') prefillAlteradoIfEmpty('vasosDescricao', VASOS_NORMAL);
   });
   $('bacoAspecto').addEventListener('change', e=>{
     const val = e.target.value;
@@ -1722,6 +1757,9 @@ if(typeof criarMotorLaudo !== 'function'){
     // Sem baço, não há o que medir: some com o campo de diâmetro bipolar em
     // vez de deixá-lo pendente sem sentido clínico nenhum.
     toggle('wrap_bacoDiametro', val!=='esplenectomia');
+    // O diâmetro bipolar (com VR) é sempre reacrescentado depois do texto
+    // livre no render() — só o trecho de forma/textura precisa vir junto aqui.
+    if(val==='alterado') prefillAlteradoIfEmpty('bacoDescricao', BACO_NORMAL);
   });
   $('chkEsteatose').addEventListener('change', e=>{
     toggle('wrap_esteatose', e.target.checked);
@@ -1932,7 +1970,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else if(figadoAspecto==='alterado' && figadoDescricao){
       figadoTextoBase = escapeHtml(figadoDescricao)+'.';
     } else {
-      figadoTextoBase = 'Dimensões normais, forma anatômica e contornos lisos e regulares. Parênquima com ecogenicidade usual e textura homogênea, sem identificação de lesões intraparenquimatosas. Veia porta, seus ramos e veias hepáticas sem alterações.';
+      figadoTextoBase = FIGADO_NORMAL;
     }
 
     // ----- Vesícula e vias biliares -----
@@ -2102,9 +2140,16 @@ if(typeof criarMotorLaudo !== 'function'){
     // texto de um rim e o do outro; com 3+ achados (cálculo, cisto...) num
     // dos lados, a lista "- C1: ...; - C2: ...' que vem logo depois não tinha
     // como se saber de qual rim era. Ver comentário em rins-vias-urinarias.html.
-    const RINS_TAIL_PADRAO = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Espaço perirrenal livre.';
+    // RINS_TAIL_PADRAO vem de fora do render() — a mesma constante também
+    // pré-preenche o campo "Outro (alterado)" de cada rim, mais abaixo.
     const rinsDTail = rinsDAchado.tail || (RINS_TAIL_PADRAO+' Ureter direito sem sinais de dilatações.');
     const rinsETail = rinsEAchado.tail || (RINS_TAIL_PADRAO+' Ureter esquerdo sem sinais de dilatações.');
+    // Com os dois rins normais não há achado nenhum que precise de rótulo
+    // próprio para não se confundir com o do outro lado — volta a ser uma
+    // frase só, como era antes da separação acima, em vez de dois parágrafos
+    // quase idênticos ("Rim direito: ... normais... Rim esquerdo: ...
+    // normais...").
+    const rinsAmbosNormais = !rinsDAchado.tail && !rinsEAchado.tail;
     const rinsBilateralHDs = [];
     if(rinsAmbosCisto) rinsBilateralHDs.push(phrase('impRinsCistoBilateral'));
     if(rinsAmbosCalculo) rinsBilateralHDs.push(phrase('impRinsCalculoBilateral'));
@@ -2129,7 +2174,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else if(bexigaAspecto==='alterado' && bexigaDescricao){
       bexigaTexto = escapeHtml(bexigaDescricao)+'.';
     } else {
-      bexigaTexto = 'De topografia usual, boa repleção, contorno interno regular e conteúdo anecoico. Meatos ureterais pérvios, sem alterações.';
+      bexigaTexto = BEXIGA_NORMAL;
     }
 
     // ----- Grandes vasos ----- (só entra no Abdome Total)
@@ -2152,7 +2197,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else if(vasosAspecto==='alterado' && vasosDescricao){
       vasosTexto = escapeHtml(vasosDescricao)+'.';
     } else {
-      vasosTexto = 'Aorta abdominal, veia cava inferior e artérias ilíacas de trajeto e calibre normais. Ausência de sinais de linfonodomegalia periaórtico-caval.';
+      vasosTexto = VASOS_NORMAL;
     }
 
     // ----- Baço ----- (entra no Abdome Total e no Abdome Superior; sai no Hipocôndrio Direito)
@@ -2189,7 +2234,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else if(bacoAspecto==='alterado' && bacoDescricao){
       bacoHtml = escapeHtml(bacoDescricao)+'. Diâmetro bipolar de '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+').';
     } else {
-      bacoHtml = 'Forma, dimensões e contornos normais. Parênquima esplênico de textura sólida, homogênea, sem evidência de lesões sólidas ou císticas. Veia esplênica de calibre normal. Diâmetro bipolar de '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+').';
+      bacoHtml = BACO_NORMAL+' Diâmetro bipolar de '+span(bacoDiametroTexto)+' cm (VR até '+escapeHtml(bacoVrTexto)+').';
     }
 
     // ----- Achados adicionais (opcionais) ----- (só entram no Abdome Total)
@@ -2278,7 +2323,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else if(vesiculaAspecto==='alterado' && vesiculaDescricao){
       vesiculaTextoBase = escapeHtml(vesiculaDescricao)+'.';
     } else {
-      vesiculaTextoBase = 'Vesícula de volume normal, forma anatômica, paredes finas e conteúdo anecoico. Ausência de cálculos no seu interior. Ausência de dilatação das vias biliares intrahepáticas.';
+      vesiculaTextoBase = VESICULA_NORMAL;
     }
     blocks.push({id:'vesicula', html:'<p class="linha"><strong>Vesícula e Vias Biliares:</strong> '+vesiculaTextoBase+' Hepatocolédoco com diâmetro de '+span(hepatocoledocoTexto)+' mm (VR até 6 mm).</p>'});
 
@@ -2290,23 +2335,27 @@ if(typeof criarMotorLaudo !== 'function'){
     } else if(pancreasAspecto==='alterado' && pancreasDescricao){
       pancreasTexto = escapeHtml(pancreasDescricao)+'.';
     } else {
-      pancreasTexto = 'De topografia e dimensões usuais, apresentando parênquima com ecogenicidade habitual. Não há evidência de dilatação do ducto pancreático principal.';
+      pancreasTexto = PANCREAS_NORMAL;
     }
     if(modoTotal){
       blocks.push({id:'pancreas', html:'<p class="linha"><strong>Pâncreas:</strong> '+pancreasTexto+'</p>'});
     }
 
     if(modoTotal){
-      blocks.push({id:'rinsD', html:'<p class="linha"><strong>Rim direito:</strong> Topografia, forma e mobilidade normais, medindo '+span(rimDireitoTexto)+' cm. '+rinsDTail+'</p>'});
-      pushListaBlock(blocks, 'rinsDCalcLista', rinsDAchado.calcLista);
-      pushListaBlock(blocks, 'rinsDCistoLista', rinsDAchado.cistoLista);
-      pushListaBlock(blocks, 'rinsDLeiteCalcioLista', rinsDAchado.leiteCalcioLista);
-      pushListaBlock(blocks, 'rinsDNoduloLista', rinsDAchado.noduloLista);
-      blocks.push({id:'rinsE', html:'<p class="linha"><strong>Rim esquerdo:</strong> Topografia, forma e mobilidade normais, medindo '+span(rimEsquerdoTexto)+' cm. '+rinsETail+'</p>'});
-      pushListaBlock(blocks, 'rinsECalcLista', rinsEAchado.calcLista);
-      pushListaBlock(blocks, 'rinsECistoLista', rinsEAchado.cistoLista);
-      pushListaBlock(blocks, 'rinsELeiteCalcioLista', rinsEAchado.leiteCalcioLista);
-      pushListaBlock(blocks, 'rinsENoduloLista', rinsEAchado.noduloLista);
+      if(rinsAmbosNormais){
+        blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> Topografia, forma e mobilidade normais. O rim direito mede '+span(rimDireitoTexto)+' cm, e o esquerdo, '+span(rimEsquerdoTexto)+' cm. '+RINS_TAIL_PADRAO+' Ureteres sem sinais de dilatações.</p>'});
+      } else {
+        blocks.push({id:'rinsD', html:'<p class="linha"><strong>Rim direito:</strong> Topografia, forma e mobilidade normais, medindo '+span(rimDireitoTexto)+' cm. '+rinsDTail+'</p>'});
+        pushListaBlock(blocks, 'rinsDCalcLista', rinsDAchado.calcLista);
+        pushListaBlock(blocks, 'rinsDCistoLista', rinsDAchado.cistoLista);
+        pushListaBlock(blocks, 'rinsDLeiteCalcioLista', rinsDAchado.leiteCalcioLista);
+        pushListaBlock(blocks, 'rinsDNoduloLista', rinsDAchado.noduloLista);
+        blocks.push({id:'rinsE', html:'<p class="linha"><strong>Rim esquerdo:</strong> Topografia, forma e mobilidade normais, medindo '+span(rimEsquerdoTexto)+' cm. '+rinsETail+'</p>'});
+        pushListaBlock(blocks, 'rinsECalcLista', rinsEAchado.calcLista);
+        pushListaBlock(blocks, 'rinsECistoLista', rinsEAchado.cistoLista);
+        pushListaBlock(blocks, 'rinsELeiteCalcioLista', rinsEAchado.leiteCalcioLista);
+        pushListaBlock(blocks, 'rinsENoduloLista', rinsEAchado.noduloLista);
+      }
     }
 
     if(modoTotal){
