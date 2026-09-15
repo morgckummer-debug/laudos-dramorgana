@@ -367,8 +367,10 @@
   <hr class="sep">
   <h3>Rins (direito e esquerdo)</h3>
   <div class="field" style="margin-bottom:8px;"><label>Cálculo(s) renal(is) — use {LADO}</label><textarea id="ph_impCalculo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cálculo(s) renal(is) — nos dois rins</label><textarea id="ph_impCalculoBilateral" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 cisto renal simples — use {LADO}</label><textarea id="ph_impCistoSingular" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 ou vários cistos renais simples — use {LADO}</label><textarea id="ph_impCistoPlural" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cistos renais simples — nos dois rins</label><textarea id="ph_impCistoBilateral" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto de leite de cálcio — use {LADO}</label><textarea id="ph_impLeiteCalcio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulo renal (angiomiolipoma) — use {LADO}</label><textarea id="ph_impNodulo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hidronefrose acentuada — use {LADO}</label><textarea id="ph_impHidronefrose" rows="2"></textarea></div>
@@ -1178,8 +1180,10 @@ if(typeof criarMotorLaudo !== 'function'){
   const PHRASE_DEFAULTS = {
     impNormal: 'Exame ecográfico dentro da normalidade.',
     impCalculo: 'Nefrolitíase {LADO}.',
+    impCalculoBilateral: 'Nefrolitíase bilateral.',
     impCistoSingular: 'Cisto renal simples {LADO}.',
     impCistoPlural: 'Cistos renais simples {LADO}.',
+    impCistoBilateral: 'Cistos renais simples bilaterais.',
     impLeiteCalcio: 'Cisto renal simples {LADO} (leite de cálcio).',
     impNodulo: 'Nódulo renal {LADO} sugestivo de angiomiolipoma.',
     impHidronefrose: 'Hidronefrose acentuada {LADO}.',
@@ -1390,6 +1394,9 @@ if(typeof criarMotorLaudo !== 'function'){
   // achado for outro que não a normalidade.
   function buildImpressao(state){
     const items = [{key:'normal', label:phrase('impNormal'), auto:true}];
+    (state.rimBilateralHDs||[]).forEach((label, i)=>{
+      items.push({key:'rim-bilateral-'+i, label, auto:true});
+    });
     (state.rimDImpressaoHDs||[]).forEach((label, i)=>{
       items.push({key:'rimD-achado-'+i, label, auto:true});
     });
@@ -1500,7 +1507,8 @@ if(typeof criarMotorLaudo !== 'function'){
       return lista;
     }
 
-    function computeRimAchado(p, ladoHD){
+    function computeRimAchado(p, ladoHD, opts){
+      opts = opts || {};
       const fragments = [];
       const hds = [];
       let diferenciacao = null;
@@ -1512,7 +1520,12 @@ if(typeof criarMotorLaudo !== 'function'){
           dois: (a,b)=> 'Observam-se duas imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, uma localizada no terço '+a.terco+', medindo '+span(a.tamanho)+' mm, e outra no terço '+b.terco+', medindo '+span(b.tamanho)+' mm.',
           varios: 'imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, dispersas pelo parênquima cortical'
         }, fragments);
-        hds.push(phrase(listaUids(p,'Cisto').length<=1 ? 'impCistoSingular' : 'impCistoPlural', {LADO:ladoHD}));
+        // Quando os dois rins têm cisto, o chamador já colocou uma única linha
+        // "bilaterais" na Impressão — a individual "{LADO}" fica de fora para
+        // não duplicar a mesma informação em duas linhas.
+        if(!opts.suprimirCistoHD){
+          hds.push(phrase(listaUids(p,'Cisto').length<=1 ? 'impCistoSingular' : 'impCistoPlural', {LADO:ladoHD}));
+        }
       }
       if($(p+'Calculo').checked){
         calcLista = computeLista(p, 'Calc', 'C', {
@@ -1520,7 +1533,9 @@ if(typeof criarMotorLaudo !== 'function'){
           dois: (a,b)=> 'Observam-se duas imagens hiperecogênicas ovaladas, que condicionam sombra acústica posterior, uma localizada em terço '+a.terco+', medindo '+span(a.tamanho)+' mm e outra em terço '+b.terco+', medindo '+span(b.tamanho)+' mm.',
           varios: 'imagens hiperecogênicas ovaladas, que condicionam sombra acústica posterior'
         }, fragments);
-        hds.push(phrase('impCalculo', {LADO:ladoHD}));
+        if(!opts.suprimirCalculoHD){
+          hds.push(phrase('impCalculo', {LADO:ladoHD}));
+        }
       }
       if($(p+'LeiteCalcio').checked){
         leiteCalcioLista = computeLista(p, 'LeiteCalcio', 'Leite de cálcio', {
@@ -1568,19 +1583,29 @@ if(typeof criarMotorLaudo !== 'function'){
       return {tail: fragments.length ? fragments.join(' ') : null, hds, diferenciacao, calcLista, cistoLista, leiteCalcioLista, noduloLista};
     }
 
+    // Cisto e cálculo nos dois rins ao mesmo tempo viram uma linha bilateral
+    // só na Impressão ("Cistos renais simples bilaterais."/"Nefrolitíase
+    // bilateral."), em vez de duas linhas iguais, uma por rim — o achado já
+    // aparece separado, por rim, na descrição de cada um.
+    const rimAmbosCisto = $('rimDCisto').checked && $('rimECisto').checked;
+    const rimAmbosCalculo = $('rimDCalculo').checked && $('rimECalculo').checked;
+
     // ----- Rim direito -----
     const rimDDiametroTexto = blankOrValue(req('rimDDiametro'));
     const rimDCorticalNum = num('rimDCortical'); req('rimDCortical');
     const rimDCorticalTexto = blankOrValue(v('rimDCortical'));
     flag('rimDCortical', rimDCorticalNum!==null && rimDCorticalNum < CORTICAL_MIN);
-    const rimDAchado = computeRimAchado('rimD', 'à direita');
+    const rimDAchado = computeRimAchado('rimD', 'à direita', {suprimirCistoHD: rimAmbosCisto, suprimirCalculoHD: rimAmbosCalculo});
 
     // ----- Rim esquerdo -----
     const rimEDiametroTexto = blankOrValue(req('rimEDiametro'));
     const rimECorticalNum = num('rimECortical'); req('rimECortical');
     const rimECorticalTexto = blankOrValue(v('rimECortical'));
     flag('rimECortical', rimECorticalNum!==null && rimECorticalNum < CORTICAL_MIN);
-    const rimEAchado = computeRimAchado('rimE', 'à esquerda');
+    const rimEAchado = computeRimAchado('rimE', 'à esquerda', {suprimirCistoHD: rimAmbosCisto, suprimirCalculoHD: rimAmbosCalculo});
+    const rimBilateralHDs = [];
+    if(rimAmbosCisto) rimBilateralHDs.push(phrase('impCistoBilateral'));
+    if(rimAmbosCalculo) rimBilateralHDs.push(phrase('impCalculoBilateral'));
 
     // ----- Bexiga -----
     const bexigaAspecto = v('bexigaAspecto');
@@ -1607,7 +1632,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // ----- Impressão -----
     const state = {
-      rimDImpressaoHDs: rimDAchado.hds, rimEImpressaoHDs: rimEAchado.hds,
+      rimBilateralHDs, rimDImpressaoHDs: rimDAchado.hds, rimEImpressaoHDs: rimEAchado.hds,
       bexigaImpressaoHD: bexigaAspecto==='esforco' ? phrase('impBexigaEsforco')
         : bexigaAspecto==='calculo' ? phrase('impBexigaCalculo')
         : null

@@ -392,8 +392,10 @@
   <hr class="sep">
   <h3>Rins</h3>
   <div class="field" style="margin-bottom:8px;"><label>Cálculo(s) renal(is) — use {LADO}</label><textarea id="ph_impRinsCalculo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cálculo(s) renal(is) — nos dois rins</label><textarea id="ph_impRinsCalculoBilateral" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 cisto renal simples — use {LADO}</label><textarea id="ph_impRinsCistoSingular" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 ou vários cistos renais simples — use {LADO}</label><textarea id="ph_impRinsCistoPlural" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cistos renais simples — nos dois rins</label><textarea id="ph_impRinsCistoBilateral" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto de leite de cálcio — use {LADO}</label><textarea id="ph_impRinsLeiteCalcio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulo renal (angiomiolipoma) — use {LADO}</label><textarea id="ph_impRinsNodulo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hidronefrose acentuada — use {LADO}</label><textarea id="ph_impRinsHidronefrose" rows="2"></textarea></div>
@@ -852,7 +854,7 @@
         <div class="field-row field-row-compact conditional show" id="wrap_bacoDiametro">
           <div class="field"><label>Diâmetro bipolar</label>
             <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="bacoDiametro" placeholder="cm">
-            <span class="vr" id="vrBacoTexto">VR até 12,0 cm (mulher)</span>
+            <span class="vr" id="vrBacoTexto">VR até 12,0 cm</span>
             <span class="flag-note" id="flag_bacoDiametro">Acima do valor de referência</span>
           </div>
         </div>
@@ -1478,8 +1480,10 @@ if(typeof criarMotorLaudo !== 'function'){
     impPancreasCisto: 'Cisto pancreático.',
     impPancreasNodulo: 'Nódulo pancreático a esclarecer — Seguir propedêutica.',
     impRinsCalculo: 'Nefrolitíase {LADO}.',
+    impRinsCalculoBilateral: 'Nefrolitíase bilateral.',
     impRinsCistoSingular: 'Cisto renal simples {LADO}.',
     impRinsCistoPlural: 'Cistos renais simples {LADO}.',
+    impRinsCistoBilateral: 'Cistos renais simples bilaterais.',
     impRinsLeiteCalcio: 'Cisto renal simples {LADO} (leite de cálcio).',
     impRinsNodulo: 'Nódulo renal {LADO} sugestivo de angiomiolipoma.',
     impRinsHidronefrose: 'Hidronefrose acentuada {LADO}.',
@@ -1736,7 +1740,7 @@ if(typeof criarMotorLaudo !== 'function'){
   function updateVrBacoLabel(){
     const sexo = v('sexoPaciente')==='masculino' ? 'masculino' : 'feminino';
     const max = BACO_MAX[sexo];
-    const txt = 'VR até '+max.toFixed(1).replace('.',',')+' cm ('+(sexo==='masculino'?'homem':'mulher')+')';
+    const txt = 'VR até '+max.toFixed(1).replace('.',',')+' cm';
     const el = $('vrBacoTexto');
     if(el) el.textContent = txt;
   }
@@ -2008,7 +2012,8 @@ if(typeof criarMotorLaudo !== 'function'){
       return lista;
     }
 
-    function computeRinsAchado(p, ladoNome, ladoHD){
+    function computeRinsAchado(p, ladoNome, ladoHD, opts){
+      opts = opts || {};
       const fragments = [];
       const hds = [];
       let calcLista = null, cistoLista = null, leiteCalcioLista = null, noduloLista = null;
@@ -2021,7 +2026,12 @@ if(typeof criarMotorLaudo !== 'function'){
           intro:'Em rim '+ladoNome+' observam-se', introTambem:'Em rim '+ladoNome+' observam-se também,',
           varios: 'imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, dispersas pelo parênquima cortical'
         }, fragments);
-        hds.push(phrase(listaUids(p,'Cisto').length<=1 ? 'impRinsCistoSingular' : 'impRinsCistoPlural', {LADO:ladoHD}));
+        // Quando os dois rins têm cisto, o chamador já colocou uma única linha
+        // "bilaterais" na Impressão — a individual "{LADO}" fica de fora para
+        // não duplicar a mesma informação em duas linhas.
+        if(!opts.suprimirCistoHD){
+          hds.push(phrase(listaUids(p,'Cisto').length<=1 ? 'impRinsCistoSingular' : 'impRinsCistoPlural', {LADO:ladoHD}));
+        }
       }
       if($(p+'Calculo').checked){
         calcLista = computeLista(p, 'Calc', 'C', {
@@ -2030,7 +2040,9 @@ if(typeof criarMotorLaudo !== 'function'){
           intro:'Em rim '+ladoNome+' observam-se', introTambem:'Em rim '+ladoNome+' observam-se também,',
           varios: 'imagens hiperecogênicas ovaladas, que condicionam sombra acústica posterior'
         }, fragments);
-        hds.push(phrase('impRinsCalculo', {LADO:ladoHD}));
+        if(!opts.suprimirCalculoHD){
+          hds.push(phrase('impRinsCalculo', {LADO:ladoHD}));
+        }
       }
       if($(p+'LeiteCalcio').checked){
         leiteCalcioLista = computeLista(p, 'LeiteCalcio', 'Leite de cálcio', {
@@ -2077,11 +2089,26 @@ if(typeof criarMotorLaudo !== 'function'){
       return {tail: fragments.length ? fragments.join(' ') : null, hds, calcLista, cistoLista, leiteCalcioLista, noduloLista};
     }
 
-    const rinsDAchado = computeRinsAchado('rinsD', 'direito', 'à direita');
-    const rinsEAchado = computeRinsAchado('rinsE', 'esquerdo', 'à esquerda');
-    const rinsAchadosTail = [rinsDAchado.tail, rinsEAchado.tail].filter(Boolean).join(' ');
-    const rinsTextoTail = rinsAchadosTail || 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureteres sem sinais de dilatações. Espaço perirrenal livre.';
-    const rinsImpressaoHDs = rinsDAchado.hds.concat(rinsEAchado.hds);
+    // Cisto e cálculo nos dois rins ao mesmo tempo viram uma linha bilateral
+    // só na Impressão ("Cistos renais simples bilaterais."/"Nefrolitíase
+    // bilateral."), em vez de duas linhas iguais, uma por rim — o achado já
+    // aparece separado, por rim, na descrição logo acima.
+    const rinsAmbosCisto = modoTotal && $('rinsDCisto').checked && $('rinsECisto').checked;
+    const rinsAmbosCalculo = modoTotal && $('rinsDCalculo').checked && $('rinsECalculo').checked;
+    const rinsDAchado = computeRinsAchado('rinsD', 'direito', 'à direita', {suprimirCistoHD: rinsAmbosCisto, suprimirCalculoHD: rinsAmbosCalculo});
+    const rinsEAchado = computeRinsAchado('rinsE', 'esquerdo', 'à esquerda', {suprimirCistoHD: rinsAmbosCisto, suprimirCalculoHD: rinsAmbosCalculo});
+    // Cada rim vira seu próprio parágrafo, rotulado — antes os dois ficavam
+    // espremidos numa frase só ("Rins: ..."), sem separação nenhuma entre o
+    // texto de um rim e o do outro; com 3+ achados (cálculo, cisto...) num
+    // dos lados, a lista "- C1: ...; - C2: ...' que vem logo depois não tinha
+    // como se saber de qual rim era. Ver comentário em rins-vias-urinarias.html.
+    const RINS_TAIL_PADRAO = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Espaço perirrenal livre.';
+    const rinsDTail = rinsDAchado.tail || (RINS_TAIL_PADRAO+' Ureter direito sem sinais de dilatações.');
+    const rinsETail = rinsEAchado.tail || (RINS_TAIL_PADRAO+' Ureter esquerdo sem sinais de dilatações.');
+    const rinsBilateralHDs = [];
+    if(rinsAmbosCisto) rinsBilateralHDs.push(phrase('impRinsCistoBilateral'));
+    if(rinsAmbosCalculo) rinsBilateralHDs.push(phrase('impRinsCalculoBilateral'));
+    const rinsImpressaoHDs = rinsBilateralHDs.concat(rinsDAchado.hds, rinsEAchado.hds);
 
     // ----- Bexiga ----- (só entra no Abdome Total)
     const bexigaAspecto = modoTotal ? v('bexigaAspecto') : 'normal';
@@ -2137,7 +2164,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const bacoDiametroTexto = blankOrValue(v('bacoDiametro'));
     const bacoMax = BACO_MAX[sexo];
     flag('bacoDiametro', bacoDiametroNum!==null && bacoDiametroNum > bacoMax);
-    const bacoVrTexto = bacoMax.toFixed(1).replace('.',',')+' cm ('+(sexo==='masculino'?'homem':'mulher')+')';
+    const bacoVrTexto = bacoMax.toFixed(1).replace('.',',')+' cm';
     const bacoAcessorioTamanhoTexto = blankOrValue(reqIf('bacoAcessorioTamanho', bacoAspecto==='acessorio'));
     const bacoHemangiomaTerco = v('bacoHemangiomaTerco') || 'superior';
     const bacoHemangiomaTamanhoTexto = blankOrValue(reqIf('bacoHemangiomaTamanho', bacoAspecto==='hemangioma'));
@@ -2270,11 +2297,12 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(modoTotal){
-      blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> Topografia, forma e mobilidade normais. O rim direito mede '+span(rimDireitoTexto)+' cm, e o esquerdo, '+span(rimEsquerdoTexto)+' cm. '+rinsTextoTail+'</p>'});
+      blocks.push({id:'rinsD', html:'<p class="linha"><strong>Rim direito:</strong> Topografia, forma e mobilidade normais, medindo '+span(rimDireitoTexto)+' cm. '+rinsDTail+'</p>'});
       pushListaBlock(blocks, 'rinsDCalcLista', rinsDAchado.calcLista);
       pushListaBlock(blocks, 'rinsDCistoLista', rinsDAchado.cistoLista);
       pushListaBlock(blocks, 'rinsDLeiteCalcioLista', rinsDAchado.leiteCalcioLista);
       pushListaBlock(blocks, 'rinsDNoduloLista', rinsDAchado.noduloLista);
+      blocks.push({id:'rinsE', html:'<p class="linha"><strong>Rim esquerdo:</strong> Topografia, forma e mobilidade normais, medindo '+span(rimEsquerdoTexto)+' cm. '+rinsETail+'</p>'});
       pushListaBlock(blocks, 'rinsECalcLista', rinsEAchado.calcLista);
       pushListaBlock(blocks, 'rinsECistoLista', rinsEAchado.cistoLista);
       pushListaBlock(blocks, 'rinsELeiteCalcioLista', rinsEAchado.leiteCalcioLista);
