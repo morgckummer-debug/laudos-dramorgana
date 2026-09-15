@@ -1545,7 +1545,7 @@ if(typeof criarMotorLaudo !== 'function'){
       ? rimDAchado.tail
       : (rimDAspecto==='alterado' && rimDDescricao)
         ? escapeHtml(rimDDescricao)+'.'
-        : 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureter direito sem sinais de dilatações.';
+        : 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre.<br>Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).<br>Ureter direito sem sinais de dilatações.';
     const rimDDiferenciacao = rimDAchado.diferenciacao || 'anatômica';
     blocks.push({id:'rimD', html:'<p class="linha"><strong>Rim Direito:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimDDiametroTexto)+' cm.<br>Cortical renal homogênea com espessura de '+span(rimDCorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimDDiferenciacao+'.<br>Área pielovascular livre. '+rimDTail+'</p>'});
 
@@ -1553,7 +1553,7 @@ if(typeof criarMotorLaudo !== 'function'){
       ? rimEAchado.tail
       : (rimEAspecto==='alterado' && rimEDescricao)
         ? escapeHtml(rimEDescricao)+'.'
-        : 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureter esquerdo sem sinais de dilatações.';
+        : 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre.<br>Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).<br>Ureter esquerdo sem sinais de dilatações.';
     const rimEDiferenciacao = rimEAchado.diferenciacao || 'anatômica';
     blocks.push({id:'rimE', html:'<p class="linha"><strong>Rim Esquerdo:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimEDiametroTexto)+' cm.<br>Cortical renal homogênea com espessura de '+span(rimECorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimEDiferenciacao+'.<br>Área pielovascular livre. '+rimETail+'</p>'});
 
