@@ -126,7 +126,7 @@
   .subgroup{
     border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
   }
-  .mioma-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .mioma-remove, .endo-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
@@ -486,16 +486,16 @@
   <div class="field" style="margin-bottom:8px;"><label>Não identificado — use {LADO}</label><textarea id="ph_ovarioNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Policístico — frase-base (substitui "Normal" quando policístico) — use {L}, {AP}, {T}, {VOLUME} e {VR}</label><textarea id="ph_ovarioPolicisticoBase" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — complemento (achado, após a frase-base) — use {LADO}</label><textarea id="ph_ovarioPolicistico" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>1 cisto simples — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioCisto1" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>2 cistos simples — use {LADO}, {MEDIDA1} e {MEDIDA2}</label><textarea id="ph_ovarioCisto2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>1 cisto simples — use {LADO}, {MEDIDA} e {VOLUME}</label><textarea id="ph_ovarioCisto1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>2 cistos simples — use {LADO}, {MEDIDA1}, {MEDIDA2}, {VOLUME1} e {VOLUME2}</label><textarea id="ph_ovarioCisto2" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Corpo lúteo — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioCorpoLuteo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Folículo dominante — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioFoliculo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioDermoide" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioEndometrioma" rows="2"></textarea></div>
 
   <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:12px 0 4px;">Segunda alteração no mesmo ovário (introduzida por "Observa-se também...")</p>
-  <div class="field" style="margin-bottom:8px;"><label>1 cisto simples — use {MEDIDA}</label><textarea id="ph_ovarioCisto1Tambem" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>2 cistos simples — use {MEDIDA1} e {MEDIDA2}</label><textarea id="ph_ovarioCisto2Tambem" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>1 cisto simples — use {MEDIDA} e {VOLUME}</label><textarea id="ph_ovarioCisto1Tambem" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>2 cistos simples — use {MEDIDA1}, {MEDIDA2}, {VOLUME1} e {VOLUME2}</label><textarea id="ph_ovarioCisto2Tambem" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Corpo lúteo — use {MEDIDA}</label><textarea id="ph_ovarioCorpoLuteoTambem" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Folículo dominante — use {MEDIDA}</label><textarea id="ph_ovarioFoliculoTambem" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {MEDIDA}</label><textarea id="ph_ovarioDermoideTambem" rows="2"></textarea></div>
@@ -507,7 +507,10 @@
   <div class="field" style="margin-bottom:8px;"><label>Regiões anexiais normais (nenhum achado marcado)</label><textarea id="ph_anexiaisNormais" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hidrossalpinge — use {LADO} e {MEDIDA}</label><textarea id="ph_hidrossalpinge" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Varizes pélvicas</label><textarea id="ph_varizes" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda intestinal — use {LOCAL}, {MEDIDA} e {REGIAO}</label><textarea id="ph_endometrioseIntestinal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda intestinal — 1 nódulo — use {LOCAL}, {MEDIDA} e {REGIAO}</label><textarea id="ph_endometrioseIntestinal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda intestinal — fragmento por nódulo (usado nos casos de 2+ nódulos) — use {LOCAL}, {MEDIDA} e {REGIAO}</label><textarea id="ph_endometrioseFrag" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda intestinal — 2 nódulos — use {F1} e {F2}</label><textarea id="ph_endometrioseIntro2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda intestinal — 3 ou mais nódulos (introdução da lista)</label><textarea id="ph_endometrioseIntroVarios" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido livre ausente</label><textarea id="ph_liquidoLivreAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido livre presente — use {MEDIDAS} e {VOLUME}</label><textarea id="ph_liquidoLivrePresente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Útero e ambos os ovários com mobilidade preservada (frase única, substitui as duas abaixo)</label><textarea id="ph_mobilidadeTodosPreservados" rows="2"></textarea></div>
@@ -547,7 +550,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {LADO}</label><textarea id="ph_impOvarioEndometrioma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hidrossalpinge — use {LADO}</label><textarea id="ph_impHidrossalpinge" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Varizes pélvicas</label><textarea id="ph_impVarizes" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda — use {REGIAO}</label><textarea id="ph_impEndometriose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda — 1 nódulo — use {REGIAO}</label><textarea id="ph_impEndometriose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda — 2 ou mais nódulos</label><textarea id="ph_impEndometrioseVarios" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário com mobilidade reduzida — use {LADO}</label><textarea id="ph_impMobilidadeOvarioReduzida" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -776,11 +780,14 @@
           </div>
         </div>
         <div class="field-row conditional" id="wrap_ovD_cisto1">
-          <div class="field"><label>Medida do cisto (mm)</label><input type="text" id="ovD_cisto1Medida" placeholder="ex: 15 x 12,2"></div>
+          <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovD_cisto1Medida" placeholder="ex: 25 x 20 x 18"></div>
+          <div class="field"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto1Volume" placeholder="cm³"></div>
         </div>
         <div class="field-row conditional" id="wrap_ovD_cisto2">
-          <div class="field"><label>Medida do cisto 1 (mm)</label><input type="text" id="ovD_cisto2MedidaA" placeholder="ex: 15 x 12,2"></div>
-          <div class="field"><label>Medida do cisto 2 (mm)</label><input type="text" id="ovD_cisto2MedidaB" placeholder="ex: 15 x 12,2"></div>
+          <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaA" placeholder="ex: 25 x 20 x 18"></div>
+          <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeA" placeholder="cm³"></div>
+          <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaB" placeholder="ex: 25 x 20 x 18"></div>
+          <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeB" placeholder="cm³"></div>
         </div>
         <div class="field-row conditional" id="wrap_ovD_corpoluteo">
           <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_corpoLuteoMedida" placeholder="ex: 15 x 12,2"></div>
@@ -815,11 +822,14 @@
             </div>
           </div>
           <div class="field-row conditional" id="wrap_ovD_cisto1_2">
-            <div class="field"><label>Medida do cisto (mm)</label><input type="text" id="ovD_cisto1Medida2" placeholder="ex: 15 x 12,2"></div>
+            <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovD_cisto1Medida2" placeholder="ex: 25 x 20 x 18"></div>
+            <div class="field"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto1Volume2" placeholder="cm³"></div>
           </div>
           <div class="field-row conditional" id="wrap_ovD_cisto2_2">
-            <div class="field"><label>Medida do cisto 1 (mm)</label><input type="text" id="ovD_cisto2MedidaA2" placeholder="ex: 15 x 12,2"></div>
-            <div class="field"><label>Medida do cisto 2 (mm)</label><input type="text" id="ovD_cisto2MedidaB2" placeholder="ex: 15 x 12,2"></div>
+            <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaA2" placeholder="ex: 25 x 20 x 18"></div>
+            <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeA2" placeholder="cm³"></div>
+            <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaB2" placeholder="ex: 25 x 20 x 18"></div>
+            <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeB2" placeholder="cm³"></div>
           </div>
           <div class="field-row conditional" id="wrap_ovD_corpoluteo_2">
             <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_corpoLuteoMedida2" placeholder="ex: 15 x 12,2"></div>
@@ -868,11 +878,14 @@
           </div>
         </div>
         <div class="field-row conditional" id="wrap_ovE_cisto1">
-          <div class="field"><label>Medida do cisto (mm)</label><input type="text" id="ovE_cisto1Medida" placeholder="ex: 15 x 12,2"></div>
+          <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovE_cisto1Medida" placeholder="ex: 25 x 20 x 18"></div>
+          <div class="field"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto1Volume" placeholder="cm³"></div>
         </div>
         <div class="field-row conditional" id="wrap_ovE_cisto2">
-          <div class="field"><label>Medida do cisto 1 (mm)</label><input type="text" id="ovE_cisto2MedidaA" placeholder="ex: 15 x 12,2"></div>
-          <div class="field"><label>Medida do cisto 2 (mm)</label><input type="text" id="ovE_cisto2MedidaB" placeholder="ex: 15 x 12,2"></div>
+          <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaA" placeholder="ex: 25 x 20 x 18"></div>
+          <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeA" placeholder="cm³"></div>
+          <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaB" placeholder="ex: 25 x 20 x 18"></div>
+          <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeB" placeholder="cm³"></div>
         </div>
         <div class="field-row conditional" id="wrap_ovE_corpoluteo">
           <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_corpoLuteoMedida" placeholder="ex: 15 x 12,2"></div>
@@ -907,11 +920,14 @@
             </div>
           </div>
           <div class="field-row conditional" id="wrap_ovE_cisto1_2">
-            <div class="field"><label>Medida do cisto (mm)</label><input type="text" id="ovE_cisto1Medida2" placeholder="ex: 15 x 12,2"></div>
+            <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovE_cisto1Medida2" placeholder="ex: 25 x 20 x 18"></div>
+            <div class="field"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto1Volume2" placeholder="cm³"></div>
           </div>
           <div class="field-row conditional" id="wrap_ovE_cisto2_2">
-            <div class="field"><label>Medida do cisto 1 (mm)</label><input type="text" id="ovE_cisto2MedidaA2" placeholder="ex: 15 x 12,2"></div>
-            <div class="field"><label>Medida do cisto 2 (mm)</label><input type="text" id="ovE_cisto2MedidaB2" placeholder="ex: 15 x 12,2"></div>
+            <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaA2" placeholder="ex: 25 x 20 x 18"></div>
+            <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeA2" placeholder="cm³"></div>
+            <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaB2" placeholder="ex: 25 x 20 x 18"></div>
+            <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeB2" placeholder="cm³"></div>
           </div>
           <div class="field-row conditional" id="wrap_ovE_corpoluteo_2">
             <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_corpoLuteoMedida2" placeholder="ex: 15 x 12,2"></div>
@@ -947,11 +963,10 @@
         <div class="toggle-line"><input type="checkbox" id="chkVarizes"><label for="chkVarizes">Varizes pélvicas (congestão pélvica)</label></div>
 
         <hr class="sep">
-        <div class="toggle-line"><input type="checkbox" id="chkEndometriose"><label for="chkEndometriose">Nódulo de endometriose profunda (intestinal)</label></div>
-        <div class="field-row conditional" id="wrap_endometrioseCampos">
-          <div class="field"><label>Localização (parede intestinal)</label><input type="text" id="endometrioseLocal" placeholder="ex: retossigmoide" value="retossigmoide"></div>
-          <div class="field"><label>Região</label><input type="text" id="endometrioseRegiao" placeholder="ex: retrocervical" value="retrocervical"></div>
-          <div class="field"><label>Medida (mm)</label><input type="text" id="endometrioseMedida" placeholder="ex: 35 x 23"></div>
+        <div class="toggle-line"><input type="checkbox" id="chkEndometriose"><label for="chkEndometriose">Nódulo(s) de endometriose profunda (intestinal)</label></div>
+        <div class="conditional" id="wrap_endometrioseCampos">
+          <div id="endometrioseNodulosContainer"></div>
+          <button type="button" class="btn-clear" id="btnAddEndometriose" style="margin:2px 0 12px;">+ Adicionar nódulo</button>
         </div>
 
         <hr class="sep">
@@ -1689,15 +1704,15 @@ if(typeof criarMotorLaudo !== 'function'){
     ovarioNaoIdentificado: 'não identificado no presente estudo. Não são identificadas massas císticas ou sólidas em sua topografia.',
     ovarioPolicisticoBase: 'de topografia usual, forma globosa e textura micropolicística, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ ({VR}).',
     ovarioPolicistico: 'Ovário {LADO} apresentando folículos antrais de distribuição predominantemente periférica, com diâmetro médio de 5 mm, associado a aumento da ecogenicidade do estroma.',
-    ovarioCisto1: 'Ovário {LADO}, em seu interior observa-se imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm.',
-    ovarioCisto2: 'Ovário {LADO}, em seu interior observam-se duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm e {MEDIDA2} mm, respectivamente.',
+    ovarioCisto1: 'Ovário {LADO}, em seu interior observa-se imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm, com volume de {VOLUME} cm³.',
+    ovarioCisto2: 'Ovário {LADO}, em seu interior observam-se duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm (volume de {VOLUME1} cm³) e {MEDIDA2} mm (volume de {VOLUME2} cm³), respectivamente.',
     ovarioCorpoLuteo: 'Ovário {LADO}, em seu interior nota-se imagem cística heterogênea, de paredes espessadas e irregulares, conteúdo ecogênico e captação de fluxo periférico ao mapeamento Doppler colorido, medindo {MEDIDA} mm (corpo lúteo).',
     ovarioFoliculo: 'Ovário {LADO}, em seu interior observa-se imagem folicular com discreta captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioDermoide: 'Ovário {LADO}, em seu interior observa-se imagem nodular ecogênica, bem delimitada, sem captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioEndometrioma: 'Em seu interior, nota-se imagem cística regular e unilocular, com conteúdo de textura em "vidro fosco", com mínima captação de fluxo periférico, medindo {MEDIDA} mm.',
 
-    ovarioCisto1Tambem: 'Observa-se também, em seu interior, imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm.',
-    ovarioCisto2Tambem: 'Observam-se também, em seu interior, duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm e {MEDIDA2} mm, respectivamente.',
+    ovarioCisto1Tambem: 'Observa-se também, em seu interior, imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm, com volume de {VOLUME} cm³.',
+    ovarioCisto2Tambem: 'Observam-se também, em seu interior, duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm (volume de {VOLUME1} cm³) e {MEDIDA2} mm (volume de {VOLUME2} cm³), respectivamente.',
     ovarioCorpoLuteoTambem: 'Observa-se também, em seu interior, imagem cística heterogênea, de paredes espessadas e irregulares, conteúdo ecogênico e captação de fluxo periférico ao mapeamento Doppler colorido, medindo {MEDIDA} mm (corpo lúteo).',
     ovarioFoliculoTambem: 'Observa-se também, em seu interior, imagem folicular com discreta captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioDermoideTambem: 'Observa-se também, em seu interior, imagem nodular ecogênica, bem delimitada, sem captação de fluxo periférico, medindo {MEDIDA} mm.',
@@ -1708,6 +1723,9 @@ if(typeof criarMotorLaudo !== 'function'){
     hidrossalpinge: 'Nota-se imagem tubular anecoica, sem captação de fluxo ao Doppler, localizada em região anexial {LADO}, medindo {MEDIDA} cm.',
     varizes: 'Regiões anexiais apresentando dilatação de vasos para-uterinos, bilateralmente, sob a serosa uterina — varizes pélvicas.',
     endometrioseIntestinal: 'Observa-se imagem nodular irregular, hipoecoica, localizada na muscular da mucosa do {LOCAL}, medindo {MEDIDA} mm, em região {REGIAO}.',
+    endometrioseFrag: 'muscular da mucosa do {LOCAL}, medindo {MEDIDA} mm, em região {REGIAO}',
+    endometrioseIntro2: 'Observam-se duas imagens nodulares irregulares, hipoecoicas, uma localizada na {F1} e outra na {F2}.',
+    endometrioseIntroVarios: 'Observam-se algumas imagens nodulares irregulares, hipoecoicas, de localização e dimensões como descrito abaixo:',
     liquidoLivreAusente: 'Ausência de líquido livre em fundo de saco posterior.',
     liquidoLivrePresente: 'Presença de líquido livre em fundo de saco posterior, medindo {MEDIDAS} cm, com volume estimado de {VOLUME} mL.',
     mobilidadeTodosPreservados: 'Útero e ovários com mobilidade preservada às manobras bimanuais.',
@@ -1746,6 +1764,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impHidrossalpinge: 'Hidrossalpinge à {LADO}.',
     impVarizes: 'Sinais de congestão pélvica.',
     impEndometriose: 'Nódulo em região {REGIAO} sugestivo de implante endometriótico.',
+    impEndometrioseVarios: 'Nódulos de endometriose profunda intestinal, em diferentes regiões, sugestivos de implantes endometrióticos.',
     impMobilidadeOvarioReduzida: 'Ovário {LADO} de mobilidade reduzida - Considerar processo aderencial.',
 
     footerImagens: 'Imagens em anexo.'
@@ -2031,6 +2050,56 @@ if(typeof criarMotorLaudo !== 'function'){
   // declared with `let` further down; calling it this early would hit their
   // temporal dead zone.
 
+  // ---------- Deep endometriosis nodules: same dynamic-list pattern as the
+  // myoma nodules above (stable uid per item, never reused after removal) —
+  // a single implant used to be the only option; the doctor now sees more
+  // than one per exam often enough to need "+ Adicionar nódulo" here too.
+  let endoNextUid = 1;
+  function endoSubgroupHTML(uid){
+    return ''
+      +'<div class="subgroup" id="wrap_endo'+uid+'">'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Nódulo <span class="endo-index"></span> — localização (parede intestinal)</label><input type="text" id="endo'+uid+'Local" placeholder="ex: retossigmoide" value="retossigmoide"></div>'
+      +'<div class="field"><label>Região</label><input type="text" id="endo'+uid+'Regiao" placeholder="ex: retrocervical" value="retrocervical"></div>'
+      +'<div class="field"><label>Medida (mm)</label><input type="text" id="endo'+uid+'Medida" placeholder="ex: 35 x 23"></div>'
+      +'</div>'
+      +'<button type="button" class="endo-remove" data-uid="'+uid+'">Remover nódulo</button>'
+      +'</div>';
+  }
+  function renumberEndoNodules(){
+    const container = $('endometrioseNodulosContainer');
+    const nodules = Array.from(container.children);
+    nodules.forEach((el, idx)=>{
+      const label = el.querySelector('.endo-index');
+      if(label) label.textContent = idx+1;
+      const removeBtn = el.querySelector('.endo-remove');
+      if(removeBtn) removeBtn.style.display = nodules.length>1 ? 'inline' : 'none';
+    });
+  }
+  function wireEndoNodule(uid){
+    const el = $('wrap_endo'+uid);
+    el.querySelectorAll('input, select').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    el.querySelector('.endo-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberEndoNodules();
+      render();
+    });
+  }
+  function addEndoNodule(){
+    const uid = endoNextUid++;
+    $('endometrioseNodulosContainer').insertAdjacentHTML('beforeend', endoSubgroupHTML(uid));
+    wireEndoNodule(uid);
+    renumberEndoNodules();
+    render();
+  }
+  $('btnAddEndometriose').addEventListener('click', addEndoNodule);
+  function endoNoduleUids(){
+    return Array.from($('endometrioseNodulosContainer').children).map(el=> el.id.replace('wrap_endo',''));
+  }
+
   $('chkIstmocele').addEventListener('change', e=> toggle('wrap_istmoceleCampos', e.target.checked));
   $('chkPolipoEndocervical').addEventListener('change', e=> toggle('wrap_polipoEndocervicalCampos', e.target.checked));
   $('chkDIU').addEventListener('change', e=> toggle('wrap_diuCampos', e.target.checked));
@@ -2078,7 +2147,12 @@ if(typeof criarMotorLaudo !== 'function'){
   wireOvario('ovE');
 
   $('chkHidrossalpinge').addEventListener('change', e=> toggle('wrap_hidrossalpingeCampos', e.target.checked));
-  $('chkEndometriose').addEventListener('change', e=> toggle('wrap_endometrioseCampos', e.target.checked));
+  $('chkEndometriose').addEventListener('change', e=>{
+    toggle('wrap_endometrioseCampos', e.target.checked);
+    if(e.target.checked && $('endometrioseNodulosContainer').children.length===0){
+      addEndoNodule();
+    }
+  });
   $('liquidoLivre').addEventListener('change', e=> toggle('wrap_liquidoLivreCampos', e.target.value==='presente'));
 
   function flag(id, isAbnormal){
@@ -2102,16 +2176,16 @@ if(typeof criarMotorLaudo !== 'function'){
 
   const OVARIO_ACHADO_TEXT = {
     policistico: (lado)=> phraseRaw('ovarioPolicistico', {LADO:lado}),
-    cisto1: (lado, m)=> phraseRaw('ovarioCisto1', {LADO:lado, MEDIDA:m}),
-    cisto2: (lado, m1, m2)=> phraseRaw('ovarioCisto2', {LADO:lado, MEDIDA1:m1, MEDIDA2:m2}),
+    cisto1: (lado, m, vol)=> phraseRaw('ovarioCisto1', {LADO:lado, MEDIDA:m, VOLUME:vol}),
+    cisto2: (lado, m1, m2, vol1, vol2)=> phraseRaw('ovarioCisto2', {LADO:lado, MEDIDA1:m1, MEDIDA2:m2, VOLUME1:vol1, VOLUME2:vol2}),
     corpoluteo: (lado, m)=> phraseRaw('ovarioCorpoLuteo', {LADO:lado, MEDIDA:m}),
     foliculo: (lado, m)=> phraseRaw('ovarioFoliculo', {LADO:lado, MEDIDA:m}),
     dermoide: (lado, m)=> phraseRaw('ovarioDermoide', {LADO:lado, MEDIDA:m}),
     endometrioma: (lado, m)=> phraseRaw('ovarioEndometrioma', {LADO:lado, MEDIDA:m})
   };
   const OVARIO_ACHADO_TAMBEM_TEXT = {
-    cisto1: (m)=> phraseRaw('ovarioCisto1Tambem', {MEDIDA:m}),
-    cisto2: (m1, m2)=> phraseRaw('ovarioCisto2Tambem', {MEDIDA1:m1, MEDIDA2:m2}),
+    cisto1: (m, vol)=> phraseRaw('ovarioCisto1Tambem', {MEDIDA:m, VOLUME:vol}),
+    cisto2: (m1, m2, vol1, vol2)=> phraseRaw('ovarioCisto2Tambem', {MEDIDA1:m1, MEDIDA2:m2, VOLUME1:vol1, VOLUME2:vol2}),
     corpoluteo: (m)=> phraseRaw('ovarioCorpoLuteoTambem', {MEDIDA:m}),
     foliculo: (m)=> phraseRaw('ovarioFoliculoTambem', {MEDIDA:m}),
     dermoide: (m)=> phraseRaw('ovarioDermoideTambem', {MEDIDA:m}),
@@ -2228,8 +2302,8 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.chkVarizes){
       items.push({key:'varizes', label:phraseRaw('impVarizes'), auto:true});
     }
-    if(state.chkEndometriose){
-      items.push({key:'endometriose', label:phraseRaw('impEndometriose', {REGIAO:state.endometrioseRegiao}), auto:true});
+    if(state.chkEndometriose && state.endometrioseFrags.length){
+      items.push({key:'endometriose', label: state.endometrioseFrags.length>1 ? phraseRaw('impEndometrioseVarios') : phraseRaw('impEndometriose', {REGIAO:state.endometrioseRegiao}), auto:true});
     }
     if(state.chkMobilidadeOvD && !state.chkTransabdominal){
       items.push({key:'mobilidade-ov-d', label:phraseRaw('impMobilidadeOvarioReduzida', {LADO:'direito'}), auto:true});
@@ -2406,8 +2480,11 @@ if(typeof criarMotorLaudo !== 'function'){
       const aspecto = v(prefix+'_aspecto');
       const descricao = vNoDot(prefix+'_descricao');
       const cisto1Medida = reqIf(prefix+'_cisto1Medida', aspecto==='cisto1');
+      const cisto1Volume = reqIf(prefix+'_cisto1Volume', aspecto==='cisto1');
       const cisto2MedidaA = reqIf(prefix+'_cisto2MedidaA', aspecto==='cisto2');
+      const cisto2VolumeA = reqIf(prefix+'_cisto2VolumeA', aspecto==='cisto2');
       const cisto2MedidaB = reqIf(prefix+'_cisto2MedidaB', aspecto==='cisto2');
+      const cisto2VolumeB = reqIf(prefix+'_cisto2VolumeB', aspecto==='cisto2');
       const corpoLuteoMedida = reqIf(prefix+'_corpoLuteoMedida', aspecto==='corpoluteo');
       const foliculoMedida = reqIf(prefix+'_foliculoMedida', aspecto==='foliculo');
       const dermoideMedida = reqIf(prefix+'_dermoideMedida', aspecto==='dermoide');
@@ -2415,14 +2492,17 @@ if(typeof criarMotorLaudo !== 'function'){
       const aspecto2 = v(prefix+'_aspecto2');
       const descricao2 = vNoDot(prefix+'_descricao2');
       const cisto1Medida2 = reqIf(prefix+'_cisto1Medida2', aspecto2==='cisto1');
+      const cisto1Volume2 = reqIf(prefix+'_cisto1Volume2', aspecto2==='cisto1');
       const cisto2MedidaA2 = reqIf(prefix+'_cisto2MedidaA2', aspecto2==='cisto2');
+      const cisto2VolumeA2 = reqIf(prefix+'_cisto2VolumeA2', aspecto2==='cisto2');
       const cisto2MedidaB2 = reqIf(prefix+'_cisto2MedidaB2', aspecto2==='cisto2');
+      const cisto2VolumeB2 = reqIf(prefix+'_cisto2VolumeB2', aspecto2==='cisto2');
       const corpoLuteoMedida2 = reqIf(prefix+'_corpoLuteoMedida2', aspecto2==='corpoluteo');
       const foliculoMedida2 = reqIf(prefix+'_foliculoMedida2', aspecto2==='foliculo');
       const dermoideMedida2 = reqIf(prefix+'_dermoideMedida2', aspecto2==='dermoide');
       const endometriomaMedida2 = reqIf(prefix+'_endometriomaMedida2', aspecto2==='endometrioma');
-      return {L, AP, T, volume, volNum, aspecto, descricao, cisto1Medida, cisto2MedidaA, cisto2MedidaB, corpoLuteoMedida, foliculoMedida, dermoideMedida, endometriomaMedida,
-        aspecto2, descricao2, cisto1Medida2, cisto2MedidaA2, cisto2MedidaB2, corpoLuteoMedida2, foliculoMedida2, dermoideMedida2, endometriomaMedida2};
+      return {L, AP, T, volume, volNum, aspecto, descricao, cisto1Medida, cisto1Volume, cisto2MedidaA, cisto2VolumeA, cisto2MedidaB, cisto2VolumeB, corpoLuteoMedida, foliculoMedida, dermoideMedida, endometriomaMedida,
+        aspecto2, descricao2, cisto1Medida2, cisto1Volume2, cisto2MedidaA2, cisto2VolumeA2, cisto2MedidaB2, cisto2VolumeB2, corpoLuteoMedida2, foliculoMedida2, dermoideMedida2, endometriomaMedida2};
     }
     const ovD = readOvario('ovD');
     const ovE = readOvario('ovE');
@@ -2432,9 +2512,15 @@ if(typeof criarMotorLaudo !== 'function'){
     const hidrossalpingeMedida = blankOrValue(reqIf('hidrossalpingeMedida', chkHidrossalpinge));
     const chkVarizes = $('chkVarizes').checked;
     const chkEndometriose = $('chkEndometriose').checked;
-    const endometrioseLocal = v('endometrioseLocal') || 'retossigmoide';
-    const endometrioseRegiao = v('endometrioseRegiao') || 'retrocervical';
-    const endometrioseMedida = reqIf('endometrioseMedida', chkEndometriose);
+    const endoUids = chkEndometriose ? endoNoduleUids() : [];
+    const endometrioseItens = [];
+    endoUids.forEach(uid=>{
+      const local = v('endo'+uid+'Local') || 'retossigmoide';
+      const regiao = v('endo'+uid+'Regiao') || 'retrocervical';
+      const medida = reqIf('endo'+uid+'Medida', true);
+      if(!medida) return;
+      endometrioseItens.push({local, regiao, medida});
+    });
     const liquidoLivre = v('liquidoLivre');
     const liquidoLivrePresente = liquidoLivre==='presente';
     const liquidoLivreMedidas = blankOrValue(reqIf('liquidoLivreMedidas', liquidoLivrePresente));
@@ -2455,7 +2541,7 @@ if(typeof criarMotorLaudo !== 'function'){
       ovE_aspecto2: ovE.aspecto2, ovE_descricao2: ovE.descricao2,
       vrOvarioTipo,
       chkHidrossalpinge, hidrossalpingeLado, chkVarizes,
-      chkEndometriose, endometrioseLocal, endometrioseRegiao,
+      chkEndometriose, endometrioseFrags: endometrioseItens, endometrioseRegiao: endometrioseItens[0] && endometrioseItens[0].regiao,
       chkMobilidadeOvD, chkMobilidadeOvE, chkTransabdominal,
       obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
@@ -2571,9 +2657,9 @@ if(typeof criarMotorLaudo !== 'function'){
       if(ov.aspecto==='policistico'){
         extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.policistico(ladoM));
       } else if(ov.aspecto==='cisto1'){
-        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto1(ladoM, ov.cisto1Medida||'____'));
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto1(ladoM, ov.cisto1Medida||'____', ov.cisto1Volume||'____'));
       } else if(ov.aspecto==='cisto2'){
-        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto2(ladoM, ov.cisto2MedidaA||'____', ov.cisto2MedidaB||'____'));
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto2(ladoM, ov.cisto2MedidaA||'____', ov.cisto2MedidaB||'____', ov.cisto2VolumeA||'____', ov.cisto2VolumeB||'____'));
       } else if(ov.aspecto==='corpoluteo'){
         extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.corpoluteo(ladoM, ov.corpoLuteoMedida||'____'));
       } else if(ov.aspecto==='foliculo'){
@@ -2591,9 +2677,9 @@ if(typeof criarMotorLaudo !== 'function'){
       // "Tambem" (sem precisar do mergeOvarioAchado de cima).
       let extra2 = '';
       if(ov.aspecto2==='cisto1'){
-        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto1(ov.cisto1Medida2||'____');
+        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto1(ov.cisto1Medida2||'____', ov.cisto1Volume2||'____');
       } else if(ov.aspecto2==='cisto2'){
-        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto2(ov.cisto2MedidaA2||'____', ov.cisto2MedidaB2||'____');
+        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto2(ov.cisto2MedidaA2||'____', ov.cisto2MedidaB2||'____', ov.cisto2VolumeA2||'____', ov.cisto2VolumeB2||'____');
       } else if(ov.aspecto2==='corpoluteo'){
         extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.corpoluteo(ov.corpoLuteoMedida2||'____');
       } else if(ov.aspecto2==='foliculo'){
@@ -2627,7 +2713,19 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(chkEndometriose){
-      blocks.push({id:'endometriose', html:'<p class="linha">'+phraseRaw('endometrioseIntestinal', {LOCAL: escapeHtml(endometrioseLocal), MEDIDA: span(blankOrValue(endometrioseMedida)), REGIAO: escapeHtml(endometrioseRegiao)})+'</p>'});
+      if(endometrioseItens.length===0){
+        blocks.push({id:'endometriose', html:'<p class="linha"><span class="blank">Preencha ao menos um nódulo (localização e medida) acima.</span></p>'});
+      } else if(endometrioseItens.length===1){
+        const it = endometrioseItens[0];
+        blocks.push({id:'endometriose', html:'<p class="linha">'+phraseRaw('endometrioseIntestinal', {LOCAL: escapeHtml(it.local), MEDIDA: it.medida, REGIAO: escapeHtml(it.regiao)})+'</p>'});
+      } else if(endometrioseItens.length===2){
+        const frags = endometrioseItens.map(it=> phraseRaw('endometrioseFrag', {LOCAL: escapeHtml(it.local), MEDIDA: it.medida, REGIAO: escapeHtml(it.regiao)}));
+        blocks.push({id:'endometriose', html:'<p class="linha">'+phraseRaw('endometrioseIntro2', {F1: frags[0], F2: frags[1]})+'</p>'});
+      } else {
+        blocks.push({id:'endometriose', html:'<p class="linha">'+phraseRaw('endometrioseIntroVarios')+'</p>'});
+        const frags = endometrioseItens.map(it=> phraseRaw('endometrioseFrag', {LOCAL: escapeHtml(it.local), MEDIDA: it.medida, REGIAO: escapeHtml(it.regiao)}));
+        blocks.push({id:'endometrioseLista', html:'<div class="linha nodulos-lista">'+frags.map((f,i)=>'<p class="nodulo-item">- N'+(i+1)+': '+f+'.</p>').join('')+'</div>'});
+      }
     }
 
     blocks.push({id:'liquidoLivre', html:'<p class="linha">'+(liquidoLivrePresente
@@ -2894,9 +2992,11 @@ if(typeof criarMotorLaudo !== 'function'){
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
-    // Collapse back to a single fresh myoma nodule, same as a first-time load,
-    // instead of leaving however many were added for the previous patient.
+    // Collapse back to a single fresh myoma/endometriosis nodule, same as a
+    // first-time load, instead of leaving however many were added for the
+    // previous patient.
     $('miomaNodulosContainer').innerHTML = '';
+    $('endometrioseNodulosContainer').innerHTML = '';
     checkedState = {};
     impressaoOverrides = {};
     // Force every block to rebuild fresh for the new patient — otherwise a
@@ -2910,6 +3010,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $('printAlert').classList.remove('show');
     setDefaultDataExame();
     addMiomaNodule();
+    addEndoNodule();
     updateUteroEstadoWraps();
     updateEndometrioWraps();
     // Aspecto de ambos os ovários volta para "Normal": a seção de segunda
@@ -2943,6 +3044,7 @@ if(typeof criarMotorLaudo !== 'function'){
       ts: Date.now(),
       fields: fields,
       uids: miomaNoduleUids(),
+      endoUids: endoNoduleUids(),
       checked: checkedState,
       overrides: impressaoOverrides,
       titleFontSize: titleFontSize,
@@ -2977,6 +3079,19 @@ if(typeof criarMotorLaudo !== 'function'){
         addMiomaNodule();
       }
 
+      const endoUids = Array.isArray(d.endoUids) ? d.endoUids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
+      $('endometrioseNodulosContainer').innerHTML = '';
+      if(endoUids.length){
+        endoUids.forEach(uid=>{
+          endoNextUid = Math.max(endoNextUid, parseInt(uid, 10) + 1);
+          $('endometrioseNodulosContainer').insertAdjacentHTML('beforeend', endoSubgroupHTML(uid));
+          wireEndoNodule(uid);
+        });
+        renumberEndoNodules();
+      }else{
+        addEndoNodule();
+      }
+
       Object.keys(d.fields).forEach(id=>{
         const el = $(id);
         if(!el || !el.closest('#formCol')) return;
@@ -3002,6 +3117,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // branco do que deixar a tela quebrada.
       st.draftRestoring = false;
       $('miomaNodulosContainer').innerHTML = '';
+      $('endometrioseNodulosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
       st.lastBlockHtml = {};
@@ -3037,6 +3153,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const d = draftRead();
     if(!(d && draftRestore(d))){
       addMiomaNodule();
+      addEndoNodule();
       render();
       st.draftReady = true;
       st.draftBaseline = draftFingerprint(draftSnapshot());
