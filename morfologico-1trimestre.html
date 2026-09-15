@@ -898,7 +898,7 @@ if(typeof criarMotorLaudo !== 'function'){
   });
   const {
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
-    aplicarMascaraCPF, applyExecutante, autoFitPages, blankOrValue, buildIdCardTable, comDigitadora, copyComputedToClone, draftDiscard,
+    aplicarMascaraCPF, applyExecutante, autoFitPages, blankOrValue, buildIdCardTable, colapsarMargensParaWord, comDigitadora, copyComputedToClone, draftDiscard,
     draftFingerprint, draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule,
     escapeHtml, nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview,
     setDefaultDataExame, setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview,
@@ -2606,7 +2606,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('table.biometria td:nth-child(odd)').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
     clone.querySelectorAll('table.biometria td:nth-child(even)').forEach(el=>{ el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
     clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#fbf8fa'; });
-    clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='100%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
+    clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='100%'; el.style.marginLeft='auto'; el.style.marginRight='auto'; el.setAttribute('align', 'center'); });
     clone.querySelectorAll('table.morfologia td').forEach(el=>{ el.style.border='none'; el.style.padding='0 20px 2px 0'; el.style.fontWeight='400'; });
     clone.querySelectorAll('table.morfologia td:nth-child(even)').forEach(el=>{ el.style.textAlign='justify'; el.style.whiteSpace='normal'; });
     clone.querySelectorAll('table.morfologia tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='none'; });
@@ -2633,6 +2633,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const lineHeight = $('paper').style.lineHeight || '1.15';
     const fontSize = $('paper').style.fontSize || '12pt';
+    colapsarMargensParaWord(clone);
     let bodyHtml = clone.innerHTML;
     // A página de anexo (logo da FMF, imagem colada do cálculo de risco e
     // assinatura) fica de fora do #paper — só entra no Word se a médica

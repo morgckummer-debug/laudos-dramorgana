@@ -989,7 +989,7 @@ if(typeof criarMotorLaudo !== 'function'){
   });
   const {
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
-    applyExecutante, blankOrValue, buildIdCardTable, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
+    applyExecutante, blankOrValue, buildIdCardTable, colapsarMargensParaWord, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
     nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
@@ -2261,6 +2261,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const lineHeight = $('paper').style.lineHeight || '1.15';
     const fontSize = $('paper').style.fontSize || '11.5pt';
+    colapsarMargensParaWord(clone);
     return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";text-align:justify;\">"+clone.innerHTML+'</div>';
   }
 

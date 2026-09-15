@@ -678,7 +678,7 @@ if(typeof criarMotorLaudo !== 'function'){
   });
   const {
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
-    applyExecutante, autoFitPages, blankOrValue, buildIdCardTable, comDigitadora, copyComputedToClone, draftDiscard,
+    applyExecutante, autoFitPages, blankOrValue, buildIdCardTable, colapsarMargensParaWord, comDigitadora, copyComputedToClone, draftDiscard,
     draftFingerprint, draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule,
     escapeHtml, nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview,
     setDefaultDataExame, setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview,
@@ -2038,7 +2038,7 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('table.biometria td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
     clone.querySelectorAll('table.biometria td:last-child').forEach(el=>{ el.style.textAlign='center'; });
     clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#fbf8fa'; });
-    clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='70%'; el.style.margin='0 auto'; el.setAttribute('align', 'center'); });
+    clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='70%'; el.style.marginLeft='auto'; el.style.marginRight='auto'; el.setAttribute('align', 'center'); });
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='10pt'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
@@ -2066,6 +2066,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const lineHeight = $('paper').style.lineHeight || '1.15';
     const fontSize = $('paper').style.fontSize || '12pt';
+    colapsarMargensParaWord(clone);
     return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";\">"+clone.innerHTML+'</div>';
   }
 
