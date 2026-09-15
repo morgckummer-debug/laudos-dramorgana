@@ -1924,7 +1924,21 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
 
-  $('bexigaAspecto').addEventListener('change', e=> toggle('wrap_bexigaDescricao', e.target.value==='alterado'));
+  // Ao trocar para "Outro (descrever)" o campo de texto livre nasce vazio, e
+  // ao digitar só a alteração pontual a médica acaba perdendo a cláusula
+  // normal que sairia junto ("apresentando-se vazia/repleta..."). Pré-
+  // preenche com ela, editável — só se o campo estiver vazio, nunca
+  // sobrescreve o que já foi digitado.
+  function prefillAlteradoIfEmpty(textareaId, texto){
+    const el = $(textareaId);
+    if(el && !el.value.trim()) el.value = texto;
+  }
+  $('bexigaAspecto').addEventListener('change', e=>{
+    toggle('wrap_bexigaDescricao', e.target.value==='alterado');
+    if(e.target.value==='alterado'){
+      prefillAlteradoIfEmpty('bexigaDescricao', phraseRaw($('chkTransabdominal').checked ? 'bexigaTransabdominal' : 'bexigaNormal'));
+    }
+  });
 
   // Histerectomia (total/subtotal) retira o útero e o endométrio do exame:
   // esconde os campos normais do Útero e o card inteiro de Endométrio, e
