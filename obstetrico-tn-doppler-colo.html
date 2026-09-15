@@ -418,7 +418,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Colo normal</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo curto</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Recomendação final</label><textarea id="ph_impMorfologico2T" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Frase final — cálculo do risco (TN), centralizada e em itálico abaixo da conclusão</label><textarea id="ph_impCalculoRiscoTN" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Frase final — ressalva de rastreamento e cálculo do risco (TN), centralizada e em itálico abaixo da conclusão</label><textarea id="ph_impCalculoRiscoTN" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Rodapé</h3>
@@ -1076,8 +1076,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impUterinas: 'Doppler das artérias estudadas dentro da normalidade (IP médio no percentil {PERCENTIL} para a idade gestacional).',
     impColoNormal: 'Colo uterino sem anormalidades.',
     impColoAlterado: 'Colo curto para a idade gestacional - Sugere-se reavaliação para risco de prematuridade com 16-18 semanas.',
-    impMorfologico2T: 'Sugere-se a realização do morfológico do 2º trimestre entre 22 e 24 semanas. A medida da Translucência Nucal consiste num teste de rastreamento e não de diagnóstico. Valores normais não excluem a possibilidade de cromossomopatias.',
-    impCalculoRiscoTN: 'Cálculo de risco realizado de acordo com o protocolo da FMF (https://fetalmedicine.org/research/assess/trisomie).',
+    impMorfologico2T: 'Sugere-se a realização do morfológico do 2º trimestre entre 22 e 24 semanas.',
+    impCalculoRiscoTN: 'A medida da Translucência Nucal consiste num teste de rastreamento e não de diagnóstico. Valores normais não excluem a possibilidade de cromossomopatias. Cálculo de risco realizado de acordo com o protocolo da FMF (https://fetalmedicine.org/research/assess/trisomie).',
 
     footerImagens: 'Imagens em anexo.'
   };
@@ -1449,19 +1449,6 @@ if(typeof criarMotorLaudo !== 'function'){
   // editável em texto puro, e inserir a tag antes abriria brecha de HTML cru.
   function italicizeFMF(html){
     return html.replace(/Fetal Medicine Foundation/g, '<em>Fetal Medicine Foundation</em>');
-  }
-  // A ressalva de que a TN é teste de rastreamento, não de diagnóstico, vai
-  // em itálico dentro do item de recomendação final — acompanhando a frase
-  // do protocolo da FMF, que já sai em itálico por estar num bloco
-  // p.recomendacao à parte. Mesmo padrão do italicizeFMF: aplicado depois de
-  // escapeHtml, por busca de texto literal, do marcador até o fim da frase.
-  function italicizeTNDisclaimer(html){
-    const marca = 'A medida da Translucência Nucal consiste';
-    const idx = html.indexOf(marca);
-    if(idx !== -1){
-      html = html.slice(0, idx) + '<em>' + html.slice(idx) + '</em>';
-    }
-    return html;
   }
   // Dentro do item de TN normal (negrito por padrão via CSS), a ressalva —
   // "Não podemos excluir essa possibilidade somente através da
@@ -1930,7 +1917,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       checkedItems.forEach(it=>{
         const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
-        let itemHtml = italicizeTNDisclaimer(italicizeFMF(deemphasizeSecondary(escapeHtml(text))));
+        let itemHtml = italicizeFMF(deemphasizeSecondary(escapeHtml(text)));
         if(it.italic) itemHtml = '<em>'+itemHtml+'</em>';
         impressaoListHtml += '<li data-key="'+it.key+'">'+itemHtml+'</li>';
       });
@@ -1938,10 +1925,11 @@ if(typeof criarMotorLaudo !== 'function'){
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
-    // A frase de como o risco foi calculado (protocolo da FMF) não é mais um
-    // tópico da lista de conclusão — vem centralizada, em itálico e menor,
-    // logo abaixo do último tópico, e só aparece junto com a recomendação
-    // final (mesmo tópico de que ela saiu).
+    // A ressalva de que a TN é teste de rastreamento, não de diagnóstico, e a
+    // frase de como o risco foi calculado (protocolo da FMF) não são mais um
+    // tópico da lista de conclusão — vêm centralizadas, em itálico e menor,
+    // logo abaixo do último tópico, e só aparecem junto com a recomendação
+    // final (mesmo tópico de que elas saíram).
     if(checkedItems.some(it=>it.key==='morfologico2t')){
       blocks.push({id:'calculoRiscoTN', html:'<p class="recomendacao">'+escapeHtml(phraseRaw('impCalculoRiscoTN'))+'</p>'});
     }
