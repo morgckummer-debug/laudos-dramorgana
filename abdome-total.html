@@ -2079,8 +2079,14 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const rinsDAchado = computeRinsAchado('rinsD', 'direito', 'à direita');
     const rinsEAchado = computeRinsAchado('rinsE', 'esquerdo', 'à esquerda');
-    const rinsAchadosTail = [rinsDAchado.tail, rinsEAchado.tail].filter(Boolean).join(' ');
-    const rinsTextoTail = rinsAchadosTail || 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Ureteres sem sinais de dilatações. Espaço perirrenal livre.';
+    // Cada rim vira seu próprio parágrafo, rotulado — antes os dois ficavam
+    // espremidos numa frase só ("Rins: ..."), sem separação nenhuma entre o
+    // texto de um rim e o do outro; com 3+ achados (cálculo, cisto...) num
+    // dos lados, a lista "- C1: ...; - C2: ...' que vem logo depois não tinha
+    // como se saber de qual rim era. Ver comentário em rins-vias-urinarias.html.
+    const RINS_TAIL_PADRAO = 'Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Espaço perirrenal livre.';
+    const rinsDTail = rinsDAchado.tail || (RINS_TAIL_PADRAO+' Ureter direito sem sinais de dilatações.');
+    const rinsETail = rinsEAchado.tail || (RINS_TAIL_PADRAO+' Ureter esquerdo sem sinais de dilatações.');
     const rinsImpressaoHDs = rinsDAchado.hds.concat(rinsEAchado.hds);
 
     // ----- Bexiga ----- (só entra no Abdome Total)
@@ -2270,11 +2276,12 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(modoTotal){
-      blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> Topografia, forma e mobilidade normais. O rim direito mede '+span(rimDireitoTexto)+' cm, e o esquerdo, '+span(rimEsquerdoTexto)+' cm. '+rinsTextoTail+'</p>'});
+      blocks.push({id:'rinsD', html:'<p class="linha"><strong>Rim direito:</strong> Topografia, forma e mobilidade normais, medindo '+span(rimDireitoTexto)+' cm. '+rinsDTail+'</p>'});
       pushListaBlock(blocks, 'rinsDCalcLista', rinsDAchado.calcLista);
       pushListaBlock(blocks, 'rinsDCistoLista', rinsDAchado.cistoLista);
       pushListaBlock(blocks, 'rinsDLeiteCalcioLista', rinsDAchado.leiteCalcioLista);
       pushListaBlock(blocks, 'rinsDNoduloLista', rinsDAchado.noduloLista);
+      blocks.push({id:'rinsE', html:'<p class="linha"><strong>Rim esquerdo:</strong> Topografia, forma e mobilidade normais, medindo '+span(rimEsquerdoTexto)+' cm. '+rinsETail+'</p>'});
       pushListaBlock(blocks, 'rinsECalcLista', rinsEAchado.calcLista);
       pushListaBlock(blocks, 'rinsECistoLista', rinsEAchado.cistoLista);
       pushListaBlock(blocks, 'rinsELeiteCalcioLista', rinsEAchado.leiteCalcioLista);
