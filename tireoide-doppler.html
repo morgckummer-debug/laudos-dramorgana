@@ -1741,18 +1741,37 @@ if(typeof criarMotorLaudo !== 'function'){
           const min = blankOrValue(req('cisto'+uid+'Min'));
           const max = blankOrValue(req('cisto'+uid+'Max'));
           return {
+            lobo: lobo,
             texto: 'Observam-se ao menos três imagens císticas, de paredes finas e regulares, com foco ecogênico em seu interior, que condicionam reverberação acústica posterior, localizadas no lobo '+lobo+', terço '+terco+', medindo entre '+span(min)+' e '+span(max)+' mm, sugestivas de cistos colóides.',
             impressao: phrase('impCistoColoideVarios', {LADO:ladoTxt})
           };
         }
         const tamanho = blankOrValue(req('cisto'+uid+'Tamanho'));
         return {
+          lobo: lobo,
           texto: 'Observa-se uma imagem cística, de paredes finas e regulares, com foco ecogênico em seu interior, que condiciona reverberação acústica posterior, localizada no lobo '+lobo+', terço '+terco+', medindo '+span(tamanho)+' mm, sugestiva de cisto colóide.',
           impressao: phrase('impCistoColoide1', {LADO:ladoTxt})
         };
       });
       if(cistos.length){
-        cistoTexto = cistos.map(c=> c.texto).join(' ');
+        // Com cisto colóide nos dois lobos, agrupa por lobo igual ao bloco de
+        // nódulos (ver acima) — sem isso as frases saíam em sequência corrida,
+        // sem separar visualmente lobo direito de esquerdo. Com um único lobo
+        // afetado, a frase já nomeia o lobo dentro do próprio texto e o
+        // agrupamento seria redundante.
+        const lobosComCisto = ['direito','esquerdo'].filter(lobo=> cistos.some(c=> c.lobo===lobo));
+        if(lobosComCisto.length > 1){
+          const linhas = [];
+          ['direito','esquerdo'].forEach(lobo=>{
+            const doLobo = cistos.filter(c=> c.lobo===lobo);
+            if(!doLobo.length) return;
+            linhas.push('<span style="display:block;margin-top:3mm;"><strong>'+loboRotulo(lobo)+':</strong></span>');
+            doLobo.forEach(c=> linhas.push('<span style="display:block;">'+c.texto+'</span>'));
+          });
+          cistoTexto = linhas.join('');
+        }else{
+          cistoTexto = cistos.map(c=> c.texto).join(' ');
+        }
         cistoImpressaoItems = cistos.map((c, i)=> ({uid: uids[i], label: c.impressao}));
       }
     }
