@@ -120,6 +120,14 @@
   .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
   .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
 
+  .subgroup{
+    border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
+  }
+  .subitem-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .paper .nodulos-lista{margin:0 0 16px;}
+  .paper .nodulos-lista .nodulo-item{margin:0 0 6px;padding-left:2.4em;text-indent:-2.4em;}
+  .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
+
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
@@ -266,7 +274,7 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
+    .paper p.linha, .paper .nodulos-lista, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -406,38 +414,19 @@
     <div class="card">
       <div class="card-head"><h2>Rim direito</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="rimDAspecto">
-              <option value="normal">Normal (sistema coletor, cálculos e ureter sem alterações)</option>
-              <option value="calculo">Cálculo(s)</option>
-              <option value="cisto">Cisto(s) simples</option>
-              <option value="cistoLeiteCalcio">Cisto de leite de cálcio</option>
-              <option value="nodulo">Nódulo renal (angiomiolipoma)</option>
-              <option value="hidronefrose">Hidronefrose acentuada</option>
-              <option value="nefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</option>
-              <option value="ureterolitiase">Ureterolitíase</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
+        <div class="field-row"><div class="field"><label>Aspecto (marque quantos se aplicarem)</label></div></div>
+        <div class="toggle-line"><input type="checkbox" id="rimDNormal" checked><label for="rimDNormal">Normal (sistema coletor, cálculos e ureter sem alterações)</label></div>
+        <div class="toggle-line"><input type="checkbox" id="rimDCalculo"><label for="rimDCalculo">Cálculo(s)</label></div>
         <div class="field-row conditional" id="wrap_rimDCalculoCampos">
-          <div class="field"><label>Quantidade</label>
-            <select id="rimDCalculoQtd"><option value="1">1 cálculo</option><option value="2">2 cálculos</option></select>
+          <div class="field"><label>Número de cálculos</label>
+            <select id="rimDCalcCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
+          </div>
+          <div class="field" style="align-self:flex-end;">
+            <div id="rimDCalcNodulosContainer"></div>
+            <button type="button" class="btn-clear" id="btnAddCalcRimD" style="margin:2px 0 4px;">+ Adicionar cálculo</button>
           </div>
         </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDCalc1">
-          <div class="field"><label>Terço (1º cálculo)</label>
-            <select id="rimDCalc1Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (1º cálculo)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDCalc1Tamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimDCalc2">
-          <div class="field"><label>Terço (2º cálculo)</label>
-            <select id="rimDCalc2Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (2º cálculo)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDCalc2Tamanho" placeholder="mm"></div>
-        </div>
+        <div class="toggle-line"><input type="checkbox" id="rimDCisto"><label for="rimDCisto">Cisto(s) simples</label></div>
         <div class="field-row conditional" id="wrap_rimDCistoCampos">
           <div class="field"><label>Quantidade</label>
             <select id="rimDCistoQtd"><option value="1">1 cisto</option><option value="2">2 cistos</option><option value="varios">Vários cistos</option></select>
@@ -462,15 +451,18 @@
             <select id="rimDCistoVariosTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
           </div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="rimDLeiteCalcio"><label for="rimDLeiteCalcio">Cisto de leite de cálcio</label></div>
         <div class="field-row field-row-compact conditional" id="wrap_rimDLeiteCalcio">
           <div class="field"><label>Tamanho (terço superior)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDLeiteCalcioTamanho" placeholder="mm"></div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="rimDNodulo"><label for="rimDNodulo">Nódulo renal (angiomiolipoma)</label></div>
         <div class="field-row field-row-compact conditional" id="wrap_rimDNodulo">
           <div class="field"><label>Terço</label>
             <select id="rimDNoduloTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
           </div>
           <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDNoduloTamanho" placeholder="mm"></div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="rimDHidronefrose"><label for="rimDHidronefrose">Hidronefrose acentuada</label></div>
         <div class="field-row field-row-compact conditional" id="wrap_rimDHidro">
           <div class="field"><label>Medida da pelve renal</label>
             <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDHidroMedida" placeholder="mm">
@@ -478,6 +470,8 @@
             <span class="flag-note" id="flag_rimDHidroMedida">Acima do valor de referência</span>
           </div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="rimDNefrocalcinose"><label for="rimDNefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</label></div>
+        <div class="toggle-line"><input type="checkbox" id="rimDUreterolitiase"><label for="rimDUreterolitiase">Ureterolitíase</label></div>
         <div class="field-row field-row-compact conditional" id="wrap_rimDUreter">
           <div class="field"><label>Terço do ureter</label>
             <select id="rimDUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select>
@@ -487,6 +481,7 @@
             <select id="rimDUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select>
           </div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="rimDAlterado"><label for="rimDAlterado">Outro (descrever)</label></div>
         <div class="field conditional" id="wrap_rimDDescricao">
           <label>Descreva o achado</label>
           <textarea id="rimDDescricao" rows="2" placeholder="ex: cálculo no cálice inferior medindo...; dilatação pielocalicinal leve..."></textarea>
@@ -506,38 +501,19 @@
     <div class="card">
       <div class="card-head"><h2>Rim esquerdo</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="rimEAspecto">
-              <option value="normal">Normal (sistema coletor, cálculos e ureter sem alterações)</option>
-              <option value="calculo">Cálculo(s)</option>
-              <option value="cisto">Cisto(s) simples</option>
-              <option value="cistoLeiteCalcio">Cisto de leite de cálcio</option>
-              <option value="nodulo">Nódulo renal (angiomiolipoma)</option>
-              <option value="hidronefrose">Hidronefrose acentuada</option>
-              <option value="nefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</option>
-              <option value="ureterolitiase">Ureterolitíase</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
+        <div class="field-row"><div class="field"><label>Aspecto (marque quantos se aplicarem)</label></div></div>
+        <div class="toggle-line"><input type="checkbox" id="rimENormal" checked><label for="rimENormal">Normal (sistema coletor, cálculos e ureter sem alterações)</label></div>
+        <div class="toggle-line"><input type="checkbox" id="rimECalculo"><label for="rimECalculo">Cálculo(s)</label></div>
         <div class="field-row conditional" id="wrap_rimECalculoCampos">
-          <div class="field"><label>Quantidade</label>
-            <select id="rimECalculoQtd"><option value="1">1 cálculo</option><option value="2">2 cálculos</option></select>
+          <div class="field"><label>Número de cálculos</label>
+            <select id="rimECalcCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
+          </div>
+          <div class="field" style="align-self:flex-end;">
+            <div id="rimECalcNodulosContainer"></div>
+            <button type="button" class="btn-clear" id="btnAddCalcRimE" style="margin:2px 0 4px;">+ Adicionar cálculo</button>
           </div>
         </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimECalc1">
-          <div class="field"><label>Terço (1º cálculo)</label>
-            <select id="rimECalc1Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (1º cálculo)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimECalc1Tamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rimECalc2">
-          <div class="field"><label>Terço (2º cálculo)</label>
-            <select id="rimECalc2Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho (2º cálculo)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimECalc2Tamanho" placeholder="mm"></div>
-        </div>
+        <div class="toggle-line"><input type="checkbox" id="rimECisto"><label for="rimECisto">Cisto(s) simples</label></div>
         <div class="field-row conditional" id="wrap_rimECistoCampos">
           <div class="field"><label>Quantidade</label>
             <select id="rimECistoQtd"><option value="1">1 cisto</option><option value="2">2 cistos</option><option value="varios">Vários cistos</option></select>
@@ -562,15 +538,18 @@
             <select id="rimECistoVariosTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
           </div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="rimELeiteCalcio"><label for="rimELeiteCalcio">Cisto de leite de cálcio</label></div>
         <div class="field-row field-row-compact conditional" id="wrap_rimELeiteCalcio">
           <div class="field"><label>Tamanho (terço superior)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimELeiteCalcioTamanho" placeholder="mm"></div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="rimENodulo"><label for="rimENodulo">Nódulo renal (angiomiolipoma)</label></div>
         <div class="field-row field-row-compact conditional" id="wrap_rimENodulo">
           <div class="field"><label>Terço</label>
             <select id="rimENoduloTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
           </div>
           <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimENoduloTamanho" placeholder="mm"></div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="rimEHidronefrose"><label for="rimEHidronefrose">Hidronefrose acentuada</label></div>
         <div class="field-row field-row-compact conditional" id="wrap_rimEHidro">
           <div class="field"><label>Medida da pelve renal</label>
             <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimEHidroMedida" placeholder="mm">
@@ -578,6 +557,8 @@
             <span class="flag-note" id="flag_rimEHidroMedida">Acima do valor de referência</span>
           </div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="rimENefrocalcinose"><label for="rimENefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</label></div>
+        <div class="toggle-line"><input type="checkbox" id="rimEUreterolitiase"><label for="rimEUreterolitiase">Ureterolitíase</label></div>
         <div class="field-row field-row-compact conditional" id="wrap_rimEUreter">
           <div class="field"><label>Terço do ureter</label>
             <select id="rimEUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select>
@@ -587,6 +568,7 @@
             <select id="rimEUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select>
           </div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="rimEAlterado"><label for="rimEAlterado">Outro (descrever)</label></div>
         <div class="field conditional" id="wrap_rimEDescricao">
           <label>Descreva o achado</label>
           <textarea id="rimEDescricao" rows="2" placeholder="ex: cálculo no cálice inferior medindo...; dilatação pielocalicinal leve..."></textarea>
@@ -1276,30 +1258,112 @@ if(typeof criarMotorLaudo !== 'function'){
     if(sel.value !== 'outro') applyExecutante(sel.value);
   }
 
+  const NUMEROS_EXTENSO = {3:'três',4:'quatro',5:'cinco',6:'seis',7:'sete',8:'oito',9:'nove',10:'dez'};
+  function numeroExtenso(n){ return NUMEROS_EXTENSO[n] || String(n); }
+
+  // ---------- Cálculos renais: lista dinâmica, mesmo padrão dos miomas do
+  // transvaginal.html, em vez de um teto fixo de 2 — cada cálculo mantém um uid
+  // estável desde a criação, nunca reaproveitado, para não desalinhar os ids dos
+  // campos (nem o rascunho) quando um do meio é removido.
+  const calcNextUid = {};
+  function calcSubgroupHTML(p, uid){
+    return ''
+      +'<div class="subgroup" id="wrap_'+p+'Calc'+uid+'">'
+      +'<div class="field-row field-row-compact">'
+      +'<div class="field"><label>Cálculo <span class="subitem-index"></span> — terço</label>'
+      +'<select id="'+p+'Calc'+uid+'Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select></div>'
+      +'<div class="field"><label>Tamanho (mm)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="'+p+'Calc'+uid+'Tamanho" placeholder="mm"></div>'
+      +'</div>'
+      +'<button type="button" class="subitem-remove" data-uid="'+uid+'">Remover cálculo</button>'
+      +'</div>';
+  }
+  function calcNoduleUids(p){
+    const container = $(p+'CalcNodulosContainer');
+    return container ? Array.from(container.children).map(el=> el.id.replace('wrap_'+p+'Calc','')) : [];
+  }
+  function renumberCalcNodulos(p){
+    const itens = Array.from($(p+'CalcNodulosContainer').children);
+    itens.forEach((el, idx)=>{
+      const label = el.querySelector('.subitem-index');
+      if(label) label.textContent = idx+1;
+      const removeBtn = el.querySelector('.subitem-remove');
+      if(removeBtn) removeBtn.style.display = itens.length>1 ? 'inline' : 'none';
+    });
+    const sel = $(p+'CalcCount');
+    if(sel) sel.value = String(Math.min(Math.max(itens.length, 1), 3));
+  }
+  function wireCalcNodulo(p, uid){
+    const el = $('wrap_'+p+'Calc'+uid);
+    el.querySelectorAll('input, select').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    el.querySelector('.subitem-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberCalcNodulos(p);
+      render();
+    });
+  }
+  function addCalcNodulo(p){
+    const uid = calcNextUid[p] = (calcNextUid[p]||1);
+    calcNextUid[p] = uid+1;
+    $(p+'CalcNodulosContainer').insertAdjacentHTML('beforeend', calcSubgroupHTML(p, uid));
+    wireCalcNodulo(p, uid);
+    renumberCalcNodulos(p);
+    render();
+  }
+  function setCalcCount(p, n){
+    const container = $(p+'CalcNodulosContainer');
+    while(container.children.length < n){ addCalcNodulo(p); }
+    while(container.children.length > n){ container.lastElementChild.remove(); }
+    renumberCalcNodulos(p);
+    render();
+  }
+
+  // ---------- Achados por rim: checkboxes combináveis (cisto e cálculo, por
+  // exemplo, podem coexistir no mesmo rim), não mais um select único — "Normal"
+  // continua exclusivo com todo o resto.
+  const RIM_ACHADOS = ['Calculo','Cisto','LeiteCalcio','Nodulo','Hidronefrose','Nefrocalcinose','Ureterolitiase','Alterado'];
   function wireRim(p){
-    function updateCalculoCampos(){ toggle('wrap_'+p+'Calc2', v(p+'CalculoQtd')==='2'); }
     function updateCistoCampos(){
       const qtd = v(p+'CistoQtd');
       toggle('wrap_'+p+'Cisto1', qtd==='1' || qtd==='2');
       toggle('wrap_'+p+'Cisto2', qtd==='2');
       toggle('wrap_'+p+'CistoVarios', qtd==='varios');
     }
-    $(p+'Aspecto').addEventListener('change', e=>{
-      const val = e.target.value;
-      toggle('wrap_'+p+'CalculoCampos', val==='calculo');
-      toggle('wrap_'+p+'Calc1', val==='calculo');
-      toggle('wrap_'+p+'Calc2', val==='calculo' && v(p+'CalculoQtd')==='2');
-      toggle('wrap_'+p+'CistoCampos', val==='cisto');
-      if(val==='cisto') updateCistoCampos();
+    function updateConditionals(){
+      toggle('wrap_'+p+'CalculoCampos', $(p+'Calculo').checked);
+      toggle('wrap_'+p+'CistoCampos', $(p+'Cisto').checked);
+      if($(p+'Cisto').checked) updateCistoCampos();
       else { toggle('wrap_'+p+'Cisto1', false); toggle('wrap_'+p+'Cisto2', false); toggle('wrap_'+p+'CistoVarios', false); }
-      toggle('wrap_'+p+'LeiteCalcio', val==='cistoLeiteCalcio');
-      toggle('wrap_'+p+'Nodulo', val==='nodulo');
-      toggle('wrap_'+p+'Hidro', val==='hidronefrose');
-      toggle('wrap_'+p+'Ureter', val==='ureterolitiase');
-      toggle('wrap_'+p+'Descricao', val==='alterado');
+      toggle('wrap_'+p+'LeiteCalcio', $(p+'LeiteCalcio').checked);
+      toggle('wrap_'+p+'Nodulo', $(p+'Nodulo').checked);
+      toggle('wrap_'+p+'Hidro', $(p+'Hidronefrose').checked);
+      toggle('wrap_'+p+'Ureter', $(p+'Ureterolitiase').checked);
+      toggle('wrap_'+p+'Descricao', $(p+'Alterado').checked);
+    }
+    $(p+'Normal').addEventListener('change', e=>{
+      if(e.target.checked){
+        RIM_ACHADOS.forEach(a=> $(p+a).checked = false);
+      } else if(!RIM_ACHADOS.some(a=> $(p+a).checked)){
+        e.target.checked = true;
+      }
+      updateConditionals();
     });
-    $(p+'CalculoQtd').addEventListener('change', updateCalculoCampos);
+    RIM_ACHADOS.forEach(a=>{
+      $(p+a).addEventListener('change', e=>{
+        if(e.target.checked){
+          $(p+'Normal').checked = false;
+          if(a==='Calculo' && $(p+'CalcNodulosContainer').children.length===0) addCalcNodulo(p);
+        } else if(!RIM_ACHADOS.some(x=> $(p+x).checked)){
+          $(p+'Normal').checked = true;
+        }
+        updateConditionals();
+      });
+    });
     $(p+'CistoQtd').addEventListener('change', updateCistoCampos);
+    $(p+'CalcCount').addEventListener('change', e=> setCalcCount(p, parseInt(e.target.value, 10)));
+    $('btnAddCalc'+(p==='rimD'?'RimD':'RimE')).addEventListener('click', ()=> addCalcNodulo(p));
   }
   wireRim('rimD');
   wireRim('rimE');
@@ -1331,12 +1395,12 @@ if(typeof criarMotorLaudo !== 'function'){
   // achado for outro que não a normalidade.
   function buildImpressao(state){
     const items = [{key:'normal', label:phrase('impNormal'), auto:true}];
-    if(state.rimDImpressaoHD){
-      items.push({key:'rimD-achado', label: state.rimDImpressaoHD, auto:true});
-    }
-    if(state.rimEImpressaoHD){
-      items.push({key:'rimE-achado', label: state.rimEImpressaoHD, auto:true});
-    }
+    (state.rimDImpressaoHDs||[]).forEach((label, i)=>{
+      items.push({key:'rimD-achado-'+i, label, auto:true});
+    });
+    (state.rimEImpressaoHDs||[]).forEach((label, i)=>{
+      items.push({key:'rimE-achado-'+i, label, auto:true});
+    });
     if(state.bexigaImpressaoHD){
       items.push({key:'bexiga-achado', label: state.bexigaImpressaoHD, auto:true});
     }
@@ -1404,76 +1468,94 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // Achados renais estruturados (cálculo/cisto/leite de cálcio/nódulo/hidronefrose)
     // são os mesmos nos dois rins, então ficam numa função só, parametrizada pelo
-    // prefixo do campo (rimD/rimE) e pelo texto de lado usado no HD.
+    // prefixo do campo (rimD/rimE) e pelo texto de lado usado no HD. Cada achado é
+    // um checkbox independente (não um select único): cisto e cálculo — ou
+    // qualquer outra combinação — podem coexistir no mesmo rim, e o parágrafo do
+    // rim concatena a frase de cada um que estiver marcado, na ordem abaixo.
     function computeRimAchado(p, ladoHD){
-      const aspecto = v(p+'Aspecto');
-      let tail = null, hd = null, diferenciacao = null;
-      if(aspecto==='calculo'){
-        const qtd = v(p+'CalculoQtd') || '1';
-        const terco1 = v(p+'Calc1Terco') || 'superior';
-        const tam1 = blankOrValue(req(p+'Calc1Tamanho'));
-        if(qtd==='2'){
-          const terco2 = v(p+'Calc2Terco') || 'superior';
-          const tam2 = blankOrValue(req(p+'Calc2Tamanho'));
-          tail = 'Observam-se duas imagens hiperecogênicas ovaladas, que condicionam sombra acústica posterior, uma localizada em terço '+terco1+', medindo '+span(tam1)+' mm e outra em terço '+terco2+', medindo '+span(tam2)+' mm.';
-        } else {
-          tail = 'Observa-se imagem hiperecogênica ovalada, que condiciona sombra acústica posterior, localizada em terço '+terco1+', medindo '+span(tam1)+' mm.';
-        }
-        hd = phrase('impCalculo', {LADO:ladoHD});
-      } else if(aspecto==='cisto'){
+      const fragments = [];
+      const hds = [];
+      let diferenciacao = null;
+      let calcLista = null;
+
+      if($(p+'Cisto').checked){
         const qtd = v(p+'CistoQtd') || '1';
         if(qtd==='2'){
           const terco1 = v(p+'Cisto1Terco') || 'superior';
           const tam1 = blankOrValue(req(p+'Cisto1Tamanho'));
           const terco2 = v(p+'Cisto2Terco') || 'superior';
           const tam2 = blankOrValue(req(p+'Cisto2Tamanho'));
-          tail = 'Observam-se duas imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, uma localizada no terço '+terco1+', medindo '+span(tam1)+' mm, e outra no terço '+terco2+', medindo '+span(tam2)+' mm.';
+          fragments.push('Observam-se duas imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, uma localizada no terço '+terco1+', medindo '+span(tam1)+' mm, e outra no terço '+terco2+', medindo '+span(tam2)+' mm.');
         } else if(qtd==='varios'){
           const min = blankOrValue(req(p+'CistoVariosMin'));
           const max = blankOrValue(req(p+'CistoVariosMax'));
           const tercoMaior = v(p+'CistoVariosTerco') || 'superior';
-          tail = 'Observam-se várias imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, dispersas pelo parênquima cortical, variando entre '+span(min)+' e '+span(max)+' mm, a maior localizada no terço '+tercoMaior+'.';
+          fragments.push('Observam-se várias imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, dispersas pelo parênquima cortical, variando entre '+span(min)+' e '+span(max)+' mm, a maior localizada no terço '+tercoMaior+'.');
         } else {
           const terco1 = v(p+'Cisto1Terco') || 'superior';
           const tam1 = blankOrValue(req(p+'Cisto1Tamanho'));
-          tail = 'Observa-se imagem anecóica de paredes finas e regulares, condicionando reforço acústico posterior, localizada no terço '+terco1+', medindo '+span(tam1)+' mm.';
+          fragments.push('Observa-se imagem anecóica de paredes finas e regulares, condicionando reforço acústico posterior, localizada no terço '+terco1+', medindo '+span(tam1)+' mm.');
         }
-        hd = phrase(qtd==='1' ? 'impCistoSingular' : 'impCistoPlural', {LADO:ladoHD});
-      } else if(aspecto==='cistoLeiteCalcio'){
+        hds.push(phrase(qtd==='1' ? 'impCistoSingular' : 'impCistoPlural', {LADO:ladoHD}));
+      }
+      if($(p+'Calculo').checked){
+        const itens = calcNoduleUids(p).map(uid=>({
+          terco: v(p+'Calc'+uid+'Terco') || 'superior',
+          tamanho: blankOrValue(req(p+'Calc'+uid+'Tamanho'))
+        }));
+        if(itens.length>=3){
+          fragments.push((fragments.length ? 'Observam-se também, ' : 'Observam-se ')+'ao menos '+numeroExtenso(itens.length)+' imagens hiperecogênicas ovaladas, que condicionam sombra acústica posterior, destacando-se:');
+          calcLista = itens.map((it,i)=> 'C'+(i+1)+': localizado no terço '+it.terco+', medindo '+span(it.tamanho)+' mm');
+        } else if(itens.length===2){
+          fragments.push('Observam-se duas imagens hiperecogênicas ovaladas, que condicionam sombra acústica posterior, uma localizada em terço '+itens[0].terco+', medindo '+span(itens[0].tamanho)+' mm e outra em terço '+itens[1].terco+', medindo '+span(itens[1].tamanho)+' mm.');
+        } else {
+          const it = itens[0] || {terco:'superior', tamanho:''};
+          fragments.push('Observa-se imagem hiperecogênica ovalada, que condiciona sombra acústica posterior, localizada em terço '+it.terco+', medindo '+span(it.tamanho)+' mm.');
+        }
+        hds.push(phrase('impCalculo', {LADO:ladoHD}));
+      }
+      if($(p+'LeiteCalcio').checked){
         const tam = blankOrValue(req(p+'LeiteCalcioTamanho'));
-        tail = 'Observa-se imagem anecóica de paredes finas e regulares, apresentando imagem hiperecogênica depositada em sua parede posterior condicionando sombra acústica, localizada no terço superior, medindo '+span(tam)+' mm.';
-        hd = phrase('impLeiteCalcio', {LADO:ladoHD});
-      } else if(aspecto==='nodulo'){
+        fragments.push('Observa-se imagem anecóica de paredes finas e regulares, apresentando imagem hiperecogênica depositada em sua parede posterior condicionando sombra acústica, localizada no terço superior, medindo '+span(tam)+' mm.');
+        hds.push(phrase('impLeiteCalcio', {LADO:ladoHD}));
+      }
+      if($(p+'Nodulo').checked){
         const terco = v(p+'NoduloTerco') || 'superior';
         const tam = blankOrValue(req(p+'NoduloTamanho'));
-        tail = 'Presença de imagem nodular sólida, ecogênica, de contornos regulares, localizada em terço '+terco+', medindo '+span(tam)+' mm.';
-        hd = phrase('impNodulo', {LADO:ladoHD});
-      } else if(aspecto==='hidronefrose'){
+        fragments.push('Presença de imagem nodular sólida, ecogênica, de contornos regulares, localizada em terço '+terco+', medindo '+span(tam)+' mm.');
+        hds.push(phrase('impNodulo', {LADO:ladoHD}));
+      }
+      if($(p+'Hidronefrose').checked){
         const medidaNum = num(p+'HidroMedida'); req(p+'HidroMedida');
         const medida = blankOrValue(v(p+'HidroMedida'));
         flag(p+'HidroMedida', medidaNum!==null && medidaNum > 10.0);
-        tail = 'Observa-se dilatação de pelve renal, medindo '+span(medida)+' mm (VR até 10,0 mm); além disso, há dilatação do sistema coletor que se estende até os pequenos cálices, ocasionando redução da espessura do parênquima renal.';
-        hd = phrase('impHidronefrose', {LADO:ladoHD});
-      } else if(aspecto==='nefrocalcinose'){
+        fragments.push('Observa-se dilatação de pelve renal, medindo '+span(medida)+' mm (VR até 10,0 mm); além disso, há dilatação do sistema coletor que se estende até os pequenos cálices, ocasionando redução da espessura do parênquima renal.');
+        hds.push(phrase('impHidronefrose', {LADO:ladoHD}));
+      }
+      if($(p+'Nefrocalcinose').checked){
         diferenciacao = 'evidente pelo aumento da ecogenicidade das medulares renais';
-        hd = phrase('impNefrocalcinose', {LADO:ladoHD});
-      } else if(aspecto==='ureterolitiase'){
+        hds.push(phrase('impNefrocalcinose', {LADO:ladoHD}));
+      }
+      if($(p+'Ureterolitiase').checked){
         const terco = v(p+'UreterTerco') || 'proximal';
         const tam = blankOrValue(req(p+'UreterTamanho'));
         const hidroTexto = v(p+'UreterHidro')==='com' ? 'condicionando' : 'sem condicionar';
         // Mantém o resto da descrição normal do rim (coletor sem dilatação, sem
         // cálculos, espaço perirrenal livre) — só a frase "Ureter <lado> sem
         // sinais de dilatações" (a única específica sobre o ureter) sai daqui.
-        tail = 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Presença de imagem ovalada hiperecogênica localizada no terço '+terco+' do ureter, medindo '+span(tam)+' mm, '+hidroTexto+' hidronefrose a montante.';
-        hd = phrase('impUreterolitiase', {TERCO:terco, LADO:ladoHD});
+        fragments.push('Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm). Presença de imagem ovalada hiperecogênica localizada no terço '+terco+' do ureter, medindo '+span(tam)+' mm, '+hidroTexto+' hidronefrose a montante.');
+        hds.push(phrase('impUreterolitiase', {TERCO:terco, LADO:ladoHD}));
       }
-      return {tail, hd, diferenciacao};
+      if($(p+'Alterado').checked){
+        const descricao = vNoDot(p+'Descricao');
+        req(p+'Descricao');
+        if(descricao) fragments.push(escapeHtml(descricao)+'.');
+      }
+
+      return {tail: fragments.length ? fragments.join(' ') : null, hds, diferenciacao, calcLista};
     }
 
     // ----- Rim direito -----
-    const rimDAspecto = v('rimDAspecto');
-    const rimDDescricao = vNoDot('rimDDescricao');
-    reqIf('rimDDescricao', rimDAspecto==='alterado');
     const rimDDiametroTexto = blankOrValue(req('rimDDiametro'));
     const rimDCorticalNum = num('rimDCortical'); req('rimDCortical');
     const rimDCorticalTexto = blankOrValue(v('rimDCortical'));
@@ -1481,9 +1563,6 @@ if(typeof criarMotorLaudo !== 'function'){
     const rimDAchado = computeRimAchado('rimD', 'à direita');
 
     // ----- Rim esquerdo -----
-    const rimEAspecto = v('rimEAspecto');
-    const rimEDescricao = vNoDot('rimEDescricao');
-    reqIf('rimEDescricao', rimEAspecto==='alterado');
     const rimEDiametroTexto = blankOrValue(req('rimEDiametro'));
     const rimECorticalNum = num('rimECortical'); req('rimECortical');
     const rimECorticalTexto = blankOrValue(v('rimECortical'));
@@ -1515,7 +1594,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // ----- Impressão -----
     const state = {
-      rimDImpressaoHD: rimDAchado.hd, rimEImpressaoHD: rimEAchado.hd,
+      rimDImpressaoHDs: rimDAchado.hds, rimEImpressaoHDs: rimEAchado.hds,
       bexigaImpressaoHD: bexigaAspecto==='esforco' ? phrase('impBexigaEsforco')
         : bexigaAspecto==='calculo' ? phrase('impBexigaCalculo')
         : null
@@ -1541,21 +1620,19 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     blocks.push({id:'aoExameLabel', html:'<p class="linha intro intro-last">Ao exame:</p>'});
 
-    const rimDTail = rimDAchado.tail
-      ? rimDAchado.tail
-      : (rimDAspecto==='alterado' && rimDDescricao)
-        ? escapeHtml(rimDDescricao)+'.'
-        : 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre.<br>Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).<br>Ureter direito sem sinais de dilatações.';
+    const rimDTail = rimDAchado.tail || 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre.<br>Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).<br>Ureter direito sem sinais de dilatações.';
     const rimDDiferenciacao = rimDAchado.diferenciacao || 'anatômica';
     blocks.push({id:'rimD', html:'<p class="linha"><strong>Rim Direito:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimDDiametroTexto)+' cm.<br>Cortical renal homogênea com espessura de '+span(rimDCorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimDDiferenciacao+'.<br>Área pielovascular livre. '+rimDTail+'</p>'});
+    if(rimDAchado.calcLista){
+      blocks.push({id:'rimDCalcLista', html:'<div class="linha nodulos-lista">'+rimDAchado.calcLista.map((f,i)=>'<p class="nodulo-item">- '+f+(i<rimDAchado.calcLista.length-1?';':'.')+'</p>').join('')+'</div>'});
+    }
 
-    const rimETail = rimEAchado.tail
-      ? rimEAchado.tail
-      : (rimEAspecto==='alterado' && rimEDescricao)
-        ? escapeHtml(rimEDescricao)+'.'
-        : 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre.<br>Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).<br>Ureter esquerdo sem sinais de dilatações.';
+    const rimETail = rimEAchado.tail || 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre.<br>Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).<br>Ureter esquerdo sem sinais de dilatações.';
     const rimEDiferenciacao = rimEAchado.diferenciacao || 'anatômica';
     blocks.push({id:'rimE', html:'<p class="linha"><strong>Rim Esquerdo:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimEDiametroTexto)+' cm.<br>Cortical renal homogênea com espessura de '+span(rimECorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimEDiferenciacao+'.<br>Área pielovascular livre. '+rimETail+'</p>'});
+    if(rimEAchado.calcLista){
+      blocks.push({id:'rimECalcLista', html:'<div class="linha nodulos-lista">'+rimEAchado.calcLista.map((f,i)=>'<p class="nodulo-item">- '+f+(i<rimEAchado.calcLista.length-1?';':'.')+'</p>').join('')+'</div>'});
+    }
 
     let bexigaTexto;
     if(bexigaAspecto==='esforco'){
@@ -1776,6 +1853,12 @@ if(typeof criarMotorLaudo !== 'function'){
     document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
     document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
     document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
+    // O "Normal" de cada rim volta marcado (é o padrão da tela em branco); os
+    // demais achados ficam desmarcados, junto com o reset acima.
+    $('rimDNormal').checked = true;
+    $('rimENormal').checked = true;
+    $('rimDCalcNodulosContainer').innerHTML = '';
+    $('rimECalcNodulosContainer').innerHTML = '';
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
@@ -1792,6 +1875,11 @@ if(typeof criarMotorLaudo !== 'function'){
 
   setDefaultDataExame();
 
+  // Os selects "Número de cálculos" ficam fora do disparo de 'change' da
+  // restauração porque recriariam do zero as listas que acabaram de voltar com
+  // os uids certos (mesmo motivo do "miomaCount" em transvaginal.html).
+  const DRAFT_SKIP_CHANGE = ['rimDCalcCount','rimECalcCount'];
+
   function draftSnapshot(){
     const fields = {};
     document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
@@ -1802,6 +1890,7 @@ if(typeof criarMotorLaudo !== 'function'){
       v: 1,
       ts: Date.now(),
       fields: fields,
+      calcUids: {rimD: calcNoduleUids('rimD'), rimE: calcNoduleUids('rimE')},
       checked: checkedState,
       overrides: impressaoOverrides,
       titleFontSize: titleFontSize,
@@ -1813,6 +1902,22 @@ if(typeof criarMotorLaudo !== 'function'){
   function draftRestore(d){
     st.draftRestoring = true;
     try{
+      // Os cálculos repetidos voltam com os mesmos uids de antes: os ids dos
+      // campos e as chaves da checklist de impressões derivam deles, então
+      // recriá-los com uid novo desalinharia tudo o que vem depois.
+      ['rimD','rimE'].forEach(p=>{
+        const uids = (d.calcUids && Array.isArray(d.calcUids[p]))
+          ? d.calcUids[p].filter(u=> /^[0-9]+$/.test(String(u)))
+          : [];
+        $(p+'CalcNodulosContainer').innerHTML = '';
+        uids.forEach(uid=>{
+          calcNextUid[p] = Math.max(calcNextUid[p]||1, parseInt(uid, 10) + 1);
+          $(p+'CalcNodulosContainer').insertAdjacentHTML('beforeend', calcSubgroupHTML(p, uid));
+          wireCalcNodulo(p, uid);
+        });
+        if(uids.length) renumberCalcNodulos(p);
+      });
+
       Object.keys(d.fields).forEach(id=>{
         const el = $(id);
         if(!el || !el.closest('#formCol')) return;
@@ -1821,6 +1926,7 @@ if(typeof criarMotorLaudo !== 'function'){
       });
 
       document.querySelectorAll('#formCol select, #formCol input[type=checkbox]').forEach(el=>{
+        if(DRAFT_SKIP_CHANGE.indexOf(el.id) !== -1) return;
         if(el.closest('#impressaoChecklist')) return;
         el.dispatchEvent(new Event('change'));
       });
@@ -1830,6 +1936,8 @@ if(typeof criarMotorLaudo !== 'function'){
       titleFontSize = d.titleFontSize || null;
     }catch(e){
       st.draftRestoring = false;
+      $('rimDCalcNodulosContainer').innerHTML = '';
+      $('rimECalcNodulosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
       st.lastBlockHtml = {};
