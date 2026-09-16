@@ -457,6 +457,7 @@
   <hr class="sep">
   <h3>Saco gestacional e biometria</h3>
   <div class="field" style="margin-bottom:8px;"><label>Saco gestacional — use {INSERCAO}</label><textarea id="ph_sacoGestacional" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ausência de áreas de descolamento (sem hematoma)</label><textarea id="ph_semDescolamento" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG pequeno — use {ISG}</label><textarea id="ph_isgPequeno" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — use {LOCAL}, {FACE} e {MEDIDA}</label><textarea id="ph_hematoma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ausência de batimentos cardíacos</label><textarea id="ph_fcfAusente" rows="2"></textarea></div>
@@ -1349,6 +1350,7 @@ if(typeof criarMotorLaudo !== 'function'){
     adenomioseComMioma: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque".',
 
     sacoGestacional: 'Saco gestacional identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos regulares e reação decidual habitual.',
+    semDescolamento: 'Não identificadas áreas de descolamentos.',
     isgPequeno: 'Índice do saco gestacional (ISG): {ISG} mm (VR > 5 mm).',
     hematoma: 'Presença de hematoma subcoriônico, de localização {LOCAL}, face {FACE}, medindo {MEDIDA}.',
     fcfAusente: 'Ausência de batimentos cardíacos identificados ao exame.',
@@ -2370,6 +2372,9 @@ if(typeof criarMotorLaudo !== 'function'){
         sacoHtml += '<h4 class="sec">'+escapeHtml(s.label.toUpperCase())+'</h4>';
       }
       sacoHtml += '<p class="linha">'+phraseRaw('sacoGestacional', {INSERCAO: s.insercao})+'</p>';
+      if(!s.hematoma){
+        sacoHtml += '<p class="linha">'+phrase('semDescolamento')+'</p>';
+      }
       sacoHtml += '<p class="linha tight"><strong>Parâmetros biométricos:</strong></p>';
       sacoHtml += '<table class="biometria">'
         +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
