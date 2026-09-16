@@ -454,6 +454,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade — use {FC}</label><textarea id="ph_vitalidadeTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta normal — use {INSERCAO} e {GRAU}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta — distância da porção distal ao colo (opcional) — use {MEDIDA}</label><textarea id="ph_placentaDistalTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cordão umbilical — use {VASOS}</label><textarea id="ph_cordaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — volume reduzido (oligoâmnio)</label><textarea id="ph_laAspectoOligoamnio" rows="2"></textarea></div>
@@ -1151,6 +1152,7 @@ if(typeof criarMotorLaudo !== 'function'){
     vitalidadeTexto: 'Batimentos cardíacos rítmicos com frequência de {FC} bpm.',
     placentaTexto: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura alterada: {DESCRICAO}.',
+    placentaDistalTexto: 'Sua porção distal se encontra a {MEDIDA} mm (VR > 20 mm) do orifício interno do colo uterino.',
     cordaoTexto: 'Cordão umbilical apresentando {VASOS}.',
     laAspectoNormal: 'Volume normal para a idade gestacional.',
     laAspectoOligoamnio: 'Volume de líquido amniótico reduzido para a idade gestacional (oligoâmnio).',
@@ -1429,6 +1431,10 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Espessura</label><select id="feto'+uid+'PlacentaEspessura"><option value="normal">Normal</option><option value="alterada">Alterada (descrever)</option></select></div>'
       +'</div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'PlacentaDescricao"><label>Descreva o achado</label><textarea id="feto'+uid+'PlacentaDescricao" rows="2" placeholder="ex: espessura aumentada, medindo..."></textarea></div>'
+      +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'PlacentaDistalCheck"><label for="feto'+uid+'PlacentaDistalCheck">Incluir distância da porção distal da placenta ao orifício interno do colo</label></div>'
+      +'<div class="field-row conditional" id="wrap_feto'+uid+'PlacentaDistalMedida">'
+      +'<div class="field"><label>Distância ao orifício interno do colo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'PlacentaDistalMedida" placeholder="mm"></div>'
+      +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Cordão umbilical</label><select id="feto'+uid+'Cordao"><option value="2 artérias e 1 veia">2 artérias e 1 veia</option><option value="artéria umbilical única">Artéria umbilical única</option></select></div>'
       +'</div>'
@@ -1492,6 +1498,7 @@ if(typeof criarMotorLaudo !== 'function'){
   function updateFetoWraps(uid){
     toggle('wrap_feto'+uid+'Dorso', v('feto'+uid+'Apresentacao')!=='córmica');
     toggle('wrap_feto'+uid+'PlacentaDescricao', v('feto'+uid+'PlacentaEspessura')==='alterada');
+    toggle('wrap_feto'+uid+'PlacentaDistalMedida', $('feto'+uid+'PlacentaDistalCheck').checked);
     MORFO_SEGMENTOS.forEach(seg=>{
       const alt = v('feto'+uid+seg.key)==='alterado';
       toggle('wrap_feto'+uid+seg.key+'Descricao', alt);
@@ -1528,7 +1535,7 @@ if(typeof criarMotorLaudo !== 'function'){
       field.addEventListener('change', render);
     });
     wireDecimalInputs();
-    ['Apresentacao','PlacentaEspessura'].concat(MORFO_SEGMENTOS.map(seg=>seg.key)).forEach(sufixo=>{
+    ['Apresentacao','PlacentaEspessura','PlacentaDistalCheck'].concat(MORFO_SEGMENTOS.map(seg=>seg.key)).forEach(sufixo=>{
       $('feto'+uid+sufixo).addEventListener('change', ()=> updateFetoWraps(uid));
     });
     $('feto'+uid+'Percentil').addEventListener('input', ()=> updateFetoWraps(uid));
@@ -2017,6 +2024,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const placentaHtml = placentaAlterada
         ? phraseRaw('placentaTextoEspessuraAlterada', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau, DESCRICAO:placentaDescricao})
         : phraseRaw('placentaTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau});
+      const placentaDistalCheck = $(pre+'PlacentaDistalCheck').checked;
+      const placentaDistalMedida = blankOrValue(placentaDistalCheck ? req(pre+'PlacentaDistalMedida') : v(pre+'PlacentaDistalMedida'));
 
       const laAspecto = v(pre+'LaAspecto');
       const laOligoamnio = laAspecto === 'reduzido';
@@ -2032,6 +2041,7 @@ if(typeof criarMotorLaudo !== 'function'){
         peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
         segmentos, alteracoes, cordaoTxt,
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
+        placentaDistalCheck, placentaDistalMedida,
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil};
     });
 
@@ -2176,7 +2186,8 @@ if(typeof criarMotorLaudo !== 'function'){
       morfoHtml += '</table></div>';
       blocks.push({id:'morfologia'+sfx, html:morfoHtml});
 
-      blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta</strong></p><p class="linha">'+f.placentaHtml+' '+phraseRaw('cordaoTexto', {VASOS: f.cordaoTxt})+'</p></div>'});
+      const placentaDistalHtml = f.placentaDistalCheck ? ' '+phraseRaw('placentaDistalTexto', {MEDIDA: span(f.placentaDistalMedida)}) : '';
+      blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta</strong></p><p class="linha">'+f.placentaHtml+placentaDistalHtml+' '+phraseRaw('cordaoTexto', {VASOS: f.cordaoTxt})+'</p></div>'});
 
       let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
       laHtml += '<p class="linha tight">'+(f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormal'))+'</p>';

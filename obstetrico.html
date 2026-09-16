@@ -1394,8 +1394,6 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field-row">'
       +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" id="feto'+uid+'FC" placeholder="bpm"></div>'
       +'</div>'
-      +'<div class="field"><label>Observações / alterações (texto livre)</label><textarea id="feto'+uid+'Observacoes" rows="2" placeholder="ex: um achado que não se encaixa nos campos abaixo"></textarea></div>'
-
       +'<p class="feto-sub">Parâmetros biométricos</p>'
       +'<div class="field-row">'
       +'<div class="field"><label>Diâmetro biparietal — DBP (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DBP" placeholder="mm"></div>'
@@ -2045,7 +2043,6 @@ if(typeof criarMotorLaudo !== 'function'){
       const isTransversa = apresentacao === 'córmica';
       const dorso = v(pre+'Dorso');
       const fc = blankOrValue(req(pre+'FC'));
-      const observacoes = vNoDot(pre+'Observacoes');
       const apresentacaoHtml = isTransversa
         ? phraseRaw(isMultiple ? 'apresentacaoTextoTransversaMultiplo' : 'apresentacaoTextoTransversa')
         : phraseRaw(isMultiple ? 'apresentacaoTextoLongitudinalMultiplo' : 'apresentacaoTextoLongitudinal', {APRESENTACAO: apresentacao, DORSO: dorso});
@@ -2135,7 +2132,7 @@ if(typeof criarMotorLaudo !== 'function'){
         ].filter(Boolean).join(', ');
       }
 
-      return {uid, label, apresentacao, apresentacaoHtml, fc, observacoes,
+      return {uid, label, apresentacao, apresentacaoHtml, fc,
         dbp, cf, cc, ca, peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
@@ -2266,11 +2263,6 @@ if(typeof criarMotorLaudo !== 'function'){
 
       blocks.push({id:'apresentacao'+sfx, html:'<p class="linha">'+f.apresentacaoHtml+'</p>'});
       blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+phraseRaw('vitalidadeTexto', {FC: f.fc.text})+'</p>'});
-      // Texto livre da médica — só entra no corpo do laudo, nunca na impressão
-      // diagnóstica (buildImpressao não lê f.observacoes).
-      if(f.observacoes){
-        blocks.push({id:'observacoes'+sfx, html:'<p class="linha">'+escapeHtml(f.observacoes)+'.</p>'});
-      }
 
       let biometriaHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Parâmetros Biométricos</strong></p>';
       biometriaHtml += '<table class="biometria">'
