@@ -1336,12 +1336,12 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field-row">'
         +'<div class="field"><label>1º nódulo — hora</label><input type="text" id="'+p+'Nodulo2Hora1" placeholder="ex: 2"></div>'
         +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo2Dist1" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo2Tam1" placeholder="mm"></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'Nodulo2Tam1" placeholder="ex: 22,1 x 35,2"></div>'
       +'</div>'
       +'<div class="field-row">'
         +'<div class="field"><label>2º nódulo — hora</label><input type="text" id="'+p+'Nodulo2Hora2" placeholder="ex: 8"></div>'
         +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo2Dist2" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo2Tam2" placeholder="mm"></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'Nodulo2Tam2" placeholder="ex: 22,1 x 35,2"></div>'
       +'</div>'
     +'</div>';
 
@@ -1355,7 +1355,7 @@ if(typeof criarMotorLaudo !== 'function'){
       html += '<div class="field-row conditional" id="wrap_'+p+'_nodulo3N'+n+'">'
         +'<div class="field"><label>N'+n+' — hora</label><input type="text" id="'+p+'Nodulo3N'+n+'Hora" placeholder="ex: 2"></div>'
         +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo3N'+n+'Dist" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Nodulo3N'+n+'Tam" placeholder="mm"></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'Nodulo3N'+n+'Tam" placeholder="ex: 22,1 x 35,2"></div>'
       +'</div>';
     });
     html += '</div>';
@@ -1644,8 +1644,8 @@ if(typeof criarMotorLaudo !== 'function'){
         hd = phrase('impNoduloSingular', {LADO: lado});
       } else if(tipo === 'nodulo2'){
         const contornos = v('achado'+uid+'Nodulo2Contornos') || 'regulares';
-        const h1=blankOrValue(req('achado'+uid+'Nodulo2Hora1')), d1=blankOrValue(req('achado'+uid+'Nodulo2Dist1')), t1=blankOrValue(req('achado'+uid+'Nodulo2Tam1'));
-        const h2=blankOrValue(req('achado'+uid+'Nodulo2Hora2')), d2=blankOrValue(req('achado'+uid+'Nodulo2Dist2')), t2=blankOrValue(req('achado'+uid+'Nodulo2Tam2'));
+        const h1=blankOrValue(req('achado'+uid+'Nodulo2Hora1')), d1=blankOrValue(req('achado'+uid+'Nodulo2Dist1')), t1=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'Nodulo2Tam1')));
+        const h2=blankOrValue(req('achado'+uid+'Nodulo2Hora2')), d2=blankOrValue(req('achado'+uid+'Nodulo2Dist2')), t2=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'Nodulo2Tam2')));
         corpo = 'Observam-se duas imagens nodulares sólidas, hipoecogênicas de contornos '+escapeHtml(contornos)+' e orientação paralela à pele, uma localizada às '+span(h1)+' horas, distando '+span(d1)+' cm da borda areolar, medindo '+span(t1)+' mm e outra às '+span(h2)+' horas, distando '+span(d2)+' cm da borda areolar, medindo '+span(t2)+' mm.';
         hd = phrase('impNoduloPlural', {LADO: lado});
       } else if(tipo === 'nodulo3'){
@@ -1655,7 +1655,7 @@ if(typeof criarMotorLaudo !== 'function'){
         for(let n=1; n<=qtd; n++){
           const hora=blankOrValue(req('achado'+uid+'Nodulo3N'+n+'Hora'));
           const dist=blankOrValue(req('achado'+uid+'Nodulo3N'+n+'Dist'));
-          const tam=blankOrValue(req('achado'+uid+'Nodulo3N'+n+'Tam'));
+          const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'Nodulo3N'+n+'Tam')));
           itens.push('N'+n+': às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.');
         }
         corpo = 'Observam-se algumas imagens nodulares sólidas, hipoecogênicas de contornos '+escapeHtml(contornos)+' e orientação paralela à pele, de localização e dimensões como descrito abaixo:';
