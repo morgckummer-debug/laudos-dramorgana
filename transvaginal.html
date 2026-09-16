@@ -487,7 +487,9 @@
   <div class="field" style="margin-bottom:8px;"><label>Policístico — frase-base (substitui "Normal" quando policístico) — use {L}, {AP}, {T}, {VOLUME} e {VR}</label><textarea id="ph_ovarioPolicisticoBase" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — complemento (achado, após a frase-base) — use {LADO}</label><textarea id="ph_ovarioPolicistico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 cisto simples — use {LADO}, {MEDIDA} e {VOLUME}</label><textarea id="ph_ovarioCisto1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>1 cisto simples, sem mostrar o volume — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioCisto1SemVolume" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 cistos simples — use {LADO}, {MEDIDA1}, {MEDIDA2}, {VOLUME1} e {VOLUME2}</label><textarea id="ph_ovarioCisto2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>2 cistos simples, sem mostrar o volume — use {LADO}, {MEDIDA1} e {MEDIDA2}</label><textarea id="ph_ovarioCisto2SemVolume" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Corpo lúteo — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioCorpoLuteo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Folículo dominante — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioFoliculo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {LADO} e {MEDIDA}</label><textarea id="ph_ovarioDermoide" rows="2"></textarea></div>
@@ -495,7 +497,9 @@
 
   <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:12px 0 4px;">Segunda alteração no mesmo ovário (introduzida por "Observa-se também...")</p>
   <div class="field" style="margin-bottom:8px;"><label>1 cisto simples — use {MEDIDA} e {VOLUME}</label><textarea id="ph_ovarioCisto1Tambem" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>1 cisto simples, sem mostrar o volume — use {MEDIDA}</label><textarea id="ph_ovarioCisto1TambemSemVolume" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 cistos simples — use {MEDIDA1}, {MEDIDA2}, {VOLUME1} e {VOLUME2}</label><textarea id="ph_ovarioCisto2Tambem" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>2 cistos simples, sem mostrar o volume — use {MEDIDA1} e {MEDIDA2}</label><textarea id="ph_ovarioCisto2TambemSemVolume" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Corpo lúteo — use {MEDIDA}</label><textarea id="ph_ovarioCorpoLuteoTambem" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Folículo dominante — use {MEDIDA}</label><textarea id="ph_ovarioFoliculoTambem" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {MEDIDA}</label><textarea id="ph_ovarioDermoideTambem" rows="2"></textarea></div>
@@ -776,15 +780,23 @@
             </select>
           </div>
         </div>
-        <div class="field-row conditional" id="wrap_ovD_cisto1">
-          <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovD_cisto1Medida" placeholder="ex: 25 x 20 x 18"></div>
-          <div class="field"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto1Volume" placeholder="cm³"></div>
+        <div class="conditional" id="wrap_ovD_cisto1">
+          <div class="field-row">
+            <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovD_cisto1Medida" placeholder="ex: 25 x 20 x 18"></div>
+            <div class="field conditional show" id="wrap_ovD_cisto1_volume"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto1Volume" placeholder="cm³"></div>
+          </div>
+          <label class="toggle-line" style="margin:-4px 0 12px;font-size:11.5px;"><input type="checkbox" id="ovD_cisto1MostrarVolume" checked style="width:14px;height:14px;">Mostrar volume no laudo</label>
         </div>
-        <div class="field-row conditional" id="wrap_ovD_cisto2">
-          <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaA" placeholder="ex: 25 x 20 x 18"></div>
-          <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeA" placeholder="cm³"></div>
-          <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaB" placeholder="ex: 25 x 20 x 18"></div>
-          <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeB" placeholder="cm³"></div>
+        <div class="conditional" id="wrap_ovD_cisto2">
+          <div class="field-row">
+            <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaA" placeholder="ex: 25 x 20 x 18"></div>
+            <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaB" placeholder="ex: 25 x 20 x 18"></div>
+          </div>
+          <label class="toggle-line" style="margin:-4px 0 8px;font-size:11.5px;"><input type="checkbox" id="ovD_cisto2MostrarVolume" checked style="width:14px;height:14px;">Mostrar volume dos cistos no laudo</label>
+          <div class="field-row conditional show" id="wrap_ovD_cisto2_volume">
+            <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeA" placeholder="cm³"></div>
+            <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeB" placeholder="cm³"></div>
+          </div>
         </div>
         <div class="field-row conditional" id="wrap_ovD_corpoluteo">
           <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_corpoLuteoMedida" placeholder="ex: 15 x 12,2"></div>
@@ -818,15 +830,23 @@
               </select>
             </div>
           </div>
-          <div class="field-row conditional" id="wrap_ovD_cisto1_2">
-            <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovD_cisto1Medida2" placeholder="ex: 25 x 20 x 18"></div>
-            <div class="field"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto1Volume2" placeholder="cm³"></div>
+          <div class="conditional" id="wrap_ovD_cisto1_2">
+            <div class="field-row">
+              <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovD_cisto1Medida2" placeholder="ex: 25 x 20 x 18"></div>
+              <div class="field conditional show" id="wrap_ovD_cisto1_volume2"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto1Volume2" placeholder="cm³"></div>
+            </div>
+            <label class="toggle-line" style="margin:-4px 0 12px;font-size:11.5px;"><input type="checkbox" id="ovD_cisto1MostrarVolume2" checked style="width:14px;height:14px;">Mostrar volume no laudo</label>
           </div>
-          <div class="field-row conditional" id="wrap_ovD_cisto2_2">
-            <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaA2" placeholder="ex: 25 x 20 x 18"></div>
-            <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeA2" placeholder="cm³"></div>
-            <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaB2" placeholder="ex: 25 x 20 x 18"></div>
-            <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeB2" placeholder="cm³"></div>
+          <div class="conditional" id="wrap_ovD_cisto2_2">
+            <div class="field-row">
+              <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaA2" placeholder="ex: 25 x 20 x 18"></div>
+              <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovD_cisto2MedidaB2" placeholder="ex: 25 x 20 x 18"></div>
+            </div>
+            <label class="toggle-line" style="margin:-4px 0 8px;font-size:11.5px;"><input type="checkbox" id="ovD_cisto2MostrarVolume2" checked style="width:14px;height:14px;">Mostrar volume dos cistos no laudo</label>
+            <div class="field-row conditional show" id="wrap_ovD_cisto2_volume2">
+              <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeA2" placeholder="cm³"></div>
+              <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_cisto2VolumeB2" placeholder="cm³"></div>
+            </div>
           </div>
           <div class="field-row conditional" id="wrap_ovD_corpoluteo_2">
             <div class="field"><label>Medida (mm)</label><input type="text" id="ovD_corpoLuteoMedida2" placeholder="ex: 15 x 12,2"></div>
@@ -874,15 +894,23 @@
             </select>
           </div>
         </div>
-        <div class="field-row conditional" id="wrap_ovE_cisto1">
-          <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovE_cisto1Medida" placeholder="ex: 25 x 20 x 18"></div>
-          <div class="field"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto1Volume" placeholder="cm³"></div>
+        <div class="conditional" id="wrap_ovE_cisto1">
+          <div class="field-row">
+            <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovE_cisto1Medida" placeholder="ex: 25 x 20 x 18"></div>
+            <div class="field conditional show" id="wrap_ovE_cisto1_volume"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto1Volume" placeholder="cm³"></div>
+          </div>
+          <label class="toggle-line" style="margin:-4px 0 12px;font-size:11.5px;"><input type="checkbox" id="ovE_cisto1MostrarVolume" checked style="width:14px;height:14px;">Mostrar volume no laudo</label>
         </div>
-        <div class="field-row conditional" id="wrap_ovE_cisto2">
-          <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaA" placeholder="ex: 25 x 20 x 18"></div>
-          <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeA" placeholder="cm³"></div>
-          <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaB" placeholder="ex: 25 x 20 x 18"></div>
-          <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeB" placeholder="cm³"></div>
+        <div class="conditional" id="wrap_ovE_cisto2">
+          <div class="field-row">
+            <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaA" placeholder="ex: 25 x 20 x 18"></div>
+            <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaB" placeholder="ex: 25 x 20 x 18"></div>
+          </div>
+          <label class="toggle-line" style="margin:-4px 0 8px;font-size:11.5px;"><input type="checkbox" id="ovE_cisto2MostrarVolume" checked style="width:14px;height:14px;">Mostrar volume dos cistos no laudo</label>
+          <div class="field-row conditional show" id="wrap_ovE_cisto2_volume">
+            <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeA" placeholder="cm³"></div>
+            <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeB" placeholder="cm³"></div>
+          </div>
         </div>
         <div class="field-row conditional" id="wrap_ovE_corpoluteo">
           <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_corpoLuteoMedida" placeholder="ex: 15 x 12,2"></div>
@@ -916,15 +944,23 @@
               </select>
             </div>
           </div>
-          <div class="field-row conditional" id="wrap_ovE_cisto1_2">
-            <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovE_cisto1Medida2" placeholder="ex: 25 x 20 x 18"></div>
-            <div class="field"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto1Volume2" placeholder="cm³"></div>
+          <div class="conditional" id="wrap_ovE_cisto1_2">
+            <div class="field-row">
+              <div class="field"><label>Medidas do cisto (L x AP x T, mm)</label><input type="text" id="ovE_cisto1Medida2" placeholder="ex: 25 x 20 x 18"></div>
+              <div class="field conditional show" id="wrap_ovE_cisto1_volume2"><label>Volume (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto1Volume2" placeholder="cm³"></div>
+            </div>
+            <label class="toggle-line" style="margin:-4px 0 12px;font-size:11.5px;"><input type="checkbox" id="ovE_cisto1MostrarVolume2" checked style="width:14px;height:14px;">Mostrar volume no laudo</label>
           </div>
-          <div class="field-row conditional" id="wrap_ovE_cisto2_2">
-            <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaA2" placeholder="ex: 25 x 20 x 18"></div>
-            <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeA2" placeholder="cm³"></div>
-            <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaB2" placeholder="ex: 25 x 20 x 18"></div>
-            <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeB2" placeholder="cm³"></div>
+          <div class="conditional" id="wrap_ovE_cisto2_2">
+            <div class="field-row">
+              <div class="field"><label>Medidas do cisto 1 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaA2" placeholder="ex: 25 x 20 x 18"></div>
+              <div class="field"><label>Medidas do cisto 2 (L x AP x T, mm)</label><input type="text" id="ovE_cisto2MedidaB2" placeholder="ex: 25 x 20 x 18"></div>
+            </div>
+            <label class="toggle-line" style="margin:-4px 0 8px;font-size:11.5px;"><input type="checkbox" id="ovE_cisto2MostrarVolume2" checked style="width:14px;height:14px;">Mostrar volume dos cistos no laudo</label>
+            <div class="field-row conditional show" id="wrap_ovE_cisto2_volume2">
+              <div class="field"><label>Volume do cisto 1 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeA2" placeholder="cm³"></div>
+              <div class="field"><label>Volume do cisto 2 (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_cisto2VolumeB2" placeholder="cm³"></div>
+            </div>
           </div>
           <div class="field-row conditional" id="wrap_ovE_corpoluteo_2">
             <div class="field"><label>Medida (mm)</label><input type="text" id="ovE_corpoLuteoMedida2" placeholder="ex: 15 x 12,2"></div>
@@ -1702,14 +1738,18 @@ if(typeof criarMotorLaudo !== 'function'){
     ovarioPolicisticoBase: 'de topografia usual, forma globosa e textura micropolicística, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ ({VR}).',
     ovarioPolicistico: 'Ovário {LADO} apresentando folículos antrais de distribuição predominantemente periférica, com diâmetro médio de 5 mm, associado a aumento da ecogenicidade do estroma.',
     ovarioCisto1: 'Ovário {LADO}, em seu interior observa-se imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm, com volume de {VOLUME} cm³.',
+    ovarioCisto1SemVolume: 'Ovário {LADO}, em seu interior observa-se imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm.',
     ovarioCisto2: 'Ovário {LADO}, em seu interior observam-se duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm (volume de {VOLUME1} cm³) e {MEDIDA2} mm (volume de {VOLUME2} cm³), respectivamente.',
+    ovarioCisto2SemVolume: 'Ovário {LADO}, em seu interior observam-se duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm e {MEDIDA2} mm, respectivamente.',
     ovarioCorpoLuteo: 'Ovário {LADO}, em seu interior nota-se imagem cística heterogênea, de paredes espessadas e irregulares, conteúdo ecogênico e captação de fluxo periférico ao mapeamento Doppler colorido, medindo {MEDIDA} mm (corpo lúteo).',
     ovarioFoliculo: 'Ovário {LADO}, em seu interior observa-se imagem folicular com discreta captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioDermoide: 'Ovário {LADO}, em seu interior observa-se imagem nodular ecogênica, bem delimitada, sem captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioEndometrioma: 'Em seu interior, nota-se imagem cística regular e unilocular, com conteúdo de textura em "vidro fosco", com mínima captação de fluxo periférico, medindo {MEDIDA} mm.',
 
     ovarioCisto1Tambem: 'Observa-se também, em seu interior, imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm, com volume de {VOLUME} cm³.',
+    ovarioCisto1TambemSemVolume: 'Observa-se também, em seu interior, imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm.',
     ovarioCisto2Tambem: 'Observam-se também, em seu interior, duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm (volume de {VOLUME1} cm³) e {MEDIDA2} mm (volume de {VOLUME2} cm³), respectivamente.',
+    ovarioCisto2TambemSemVolume: 'Observam-se também, em seu interior, duas imagens císticas uniloculares, de paredes finas e regulares, medindo {MEDIDA1} mm e {MEDIDA2} mm, respectivamente.',
     ovarioCorpoLuteoTambem: 'Observa-se também, em seu interior, imagem cística heterogênea, de paredes espessadas e irregulares, conteúdo ecogênico e captação de fluxo periférico ao mapeamento Doppler colorido, medindo {MEDIDA} mm (corpo lúteo).',
     ovarioFoliculoTambem: 'Observa-se também, em seu interior, imagem folicular com discreta captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioDermoideTambem: 'Observa-se também, em seu interior, imagem nodular ecogênica, bem delimitada, sem captação de fluxo periférico, medindo {MEDIDA} mm.',
@@ -2157,6 +2197,24 @@ if(typeof criarMotorLaudo !== 'function'){
   wireOvario('ovD');
   wireOvario('ovE');
 
+  // O volume do cisto é calculado à parte (elipsoide) e nem sempre a médica
+  // quer declará-lo no laudo — a caixa "Mostrar volume" deixa a frase sair
+  // só com as medidas, sem exigir (nem imprimir "____" para) um número que
+  // ela decidiu não incluir.
+  function wireOvarioVolumeToggle(prefix, tipo, suf){
+    const chk = $(prefix+'_'+tipo+'MostrarVolume'+suf);
+    if(!chk) return;
+    chk.addEventListener('change', e=>{
+      toggle('wrap_'+prefix+'_'+tipo+'_volume'+suf, e.target.checked);
+    });
+  }
+  ['ovD','ovE'].forEach(prefix=>{
+    ['', '2'].forEach(suf=>{
+      wireOvarioVolumeToggle(prefix, 'cisto1', suf);
+      wireOvarioVolumeToggle(prefix, 'cisto2', suf);
+    });
+  });
+
   $('chkHidrossalpinge').addEventListener('change', e=> toggle('wrap_hidrossalpingeCampos', e.target.checked));
   $('chkEndometriose').addEventListener('change', e=>{
     toggle('wrap_endometrioseCampos', e.target.checked);
@@ -2187,16 +2245,24 @@ if(typeof criarMotorLaudo !== 'function'){
 
   const OVARIO_ACHADO_TEXT = {
     policistico: (lado)=> phraseRaw('ovarioPolicistico', {LADO:lado}),
-    cisto1: (lado, m, vol)=> phraseRaw('ovarioCisto1', {LADO:lado, MEDIDA:m, VOLUME:vol}),
-    cisto2: (lado, m1, m2, vol1, vol2)=> phraseRaw('ovarioCisto2', {LADO:lado, MEDIDA1:m1, MEDIDA2:m2, VOLUME1:vol1, VOLUME2:vol2}),
+    cisto1: (lado, m, vol, mostrarVolume)=> mostrarVolume
+      ? phraseRaw('ovarioCisto1', {LADO:lado, MEDIDA:m, VOLUME:vol})
+      : phraseRaw('ovarioCisto1SemVolume', {LADO:lado, MEDIDA:m}),
+    cisto2: (lado, m1, m2, vol1, vol2, mostrarVolume)=> mostrarVolume
+      ? phraseRaw('ovarioCisto2', {LADO:lado, MEDIDA1:m1, MEDIDA2:m2, VOLUME1:vol1, VOLUME2:vol2})
+      : phraseRaw('ovarioCisto2SemVolume', {LADO:lado, MEDIDA1:m1, MEDIDA2:m2}),
     corpoluteo: (lado, m)=> phraseRaw('ovarioCorpoLuteo', {LADO:lado, MEDIDA:m}),
     foliculo: (lado, m)=> phraseRaw('ovarioFoliculo', {LADO:lado, MEDIDA:m}),
     dermoide: (lado, m)=> phraseRaw('ovarioDermoide', {LADO:lado, MEDIDA:m}),
     endometrioma: (lado, m)=> phraseRaw('ovarioEndometrioma', {LADO:lado, MEDIDA:m})
   };
   const OVARIO_ACHADO_TAMBEM_TEXT = {
-    cisto1: (m, vol)=> phraseRaw('ovarioCisto1Tambem', {MEDIDA:m, VOLUME:vol}),
-    cisto2: (m1, m2, vol1, vol2)=> phraseRaw('ovarioCisto2Tambem', {MEDIDA1:m1, MEDIDA2:m2, VOLUME1:vol1, VOLUME2:vol2}),
+    cisto1: (m, vol, mostrarVolume)=> mostrarVolume
+      ? phraseRaw('ovarioCisto1Tambem', {MEDIDA:m, VOLUME:vol})
+      : phraseRaw('ovarioCisto1TambemSemVolume', {MEDIDA:m}),
+    cisto2: (m1, m2, vol1, vol2, mostrarVolume)=> mostrarVolume
+      ? phraseRaw('ovarioCisto2Tambem', {MEDIDA1:m1, MEDIDA2:m2, VOLUME1:vol1, VOLUME2:vol2})
+      : phraseRaw('ovarioCisto2TambemSemVolume', {MEDIDA1:m1, MEDIDA2:m2}),
     corpoluteo: (m)=> phraseRaw('ovarioCorpoLuteoTambem', {MEDIDA:m}),
     foliculo: (m)=> phraseRaw('ovarioFoliculoTambem', {MEDIDA:m}),
     dermoide: (m)=> phraseRaw('ovarioDermoideTambem', {MEDIDA:m}),
@@ -2490,30 +2556,34 @@ if(typeof criarMotorLaudo !== 'function'){
       flag(prefix+'_volume', volNum!==null && (vrOvarioTipo==='menopausa' ? volNum > VR.ovarioMenopausa : (volNum < VR.ovarioMin || volNum > VR.ovarioMax)));
       const aspecto = v(prefix+'_aspecto');
       const descricao = vNoDot(prefix+'_descricao');
+      const cisto1MostrarVolume = $(prefix+'_cisto1MostrarVolume').checked;
       const cisto1Medida = reqIf(prefix+'_cisto1Medida', aspecto==='cisto1');
-      const cisto1Volume = reqIf(prefix+'_cisto1Volume', aspecto==='cisto1');
+      const cisto1Volume = reqIf(prefix+'_cisto1Volume', aspecto==='cisto1' && cisto1MostrarVolume);
+      const cisto2MostrarVolume = $(prefix+'_cisto2MostrarVolume').checked;
       const cisto2MedidaA = reqIf(prefix+'_cisto2MedidaA', aspecto==='cisto2');
-      const cisto2VolumeA = reqIf(prefix+'_cisto2VolumeA', aspecto==='cisto2');
+      const cisto2VolumeA = reqIf(prefix+'_cisto2VolumeA', aspecto==='cisto2' && cisto2MostrarVolume);
       const cisto2MedidaB = reqIf(prefix+'_cisto2MedidaB', aspecto==='cisto2');
-      const cisto2VolumeB = reqIf(prefix+'_cisto2VolumeB', aspecto==='cisto2');
+      const cisto2VolumeB = reqIf(prefix+'_cisto2VolumeB', aspecto==='cisto2' && cisto2MostrarVolume);
       const corpoLuteoMedida = reqIf(prefix+'_corpoLuteoMedida', aspecto==='corpoluteo');
       const foliculoMedida = reqIf(prefix+'_foliculoMedida', aspecto==='foliculo');
       const dermoideMedida = reqIf(prefix+'_dermoideMedida', aspecto==='dermoide');
       const endometriomaMedida = reqIf(prefix+'_endometriomaMedida', aspecto==='endometrioma');
       const aspecto2 = v(prefix+'_aspecto2');
       const descricao2 = vNoDot(prefix+'_descricao2');
+      const cisto1MostrarVolume2 = $(prefix+'_cisto1MostrarVolume2').checked;
       const cisto1Medida2 = reqIf(prefix+'_cisto1Medida2', aspecto2==='cisto1');
-      const cisto1Volume2 = reqIf(prefix+'_cisto1Volume2', aspecto2==='cisto1');
+      const cisto1Volume2 = reqIf(prefix+'_cisto1Volume2', aspecto2==='cisto1' && cisto1MostrarVolume2);
+      const cisto2MostrarVolume2 = $(prefix+'_cisto2MostrarVolume2').checked;
       const cisto2MedidaA2 = reqIf(prefix+'_cisto2MedidaA2', aspecto2==='cisto2');
-      const cisto2VolumeA2 = reqIf(prefix+'_cisto2VolumeA2', aspecto2==='cisto2');
+      const cisto2VolumeA2 = reqIf(prefix+'_cisto2VolumeA2', aspecto2==='cisto2' && cisto2MostrarVolume2);
       const cisto2MedidaB2 = reqIf(prefix+'_cisto2MedidaB2', aspecto2==='cisto2');
-      const cisto2VolumeB2 = reqIf(prefix+'_cisto2VolumeB2', aspecto2==='cisto2');
+      const cisto2VolumeB2 = reqIf(prefix+'_cisto2VolumeB2', aspecto2==='cisto2' && cisto2MostrarVolume2);
       const corpoLuteoMedida2 = reqIf(prefix+'_corpoLuteoMedida2', aspecto2==='corpoluteo');
       const foliculoMedida2 = reqIf(prefix+'_foliculoMedida2', aspecto2==='foliculo');
       const dermoideMedida2 = reqIf(prefix+'_dermoideMedida2', aspecto2==='dermoide');
       const endometriomaMedida2 = reqIf(prefix+'_endometriomaMedida2', aspecto2==='endometrioma');
-      return {L, AP, T, volume, volNum, aspecto, descricao, cisto1Medida, cisto1Volume, cisto2MedidaA, cisto2VolumeA, cisto2MedidaB, cisto2VolumeB, corpoLuteoMedida, foliculoMedida, dermoideMedida, endometriomaMedida,
-        aspecto2, descricao2, cisto1Medida2, cisto1Volume2, cisto2MedidaA2, cisto2VolumeA2, cisto2MedidaB2, cisto2VolumeB2, corpoLuteoMedida2, foliculoMedida2, dermoideMedida2, endometriomaMedida2};
+      return {L, AP, T, volume, volNum, aspecto, descricao, cisto1Medida, cisto1Volume, cisto1MostrarVolume, cisto2MedidaA, cisto2VolumeA, cisto2MedidaB, cisto2VolumeB, cisto2MostrarVolume, corpoLuteoMedida, foliculoMedida, dermoideMedida, endometriomaMedida,
+        aspecto2, descricao2, cisto1Medida2, cisto1Volume2, cisto1MostrarVolume2, cisto2MedidaA2, cisto2VolumeA2, cisto2MedidaB2, cisto2VolumeB2, cisto2MostrarVolume2, corpoLuteoMedida2, foliculoMedida2, dermoideMedida2, endometriomaMedida2};
     }
     const ovD = readOvario('ovD');
     const ovE = readOvario('ovE');
@@ -2668,9 +2738,9 @@ if(typeof criarMotorLaudo !== 'function'){
       if(ov.aspecto==='policistico'){
         extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.policistico(ladoM));
       } else if(ov.aspecto==='cisto1'){
-        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto1(ladoM, ov.cisto1Medida||'____', ov.cisto1Volume||'____'));
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto1(ladoM, ov.cisto1Medida||'____', ov.cisto1Volume||'____', ov.cisto1MostrarVolume));
       } else if(ov.aspecto==='cisto2'){
-        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto2(ladoM, ov.cisto2MedidaA||'____', ov.cisto2MedidaB||'____', ov.cisto2VolumeA||'____', ov.cisto2VolumeB||'____'));
+        extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.cisto2(ladoM, ov.cisto2MedidaA||'____', ov.cisto2MedidaB||'____', ov.cisto2VolumeA||'____', ov.cisto2VolumeB||'____', ov.cisto2MostrarVolume));
       } else if(ov.aspecto==='corpoluteo'){
         extra = mergeOvarioAchado(ladoM, OVARIO_ACHADO_TEXT.corpoluteo(ladoM, ov.corpoLuteoMedida||'____'));
       } else if(ov.aspecto==='foliculo'){
@@ -2688,9 +2758,9 @@ if(typeof criarMotorLaudo !== 'function'){
       // "Tambem" (sem precisar do mergeOvarioAchado de cima).
       let extra2 = '';
       if(ov.aspecto2==='cisto1'){
-        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto1(ov.cisto1Medida2||'____', ov.cisto1Volume2||'____');
+        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto1(ov.cisto1Medida2||'____', ov.cisto1Volume2||'____', ov.cisto1MostrarVolume2);
       } else if(ov.aspecto2==='cisto2'){
-        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto2(ov.cisto2MedidaA2||'____', ov.cisto2MedidaB2||'____', ov.cisto2VolumeA2||'____', ov.cisto2VolumeB2||'____');
+        extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.cisto2(ov.cisto2MedidaA2||'____', ov.cisto2MedidaB2||'____', ov.cisto2VolumeA2||'____', ov.cisto2VolumeB2||'____', ov.cisto2MostrarVolume2);
       } else if(ov.aspecto2==='corpoluteo'){
         extra2 = ' '+OVARIO_ACHADO_TAMBEM_TEXT.corpoluteo(ov.corpoLuteoMedida2||'____');
       } else if(ov.aspecto2==='foliculo'){
