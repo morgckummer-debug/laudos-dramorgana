@@ -477,8 +477,8 @@
   <h3>Impressões diagnósticas</h3>
   <div class="field" style="margin-bottom:8px;"><label>Gestação única (cronologia pela DUM) — use {IG} e {CONCORDANCIA} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoUnica" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação única (cronologia por ultrassom/ecografia) — use {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoUnicaSemDum" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação única, DUM incerta/ignorada, menos de 14 semanas — use {SEMANAS}</label><textarea id="ph_impGestacaoUnicaDumIncertaCcn" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação única, DUM incerta/ignorada, 14 semanas ou mais — use {SEMANAS}</label><textarea id="ph_impGestacaoUnicaDumIncertaBiometria" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação única, DUM incerta/ignorada, menos de 14 semanas — use {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoUnicaDumIncertaCcn" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação única, DUM incerta/ignorada, 14 semanas ou mais — use {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoUnicaDumIncertaBiometria" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia pela DUM) — use {CORIONICIDADE}, {IG} e {CONCORDANCIA} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoGemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia por ultrassom/ecografia) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoGemelarSemDum" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
@@ -1368,8 +1368,8 @@ if(typeof criarMotorLaudo !== 'function'){
 
     impGestacaoUnica: 'Gestação única, eutópica, compatível com {IG} (DUM {CONCORDANCIA}).',
     impGestacaoUnicaSemDum: 'Gestação única, eutópica, compatível com {IG}.',
-    impGestacaoUnicaDumIncertaCcn: 'Gestação eutópica, de {SEMANAS} semanas pelo CCN.',
-    impGestacaoUnicaDumIncertaBiometria: 'Gestação eutópica com biometria de {SEMANAS} semanas.',
+    impGestacaoUnicaDumIncertaCcn: 'Gestação eutópica, de {IG} pelo CCN.',
+    impGestacaoUnicaDumIncertaBiometria: 'Gestação eutópica com biometria de {IG}.',
     impGestacaoGemelar: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG} (DUM {CONCORDANCIA}).',
     impGestacaoGemelarSemDum: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
     impBoaEvolucao: 'Boa evolução até o momento.',
