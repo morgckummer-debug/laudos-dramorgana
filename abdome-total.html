@@ -398,7 +398,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Cistos renais simples — nos dois rins</label><textarea id="ph_impRinsCistoBilateral" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto de leite de cálcio — use {LADO}</label><textarea id="ph_impRinsLeiteCalcio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulo renal (angiomiolipoma) — use {LADO}</label><textarea id="ph_impRinsNodulo" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Hidronefrose acentuada — use {LADO}</label><textarea id="ph_impRinsHidronefrose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hidronefrose — use {LADO} e {GRAU}</label><textarea id="ph_impRinsHidronefrose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nefrocalcinose medular — use {LADO}</label><textarea id="ph_impRinsNefrocalcinose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ureterolitíase — use {TERCO} e {LADO}</label><textarea id="ph_impRinsUreterolitiase" rows="2"></textarea></div>
 
@@ -630,7 +630,7 @@
           <div class="toggle-line"><input type="checkbox" id="rinsDCisto"><label for="rinsDCisto">Cisto(s) renal(is) simples</label></div>
           <div class="toggle-line"><input type="checkbox" id="rinsDLeiteCalcio"><label for="rinsDLeiteCalcio">Cisto de leite de cálcio</label></div>
           <div class="toggle-line"><input type="checkbox" id="rinsDNodulo"><label for="rinsDNodulo">Nódulo renal (angiomiolipoma)</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsDHidronefrose"><label for="rinsDHidronefrose">Hidronefrose acentuada</label></div>
+          <div class="toggle-line"><input type="checkbox" id="rinsDHidronefrose"><label for="rinsDHidronefrose">Hidronefrose</label></div>
           <div class="toggle-line"><input type="checkbox" id="rinsDNefrocalcinose"><label for="rinsDNefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</label></div>
           <div class="toggle-line"><input type="checkbox" id="rinsDUreterolitiase"><label for="rinsDUreterolitiase">Ureterolitíase</label></div>
           <div class="toggle-line"><input type="checkbox" id="rinsDAlterado"><label for="rinsDAlterado">Outro (descrever)</label></div>
@@ -677,6 +677,26 @@
             <span class="vr">VR até 10,0 mm</span>
             <span class="flag-note" id="flag_rinsDHidroMedida">Acima do valor de referência</span>
           </div>
+          <div class="field"><label>Dilatação calicinal</label>
+            <select id="rinsDHidroCalices">
+              <option value="nenhuma">Sem dilatação dos cálices</option>
+              <option value="maiores">Cálices maiores</option>
+              <option value="menores">Cálices menores</option>
+              <option value="ambos">Cálices maiores e menores</option>
+            </select>
+          </div>
+          <div class="field"><label>Grau da hidronefrose</label>
+            <select id="rinsDHidroGrau">
+              <option value="leve">Leve</option>
+              <option value="moderada">Moderada</option>
+              <option value="acentuada">Acentuada</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsDHidroCortical">
+          <div class="field"><label>Espessura cortical (facultativo)</label>
+            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsDHidroCortical" placeholder="mm">
+          </div>
         </div>
         <div class="field-row field-row-compact conditional" id="wrap_rinsDUreter">
           <div class="field"><label>Terço do ureter</label>
@@ -699,7 +719,7 @@
           <div class="toggle-line"><input type="checkbox" id="rinsECisto"><label for="rinsECisto">Cisto(s) renal(is) simples</label></div>
           <div class="toggle-line"><input type="checkbox" id="rinsELeiteCalcio"><label for="rinsELeiteCalcio">Cisto de leite de cálcio</label></div>
           <div class="toggle-line"><input type="checkbox" id="rinsENodulo"><label for="rinsENodulo">Nódulo renal (angiomiolipoma)</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsEHidronefrose"><label for="rinsEHidronefrose">Hidronefrose acentuada</label></div>
+          <div class="toggle-line"><input type="checkbox" id="rinsEHidronefrose"><label for="rinsEHidronefrose">Hidronefrose</label></div>
           <div class="toggle-line"><input type="checkbox" id="rinsENefrocalcinose"><label for="rinsENefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</label></div>
           <div class="toggle-line"><input type="checkbox" id="rinsEUreterolitiase"><label for="rinsEUreterolitiase">Ureterolitíase</label></div>
           <div class="toggle-line"><input type="checkbox" id="rinsEAlterado"><label for="rinsEAlterado">Outro (descrever)</label></div>
@@ -745,6 +765,26 @@
             <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsEHidroMedida" placeholder="mm">
             <span class="vr">VR até 10,0 mm</span>
             <span class="flag-note" id="flag_rinsEHidroMedida">Acima do valor de referência</span>
+          </div>
+          <div class="field"><label>Dilatação calicinal</label>
+            <select id="rinsEHidroCalices">
+              <option value="nenhuma">Sem dilatação dos cálices</option>
+              <option value="maiores">Cálices maiores</option>
+              <option value="menores">Cálices menores</option>
+              <option value="ambos">Cálices maiores e menores</option>
+            </select>
+          </div>
+          <div class="field"><label>Grau da hidronefrose</label>
+            <select id="rinsEHidroGrau">
+              <option value="leve">Leve</option>
+              <option value="moderada">Moderada</option>
+              <option value="acentuada">Acentuada</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row field-row-compact conditional" id="wrap_rinsEHidroCortical">
+          <div class="field"><label>Espessura cortical (facultativo)</label>
+            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsEHidroCortical" placeholder="mm">
           </div>
         </div>
         <div class="field-row field-row-compact conditional" id="wrap_rinsEUreter">
@@ -1494,7 +1534,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impRinsCistoBilateral: 'Cistos renais simples bilaterais.',
     impRinsLeiteCalcio: 'Cisto renal simples {LADO} (leite de cálcio).',
     impRinsNodulo: 'Nódulo renal {LADO} sugestivo de angiomiolipoma.',
-    impRinsHidronefrose: 'Hidronefrose acentuada {LADO}.',
+    impRinsHidronefrose: 'Hidronefrose {GRAU} {LADO}.',
     impRinsNefrocalcinose: 'Nefrocalcinose medular {LADO}.',
     impRinsUreterolitiase: 'Ureterolitíase {TERCO} {LADO}.',
     impBexigaEsforco: 'Achados ecográficos sugestivos de bexiga de esforço.',
@@ -1713,9 +1753,11 @@ if(typeof criarMotorLaudo !== 'function'){
         toggle('wrap_'+p+LISTA_ACHADO_NOME[kind]+'Campos', $(p+LISTA_ACHADO_NOME[kind]).checked);
       });
       toggle('wrap_'+p+'Hidro', $(p+'Hidronefrose').checked);
+      toggle('wrap_'+p+'HidroCortical', $(p+'Hidronefrose').checked && $(p+'HidroGrau').value==='acentuada');
       toggle('wrap_'+p+'Ureter', $(p+'Ureterolitiase').checked);
       toggle('wrap_'+p+'Descricao', $(p+'Alterado').checked);
     }
+    $(p+'HidroGrau').addEventListener('change', updateConditionals);
     $(p+'Normal').addEventListener('change', e=>{
       if(e.target.checked){
         RINS_ACHADOS.forEach(a=> $(p+a).checked = false);
@@ -2133,8 +2175,23 @@ if(typeof criarMotorLaudo !== 'function'){
         const medidaNum = num(p+'HidroMedida'); req(p+'HidroMedida');
         const medida = blankOrValue(v(p+'HidroMedida'));
         flag(p+'HidroMedida', medidaNum!==null && medidaNum > 10.0);
-        fragments.push('Observa-se dilatação de pelve renal '+ladoHD+', medindo '+span(medida)+' mm (VR até 10,0 mm); além disso, há dilatação do sistema coletor que se estende até os pequenos cálices, ocasionando redução da espessura do parênquima renal.');
-        hds.push(phrase('impRinsHidronefrose', {LADO:ladoHD}));
+        const grau = v(p+'HidroGrau') || 'leve';
+        const grauAdj = {leve:'leve', moderada:'moderado', acentuada:'acentuado'}[grau];
+        const calicesTexto = {
+          nenhuma: '',
+          maiores: ', associada à dilatação dos cálices maiores',
+          menores: ', associada à dilatação dos cálices menores',
+          ambos: ', associada à dilatação dos cálices maiores e menores'
+        }[v(p+'HidroCalices') || 'nenhuma'];
+        let hidroFrase = 'Observa-se dilatação pielocalicinal de grau '+grauAdj+' '+ladoHD+', caracterizada por dilatação da pelve renal medindo '+span(medida)+' mm (VR até 10,0 mm)'+calicesTexto+'.';
+        if(grau==='acentuada'){
+          const corticalVal = v(p+'HidroCortical');
+          hidroFrase += corticalVal
+            ? ' Nota-se redução da espessura do parênquima renal, com espessura cortical de '+span(blankOrValue(corticalVal))+' mm no local.'
+            : ' Nota-se redução da espessura do parênquima renal.';
+        }
+        fragments.push(hidroFrase);
+        hds.push(phrase('impRinsHidronefrose', {LADO:ladoHD, GRAU:grau}));
       }
       if($(p+'Nefrocalcinose').checked){
         fragments.push('Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular evidente pelo aumento da ecogenicidade das medulares renais, em rim '+ladoNome+'.');
