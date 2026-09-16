@@ -658,7 +658,7 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Idade gestacional calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">Ultrassom de datação (1º trimestre)</option><option value="exame">IG informada neste exame</option></select>
+            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
           </div>
         </div>
         <div class="field-row conditional" id="wrap_usgDatacao">
@@ -666,7 +666,7 @@
           <div class="field"><label>IG no ultrassom de datação — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
           <div class="field"><label>IG no ultrassom de datação — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
         </div>
-        <div class="field-row conditional" id="wrap_exameInfo">
+        <div class="field-row conditional" id="wrap_igInformadaCampos">
           <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 12"></div>
           <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
         </div>
@@ -1597,12 +1597,12 @@ if(typeof criarMotorLaudo !== 'function'){
 
   $('cronologiaMetodo').addEventListener('change', e=>{
     toggle('wrap_usgDatacao', e.target.value==='usg');
-    toggle('wrap_exameInfo', e.target.value==='exame');
-    toggle('wrap_dumEstimada', e.target.value==='usg' || e.target.value==='exame');
+    toggle('wrap_igInformadaCampos', ehDumSemCronologia(e.target.value));
+    toggle('wrap_dumEstimada', e.target.value==='usg');
   });
   toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
-  toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame');
-  toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg' || $('cronologiaMetodo').value==='exame');
+  toggle('wrap_igInformadaCampos', ehDumSemCronologia($('cronologiaMetodo').value));
+  toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg');
 
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
   $('chkPreEclampsia').addEventListener('change', e=>{ toggle('preEclampsiaFields', e.target.checked); render(); });
@@ -1917,14 +1917,18 @@ if(typeof criarMotorLaudo !== 'function'){
     const semanasTxt = semanas + (semanas===1 ? ' semana' : ' semanas');
     return dias>0 ? (semanasTxt+' e '+dias+(dias===1?' dia':' dias')) : semanasTxt;
   }
+  // "DUM incerta" (ela informou uma data, mas não confiável para datar) e
+  // "DUM ignorada" (ela não soube informar nenhuma data) são clinicamente
+  // diferentes, mas tratadas da mesma forma pelo resto do laudo: sem
+  // cronologia nenhuma, só a IG informada neste exame valendo como número solto.
+  function ehDumSemCronologia(metodo){
+    return metodo === 'incerta' || metodo === 'ignorada';
+  }
   function computeDataBase(metodo){
-    if(metodo === 'exame'){
-      const dataExameDt = parseDateBR(v('dataExame'));
-      const semanas = parseInt(v('impSemanas'), 10);
-      const dias = parseInt(v('impDias'), 10);
-      if(!dataExameDt || isNaN(semanas)) return null;
-      return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
-    }
+    // Sem cronologia formal nesses dois métodos — mesmo que a médica tenha
+    // digitado algo em "DUM", ele não vira data-base (é por isso que ela
+    // marcou incerta/ignorada em vez de "DUM").
+    if(ehDumSemCronologia(metodo)) return null;
     if(metodo === 'usg'){
       const usgDt = parseDateBR(v('usgDataDatacao'));
       const semanas = parseInt(v('usgSemanasDatacao'), 10);
@@ -1933,6 +1937,13 @@ if(typeof criarMotorLaudo !== 'function'){
       return addDays(usgDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
     }
     return parseDateBR(v('dum'));
+  }
+  // IG informada neste exame (impSemanas/impDias), direto em dias — usada
+  // como a "IG atual" quando não há data-base nenhuma (DUM incerta/ignorada).
+  function computeIGDaysInformada(){
+    const semanas = parseInt(v('impSemanas'), 10);
+    const dias = parseInt(v('impDias'), 10);
+    return isNaN(semanas) ? null : (semanas*7 + (isNaN(dias) ? 0 : dias));
   }
   function computeIGDaysAtExam(dataBase, dataExameStr){
     const dataExameDt = parseDateBR(dataExameStr);
@@ -2192,15 +2203,15 @@ if(typeof criarMotorLaudo !== 'function'){
     if(imcEl) imcEl.value = imcTxt;
 
     const cronologiaMetodoRaw = v('cronologiaMetodo');
-    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame') ? cronologiaMetodoRaw : 'dum';
+    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
     // Mesma cronologia usada pra calcular a IG (campo "Idade gestacional
     // calculada com base em") também nomeia a referência na frase da
     // conclusão — sem isto, "de acordo com a DUM/primeira ecografia" ficava
     // ambíguo sobre qual das duas datas o laudo realmente seguiu.
-    const METODO_TXT = {dum:'a DUM', usg:'a primeira ecografia', exame:'a IG informada neste exame'};
+    const METODO_TXT = {dum:'a DUM', usg:'a primeira ecografia', incerta:'a IG informada neste exame', ignorada:'a IG informada neste exame'};
     const metodoTxt = METODO_TXT[cronologiaMetodo];
     const dataBase = computeDataBase(cronologiaMetodo);
-    const gaDays = computeIGDaysAtExam(dataBase, dataExame);
+    const gaDays = ehDumSemCronologia(cronologiaMetodo) ? computeIGDaysInformada() : computeIGDaysAtExam(dataBase, dataExame);
     const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
     const igAtualEl = $('igAtual');
     if(igAtualEl) igAtualEl.value = igAtualTxt;
@@ -2369,6 +2380,12 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+(gpaG==='0' ? '' : ' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>'
       +(cronologiaMetodo==='usg'
         ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+'+'+span(blankOrValue(usgDiasDatacaoTxt))+' semanas: '+span(blankOrValue(igAtualTxt))+'</span></div>'
+        // DUM incerta/ignorada: sem DUM não há cronologia — a linha do
+        // cabeçalho mostra só "DUM: incerta"/"DUM: ignorada", sem cronologia
+        // nenhuma ao lado (a IG informada só aparece na conclusão, como
+        // estimativa daquele exame, nunca como data-base).
+        : ehDumSemCronologia(cronologiaMetodo)
+          ? '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(cronologiaMetodo))+'</span></div>'
         : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
       // "id-card-row-once": só na página 1 — a cópia do cabeçalho que se
       // repete no topo das folhas seguintes (ver packAt() em laudo-core.js)
@@ -3159,7 +3176,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       if(!gestacao){
         const cronologiaMetodoAtual = v('cronologiaMetodo');
-        const dataBase = computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='exame') ? cronologiaMetodoAtual : 'dum');
+        const dataBase = computeDataBase(cronologiaMetodoAtual==='usg' ? cronologiaMetodoAtual : 'dum');
         if(!dataBase){
           cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
           return;
