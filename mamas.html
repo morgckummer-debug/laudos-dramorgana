@@ -745,7 +745,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const range = captureSelectionInPaper();
       const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '16px';
       if(range){
-        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, h4.sec')).filter(el=> range.intersectsNode(el));
+        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, h4.sec, .nodulos-lista')).filter(el=> range.intersectsNode(el));
         // A seleção pode legitimamente cruzar de um p.linha/h4.sec para
         // dentro de OUTRO bloco que esta lista de parágrafos não reconhece —
         // uma tabela, um <div> com sua própria margem. Contar só os
@@ -786,7 +786,7 @@ if(typeof criarMotorLaudo !== 'function'){
           el.style.lineHeight = '';
           if(!el.getAttribute('style')) el.removeAttribute('style');
         });
-        paperEl.querySelectorAll('p.linha, h4.sec').forEach(el=>{ el.style.marginBottom = ''; });
+        paperEl.querySelectorAll('p.linha, h4.sec, .nodulos-lista').forEach(el=>{ el.style.marginBottom = ''; });
         paperEl.style.lineHeight = lineHeightSel.value;
         paperEl.style.setProperty('--linha-margin', margin);
         kvStore.set('paper-line-height', lineHeightSel.value);
@@ -811,7 +811,7 @@ if(typeof criarMotorLaudo !== 'function'){
         el.style.lineHeight = '';
         if(!el.getAttribute('style')) el.removeAttribute('style');
       });
-      paperEl.querySelectorAll('p.linha, h4.sec').forEach(el=>{ el.style.marginBottom = ''; });
+      paperEl.querySelectorAll('p.linha, h4.sec, .nodulos-lista').forEach(el=>{ el.style.marginBottom = ''; });
       paperEl.style.lineHeight = '';
       paperEl.style.removeProperty('--linha-margin');
       paperEl.style.removeProperty('--idcard-gap');
@@ -1862,6 +1862,7 @@ if(typeof criarMotorLaudo !== 'function'){
     ['h4.sec', ['font-size','line-height'].concat(MARGINS)],
     ['p.linha', ['font-size','line-height'].concat(MARGINS)],
     ['p.relato', ['font-size','line-height'].concat(MARGINS)],
+    ['.nodulos-lista', ['font-size','line-height'].concat(MARGINS)],
     ['.nodulo-item', ['font-size','line-height'].concat(MARGINS)],
     ['.birads-line', ['font-size','line-height'].concat(MARGINS)],
     ['.footnote', ['font-size','line-height']],
