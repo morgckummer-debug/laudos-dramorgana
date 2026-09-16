@@ -533,7 +533,7 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Cronologia calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="exame">1ª Ecografia</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
+            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
           </div>
         </div>
         <div class="field-row conditional" id="wrap_usgDatacao">
@@ -541,7 +541,6 @@
           <div class="field"><label>IG no 1º ultrassom — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
           <div class="field"><label>IG no 1º ultrassom — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
         </div>
-        <p class="conditional" id="wrap_exameInfo" style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">Sem DUM nem ultrassom anterior: a idade gestacional usada será a informada em <strong>"Idade gestacional pela USG"</strong>, mais abaixo em Impressões diagnósticas.</p>
         <p class="conditional" id="wrap_incertaInfo" style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">DUM incerta/ignorada: sem cronologia no cabeçalho (sem DUM/IG atual ali, sem "DUM estimada"). A DPP e o período do Morfológico do 1º Trimestre são calculados a partir da idade gestacional informada em <strong>"Idade gestacional pela USG"</strong>, mais abaixo, aplicada sobre a data deste exame.</p>
         <div class="field-row conditional" id="wrap_dumEstimada">
           <div class="field"><label>DUM estimada (para lançar na máquina de ultrassom)</label><input type="text" id="dumEstimada" readonly placeholder="calculada automaticamente"></div>
@@ -1581,16 +1580,14 @@ if(typeof criarMotorLaudo !== 'function'){
   toggle('wrap_recomendacao', $('chkRecomendacao').checked);
   $('cronologiaMetodo').addEventListener('change', e=>{
     toggle('wrap_usgDatacao', e.target.value==='usg');
-    toggle('wrap_exameInfo', e.target.value==='exame');
     toggle('wrap_incertaInfo', ehDumSemCronologia(e.target.value));
     toggle('wrap_dumConcordancia', e.target.value==='dum');
-    toggle('wrap_dumEstimada', e.target.value==='usg' || e.target.value==='exame');
+    toggle('wrap_dumEstimada', e.target.value==='usg');
   });
   toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
-  toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame');
   toggle('wrap_incertaInfo', ehDumSemCronologia($('cronologiaMetodo').value));
   toggle('wrap_dumConcordancia', $('cronologiaMetodo').value==='dum');
-  toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg' || $('cronologiaMetodo').value==='exame');
+  toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg');
 
   function updateGestacaoWrap(){
     toggle('wrap_corionicidade', $('numeroEmbrioes').value !== '1');
@@ -1834,8 +1831,6 @@ if(typeof criarMotorLaudo !== 'function'){
   // começaria a contar zero, deduzida conforme o método escolhido:
   //   - DUM: a própria DUM informada.
   //   - 1º Ultrassom: data do ultrassom menos a IG constatada nele.
-  //   - 1ª Ecografia (sem DUM nem ultrassom anterior): data do exame atual
-  //     menos a IG informada em "Idade gestacional pela USG" (impSemanas/impDias).
   // A partir dessa data base, tudo é aritmética de dias. ----------
   const MS_DIA = 24*60*60*1000;
   function parseDateBR(str){
@@ -1858,10 +1853,9 @@ if(typeof criarMotorLaudo !== 'function'){
     const semanasTxt = semanas + (semanas===1 ? ' semana' : ' semanas');
     return dias>0 ? (semanasTxt+' e '+dias+(dias===1?' dia':' dias')) : semanasTxt;
   }
-  // Mesma conta usada pelo método de datação "1ª Ecografia" (IG informada na
-  // data do exame atual, contada para trás) — extraída à parte porque também
-  // é usada para recalcular DPP/período do Morfológico quando a DUM está
-  // marcada como discordante (ver render()).
+  // IG informada na data do exame atual, contada para trás — usada para
+  // recalcular DPP/período do Morfológico quando a DUM está marcada como
+  // discordante, ou quando a DUM é incerta/ignorada (ver render()).
   function computeDataBaseFromIG(dataExameStr, semanasStr, diasStr){
     const dataExameDt = parseDateBR(dataExameStr);
     const semanas = parseInt(semanasStr, 10);
@@ -1884,9 +1878,6 @@ if(typeof criarMotorLaudo !== 'function'){
     // dataBaseDppMorfo, em render()) — só não entram nessa data-base
     // "oficial" que o resto do laudo trataria como cronologia estabelecida.
     if(ehDumSemCronologia(metodo)) return null;
-    if(metodo === 'exame'){
-      return computeDataBaseFromIG(v('dataExame'), v('impSemanas'), v('impDias'));
-    }
     if(metodo === 'usg'){
       const usgDt = parseDateBR(v('usgDataDatacao'));
       const semanas = parseInt(v('usgSemanasDatacao'), 10);
@@ -2084,7 +2075,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const medicoSolicitante = v('medicoSolicitante');
     const dum = v('dum');
     const cronologiaMetodoRaw = v('cronologiaMetodo');
-    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
+    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
     reqIf('usgDataDatacao', cronologiaMetodo==='usg');
     reqIf('usgSemanasDatacao', cronologiaMetodo==='usg');
     reqIf('usgDiasDatacao', cronologiaMetodo==='usg');
@@ -2237,7 +2228,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // DUM discordante: a data base da DPP e do período do Morfológico do 1º
     // Trimestre deixa de ser a DUM (que a própria médica marcou como não
     // confiável) e passa a ser a IG digitada na conclusão do laudo, aplicada
-    // sobre a data do exame — igual ao método de datação "1ª Ecografia".
+    // sobre a data do exame.
     // DUM incerta/ignorada segue a mesma lógica: não há cronologia formal
     // (sem "DUM estimada", sem gestação criada na Curva de Crescimento a
     // partir daqui — ver computeDataBase), mas a DPP e o período do
@@ -3012,7 +3003,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       if(!gestacao){
         const cronologiaMetodoAtual = v('cronologiaMetodo');
-        const dataBase = computeDataBase(cronologiaMetodoAtual==='usg'||cronologiaMetodoAtual==='exame' ? cronologiaMetodoAtual : 'dum');
+        const dataBase = computeDataBase(cronologiaMetodoAtual==='usg' ? cronologiaMetodoAtual : 'dum');
         if(!dataBase){
           cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
           return;
