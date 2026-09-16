@@ -707,13 +707,9 @@
           </div>
           <div class="field"><label>Distância da haste ao fundo da serosa</label><input type="text" inputmode="decimal" data-decimals="1" id="diuDistancia" placeholder="mm"></div>
         </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="card conditional show" id="cardEndometrio">
-      <div class="card-head"><h2>Endométrio</h2></div>
-      <div class="card-body">
+        <hr class="sep">
+        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Endométrio</p>
         <div class="field-row">
           <div class="field"><label>Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessura" placeholder="mm"></div>
           <div class="field"><label>Aspecto</label>
@@ -735,6 +731,7 @@
             <select id="polipoPediculo"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select>
           </div>
           <div class="field"><label>Medida (mm)</label><input type="text" id="polipoMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
         </div>
       </div>
     </div>
@@ -1941,13 +1938,13 @@ if(typeof criarMotorLaudo !== 'function'){
   });
 
   // Histerectomia (total/subtotal) retira o útero e o endométrio do exame:
-  // esconde os campos normais do Útero e o card inteiro de Endométrio, e
-  // mostra colo/volume só na subtotal (o colo permanece; o corpo, não).
+  // esconde os campos normais do Útero — o Endométrio mora dentro desse mesmo
+  // wrap, então some junto — e mostra colo/volume só na subtotal (o colo
+  // permanece; o corpo, não).
   function updateUteroEstadoWraps(){
     const val = $('uteroEstado').value;
     toggle('wrap_uteroPresente', val==='presente');
     toggle('wrap_histSubtotalCampos', val==='hist_subtotal');
-    toggle('cardEndometrio', val==='presente');
   }
   $('uteroEstado').addEventListener('change', updateUteroEstadoWraps);
   updateUteroEstadoWraps();
