@@ -113,8 +113,16 @@ function criarMotorLaudo(cfg){
   // Piso do ajuste automático de fonte na impressão: por padrão 11pt, mas um
   // laudo pode elevar esse piso (cfg.minFontSize) quando 11pt fica pequeno
   // demais para o conteúdo dele — o ajuste automático nunca desce abaixo
-  // disso, mesmo que precise estourar para uma segunda página.
+  // disso, mesmo que precise estourar para mais páginas do que o alvo.
   const MIN_FONT_SIZE = cfg.minFontSize || 11;
+
+  // Quantas páginas o ajuste automático tenta caber por padrão: 1. Um laudo
+  // com conteúdo que não cabe numa folha só mesmo no piso de fonte (ex.:
+  // morfológico de 2º trimestre com Doppler + colo) pode levantar esse alvo
+  // (cfg.maxAutoFitPages) — sem isso, autoFitPages() desistia ao não achar
+  // fonte/entrelinha que coubesse em 1 página e devolvia o tamanho-base
+  // (12pt) sem encolher nada, estourando para quantas páginas desse.
+  const MAX_AUTOFIT_PAGES = cfg.maxAutoFitPages || 1;
 
   const FONT_SIZE_STEP = 0.5;
 
@@ -390,7 +398,7 @@ function criarMotorLaudo(cfg){
     function fitAtFontSize(fontSize){
       for(let lh = baseLineHeight; lh >= MIN_LINE_HEIGHT - 1e-9; lh -= LINE_HEIGHT_STEP){
         const attempt = packAt(paperEl, html, lh, fontSize + 'pt', budgetPx);
-        if(attempt.pages.length === 1) return {packed: attempt, lineHeight: lh, fontSize};
+        if(attempt.pages.length <= MAX_AUTOFIT_PAGES) return {packed: attempt, lineHeight: lh, fontSize};
       }
       return null;
     }

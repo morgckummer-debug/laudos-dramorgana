@@ -756,6 +756,11 @@ if(typeof criarMotorLaudo !== 'function'){
   // edição só, lá, e vale para os sete. Ver o cabeçalho do laudo-core.js.
   const motor = criarMotorLaudo({
     DRAFT_KEY: 'laudo-rascunho-morfologico2t-v1',
+    // Com Doppler materno e medida do colo uterino juntos, o laudo não cabe
+    // numa folha só nem no piso de 11pt — deixa o ajuste automático mirar
+    // 2 páginas em vez de desistir e voltar ao tamanho-base (ver
+    // MAX_AUTOFIT_PAGES em laudo-core.js).
+    maxAutoFitPages: 2,
     render:          () => render(),
     draftSnapshot:   () => draftSnapshot(),
     tituloExame:     () => tituloExame(),
@@ -2125,7 +2130,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(dopplerMaterno && colo) tituloLinha2 += ' COM DOPPLER E MEDIDA DO COLO UTERINO';
     else if(dopplerMaterno) tituloLinha2 += ' COM DOPPLER';
     else if(colo) tituloLinha2 += ' COM MEDIDA DO COLO UTERINO';
-    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml('ULTRASSOM MORFOLÓGICO')+'<br>'+escapeHtml(tituloLinha2)+'</h3>'});
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml('ULTRASSOM MORFOLÓGICO '+tituloLinha2)+'</h3>'});
     if(motivoExame){
       blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(motivoExame)+'.</p>'});
     }
