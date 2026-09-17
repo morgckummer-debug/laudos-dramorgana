@@ -533,13 +533,19 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Cronologia calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
+            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="fiv">FIV (transferência embrionária)</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
           </div>
         </div>
         <div class="field-row conditional" id="wrap_usgDatacao">
           <div class="field"><label>Data do 1º ultrassom</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
           <div class="field"><label>IG no 1º ultrassom — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
           <div class="field"><label>IG no 1º ultrassom — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
+        </div>
+        <div class="field-row conditional" id="wrap_fivTransferencia">
+          <div class="field"><label>Data da transferência embrionária</label><input type="text" id="fivDataTransf" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+          <div class="field"><label>Estágio do embrião na transferência</label>
+            <select id="fivEstagio"><option value="d3">D3 (clivagem)</option><option value="d5">D5 (blastocisto)</option></select>
+          </div>
         </div>
         <p class="conditional" id="wrap_incertaInfo" style="font-size:12px;color:var(--ink-soft);margin:2px 0 14px;">DUM incerta/ignorada: sem cronologia no cabeçalho (sem DUM/IG atual ali, sem "DUM estimada"). A DPP e o período do Morfológico do 1º Trimestre são calculados a partir da idade gestacional informada em <strong>"Idade gestacional pela USG"</strong>, mais abaixo, aplicada sobre a data deste exame.</p>
         <div class="field-row conditional" id="wrap_dumEstimada">
@@ -1581,9 +1587,10 @@ if(typeof criarMotorLaudo !== 'function'){
   function updateCronologiaWraps(){
     const metodo = $('cronologiaMetodo').value;
     toggle('wrap_usgDatacao', metodo==='usg');
+    toggle('wrap_fivTransferencia', metodo==='fiv');
     toggle('wrap_incertaInfo', ehDumSemCronologia(metodo));
     toggle('wrap_dumConcordancia', metodo==='dum');
-    toggle('wrap_dumEstimada', metodo==='usg');
+    toggle('wrap_dumEstimada', metodo==='usg' || metodo==='fiv');
   }
   $('cronologiaMetodo').addEventListener('change', updateCronologiaWraps);
   updateCronologiaWraps();
@@ -1811,7 +1818,7 @@ if(typeof criarMotorLaudo !== 'function'){
       try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
     });
   }
-  ['dataExame','dum','usgDataDatacao'].forEach(wireDateMask);
+  ['dataExame','dum','usgDataDatacao','fivDataTransf'].forEach(wireDateMask);
 
   if($('cpfPaciente')) $('cpfPaciente').addEventListener('input', aplicarMascaraCPF);
 
@@ -1883,6 +1890,15 @@ if(typeof criarMotorLaudo !== 'function'){
       const dias = parseInt(v('usgDiasDatacao'), 10);
       if(!usgDt || isNaN(semanas)) return null;
       return addDays(usgDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
+    }
+    if(metodo === 'fiv'){
+      // IG na transferência = 14 dias (fecundação, convenção da DUM) + idade
+      // do embrião (3 dias em D3, 5 em D5) — DUM equivalente é a transferência
+      // menos essa soma (17 ou 19 dias).
+      const fivDt = parseDateBR(v('fivDataTransf'));
+      if(!fivDt) return null;
+      const diasEmbriao = v('fivEstagio')==='d5' ? 5 : 3;
+      return addDays(fivDt, -(14 + diasEmbriao));
     }
     return parseDateBR(v('dum'));
   }
@@ -2074,10 +2090,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const medicoSolicitante = v('medicoSolicitante');
     const dum = v('dum');
     const cronologiaMetodoRaw = v('cronologiaMetodo');
-    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
+    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='fiv' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
     reqIf('usgDataDatacao', cronologiaMetodo==='usg');
     reqIf('usgSemanasDatacao', cronologiaMetodo==='usg');
     reqIf('usgDiasDatacao', cronologiaMetodo==='usg');
+    reqIf('fivDataTransf', cronologiaMetodo==='fiv');
     const dataBase = computeDataBase(cronologiaMetodo);
     const cronologia = computeCronologia(dataBase, dataExame);
     const cronologiaEl = $('cronologia');
@@ -2095,6 +2112,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const usgDataDatacaoTxt = v('usgDataDatacao');
     const usgSemanasDatacaoTxt = v('usgSemanasDatacao');
     const usgDiasDatacaoTxt = v('usgDiasDatacao');
+    const fivDataTransfTxt = v('fivDataTransf');
+    const fivEstagioTxt = v('fivEstagio')==='d5' ? 'D5 (blastocisto)' : 'D3';
     const gpaG = v('gpaG');
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
@@ -2311,6 +2330,8 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+(gpaG==='0' ? '' : ' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>'
       +(cronologiaMetodo==='usg'
         ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+'+'+span(blankOrValue(usgDiasDatacaoTxt))+' semanas: '+span(blankOrValue(cronologia))+'</span></div>'
+        : cronologiaMetodo==='fiv'
+          ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por FIV — transferência de '+span(blankOrValue(fivDataTransfTxt))+' ('+fivEstagioTxt+'): '+span(blankOrValue(cronologia))+'</span></div>'
         // DUM incerta/ignorada: sem DUM não há cronologia — a linha do
         // cabeçalho mostra só "DUM: incerta"/"DUM: ignorada", sem
         // cronologia nenhuma ao lado (a IG informada só aparece na
@@ -3010,7 +3031,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       if(!gestacao){
         const cronologiaMetodoAtual = v('cronologiaMetodo');
-        const dataBase = computeDataBase(cronologiaMetodoAtual==='usg' ? cronologiaMetodoAtual : 'dum');
+        const dataBase = computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='fiv') ? cronologiaMetodoAtual : 'dum');
         if(!dataBase){
           cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
           return;
