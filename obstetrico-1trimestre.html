@@ -2542,7 +2542,10 @@ if(typeof criarMotorLaudo !== 'function'){
       Array.from(ul.children).forEach(li=>{
         const p = document.createElement('p');
         p.style.margin = '0 0 ' + (liStyle ? liStyle.marginBottom : '2px');
-        if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; p.style.textAlign = liStyle.textAlign; p.style.paddingLeft = liStyle.paddingLeft; p.style.textIndent = liStyle.textIndent; }
+        // margin-left, não padding-left: o filtro de HTML do Word ignora padding
+        // em <p>, só honra indentação via margin — sobrava o text-indent negativo
+        // sem compensação, e o "*" saía pendurado à esquerda do resto do texto.
+        if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; p.style.textAlign = liStyle.textAlign; p.style.marginLeft = liStyle.paddingLeft; p.style.textIndent = liStyle.textIndent; }
         p.style.fontWeight = '700';
         p.innerHTML = li.innerHTML;
         div.appendChild(p);

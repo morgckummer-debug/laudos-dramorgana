@@ -532,7 +532,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Bexiga alterada — use {DESCRICAO}</label><textarea id="ph_impBexigaAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 mioma</label><textarea id="ph_impMioma1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 ou mais miomas</label><textarea id="ph_impMiomaVarios" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Útero miomatoso (3 ou mais nódulos)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero de volume aumentado com mioma(s)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Adenomiose</label><textarea id="ph_impAdenomiose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Istmocele — impressão (frase fixa, exibida sempre que a istmocele estiver marcada)</label><textarea id="ph_impIstmocele" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical</label><textarea id="ph_impPolipoEndocervical" rows="2"></textarea></div>
@@ -1778,7 +1778,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impBexigaAlterada: 'Alteração vesical: {DESCRICAO}.',
     impMioma1: 'Nódulo sólido sugestivo de mioma.',
     impMiomaVarios: 'Nódulos sólidos sugestivos de miomas.',
-    impUteroMiomatoso: 'Útero de volume aumentado, miomatoso.',
+    impUteroMiomatoso: 'Útero de volume aumentado, apresentando nódulos sugestivos de mioma.',
     impAdenomiose: 'Alteração difusa da ecotextura miometrial sugestiva de adenomiose.',
     impIstmocele: 'Istmocele associada a importante afilamento do miométrio - Recomenda-se avaliação especializada quando houver desejo reprodutivo.',
     impPolipoEndocervical: 'Imagem sugestiva de pólipo endocervical.',
@@ -2287,11 +2287,9 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(state.miometrioAspecto==='mioma' && state.miomaTemDados){
-      if(state.miomaFrags.length>=3){
-        items.push({key:'miomatose', label:phraseRaw('impMiomaVarios'), auto:true});
+      items.push({key:'miomatose', label: state.miomaFrags.length>1 ? phraseRaw('impMiomaVarios') : phraseRaw('impMioma1'), auto:true});
+      if(state.uteroVolumeAumentado){
         items.push({key:'utero-miomatoso', label:phraseRaw('impUteroMiomatoso'), auto:true});
-      } else {
-        items.push({key:'miomatose', label: state.miomaFrags.length>1 ? phraseRaw('impMiomaVarios') : phraseRaw('impMioma1'), auto:true});
       }
     }
     if(state.chkAdenomiose){
@@ -2494,7 +2492,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const uteroT = blankOrValue(reqIf('uteroT', uteroPresente));
     const uteroVolumeNum = num('uteroVolume'); reqIf('uteroVolume', uteroPresente);
     const uteroVolume = blankOrValue(v('uteroVolume'));
-    flag('uteroVolume', uteroPresente && uteroVolumeNum!==null && uteroVolumeNum > vrUteroLimite);
+    const uteroVolumeAumentado = uteroPresente && uteroVolumeNum!==null && uteroVolumeNum > vrUteroLimite;
+    flag('uteroVolume', uteroVolumeAumentado);
 
     const miometrioAspecto = v('miometrioAspecto');
     const chkAdenomiose = $('chkAdenomiose').checked;
@@ -2505,11 +2504,15 @@ if(typeof criarMotorLaudo !== 'function'){
     miomaUids.forEach(uid=>{
       const figo = v('mioma'+uid+'Figo');
       const medida = reqIf('mioma'+uid+'Medida', true);
-      if(!medida) return;
       const parede = v('mioma'+uid+'Parede');
       const detalhe = v('mioma'+uid+'CervicalDetalhe');
       const posicao = v('mioma'+uid+'Posicao');
-      miomaFrags.push(FIGO_TEXT[figo](parede, medida, detalhe, posicao));
+      // Nunca pular o nódulo por falta de medida: um "return" aqui apagava o
+      // nódulo inteiro do laudo, em silêncio (só o contorno vermelho do campo,
+      // que a médica podia não notar, indicava algo pendente) — igual a
+      // qualquer outro campo obrigatório, medida em branco vira "____" em
+      // vermelho, mas o nódulo continua aparecendo.
+      miomaFrags.push(FIGO_TEXT[figo](parede, span(blankOrValue(medida)), detalhe, posicao));
       miomaFigos.push(figo);
     });
     // FIGO 5/6/7 are subserosal myomas — they distort the uterine serosa, so
@@ -2599,8 +2602,11 @@ if(typeof criarMotorLaudo !== 'function'){
     endoUids.forEach(uid=>{
       const local = v('endo'+uid+'Local') || 'retossigmoide';
       const regiao = v('endo'+uid+'Regiao') || 'retrocervical';
-      const medida = reqIf('endo'+uid+'Medida', true);
-      if(!medida) return;
+      // Mesmo conserto do mioma logo acima: medida em branco não pode apagar
+      // o nódulo inteiro (isso já tinha um fallback para quando NENHUM nódulo
+      // tem medida — "Preencha ao menos um nódulo..." — mas não para quando só
+      // um dos vários fica sem, que sumia calado dos demais).
+      const medida = span(blankOrValue(reqIf('endo'+uid+'Medida', true)));
       endometrioseItens.push({local, regiao, medida});
     });
     const liquidoLivre = v('liquidoLivre');
@@ -2614,7 +2620,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // ----- Impressão -----
     const state = {
       bexigaAspecto, bexigaDescricao,
-      miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose,
+      miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose, uteroVolumeAumentado,
       chkIstmocele, istmocelePct, chkPolipoEndocervical, chkDIU, diuPosicao,
       endometrioAspecto,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
@@ -2682,18 +2688,24 @@ if(typeof criarMotorLaudo !== 'function'){
       }
       if(miometrioAspecto==='mioma'){
         if(miomaFrags.length===1){
-          uteroLinha += ' '+phrase('miomaIntro1', {F1: miomaFrags[0]});
+          // phraseRaw, não phrase(): cada fragmento já vem com o "____" da
+          // medida embrulhado num <span> (blankOrValue+span) — phrase()
+          // escapa a string inteira depois de substituir, o que transformava
+          // o <span> em texto literal na tela.
+          uteroLinha += ' '+phraseRaw('miomaIntro1', {F1: miomaFrags[0]});
         } else if(miomaFrags.length===2){
-          uteroLinha += ' '+phrase('miomaIntro2', {F1: miomaFrags[0], F2: miomaFrags[1]});
+          uteroLinha += ' '+phraseRaw('miomaIntro2', {F1: miomaFrags[0], F2: miomaFrags[1]});
         } else if(miomaFrags.length>=3){
-          uteroLinha += ' '+phrase('miomaIntroVarios');
+          uteroLinha += ' '+phraseRaw('miomaIntroVarios');
         } else {
           uteroLinha += ' <span class="blank">Preencha ao menos um nódulo (FIGO + medida) acima.</span>';
         }
       }
       blocks.push({id:'utero', html:'<p class="linha"><strong>Útero:</strong> '+uteroLinha+'</p>'});
       if(miometrioAspecto==='mioma' && miomaFrags.length>=3){
-        blocks.push({id:'uteroNodulosLista', html:'<div class="linha nodulos-lista">'+miomaFrags.map((f,i)=>'<p class="nodulo-item">- N'+(i+1)+': '+escapeHtml(f)+'</p>').join('')+'</div>'});
+        // Sem escapeHtml aqui pelo mesmo motivo acima: 'f' já é HTML (o <span>
+        // da medida em branco), não texto puro a escapar.
+        blocks.push({id:'uteroNodulosLista', html:'<div class="linha nodulos-lista">'+miomaFrags.map((f,i)=>'<p class="nodulo-item">- N'+(i+1)+': '+f+'</p>').join('')+'</div>'});
       }
       if(miometrioAspecto==='mioma' && miometrioDescricaoExtra){
         blocks.push({id:'uteroDescricaoExtra', html:'<p class="linha">'+escapeHtml(miometrioDescricaoExtra)+'.</p>'});
@@ -2915,7 +2927,11 @@ if(typeof criarMotorLaudo !== 'function'){
         p.style.margin = '0 0 6px';
         p.style.fontWeight = '700';
         p.style.textAlign = 'justify';
-        p.style.paddingLeft = indent;
+        // margin-left, não padding-left: o parágrafo de Word não tem noção de
+        // padding (o filtro de HTML do Word ignora essa propriedade em <p>),
+        // só de indentação via margin — sobrava só o text-indent negativo sem
+        // a compensação, e o "*" saía pendurado à esquerda do resto do texto.
+        p.style.marginLeft = indent;
         p.style.textIndent = '-'+indent;
         if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; }
         p.innerHTML = li.innerHTML;
