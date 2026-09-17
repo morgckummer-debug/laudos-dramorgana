@@ -475,6 +475,15 @@
   <div class="field" style="margin-bottom:8px;"><label>FIGO 6 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF6" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>FIGO 7 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF7" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>FIGO 8 — use {DETALHE} e {MEDIDA}</label><textarea id="ph_figoF8" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Adenomiose (isolada, sem mioma) — use {SIMETRIA}</label><textarea id="ph_adenomiose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Adenomiose (junto com mioma — sem a cláusula "sem nódulos") — use {SIMETRIA}</label><textarea id="ph_adenomioseComMioma" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Istmocele / colo / DIU</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Istmocele — use {MEDIDA} e {PCT}</label><textarea id="ph_istmocele" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical — use {MEDIDA}</label><textarea id="ph_polipoEndocervical" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>DIU normoposicionado — use {MEDIDA}</label><textarea id="ph_diuNormo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>DIU de baixa implantação — use {MEDIDA}</label><textarea id="ph_diuBaixa" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Ovários</h3>
@@ -514,6 +523,11 @@
   <div class="field" style="margin-bottom:8px;"><label>1 mioma</label><textarea id="ph_impMioma1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 ou mais miomas</label><textarea id="ph_impMiomaVarios" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Útero miomatoso (3 ou mais nódulos)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Adenomiose</label><textarea id="ph_impAdenomiose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Istmocele — impressão (frase fixa, exibida sempre que a istmocele estiver marcada)</label><textarea id="ph_impIstmocele" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical</label><textarea id="ph_impPolipoEndocervical" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>DIU normoposicionado</label><textarea id="ph_impDiuNormo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>DIU de baixa implantação</label><textarea id="ph_impDiuBaixa" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado uterino (útero alterado) — use {DESCRICAO}</label><textarea id="ph_impUteroAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado ovariano (ovário alterado) — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário não identificado — use {LADO}</label><textarea id="ph_impOvarioNaoIdentificado" rows="2"></textarea></div>
@@ -621,6 +635,34 @@
             <label>Observações adicionais (opcional)</label>
             <textarea id="miometrioDescricao" rows="2" placeholder="qualquer detalhe extra sobre os nódulos, ou demais nódulos além dos listados acima..."></textarea>
           </div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkAdenomiose"><label for="chkAdenomiose">Adenomiose (pode coexistir com mioma)</label></div>
+        <div class="field-row conditional" id="wrap_adenomioseSimetria">
+          <div class="field"><label>Paredes miometriais</label>
+            <select id="adenomioseSimetria"><option value="simetricas">Simétricas</option><option value="assimetricas">Assimétricas</option></select>
+          </div>
+        </div>
+
+        <hr class="sep">
+        <div class="toggle-line"><input type="checkbox" id="chkIstmocele"><label for="chkIstmocele">Istmocele (em topografia de cesárea)</label></div>
+        <div class="field-row conditional" id="wrap_istmoceleCampos">
+          <div class="field"><label>Medida da istmocele (mm)</label><input type="text" id="istmoceleMedida" placeholder="ex: 9 x 5 x 8"></div>
+          <div class="field"><label>Espessura do miométrio adjacente — EMA</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="istmoceleAnterior" placeholder="mm"></div>
+          <div class="field"><label>Espessura do miométrio residual — EMR</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="istmoceleResidual" placeholder="mm"></div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkPolipoEndocervical"><label for="chkPolipoEndocervical">Pólipo endocervical</label></div>
+        <div class="field-row conditional" id="wrap_polipoEndocervicalCampos">
+          <div class="field"><label>Medida (mm)</label><input type="text" id="polipoEndocervicalMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkDIU"><label for="chkDIU">Paciente com DIU</label></div>
+        <div class="field-row conditional" id="wrap_diuCampos">
+          <div class="field"><label>Posicionamento</label>
+            <select id="diuPosicao"><option value="normo">Normoposicionado</option><option value="baixa">De baixa implantação</option></select>
+          </div>
+          <div class="field"><label>Distância da haste ao fundo da serosa</label><input type="text" inputmode="decimal" data-decimals="1" id="diuDistancia" placeholder="mm"></div>
         </div>
 
         <div class="field conditional" id="wrap_uteroDescricao">
@@ -1380,6 +1422,12 @@ if(typeof criarMotorLaudo !== 'function'){
     figoF6: 'parede {PAREDE}, subserosa com menos de 50% do componente intramural (FIGO 6), medindo {MEDIDA} mm',
     figoF7: 'parede {PAREDE}, totalmente subserosa (FIGO 7), medindo {MEDIDA} mm',
     figoF8: 'região cervical{DETALHE} (FIGO 8), medindo {MEDIDA} mm',
+    adenomiose: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque", sem identificação de nódulos sólidos.',
+    adenomioseComMioma: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque".',
+    istmocele: 'Presença de istmocele, medindo {MEDIDA} mm. Relação entre o miométrio residual e o adjacente: {PCT}% (VR < 50%).',
+    polipoEndocervical: 'Em canal endocervical, nota-se imagem elipsoide sólida, ecogênica, com pedículo vascular identificado ao mapeamento colorido, medindo {MEDIDA} mm.',
+    diuNormo: 'Presença de imagem linear ecogênica que condiciona sombra acústica posterior, compatível com DIU, localizada acima do orifício interno do colo uterino, cuja haste se encontra no fundo da cavidade endometrial e dista {MEDIDA} mm do fundo da serosa uterina.',
+    diuBaixa: 'Presença de imagem linear ecogênica que condiciona sombra acústica posterior, compatível com DIU, cuja extremidade distal se encontra no interior do orifício interno do colo uterino (e não acima dele), distando {MEDIDA} mm do fundo da serosa uterina.',
     ovarioNormal: 'de topografia usual, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
     ovarioNaoIdentificado: 'não identificado no presente estudo. Não são identificadas massas císticas ou sólidas em sua topografia.',
     ovarioPolicisticoBase: 'de topografia usual, forma globosa e textura micropolicística, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
@@ -1408,6 +1456,11 @@ if(typeof criarMotorLaudo !== 'function'){
     impMioma1: 'Nódulo sólido sugestivo de mioma.',
     impMiomaVarios: 'Nódulos sólidos sugestivos de miomas.',
     impUteroMiomatoso: 'Útero de volume aumentado, miomatoso.',
+    impAdenomiose: 'Alteração difusa da ecotextura miometrial sugestiva de adenomiose.',
+    impIstmocele: 'Istmocele associada a importante afilamento do miométrio - Recomenda-se avaliação especializada quando houver desejo reprodutivo.',
+    impPolipoEndocervical: 'Imagem sugestiva de pólipo endocervical.',
+    impDiuNormo: 'DIU normoposicionado.',
+    impDiuBaixa: 'DIU de baixa implantação.',
     impUteroAlterado: 'Achado uterino: {DESCRICAO}.',
     impOvarioAlterado: 'Achado no ovário {LADO}: {DESCRICAO}.',
     impOvarioNaoIdentificado: 'Ovário {LADO} não identificado no presente estudo.',
@@ -1616,6 +1669,10 @@ if(typeof criarMotorLaudo !== 'function'){
       });
     }
   });
+  $('chkAdenomiose').addEventListener('change', e=> toggle('wrap_adenomioseSimetria', e.target.checked));
+  $('chkIstmocele').addEventListener('change', e=> toggle('wrap_istmoceleCampos', e.target.checked));
+  $('chkPolipoEndocervical').addEventListener('change', e=> toggle('wrap_polipoEndocervicalCampos', e.target.checked));
+  $('chkDIU').addEventListener('change', e=> toggle('wrap_diuCampos', e.target.checked));
   function wireOvario(prefix){
     const sel = $(prefix+'_aspecto');
     sel.addEventListener('change', e=>{
@@ -1923,6 +1980,15 @@ if(typeof criarMotorLaudo !== 'function'){
         items.push({key:'miomatose', label: state.miomaFrags.length>1 ? phraseRaw('impMiomaVarios') : phraseRaw('impMioma1'), auto:true});
       }
     }
+    if(state.chkAdenomiose){
+      items.push({key:'adenomiose', label:phraseRaw('impAdenomiose'), auto:true});
+    }
+    if(state.chkIstmocele){
+      items.push({key:'istmocele', label:phraseRaw('impIstmocele'), auto:true});
+    }
+    if(state.chkPolipoEndocervical){
+      items.push({key:'polipo-endocervical', label:phraseRaw('impPolipoEndocervical'), auto:true});
+    }
     if(state.corpoLuteoLado === 'nao_identificado'){
       items.push({key:'ciclo', label:phraseRaw('impCicloAnovulatorio'), auto:true});
     } else {
@@ -1985,6 +2051,10 @@ if(typeof criarMotorLaudo !== 'function'){
         }
       }
     });
+
+    if(state.chkDIU){
+      items.push({key:'diu', label: state.diuPosicao==='baixa' ? phraseRaw('impDiuBaixa') : phraseRaw('impDiuNormo'), auto:true});
+    }
 
     return items;
   }
@@ -2086,6 +2156,23 @@ if(typeof criarMotorLaudo !== 'function'){
     const uteroContornos = miomaFigos.some(f => f==='F5' || f==='F6' || f==='F7') ? 'irregulares' : 'regulares';
     const miometrioDescricaoExtra = vNoDot('miometrioDescricao');
 
+    const chkAdenomiose = $('chkAdenomiose').checked;
+    const adenomioseSimetria = v('adenomioseSimetria')==='assimetricas' ? 'assimétricas' : 'simétricas';
+
+    const chkIstmocele = $('chkIstmocele').checked;
+    const istmoceleMedida = blankOrValue(reqIf('istmoceleMedida', chkIstmocele));
+    const istmoceleAnteriorNum = num('istmoceleAnterior'); reqIf('istmoceleAnterior', chkIstmocele);
+    const istmoceleResidualNum = num('istmoceleResidual'); reqIf('istmoceleResidual', chkIstmocele);
+    const istmocelePct = (istmoceleAnteriorNum!==null && istmoceleResidualNum!==null && istmoceleAnteriorNum>0)
+      ? Math.round((istmoceleResidualNum/istmoceleAnteriorNum)*100) : null;
+
+    const chkPolipoEndocervical = $('chkPolipoEndocervical').checked;
+    const polipoEndocervicalMedida = blankOrValue(reqIf('polipoEndocervicalMedida', chkPolipoEndocervical));
+
+    const chkDIU = $('chkDIU').checked;
+    const diuPosicao = v('diuPosicao');
+    const diuDistancia = blankOrValue(reqIf('diuDistancia', chkDIU));
+
     const vrOvarioTexto = VR.ovarioMin.toString().replace('.',',')+' e '+VR.ovarioMax.toString().replace('.',',');
 
     function readOvario(prefix){
@@ -2143,6 +2230,7 @@ if(typeof criarMotorLaudo !== 'function'){
       chkAscite, ovarioVolumeAlto,
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
+      chkAdenomiose, chkIstmocele, chkPolipoEndocervical, chkDIU, diuPosicao,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
       ovD_aspecto2: ovD.aspecto2, ovD_descricao2: ovD.descricao2,
       ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao, ovE_volNum: ovE.volNum,
@@ -2182,8 +2270,15 @@ if(typeof criarMotorLaudo !== 'function'){
     let uteroLinha;
     if(uteroAspecto==='alterado'){
       uteroLinha = span(blankOrValue(uteroDescricao));
+      if(chkAdenomiose){
+        uteroLinha += ' '+phrase('adenomiose', {SIMETRIA: adenomioseSimetria});
+      }
     } else if(uteroAspecto==='mioma'){
       uteroLinha = phrase('uteroBaseComNodulos', {POSICAO: uteroPosicaoTexto, CONTORNOS: uteroContornos});
+      if(chkAdenomiose){
+        // Adenomiose (alteração difusa) é descrita antes dos nódulos de mioma.
+        uteroLinha += ' '+phrase('adenomioseComMioma', {SIMETRIA: adenomioseSimetria});
+      }
       if(miomaFrags.length===1){
         uteroLinha += ' '+phrase('miomaIntro1', {F1: miomaFrags[0]});
       } else if(miomaFrags.length===2){
@@ -2194,7 +2289,10 @@ if(typeof criarMotorLaudo !== 'function'){
         uteroLinha += ' <span class="blank">Preencha ao menos um nódulo (FIGO + medida) acima.</span>';
       }
     } else {
-      uteroLinha = phrase('uteroBase', {POSICAO: uteroPosicaoTexto});
+      uteroLinha = phrase(chkAdenomiose ? 'uteroBaseComNodulos' : 'uteroBase', {POSICAO: uteroPosicaoTexto, CONTORNOS: uteroContornos});
+      if(chkAdenomiose){
+        uteroLinha += ' '+phrase('adenomiose', {SIMETRIA: adenomioseSimetria});
+      }
     }
     blocks.push({id:'utero', html:'<p class="linha"><strong>Útero:</strong> '+uteroLinha+'</p>'});
     if(uteroAspecto==='mioma' && miomaFrags.length>=3){
@@ -2204,6 +2302,16 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'uteroDescricaoExtra', html:'<p class="linha">'+escapeHtml(miometrioDescricaoExtra)+'.</p>'});
     }
     blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
+    if(chkIstmocele){
+      const pctObj = istmocelePct!==null ? {text: String(istmocelePct), filled:true} : {text:'____', filled:false};
+      blocks.push({id:'istmocele', html:'<p class="linha">'+phraseRaw('istmocele', {MEDIDA: span(istmoceleMedida), PCT: span(pctObj)})+'</p>'});
+    }
+    if(chkPolipoEndocervical){
+      blocks.push({id:'polipoEndocervical', html:'<p class="linha">'+phraseRaw('polipoEndocervical', {MEDIDA: span(polipoEndocervicalMedida)})+'</p>'});
+    }
+    if(chkDIU){
+      blocks.push({id:'diu', html:'<p class="linha">'+phraseRaw(diuPosicao==='baixa' ? 'diuBaixa' : 'diuNormo', {MEDIDA: span(diuDistancia)})+'</p>'});
+    }
 
     // Dobra a frase do achado dentro da mesma sentença do volume, em vez de um
     // parágrafo à parte. A maioria das frases de achado começa com "Ovário
