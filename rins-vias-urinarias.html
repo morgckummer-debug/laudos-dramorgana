@@ -380,6 +380,7 @@
   <hr class="sep">
   <h3>Bexiga</h3>
   <div class="field" style="margin-bottom:8px;"><label>Bexiga de esforço</label><textarea id="ph_impBexigaEsforco" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cistite</label><textarea id="ph_impBexigaCistite" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cistolitíase</label><textarea id="ph_impBexigaCalculo" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -630,6 +631,7 @@
             <select id="bexigaAspecto">
               <option value="normal">Normal (topografia e repleção normais)</option>
               <option value="esforco">Bexiga de esforço (paredes espessadas e trabeculadas)</option>
+              <option value="cistite">Cistite (paredes espessadas, sem trabeculações)</option>
               <option value="calculo">Cálculo vesical</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
@@ -638,10 +640,18 @@
         <div class="field-row field-row-compact conditional" id="wrap_bexigaEsforco">
           <div class="field"><label>Espessura da parede</label>
             <input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="bexigaEsforcoEspessura" placeholder="mm">
-            <span class="vr">VR até 3,0 mm</span>
+            <span class="vr">VR até 5,0 mm</span>
             <span class="flag-note" id="flag_bexigaEsforcoEspessura">Acima do valor de referência</span>
           </div>
         </div>
+        <div class="field-row field-row-compact conditional" id="wrap_bexigaCistite">
+          <div class="field"><label>Espessura da parede</label>
+            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="bexigaCistiteEspessura" placeholder="mm">
+            <span class="vr">VR até 5,0 mm</span>
+            <span class="flag-note" id="flag_bexigaCistiteEspessura">Acima do valor de referência</span>
+          </div>
+        </div>
+        <div class="toggle-line conditional" id="wrap_bexigaCistiteDebris"><input type="checkbox" id="chkBexigaCistiteDebris"><label for="chkBexigaCistiteDebris">Conteúdo com debris/ecos em suspensão</label></div>
         <div class="field-row field-row-compact conditional" id="wrap_bexigaCalculoCampos">
           <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="bexigaCalculoTamanho" placeholder="mm"></div>
         </div>
@@ -1231,6 +1241,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impNefrocalcinose: 'Nefrocalcinose medular {LADO}.',
     impUreterolitiase: 'Ureterolitíase {TERCO} {LADO}.',
     impBexigaEsforco: 'Achados ecográficos sugestivos de bexiga de esforço.',
+    impBexigaCistite: 'Achados ecográficos sugestivos de processo inflamatório/infeccioso vesical (cistite).',
     impBexigaCalculo: 'Cistolitíase.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
@@ -1442,6 +1453,8 @@ if(typeof criarMotorLaudo !== 'function'){
   $('bexigaAspecto').addEventListener('change', e=>{
     const val = e.target.value;
     toggle('wrap_bexigaEsforco', val==='esforco');
+    toggle('wrap_bexigaCistite', val==='cistite');
+    toggle('wrap_bexigaCistiteDebris', val==='cistite');
     toggle('wrap_bexigaCalculoCampos', val==='calculo');
     toggle('wrap_bexigaDescricao', val==='alterado');
     if(val==='alterado') prefillAlteradoIfEmpty('bexigaDescricao', BEXIGA_NORMAL);
@@ -1703,7 +1716,11 @@ if(typeof criarMotorLaudo !== 'function'){
     reqIf('bexigaDescricao', bexigaAspecto==='alterado');
     const bexigaEsforcoNum = num('bexigaEsforcoEspessura'); reqIf('bexigaEsforcoEspessura', bexigaAspecto==='esforco');
     const bexigaEsforcoTexto = blankOrValue(v('bexigaEsforcoEspessura'));
-    flag('bexigaEsforcoEspessura', bexigaEsforcoNum!==null && bexigaEsforcoNum > 3.0);
+    flag('bexigaEsforcoEspessura', bexigaEsforcoNum!==null && bexigaEsforcoNum > 5.0);
+    const bexigaCistiteNum = num('bexigaCistiteEspessura'); reqIf('bexigaCistiteEspessura', bexigaAspecto==='cistite');
+    const bexigaCistiteTexto = blankOrValue(v('bexigaCistiteEspessura'));
+    flag('bexigaCistiteEspessura', bexigaCistiteNum!==null && bexigaCistiteNum > 5.0);
+    const bexigaCistiteDebris = $('chkBexigaCistiteDebris').checked;
     const bexigaCalculoTamanhoTexto = blankOrValue(reqIf('bexigaCalculoTamanho', bexigaAspecto==='calculo'));
     const volumeInicialTexto = blankOrValue(req('volumeInicial'));
     const volumePosNum = num('volumePosMiccional'); req('volumePosMiccional');
@@ -1724,6 +1741,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const state = {
       rimBilateralHDs, rimDImpressaoHDs: rimDAchado.hds, rimEImpressaoHDs: rimEAchado.hds,
       bexigaImpressaoHD: bexigaAspecto==='esforco' ? phrase('impBexigaEsforco')
+        : bexigaAspecto==='cistite' ? phrase('impBexigaCistite')
         : bexigaAspecto==='calculo' ? phrase('impBexigaCalculo')
         : null
     };
@@ -1774,7 +1792,9 @@ if(typeof criarMotorLaudo !== 'function'){
 
     let bexigaTexto;
     if(bexigaAspecto==='esforco'){
-      bexigaTexto = 'Com boa repleção, de forma anatômica, paredes difusamente espessadas, medindo '+span(bexigaEsforcoTexto)+' mm (VR: até 3,0 mm) e trabeculadas. Conteúdo de aspecto límpido. Ausência de dilatação dos ureteres distais. Meatos ureterais sem alterações.';
+      bexigaTexto = 'Com boa repleção, de forma anatômica, paredes difusamente espessadas, medindo '+span(bexigaEsforcoTexto)+' mm (VR: até 5,0 mm) e trabeculadas. Conteúdo de aspecto límpido. Ausência de dilatação dos ureteres distais. Meatos ureterais sem alterações.';
+    } else if(bexigaAspecto==='cistite'){
+      bexigaTexto = 'Com boa repleção, de forma anatômica, paredes difusamente espessadas, medindo '+span(bexigaCistiteTexto)+' mm (VR: até 5,0 mm), sem trabeculações. Conteúdo '+(bexigaCistiteDebris ? 'com debris/ecos em suspensão' : 'de aspecto límpido')+'. Achados que podem estar relacionados a processo inflamatório/infeccioso (cistite). Ausência de dilatação dos ureteres distais. Meatos ureterais sem alterações.';
     } else if(bexigaAspecto==='calculo'){
       bexigaTexto = 'De topografia usual, boa repleção, contorno interno regular. Em seu interior, observa-se imagem ovalada hiperecogênica, móvel às mudanças de decúbito, que condiciona sombra acústica posterior, medindo '+span(bexigaCalculoTamanhoTexto)+' mm. Meatos ureterais pérvios, sem alterações.';
     } else if(bexigaAspecto==='alterado' && bexigaDescricao){
