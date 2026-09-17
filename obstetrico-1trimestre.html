@@ -1578,16 +1578,15 @@ if(typeof criarMotorLaudo !== 'function'){
   $('molaVitalidade').addEventListener('change', updateMolaFetoWraps);
   wireDigitsOnlyInput('molaFc', 3);
   toggle('wrap_recomendacao', $('chkRecomendacao').checked);
-  $('cronologiaMetodo').addEventListener('change', e=>{
-    toggle('wrap_usgDatacao', e.target.value==='usg');
-    toggle('wrap_incertaInfo', ehDumSemCronologia(e.target.value));
-    toggle('wrap_dumConcordancia', e.target.value==='dum');
-    toggle('wrap_dumEstimada', e.target.value==='usg');
-  });
-  toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
-  toggle('wrap_incertaInfo', ehDumSemCronologia($('cronologiaMetodo').value));
-  toggle('wrap_dumConcordancia', $('cronologiaMetodo').value==='dum');
-  toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg');
+  function updateCronologiaWraps(){
+    const metodo = $('cronologiaMetodo').value;
+    toggle('wrap_usgDatacao', metodo==='usg');
+    toggle('wrap_incertaInfo', ehDumSemCronologia(metodo));
+    toggle('wrap_dumConcordancia', metodo==='dum');
+    toggle('wrap_dumEstimada', metodo==='usg');
+  }
+  $('cronologiaMetodo').addEventListener('change', updateCronologiaWraps);
+  updateCronologiaWraps();
 
   function updateGestacaoWrap(){
     toggle('wrap_corionicidade', $('numeroEmbrioes').value !== '1');
@@ -2711,8 +2710,13 @@ if(typeof criarMotorLaudo !== 'function'){
     // wrap_gestacaoNormal/wrap_sacosSection — sem isto a seção de saco
     // gestacional ficava escondida para a próxima paciente até algum clique
     // manual em mola/abortamento sem saco reabrir (bug preexistente do botão
-    // "Limpar" deste laudo, já presente antes desta função existir).
+    // "Limpar" deste laudo, já presente antes desta função existir). Mesmo
+    // problema com o "DUM Concordante/Discordante": o select de cronologia
+    // volta para "DUM" (primeira opção), mas sem refazer o toggle o campo
+    // ficava escondido — e a médica não tinha como marcar a DUM como
+    // discordante, então a DPP saía calculada direto pela DUM informada.
     updateGestacaoModo();
+    updateCronologiaWraps();
     addSaco();
     addMiomaNodule();
     // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
