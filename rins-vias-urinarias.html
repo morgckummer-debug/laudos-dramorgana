@@ -412,6 +412,7 @@
             </select>
           </div>
         </div>
+        <div class="field"><label>Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" rows="2" placeholder="ex: Dor lombar.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
       </div>
     </div>
 
@@ -1538,6 +1539,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const dataExame = v('dataExame');
     const medicoSolicitante = v('medicoSolicitante');
     req('nomePaciente'); req('dataExame');
+    const motivoExame = vNoDot('motivoExame');
 
     const lateralidadeDor = v('lateralidadeDor') || 'nenhuma';
 
@@ -1739,6 +1741,14 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'});
 
     blocks.push({id:'doctitle', html: '<h3 class="doctitle">ULTRASSOM DOS RINS E VIAS URINÁRIAS</h3>'});
+
+    if(motivoExame){
+      const linhas = motivoExame.split('\n').map(l=>l.trim()).filter(Boolean);
+      const relatoHtml = linhas.map((linha, idx)=>
+        '<span style="display:block;'+(idx>0?'margin-top:1mm;':'')+'">'+escapeHtml(linha)+(idx===linhas.length-1?'.':'')+'</span>'
+      ).join('');
+      blocks.push({id:'relato', html:'<p class="relato">'+relatoHtml+'</p>'});
+    }
 
     if(lateralidadeDor !== 'nenhuma'){
       const dorTexto = {direita:'Dor à direita.', esquerda:'Dor à esquerda.', bilateral:'Dor bilateral.'}[lateralidadeDor];
