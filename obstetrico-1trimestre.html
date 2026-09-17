@@ -1971,14 +1971,22 @@ if(typeof criarMotorLaudo !== 'function'){
         const igDias = !isNaN(semanasNum) ? (semanasNum*7 + (isNaN(diasNum) ? 0 : diasNum)) : null;
         const key = (igDias != null && igDias < 14*7) ? 'impGestacaoUnicaDumIncertaCcn' : 'impGestacaoUnicaDumIncertaBiometria';
         items.push({key:'gestacao', label: phraseRaw(key, {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
-      } else if(!state.isMultiple){
-        items.push({key:'gestacao', label: baseadaEmDum
-          ? phraseRaw('impGestacaoUnica', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
-          : phraseRaw('impGestacaoUnicaSemDum', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
       } else {
-        items.push({key:'gestacao', label: baseadaEmDum
-          ? phraseRaw('impGestacaoGemelar', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
-          : phraseRaw('impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+        // Embrião ainda não identificado: a IG só vem do DMSG (bem menos
+        // preciso que o CCN), então a conclusão não pode julgar a DUM como
+        // concordante/discordante ainda — mesmo com a cronologia sendo pela
+        // DUM, entra a frase sem essa cláusula (igual ao método por
+        // ultrassom/ecografia).
+        const falaEmDum = baseadaEmDum && !state.algumEmbrioNaoIdentificado;
+        if(!state.isMultiple){
+          items.push({key:'gestacao', label: falaEmDum
+            ? phraseRaw('impGestacaoUnica', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
+            : phraseRaw('impGestacaoUnicaSemDum', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+        } else {
+          items.push({key:'gestacao', label: falaEmDum
+            ? phraseRaw('impGestacaoGemelar', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
+            : phraseRaw('impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+        }
       }
 
       const suprimirBoaEvolucao = state.algumIsgReduzido || state.algumHematoma || state.algumEmbrioNaoIdentificado || state.algumAnembrionada;
@@ -2291,6 +2299,11 @@ if(typeof criarMotorLaudo !== 'function'){
     // "Muito inicial" só conta quando não é o caso pathológico (anembrionada) —
     // as duas nunca aparecem juntas na conclusão para o mesmo saco.
     const algumEmbrioNaoIdentificado = sacos.some(s=> s.vitalidade==='nao_identificado' && !s.anembrionada);
+    // Com o embrião ainda não identificado (gestação muito inicial), a IG vem
+    // só do DMSG — método impreciso demais para julgar a DUM como concordante
+    // ou discordante. O seletor some (e a conclusão não fala em DUM) até o
+    // embrião aparecer e a datação passar a ser pelo CCN.
+    toggle('wrap_dumConcordancia', cronologiaMetodo==='dum' && !algumEmbrioNaoIdentificado);
     const impSemanasNum = parseInt(impSemanas, 10);
     const impDiasNum = parseInt(impDias, 10);
     // {IG}: "X semanas e Y dia(s)" já formatado (sem "e 0 dias", "1 dia" no
