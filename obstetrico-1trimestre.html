@@ -1617,7 +1617,10 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Diâmetro médio do saco gestacional — DMSG (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'DMSG" placeholder="mm"></div>'
-      +'<div class="field"><label>Vesícula vitelínica — VV (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'VV" placeholder="mm"></div>'
+      +'<div class="field"><label>Vesícula vitelínica</label><select id="saco'+uid+'VVStatus"><option value="visivel">Visível</option><option value="nao_visivel">Não visível</option></select></div>'
+      +'</div>'
+      +'<div class="field-row conditional show" id="wrap_saco'+uid+'VV">'
+      +'<div class="field"><label>Vesícula vitelínica — VV (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'VV" placeholder="mm"><span class="flag-note" id="flag_saco'+uid+'VV">Acima do valor de referência (VR até 6,0 mm)</span></div>'
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Comprimento cabeça-nádega — CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'CCN" placeholder="mm"></div>'
@@ -1644,6 +1647,7 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_saco'+uid+'Vitalidade', !embriaoNaoIdentificado);
     toggle('wrap_saco'+uid+'FC', !embriaoNaoIdentificado && $('saco'+uid+'Vitalidade').value==='presente');
     toggle('wrap_saco'+uid+'NaoIdentificadoTipo', embriaoNaoIdentificado);
+    toggle('wrap_saco'+uid+'VV', $('saco'+uid+'VVStatus').value!=='nao_visivel');
     toggle('wrap_saco'+uid+'HematomaCampos', $('saco'+uid+'Hematoma').checked);
   }
   function sacoLabel(idx, total){
@@ -1672,6 +1676,7 @@ if(typeof criarMotorLaudo !== 'function'){
     wireDecimalInputs();
     $('saco'+uid+'Vitalidade').addEventListener('change', ()=> updateSacoWraps(uid));
     $('saco'+uid+'EmbriaoNaoIdentificado').addEventListener('change', ()=> updateSacoWraps(uid));
+    $('saco'+uid+'VVStatus').addEventListener('change', ()=> updateSacoWraps(uid));
     $('saco'+uid+'Hematoma').addEventListener('change', ()=> updateSacoWraps(uid));
     updateSacoWraps(uid);
     el.querySelector('.saco-remove').addEventListener('click', ()=>{
@@ -2061,6 +2066,13 @@ if(typeof criarMotorLaudo !== 'function'){
   $('paper').addEventListener('input', schedulePagePreview);
   window.addEventListener('resize', schedulePagePreview);
 
+  function flag(id, isAbnormal){
+    const el = $(id), note = $('flag_'+id);
+    if(!el) return;
+    el.classList.toggle('flag-abnormal', !!isAbnormal);
+    if(note) note.classList.toggle('show', !!isAbnormal);
+  }
+
   // ---------- Main render ----------
   let pendingCount = 0;
   let printAttempted = false;
@@ -2173,7 +2185,10 @@ if(typeof criarMotorLaudo !== 'function'){
       const label = sacoLabel(idx, uids.length);
       const insercao = v('saco'+uid+'Insercao');
       const dmsg = blankOrValue(req('saco'+uid+'DMSG'));
-      const vv = blankOrValue(req('saco'+uid+'VV'));
+      const vvVisivel = v('saco'+uid+'VVStatus') !== 'nao_visivel';
+      const vv = blankOrValue(reqIf('saco'+uid+'VV', vvVisivel));
+      const vvNum = num('saco'+uid+'VV');
+      flag('saco'+uid+'VV', vvVisivel && vvNum!==null && vvNum > 6.0);
       // "Embrião não identificado" é um checkbox à parte (fica confuso junto
       // do dropdown de batimentos cardíacos) mas o resto do código ainda
       // trata os três estados como um "vitalidade" só.
@@ -2199,7 +2214,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const hematomaLocal = v('saco'+uid+'HematomaLocal');
       const hematomaFace = v('saco'+uid+'HematomaFace');
       const hematomaMedida = blankOrValue(reqIf('saco'+uid+'HematomaMedida', hematoma));
-      return {uid, label, insercao, dmsg, vv, ccn, vitalidade, anembrionada, fc, isgPequeno, isgValor, isgNum, hematoma, hematomaLocal, hematomaFace, hematomaMedida};
+      return {uid, label, insercao, dmsg, vv, vvVisivel, ccn, vitalidade, anembrionada, fc, isgPequeno, isgValor, isgNum, hematoma, hematomaLocal, hematomaFace, hematomaMedida};
     });
     const algumObito = sacos.some(s=> s.vitalidade==='ausente');
     // "Em curso" convive com a gestação normal (o saco pode continuar visível,
@@ -2389,7 +2404,9 @@ if(typeof criarMotorLaudo !== 'function'){
       sacoHtml += '<p class="linha tight"><strong>Parâmetros biométricos:</strong></p>';
       sacoHtml += '<table class="biometria">'
         +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
-        +'<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
+        +(s.vvVisivel
+          ? '<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
+          : '<tr><td>Vesícula vitelínica (VV)</td><td>Não avaliável</td></tr>')
         +(s.vitalidade==='nao_identificado'
           ? '<tr><td>Comprimento cabeça-nádega (CCN)</td><td>Não avaliável</td></tr>'
           : '<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>')
