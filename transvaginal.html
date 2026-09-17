@@ -2303,9 +2303,6 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.chkPolipoEndocervical){
       items.push({key:'polipo-endocervical', label:phraseRaw('impPolipoEndocervical'), auto:true});
     }
-    if(state.chkDIU){
-      items.push({key:'diu', label: state.diuPosicao==='baixa' ? phraseRaw('impDiuBaixa') : phraseRaw('impDiuNormo'), auto:true});
-    }
     if(state.endometrioAspecto==='polipo'){
       items.push({key:'polipo-endometrial', label:phraseRaw('impPolipoEndometrial'), auto:true});
     }
@@ -2387,6 +2384,10 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     if(state.chkMobilidadeOvE && !state.chkTransabdominal){
       items.push({key:'mobilidade-ov-e', label:phraseRaw('impMobilidadeOvarioReduzida', {LADO:'esquerdo'}), auto:true});
+    }
+
+    if(state.chkDIU){
+      items.push({key:'diu', label: state.diuPosicao==='baixa' ? phraseRaw('impDiuBaixa') : phraseRaw('impDiuNormo'), auto:true});
     }
 
     const anythingAbnormal = items.length>0;
