@@ -532,7 +532,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Bexiga alterada — use {DESCRICAO}</label><textarea id="ph_impBexigaAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 mioma</label><textarea id="ph_impMioma1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 ou mais miomas</label><textarea id="ph_impMiomaVarios" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Útero miomatoso (3 ou mais nódulos)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero de volume aumentado com mioma(s)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Adenomiose</label><textarea id="ph_impAdenomiose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Istmocele — impressão (frase fixa, exibida sempre que a istmocele estiver marcada)</label><textarea id="ph_impIstmocele" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical</label><textarea id="ph_impPolipoEndocervical" rows="2"></textarea></div>
@@ -1778,7 +1778,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impBexigaAlterada: 'Alteração vesical: {DESCRICAO}.',
     impMioma1: 'Nódulo sólido sugestivo de mioma.',
     impMiomaVarios: 'Nódulos sólidos sugestivos de miomas.',
-    impUteroMiomatoso: 'Útero de volume aumentado, miomatoso.',
+    impUteroMiomatoso: 'Útero de volume aumentado, apresentando nódulos sugestivos de mioma.',
     impAdenomiose: 'Alteração difusa da ecotextura miometrial sugestiva de adenomiose.',
     impIstmocele: 'Istmocele associada a importante afilamento do miométrio - Recomenda-se avaliação especializada quando houver desejo reprodutivo.',
     impPolipoEndocervical: 'Imagem sugestiva de pólipo endocervical.',
@@ -2287,11 +2287,9 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(state.miometrioAspecto==='mioma' && state.miomaTemDados){
-      if(state.miomaFrags.length>=3){
-        items.push({key:'miomatose', label:phraseRaw('impMiomaVarios'), auto:true});
+      items.push({key:'miomatose', label: state.miomaFrags.length>1 ? phraseRaw('impMiomaVarios') : phraseRaw('impMioma1'), auto:true});
+      if(state.uteroVolumeAumentado){
         items.push({key:'utero-miomatoso', label:phraseRaw('impUteroMiomatoso'), auto:true});
-      } else {
-        items.push({key:'miomatose', label: state.miomaFrags.length>1 ? phraseRaw('impMiomaVarios') : phraseRaw('impMioma1'), auto:true});
       }
     }
     if(state.chkAdenomiose){
@@ -2494,7 +2492,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const uteroT = blankOrValue(reqIf('uteroT', uteroPresente));
     const uteroVolumeNum = num('uteroVolume'); reqIf('uteroVolume', uteroPresente);
     const uteroVolume = blankOrValue(v('uteroVolume'));
-    flag('uteroVolume', uteroPresente && uteroVolumeNum!==null && uteroVolumeNum > vrUteroLimite);
+    const uteroVolumeAumentado = uteroPresente && uteroVolumeNum!==null && uteroVolumeNum > vrUteroLimite;
+    flag('uteroVolume', uteroVolumeAumentado);
 
     const miometrioAspecto = v('miometrioAspecto');
     const chkAdenomiose = $('chkAdenomiose').checked;
@@ -2614,7 +2613,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // ----- Impressão -----
     const state = {
       bexigaAspecto, bexigaDescricao,
-      miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose,
+      miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose, uteroVolumeAumentado,
       chkIstmocele, istmocelePct, chkPolipoEndocervical, chkDIU, diuPosicao,
       endometrioAspecto,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
