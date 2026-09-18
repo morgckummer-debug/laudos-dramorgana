@@ -464,7 +464,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — óbito embrionário</label><textarea id="ph_embriaoObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação muito inicial)</label><textarea id="ph_embriaoNaoIdentificado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação anembrionada)</label><textarea id="ph_embriaoAnembrionado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação anembrionada) — use {VV_TRECHO}</label><textarea id="ph_embriaoAnembrionado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Abortamento sem saco — cavidade vazia (completo) — use {ESPESSURA}</label><textarea id="ph_achadoCavidadeVazia" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Abortamento sem saco — conteúdo residual (incompleto) — use {ESPESSURA}</label><textarea id="ph_achadoConteudoResidual" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Captação de fluxo ao Doppler no conteúdo residual (só no incompleto) — use {LOCAL} e {FACE}</label><textarea id="ph_fluxoResidual" rows="2"></textarea></div>
@@ -1357,7 +1357,7 @@ if(typeof criarMotorLaudo !== 'function'){
     embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
     embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
     embriaoNaoIdentificado: 'Embrião ainda não identificado — gestação em fase muito inicial.',
-    embriaoAnembrionado: 'Saco gestacional sem embrião ou vesícula vitelínica identificáveis — achado compatível com gestação anembrionada.',
+    embriaoAnembrionado: 'Saco gestacional sem embrião{VV_TRECHO} — achado compatível com gestação anembrionada.',
     achadoCavidadeVazia: 'Cavidade uterina vazia, sem saco gestacional ou conteúdo residual identificável, endométrio medindo {ESPESSURA} mm.',
     achadoConteudoResidual: 'Cavidade uterina sem saco gestacional identificável, com conteúdo heterogêneo de permeio na cavidade endometrial (compatível com coágulos/restos ovulares), endométrio medindo {ESPESSURA} mm.',
     fluxoResidual: 'Ao mapeamento Doppler colorido, nota-se captação de fluxo em meio ao conteúdo residual, de localização {LOCAL}, face {FACE} — sugestivo de tecido trofoblástico residual vascularizado.',
@@ -2406,7 +2406,9 @@ if(typeof criarMotorLaudo !== 'function'){
         sacoHtml += '<h4 class="sec">'+escapeHtml(s.label.toUpperCase())+'</h4>';
       }
       sacoHtml += '<p class="linha">'+phraseRaw('sacoGestacional', {INSERCAO: s.insercao})+'</p>';
-      if(!s.hematoma){
+      if(s.hematoma){
+        sacoHtml += '<p class="linha">'+phraseRaw('hematoma', {LOCAL: s.hematomaLocal, FACE: s.hematomaFace, MEDIDA: span(s.hematomaMedida)})+'</p>';
+      } else {
         sacoHtml += '<p class="linha">'+phrase('semDescolamento')+'</p>';
       }
       sacoHtml += '<p class="linha tight" style="text-align:center;text-decoration:underline;"><strong>Parâmetros biométricos:</strong></p>';
@@ -2415,24 +2417,21 @@ if(typeof criarMotorLaudo !== 'function'){
         +(s.vvVisivel
           ? '<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
           : '<tr><td>Vesícula vitelínica (VV)</td><td>Não avaliável</td></tr>')
-        +(s.vitalidade==='nao_identificado'
-          ? '<tr><td>Comprimento cabeça-nádega (CCN)</td><td>Não avaliável</td></tr>'
+        +(s.vitalidade==='nao_identificado' ? ''
           : '<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>')
-        +(s.vitalidade==='presente'
-          ? '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(s.fc)+' bpm</td></tr>'
-          : '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">'+(s.vitalidade==='ausente' ? 'Ausente' : 'Não avaliável')+'</span></td></tr>')
+        +(s.vitalidade==='nao_identificado' ? ''
+          : s.vitalidade==='presente'
+            ? '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(s.fc)+' bpm</td></tr>'
+            : '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">Ausente</span></td></tr>')
         +'</table>';
       if(s.isgPequeno){
         sacoHtml += '<p class="linha tight">'+phraseRaw('isgPequeno', {ISG: span(blankOrValue(s.isgValor))})+'</p>';
-      }
-      if(s.hematoma){
-        sacoHtml += '<p class="linha tight">'+phraseRaw('hematoma', {LOCAL: s.hematomaLocal, FACE: s.hematomaFace, MEDIDA: span(s.hematomaMedida)})+'</p>';
       }
       if(s.vitalidade==='ausente'){
         sacoHtml += '<p class="linha">'+phrase('fcfAusente')+'</p>';
       }
       sacoHtml += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('embriaoObito')
-        : s.vitalidade==='nao_identificado' ? (s.anembrionada ? phrase('embriaoAnembrionado') : phrase('embriaoNaoIdentificado')) : phrase('embriaoNormal'))+'</p>';
+        : s.vitalidade==='nao_identificado' ? (s.anembrionada ? phrase('embriaoAnembrionado', {VV_TRECHO: s.vvVisivel ? ' identificável, com vesícula vitelínica presente' : ' ou vesícula vitelínica identificáveis'}) : phrase('embriaoNaoIdentificado')) : phrase('embriaoNormal'))+'</p>';
       sacoHtml += '</div>';
       blocks.push({id:'saco_'+s.uid, html:sacoHtml});
     });
