@@ -2248,9 +2248,8 @@ if(typeof criarMotorLaudo !== 'function'){
 
     if(dopplerMaterno){
       const tabelaDopplerMaterno = ''
-        +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Materno</strong></p>'
+        +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Materno (IP)</strong></p>'
         +'<table class="biometria">'
-        +'<tr><td></td><td><strong>IP</strong></td></tr>'
         +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
         +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
         +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+(utAlterado ? ' (<span class="filled" style="text-decoration:underline;">acima do percentil 95</span>)' : ' (P'+span(blankOrValue(utPercentilTxt))+')')+'</td></tr>'
