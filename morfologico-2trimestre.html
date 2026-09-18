@@ -496,7 +496,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Uterinas normais</label><textarea id="ph_impDopplerUterinasNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Uterinas alteradas</label><textarea id="ph_impDopplerUterinasAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo uterino — texto no corpo do laudo — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="3"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Colo normal — impressão</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo normal — impressão — use {RISCO} (some em gestação múltipla)</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo curto — impressão</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -1193,7 +1193,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impDopplerUterinasNormal: 'IP médio das artérias uterinas dentro da normalidade.',
     impDopplerUterinasAlterado: 'IP médio das artérias uterinas acima da normalidade (percentil 95), sugerindo risco aumentado para pré-eclâmpsia e/ou restrição de crescimento fetal.',
     coloTexto: 'Colo uterino: de textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm (VR ≥ 25,0 mm). "Sludge" não identificado.',
-    impColoNormal: 'Colo uterino longo e fechado. Baixo risco de parto prematuro.',
+    impColoNormal: 'Colo uterino longo e fechado.{RISCO}',
     impColoAlterado: 'Colo curto. Aumento do risco de parto prematuro.',
 
     recomendacaoTexto: 'O exame realizado entre 22 e 24 semanas identifica até 90% dos defeitos congênitos. Achados negativos não significam ausência de malformações, pois existem algumas delas que só serão diagnosticadas no 3º trimestre, como por exemplo, malformações do sistema digestivo e músculo-esquelético. Este exame não exclui a necessidade de realização do ECOCARDIOGRAMA entre 24 e 28 semanas.',
@@ -1453,8 +1453,8 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Maior bolsão (cm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaBolsao" placeholder="cm"></div>'
-      +'<div class="field"><label>ILA (cm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaILA" placeholder="cm"></div>'
-      +'<div class="field"><label>Percentil do ILA</label><input type="text" inputmode="numeric" id="feto'+uid+'LaILAPercentil" placeholder="ex: 50"></div>'
+      +'<div class="field conditional show" id="wrap_feto'+uid+'LaILA"><label>ILA (cm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaILA" placeholder="cm"></div>'
+      +'<div class="field conditional show" id="wrap_feto'+uid+'LaILAPercentil"><label>Percentil do ILA</label><input type="text" inputmode="numeric" id="feto'+uid+'LaILAPercentil" placeholder="ex: 50"></div>'
       +'</div>'
 
       +'<p class="feto-sub">Avaliação morfológica fetal</p>'
@@ -1585,6 +1585,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const multiplo = nFetos > 1;
     toggle('wrap_corionicidade', multiplo);
     toggle('wrap_discordancia', multiplo);
+    // ILA não é aplicável em gestação múltipla — cada saco só tem o maior
+    // bolsão avaliado (os quadrantes do ILA pressupõem uma cavidade só).
+    fetoUids().forEach(uid=>{
+      toggle('wrap_feto'+uid+'LaILA', !multiplo);
+      toggle('wrap_feto'+uid+'LaILAPercentil', !multiplo);
+    });
     // Tricoriônica só existe com três fetos, e as corionicidades de dois não
     // existem com três: a lista segue o número de fetos escolhido. A curva de
     // crescimento guarda essa escolha junto do tipo da gestação, e o check de
@@ -1816,9 +1822,12 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(state.colo){
+      // "Baixo risco de parto prematuro" não cabe numa gestação múltipla — o
+      // fato de ser gemelar/trigemelar já aumenta o risco por si só, mesmo
+      // com o colo longo e fechado.
       items.push({key:'colo', label: state.coloAlterado
         ? phraseRaw('impColoAlterado')
-        : phraseRaw('impColoNormal'), auto:true});
+        : phraseRaw('impColoNormal', {RISCO: state.isMultiple ? '' : ' Baixo risco de parto prematuro.'}), auto:true});
     }
 
     return items;
@@ -2062,8 +2071,10 @@ if(typeof criarMotorLaudo !== 'function'){
       const laPolidramnio = laAspecto === 'aumentado';
       const laAlterado = laOligoamnio || laPolidramnio;
       const laBolsao = blankOrValue(req(pre+'LaBolsao'));
-      const laILA = blankOrValue(req(pre+'LaILA'));
-      const laILAPercentil = blankOrValue(v(pre+'LaILAPercentil'));
+      // Sem ILA em gestação múltipla (campo escondido — ver updateGestacaoWrap):
+      // não cobra como pendente um dado que a médica nem vê na tela.
+      const laILA = isMultiple ? blankOrValue('') : blankOrValue(req(pre+'LaILA'));
+      const laILAPercentil = isMultiple ? blankOrValue('') : blankOrValue(v(pre+'LaILAPercentil'));
 
       return {uid, label, apresentacaoHtml, fc, observacoes,
         dbp, diamCerebelar, dof, cisternaMagna, cc, pregaNucal, ca, ventriculoPosterior,
@@ -2223,13 +2234,17 @@ if(typeof criarMotorLaudo !== 'function'){
 
       let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
       laHtml += '<p class="linha tight">'+(f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormal'))+'</p>';
-      laHtml += '<p class="linha">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'. '+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'.</p></div>';
+      // Sem ILA em gestação múltipla — só o maior bolsão por saco (ver
+      // updateGestacaoWrap): a frase do ILA nem entra no texto nesse caso.
+      laHtml += '<p class="linha">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'.'
+        +(isMultiple ? '' : ' '+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'.')
+        +'</p></div>';
       blocks.push({id:'la'+sfx, html:laHtml});
     });
 
-    if(discordanciaTxt){
-      blocks.push({id:'discordancia', html:'<p class="linha"><strong>Discordância de peso entre os fetos:</strong> '+escapeHtml(discordanciaTxt)+'%.</p>'});
-    }
+    // A discordância de peso entre os fetos só sai na conclusão diagnóstica
+    // (buildImpressao, mais abaixo) — não repete como parágrafo no corpo do
+    // laudo.
 
     if(dopplerMaterno){
       const tabelaDopplerMaterno = ''
