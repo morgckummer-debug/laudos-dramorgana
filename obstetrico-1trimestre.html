@@ -475,7 +475,7 @@
   <hr class="sep">
   <h3>Saco gestacional e biometria</h3>
   <div class="field" style="margin-bottom:8px;"><label>Saco gestacional — use {INSERCAO} e {CONTORNO}</label><textarea id="ph_sacoGestacional" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Saco gestacional único com mais de um embrião (monocoriônica) — use {INSERCAO}, {CONTORNO} e {EMBRIOES}</label><textarea id="ph_sacoGestacionalMultiplo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Saco gestacional único com mais de um embrião (monocoriônica) — use {DMSG}, {INSERCAO}, {CONTORNO} e {EMBRIOES}. O DMSG entra nesta frase porque aqui não há tabela só para ele</label><textarea id="ph_sacoGestacionalMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ausência de áreas de descolamento (sem hematoma)</label><textarea id="ph_semDescolamento" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG reduzido (calculado sozinho a partir do DMSG e do CCN, abaixo do VR) — use {ISG}</label><textarea id="ph_isgPequeno" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — use {LOCAL}, {FACE} e {MEDIDA}</label><textarea id="ph_hematoma" rows="2"></textarea></div>
@@ -1381,7 +1381,7 @@ if(typeof criarMotorLaudo !== 'function'){
     adenomioseComMioma: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque".',
 
     sacoGestacional: 'Saco gestacional identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos {CONTORNO} e reação decidual habitual.',
-    sacoGestacionalMultiplo: 'Saco gestacional único identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos {CONTORNO} e reação decidual habitual, contendo {EMBRIOES} embriões.',
+    sacoGestacionalMultiplo: 'Saco gestacional único identificado no interior da cavidade uterina, com diâmetro médio de {DMSG} mm, inserindo-se na região {INSERCAO}, de contornos {CONTORNO} e reação decidual habitual, contendo {EMBRIOES} embriões.',
     semDescolamento: 'Não identificadas áreas de descolamentos.',
     isgPequeno: 'Índice do saco gestacional (ISG): {ISG} mm (VR > 5 mm).',
     hematoma: 'Presença de hematoma subcoriônico, de localização {LOCAL}, face {FACE}, medindo {MEDIDA}.',
@@ -2588,7 +2588,7 @@ if(typeof criarMotorLaudo !== 'function'){
         h += '<h4 class="sec">'+escapeHtml(s.label.toUpperCase())+'</h4>';
       }
       h += '<p class="linha">'+(multi
-        ? phraseRaw('sacoGestacionalMultiplo', {INSERCAO: s.insercao, CONTORNO: s.contorno, EMBRIOES: EMB_EXTENSO[s.embrioes.length] || String(s.embrioes.length)})
+        ? phraseRaw('sacoGestacionalMultiplo', {DMSG: span(s.dmsg), INSERCAO: s.insercao, CONTORNO: s.contorno, EMBRIOES: EMB_EXTENSO[s.embrioes.length] || String(s.embrioes.length)})
         : phraseRaw('sacoGestacional', {INSERCAO: s.insercao, CONTORNO: s.contorno}))+'</p>';
       if(s.hematoma){
         h += '<p class="linha">'+phraseRaw('hematoma', {LOCAL: s.hematomaLocal, FACE: s.hematomaFace, MEDIDA: span(s.hematomaMedida)})+'</p>';
@@ -2596,13 +2596,23 @@ if(typeof criarMotorLaudo !== 'function'){
         h += '<p class="linha">'+phrase('semDescolamento')+'</p>';
       }
       h += '<p class="linha tight" style="text-align:center;text-decoration:underline;"><strong>Parâmetros biométricos:</strong></p>';
-      const dmsgLinha = '<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>';
       if(!multi){
-        h += '<table class="biometria">'+dmsgLinha+embrioLinhasHtml(s.embrioes[0])+'</table>';
+        h += '<table class="biometria">'
+          +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
+          +embrioLinhasHtml(s.embrioes[0])+'</table>';
         h += embrioAchadosHtml(s.embrioes[0], false);
       } else {
+        // Com mais de um embrião o DMSG não ganha tabela própria: uma faixa
+        // inteira para uma medida só era o que mais gastava espaço aqui, e a
+        // medida já entra na frase do saco (token {DMSG} de
+        // sacoGestacionalMultiplo) — pedido da Dra. Morgana em 2026-09-19.
+        // Mas a frase é editável: se a versão em uso não tiver o {DMSG} (uma
+        // gravada antes deste ajuste, ou o token apagado sem querer), a tabela
+        // volta — melhor uma faixa a mais do que o diâmetro sumir do laudo.
+        if(phraseRaw('sacoGestacionalMultiplo').indexOf('{DMSG}') === -1){
+          h += '<table class="biometria"><tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr></table>';
+        }
         const larguraCol = Math.floor(100/s.embrioes.length);
-        h += '<table class="biometria">'+dmsgLinha+'</table>';
         h += '<table class="biometria-par" style="width:100%;"><tr>'
           + s.embrioes.map(e=> '<td style="width:'+larguraCol+'%;">'
               +'<p class="linha tight emb-titulo">Embrião '+e.letra+'</p>'
