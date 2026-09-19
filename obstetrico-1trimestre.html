@@ -146,7 +146,11 @@
   .emb-bloco.subgroup > .emb-label{
     display:block;font-weight:700;font-size:12.5px;color:var(--rose-dark);margin:2px 0 8px;
   }
-  .emb-bloco.subgroup + .emb-bloco.subgroup{margin-top:14px;}
+  /* Com mais de um embrião os blocos ficam lado a lado — A à esquerda, B à
+     direita —, cada um com os seus campos embaixo do próprio rótulo. O auto-fit
+     devolve tudo para uma coluna só quando a tela é estreita, e o .field-row de
+     dentro (grid auto-fit de 170px) se empilha sozinho na largura menor. */
+  .emb-colunas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;align-items:start;}
   .saco-remove, .mioma-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
   .conditional{display:none;}
   .conditional.show{display:block;}
@@ -1786,7 +1790,9 @@ if(typeof criarMotorLaudo !== 'function'){
     updateEmbriaoWraps(uid, idx);
   }
   function renumberEmbrioes(uid){
-    const blocos = Array.from(embrioesContainer(uid).children);
+    const container = embrioesContainer(uid);
+    const blocos = Array.from(container.children);
+    container.classList.toggle('emb-colunas', blocos.length>1);
     blocos.forEach((el, i)=>{
       el.classList.toggle('subgroup', blocos.length>1);
       const lab = el.querySelector('.emb-label');
