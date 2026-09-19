@@ -2527,10 +2527,12 @@ if(typeof criarMotorLaudo !== 'function'){
       : 'Obstétrico';
     const doppler = $('chkDopplerMaterno').checked || $('chkDopplerFetal').checked;
     const pbf = $('chkPBF').checked;
-    if(doppler && pbf) return prefixo + ' com Doppler e PBF';
-    if(doppler) return prefixo + ' com Doppler';
-    if(pbf) return prefixo + ' com PBF';
-    return prefixo;
+    const colo = $('chkColo').checked;
+    const base = doppler && pbf ? prefixo + ' com Doppler e PBF'
+      : doppler ? prefixo + ' com Doppler'
+      : pbf ? prefixo + ' com PBF'
+      : prefixo;
+    return colo ? base + ' + Colo' : base;
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
