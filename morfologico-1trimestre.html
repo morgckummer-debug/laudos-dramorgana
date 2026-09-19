@@ -2453,9 +2453,6 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
-    if(isMultiple){
-      blocks.push({id:'gestacaoMultipla', html:'<p class="linha">'+escapeHtml('Gestação múltipla, com '+fetos.length+' fetos, '+corTxt+'.')+'</p>'});
-    }
     blocks.push({id:'aoExameTexto', html:'<div>'
       +'<p class="linha tight">'+(isMultiple ? phrase('uteroTextoMultiplo', {SACOS: sacosTxt}) : phrase('uteroTexto'))+'</p>'
       +'<p class="linha tight">'+phrase('placentaTexto', {INSERCAO: placentaInsercao})+'</p>'
