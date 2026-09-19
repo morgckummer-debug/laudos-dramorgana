@@ -246,6 +246,12 @@
   .paper .nodulos-lista{margin:0 0 1em;}
   .paper .nodulos-lista .nodulo-item{margin:0 0 0.375em;padding-left:2.4em;text-indent:-2.4em;}
   .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
+  /* Achados dos embriões do gemelar, abaixo das colunas de biometria: mesmo
+     recuo suspenso da lista de nódulos, para a segunda linha de um achado
+     longo alinhar com o texto e não com o travessão. */
+  .paper .achados-lista{margin:0.25em 0 1em;}
+  .paper .achados-lista .achado-item{margin:0 0 0.375em;padding-left:2.4em;text-indent:-2.4em;}
+  .paper .achados-lista .achado-item:last-child{margin-bottom:0;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -351,7 +357,7 @@
     .paper-table tbody td{padding:0 2cm;}
     .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
 
-    .paper p.linha, .paper .nodulos-lista, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria{page-break-inside:avoid;}
+    .paper p.linha, .paper .nodulos-lista, .paper .achados-lista, .paper ul.impressao li, .paper .rodape-final, .paper table.biometria{page-break-inside:avoid;}
     .paper h4.sec{page-break-after:avoid;}
 
     .paper .print-page + .print-page{page-break-before:always;}
@@ -475,13 +481,13 @@
   <hr class="sep">
   <h3>Saco gestacional e biometria</h3>
   <div class="field" style="margin-bottom:8px;"><label>Saco gestacional — use {INSERCAO} e {CONTORNO}</label><textarea id="ph_sacoGestacional" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Saco gestacional único com mais de um embrião (monocoriônica) — use {INSERCAO}, {CONTORNO} e {EMBRIOES}</label><textarea id="ph_sacoGestacionalMultiplo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Saco gestacional único com mais de um embrião (monocoriônica) — use {DMSG}, {INSERCAO}, {CONTORNO} e {EMBRIOES}. O DMSG entra nesta frase porque aqui não há tabela só para ele</label><textarea id="ph_sacoGestacionalMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ausência de áreas de descolamento (sem hematoma)</label><textarea id="ph_semDescolamento" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG reduzido (calculado sozinho a partir do DMSG e do CCN, abaixo do VR) — use {ISG}</label><textarea id="ph_isgPequeno" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — use {LOCAL}, {FACE} e {MEDIDA}</label><textarea id="ph_hematoma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ausência de batimentos cardíacos</label><textarea id="ph_fcfAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal (um embrião de um saco com mais de um)</label><textarea id="ph_embriaoNormalMultiplo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal, versão curta da lista de achados do gemelar (a linha já começa com "- Embrião A:" ou "- Saco gestacional 1:", então não repita o sujeito)</label><textarea id="ph_embriaoNormalRotulado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — óbito embrionário</label><textarea id="ph_embriaoObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação muito inicial)</label><textarea id="ph_embriaoNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação anembrionada) — use {VV_TRECHO}</label><textarea id="ph_embriaoAnembrionado" rows="2"></textarea></div>
@@ -1381,13 +1387,13 @@ if(typeof criarMotorLaudo !== 'function'){
     adenomioseComMioma: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque".',
 
     sacoGestacional: 'Saco gestacional identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos {CONTORNO} e reação decidual habitual.',
-    sacoGestacionalMultiplo: 'Saco gestacional único identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos {CONTORNO} e reação decidual habitual, contendo {EMBRIOES} embriões.',
+    sacoGestacionalMultiplo: 'Saco gestacional único identificado no interior da cavidade uterina, com diâmetro médio de {DMSG} mm, inserindo-se na região {INSERCAO}, de contornos {CONTORNO} e reação decidual habitual, contendo {EMBRIOES} embriões.',
     semDescolamento: 'Não identificadas áreas de descolamentos.',
     isgPequeno: 'Índice do saco gestacional (ISG): {ISG} mm (VR > 5 mm).',
     hematoma: 'Presença de hematoma subcoriônico, de localização {LOCAL}, face {FACE}, medindo {MEDIDA}.',
     fcfAusente: 'Ausência de batimentos cardíacos identificados ao exame.',
     embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
-    embriaoNormalMultiplo: 'Embrião e vesícula vitelínica de aspecto normal.',
+    embriaoNormalRotulado: 'Aspecto normal, com vesícula vitelínica presente.',
     embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
     embriaoNaoIdentificado: 'Embrião ainda não identificado — gestação em fase muito inicial.',
     embriaoAnembrionado: 'Saco gestacional sem embrião{VV_TRECHO} — achado compatível com gestação anembrionada.',
@@ -2564,31 +2570,52 @@ if(typeof criarMotorLaudo !== 'function'){
             ? '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(e.fc)+' bpm</td></tr>'
             : '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">Ausente</span></td></tr>');
     }
-    function embrioAchadosHtml(e, multi){
-      let h = '';
+    // Devolve os achados do embrião como frases soltas, porque os dois formatos
+    // abaixo as arrumam de jeitos diferentes: num bloco de coluna única viram
+    // parágrafos logo abaixo da tabela; onde há colunas, viram itens de uma
+    // lista só depois delas. `rotulado` diz que a frase vai sair precedida de um
+    // rótulo ("- Embrião A:", "- Saco gestacional 1:") e por isso usa a versão
+    // curta, que não repete o sujeito.
+    function embrioAchados(e, rotulado){
+      const itens = [];
       if(e.isgPequeno){
-        h += '<p class="linha tight">'+phraseRaw('isgPequeno', {ISG: span(blankOrValue(e.isgValor))})+'</p>';
+        itens.push({tight: true, html: phraseRaw('isgPequeno', {ISG: span(blankOrValue(e.isgValor))})});
       }
       if(e.vitalidade==='ausente'){
-        h += '<p class="linha">'+phrase('fcfAusente')+'</p>';
+        itens.push({tight: false, html: phrase('fcfAusente')});
       }
-      h += '<p class="linha">'+(e.vitalidade==='ausente' ? phrase('embriaoObito')
+      itens.push({tight: false, html: (e.vitalidade==='ausente' ? phrase('embriaoObito')
         : e.vitalidade==='nao_identificado' ? (e.anembrionada ? phrase('embriaoAnembrionado', {VV_TRECHO: e.vvVisivel ? ' identificável, com vesícula vitelínica presente' : ' ou vesícula vitelínica identificáveis'}) : phrase('embriaoNaoIdentificado'))
-        : multi ? phrase('embriaoNormalMultiplo') : phrase('embriaoNormal'))+'</p>';
-      return h;
+        : rotulado ? phrase('embriaoNormalRotulado') : phrase('embriaoNormal'))});
+      return itens;
+    }
+    // Junta os achados de vários embriões numa lista só, cada linha dizendo a
+    // quem pertence. Serve aos dois arranjos de coluna: rótulo por embrião
+    // (saco único monocoriônico) ou por saco (dois sacos lado a lado).
+    function achadosListaHtml(entradas){
+      const itens = [];
+      entradas.forEach(ent=>{
+        embrioAchados(ent.embriao, true).forEach(it=>{
+          itens.push('<p class="achado-item">- '+escapeHtml(ent.rotulo)+': '+it.html+'</p>');
+        });
+      });
+      return '<div class="linha achados-lista">'+itens.join('')+'</div>';
     }
     // Com um embrião o bloco sai exatamente como sempre saiu: DMSG e medidas do
     // embrião na mesma tabela. Com mais de um (monocoriônica), o DMSG — que é do
     // saco, não do embrião — fica numa tabela sozinha e cada embrião ganha a
     // sua, lado a lado.
-    function sacoBlocoHtml(s){
+    // `achadosFora` é usado pelo par de sacos lado a lado: lá os achados dos
+    // dois saem juntos, numa lista abaixo das duas colunas, e não dentro de
+    // cada uma.
+    function sacoBlocoHtml(s, achadosFora){
       const multi = s.embrioes.length > 1;
       let h = '<div class="saco-bloco">';
       if(uids.length>1){
         h += '<h4 class="sec">'+escapeHtml(s.label.toUpperCase())+'</h4>';
       }
       h += '<p class="linha">'+(multi
-        ? phraseRaw('sacoGestacionalMultiplo', {INSERCAO: s.insercao, CONTORNO: s.contorno, EMBRIOES: EMB_EXTENSO[s.embrioes.length] || String(s.embrioes.length)})
+        ? phraseRaw('sacoGestacionalMultiplo', {DMSG: span(s.dmsg), INSERCAO: s.insercao, CONTORNO: s.contorno, EMBRIOES: EMB_EXTENSO[s.embrioes.length] || String(s.embrioes.length)})
         : phraseRaw('sacoGestacional', {INSERCAO: s.insercao, CONTORNO: s.contorno}))+'</p>';
       if(s.hematoma){
         h += '<p class="linha">'+phraseRaw('hematoma', {LOCAL: s.hematomaLocal, FACE: s.hematomaFace, MEDIDA: span(s.hematomaMedida)})+'</p>';
@@ -2596,20 +2623,37 @@ if(typeof criarMotorLaudo !== 'function'){
         h += '<p class="linha">'+phrase('semDescolamento')+'</p>';
       }
       h += '<p class="linha tight" style="text-align:center;text-decoration:underline;"><strong>Parâmetros biométricos:</strong></p>';
-      const dmsgLinha = '<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>';
       if(!multi){
-        h += '<table class="biometria">'+dmsgLinha+embrioLinhasHtml(s.embrioes[0])+'</table>';
-        h += embrioAchadosHtml(s.embrioes[0], false);
+        h += '<table class="biometria">'
+          +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
+          +embrioLinhasHtml(s.embrioes[0])+'</table>';
+        if(!achadosFora){
+          h += embrioAchados(s.embrioes[0], false)
+            .map(it=> '<p class="linha'+(it.tight ? ' tight' : '')+'">'+it.html+'</p>').join('');
+        }
       } else {
+        // Com mais de um embrião o DMSG não ganha tabela própria: uma faixa
+        // inteira para uma medida só era o que mais gastava espaço aqui, e a
+        // medida já entra na frase do saco (token {DMSG} de
+        // sacoGestacionalMultiplo) — pedido da Dra. Morgana em 2026-09-19.
+        // Mas a frase é editável: se a versão em uso não tiver o {DMSG} (uma
+        // gravada antes deste ajuste, ou o token apagado sem querer), a tabela
+        // volta — melhor uma faixa a mais do que o diâmetro sumir do laudo.
+        if(phraseRaw('sacoGestacionalMultiplo').indexOf('{DMSG}') === -1){
+          h += '<table class="biometria"><tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr></table>';
+        }
         const larguraCol = Math.floor(100/s.embrioes.length);
-        h += '<table class="biometria">'+dmsgLinha+'</table>';
         h += '<table class="biometria-par" style="width:100%;"><tr>'
           + s.embrioes.map(e=> '<td style="width:'+larguraCol+'%;">'
               +'<p class="linha tight emb-titulo">Embrião '+e.letra+'</p>'
               +'<table class="biometria" style="width:100%;">'+embrioLinhasHtml(e)+'</table>'
-              +embrioAchadosHtml(e, true)
             +'</td>').join('')
           + '</tr></table>';
+        // Os achados não ficam dentro das colunas: espremidos na largura de meia
+        // página saíam com quebras feias e uma sobrando mais alta que a outra.
+        // Vão todos numa lista só, abaixo das tabelas, cada linha dizendo de
+        // qual embrião é.
+        h += achadosListaHtml(s.embrioes.map(e=> ({rotulo: 'Embrião '+e.letra, embriao: e})));
       }
       h += '</div>';
       return h;
@@ -2619,9 +2663,12 @@ if(typeof criarMotorLaudo !== 'function'){
     // dois blocos de saco inteiros, cada um numa coluna. Com três sacos as
     // colunas ficariam estreitas demais — esses seguem empilhados.
     if(sacos.length===2 && sacos.every(s=> s.embrioes.length===1)){
-      blocks.push({id:'sacos_par', html:'<table class="biometria-par" style="width:100%;"><tr>'
-        + sacos.map(s=> '<td style="width:50%;">'+sacoBlocoHtml(s)+'</td>').join('')
-        + '</tr></table>'});
+      blocks.push({id:'sacos_par', html:'<div>'
+        + '<table class="biometria-par" style="width:100%;"><tr>'
+        + sacos.map(s=> '<td style="width:50%;">'+sacoBlocoHtml(s, true)+'</td>').join('')
+        + '</tr></table>'
+        + achadosListaHtml(sacos.map(s=> ({rotulo: s.label, embriao: s.embrioes[0]})))
+        + '</div>'});
     } else {
       sacos.forEach(s=>{
         blocks.push({id:'saco_'+s.uid, html:sacoBlocoHtml(s)});
@@ -2743,6 +2790,7 @@ if(typeof criarMotorLaudo !== 'function'){
     ['table.biometria-par', ['font-size','line-height','border-collapse','table-layout'].concat(MARGINS)],
     ['table.biometria-par > tbody > tr > td', ['vertical-align'].concat(PADDINGS)],
     ['p.emb-titulo', ['font-size','line-height','text-align'].concat(MARGINS)],
+    ['p.achado-item', ['font-size','line-height','text-align','text-indent','padding-left'].concat(MARGINS)],
     ['.footnote', ['font-size','line-height','color']],
     ['.assinatura', ['line-height']],
     ['.assinatura-nome', PADDINGS.concat(['margin-bottom'])],
