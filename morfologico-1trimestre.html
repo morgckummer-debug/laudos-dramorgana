@@ -572,6 +572,7 @@
 
   <h3>Ao exame — útero, placenta e colo</h3>
   <div class="field" style="margin-bottom:8px;"><label>Útero e saco gestacional</label><textarea id="ph_uteroTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero e saco(s) gestacional(is) — gestação múltipla — use {SACOS} (montado a partir da corionicidade: um saco só com dois embriões na monocoriônica, dois sacos na dicoriônica)</label><textarea id="ph_uteroTextoMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta — use {INSERCAO}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo uterino — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="2"></textarea></div>
 
@@ -1461,6 +1462,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // ---------- Customizable report phrases ----------
   const PHRASE_DEFAULTS = {
     uteroTexto: 'Útero de volume aumentado e contornos normais, contendo em seu interior saco gestacional regular.',
+    uteroTextoMultiplo: 'Útero de volume aumentado e contornos normais, contendo em seu interior {SACOS}.',
     placentaTexto: 'Placenta de inserção na parede {INSERCAO} do útero, de aspecto e espessura normais.',
     coloTexto: 'Colo uterino apresentando orifícios interno e externo fechados e comprimento de {MEDIDA} mm.',
 
@@ -2268,6 +2270,26 @@ if(typeof criarMotorLaudo !== 'function'){
       monocorionica_triamniotica: 'monocoriônica e triamniótica'
     };
     const corTxt = corTxtMap[v('corionicidade')] || 'dicoriônica e diamniótica';
+    // Quantos sacos gestacionais existem sai da corionicidade: mono é um saco
+    // só (com os dois/três embriões dentro), di são dois, tri são três. A frase
+    // do útero dizia sempre "saco gestacional" no singular, mesmo na
+    // dicoriônica, e nunca mencionava mais de um embrião no mesmo saco.
+    const N_EXTENSO = {1: 'um', 2: 'dois', 3: 'três'};
+    const nSacos = isMultiple
+      ? (v('corionicidade').indexOf('monocorionica') === 0 ? 1
+        : v('corionicidade').indexOf('tricorionica') === 0 ? 3 : 2)
+      : 1;
+    let sacosTxt;
+    if(nSacos === 1){
+      sacosTxt = isMultiple
+        ? 'um único saco gestacional regular, com '+(N_EXTENSO[uids.length] || uids.length)+' embriões'
+        : 'saco gestacional regular';
+    } else {
+      sacosTxt = (N_EXTENSO[nSacos] || nSacos)+' sacos gestacionais regulares';
+      // Dicoriônica triamniótica: dois sacos para três embriões — um deles
+      // carrega dois.
+      if(uids.length > nSacos) sacosTxt += ', um deles com dois embriões';
+    }
 
     // ----- Ao exame: útero, placenta e colo (medidas da mãe, uma vez só) -----
     const placentaInsercao = v('placentaInsercao');
@@ -2435,7 +2457,7 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'gestacaoMultipla', html:'<p class="linha">'+escapeHtml('Gestação múltipla, com '+fetos.length+' fetos, '+corTxt+'.')+'</p>'});
     }
     blocks.push({id:'aoExameTexto', html:'<div>'
-      +'<p class="linha tight">'+phrase('uteroTexto')+'</p>'
+      +'<p class="linha tight">'+(isMultiple ? phrase('uteroTextoMultiplo', {SACOS: sacosTxt}) : phrase('uteroTexto'))+'</p>'
       +'<p class="linha tight">'+phrase('placentaTexto', {INSERCAO: placentaInsercao})+'</p>'
       +'<p class="linha">'+phraseRaw('coloTexto', {MEDIDA: span(coloComprimentoVal)})+'</p>'
       +'</div>'});

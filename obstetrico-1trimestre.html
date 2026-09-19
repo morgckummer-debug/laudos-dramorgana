@@ -139,6 +139,14 @@
   .subgroup{
     border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
   }
+  /* Com um embrião só o bloco não ganha moldura nenhuma: o card do saco fica
+     igual ao que sempre foi. A faixa e o rótulo "Embrião A/B" só aparecem
+     quando há mais de um dentro do mesmo saco (ver renumberEmbrioes()). */
+  .emb-bloco > .emb-label{display:none;}
+  .emb-bloco.subgroup > .emb-label{
+    display:block;font-weight:700;font-size:12.5px;color:var(--rose-dark);margin:2px 0 8px;
+  }
+  .emb-bloco.subgroup + .emb-bloco.subgroup{margin-top:14px;}
   .saco-remove, .mioma-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
   .conditional{display:none;}
   .conditional.show{display:block;}
@@ -224,6 +232,16 @@
   .paper table.biometria td:first-child{font-weight:700;text-align:left;}
   .paper table.biometria td:last-child{text-align:center;white-space:nowrap;}
   .paper table.biometria tbody tr:nth-child(even) td{background:#fbf8fa;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  /* Gemelar: com mais de um embrião as biometrias saem lado a lado, em colunas,
+     para o laudo caber numa folha só. É uma <table> (e não flex/grid) porque o
+     Word não entende nenhum dos dois — ver wordDocHtml() no laudo-core.js. As
+     bordas ficam só nas tabelas de dentro: a de fora é andaime de layout. */
+  .paper table.biometria-par{border-collapse:collapse;table-layout:fixed;width:100%;margin:0;}
+  .paper table.biometria-par > tbody > tr > td{border:none;padding:0 6px;vertical-align:top;}
+  .paper table.biometria-par table.biometria{max-width:100%;width:100%;margin:0.375em 0 0.5em;}
+  .paper table.biometria-par table.biometria td{padding:2px 8px;}
+  .paper table.biometria-par .saco-bloco > h4.sec:first-child{margin-top:0;}
+  .paper p.emb-titulo{text-align:center;font-weight:700;}
   .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1em) 0;}
   .paper .nodulos-lista{margin:0 0 1em;}
   .paper .nodulos-lista .nodulo-item{margin:0 0 0.375em;padding-left:2.4em;text-indent:-2.4em;}
@@ -457,11 +475,13 @@
   <hr class="sep">
   <h3>Saco gestacional e biometria</h3>
   <div class="field" style="margin-bottom:8px;"><label>Saco gestacional — use {INSERCAO} e {CONTORNO}</label><textarea id="ph_sacoGestacional" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Saco gestacional único com mais de um embrião (monocoriônica) — use {INSERCAO}, {CONTORNO} e {EMBRIOES}</label><textarea id="ph_sacoGestacionalMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ausência de áreas de descolamento (sem hematoma)</label><textarea id="ph_semDescolamento" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG reduzido (calculado sozinho a partir do DMSG e do CCN, abaixo do VR) — use {ISG}</label><textarea id="ph_isgPequeno" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — use {LOCAL}, {FACE} e {MEDIDA}</label><textarea id="ph_hematoma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ausência de batimentos cardíacos</label><textarea id="ph_fcfAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal (um embrião de um saco com mais de um)</label><textarea id="ph_embriaoNormalMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — óbito embrionário</label><textarea id="ph_embriaoObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação muito inicial)</label><textarea id="ph_embriaoNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação anembrionada) — use {VV_TRECHO}</label><textarea id="ph_embriaoAnembrionado" rows="2"></textarea></div>
@@ -1361,11 +1381,13 @@ if(typeof criarMotorLaudo !== 'function'){
     adenomioseComMioma: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque".',
 
     sacoGestacional: 'Saco gestacional identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos {CONTORNO} e reação decidual habitual.',
+    sacoGestacionalMultiplo: 'Saco gestacional único identificado no interior da cavidade uterina, inserindo-se na região {INSERCAO}, de contornos {CONTORNO} e reação decidual habitual, contendo {EMBRIOES} embriões.',
     semDescolamento: 'Não identificadas áreas de descolamentos.',
     isgPequeno: 'Índice do saco gestacional (ISG): {ISG} mm (VR > 5 mm).',
     hematoma: 'Presença de hematoma subcoriônico, de localização {LOCAL}, face {FACE}, medindo {MEDIDA}.',
     fcfAusente: 'Ausência de batimentos cardíacos identificados ao exame.',
     embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
+    embriaoNormalMultiplo: 'Embrião e vesícula vitelínica de aspecto normal.',
     embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
     embriaoNaoIdentificado: 'Embrião ainda não identificado — gestação em fase muito inicial.',
     embriaoAnembrionado: 'Saco gestacional sem embrião{VV_TRECHO} — achado compatível com gestação anembrionada.',
@@ -1606,15 +1628,71 @@ if(typeof criarMotorLaudo !== 'function'){
   function updateGestacaoWrap(){
     toggle('wrap_corionicidade', $('numeroEmbrioes').value !== '1');
   }
-  $('numeroEmbrioes').addEventListener('change', e=>{
+  // A corionicidade é o que decide quantos sacos existem: monocoriônica é um
+  // saco só, com os embriões todos dentro dele; dicoriônica é um saco por
+  // embrião. Mudar o número de embriões ou a corionicidade remonta a lista de
+  // sacos nesse molde. setSacoCount()/setEmbriaoCount() só acrescentam ou tiram
+  // pelo fim, então alternar entre monocoriônica diamniótica e monoamniótica —
+  // que dão o mesmo layout — não apaga nada do que já foi digitado.
+  function aplicarLayoutGestacao(){
+    const n = Math.min(Math.max(parseInt($('numeroEmbrioes').value, 10)||1, 1), MAX_EMBRIOES);
+    const sacoUnico = n > 1 && v('corionicidade').indexOf('monocorionica') === 0;
+    setSacoCount(sacoUnico ? 1 : n);
+    sacoUids().forEach((uid, i)=>{
+      setEmbriaoCount(uid, (sacoUnico && i === 0) ? n : 1);
+    });
+    renumberSacos();
+    render();
+  }
+  $('numeroEmbrioes').addEventListener('change', ()=>{
     updateGestacaoWrap();
-    setSacoCount(Math.min(Math.max(parseInt(e.target.value,10)||1, 1), 3));
+    aplicarLayoutGestacao();
   });
+  $('corionicidade').addEventListener('change', aplicarLayoutGestacao);
 
   // ---------- Saco(s) gestacional(is): dynamic list, mirrors the myoma-nodule
   // pattern in transvaginal.html — each keeps a stable uid once created, so
   // removing one mid-list never disturbs the others' field ids/listeners. ----------
   let sacoNextUid = 1;
+  const MAX_EMBRIOES = 3;
+  const EMB_LETRAS = ['A', 'B', 'C'];
+  const EMB_EXTENSO = {2: 'dois', 3: 'três'};
+  // Um saco pode conter mais de um embrião (monocoriônica). O 1º embrião guarda
+  // os ids "planos" de sempre — saco{uid}CCN, saco{uid}VV... —, e só o 2º/3º
+  // ganham o infixo "e{idx}": assim um rascunho gravado antes desta
+  // funcionalidade (que só tinha os ids planos) volta inteiro, e o laudo de
+  // embrião único continua saindo byte a byte como saía.
+  function embPre(uid, idx){ return 'saco'+uid+(idx>1 ? 'e'+idx : ''); }
+  function embrioesContainer(uid){ return $('saco'+uid+'Embrioes'); }
+  function embriaoIdxs(uid){
+    const c = embrioesContainer(uid);
+    const n = c ? c.children.length : 0;
+    const out = [];
+    for(let i=1; i<=n; i++) out.push(i);
+    return out;
+  }
+  function embriaoBlocoHTML(uid, idx){
+    const p = embPre(uid, idx);
+    return ''
+      +'<div class="emb-bloco" id="wrap_'+p+'Bloco">'
+      +'<div class="emb-label"></div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Vesícula vitelínica</label><select id="'+p+'VVStatus"><option value="visivel">Presente</option><option value="nao_visivel">Não visualizada</option></select></div>'
+      +'<div class="field conditional show" id="wrap_'+p+'VV"><label>Tamanho — VV (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'VV" placeholder="mm"><span class="flag-note" id="flag_'+p+'VV">Acima do valor de referência (VR até 6,0 mm)</span></div>'
+      +'</div>'
+      +'<hr class="sep">'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Embrião</label><select id="'+p+'Embriao"><option value="presente">Presente</option><option value="nao_identificado">Não identificado</option></select></div>'
+      +'</div>'
+      +'<div class="field-row conditional show" id="wrap_'+p+'EmbriaoCampos">'
+      +'<div class="field"><label>Comprimento cabeça-nádega — CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CCN" placeholder="mm"><span class="flag-note" id="flag_'+p+'CCN">Índice do saco gestacional (ISG) reduzido (VR &gt; 5 mm)</span></div>'
+      +'<div class="field"><label>Batimentos cardíacos</label><select id="'+p+'Vitalidade"><option value="presente">Presentes</option><option value="ausente">Ausentes</option></select></div>'
+      +'</div>'
+      +'<div class="field-row conditional" id="wrap_'+p+'FC">'
+      +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" maxlength="3" id="'+p+'FC" placeholder="bpm"></div>'
+      +'</div>'
+      +'</div>';
+  }
   function sacoCardHTML(uid){
     return ''
       +'<div class="card" id="wrap_saco'+uid+'">'
@@ -1626,23 +1704,10 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Tamanho do saco gestacional — DMSG (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'DMSG" placeholder="mm"></div>'
+      +'<div class="field"><label>Embriões neste saco</label><select id="saco'+uid+'NumEmbrioes"><option value="1">1</option><option value="2">2 (monocoriônica)</option><option value="3">3</option></select></div>'
       +'</div>'
       +'<hr class="sep">'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Vesícula vitelínica</label><select id="saco'+uid+'VVStatus"><option value="visivel">Presente</option><option value="nao_visivel">Não visualizada</option></select></div>'
-      +'<div class="field conditional show" id="wrap_saco'+uid+'VV"><label>Tamanho — VV (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'VV" placeholder="mm"><span class="flag-note" id="flag_saco'+uid+'VV">Acima do valor de referência (VR até 6,0 mm)</span></div>'
-      +'</div>'
-      +'<hr class="sep">'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Embrião</label><select id="saco'+uid+'Embriao"><option value="presente">Presente</option><option value="nao_identificado">Não identificado</option></select></div>'
-      +'</div>'
-      +'<div class="field-row conditional show" id="wrap_saco'+uid+'EmbriaoCampos">'
-      +'<div class="field"><label>Comprimento cabeça-nádega — CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'CCN" placeholder="mm"><span class="flag-note" id="flag_saco'+uid+'CCN">Índice do saco gestacional (ISG) reduzido (VR &gt; 5 mm)</span></div>'
-      +'<div class="field"><label>Batimentos cardíacos</label><select id="saco'+uid+'Vitalidade"><option value="presente">Presentes</option><option value="ausente">Ausentes</option></select></div>'
-      +'</div>'
-      +'<div class="field-row conditional" id="wrap_saco'+uid+'FC">'
-      +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" maxlength="3" id="saco'+uid+'FC" placeholder="bpm"></div>'
-      +'</div>'
+      +'<div id="saco'+uid+'Embrioes"></div>'
       +'<hr class="sep">'
       +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'Hematoma"><label for="saco'+uid+'Hematoma">Hematoma subcoriônico</label></div>'
       +'<div class="field-row conditional" id="wrap_saco'+uid+'HematomaCampos">'
@@ -1654,55 +1719,106 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'</div>';
   }
-  function updateSacoWraps(uid){
-    const embriaoNaoIdentificado = $('saco'+uid+'Embriao').value === 'nao_identificado';
-    toggle('wrap_saco'+uid+'EmbriaoCampos', !embriaoNaoIdentificado);
-    toggle('wrap_saco'+uid+'FC', !embriaoNaoIdentificado && $('saco'+uid+'Vitalidade').value==='presente');
-    toggle('wrap_saco'+uid+'VV', $('saco'+uid+'VVStatus').value!=='nao_visivel');
-    toggle('wrap_saco'+uid+'HematomaCampos', $('saco'+uid+'Hematoma').checked);
+  function updateEmbriaoWraps(uid, idx){
+    const p = embPre(uid, idx);
+    const embriaoNaoIdentificado = $(p+'Embriao').value === 'nao_identificado';
+    toggle('wrap_'+p+'EmbriaoCampos', !embriaoNaoIdentificado);
+    toggle('wrap_'+p+'FC', !embriaoNaoIdentificado && $(p+'Vitalidade').value==='presente');
+    toggle('wrap_'+p+'VV', $(p+'VVStatus').value!=='nao_visivel');
     // Sem embrião identificado não há CCN a medir: limpa o campo escondido
     // para não deixar um valor antigo (digitado antes de trocar para "Não
     // identificado") vazar pro cálculo do ISG nem pro botão "Salvar" da
-    // Curva de Crescimento, que lê saco{uid}CCN direto pelo id.
+    // Curva de Crescimento, que lê o CCN direto pelo id.
     if(embriaoNaoIdentificado){
-      $('saco'+uid+'CCN').value = '';
-      $('saco'+uid+'FC').value = '';
+      $(p+'CCN').value = '';
+      $(p+'FC').value = '';
     }
   }
-  function sacoLabel(idx, total){
-    if(total<=1) return 'Saco gestacional / embrião';
+  function updateSacoWraps(uid){
+    toggle('wrap_saco'+uid+'HematomaCampos', $('saco'+uid+'Hematoma').checked);
+  }
+  function wireEmbriaoBloco(uid, idx){
+    const p = embPre(uid, idx);
+    const el = $('wrap_'+p+'Bloco');
+    wireDigitsOnlyInput(p+'FC', 3);
+    el.querySelectorAll('input, select, textarea').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    wireDecimalInputs();
+    $(p+'Vitalidade').addEventListener('change', ()=> updateEmbriaoWraps(uid, idx));
+    $(p+'Embriao').addEventListener('change', ()=> updateEmbriaoWraps(uid, idx));
+    $(p+'VVStatus').addEventListener('change', ()=> updateEmbriaoWraps(uid, idx));
+    updateEmbriaoWraps(uid, idx);
+  }
+  function renumberEmbrioes(uid){
+    const blocos = Array.from(embrioesContainer(uid).children);
+    blocos.forEach((el, i)=>{
+      el.classList.toggle('subgroup', blocos.length>1);
+      const lab = el.querySelector('.emb-label');
+      if(lab) lab.textContent = 'Embrião '+EMB_LETRAS[i];
+    });
+  }
+  // Os blocos de embrião só entram e saem pelo fim da lista — por isso o índice
+  // pode virar id (embPre) sem o vaivém de uid estável dos sacos e dos nódulos:
+  // remover o último nunca desloca os ids dos que ficam.
+  function setEmbriaoCount(uid, n){
+    n = Math.min(Math.max(n, 1), MAX_EMBRIOES);
+    const c = embrioesContainer(uid);
+    while(c.children.length < n){
+      const idx = c.children.length + 1;
+      c.insertAdjacentHTML('beforeend', embriaoBlocoHTML(uid, idx));
+      wireEmbriaoBloco(uid, idx);
+    }
+    while(c.children.length > n){ c.lastElementChild.remove(); }
+    const sel = $('saco'+uid+'NumEmbrioes');
+    if(sel) sel.value = String(n);
+    renumberEmbrioes(uid);
+  }
+  function sacoLabel(idx, total, nEmb){
+    if(total<=1) return nEmb>1 ? 'Saco gestacional / embriões' : 'Saco gestacional / embrião';
     return 'Saco gestacional '+(idx+1);
+  }
+  function totalEmbrioes(){
+    return sacoUids().reduce((acc, uid)=> acc + embriaoIdxs(uid).length, 0);
   }
   function renumberSacos(){
     const container = $('sacosContainer');
     const cards = Array.from(container.children);
     cards.forEach((el, idx)=>{
       const label = el.querySelector('.saco-label');
-      if(label) label.textContent = sacoLabel(idx, cards.length);
+      const uid = el.id.replace('wrap_saco','');
+      if(label) label.textContent = sacoLabel(idx, cards.length, embriaoIdxs(uid).length);
       const removeBtn = el.querySelector('.saco-remove');
       if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
     });
-    $('numeroEmbrioes').value = String(Math.min(Math.max(cards.length, 1), 3));
+    // "Número de embriões", lá em cima, conta embriões e não sacos: numa
+    // monocoriônica é um saco só com dois dentro.
+    $('numeroEmbrioes').value = String(Math.min(Math.max(totalEmbrioes(), 1), MAX_EMBRIOES));
     updateGestacaoWrap();
   }
   function wireSacoCard(uid){
     const el = $('wrap_saco'+uid);
-    wireDigitsOnlyInput('saco'+uid+'FC', 3);
+    // Roda com o container de embriões ainda vazio: os campos de cada embrião
+    // são ligados por wireEmbriaoBloco(), à medida que os blocos nascem.
     el.querySelectorAll('input, select, textarea').forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
     });
     wireDecimalInputs();
-    $('saco'+uid+'Vitalidade').addEventListener('change', ()=> updateSacoWraps(uid));
-    $('saco'+uid+'Embriao').addEventListener('change', ()=> updateSacoWraps(uid));
-    $('saco'+uid+'VVStatus').addEventListener('change', ()=> updateSacoWraps(uid));
     $('saco'+uid+'Hematoma').addEventListener('change', ()=> updateSacoWraps(uid));
+    $('saco'+uid+'NumEmbrioes').addEventListener('change', e=>{
+      setEmbriaoCount(uid, parseInt(e.target.value, 10)||1);
+      renumberSacos();
+      render();
+    });
     updateSacoWraps(uid);
     el.querySelector('.saco-remove').addEventListener('click', ()=>{
       el.remove();
       renumberSacos();
       render();
     });
+    setEmbriaoCount(uid, 1);
   }
   function addSaco(){
     const uid = sacoNextUid++;
@@ -2212,42 +2328,50 @@ if(typeof criarMotorLaudo !== 'function'){
     // propósito, para não cobrar como pendentes campos que nem aparecem na tela.
     const uids = (molaAtiva || perdaSemSacoAtiva) ? [] : sacoUids();
     const sacos = uids.map((uid, idx)=>{
-      const label = sacoLabel(idx, uids.length);
       const insercao = v('saco'+uid+'Insercao');
       const contorno = v('saco'+uid+'Contorno')==='irregular' ? 'irregulares' : 'regulares';
       const dmsg = blankOrValue(req('saco'+uid+'DMSG'));
       const dmsgNum = num('saco'+uid+'DMSG');
-      const vvVisivel = v('saco'+uid+'VVStatus') !== 'nao_visivel';
-      const vv = blankOrValue(reqIf('saco'+uid+'VV', vvVisivel));
-      const vvNum = num('saco'+uid+'VV');
-      flag('saco'+uid+'VV', vvVisivel && vvNum!==null && vvNum > 6.0);
-      const embriaoNaoIdentificado = v('saco'+uid+'Embriao') === 'nao_identificado';
-      const vitalidade = embriaoNaoIdentificado ? 'nao_identificado' : v('saco'+uid+'Vitalidade');
-      // Critério de tamanho (DMSG ≥ 25 mm sem embrião = gestação anembrionada;
-      // abaixo disso = gestação muito inicial) deixou de ser uma escolha manual
-      // — sai sozinho do DMSG já digitado acima, sem perguntar de novo.
-      const anembrionada = embriaoNaoIdentificado && dmsgNum !== null && dmsgNum >= 25;
-      // Sem embrião identificado ainda não há o que medir no CCN — cobrar o
-      // campo como pendente marcaria de vermelho um dado que não existe.
-      const ccn = blankOrValue(reqIf('saco'+uid+'CCN', vitalidade!=='nao_identificado'));
-      const ccnNum = num('saco'+uid+'CCN');
-      const fc = blankOrValue(reqIf('saco'+uid+'FC', vitalidade==='presente'));
-      // ISG (índice do saco gestacional = DMSG - CCN) também deixou de ser um
-      // checkbox manual: calcula sozinho sempre que os dois valores existem, e
-      // só vira achado (flag no campo do CCN + frase na impressão) quando fica
-      // abaixo do valor de referência (VR > 5 mm).
-      const isgNum = (vitalidade!=='nao_identificado' && dmsgNum!==null && ccnNum!==null) ? Math.round((dmsgNum-ccnNum)*10)/10 : null;
-      const isgPequeno = isgNum !== null && isgNum < 5;
-      const isgValor = isgNum !== null ? String(isgNum).replace('.', ',') : '';
-      flag('saco'+uid+'CCN', isgPequeno);
+      // O DMSG é do saco; VV, CCN e batimentos são de cada embrião — numa
+      // monocoriônica os dois embriões dividem o mesmo saco (e o mesmo DMSG,
+      // que por isso entra no ISG dos dois).
+      const embrioes = embriaoIdxs(uid).map((i, ei)=>{
+        const p = embPre(uid, i);
+        const vvVisivel = v(p+'VVStatus') !== 'nao_visivel';
+        const vv = blankOrValue(reqIf(p+'VV', vvVisivel));
+        const vvNum = num(p+'VV');
+        flag(p+'VV', vvVisivel && vvNum!==null && vvNum > 6.0);
+        const embriaoNaoIdentificado = v(p+'Embriao') === 'nao_identificado';
+        const vitalidade = embriaoNaoIdentificado ? 'nao_identificado' : v(p+'Vitalidade');
+        // Critério de tamanho (DMSG ≥ 25 mm sem embrião = gestação anembrionada;
+        // abaixo disso = gestação muito inicial) deixou de ser uma escolha manual
+        // — sai sozinho do DMSG já digitado acima, sem perguntar de novo.
+        const anembrionada = embriaoNaoIdentificado && dmsgNum !== null && dmsgNum >= 25;
+        // Sem embrião identificado ainda não há o que medir no CCN — cobrar o
+        // campo como pendente marcaria de vermelho um dado que não existe.
+        const ccn = blankOrValue(reqIf(p+'CCN', vitalidade!=='nao_identificado'));
+        const ccnNum = num(p+'CCN');
+        const fc = blankOrValue(reqIf(p+'FC', vitalidade==='presente'));
+        // ISG (índice do saco gestacional = DMSG - CCN) também deixou de ser um
+        // checkbox manual: calcula sozinho sempre que os dois valores existem, e
+        // só vira achado (flag no campo do CCN + frase na impressão) quando fica
+        // abaixo do valor de referência (VR > 5 mm).
+        const isgNum = (vitalidade!=='nao_identificado' && dmsgNum!==null && ccnNum!==null) ? Math.round((dmsgNum-ccnNum)*10)/10 : null;
+        const isgPequeno = isgNum !== null && isgNum < 5;
+        const isgValor = isgNum !== null ? String(isgNum).replace('.', ',') : '';
+        flag(p+'CCN', isgPequeno);
+        return {letra: EMB_LETRAS[ei], vv, vvVisivel, ccn, vitalidade, anembrionada, fc, isgPequeno, isgValor, isgNum};
+      });
+      const label = sacoLabel(idx, uids.length, embrioes.length);
       const hematomaCheckEl = $('saco'+uid+'Hematoma');
       const hematoma = hematomaCheckEl ? hematomaCheckEl.checked : false;
       const hematomaLocal = v('saco'+uid+'HematomaLocal');
       const hematomaFace = v('saco'+uid+'HematomaFace');
       const hematomaMedida = blankOrValue(reqIf('saco'+uid+'HematomaMedida', hematoma));
-      return {uid, label, insercao, contorno, dmsg, vv, vvVisivel, ccn, vitalidade, anembrionada, fc, isgPequeno, isgValor, isgNum, hematoma, hematomaLocal, hematomaFace, hematomaMedida};
+      return {uid, label, insercao, contorno, dmsg, embrioes, hematoma, hematomaLocal, hematomaFace, hematomaMedida};
     });
-    const algumObito = sacos.some(s=> s.vitalidade==='ausente');
+    const embrioes = sacos.reduce((acc, s)=> acc.concat(s.embrioes), []);
+    const algumObito = embrioes.some(e=> e.vitalidade==='ausente');
     // "Em curso" convive com a gestação normal (o saco pode continuar visível,
     // só baixo/irregular) — por isso mora dentro de wrap_sacosSection, não é
     // exclusivo com ela. É exclusivo, sim, com mola e com abortamento sem saco.
@@ -2317,12 +2441,12 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // ----- Impressão -----
     const algumHematoma = sacos.some(s=> s.hematoma);
-    const algumIsgReduzido = sacos.some(s=> s.isgPequeno);
+    const algumIsgReduzido = embrioes.some(e=> e.isgPequeno);
     const algumContornoIrregular = sacos.some(s=> s.contorno==='irregulares');
-    const algumAnembrionada = sacos.some(s=> s.anembrionada);
+    const algumAnembrionada = embrioes.some(e=> e.anembrionada);
     // "Muito inicial" só conta quando não é o caso pathológico (anembrionada) —
-    // as duas nunca aparecem juntas na conclusão para o mesmo saco.
-    const algumEmbrioNaoIdentificado = sacos.some(s=> s.vitalidade==='nao_identificado' && !s.anembrionada);
+    // as duas nunca aparecem juntas na conclusão para o mesmo embrião.
+    const algumEmbrioNaoIdentificado = embrioes.some(e=> e.vitalidade==='nao_identificado' && !e.anembrionada);
     // Com o embrião ainda não identificado (gestação muito inicial), a IG vem
     // só do DMSG — método impreciso demais para julgar a DUM como concordante
     // ou discordante. O seletor some (e a conclusão não fala em DUM) até o
@@ -2429,41 +2553,80 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'uteroDescricaoExtra', html:'<p class="linha">'+escapeHtml(miometrioDescricaoExtra)+'.</p>'});
     }
 
-    sacos.forEach(s=>{
-      let sacoHtml = '<div class="saco-bloco">';
-      if(uids.length>1){
-        sacoHtml += '<h4 class="sec">'+escapeHtml(s.label.toUpperCase())+'</h4>';
-      }
-      sacoHtml += '<p class="linha">'+phraseRaw('sacoGestacional', {INSERCAO: s.insercao, CONTORNO: s.contorno})+'</p>';
-      if(s.hematoma){
-        sacoHtml += '<p class="linha">'+phraseRaw('hematoma', {LOCAL: s.hematomaLocal, FACE: s.hematomaFace, MEDIDA: span(s.hematomaMedida)})+'</p>';
-      } else {
-        sacoHtml += '<p class="linha">'+phrase('semDescolamento')+'</p>';
-      }
-      sacoHtml += '<p class="linha tight" style="text-align:center;text-decoration:underline;"><strong>Parâmetros biométricos:</strong></p>';
-      sacoHtml += '<table class="biometria">'
-        +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
-        +(s.vvVisivel
-          ? '<tr><td>Vesícula vitelínica (VV)</td><td>'+span(s.vv)+' mm</td></tr>'
+    function embrioLinhasHtml(e){
+      return (e.vvVisivel
+          ? '<tr><td>Vesícula vitelínica (VV)</td><td>'+span(e.vv)+' mm</td></tr>'
           : '<tr><td>Vesícula vitelínica (VV)</td><td>Não avaliável</td></tr>')
-        +(s.vitalidade==='nao_identificado' ? ''
-          : '<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(s.ccn)+' mm</td></tr>')
-        +(s.vitalidade==='nao_identificado' ? ''
-          : s.vitalidade==='presente'
-            ? '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(s.fc)+' bpm</td></tr>'
-            : '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">Ausente</span></td></tr>')
-        +'</table>';
-      if(s.isgPequeno){
-        sacoHtml += '<p class="linha tight">'+phraseRaw('isgPequeno', {ISG: span(blankOrValue(s.isgValor))})+'</p>';
+        +(e.vitalidade==='nao_identificado' ? ''
+          : '<tr><td>Comprimento cabeça-nádega (CCN)</td><td>'+span(e.ccn)+' mm</td></tr>')
+        +(e.vitalidade==='nao_identificado' ? ''
+          : e.vitalidade==='presente'
+            ? '<tr><td>Frequência cardíaca fetal (FCF)</td><td>'+span(e.fc)+' bpm</td></tr>'
+            : '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">Ausente</span></td></tr>');
+    }
+    function embrioAchadosHtml(e, multi){
+      let h = '';
+      if(e.isgPequeno){
+        h += '<p class="linha tight">'+phraseRaw('isgPequeno', {ISG: span(blankOrValue(e.isgValor))})+'</p>';
       }
-      if(s.vitalidade==='ausente'){
-        sacoHtml += '<p class="linha">'+phrase('fcfAusente')+'</p>';
+      if(e.vitalidade==='ausente'){
+        h += '<p class="linha">'+phrase('fcfAusente')+'</p>';
       }
-      sacoHtml += '<p class="linha">'+(s.vitalidade==='ausente' ? phrase('embriaoObito')
-        : s.vitalidade==='nao_identificado' ? (s.anembrionada ? phrase('embriaoAnembrionado', {VV_TRECHO: s.vvVisivel ? ' identificável, com vesícula vitelínica presente' : ' ou vesícula vitelínica identificáveis'}) : phrase('embriaoNaoIdentificado')) : phrase('embriaoNormal'))+'</p>';
-      sacoHtml += '</div>';
-      blocks.push({id:'saco_'+s.uid, html:sacoHtml});
-    });
+      h += '<p class="linha">'+(e.vitalidade==='ausente' ? phrase('embriaoObito')
+        : e.vitalidade==='nao_identificado' ? (e.anembrionada ? phrase('embriaoAnembrionado', {VV_TRECHO: e.vvVisivel ? ' identificável, com vesícula vitelínica presente' : ' ou vesícula vitelínica identificáveis'}) : phrase('embriaoNaoIdentificado'))
+        : multi ? phrase('embriaoNormalMultiplo') : phrase('embriaoNormal'))+'</p>';
+      return h;
+    }
+    // Com um embrião o bloco sai exatamente como sempre saiu: DMSG e medidas do
+    // embrião na mesma tabela. Com mais de um (monocoriônica), o DMSG — que é do
+    // saco, não do embrião — fica numa tabela sozinha e cada embrião ganha a
+    // sua, lado a lado.
+    function sacoBlocoHtml(s){
+      const multi = s.embrioes.length > 1;
+      let h = '<div class="saco-bloco">';
+      if(uids.length>1){
+        h += '<h4 class="sec">'+escapeHtml(s.label.toUpperCase())+'</h4>';
+      }
+      h += '<p class="linha">'+(multi
+        ? phraseRaw('sacoGestacionalMultiplo', {INSERCAO: s.insercao, CONTORNO: s.contorno, EMBRIOES: EMB_EXTENSO[s.embrioes.length] || String(s.embrioes.length)})
+        : phraseRaw('sacoGestacional', {INSERCAO: s.insercao, CONTORNO: s.contorno}))+'</p>';
+      if(s.hematoma){
+        h += '<p class="linha">'+phraseRaw('hematoma', {LOCAL: s.hematomaLocal, FACE: s.hematomaFace, MEDIDA: span(s.hematomaMedida)})+'</p>';
+      } else {
+        h += '<p class="linha">'+phrase('semDescolamento')+'</p>';
+      }
+      h += '<p class="linha tight" style="text-align:center;text-decoration:underline;"><strong>Parâmetros biométricos:</strong></p>';
+      const dmsgLinha = '<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>';
+      if(!multi){
+        h += '<table class="biometria">'+dmsgLinha+embrioLinhasHtml(s.embrioes[0])+'</table>';
+        h += embrioAchadosHtml(s.embrioes[0], false);
+      } else {
+        const larguraCol = Math.floor(100/s.embrioes.length);
+        h += '<table class="biometria">'+dmsgLinha+'</table>';
+        h += '<table class="biometria-par" style="width:100%;"><tr>'
+          + s.embrioes.map(e=> '<td style="width:'+larguraCol+'%;">'
+              +'<p class="linha tight emb-titulo">Embrião '+e.letra+'</p>'
+              +'<table class="biometria" style="width:100%;">'+embrioLinhasHtml(e)+'</table>'
+              +embrioAchadosHtml(e, true)
+            +'</td>').join('')
+          + '</tr></table>';
+      }
+      h += '</div>';
+      return h;
+    }
+    // Dois embriões saem sempre lado a lado, para o laudo caber numa folha só:
+    // num saco só, são as duas tabelas do bloco acima; em dois sacos, são os
+    // dois blocos de saco inteiros, cada um numa coluna. Com três sacos as
+    // colunas ficariam estreitas demais — esses seguem empilhados.
+    if(sacos.length===2 && sacos.every(s=> s.embrioes.length===1)){
+      blocks.push({id:'sacos_par', html:'<table class="biometria-par" style="width:100%;"><tr>'
+        + sacos.map(s=> '<td style="width:50%;">'+sacoBlocoHtml(s)+'</td>').join('')
+        + '</tr></table>'});
+    } else {
+      sacos.forEach(s=>{
+        blocks.push({id:'saco_'+s.uid, html:sacoBlocoHtml(s)});
+      });
+    }
 
     // "Em curso" convive com o(s) saco(s) normal(is) acima — aqui só entra a
     // observação livre do colo/saco, se ela preencheu; o achado do(s) saco(s)
@@ -2574,6 +2737,12 @@ if(typeof criarMotorLaudo !== 'function'){
     ['p.recomendacao', ['font-size','line-height','text-align'].concat(MARGINS)],
     ['table.biometria', ['font-size','line-height','border-collapse'].concat(MARGINS)],
     ['table.biometria td', ['vertical-align','white-space'].concat(PADDINGS)],
+    // Colunas do gemelar: a tabela de fora é só layout, sem borda nenhuma. As
+    // larguras não vêm daqui — vão inline no HTML, em %, porque o computed
+    // style devolve pixels da tela e a folha do Word tem outra largura.
+    ['table.biometria-par', ['font-size','line-height','border-collapse','table-layout'].concat(MARGINS)],
+    ['table.biometria-par > tbody > tr > td', ['vertical-align'].concat(PADDINGS)],
+    ['p.emb-titulo', ['font-size','line-height','text-align'].concat(MARGINS)],
     ['.footnote', ['font-size','line-height','color']],
     ['.assinatura', ['line-height']],
     ['.assinatura-nome', PADDINGS.concat(['margin-bottom'])],
@@ -2847,6 +3016,13 @@ if(typeof criarMotorLaudo !== 'function'){
           sacoNextUid = Math.max(sacoNextUid, parseInt(uid, 10) + 1);
           $('sacosContainer').insertAdjacentHTML('beforeend', sacoCardHTML(uid));
           wireSacoCard(uid);
+          // Quantos embriões o saco tinha decide quais ids de campo existem
+          // (o 2º e o 3º levam o infixo "e{idx}" — ver embPre()), então os
+          // blocos têm de estar montados antes de os valores voltarem, logo
+          // abaixo. Rascunho gravado antes desta funcionalidade não tem esse
+          // campo: fica com um embrião, que era tudo o que existia.
+          const nEmb = parseInt(d.fields['saco'+uid+'NumEmbrioes'], 10);
+          if(nEmb > 1) setEmbriaoCount(uid, nEmb);
         });
         renumberSacos();
       }else{
@@ -3041,7 +3217,13 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const uids = sacoUids();
     if(!uids.length){ cgToast('Nenhum saco gestacional preenchido.', true); return; }
-    const isMultiple = uids.length > 1;
+    // Um exame por EMBRIÃO, não por saco: numa monocoriônica os dois embriões
+    // dividem um saco só, e cada um tem o seu CCN a acompanhar na curva.
+    const embrioesCG = [];
+    uids.forEach(uid=>{
+      embriaoIdxs(uid).forEach(i=>{ embrioesCG.push(embPre(uid, i)); });
+    });
+    const isMultiple = embrioesCG.length > 1;
     const pptEspontaneoPrevioVal = $('pptEspontaneoPrevio').checked;
     const progesteronaVaginalEmUsoVal = $('progesteronaVaginalEmUso').checked;
     const cerclagemRealizadaVal = $('cerclagemRealizada').checked;
@@ -3118,13 +3300,16 @@ if(typeof criarMotorLaudo !== 'function'){
         }
       }
 
-      // 3) Monta um exame por saco gestacional (feto 1, 2... se gemelar)
-      const exames = uids.map((uid, idx)=> ({
+      // 3) Monta um exame por embrião (A, B, C... se múltipla). A letra segue a
+      // ordem em que os embriões aparecem no laudo, atravessando os sacos: é a
+      // mesma convenção do obstetrico.html, e a coluna exams.feto só aceita C
+      // desde a migração 005 do curva-fetal.
+      const exames = embrioesCG.map((p, idx)=> ({
         user_id: userId,
         gestacao_id: gestacao.id,
         data_exame: dataExameISO,
-        ccn: num('saco'+uid+'CCN'),
-        feto: isMultiple ? (idx === 0 ? 'A' : 'B') : null
+        ccn: num(p+'CCN'),
+        feto: isMultiple ? String.fromCharCode(65 + idx) : null
       }));
 
       const {error: errExame} = await cgClient.from('exams').insert(exames);
