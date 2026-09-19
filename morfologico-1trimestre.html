@@ -242,7 +242,15 @@
   .paper table.biometria td:nth-child(even){text-align:center;white-space:nowrap;}
   .paper table.biometria tbody tr:nth-child(even) td{background:#fbf8fa;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .paper table.biometria.morfologia{margin:0 0 0.75em;width:100%;max-width:none;border-radius:0;overflow:visible;box-shadow:none;}
-  .paper table.biometria.morfologia td{border:none;padding:0 1.25em 0.125em 0;}
+  /* A regra genérica table.biometria td acima trava line-height:1 — certo
+     para as tabelas rótulo/valor de uma linha só, mas a descrição da
+     morfologia quebra em várias linhas dentro da própria célula, e com
+     line-height:1 elas saem coladas sem jeito de abrir mais espaço: o
+     seletor "Espaçamento entre linhas" só toca em p.linha/p.recomendacao/
+     h4.sec (ver comentário em fmtLineHeight), nunca em <td>. inherit deixa
+     essa célula seguir o que estiver valendo no #paper (ou no <div> que a
+     envolve), em vez de ficar presa nesse 1 fixo. */
+  .paper table.biometria.morfologia td{border:none;padding:0 1.25em 0.125em 0;line-height:inherit;}
   .paper table.biometria.morfologia td:nth-child(odd){font-weight:400;}
   .paper table.biometria.morfologia td:nth-child(even){text-align:left;white-space:normal;}
   .paper table.biometria.morfologia tbody tr:nth-child(even) td{background:none;}
@@ -2448,7 +2456,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Frequência cardíaca</td><td>'+span(f.fc)+' bpm</td></tr>'
         +'</table></div>'});
 
-      let morfoHtml = '<div data-split="rows"><p class="linha tight"><strong style="text-decoration:underline;">AVALIAÇÃO MORFOLÓGICA FETAL:</strong></p>';
+      let morfoHtml = '<div data-split="rows"><p class="linha tight" style="margin-top:0.75em;"><strong style="text-decoration:underline;">AVALIAÇÃO MORFOLÓGICA FETAL:</strong></p>';
       morfoHtml += '<table class="biometria morfologia" style="width:100%;">';
       f.segmentos.forEach(seg=>{
         morfoHtml += '<tr><td style="white-space:nowrap;vertical-align:top;"><strong>'+escapeHtml(seg.titulo)+'</strong></td>'
@@ -2645,7 +2653,20 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('table.biometria td:nth-child(even)').forEach(el=>{ el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
     clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#fbf8fa'; });
     clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='100%'; el.style.marginLeft='auto'; el.style.marginRight='auto'; el.setAttribute('align', 'center'); });
-    clone.querySelectorAll('table.morfologia td').forEach(el=>{ el.style.border='none'; el.style.padding='0 20px 2px 0'; el.style.fontWeight='400'; });
+    // table.biometria td acima já deixou lineHeight='1' em TODA célula,
+    // inclusive as da morfologia — no vivo essa célula segue inherit (ver
+    // CSS), então lê o computed style de uma célula de verdade do #paper
+    // (todas herdam o mesmo valor do laudo) e repõe no clone, senão o Word
+    // sai sempre com a descrição espremida, ignorando o que a médica
+    // escolheu no "Espaçamento entre linhas".
+    const morfoLineHeight = (function(){
+      const liveTd = paperEl.querySelector('table.morfologia td');
+      return liveTd ? getComputedStyle(liveTd).lineHeight : '';
+    })();
+    clone.querySelectorAll('table.morfologia td').forEach(el=>{
+      el.style.border='none'; el.style.padding='0 20px 2px 0'; el.style.fontWeight='400';
+      if(morfoLineHeight){ el.style.lineHeight = morfoLineHeight; el.style.setProperty('mso-line-height-rule', 'exact'); }
+    });
     clone.querySelectorAll('table.morfologia td:nth-child(even)').forEach(el=>{ el.style.textAlign='justify'; el.style.whiteSpace='normal'; });
     clone.querySelectorAll('table.morfologia tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='none'; });
     clone.querySelectorAll('table.morfologia').forEach(el=>{ el.style.width='100%'; el.style.maxWidth='none'; el.style.margin='0 0 12px'; el.removeAttribute('align'); });
