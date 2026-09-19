@@ -2457,9 +2457,10 @@ if(typeof criarMotorLaudo !== 'function'){
   // o arquivo já sair identificado e ir direto para a pasta da paciente.
   function tituloExame(){
     const n = fetoUids().length;
-    if(n >= 3) return 'Morfológico Trigemelar 2º trimestre';
-    if(n === 2) return 'Morfológico Gemelar 2º trimestre';
-    return 'Morfológico 2º trimestre';
+    const base = n >= 3 ? 'Morfológico Trigemelar 2º trimestre'
+      : n === 2 ? 'Morfológico Gemelar 2º trimestre'
+      : 'Morfológico 2º trimestre';
+    return $('chkColo').checked ? base + ' + Colo' : base;
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
