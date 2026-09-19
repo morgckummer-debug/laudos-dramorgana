@@ -1238,6 +1238,17 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     return t;
   }
+  // "Medida do colo uterino: não solicitada." — só o rótulo (até os dois
+  // pontos) sai em negrito; o resto da frase vai em texto normal, como nas
+  // demais linhas do laudo. Sem dois pontos na frase editada, ela inteira
+  // vira rótulo.
+  function linhaNaoSolicitada(key){
+    const txt = phraseRaw(key);
+    const i = txt.indexOf(':');
+    const rotulo = i >= 0 ? txt.slice(0, i+1) : txt;
+    const resto = i >= 0 ? txt.slice(i+1) : '';
+    return '<strong>'+escapeHtml(rotulo)+'</strong>'+escapeHtml(resto);
+  }
   $('btnPhrases').addEventListener('click', ()=>{
     $('phrasesPanel').classList.toggle('show');
   });
@@ -2271,11 +2282,14 @@ if(typeof criarMotorLaudo !== 'function'){
     // Laudo simples (sem colo e/ou sem Doppler das uterinas): em vez de a
     // seção simplesmente não existir, entra uma linha dizendo que a medida
     // não foi solicitada — a ordem segue a do laudo impresso, colo primeiro.
+    // Com as duas linhas juntas, a primeira vai 'tight' (elas são um par, e a
+    // entrelinha cheia entre as duas abria um buraco); a última fica com a
+    // margem normal, que é o respiro antes de "IMPRESSÃO DIAGNÓSTICA:".
     if(!colo){
-      blocks.push({id:'coloNaoSolicitado', html:'<p class="linha"><strong>'+phrase('coloNaoSolicitado')+'</strong></p>'});
+      blocks.push({id:'coloNaoSolicitado', html:'<p class="linha'+(!dopplerMaterno ? ' tight' : '')+'">'+linhaNaoSolicitada('coloNaoSolicitado')+'</p>'});
     }
     if(!dopplerMaterno){
-      blocks.push({id:'dopplerNaoSolicitado', html:'<p class="linha"><strong>'+phrase('dopplerUterinasNaoSolicitado')+'</strong></p>'});
+      blocks.push({id:'dopplerNaoSolicitado', html:'<p class="linha">'+linhaNaoSolicitada('dopplerUterinasNaoSolicitado')+'</p>'});
     }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
