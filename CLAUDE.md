@@ -608,10 +608,56 @@ feto**.
 | | `obstetrico.html` (2º/3º tri) | `obstetrico-1trimestre.html` |
 |---|---|---|
 | Colunas de `exams` | `dbp`, `cc`, `ca`, `femur`, `au_ip`, `acm_ip`, `aut_e`, `aut_d`, `cpr`, `ila`, `bolsao`, `colo`, `ig_dias_manual` | `ccn` |
-| Múltiplos | um exame por feto, coluna `feto` | um exame por saco, coluna `feto` |
+| Múltiplos | um exame por feto, coluna `feto` | um exame por **embrião**, coluna `feto` |
 
 As artérias uterinas e o colo são **maternos**, não fetais: numa gemelar o mesmo
 valor vai repetido nos exames dos dois fetos, de propósito.
+
+### Um saco pode ter mais de um embrião (`obstetrico-1trimestre.html`)
+
+Até 2026-09-19 esse laudo tratava saco e embrião como a mesma coisa: escolher
+"Gemelar (2)" criava **dois sacos**, um embrião em cada. Isso descreve uma
+dicoriônica — numa **monocoriônica** há um saco só, com os dois embriões
+dentro, e não havia como dizer isso.
+
+Hoje o saco carrega uma lista de embriões (`saco{uid}Embrioes`, seletor
+"Embriões neste saco", até `MAX_EMBRIOES = 3`), e quem decide o formato é a
+**corionicidade**: `aplicarLayoutGestacao()` monta um saco só com N embriões
+quando ela começa com `monocorionica`, e N sacos de um embrião caso contrário.
+Trocar o número de embriões ou a corionicidade remonta a lista nesse molde;
+como `setSacoCount()`/`setEmbriaoCount()` só acrescentam ou tiram pelo fim,
+alternar entre monocoriônica diamniótica e monoamniótica não apaga nada.
+
+Duas armadilhas ao mexer nisso:
+
+- **Os ids dos campos são assimétricos de propósito.** O 1º embrião guarda os
+  ids planos de sempre (`saco{uid}CCN`, `saco{uid}VV`...) e só o 2º e o 3º
+  levam o infixo `e{idx}` — é o que `embPre(uid, idx)` monta, e todo código que
+  lê campo de embrião passa por ela. Assim um rascunho gravado antes desta
+  mudança volta inteiro (só tinha os ids planos) e o laudo de embrião único
+  continua saindo byte a byte como saía. Uniformizar para `e1` quebra os dois.
+- **O rascunho precisa recriar os blocos antes de repor os valores.** Os ids
+  do 2º/3º embrião só existem depois de `setEmbriaoCount()` rodar, então
+  `draftRestore()` lê `saco{uid}NumEmbrioes` de `d.fields` e monta os blocos
+  **antes** do laço que escreve os campos. Rascunho antigo não tem essa chave e
+  fica com um embrião, que era tudo o que existia.
+
+Com **dois embriões** o laudo sai em duas colunas, para caber numa folha só
+(`table.biometria-par`): num saco só, são as duas tabelas de biometria (Embrião
+A / Embrião B) dentro do mesmo bloco `saco_{uid}`; em dois sacos, são os dois
+blocos de saco inteiros, num único bloco `sacos_par`. Com três sacos as colunas
+ficariam estreitas demais, e esses seguem empilhados. É `<table>` e não
+flex/grid porque o Word não entende nenhum dos dois — as larguras vão inline em
+`%` pelo mesmo motivo (o computed style devolve pixels da tela, e a folha do
+Word tem outra largura).
+
+No `morfologico-1trimestre.html` não existem cards de saco: lá o ajuste foi só
+na frase do útero (`uteroTextoMultiplo`, com `{SACOS}` montado a partir da
+corionicidade), que antes dizia "saco gestacional" no singular mesmo na
+dicoriônica. Frase **nova** em vez de mudar a `uteroTexto`: o botão "Salvar
+frases" grava todas as frases de uma vez, então uma chave já existente no
+`localStorage` da médica sobrescreveria o padrão novo e o conserto não
+apareceria para ela.
 
 ### Gestação múltipla: um `exams` por feto, A/B/C
 
