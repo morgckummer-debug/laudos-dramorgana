@@ -487,7 +487,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — use {LOCAL}, {FACE} e {MEDIDA}</label><textarea id="ph_hematoma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ausência de batimentos cardíacos</label><textarea id="ph_fcfAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal (um embrião de um saco com mais de um). Sai na lista abaixo das biometrias, já precedida de "- Embrião A:"</label><textarea id="ph_embriaoNormalMultiplo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal, versão curta da lista de achados do gemelar (a linha já começa com "- Embrião A:" ou "- Saco gestacional 1:", então não repita o sujeito)</label><textarea id="ph_embriaoNormalRotulado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — óbito embrionário</label><textarea id="ph_embriaoObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação muito inicial)</label><textarea id="ph_embriaoNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação anembrionada) — use {VV_TRECHO}</label><textarea id="ph_embriaoAnembrionado" rows="2"></textarea></div>
@@ -1393,7 +1393,7 @@ if(typeof criarMotorLaudo !== 'function'){
     hematoma: 'Presença de hematoma subcoriônico, de localização {LOCAL}, face {FACE}, medindo {MEDIDA}.',
     fcfAusente: 'Ausência de batimentos cardíacos identificados ao exame.',
     embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
-    embriaoNormalMultiplo: 'Aspecto normal, com vesícula vitelínica presente.',
+    embriaoNormalRotulado: 'Aspecto normal, com vesícula vitelínica presente.',
     embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
     embriaoNaoIdentificado: 'Embrião ainda não identificado — gestação em fase muito inicial.',
     embriaoAnembrionado: 'Saco gestacional sem embrião{VV_TRECHO} — achado compatível com gestação anembrionada.',
@@ -2571,10 +2571,12 @@ if(typeof criarMotorLaudo !== 'function'){
             : '<tr><td>Frequência cardíaca fetal (FCF)</td><td><span class="blank">Ausente</span></td></tr>');
     }
     // Devolve os achados do embrião como frases soltas, porque os dois formatos
-    // abaixo as arrumam de jeitos diferentes: com um embrião viram parágrafos
-    // logo abaixo da tabela; com mais de um, itens de uma lista única depois
-    // das colunas.
-    function embrioAchados(e, multi){
+    // abaixo as arrumam de jeitos diferentes: num bloco de coluna única viram
+    // parágrafos logo abaixo da tabela; onde há colunas, viram itens de uma
+    // lista só depois delas. `rotulado` diz que a frase vai sair precedida de um
+    // rótulo ("- Embrião A:", "- Saco gestacional 1:") e por isso usa a versão
+    // curta, que não repete o sujeito.
+    function embrioAchados(e, rotulado){
       const itens = [];
       if(e.isgPequeno){
         itens.push({tight: true, html: phraseRaw('isgPequeno', {ISG: span(blankOrValue(e.isgValor))})});
@@ -2584,14 +2586,29 @@ if(typeof criarMotorLaudo !== 'function'){
       }
       itens.push({tight: false, html: (e.vitalidade==='ausente' ? phrase('embriaoObito')
         : e.vitalidade==='nao_identificado' ? (e.anembrionada ? phrase('embriaoAnembrionado', {VV_TRECHO: e.vvVisivel ? ' identificável, com vesícula vitelínica presente' : ' ou vesícula vitelínica identificáveis'}) : phrase('embriaoNaoIdentificado'))
-        : multi ? phrase('embriaoNormalMultiplo') : phrase('embriaoNormal'))});
+        : rotulado ? phrase('embriaoNormalRotulado') : phrase('embriaoNormal'))});
       return itens;
+    }
+    // Junta os achados de vários embriões numa lista só, cada linha dizendo a
+    // quem pertence. Serve aos dois arranjos de coluna: rótulo por embrião
+    // (saco único monocoriônico) ou por saco (dois sacos lado a lado).
+    function achadosListaHtml(entradas){
+      const itens = [];
+      entradas.forEach(ent=>{
+        embrioAchados(ent.embriao, true).forEach(it=>{
+          itens.push('<p class="achado-item">- '+escapeHtml(ent.rotulo)+': '+it.html+'</p>');
+        });
+      });
+      return '<div class="linha achados-lista">'+itens.join('')+'</div>';
     }
     // Com um embrião o bloco sai exatamente como sempre saiu: DMSG e medidas do
     // embrião na mesma tabela. Com mais de um (monocoriônica), o DMSG — que é do
     // saco, não do embrião — fica numa tabela sozinha e cada embrião ganha a
     // sua, lado a lado.
-    function sacoBlocoHtml(s){
+    // `achadosFora` é usado pelo par de sacos lado a lado: lá os achados dos
+    // dois saem juntos, numa lista abaixo das duas colunas, e não dentro de
+    // cada uma.
+    function sacoBlocoHtml(s, achadosFora){
       const multi = s.embrioes.length > 1;
       let h = '<div class="saco-bloco">';
       if(uids.length>1){
@@ -2610,8 +2627,10 @@ if(typeof criarMotorLaudo !== 'function'){
         h += '<table class="biometria">'
           +'<tr><td>Diâmetro médio do saco gestacional (DMSG)</td><td>'+span(s.dmsg)+' mm</td></tr>'
           +embrioLinhasHtml(s.embrioes[0])+'</table>';
-        h += embrioAchados(s.embrioes[0], false)
-          .map(it=> '<p class="linha'+(it.tight ? ' tight' : '')+'">'+it.html+'</p>').join('');
+        if(!achadosFora){
+          h += embrioAchados(s.embrioes[0], false)
+            .map(it=> '<p class="linha'+(it.tight ? ' tight' : '')+'">'+it.html+'</p>').join('');
+        }
       } else {
         // Com mais de um embrião o DMSG não ganha tabela própria: uma faixa
         // inteira para uma medida só era o que mais gastava espaço aqui, e a
@@ -2634,13 +2653,7 @@ if(typeof criarMotorLaudo !== 'function'){
         // página saíam com quebras feias e uma sobrando mais alta que a outra.
         // Vão todos numa lista só, abaixo das tabelas, cada linha dizendo de
         // qual embrião é.
-        const achados = [];
-        s.embrioes.forEach(e=>{
-          embrioAchados(e, true).forEach(it=>{
-            achados.push('<p class="achado-item">- Embrião '+e.letra+': '+it.html+'</p>');
-          });
-        });
-        h += '<div class="linha achados-lista">'+achados.join('')+'</div>';
+        h += achadosListaHtml(s.embrioes.map(e=> ({rotulo: 'Embrião '+e.letra, embriao: e})));
       }
       h += '</div>';
       return h;
@@ -2650,9 +2663,12 @@ if(typeof criarMotorLaudo !== 'function'){
     // dois blocos de saco inteiros, cada um numa coluna. Com três sacos as
     // colunas ficariam estreitas demais — esses seguem empilhados.
     if(sacos.length===2 && sacos.every(s=> s.embrioes.length===1)){
-      blocks.push({id:'sacos_par', html:'<table class="biometria-par" style="width:100%;"><tr>'
-        + sacos.map(s=> '<td style="width:50%;">'+sacoBlocoHtml(s)+'</td>').join('')
-        + '</tr></table>'});
+      blocks.push({id:'sacos_par', html:'<div>'
+        + '<table class="biometria-par" style="width:100%;"><tr>'
+        + sacos.map(s=> '<td style="width:50%;">'+sacoBlocoHtml(s, true)+'</td>').join('')
+        + '</tr></table>'
+        + achadosListaHtml(sacos.map(s=> ({rotulo: s.label, embriao: s.embrioes[0]})))
+        + '</div>'});
     } else {
       sacos.forEach(s=>{
         blocks.push({id:'saco_'+s.uid, html:sacoBlocoHtml(s)});
