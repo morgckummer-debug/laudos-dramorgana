@@ -1660,6 +1660,14 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_saco'+uid+'FC', !embriaoNaoIdentificado && $('saco'+uid+'Vitalidade').value==='presente');
     toggle('wrap_saco'+uid+'VV', $('saco'+uid+'VVStatus').value!=='nao_visivel');
     toggle('wrap_saco'+uid+'HematomaCampos', $('saco'+uid+'Hematoma').checked);
+    // Sem embrião identificado não há CCN a medir: limpa o campo escondido
+    // para não deixar um valor antigo (digitado antes de trocar para "Não
+    // identificado") vazar pro cálculo do ISG nem pro botão "Salvar" da
+    // Curva de Crescimento, que lê saco{uid}CCN direto pelo id.
+    if(embriaoNaoIdentificado){
+      $('saco'+uid+'CCN').value = '';
+      $('saco'+uid+'FC').value = '';
+    }
   }
   function sacoLabel(idx, total){
     if(total<=1) return 'Saco gestacional / embrião';
@@ -2228,7 +2236,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // checkbox manual: calcula sozinho sempre que os dois valores existem, e
       // só vira achado (flag no campo do CCN + frase na impressão) quando fica
       // abaixo do valor de referência (VR > 5 mm).
-      const isgNum = (dmsgNum!==null && ccnNum!==null) ? Math.round((dmsgNum-ccnNum)*10)/10 : null;
+      const isgNum = (vitalidade!=='nao_identificado' && dmsgNum!==null && ccnNum!==null) ? Math.round((dmsgNum-ccnNum)*10)/10 : null;
       const isgPequeno = isgNum !== null && isgNum < 5;
       const isgValor = isgNum !== null ? String(isgNum).replace('.', ',') : '';
       flag('saco'+uid+'CCN', isgPequeno);
