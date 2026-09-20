@@ -1211,6 +1211,9 @@ if(typeof criarMotorLaudo !== 'function'){
     impDopplerFetalAlterado: 'Sinais de redistribuição de fluxo fetal, sugerindo redistribuição hemodinâmica — sugere-se avaliação e acompanhamento especializado.',
     impDopplerFetalNormalTodos: 'Não há sinais de redistribuição de fluxo em {TERMO} os fetos.',
     impRcpBaixoP5: 'RCP abaixo do percentil 5 - Sugere redistribuição hemodinâmica fetal.',
+    // {FLUXO} vem de AU_FLUXO_TXT (AEDF/REDF/iAREDF) — achado mais grave que
+    // o RCP baixo, por isso tem prioridade sobre ele em dopplerFetalLabelFor.
+    impAuFluxoAlterado: '{FLUXO} — sugere-se avaliação e acompanhamento especializado.',
 
     impPbf: 'PBF: {SCORE}/8.',
     impPbfTodos: 'PBF de {TERMO} os fetos: {SCORE}/8.',
@@ -1447,6 +1450,20 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Art. Cerebral Média (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiACM" placeholder="ex: 1,60"></div>'
       +'</div>'
       +'<div class="field-row">'
+      // Fluxo diastólico da umbilical — mesmas opções e mesmos valores do
+      // app de curvas (e-au-fluxo em curva-fetal/index.html), pra a coluna
+      // au_fluxo do Supabase chegar com o mesmo vocabulário dos dois lados.
+      // AEDF/REDF fecham CIUR sozinhos antes de 32 semanas (ver bloco de
+      // pesoKey, abaixo) — é por isso que existe, não só pra imprimir.
+      +'<div class="field"><label>Fluxo diastólico — Art. Umbilical</label><select id="feto'+uid+'AuFluxo">'
+        +'<option value="">—</option>'
+        +'<option value="normal">Normal</option>'
+        +'<option value="ausente">AEDF — diástole ausente</option>'
+        +'<option value="reversa">REDF — diástole reversa</option>'
+        +'<option value="intermitente">iAREDF — diástole intermitente (ausente/reversa)</option>'
+      +'</select></div>'
+      +'</div>'
+      +'<div class="field-row">'
       +'<div class="field"><label>Relação cérebro-placentária — RCP (calculada)</label><input type="text" id="feto'+uid+'CprCalc" readonly placeholder="calculado automaticamente"></div>'
       +'<div class="field"><label>Percentil do RCP (calculado, editável)</label><input type="text" inputmode="numeric" id="feto'+uid+'CprPercentil" placeholder="calculado automaticamente"><button type="button" class="cpr-recalc" id="feto'+uid+'CprRecalc" data-uid="'+uid+'" style="margin-top:6px;background:none;border:none;padding:0;font-size:12px;color:var(--rose-dark);text-decoration:underline;cursor:pointer;">Recalcular percentil</button></div>'
       +'</div>'
@@ -1475,6 +1492,9 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_feto'+uid+'Doppler', $('chkDopplerFetal').checked);
     toggle('wrap_feto'+uid+'PBF', $('chkPBF').checked);
     const percentilNum = num('feto'+uid+'Percentil');
+    // Só o ponto de partida (percentil isolado ≤3): render() corrige esta
+    // mesma visibilidade levando em conta os critérios menores de Doppler
+    // também — ver o bloco de pesoKey ali, que é a fonte de verdade.
     toggle('wrap_feto'+uid+'CiurEstagio', percentilNum !== null && percentilNum <= 3);
   }
   function updateAllFetoWraps(){ fetoUids().forEach(updateFetoWraps); }
@@ -1727,36 +1747,79 @@ if(typeof criarMotorLaudo !== 'function'){
     return normalCDF(z) * 100;
   }
   // ---------- Doppler fetal: percentil da relação cérebro-placentária (RCP).
-  // Valores de referência (média e desvio-padrão da RCP por semana de
-  // gestação) conforme a tabela adotada no serviço, 20 a 40 semanas.
-  // Entre semanas completas os parâmetros são interpolados linearmente
-  // pelos dias; fora da faixa 20-40 semanas não há cálculo.
-  // O percentil vem do z-score, via normalCDF (Abramowitz & Stegun). ----------
-  const CPR_REF = {
-    20:[1.37,0.40], 21:[1.44,0.25], 22:[1.48,0.29], 23:[1.49,0.23],
-    24:[1.53,0.22], 25:[1.83,0.48], 26:[1.92,0.55], 27:[2.12,0.61],
-    28:[2.13,0.52], 29:[1.86,0.43], 30:[2.34,0.55], 31:[2.29,0.34],
-    32:[2.03,0.48], 33:[2.10,0.40], 34:[2.10,0.45], 35:[2.01,0.46],
-    36:[2.01,0.46], 37:[2.25,0.66], 38:[1.90,0.41], 39:[1.64,0.29],
-    40:[1.80,0.44]
-  };
+  // Figueras F, Gratacós E — protocolo de Barcelona (mesmo grupo do
+  // estadiamento de CIUR usado na Curva Fetal). Referência linear:
+  //   P50(RCP) = 1,08 + 0,006 × IG (semanas)  |  P10 = P50 − 0,40  |  P90 = P50 + 0,40
+  // Percentil por interpolação linear entre os três pontos — não Gaussiana:
+  // ≤P10 vira 5, ≥P90 vira 95, e entre eles interpola 10↔50 e 50↔90.
+  //
+  // Decisão da Dra. Morgana, 2026-09-21: até esta data o laudo usava uma
+  // tabela própria (média/DP por semana, sem citação de origem, via z-score)
+  // que divergia da fórmula do relatório evolutivo (app curva-fetal) — o
+  // mesmo RCP medido dava percentis diferentes nos dois papéis (ex.: RCP 1,2
+  // em 34 semanas: P42 no relatório, <P5 no laudo). Agora os dois usam a
+  // mesma fórmula e o mesmo método de percentil, ver calcDopplerCpr em
+  // curva-fetal/index.html — precisa mudar nos dois lados se mudar aqui.
+  function dopplerCprRef(gaW){
+    const p50 = 1.08 + 0.006*gaW;
+    return { p10: p50 - 0.40, p50, p90: p50 + 0.40 };
+  }
   function cprPercentil(gaDays, cpr){
     if(gaDays==null || isNaN(gaDays) || cpr==null || isNaN(cpr)) return null;
-    const semanas = gaDays/7;
-    if(semanas < 20 || semanas > 40) return null;
-    const base = Math.min(Math.floor(semanas), 39);
-    const frac = semanas - base;
-    const a = CPR_REF[base], b = CPR_REF[base+1] || a;
-    if(!a) return null;
-    const mean = a[0] + (b[0]-a[0])*frac;
-    const sd = a[1] + (b[1]-a[1])*frac;
-    if(!sd) return null;
-    return normalCDF((cpr - mean)/sd) * 100;
+    const gaW = gaDays/7;
+    const ref = dopplerCprRef(gaW);
+    if(cpr <= ref.p10) return 5;
+    if(cpr <= ref.p50){ const t=(cpr-ref.p10)/(ref.p50-ref.p10); return Math.round(10+t*40); }
+    if(cpr <= ref.p90){ const t=(cpr-ref.p50)/(ref.p90-ref.p50); return Math.round(50+t*40); }
+    return 95;
+  }
+
+  // Artéria umbilical — Acharya 2005. Mesma fórmula do relatório evolutivo
+  // (dopplerAuRef/calcDopplerAu em curva-fetal/index.html): P50 = 1,88 −
+  // 0,026×IG, P10 = P50 − 0,25, P90 = P50 + 0,34. Só para fechar CIUR por
+  // critérios menores (ver bloco de pesoKey, abaixo) — o laudo continua
+  // imprimindo o IP bruto medido, não este percentil.
+  function dopplerAuRef(gaW){
+    const p50 = 1.88 - 0.026*gaW;
+    return { p10: Math.max(0, p50-0.25), p50, p90: p50+0.34 };
+  }
+  function calcAuPercentil(ip, gaW){
+    if(ip==null || gaW==null) return null;
+    const ref = dopplerAuRef(gaW);
+    if(ip >= ref.p90) return 95;
+    if(ip >= ref.p50){ const t=(ip-ref.p50)/(ref.p90-ref.p50); return Math.round(50+t*40); }
+    if(ip >= ref.p10){ const t=(ip-ref.p10)/(ref.p50-ref.p10); return Math.round(10+t*40); }
+    return 5;
+  }
+
+  // Artéria cerebral média — Ebbing et al. 2007. Mesma fórmula do relatório
+  // evolutivo (dopplerAcmRef/calcDopplerAcm): média = 2,32 − 0,026×IG, DP
+  // fixo 0,30. Mesmo uso restrito ao fechamento de CIUR por critérios
+  // menores — sem campo próprio na tela.
+  function dopplerAcmRef(gaW){
+    const mu = 2.32 - 0.026*gaW, sd = 0.30;
+    return { p10: Math.max(0.3, mu-1.28*sd), p50: Math.max(0.3, mu), p90: Math.max(0.3, mu+1.28*sd) };
+  }
+  function calcAcmPercentil(ip, gaW){
+    if(ip==null || gaW==null) return null;
+    const ref = dopplerAcmRef(gaW);
+    if(ip <= ref.p10) return 5;
+    if(ip <= ref.p50){ const t=(ip-ref.p10)/(ref.p50-ref.p10); return Math.round(10+t*40); }
+    if(ip <= ref.p90){ const t=(ip-ref.p50)/(ref.p90-ref.p50); return Math.round(50+t*40); }
+    return 95;
   }
   function fmtNum(n, casas){
     if(n==null || isNaN(n)) return '';
     return n.toFixed(casas).replace('.', ',');
   }
+
+  // Mesmos rótulos das opções do select feto{uid}AuFluxo — usados tanto na
+  // impressão (impAuFluxoAlterado) quanto na tabela de Doppler fetal.
+  const AU_FLUXO_TXT = {
+    ausente: 'AEDF — diástole ausente na artéria umbilical',
+    reversa: 'REDF — diástole reversa na artéria umbilical',
+    intermitente: 'iAREDF — diástole intermitentemente ausente/reversa na artéria umbilical',
+  };
 
   const PLACENTA_INSERCAO_TXT = {
     'fúndica': 'de inserção fúndica',
@@ -1787,9 +1850,15 @@ if(typeof criarMotorLaudo !== 'function'){
     // conclusão da gemelar/trigemelar ("...em ambos os fetos"), em vez de uma
     // linha repetida por feto — só quando todos estão de fato normais; havendo
     // qualquer alteração em um deles, cada feto volta a ter sua própria linha.
-    const dopplerFetalLabelFor = f => (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
-      ? phraseRaw('impRcpBaixoP5')
-      : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
+    // Fluxo diastólico alterado (AEDF/REDF/iAREDF) vem primeiro: é achado
+    // mais grave e mais específico que um RCP baixo isolado — teria menos
+    // informação clínica se ficasse escondido atrás da frase genérica de
+    // RCP ou da classificação manual normal/alterado.
+    const dopplerFetalLabelFor = f => f.auFluxoAlterado
+      ? phraseRaw('impAuFluxoAlterado', {FLUXO: AU_FLUXO_TXT[f.auFluxo]})
+      : (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
+        ? phraseRaw('impRcpBaixoP5')
+        : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
     const dopplerFetalTodosNormais = state.isMultiple && state.dopplerFetal
       && state.fetos.every(f => dopplerFetalLabelFor(f) === phraseRaw('impDopplerFetalNormal'));
     const pbfTodosNormais = state.isMultiple && state.pbf
@@ -2071,25 +2140,6 @@ if(typeof criarMotorLaudo !== 'function'){
       const percentil = blankOrValue(v(pre+'Percentil'));
       const percentilNum = num(pre+'Percentil');
 
-      // A impressão nunca traz o peso estimado em gramas — ele já está na
-      // biometria. Antes de 21 semanas o percentil de Hadlock não é confiável,
-      // então a impressão é só a frase de normalidade; a partir daí (e também
-      // quando não há IG para decidir) entra o percentil, em branco se ainda
-      // não foi preenchido. Um percentil fora da faixa continua virando PIG,
-      // CIUR ou GIG mesmo antes das 21 semanas: chamar de "dentro da
-      // normalidade" um achado que a médica marcou como alterado trocaria o
-      // alerta por silêncio. Percentil 3 ou menos é CIUR — pede o estágio
-      // (campo condicional feto{uid}CiurEstagio, mostrado por updateFetoWraps)
-      // em vez da tag "Feto PIG" genérica.
-      let pesoKey;
-      if(percentilNum !== null && percentilNum <= 3) pesoKey = 'impPesoCIUR';
-      else if(percentilNum !== null && percentilNum <= 10) pesoKey = 'impPesoPIG';
-      else if(percentilNum !== null && percentilNum >= 90) pesoKey = 'impPesoGIG';
-      else if(gaDays !== null && gaDays < PESO_PERCENTIL_IG_DIAS) pesoKey = 'impPesoNormalidade';
-      else pesoKey = 'impPesoAdequado';
-      const ciurEstagio = v(pre+'CiurEstagio') || 'I';
-      const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: faixaPercentilPeso(percentilNum), PESO: peso.text, CIUR: ciurEstagio});
-
       const placentaInsercao = v(pre+'PlacentaInsercao');
       const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
       const placentaTextura = v(pre+'PlacentaTextura');
@@ -2111,6 +2161,8 @@ if(typeof criarMotorLaudo !== 'function'){
 
       let piUmbilicalVal = {text:'____',filled:false}, piACMVal = {text:'____',filled:false};
       let cprPercentilVal = {text:'__',filled:false}, cprPercentilNum = null, cprTxt = '', dopplerFetalAlterado = false;
+      let auPercentilNum = null, acmPercentilNum = null;
+      let auFluxo = '', auDiastoleZero = false, auFluxoAlterado = false;
       if(dopplerFetal){
         piUmbilicalVal = blankOrValue(req(pre+'PiUmbilical'));
         piACMVal = blankOrValue(req(pre+'PiACM'));
@@ -2129,7 +2181,99 @@ if(typeof criarMotorLaudo !== 'function'){
         const cprPctParsed = parseFloat(String(cprPctRaw).replace(',', '.'));
         cprPercentilNum = !isNaN(cprPctParsed) ? cprPctParsed : null;
         dopplerFetalAlterado = v(pre+'DopplerClassificacao')==='alterado';
+        // Fluxo diastólico da umbilical — mesmos valores do app de curvas
+        // (au_fluxo). 'ausente'/'reversa'/'intermitente' (AEDF/REDF/iAREDF)
+        // são achado grave por si só: fecham CIUR sozinhos antes de 32
+        // semanas (ver bloco de pesoKey, abaixo), mesmo com percentil de
+        // peso normal — igual ao app.
+        auFluxo = v(pre+'AuFluxo');
+        auDiastoleZero = auFluxo === 'ausente' || auFluxo === 'reversa' || auFluxo === 'intermitente';
+        auFluxoAlterado = auDiastoleZero; // hoje são a mesma coisa; nomes separados por clareza no uso abaixo
+        // IP-umbilical e IP-ACM em percentil — só para fechar CIUR por
+        // critérios menores no bloco de pesoKey logo abaixo (ver ali). Sem
+        // campo próprio na tela: o laudo já imprime o IP bruto e a
+        // classificação normal/alterada escolhida pela médica.
+        const gaWLocal = gaDays!=null ? gaDays/7 : null;
+        if(gaWLocal!=null){
+          if(piUmbilicalNum!=null) auPercentilNum = calcAuPercentil(piUmbilicalNum, gaWLocal);
+          if(piACMNum!=null) acmPercentilNum = calcAcmPercentil(piACMNum, gaWLocal);
+        }
       }
+
+      // A impressão nunca traz o peso estimado em gramas — ele já está na
+      // biometria. Antes de 21 semanas o percentil de Hadlock não é confiável,
+      // então a impressão é só a frase de normalidade; a partir daí (e também
+      // quando não há IG para decidir) entra o percentil, em branco se ainda
+      // não foi preenchido. Um percentil fora da faixa continua virando PIG,
+      // CIUR ou GIG mesmo antes das 21 semanas: chamar de "dentro da
+      // normalidade" um achado que a médica marcou como alterado trocaria o
+      // alerta por silêncio. Percentil 3 ou menos é CIUR — pede o estágio
+      // (campo condicional feto{uid}CiurEstagio, mostrado logo abaixo).
+      //
+      // CIUR por critérios menores (Delphi 2016 + protocolo de Barcelona),
+      // gestação única — mesma regra do relatório evolutivo (calcDiagnosticoFGR
+      // em curva-fetal/index.html; precisa mudar nos dois lados se mudar
+      // aqui). Um feto de gestação única em percentil 5-10 que também tem
+      // Doppler alterado fecha CIUR mesmo sem chegar a P3: antes de 32 semanas,
+      // IP-umbilical>P95 ou IP-uterinas>P95 já fecha sozinho (RCIU precoce);
+      // a partir de 32 semanas exige 2 dos 3 critérios menores — RCP<P5,
+      // IP-umbilical>P95 ou IP-uterinas>P95 contam como um critério só, e
+      // ACM<P5 (centralização) como um segundo, independente. O percentil
+      // ≤10 já é sempre o critério de crescimento que falta.
+      //
+      // Diástole zero/reversa na umbilical (AEDF/REDF/iAREDF) é o terceiro
+      // critério isolado do app (junto com PFE<P3): fecha CIUR sozinha,
+      // antes de 32 semanas, MESMO com percentil de peso normal — não entra
+      // no ramo "percentil<=10" abaixo, é checada antes, do mesmo jeito que
+      // lá. A partir de 32 semanas o app não usa esse achado pra diagnóstico
+      // (só pra estadiamento), e aqui segue igual — não é assimetria
+      // introduzida por este laudo, é o comportamento do relatório.
+      //
+      // Decisão da Dra. Morgana, 2026-09-21: até então o laudo só olhava o
+      // percentil do dia, e um feto em P8 com uterinas>P95 saía "PIG" aqui e
+      // "CIUR" no relatório evolutivo — mesma paciente, dois papéis
+      // discordando. Só se aplica a gestação única: numa gemelar/trigemelar
+      // o mecanismo e os critérios são os do CIUR seletivo, que este laudo
+      // ainda não calcula (mexer nisso é tarefa à parte) — por isso o
+      // critério isolado da diástole também sai gated por !isMultiple,
+      // ainda que no app ele não seja (lá aplica por feto mesmo em gemelar,
+      // só troca o nome do diagnóstico pra "CIUR seletivo"; aqui, sem essa
+      // segunda nomenclatura, ficaria "CIUR" indevido numa gemelar).
+      let pesoKey;
+      const gaWCiur = gaDays!=null ? gaDays/7 : null;
+      const isPrecoceCiur = gaWCiur!=null && gaWCiur < 32;
+      if(percentilNum !== null && percentilNum <= 3) {
+        pesoKey = 'impPesoCIUR';
+      } else if(!isMultiple && isPrecoceCiur && auDiastoleZero) {
+        pesoKey = 'impPesoCIUR';
+      } else if(percentilNum !== null && percentilNum <= 10) {
+        const auAboveP95Ciur  = auPercentilNum!=null  && auPercentilNum  >= 95;
+        const acmBelowP5Ciur  = acmPercentilNum!=null && acmPercentilNum <= 5;
+        const cprBelowP5Ciur  = cprPercentilNum!=null && cprPercentilNum < 5;
+        const utAboveP95Ciur  = utAlterado; // maternal, calculado uma vez para a gestação
+        let fechaCiurPorCriterios = false;
+        if(!isMultiple && gaWCiur!=null){
+          if(isPrecoceCiur){
+            fechaCiurPorCriterios = auAboveP95Ciur || utAboveP95Ciur;
+          } else {
+            let nCrit = 1; // percentil<=10 já é o critério de crescimento
+            if(cprBelowP5Ciur || auAboveP95Ciur || utAboveP95Ciur) nCrit++;
+            if(acmBelowP5Ciur) nCrit++;
+            fechaCiurPorCriterios = nCrit >= 2;
+          }
+        }
+        pesoKey = fechaCiurPorCriterios ? 'impPesoCIUR' : 'impPesoPIG';
+      } else if(percentilNum !== null && percentilNum >= 90) pesoKey = 'impPesoGIG';
+      else if(gaDays !== null && gaDays < PESO_PERCENTIL_IG_DIAS) pesoKey = 'impPesoNormalidade';
+      else pesoKey = 'impPesoAdequado';
+      const ciurEstagio = v(pre+'CiurEstagio') || 'I';
+      const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: faixaPercentilPeso(percentilNum), PESO: peso.text, CIUR: ciurEstagio});
+      // O campo de estágio (I-IV) só faz sentido quando o feto fechou CIUR —
+      // por percentil ou pelos critérios menores acima. updateFetoWraps só
+      // reage ao próprio campo de percentil; aqui, dentro do render() (que já
+      // roda a cada tecla digitada em qualquer campo do card, Doppler
+      // incluído), a visibilidade é corrigida com o resultado final.
+      toggle('wrap_'+pre+'CiurEstagio', pesoKey === 'impPesoCIUR');
 
       let pbfScore = 0, pbfResp = true, pbfCorpo = true, pbfTono = true, pbfLA = true, pbfCriteriosAlterados = '';
       if(pbf){
@@ -2152,6 +2296,7 @@ if(typeof criarMotorLaudo !== 'function'){
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
         piUmbilicalVal, piACMVal, cprTxt, cprPercentilVal, cprPercentilNum, dopplerFetalAlterado,
+        auFluxo, auFluxoAlterado,
         pbfResp, pbfCorpo, pbfTono, pbfLA, pbfScore, pbfCriteriosAlterados};
     });
 
@@ -2278,7 +2423,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Fetal</strong></p>'
       +'<table class="biometria doppler-fetal">'
       +'<tr><td></td><td><strong>IP</strong></td></tr>'
-      +'<tr><td>Art. Umbilical:</td><td>'+span(f.piUmbilicalVal)+'</td></tr>'
+      +'<tr><td>Art. Umbilical:</td><td>'+span(f.piUmbilicalVal)+(f.auFluxoAlterado ? ' — '+escapeHtml(AU_FLUXO_TXT[f.auFluxo]) : '')+'</td></tr>'
       +'<tr><td>Art. Cerebral Média:</td><td>'+span(f.piACMVal)+'</td></tr>'
       +'<tr><td>Rel. Cér-placentária:</td><td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td></tr>'
       +'</table>';
@@ -3005,6 +3150,7 @@ if(typeof criarMotorLaudo !== 'function'){
           ca: num(pre+'CA'),
           femur: num(pre+'CF'),
           au_ip: num(pre+'PiUmbilical'),
+          au_fluxo: v(pre+'AuFluxo') || null,
           acm_ip: num(pre+'PiACM'),
           // Doppler materno: aut_e/aut_d são as colunas de artéria uterina esquerda e
           // direita lá na curva de crescimento. As uterinas são da mãe, não do feto —
