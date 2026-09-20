@@ -1723,6 +1723,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Bexiga fetal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Bexiga" placeholder="mm"></div>'
       +'</div>'
 
+      +'<div class="conditional show" id="feto'+uid+'RiscoWrap">'
       +'<p class="feto-sub">Risco fetal para trissomias (IM + ON + TN + DV + VT)</p>'
       +'<p class="hint-perfeto">Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).</p>'
       +'<div class="field-row">'
@@ -1732,6 +1733,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field-row">'
       +'<div class="field"><label>Síndrome de Patau (T13) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT13" placeholder="ex: 8000"></div>'
       +'<div class="field"><label>Risco para cromossomopatias</label><select id="feto'+uid+'RiscoClasse"><option value="baixo">Baixo risco</option><option value="alto">Risco aumentado</option></select></div>'
+      +'</div>'
       +'</div>'
 
       +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
@@ -2103,8 +2105,11 @@ if(typeof criarMotorLaudo !== 'function'){
       }
     });
 
-    state.fetos.forEach(f=>{
-      items.push({key:k('cromossomopatias', f), label: pre(f) + (f.riscoAlto
+    // Mesma regra do quadro de risco (ver render()): um cálculo só na
+    // monocoriônica vira uma linha só aqui, rotulada como sendo dos dois/três.
+    (state.isMonocorionica ? state.fetos.slice(0, 1) : state.fetos).forEach(f=>{
+      const prefixo = state.isMonocorionica ? (state.rotuloRiscoMono+': ') : pre(f);
+      items.push({key:k('cromossomopatias', f), label: prefixo + (f.riscoAlto
         ? phraseRaw('impCromossomopatiasAlto')
         : phraseRaw('impCromossomopatiasBaixo')), auto:true});
     });
@@ -2270,6 +2275,13 @@ if(typeof criarMotorLaudo !== 'function'){
       monocorionica_triamniotica: 'monocoriônica e triamniótica'
     };
     const corTxt = corTxtMap[v('corionicidade')] || 'dicoriônica e diamniótica';
+    // Monocoriônica: os fetos vêm do mesmo óvulo fecundado e dividem a mesma
+    // placenta, então o risco de trissomias é um só da gestação inteira — um
+    // quadro só no laudo e uma linha só na impressão, rotulados como sendo dos
+    // dois (ou três) fetos. Repetir o mesmo número sob "Feto 1" e "Feto 2"
+    // sugeriria dois cálculos independentes onde só existe um.
+    const isMonocorionica = isMultiple && v('corionicidade').indexOf('monocorionica') === 0;
+    const rotuloRiscoMono = uids.length >= 3 ? 'Os três fetos' : 'Ambos os fetos';
     // Quantos sacos gestacionais existem sai da corionicidade: mono é um saco
     // só (com os dois/três embriões dentro), di são dois, tri são três. A frase
     // do útero dizia sempre "saco gestacional" no singular, mesmo na
@@ -2396,10 +2408,16 @@ if(typeof criarMotorLaudo !== 'function'){
         riscoT21, riscoT18, riscoT13, riscoAlto};
     });
 
+    // Com um cálculo só, os campos de risco do 2º/3º feto saem do formulário —
+    // senão haveria dois lugares para digitar o mesmo número e um deles seria
+    // ignorado em silêncio. Decidido aqui dentro do render(), que é quem roda a
+    // cada mudança de corionicidade ou de número de fetos.
+    fetos.forEach((f, idx)=> toggle('feto'+f.uid+'RiscoWrap', !(isMonocorionica && idx > 0)));
+
     // ----- Impressão -----
     const state = {
       semanas: semanasTxt, dias: diasTxt, ig: igTxt, metodoTxt,
-      isMultiple, corTxt, fetos,
+      isMultiple, corTxt, fetos, isMonocorionica, rotuloRiscoMono,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       preEclampsia, preEclampsiaOpcao, preEclampsiaRiscoTxt,
       coloAlterado
@@ -2515,9 +2533,10 @@ if(typeof criarMotorLaudo !== 'function'){
     // Risco de aneuploidias: sempre a última tabela antes da IMPRESSÃO, por
     // isso fica fora do forEach acima (depois da biometria/morfologia/
     // marcadores de todos os fetos e do Doppler materno), num laço à parte.
-    fetos.forEach(f=>{
+    (isMonocorionica ? fetos.slice(0, 1) : fetos).forEach(f=>{
       const sfx = '-f'+f.uid;
-      const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+' (IM + ON + TN + DV + VT):';
+      const riscoRotulo = isMonocorionica ? rotuloRiscoMono : f.label;
+      const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(riscoRotulo) : '')+' (IM + ON + TN + DV + VT):';
       blocks.push({id:'riscos'+sfx, html:'<div>'
         +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
         +'<table class="biometria">'

@@ -702,6 +702,45 @@ frases" grava todas as frases de uma vez, então uma chave já existente no
 `localStorage` da médica sobrescreveria o padrão novo e o conserto não
 apareceria para ela.
 
+### Monocoriônica: um cálculo de risco só, rotulado para os dois (ou três) fetos
+
+`morfologico-1trimestre.html` montava um quadro "Risco Fetal para Trissomias"
+por feto, rotulado "— Feto 1" e "— Feto 2", e uma linha de cromossomopatias por
+feto na impressão. Numa **monocoriônica** isso descreve errado o que foi feito:
+os fetos vêm do mesmo óvulo fecundado e dividem a mesma placenta, então o
+rastreamento combinado dá um risco só para a gestação inteira. Dois quadros com
+o mesmo número sugerem dois cálculos independentes. Confirmado com a médica em
+2026-09-20.
+
+Hoje, quando a corionicidade começa com `monocorionica`, sai **um quadro só** e
+**uma linha só** na impressão, rotulados `Ambos os fetos` (com dois) ou
+`Os três fetos` (com três) no lugar de `Feto 1`. Os valores usados são os do 1º
+feto — e é por isso que os campos de risco do 2º/3º **somem do formulário**
+nesse caso (`feto{uid}RiscoWrap`): sem isso haveria dois lugares para digitar o
+mesmo número e um deles seria ignorado em silêncio.
+
+Três coisas a respeitar ao mexer aqui:
+
+- **A visibilidade é decidida dentro do `render()`**, não num listener do
+  select de corionicidade — mesmo padrão do `feto{uid}CiurEstagio` no
+  `obstetrico.html` (ver "PIG vs CIUR", mais abaixo). `render()` já roda a cada
+  mudança de corionicidade e de número de fetos, então não há um segundo
+  gatilho para esquecer. O wrapper nasce com `class="conditional show"`, de
+  modo que o caso comum (feto único, dicoriônica) aparece sem depender do
+  primeiro `render()`.
+- **O quadro e a linha da impressão andam juntos.** São dois lugares
+  diferentes no código (`render()` e `buildImpressao()`), e `state` carrega
+  `isMonocorionica`/`rotuloRiscoMono` justamente para os dois usarem a mesma
+  decisão. Consertar um e esquecer o outro dá um laudo com um quadro e duas
+  linhas dizendo a mesma coisa.
+- **Dicoriônica e triamniótica continua com três quadros, de propósito.** Aí
+  dois dos três fetos dividem um cório e o terceiro tem o seu — mas o
+  formulário não tem como dizer *quais* dois são o par, então agrupar seria
+  chutar. Três quadros é o comportamento honesto enquanto não existir esse
+  campo. O mesmo vale para o `obstetrico-1trimestre.html`, que não tem quadro
+  de risco nenhum, e para o `obstetrico-tn-doppler-colo.html`, que também não —
+  este conserto é só do morfológico de 1º trimestre.
+
 ### Gestação múltipla: um `exams` por feto, A/B/C
 
 O laudo de 2º/3º trimestre atende até três fetos (`MAX_FETOS = 3`) e manda um
