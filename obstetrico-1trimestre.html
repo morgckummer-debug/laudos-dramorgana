@@ -924,6 +924,16 @@ if(typeof criarMotorLaudo !== 'function'){
   let titleFontSize = null;
 
   let impressaoOverrides = {};
+  // Para cada key da checklist, o texto automático (it.label) que estava valendo
+  // no momento em que a médica editou aquela linha à mão pela última vez — usado
+  // em render() para saber se um override ainda descreve o mesmo fato clínico ou
+  // se ficou para trás depois que ela mudou DUM/IG/outro campo (ver comentário
+  // em render(), na montagem de impressaoListHtml).
+  let impressaoOverrideBase = {};
+  // Último texto automático calculado para cada key, atualizado a cada render() —
+  // é a "foto" que impressaoOverrideBase copia no instante em que um override é
+  // capturado (ver listener de 'input' do #paper, abaixo).
+  let lastAutoLabel = {};
 
   // Descrição do(s) saco(s) que o laudo escreveria sozinho, em texto puro.
   // Atualizada a cada render() e lida pelo checkbox "Reescrever a descrição",
@@ -2242,7 +2252,15 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!sel || !sel.anchorNode) return;
     const node = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
     const li = node && node.closest ? node.closest('ul.impressao li[data-key]') : null;
-    if(li) impressaoOverrides[li.dataset.key] = li.textContent;
+    if(li){
+      impressaoOverrides[li.dataset.key] = li.textContent;
+      // Guarda também o texto automático que estava na tela quando ela começou
+      // a editar — é contra esse valor que render() confere, depois, se o
+      // override ainda corresponde ao que os campos calculam ou se ficou para
+      // trás (ex.: ela ajusta a frase, depois muda a IG/DUM — sem isso o texto
+      // digitado ficaria congelado, com a IG errada, para sempre).
+      impressaoOverrideBase[li.dataset.key] = lastAutoLabel[li.dataset.key];
+    }
   });
  /* ~1cm */
 
@@ -2527,6 +2545,7 @@ if(typeof criarMotorLaudo !== 'function'){
       obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
+    impressaoItems.forEach(it=>{ lastAutoLabel[it.key] = it.label; });
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
 
@@ -2817,7 +2836,20 @@ if(typeof criarMotorLaudo !== 'function'){
       impressaoListHtml += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
     } else {
       checkedItems.forEach(it=>{
-        const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
+        // Um override só vale enquanto o texto automático que ele reescreveu
+        // continuar sendo o mesmo: se a IG/DUM/outro campo mudou depois da
+        // edição manual, o fato descrito por ela ficou para trás (ex.: "10
+        // semanas e 1 dia" digitado à mão sobrevivendo a uma IG corrigida para
+        // "8 semanas e 2 dias") — mais perigoso, numa data gestacional, do que
+        // perder um ajuste de texto. Nesse caso o override é descartado e a
+        // linha volta a ser gerada pelos campos atuais.
+        const hasOverride = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key);
+        const overrideStale = hasOverride && impressaoOverrideBase[it.key] !== it.label;
+        if(overrideStale){
+          delete impressaoOverrides[it.key];
+          delete impressaoOverrideBase[it.key];
+        }
+        const text = (hasOverride && !overrideStale) ? impressaoOverrides[it.key] : ('* '+it.label);
         impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
       });
     }
@@ -3084,6 +3116,8 @@ if(typeof criarMotorLaudo !== 'function'){
     $('miomaNodulosContainer').innerHTML = '';
     checkedState = {};
     impressaoOverrides = {};
+    impressaoOverrideBase = {};
+    lastAutoLabel = {};
     // Force every block to rebuild fresh for the new patient — otherwise a
     // block whose computed text happens to match the previous patient's
     // would keep whatever the doctor had typed by hand into it, since
@@ -3136,6 +3170,7 @@ if(typeof criarMotorLaudo !== 'function'){
       miomaUids: miomaNoduleUids(),
       checked: checkedState,
       overrides: impressaoOverrides,
+      overridesBase: impressaoOverrideBase,
       titleFontSize: titleFontSize,
       paper: draftPaperHtml(),
       blocks: st.lastBlockHtml
@@ -3210,6 +3245,13 @@ if(typeof criarMotorLaudo !== 'function'){
 
       checkedState = (d.checked && typeof d.checked === 'object') ? d.checked : {};
       impressaoOverrides = (d.overrides && typeof d.overrides === 'object') ? d.overrides : {};
+      // Rascunhos gravados antes desta correção não têm `overridesBase` — nesse
+      // caso cada override existente é tratado como já desatualizado (ver
+      // render(), na montagem de impressaoListHtml) e cai para o texto
+      // automático no primeiro render: mais seguro, numa data gestacional, do
+      // que confiar num texto digitado à mão sem como conferir se ainda bate
+      // com os campos.
+      impressaoOverrideBase = (d.overridesBase && typeof d.overridesBase === 'object') ? d.overridesBase : {};
       titleFontSize = d.titleFontSize || null;
     }catch(e){
       // Rascunho corrompido ou de uma versão antiga deste laudo: melhor abrir em
@@ -3219,6 +3261,7 @@ if(typeof criarMotorLaudo !== 'function'){
       $('miomaNodulosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
+      impressaoOverrideBase = {};
       st.lastBlockHtml = {};
       $('paper').innerHTML = '';
       try{ localStorage.removeItem(DRAFT_KEY); }catch(e2){}
