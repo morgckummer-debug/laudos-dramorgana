@@ -2245,9 +2245,6 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
 
-    if(isMultiple){
-      blocks.push({id:'gestacaoMultipla', html:'<p class="linha">'+escapeHtml('Gestação múltipla, com '+fetos.length+' fetos, '+corTxt+'.')+'</p>'});
-    }
 
     // Tabelas do Doppler, montadas uma vez e posicionadas conforme o caso:
     // com feto único elas continuam lado a lado, logo depois do líquido

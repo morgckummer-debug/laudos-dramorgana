@@ -2184,9 +2184,6 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
 
-    if(isMultiple){
-      blocks.push({id:'gestacaoMultipla', html:'<p class="linha">'+escapeHtml('Gestação múltipla, com '+fetos.length+' fetos, '+corTxt+'.')+'</p>'});
-    }
 
     fetos.forEach(f=>{
       const sfx = '-f'+f.uid;

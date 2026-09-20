@@ -1854,9 +1854,6 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
-    if(isMultiple){
-      blocks.push({id:'gestacaoMultipla', html:'<p class="linha">'+escapeHtml('Gestação múltipla, com '+fetos.length+' fetos, '+corTxt+'.')+'</p>'});
-    }
     // Feto único: a frase do útero fecha com "..., com feto único." Gestação
     // múltipla já tem a linha acima dizendo quantos fetos há — repetir aqui
     // seria redundante, então o trecho some.
