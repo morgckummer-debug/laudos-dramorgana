@@ -702,3 +702,72 @@ formulário perto do antecedente de PPT, coluna no `select` que busca a
 gestação ativa, valor no `insert` (gestação nova) e um `if(check && !valorNoBanco)`
 próprio no bloco de gestação existente — nunca um único `else if` cobrindo
 várias flags, porque aí só a primeira verdadeira do laudo seria gravada.
+
+## RCP: mesma fórmula do relatório evolutivo (curva-fetal)
+
+2026-09-21. `obstetrico.html` calculava o percentil do RCP com uma tabela
+própria (`CPR_REF`, média/DP por semana, via z-score/`normalCDF`) sem
+citação de origem no código. O app de curvas (`curva-fetal`) calcula o
+mesmo RCP com outra fórmula (`calcDopplerCpr`, Figueras/Barcelona, linear:
+P50 = 1,08 + 0,006×IG, interpolação linear entre P10/P50/P90, não Gaussiana)
+— usada no relatório evolutivo que ela entrega junto com este laudo. O
+mesmo valor medido dava percentis incompatíveis nos dois papéis: RCP 1,2 em
+34-35 semanas saía ~P40 lá e <P5 aqui. Confirmado com a médica: a fórmula do
+app é a referência. `cprPercentil` aqui foi trocado para portar
+`dopplerCprRef`/`calcDopplerCpr` de `curva-fetal/index.html` linha a linha —
+**mudar a fórmula lá sem mudar aqui volta a abrir a divergência**, e
+vice-versa.
+
+## PIG vs CIUR: critérios menores, não só o percentil do dia
+
+Mesma conversa. O laudo decidia PIG vs CIUR só pelo percentil de peso do
+exame do dia (`feto{uid}Percentil`, digitado à mão): ≤P3 vira CIUR, 5-10 vira
+PIG, sem olhar Doppler nenhum. O relatório evolutivo do `curva-fetal`
+(`calcDiagnosticoFGR`) é mais completo: em gestação única, dois critérios
+menores (um deles sempre de crescimento) fecham CIUR mesmo sem chegar a P3.
+Resultado: um feto em P8 com IP-uterinas>P95 saía "PIG" aqui e "CIUR" no
+relatório — mesma paciente, dois papéis discordando no mesmo dia.
+
+O bloco de `pesoKey` (dentro de `render()`, no `.map` por feto) foi movido
+pra depois do cálculo de Doppler fetal (`piUmbilicalNum`/`piACMNum`/
+`cprPercentilNum`) — antes vinha primeiro, sem esses valores disponíveis — e
+ganhou a mesma regra de `calcDiagnosticoFGR`, na parte que um exame único
+consegue calcular (sem histórico, sem cruzamento de quartis):
+
+- **Só gestação única** (`!isMultiple`). Numa gemelar/trigemelar o mecanismo
+  é o CIUR seletivo, que este laudo ainda não calcula — mexer nisso é tarefa
+  à parte. O corte fixo em percentil continua valendo pra elas.
+- **Antes de 32 semanas**: IP-umbilical>P95 ou IP-uterinas>P95 já fecha CIUR
+  sozinho, junto com o percentil 5-10 (que já é o critério de crescimento).
+- **A partir de 32 semanas**: precisa de 2 dos 3 critérios menores — RCP<P5
+  ou IP-umbilical>P95 ou IP-uterinas>P95 contam como **um** critério só
+  (não três); ACM<P5 (centralização) conta como um **segundo**, independente.
+  O percentil ≤10 já é sempre o critério de crescimento que falta — mesmo
+  invariante do app (pelo menos um critério tem que ser de crescimento).
+- **IP-umbilical e IP-ACM em percentil são novos aqui** (`calcAuPercentil`/
+  `dopplerAuRef`, Acharya 2005; `calcAcmPercentil`/`dopplerAcmRef`, Ebbing
+  2007) — mesmas fórmulas do `curva-fetal`, portadas função por função. Sem
+  campo novo na tela: o laudo continua imprimindo o IP bruto medido e a
+  classificação normal/alterada que a médica escolhe manualmente; o
+  percentil é cálculo interno, só para decidir CIUR vs PIG.
+- **O campo de estágio (`feto{uid}CiurEstagio`, I-IV) precisou de um segundo
+  gatilho.** Ele só aparecia quando `updateFetoWraps` rodava (campo de
+  percentil, mudança de evento `input`), olhando só `percentilNum<=3`. Um
+  feto que fecha CIUR pelos critérios menores (percentil 5-10 com Doppler
+  alterado) nunca dispara esse evento com o valor certo. Como `render()` já
+  roda a cada tecla digitada em qualquer campo do card — inclusive os de
+  Doppler, todos wireados com `field.addEventListener('input', render)` — a
+  visibilidade correta agora é decidida dentro do próprio `render()`, com o
+  resultado final do `pesoKey`: `toggle('wrap_'+pre+'CiurEstagio', pesoKey
+  === 'impPesoCIUR')`. `updateFetoWraps` continua com a checagem simples
+  (só percentil ≤3) como estado inicial do card, antes de qualquer Doppler
+  ser digitado; `render()` é quem tem a palavra final.
+
+**Pendência aberta**: falta o critério isolado de diástole zero/reversa da
+umbilical (AEDF/REDF/iAREDF), que no `curva-fetal` fecha RCIU precoce
+sozinho. Este laudo só tem o IP numérico da umbilical — não há campo para
+classificar o fluxo diastólico (ausente/reversa/intermitente). Se esse campo
+for criado aqui, ele precisa entrar nesta regra também, e a coluna
+`au_fluxo` (que já aceita `intermitente` desde a migração do `curva-fetal`)
+passaria a precisar ser espelhada no insert do Supabase — hoje este laudo
+não escreve nela (ver "O que cada laudo grava", acima).
