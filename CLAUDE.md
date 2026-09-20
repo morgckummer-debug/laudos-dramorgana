@@ -470,6 +470,49 @@ Se esse recurso precisar de outro conserto, vale considerar extraí-lo para o
 a extração original (2026-09-01): treze cópias que já divergiram uma vez
 (`em` vs `mm`) e não vão parar de divergir sozinhas.
 
+## Override da impressão diagnóstica: a linha editada à mão congelava com a IG antiga
+
+Cada `<li>` da impressão diagnóstica pode ser reescrito à mão no preview — é o
+recurso normal de ajustar a redação. O texto digitado vira um override
+(`impressaoOverrides[key]`), guardado por chave da checklist, e daí em diante
+`render()` usa ele no lugar do texto gerado.
+
+O problema é que o override guardava **só o texto digitado**, sem nenhuma forma
+de saber se os campos que geraram aquela frase tinham mudado depois. Uma vez
+editada, a linha ficava congelada para sempre. Relatado em 2026-09-17 no
+`obstetrico-1trimestre.html`, no pior lugar possível: a linha "Gestação
+eutópica, de X semanas e Y dias pelo CCN". A médica ajustava a redação com uma
+IG valendo, depois trocava o método de cronologia para DUM ignorada/incerta e
+digitava a IG correta em "Idade gestacional pela USG" — e a linha impressa
+seguia com a IG **antiga**, sem aviso nenhum. Só o checklist da barra lateral,
+que nunca usa override, mostrava o valor certo. Reproduzido: 10 semanas e 1 dia
+sobrevivendo a uma correção para 8 semanas e 2 dias.
+
+O conserto guarda, junto de cada override, o texto automático que estava
+valendo no instante da captura — `impressaoOverrideBase[key]`, copiado de
+`lastAutoLabel[key]`, que `render()` atualiza a cada passagem com o `it.label`
+de `buildImpressao()`. Na montagem de `impressaoListHtml`, um override cujo
+`impressaoOverrideBase` não bate mais com o `it.label` atual é descartado e a
+linha volta a sair dos campos. Editar a redação continua funcionando
+normalmente enquanto os campos que geram a frase não mudarem.
+
+Duas consequências ao mexer nisso:
+
+- **O rascunho ganhou a chave `overridesBase`.** Rascunho gravado antes deste
+  conserto não tem essa chave, e nesse caso todo override existente é tratado
+  como desatualizado no primeiro `render()`: cai para o texto automático. Numa
+  data gestacional isso é mais seguro do que confiar num texto digitado à mão
+  sem como conferir se ainda bate com os campos.
+- **Os outros treze laudos seguem com o padrão antigo.** `impressaoOverrides`
+  existe em todos os catorze `.html`, e só o `obstetrico-1trimestre.html` tem a
+  aferição de validade — os demais continuam podendo congelar uma linha editada
+  à mão. Não é o mesmo risco em toda parte (uma data gestacional errada é pior
+  que uma frase de textura desatualizada), mas é o mesmo bug. Ao portar, são as
+  cinco peças: as duas variáveis novas, a cópia em `lastAutoLabel` logo depois
+  de `buildImpressao()`, a captura da base no listener de `'input'` do `#paper`,
+  o descarte na montagem da lista, e os resets (troca de paciente,
+  `draftSnapshot()`, `draftRestore()` e o `catch` de rascunho corrompido).
+
 ## O botão "Baixar Word": o cabeçalho triplicava e a página não batia com o PDF
 
 O `.doc` que o botão gera é HTML puro (o Word abre HTML como se fosse um
