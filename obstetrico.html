@@ -483,7 +483,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Placenta alterada — use {DESCRICAO}</label><textarea id="ph_impPlacentaAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta baixa/marginal/prévia — use {INSERCAO}</label><textarea id="ph_impPlacentaPrevia" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Discordância de peso dentro da normalidade — use {DISCORDANCIA}</label><textarea id="ph_impDiscordanciaNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Discordância de peso ≥ 20% — use {DISCORDANCIA}</label><textarea id="ph_impDiscordanciaAlterada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Discordância de peso entre 20% e 25% — use {DISCORDANCIA}</label><textarea id="ph_impDiscordanciaVigilancia" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Discordância de peso acima de 25% — use {DISCORDANCIA}</label><textarea id="ph_impDiscordanciaAlterada" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Impressões diagnósticas — Doppler</h3>
@@ -1201,7 +1202,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impPlacentaAlterada: 'Placenta com espessura alterada: {DESCRICAO}.',
     impPlacentaPrevia: 'Placenta {INSERCAO}.',
     impDiscordanciaNormal: 'Discordância de peso entre os fetos de {DISCORDANCIA}% — dentro da normalidade.',
-    impDiscordanciaAlterada: 'Discordância de peso entre os fetos de {DISCORDANCIA}% — igual ou superior a 20%, sugere-se acompanhamento especializado.',
+    impDiscordanciaVigilancia: 'Discordância de peso entre os fetos de {DISCORDANCIA}% — acima de 20%, sugere-se vigilância.',
+    impDiscordanciaAlterada: 'Discordância de peso entre os fetos de {DISCORDANCIA}% — acima de 25%, critério de CIUR seletivo do feto menor.',
 
     impDopplerUterinasNormal: 'IP médio das artérias uterinas dentro da normalidade.',
     impDopplerUterinasAlterado: 'IP médio das artérias uterinas acima da normalidade (percentil 95), sugerindo risco aumentado para pré-eclâmpsia e/ou restrição de crescimento fetal.',
@@ -1852,9 +1854,8 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(state.discordanciaTxt){
-      items.push({key:'discordancia', label: state.discordanciaAlterada
-        ? phraseRaw('impDiscordanciaAlterada', {DISCORDANCIA: state.discordanciaTxt})
-        : phraseRaw('impDiscordanciaNormal', {DISCORDANCIA: state.discordanciaTxt}), auto:true});
+      const chaveDisc = { alerta: 'impDiscordanciaAlterada', vigilancia: 'impDiscordanciaVigilancia', ok: 'impDiscordanciaNormal' }[state.discordanciaSeveridade || 'ok'];
+      items.push({key:'discordancia', label: phraseRaw(chaveDisc, {DISCORDANCIA: state.discordanciaTxt}), auto:true});
     }
 
     if(state.dopplerMaterno){
@@ -2156,19 +2157,34 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // ----- Discordância de peso entre os fetos -----
     // (maior − menor) / maior × 100 — só faz sentido com dois ou mais pesos
-    // estimados preenchidos; a partir de 20% vira impressão diagnóstica.
-    let discordanciaTxt = '', discordanciaNum = null, discordanciaAlterada = false;
+    // estimados preenchidos.
+    //
+    // Três faixas, não duas (2026-09-20, definição da médica e mesmo degrau do
+    // app de Curva de Crescimento, que escreve nas mesmas tabelas): abaixo de
+    // 20% é o esperado; 20 a 25% ainda não é o corte do consenso, só pede
+    // vigilância; acima de 25% é o critério menor de CIUR seletivo. Antes havia
+    // um corte só, em 20%, e uma gemelar de 27% saía daqui com a mesma frase de
+    // uma de 21% — enquanto o relatório de acompanhamento da mesma paciente
+    // dizia "critérios de CIUR seletivo". Dois documentos dela, leituras de
+    // gravidade diferentes.
+    //
+    // `discordanciaAlterada` continua sendo "≥ 20%": é o que acende o campo em
+    // vermelho e o que entra no flag geral de anormalidade. Quem escolhe a
+    // frase é `discordanciaSeveridade`.
+    let discordanciaTxt = '', discordanciaNum = null, discordanciaAlterada = false, discordanciaSeveridade = 'ok';
     const pesos = fetos.map(f=> f.pesoNum).filter(x=> x!=null && x>0);
     if(isMultiple && pesos.length >= 2){
       const maior = Math.max.apply(null, pesos);
       const menor = Math.min.apply(null, pesos);
       discordanciaNum = ((maior-menor)/maior)*100;
       discordanciaTxt = fmtNum(discordanciaNum, 1);
-      discordanciaAlterada = discordanciaNum >= 20;
+      discordanciaSeveridade = discordanciaNum >= 25 ? 'alerta' : discordanciaNum >= 20 ? 'vigilancia' : 'ok';
+      discordanciaAlterada = discordanciaSeveridade !== 'ok';
     }
     const discEl = $('discordanciaCalc');
     if(discEl){
-      discEl.value = discordanciaTxt ? (discordanciaTxt+'%'+(discordanciaAlterada ? ' — ≥ 20%' : '')) : '';
+      const discFaixa = { alerta: ' — > 25%', vigilancia: ' — 20 a 25%', ok: '' }[discordanciaSeveridade];
+      discEl.value = discordanciaTxt ? (discordanciaTxt+'%'+discFaixa) : '';
       discEl.classList.toggle('flag-abnormal', discordanciaAlterada);
     }
 
@@ -2185,7 +2201,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const state = {
       semanas: semanasTxt, dias: diasTxt, ig: igTxt, gaDays, cronologiaMetodo, dpp: dppTxt,
       isMultiple, corTxt, fetos,
-      discordanciaTxt, discordanciaAlterada, discordanciaNum,
+      discordanciaTxt, discordanciaAlterada, discordanciaSeveridade, discordanciaNum,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       dopplerFetal, pbf,
       colo, coloAlterado
