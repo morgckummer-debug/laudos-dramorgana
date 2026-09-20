@@ -1211,6 +1211,9 @@ if(typeof criarMotorLaudo !== 'function'){
     impDopplerFetalAlterado: 'Sinais de redistribuição de fluxo fetal, sugerindo redistribuição hemodinâmica — sugere-se avaliação e acompanhamento especializado.',
     impDopplerFetalNormalTodos: 'Não há sinais de redistribuição de fluxo em {TERMO} os fetos.',
     impRcpBaixoP5: 'RCP abaixo do percentil 5 - Sugere redistribuição hemodinâmica fetal.',
+    // {FLUXO} vem de AU_FLUXO_TXT (AEDF/REDF/iAREDF) — achado mais grave que
+    // o RCP baixo, por isso tem prioridade sobre ele em dopplerFetalLabelFor.
+    impAuFluxoAlterado: '{FLUXO} — sugere-se avaliação e acompanhamento especializado.',
 
     impPbf: 'PBF: {SCORE}/8.',
     impPbfTodos: 'PBF de {TERMO} os fetos: {SCORE}/8.',
@@ -1445,6 +1448,20 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field-row">'
       +'<div class="field"><label>Art. Umbilical (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiUmbilical" placeholder="ex: 0,95"></div>'
       +'<div class="field"><label>Art. Cerebral Média (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiACM" placeholder="ex: 1,60"></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      // Fluxo diastólico da umbilical — mesmas opções e mesmos valores do
+      // app de curvas (e-au-fluxo em curva-fetal/index.html), pra a coluna
+      // au_fluxo do Supabase chegar com o mesmo vocabulário dos dois lados.
+      // AEDF/REDF fecham CIUR sozinhos antes de 32 semanas (ver bloco de
+      // pesoKey, abaixo) — é por isso que existe, não só pra imprimir.
+      +'<div class="field"><label>Fluxo diastólico — Art. Umbilical</label><select id="feto'+uid+'AuFluxo">'
+        +'<option value="">—</option>'
+        +'<option value="normal">Normal</option>'
+        +'<option value="ausente">AEDF — diástole ausente</option>'
+        +'<option value="reversa">REDF — diástole reversa</option>'
+        +'<option value="intermitente">iAREDF — diástole intermitente (ausente/reversa)</option>'
+      +'</select></div>'
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Relação cérebro-placentária — RCP (calculada)</label><input type="text" id="feto'+uid+'CprCalc" readonly placeholder="calculado automaticamente"></div>'
@@ -1796,6 +1813,14 @@ if(typeof criarMotorLaudo !== 'function'){
     return n.toFixed(casas).replace('.', ',');
   }
 
+  // Mesmos rótulos das opções do select feto{uid}AuFluxo — usados tanto na
+  // impressão (impAuFluxoAlterado) quanto na tabela de Doppler fetal.
+  const AU_FLUXO_TXT = {
+    ausente: 'AEDF — diástole ausente na artéria umbilical',
+    reversa: 'REDF — diástole reversa na artéria umbilical',
+    intermitente: 'iAREDF — diástole intermitentemente ausente/reversa na artéria umbilical',
+  };
+
   const PLACENTA_INSERCAO_TXT = {
     'fúndica': 'de inserção fúndica',
     'anterior': 'de inserção anterior',
@@ -1825,9 +1850,15 @@ if(typeof criarMotorLaudo !== 'function'){
     // conclusão da gemelar/trigemelar ("...em ambos os fetos"), em vez de uma
     // linha repetida por feto — só quando todos estão de fato normais; havendo
     // qualquer alteração em um deles, cada feto volta a ter sua própria linha.
-    const dopplerFetalLabelFor = f => (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
-      ? phraseRaw('impRcpBaixoP5')
-      : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
+    // Fluxo diastólico alterado (AEDF/REDF/iAREDF) vem primeiro: é achado
+    // mais grave e mais específico que um RCP baixo isolado — teria menos
+    // informação clínica se ficasse escondido atrás da frase genérica de
+    // RCP ou da classificação manual normal/alterado.
+    const dopplerFetalLabelFor = f => f.auFluxoAlterado
+      ? phraseRaw('impAuFluxoAlterado', {FLUXO: AU_FLUXO_TXT[f.auFluxo]})
+      : (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
+        ? phraseRaw('impRcpBaixoP5')
+        : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
     const dopplerFetalTodosNormais = state.isMultiple && state.dopplerFetal
       && state.fetos.every(f => dopplerFetalLabelFor(f) === phraseRaw('impDopplerFetalNormal'));
     const pbfTodosNormais = state.isMultiple && state.pbf
@@ -2131,6 +2162,7 @@ if(typeof criarMotorLaudo !== 'function'){
       let piUmbilicalVal = {text:'____',filled:false}, piACMVal = {text:'____',filled:false};
       let cprPercentilVal = {text:'__',filled:false}, cprPercentilNum = null, cprTxt = '', dopplerFetalAlterado = false;
       let auPercentilNum = null, acmPercentilNum = null;
+      let auFluxo = '', auDiastoleZero = false, auFluxoAlterado = false;
       if(dopplerFetal){
         piUmbilicalVal = blankOrValue(req(pre+'PiUmbilical'));
         piACMVal = blankOrValue(req(pre+'PiACM'));
@@ -2149,6 +2181,14 @@ if(typeof criarMotorLaudo !== 'function'){
         const cprPctParsed = parseFloat(String(cprPctRaw).replace(',', '.'));
         cprPercentilNum = !isNaN(cprPctParsed) ? cprPctParsed : null;
         dopplerFetalAlterado = v(pre+'DopplerClassificacao')==='alterado';
+        // Fluxo diastólico da umbilical — mesmos valores do app de curvas
+        // (au_fluxo). 'ausente'/'reversa'/'intermitente' (AEDF/REDF/iAREDF)
+        // são achado grave por si só: fecham CIUR sozinhos antes de 32
+        // semanas (ver bloco de pesoKey, abaixo), mesmo com percentil de
+        // peso normal — igual ao app.
+        auFluxo = v(pre+'AuFluxo');
+        auDiastoleZero = auFluxo === 'ausente' || auFluxo === 'reversa' || auFluxo === 'intermitente';
+        auFluxoAlterado = auDiastoleZero; // hoje são a mesma coisa; nomes separados por clareza no uso abaixo
         // IP-umbilical e IP-ACM em percentil — só para fechar CIUR por
         // critérios menores no bloco de pesoKey logo abaixo (ver ali). Sem
         // campo próprio na tela: o laudo já imprime o IP bruto e a
@@ -2181,29 +2221,39 @@ if(typeof criarMotorLaudo !== 'function'){
       // ACM<P5 (centralização) como um segundo, independente. O percentil
       // ≤10 já é sempre o critério de crescimento que falta.
       //
+      // Diástole zero/reversa na umbilical (AEDF/REDF/iAREDF) é o terceiro
+      // critério isolado do app (junto com PFE<P3): fecha CIUR sozinha,
+      // antes de 32 semanas, MESMO com percentil de peso normal — não entra
+      // no ramo "percentil<=10" abaixo, é checada antes, do mesmo jeito que
+      // lá. A partir de 32 semanas o app não usa esse achado pra diagnóstico
+      // (só pra estadiamento), e aqui segue igual — não é assimetria
+      // introduzida por este laudo, é o comportamento do relatório.
+      //
       // Decisão da Dra. Morgana, 2026-09-21: até então o laudo só olhava o
       // percentil do dia, e um feto em P8 com uterinas>P95 saía "PIG" aqui e
       // "CIUR" no relatório evolutivo — mesma paciente, dois papéis
       // discordando. Só se aplica a gestação única: numa gemelar/trigemelar
       // o mecanismo e os critérios são os do CIUR seletivo, que este laudo
-      // ainda não calcula (mexer nisso é tarefa à parte).
-      //
-      // Falta um critério isolado do relatório aqui: diástole zero/reversa
-      // na umbilical (AEDF/REDF) fecha CIUR precoce sozinha lá, e este laudo
-      // não tem campo para classificar o fluxo diastólico (só o IP
-      // numérico) — se esse campo for criado, ele precisa entrar aqui também.
+      // ainda não calcula (mexer nisso é tarefa à parte) — por isso o
+      // critério isolado da diástole também sai gated por !isMultiple,
+      // ainda que no app ele não seja (lá aplica por feto mesmo em gemelar,
+      // só troca o nome do diagnóstico pra "CIUR seletivo"; aqui, sem essa
+      // segunda nomenclatura, ficaria "CIUR" indevido numa gemelar).
       let pesoKey;
+      const gaWCiur = gaDays!=null ? gaDays/7 : null;
+      const isPrecoceCiur = gaWCiur!=null && gaWCiur < 32;
       if(percentilNum !== null && percentilNum <= 3) {
         pesoKey = 'impPesoCIUR';
+      } else if(!isMultiple && isPrecoceCiur && auDiastoleZero) {
+        pesoKey = 'impPesoCIUR';
       } else if(percentilNum !== null && percentilNum <= 10) {
-        const gaWCiur = gaDays!=null ? gaDays/7 : null;
         const auAboveP95Ciur  = auPercentilNum!=null  && auPercentilNum  >= 95;
         const acmBelowP5Ciur  = acmPercentilNum!=null && acmPercentilNum <= 5;
         const cprBelowP5Ciur  = cprPercentilNum!=null && cprPercentilNum < 5;
         const utAboveP95Ciur  = utAlterado; // maternal, calculado uma vez para a gestação
         let fechaCiurPorCriterios = false;
         if(!isMultiple && gaWCiur!=null){
-          if(gaWCiur < 32){
+          if(isPrecoceCiur){
             fechaCiurPorCriterios = auAboveP95Ciur || utAboveP95Ciur;
           } else {
             let nCrit = 1; // percentil<=10 já é o critério de crescimento
@@ -2246,6 +2296,7 @@ if(typeof criarMotorLaudo !== 'function'){
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
         piUmbilicalVal, piACMVal, cprTxt, cprPercentilVal, cprPercentilNum, dopplerFetalAlterado,
+        auFluxo, auFluxoAlterado,
         pbfResp, pbfCorpo, pbfTono, pbfLA, pbfScore, pbfCriteriosAlterados};
     });
 
@@ -2372,7 +2423,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Fetal</strong></p>'
       +'<table class="biometria doppler-fetal">'
       +'<tr><td></td><td><strong>IP</strong></td></tr>'
-      +'<tr><td>Art. Umbilical:</td><td>'+span(f.piUmbilicalVal)+'</td></tr>'
+      +'<tr><td>Art. Umbilical:</td><td>'+span(f.piUmbilicalVal)+(f.auFluxoAlterado ? ' — '+escapeHtml(AU_FLUXO_TXT[f.auFluxo]) : '')+'</td></tr>'
       +'<tr><td>Art. Cerebral Média:</td><td>'+span(f.piACMVal)+'</td></tr>'
       +'<tr><td>Rel. Cér-placentária:</td><td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td></tr>'
       +'</table>';
@@ -3099,6 +3150,7 @@ if(typeof criarMotorLaudo !== 'function'){
           ca: num(pre+'CA'),
           femur: num(pre+'CF'),
           au_ip: num(pre+'PiUmbilical'),
+          au_fluxo: v(pre+'AuFluxo') || null,
           acm_ip: num(pre+'PiACM'),
           // Doppler materno: aut_e/aut_d são as colunas de artéria uterina esquerda e
           // direita lá na curva de crescimento. As uterinas são da mãe, não do feto —

@@ -763,11 +763,46 @@ consegue calcular (sem histórico, sem cruzamento de quartis):
   (só percentil ≤3) como estado inicial do card, antes de qualquer Doppler
   ser digitado; `render()` é quem tem a palavra final.
 
-**Pendência aberta**: falta o critério isolado de diástole zero/reversa da
-umbilical (AEDF/REDF/iAREDF), que no `curva-fetal` fecha RCIU precoce
-sozinho. Este laudo só tem o IP numérico da umbilical — não há campo para
-classificar o fluxo diastólico (ausente/reversa/intermitente). Se esse campo
-for criado aqui, ele precisa entrar nesta regra também, e a coluna
-`au_fluxo` (que já aceita `intermitente` desde a migração do `curva-fetal`)
-passaria a precisar ser espelhada no insert do Supabase — hoje este laudo
-não escreve nela (ver "O que cada laudo grava", acima).
+## Fluxo diastólico da umbilical (AEDF/REDF/iAREDF): fecha CIUR sozinho, antes de 32 semanas
+
+2026-09-21, resolvendo a pendência que ficou aberta na seção anterior. A
+médica lembrava de ter feito este campo — só tinha feito no app de curvas
+(`e-au-fluxo`, na tela de exame manual), não no editor de laudos: são
+ferramentas separadas, sem código compartilhado, e o campo nunca existiu
+aqui.
+
+- **Campo novo**: `feto{uid}AuFluxo`, select ao lado de "Art. Umbilical
+  (IP)", mesmas opções e mesmos valores do app (`''`/`normal`/`ausente`/
+  `reversa`/`intermitente`) — para a coluna `au_fluxo` do Supabase chegar
+  com o mesmo vocabulário dos dois lados. Sem select próprio pra "REDF" vs
+  "AEDF" vs "iAREDF" como conceitos distintos: são os mesmos três valores
+  que o app já usa pra decidir estadiamento (Barcelona) e Tipo III de
+  Gratacós — inventar um vocabulário próprio aqui reabriria a mesma
+  divergência do RCP.
+- **`auDiastoleZero`** (`ausente`/`reversa`/`intermitente`) é o terceiro
+  critério isolado do app (junto com PFE/CA<P3): fecha CIUR sozinho, **antes
+  de 32 semanas**, mesmo com percentil de peso normal — não passa pelo ramo
+  "percentil 5-10" do bloco de `pesoKey`, é checado antes, na mesma ordem de
+  precedência do `calcDiagnosticoFGR`. **A partir de 32 semanas o app não
+  usa este achado pra diagnóstico** (só pra estadiamento) — não é assimetria
+  introduzida aqui, é o comportamento do próprio relatório evolutivo, e o
+  editor segue igual.
+- **Gated por `!isMultiple`, diferente do app.** No `calcDiagnosticoFGR` esse
+  critério isolado roda por feto mesmo em gemelar/trigemelar — só que lá o
+  diagnóstico muda de nome pra "CIUR seletivo" nesses casos
+  (`_DX_NOME_MULTIPLA`). Este editor não tem essa segunda nomenclatura, então
+  restringir a gestação única é o que impede um "CIUR" indevido (o termo de
+  gestação única) aparecer numa gemelar. Mesma escolha do bloco de
+  critérios menores da seção anterior — não é descuido, é a mesma decisão.
+- **Prioridade na frase de impressão.** `dopplerFetalLabelFor` agora checa
+  `auFluxoAlterado` primeiro, antes do RCP<P5 e antes da classificação manual
+  normal/alterado (`impAuFluxoAlterado`, nova frase) — é o achado mais grave
+  e mais específico dos três, e ficaria escondido atrás de uma frase
+  genérica de "redistribuição de fluxo" se entrasse depois. A tabela de
+  Doppler Fetal também mostra o achado ao lado do IP bruto da umbilical
+  (`AU_FLUXO_TXT`), não só na frase da impressão.
+- **`au_fluxo` agora vai no insert do Supabase** (`au_fluxo: v(pre+'AuFluxo')
+  || null`), fechando a lacuna que a seção anterior deixou documentada — o
+  app de curvas passa a enxergar este achado quando a paciente vier por
+  aqui, o que alimenta o estadiamento de Barcelona e o Tipo III de Gratacós
+  lá também (ver `CLAUDE.md` do `curva-fetal`).
