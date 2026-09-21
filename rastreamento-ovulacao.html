@@ -469,6 +469,7 @@
   <div class="field" style="margin-bottom:8px;"><label>FIGO 0 — use {POSICAO} e {MEDIDA}</label><textarea id="ph_figoF0" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>FIGO 1 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>FIGO 2 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Transmural — FIGO 2–5 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF25" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>FIGO 3 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF3" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>FIGO 4 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF4" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>FIGO 5 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF5" rows="2"></textarea></div>
@@ -1415,6 +1416,7 @@ if(typeof criarMotorLaudo !== 'function'){
     figoF0: 'submucosa, inteiramente na cavidade uterina, em região {POSICAO} (FIGO 0), medindo {MEDIDA} mm',
     figoF1: 'parede {PAREDE}, submucosa com menos de 50% do componente intramural (FIGO 1), medindo {MEDIDA} mm',
     figoF2: 'parede {PAREDE}, submucosa com mais de 50% do componente intramural (FIGO 2), medindo {MEDIDA} mm',
+    figoF25: 'parede {PAREDE}, transmural (FIGO 2–5), medindo {MEDIDA} mm',
     figoF3: 'parede {PAREDE}, intramural, adjacente à cavidade endometrial, sem condicionar abaulamento da mesma (FIGO 3), medindo {MEDIDA} mm',
     figoF4: 'parede {PAREDE}, totalmente intramural (FIGO 4), medindo {MEDIDA} mm',
     figoF5: 'parede {PAREDE}, subserosa com mais de 50% do componente intramural (FIGO 5), medindo {MEDIDA} mm',
@@ -1713,7 +1715,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // transvaginal.html's mioma scheme) ----------
   let miomaNextUid = 1;
   function miomaSubgroupHTML(uid){
-    const figoOptions = '<option value="F0">FIGO 0 — submucoso, inteiramente intracavitário</option><option value="F1">FIGO 1 — submucoso, &lt;50% intramural</option><option value="F2">FIGO 2 — submucoso, ≥50% intramural</option><option value="F3">FIGO 3 — intramural adjacente à cavidade (sem abaulamento)</option><option value="F4" selected>FIGO 4 — totalmente intramural</option><option value="F5">FIGO 5 — subseroso, ≥50% intramural</option><option value="F6">FIGO 6 — subseroso, &lt;50% intramural</option><option value="F7">FIGO 7 — totalmente subseroso</option><option value="F8">FIGO 8 — cervical</option>';
+    const figoOptions = '<option value="F0">FIGO 0 — submucoso, inteiramente intracavitário</option><option value="F1">FIGO 1 — submucoso, &lt;50% intramural</option><option value="F2">FIGO 2 — submucoso, ≥50% intramural</option><option value="F2-5">Transmural — FIGO 2–5</option><option value="F3">FIGO 3 — intramural adjacente à cavidade (sem abaulamento)</option><option value="F4" selected>FIGO 4 — totalmente intramural</option><option value="F5">FIGO 5 — subseroso, ≥50% intramural</option><option value="F6">FIGO 6 — subseroso, &lt;50% intramural</option><option value="F7">FIGO 7 — totalmente subseroso</option><option value="F8">FIGO 8 — cervical</option>';
     return ''
       +'<div class="subgroup" id="wrap_mioma'+uid+'">'
       +'<div class="field-row">'
@@ -1931,6 +1933,7 @@ if(typeof criarMotorLaudo !== 'function'){
     F0: (p,m,d,pos)=>phraseRaw('figoF0', {MEDIDA:m, POSICAO:(pos||'____')}),
     F1: (p,m,d)=>phraseRaw('figoF1', {PAREDE:p, MEDIDA:m}),
     F2: (p,m,d)=>phraseRaw('figoF2', {PAREDE:p, MEDIDA:m}),
+    'F2-5': (p,m,d)=>phraseRaw('figoF25', {PAREDE:p, MEDIDA:m}),
     F3: (p,m,d)=>phraseRaw('figoF3', {PAREDE:p, MEDIDA:m}),
     F4: (p,m,d)=>phraseRaw('figoF4', {PAREDE:p, MEDIDA:m}),
     F5: (p,m,d)=>phraseRaw('figoF5', {PAREDE:p, MEDIDA:m}),
@@ -2155,7 +2158,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // FIGO 5/6/7 are subserosal myomas — they distort the uterine serosa, so
     // the outline described in the base sentence should read "irregulares"
     // instead of the default "regulares" whenever one of those is present.
-    const uteroContornos = miomaFigos.some(f => f==='F5' || f==='F6' || f==='F7') ? 'irregulares' : 'regulares';
+    const uteroContornos = miomaFigos.some(f => f==='F2-5' || f==='F5' || f==='F6' || f==='F7') ? 'irregulares' : 'regulares';
     const miometrioDescricaoExtra = vNoDot('miometrioDescricao');
 
     const chkAdenomiose = $('chkAdenomiose').checked;
