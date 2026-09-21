@@ -726,7 +726,9 @@
           <option value="9">9 pt</option>
           <option value="10">10 pt</option>
           <option value="11">11 pt</option>
+          <option value="11.5">11,5 pt</option>
           <option value="12" selected>12 pt (padrão)</option>
+          <option value="14">14 pt</option>
           <option value="16">16 pt</option>
           <option value="18">18 pt</option>
         </select>
@@ -2420,9 +2422,8 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
       +'</table>';
     const tabelaDopplerFetal = f => ''
-      +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Fetal</strong></p>'
+      +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Fetal (IP)</strong></p>'
       +'<table class="biometria doppler-fetal">'
-      +'<tr><td></td><td><strong>IP</strong></td></tr>'
       +'<tr><td>Art. Umbilical:</td><td>'+span(f.piUmbilicalVal)+(f.auFluxoAlterado ? ' — '+escapeHtml(AU_FLUXO_TXT[f.auFluxo]) : '')+'</td></tr>'
       +'<tr><td>Art. Cerebral Média:</td><td>'+span(f.piACMVal)+'</td></tr>'
       +'<tr><td>Rel. Cér-placentária:</td><td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td></tr>'

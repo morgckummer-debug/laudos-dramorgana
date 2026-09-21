@@ -513,6 +513,69 @@ Duas consequências ao mexer nisso:
   o descarte na montagem da lista, e os resets (troca de paciente,
   `draftSnapshot()`, `draftRestore()` e o `catch` de rascunho corrompido).
 
+## O bloco de miomas: cinco cópias, e o TN anexa em vez de trocar a frase-base
+
+2026-09-21. A Dra. Morgana notou que o `obstetrico-tn-doppler-colo.html` não
+tinha onde descrever miomatose do útero. Não era regressão: conferido com
+`git log -S"mioma"` na história inteira, esse bloco **nunca existiu** nesse
+laudo — a lembrança vinha do obstétrico de 1º trimestre, que a médica preenche
+na mesma consulta.
+
+O bloco foi portado do `obstetrico-1trimestre.html` mantendo de propósito os
+mesmos nomes de função (`miomaSubgroupHTML`, `wireMiomaNodule`,
+`renumberMiomaNodules`, `setMiomaCount`, `FIGO_TEXT`), os mesmos ids
+(`mioma{uid}Figo`, `mioma{uid}Medida`...) e as mesmas chaves de frase — as 18
+chaves portadas são byte a byte iguais às de lá. Agora são **cinco cópias**
+(`obstetrico-1trimestre`, `obstetrico-tn-doppler-colo`, `transvaginal`,
+`rastreamento-ovulacao`, `monitorizacao-folicular-fiv`), nenhuma no
+`laudo-core.js`: o mesmo cenário da extração de 2026-09-01. Se esse bloco
+precisar de conserto, conserte nos cinco — ou extraia de uma vez.
+
+**A única diferença deliberada é como a frase entra no laudo.** No 1º trimestre
+há três frases-base do útero (`utero`, `uteroComNodulos`,
+`uteroCalcificacao`), e `render()` **troca** de chave conforme o achado — ele
+precisa disso porque a frase-base de lá afirma "contornos regulares" e "sem
+nódulos". No TN a frase-base (`uteroTexto`) não afirma nada disso, então as
+frases de mioma/adenomiose/calcificação são **anexadas** a ela, e
+`uteroTexto` fica intocada. Isso não é preguiça: trocar uma chave de frase já
+existente esconderia o conserto da médica para sempre, porque o "Salvar
+frases" dela sobrescreve o padrão novo (ver a nota do `uteroTextoMultiplo`, e
+a seção do `laudo-core.js` sobre `PHRASES`). `calcificacaoArqueadas` é a
+única chave nova, sem par no 1º trimestre, pelo mesmo motivo.
+
+Com o miómetrio em "Textura homogênea" o laudo do TN sai **byte a byte igual**
+ao de antes do port — conferido com Chromium, comparando o HTML do `#paper`
+contra a `main` limpa.
+
+### O rascunho do TN nunca voltava: `aplicarMascaraCPF is not defined`
+
+Descoberto ao testar o port, e **anterior a ele**. O `draftRestore()` do
+`obstetrico-tn-doppler-colo.html` chamava `aplicarMascaraCPF()` depois de
+repor os campos — linha copiada de um laudo que tem CPF. Este laudo **não tem
+campo de CPF** e tampouco desestrutura essa função do motor, então a chamada
+lançava `ReferenceError` e levava **todo** o `draftRestore()` para o `catch`
+— que, por projeto, abre o laudo em branco e **apaga o rascunho**
+(`localStorage.removeItem`). Resultado: o rascunho automático deste laudo era
+descartado em silêncio a cada abertura, e nada na tela dizia isso. O nome da
+paciente e os selects pareciam voltar (o `catch` não limpa os `<input>`), o
+que fazia o estrago passar por "o rascunho voltou pela metade".
+
+Era o único dos catorze laudos nessa situação — os outros que chamam a função
+têm campo de CPF e a desestruturam. A conferência é de uma linha:
+
+```
+for f in *.html; do echo "$f $(grep -c aplicarMascaraCPF $f) $(grep -c 'id="cpf' $f)"; done
+```
+
+**A lição que vale além deste caso:** o `catch` do `draftRestore()` trata
+qualquer exceção como "rascunho corrompido" e descarta o rascunho. Um erro de
+programação em qualquer linha dele — uma função que não existe, um id
+digitado errado — vira perda silenciosa de trabalho da médica, sem erro no
+console (a exceção é capturada) e sem aviso na tela. Ao mexer no
+`draftRestore()` de qualquer laudo, teste o ciclo completo: preencher,
+`pagehide`, recarregar, e conferir que os campos voltaram — não só que a
+página abriu sem erro.
+
 ## O botão "Baixar Word": o cabeçalho triplicava e a página não batia com o PDF
 
 O `.doc` que o botão gera é HTML puro (o Word abre HTML como se fosse um
