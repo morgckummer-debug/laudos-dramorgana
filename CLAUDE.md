@@ -592,8 +592,12 @@ lixeira ou colunas de exame precisa ser espelhada lá — e vice-versa.** Quando
 a tarefa mexer nisso, leia os dois lados antes de escrever qualquer coisa.
 
 Onde fica o código aqui: bloco `// ---- Integração com a Curva de Crescimento
-(Supabase) ----`, no fim do `<script>` de `obstetrico.html` e
-`obstetrico-1trimestre.html`, no handler do botão `#btnSalvarCG`.
+(Supabase) ----`, no fim do `<script>` de `obstetrico.html`,
+`obstetrico-1trimestre.html`, `morfologico-1trimestre.html` e
+`morfologico-2trimestre.html`, no handler do botão `#btnSalvarCG`. São quatro
+laudos, não dois — os dois morfológicos ganharam a integração depois, e é aí
+que mora o risco descrito em "O GPA e os quatro laudos", mais abaixo: uma
+correção feita em um deles não chega sozinha nos outros três.
 
 **`rastreamento-ovulacao.html` é diferente: não tem feto, então não grava em
 `exams`/`gestacoes`.** Tem sua própria tabela — `laudos_ovulacao` — que guarda
@@ -643,18 +647,53 @@ nova.
 
 ### O que cada laudo grava
 
-Os dois seguem a mesma sequência: acha ou cria a paciente pelo CPF → acha a
+Os quatro seguem a mesma sequência: acha ou cria a paciente pelo CPF → acha a
 gestação `ativa` (ou cria uma, deduzindo DUM/DPP da cronologia do laudo, e
 recusa com aviso se não houver data de referência) → insere **um `exams` por
 feto**.
 
-| | `obstetrico.html` (2º/3º tri) | `obstetrico-1trimestre.html` |
-|---|---|---|
-| Colunas de `exams` | `dbp`, `cc`, `ca`, `femur`, `au_ip`, `acm_ip`, `aut_e`, `aut_d`, `cpr`, `ila`, `bolsao`, `colo`, `ig_dias_manual` | `ccn` |
-| Múltiplos | um exame por feto, coluna `feto` | um exame por **embrião**, coluna `feto` |
+| | `obstetrico.html` (2º/3º tri) | `obstetrico-1trimestre.html` | `morfologico-1trimestre.html` | `morfologico-2trimestre.html` |
+|---|---|---|---|---|
+| Colunas de `exams` | `dbp`, `cc`, `ca`, `femur`, `au_ip`, `au_fluxo`, `acm_ip`, `aut_e`, `aut_d`, `cpr`, `ila`, `bolsao`, `colo`, `ig_dias_manual` | `ccn` | `ccn`, `dbp`, `cc`, `ca`, `femur`, `aut_e`, `aut_d`, `colo`, `ig_dias_manual` | `dbp`, `cc`, `ca`, `femur`, `dof`, `umero`, `radio`, `ulna`, `tibia`, `fibula`, `aut_e`, `aut_d`, `ila`, `bolsao`, `colo`, `ig_dias_manual` |
+| Múltiplos | um exame por feto, coluna `feto` | um exame por **embrião**, coluna `feto` | um exame por feto, coluna `feto` | um exame por feto, coluna `feto` |
 
 As artérias uterinas e o colo são **maternos**, não fetais: numa gemelar o mesmo
 valor vai repetido nos exames dos dois fetos, de propósito.
+
+### O GPA e os quatro laudos: o campo que existia na tela e não chegava no banco
+
+O G/P/A (`gpaG`/`gpaP`/`gpaA`) é digitado nos quatro laudos, sai impresso no
+cartão de identificação dos quatro — e até 2026-09-21 só dois deles gravavam
+`gestas`/`partos`/`abortos` na tabela `gestacoes`: `obstetrico.html` e
+`morfologico-1trimestre.html`. Nos outros dois o campo ficava na tela e na
+folha e nunca chegava na Curva de Crescimento. É o caso exato da quarta regra
+acima ("campo do formulário que não é enviado sai no laudo impresso e some na
+integração"), com o agravante de que a gestação criada a partir do morfológico
+de 2º trimestre nascia com GPA nulo — e ninguém percebe olhando o laudo, que
+imprime o GPA certinho. Foi assim que a Dra. Morgana achou uma paciente sem
+GPA no prontuário em 2026-09-21.
+
+Os quatro gravam igual hoje:
+
+- **Gestação nova**: `gestas`/`partos`/`abortos` entram direto no `insert`.
+- **Gestação que já existia**: campo vazio no laudo **não apaga** o que já está
+  salvo (`gpaGVal!=null ? gpaGVal : gestacao.gestas`) — mesma lógica das flags
+  booleanas logo abaixo, e pelo mesmo motivo: um laudo é uma visita, não a
+  verdade inteira da gestação.
+- **Divergência**: quando os dois lados têm valor e eles não batem, abre o
+  modal `#cgGpaOverlay` (`askGpaDivergencia()`) com os dois GPAs lado a lado e
+  a médica escolhe qual vale. Diferente das flags, GPA **não** é ratchet: um
+  G4 pode virar G5 numa visita seguinte, e corrigir um dígito errado é caso
+  comum demais para o laudo nunca poder sobrescrever. Por isso a escolha é
+  dela, não uma regra fixa.
+- Sem divergência (o que está salvo é nulo — a primeira sincronização de uma
+  gestação criada antes desta correção) só preenche, sem popup.
+
+O modal são três peças por arquivo, e nenhuma está no `laudo-core.js`: o CSS
+`.cg-gpa-*` no `<style>`, o `<div class="cg-overlay hide" id="cgGpaOverlay">`
+logo depois do `#cgToast`, e `fmtGPA()`/`askGpaDivergencia()` no bloco da
+integração. **Quatro cópias, o mesmo cenário da extração de 2026-09-01** — se
+esse modal precisar de outro conserto, extraia-o de uma vez.
 
 ### Um saco pode ter mais de um embrião (`obstetrico-1trimestre.html`)
 
