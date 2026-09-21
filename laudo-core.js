@@ -253,6 +253,7 @@ function criarMotorLaudo(cfg){
       if(!keepIds.has(id)){ el.remove(); delete st.lastBlockHtml[id]; }
     });
     autoCompactTitle(paperEl);
+    verificarPlaceholders(paperEl);
   }
   function autoCompactTitle(paperEl){
     // Título longo (nome de exame composto) quebra em 2-3 linhas com o
@@ -1274,6 +1275,85 @@ function criarMotorLaudo(cfg){
   window.addEventListener('focus', recoverFromStuckPrint);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) recoverFromStuckPrint(); });
 
+  // ---------- Marcadores {ASSIM} nas frases ----------
+  // A substituição era `t.split('{'+k+'}').join(repl[k])`, uma vez por chave
+  // conhecida: o marcador tinha de bater LETRA POR LETRA com o nome da chave,
+  // e qualquer outra coisa entre chaves passava direto para o papel.
+  //
+  // Em 2026-09-21 a Dra. Morgana entregou um obstétrico cuja conclusão saiu
+  // "compatível com 35 semanas e 2 dias de acordo com {MÉTODO}." — ela havia
+  // escrito o marcador acentuado, e o código só conhece `METODO`. Duas coisas
+  // falharam de uma vez, e a pior é a segunda:
+  //   1. `{MÉTODO}` nunca casava, em nenhum laudo;
+  //   2. nada impedia um marcador não substituído de ser IMPRESSO.
+  //
+  // `aplicarPlaceholders()` fecha a primeira: compara o que está entre chaves
+  // com as chaves disponíveis ignorando acento, caixa e espaço em volta, então
+  // `{MÉTODO}`, `{metodo}` e `{ METODO }` valem `{METODO}`. Um marcador que não
+  // casa com nada é deixado EXATAMENTE como está, de propósito — é o que
+  // permite a `verificarPlaceholders()` (mais abaixo) encontrá-lo e avisar, em
+  // vez de apagá-lo e esconder o erro de digitação.
+  function normalizarChave(t){
+    return String(t).trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+  }
+  function aplicarPlaceholders(texto, repl){
+    if(!repl || texto == null) return texto;
+    const mapa = {};
+    Object.keys(repl).forEach(k=>{ mapa[normalizarChave(k)] = repl[k]; });
+    return String(texto).replace(/\{([^{}]{1,40})\}/g, (todo, dentro)=>{
+      const v = mapa[normalizarChave(dentro)];
+      return v !== undefined && v !== null ? v : todo;
+    });
+  }
+
+  // Segunda rede, a que importa: nenhum marcador sobra no laudo impresso sem a
+  // médica ser avisada. Roda no fim de renderBlocks(), ou seja a cada desenho
+  // do laudo, nos catorze. O aviso entra FORA do #paper (antes da
+  // .paper-table) para não encostar na invariante de um elemento por data-blk,
+  // e sai na impressão.
+  const PLACEHOLDER_RE = /\{([A-Z\u00c0-\u00dd_][A-Z\u00c0-\u00dd0-9_ ]{0,39})\}/g;
+  let avisoPhEstilo = false;
+  function verificarPlaceholders(paperEl){
+    if(!paperEl) return [];
+    const achados = [];
+    const txt = paperEl.textContent || '';
+    let m;
+    PLACEHOLDER_RE.lastIndex = 0;
+    while((m = PLACEHOLDER_RE.exec(txt)) !== null){
+      if(achados.indexOf(m[0]) === -1) achados.push(m[0]);
+    }
+    const ancora = paperEl.closest('.paper-table') || paperEl;
+    let aviso = $('avisoPlaceholder');
+    if(!achados.length){
+      if(aviso) aviso.classList.remove('show');
+      return achados;
+    }
+    if(!avisoPhEstilo){
+      avisoPhEstilo = true;
+      const est = document.createElement('style');
+      est.textContent = ''
+        + '#avisoPlaceholder{display:none;margin:0 0 10px;padding:10px 14px;border-radius:var(--radius-sm,10px);'
+        +   'background:var(--amber-light,#fce7dc);color:var(--amber,#c05a34);border:1px solid var(--amber,#c05a34);'
+        +   'font-size:12.5px;font-weight:600;line-height:1.5;}'
+        + '#avisoPlaceholder.show{display:block;}'
+        + '#avisoPlaceholder code{font-weight:700;background:rgba(0,0,0,.06);padding:1px 4px;border-radius:4px;}'
+        + '@media print{#avisoPlaceholder{display:none !important;}}';
+      document.head.appendChild(est);
+    }
+    if(!aviso){
+      aviso = document.createElement('div');
+      aviso.id = 'avisoPlaceholder';
+      if(ancora.parentNode) ancora.parentNode.insertBefore(aviso, ancora);
+    }
+    const lista = achados.map(a=> '<code>'+escapeHtml(a)+'</code>').join(', ');
+    aviso.innerHTML = '\u26a0 Este laudo tem '
+      + (achados.length === 1 ? 'um marcador que n\u00e3o foi preenchido: ' : 'marcadores que n\u00e3o foram preenchidos: ')
+      + lista + '. Ele vai sair assim na impress\u00e3o. Confira a frase em "Personalizar frases" — '
+      + 'o nome entre chaves precisa ser um dos que o r\u00f3tulo do campo lista.';
+    aviso.classList.add('show');
+    return achados;
+  }
+
   // ---------- Frases personalizadas: guardar só o que a médica mudou ----------
   // Até 2026-09-21 o "Salvar frases" gravava TODAS as frases do laudo de uma
   // vez, e loadPhrases() as reaplicava por cima dos padrões
@@ -1540,7 +1620,9 @@ function criarMotorLaudo(cfg){
     draftRead: draftRead,
     draftSaveNow: draftSaveNow,
     draftSchedule: draftSchedule,
+    aplicarPlaceholders: aplicarPlaceholders,
     escapeHtml: escapeHtml,
+    verificarPlaceholders: verificarPlaceholders,
     frasesCarregar: frasesCarregar,
     frasesMarcarCustomizadas: frasesMarcarCustomizadas,
     frasesPodar: frasesPodar,

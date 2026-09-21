@@ -899,7 +899,8 @@ if(typeof criarMotorLaudo !== 'function'){
     nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
     vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml,
-    frasesCarregar, frasesMarcarCustomizadas, frasesSalvar
+    frasesCarregar, frasesMarcarCustomizadas, frasesSalvar,
+    aplicarPlaceholders
   } = motor;
 
 
@@ -1354,16 +1355,12 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   function phrase(key, repl){
     let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
-    if(repl){
-      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
-    }
+    t = aplicarPlaceholders(t, repl);
     return escapeHtml(t).replace(/\n/g, '<br>');
   }
   function phraseRaw(key, repl){
     let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
-    if(repl){
-      Object.keys(repl).forEach(k=>{ t = t.split('{'+k+'}').join(repl[k]); });
-    }
+    t = aplicarPlaceholders(t, repl);
     return t;
   }
   $('btnPhrases').addEventListener('click', ()=>{

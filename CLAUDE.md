@@ -576,6 +576,56 @@ console (a exceção é capturada) e sem aviso na tela. Ao mexer no
 `pagehide`, recarregar, e conferir que os campos voltaram — não só que a
 página abriu sem erro.
 
+## Marcador `{ASSIM}` na frase: casava letra por letra, e o que não casava era impresso
+
+2026-09-21. A Dra. Morgana entregou um obstétrico de 2º/3º trimestre cuja
+conclusão saiu assim, no papel:
+
+> Gestação eutópica, compatível com 35 semanas e 2 dias de acordo com {MÉTODO}.
+
+Ela havia personalizado a frase `impGestacao` copiando o texto de outro laudo
+e escrito o marcador **acentuado**. Duas falhas se somaram:
+
+1. **`{MÉTODO}` nunca casou, em nenhum laudo.** A substituição era
+   `t.split('{'+k+'}').join(repl[k])`, uma passada por chave conhecida: o
+   texto entre chaves tinha de bater letra por letra com o nome da chave.
+2. **E neste laudo não funcionaria nem sem acento.** O `obstetrico.html` só
+   passa `{CORIONICIDADE}`, `{IG}`, `{SEMANAS}` e `{DIAS}`; `{METODO}` existe
+   no morfológico de 1º trimestre, no TN e no obstétrico de 1º trimestre, que
+   montam um `METODO_TXT` ('a DUM', 'a primeira ecografia'...). Confirmado com
+   a médica em 2026-09-21: **no laudo de 2º/3º trimestre a conclusão não
+   nomeia a referência** — sai só "compatível com X semanas e Y dias", que é
+   o padrão do arquivo. `{METODO}` **não** foi adicionado a esse laudo de
+   propósito; se algum dia for, lembre que a cronologia dele tem uma opção que
+   os outros não têm (`fiv`) e que ela não quer referência nomeada nesse caso.
+
+O conserto tem duas partes, as duas no `laudo-core.js`:
+
+- **`aplicarPlaceholders(texto, repl)`** substitui de uma passada, comparando o
+  que está entre chaves com as chaves disponíveis **sem acento, sem caixa e
+  sem espaço em volta** — `{MÉTODO}`, `{metodo}` e `{ METODO }` valem
+  `{METODO}`. As 21 cópias da linha antiga, espalhadas pelos `phrase()` e
+  `phraseRaw()` de 13 laudos, passaram a chamar essa função.
+- **Um marcador que não casa com nada é deixado exatamente como está**, de
+  propósito, para `verificarPlaceholders(paperEl)` poder encontrá-lo. Ela roda
+  no fim de `renderBlocks()` — logo, a cada desenho, nos catorze laudos — e
+  mostra um aviso em âmbar acima do preview nomeando o marcador. Apagar o
+  marcador silenciosamente seria pior: esconderia o erro de digitação e a
+  frase sairia truncada sem ninguém notar.
+
+**O aviso entra FORA do `#paper`** (antes da `.paper-table`) e com
+`display:none` no `@media print`. Dentro do `#paper` ele seria um filho direto
+sem `data-blk`, exatamente o tipo de vizinho que já causou estrago em
+`wireBlockBoundaryGuard()` (ver a seção do marcador "Fim da página N"), e
+`dedupBlocos()` teria de aprender a ignorá-lo. Ao mexer nesse aviso, mantenha-o
+fora.
+
+**A lição geral:** até aqui, nada impedia um laudo de ser impresso com um
+marcador cru no meio de uma frase. O erro não estava no código do laudo —
+estava numa frase que a médica digitou, e por isso nenhum teste do
+repositório o pegaria. Recurso novo que aceite texto dela com marcadores
+precisa dessa rede, não só da substituição.
+
 ## O botão "Baixar Word": o cabeçalho triplicava e a página não batia com o PDF
 
 O `.doc` que o botão gera é HTML puro (o Word abre HTML como se fosse um
