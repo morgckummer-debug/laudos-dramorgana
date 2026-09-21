@@ -916,7 +916,8 @@ if(typeof criarMotorLaudo !== 'function'){
     draftFingerprint, draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule,
     escapeHtml, nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview,
     setDefaultDataExame, setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview,
-    v, vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml
+    v, vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml,
+    frasesCarregar, frasesMarcarCustomizadas, frasesSalvar
   } = motor;
 
 
@@ -1497,14 +1498,15 @@ if(typeof criarMotorLaudo !== 'function'){
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
 
+  // O storage guarda só as frases que ela de fato reescreveu — ver
+  // `frasesPodar()` no laudo-core.js e o porquê. Frase não personalizada
+  // continua saindo do PHRASE_DEFAULTS deste arquivo, e por isso recebe os
+  // consertos feitos aqui em vez de ficar congelada na versão do dia em que
+  // ela clicou "Salvar frases".
+  const PHRASES_KEY = 'morfo1t-phrase-templates-v1';
   async function loadPhrases(){
-    try{
-      const val = await kvStore.get('morfo1t-phrase-templates-v1');
-      if(val){
-        const parsed = JSON.parse(val);
-        PHRASES = Object.assign({}, PHRASE_DEFAULTS, parsed);
-      }
-    }catch(e){ /* no saved phrases yet — use defaults */ }
+    const r = await frasesCarregar(PHRASES_KEY, PHRASE_DEFAULTS);
+    PHRASES = r.phrases;
     applyPhrasesToInputs();
   }
   function applyPhrasesToInputs(){
@@ -1512,6 +1514,20 @@ if(typeof criarMotorLaudo !== 'function'){
       const el = $('ph_'+key);
       if(el) el.value = PHRASES[key];
     });
+    frasesMarcarCustomizadas(PHRASE_DEFAULTS, PHRASES, ()=> salvarFrasesDaTela());
+  }
+  // Caminho único de gravação das frases: o botão "Salvar frases", o
+  // "Restaurar padrão" e o "voltar ao padrão" de cada frase passam por aqui.
+  async function salvarFrasesDaTela(){
+    const valores = {};
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      valores[key] = el ? el.value : PHRASE_DEFAULTS[key];
+    });
+    const r = await frasesSalvar(PHRASES_KEY, PHRASE_DEFAULTS, valores);
+    PHRASES = r.phrases;
+    applyPhrasesToInputs();
+    render();
   }
   function phrase(key, repl){
     let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
@@ -1531,24 +1547,16 @@ if(typeof criarMotorLaudo !== 'function'){
     $('phrasesPanel').classList.toggle('show');
   });
   $('btnSavePhrases').addEventListener('click', async ()=>{
-    const updated = {};
-    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
-      const el = $('ph_'+key);
-      updated[key] = el ? el.value : PHRASE_DEFAULTS[key];
-    });
-    PHRASES = updated;
-    try{
-      await kvStore.set('morfo1t-phrase-templates-v1', JSON.stringify(PHRASES));
-      const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
-    }catch(e){ /* storage unavailable — values still apply for this session */ }
-    render();
+    await salvarFrasesDaTela();
+    const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
   });
   $('btnResetPhrases').addEventListener('click', async ()=>{
     if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
-    PHRASES = Object.assign({}, PHRASE_DEFAULTS);
-    applyPhrasesToInputs();
-    try{ await kvStore.set('morfo1t-phrase-templates-v1', JSON.stringify(PHRASES)); }catch(e){}
-    render();
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      if(el) el.value = PHRASE_DEFAULTS[key];
+    });
+    await salvarFrasesDaTela();
   });
 
   // ---------- Médico (assinatura) ----------

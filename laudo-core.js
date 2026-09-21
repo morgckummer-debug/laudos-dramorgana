@@ -1274,6 +1274,229 @@ function criarMotorLaudo(cfg){
   window.addEventListener('focus', recoverFromStuckPrint);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) recoverFromStuckPrint(); });
 
+  // ---------- Frases personalizadas: guardar só o que a médica mudou ----------
+  // Até 2026-09-21 o "Salvar frases" gravava TODAS as frases do laudo de uma
+  // vez, e loadPhrases() as reaplicava por cima dos padrões
+  // (`Object.assign({}, PHRASE_DEFAULTS, salvas)`, o salvo vencendo).
+  // Consequência: no dia em que ela clicava "Salvar" uma única vez, as dezenas
+  // de frases daquele laudo congelavam na versão daquele dia, e toda correção
+  // de texto feita aqui depois nunca mais chegava até ela — publicava
+  // normalmente e não aparecia, em silêncio, para sempre. Foi a causa real de
+  // parte das queixas de "eu já tinha corrigido isso e voltou atrás".
+  //
+  // Agora o storage guarda **só as frases que diferem do padrão**. Uma frase
+  // que ela nunca reescreveu não fica gravada, então continua saindo do
+  // PHRASE_DEFAULTS do arquivo e recebe os consertos normalmente.
+  //
+  // A poda também roda na LEITURA, e é isso que converte sozinho o formato
+  // antigo: uma chave gravada igual ao padrão atual é descartada e volta a
+  // acompanhar o arquivo. O que sobra é o que difere — a personalização real
+  // dela, mais o resíduo de frases cujo padrão mudou depois de ela ter salvo.
+  // Esse resíduo continua preso, como hoje, e é para ele que existe o
+  // "voltar ao padrão" por frase de `frasesMarcarCustomizadas()`: o que antes
+  // era invisível agora está marcado na tela e ela pode destravar.
+  function frasesPodar(defaults, obj){
+    const out = {};
+    if(!obj || typeof obj !== 'object') return out;
+    Object.keys(obj).forEach(k=>{
+      // chave que não existe mais neste laudo (frase renomeada ou removida)
+      if(!Object.prototype.hasOwnProperty.call(defaults, k)) return;
+      if(obj[k] !== defaults[k]) out[k] = obj[k];
+    });
+    return out;
+  }
+  async function frasesCarregar(key, defaults){
+    let salvas = {};
+    try{
+      const val = await kvStore.get(key);
+      if(val) salvas = frasesPodar(defaults, JSON.parse(val));
+    }catch(e){ /* nada salvo ainda, ou JSON corrompido: fica nos padrões */ }
+    return { phrases: Object.assign({}, defaults, salvas), custom: salvas };
+  }
+  async function frasesSalvar(key, defaults, valores){
+    const custom = frasesPodar(defaults, valores);
+    try{
+      // Sem nenhuma frase personalizada, a chave sai do storage em vez de
+      // ficar um "{}" para trás — assim o laudo volta a ser um que nunca
+      // salvou frase nenhuma, que é o que "Restaurar padrão" quer dizer.
+      if(Object.keys(custom).length) await kvStore.set(key, JSON.stringify(custom));
+      else await kvStore.remove(key);
+    }catch(e){ /* storage indisponível: vale só para esta sessão */ }
+    return { phrases: Object.assign({}, defaults, custom), custom };
+  }
+  let frasesEstiloPronto = false;
+  function frasesInjetarEstilo(){
+    if(frasesEstiloPronto) return;
+    frasesEstiloPronto = true;
+    const el = document.createElement('style');
+    el.textContent = ''
+      + '.frase-alterada{border-left:3px solid var(--amber,#c05a34);padding-left:9px;}'
+      + '.frase-alterada > label::after{content:" \u00b7 sua vers\u00e3o";color:var(--amber,#c05a34);font-weight:700;}'
+      + '.frase-reset{display:none;background:none;border:none;color:var(--rose,#ae5ba0);'
+      +   'font-size:11.5px;font-weight:600;padding:0;margin-top:4px;cursor:pointer;text-decoration:underline;}'
+      + '.frase-alterada .frase-reset{display:inline;}';
+    document.head.appendChild(el);
+  }
+  // Marca na tela quais frases estão na versão dela e dá um "voltar ao padrão"
+  // por frase. Sem isso, uma frase personalizada é indistinguível de uma
+  // frase padrão olhando o painel — e era justamente essa invisibilidade que
+  // fazia o congelamento passar despercebido.
+  function frasesMarcarCustomizadas(defaults, phrases, aoVoltarAoPadrao){
+    frasesInjetarEstilo();
+    Object.keys(defaults).forEach(k=>{
+      const el = $('ph_'+k);
+      if(!el) return;
+      const campo = el.closest('.field');
+      if(!campo) return;
+      campo.classList.toggle('frase-alterada', phrases[k] !== defaults[k]);
+      if(!campo.querySelector('.frase-reset')){
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'frase-reset';
+        btn.textContent = 'voltar ao padrão';
+        btn.addEventListener('click', ()=>{
+          el.value = defaults[k];
+          if(typeof aoVoltarAoPadrao === 'function') aoVoltarAoPadrao(k);
+        });
+        campo.appendChild(btn);
+      }
+    });
+  }
+
+  // ---------- Backup das configurações da médica ----------
+  // As frases personalizadas, a assinatura, os médicos cadastrados e as
+  // preferências de layout moram só no localStorage do navegador dela: não
+  // estão no repositório, não têm cópia em lugar nenhum e este código não
+  // consegue lê-las de fora. Limpar o histórico, trocar de computador ou de
+  // navegador apaga tudo, e nenhuma versão do git traz de volta, porque nunca
+  // esteve lá. Destes dois botões sai um arquivo que ela guarda, e que volta
+  // em qualquer navegador.
+  //
+  // Rascunho de laudo em andamento (`laudo-rascunho-*`) fica FORA de propósito:
+  // é grande, transitório e de uma paciente específica — arquivo de
+  // configuração não é lugar para dado de paciente.
+  const BACKUP_TIPO = 'laudos-dramorgana/config';
+  const BACKUP_CHAVES_FIXAS = ['custom-medicos', 'medico-executante-selecionado',
+    'digitadora-selecionada', 'idcard-gap', 'paper-font-size', 'paper-line-height',
+    'title-font-size', 'font-size-defaults-reset-v1', 'line-spacing-defaults-reset-v2'];
+  function backupChaveInteressa(k){
+    if(!k) return false;
+    if(k.indexOf('laudo-rascunho-') === 0) return false;
+    // as chaves de frases e de assinatura variam por laudo
+    // (`ob23-phrase-templates-v2`, `tv-vr-settings`...), daí o teste por padrão
+    if(/phrase-templates|vr-settings/.test(k)) return true;
+    return BACKUP_CHAVES_FIXAS.indexOf(k) !== -1;
+  }
+  function backupColetar(){
+    const itens = {};
+    try{
+      for(let i = 0; i < localStorage.length; i++){
+        const k = localStorage.key(i);
+        if(backupChaveInteressa(k)) itens[k] = localStorage.getItem(k);
+      }
+    }catch(e){ /* storage bloqueado: devolve o que conseguiu */ }
+    return itens;
+  }
+  function backupBaixar(){
+    const itens = backupColetar();
+    const doc = { tipo: BACKUP_TIPO, versao: 1, gerado: new Date().toISOString(), itens: itens };
+    const blob = new Blob([JSON.stringify(doc, null, 1)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    a.href = url;
+    a.download = 'laudos-configuracoes-' + d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    return Object.keys(itens).length;
+  }
+  function backupAplicar(texto){
+    let doc;
+    try{ doc = JSON.parse(texto); }
+    catch(e){ return { erro: 'Este arquivo não é um backup válido.' }; }
+    if(!doc || doc.tipo !== BACKUP_TIPO || !doc.itens || typeof doc.itens !== 'object'){
+      return { erro: 'Este arquivo não é um backup de configurações dos laudos.' };
+    }
+    const chaves = Object.keys(doc.itens).filter(backupChaveInteressa);
+    if(!chaves.length) return { erro: 'O backup está vazio — não há nada a restaurar.' };
+    let n = 0;
+    try{
+      chaves.forEach(k=>{
+        const v = doc.itens[k];
+        if(typeof v === 'string'){ localStorage.setItem(k, v); n++; }
+      });
+    }catch(e){ return { erro: 'Não foi possível gravar as configurações neste navegador.' }; }
+    return { n: n, gerado: doc.gerado || null };
+  }
+  // Auto-wired: o motor acrescenta os dois botões ao fim do #settingsPanel, que
+  // os catorze laudos têm. Nenhum .html precisou mudar para ganhar o backup.
+  function wireBackupConfig(){
+    const painel = $('settingsPanel');
+    if(!painel || $('btnBackupExport')) return;
+    const estilo = document.createElement('style');
+    estilo.textContent = ''
+      + '.backup-nota{font-size:12px;color:var(--ink-soft,#9a7e95);margin:0 0 10px;line-height:1.5;}'
+      + '.backup-msg{font-size:12px;font-weight:600;color:var(--sage,#6d3263);}'
+      + '.backup-msg.erro{color:var(--amber,#c05a34);}';
+    document.head.appendChild(estilo);
+
+    const bloco = document.createElement('div');
+    bloco.innerHTML = ''
+      + '<hr class="sep">'
+      + '<h3>Backup das suas configurações</h3>'
+      + '<p class="backup-nota">Suas frases personalizadas, a assinatura, os médicos cadastrados e os ajustes de fonte e espaçamento ficam salvos <strong>só neste navegador</strong> — não há outra cópia em lugar nenhum. Baixe um backup de vez em quando: limpar o histórico do navegador, trocar de computador ou usar outro navegador apaga tudo, sem como recuperar. Laudos em andamento não entram no arquivo.</p>'
+      + '<div class="save-row">'
+      +   '<button type="button" class="btn-copy" id="btnBackupExport">Baixar backup</button>'
+      +   '<button type="button" class="btn-clear" id="btnBackupImport">Restaurar de um arquivo</button>'
+      +   '<input type="file" id="backupArquivo" accept=".json,application/json" style="display:none">'
+      +   '<span class="backup-msg" id="backupMsg"></span>'
+      + '</div>';
+    painel.appendChild(bloco);
+
+    const msgEl = $('backupMsg');
+    function msg(txt, erro){
+      msgEl.textContent = txt;
+      msgEl.classList.toggle('erro', !!erro);
+    }
+    $('btnBackupExport').addEventListener('click', ()=>{
+      try{
+        const n = backupBaixar();
+        msg(n ? ('Backup baixado — ' + n + (n === 1 ? ' configuração salva.' : ' configurações salvas.'))
+              : 'Não havia nenhuma configuração personalizada para salvar.');
+      }catch(e){ msg('Não foi possível gerar o arquivo neste navegador.', true); }
+    });
+    $('btnBackupImport').addEventListener('click', ()=> $('backupArquivo').click());
+    $('backupArquivo').addEventListener('change', e=>{
+      const arq = e.target.files && e.target.files[0];
+      if(!arq) return;
+      const leitor = new FileReader();
+      leitor.onload = ()=>{
+        const r = backupAplicar(String(leitor.result || ''));
+        // o input é limpo sempre, senão escolher o mesmo arquivo de novo não
+        // dispara outro 'change'
+        e.target.value = '';
+        if(r.erro){ msg(r.erro, true); return; }
+        const quando = r.gerado ? (' (de ' + new Date(r.gerado).toLocaleString('pt-BR') + ')') : '';
+        if(!confirm('Restaurar ' + r.n + ' configuração(ões) deste arquivo' + quando + '?\n\n'
+            + 'Isso substitui as frases e os ajustes que estão neste navegador agora. '
+            + 'Se quiser guardar o que está aqui antes, cancele e clique em "Baixar backup" primeiro.')){
+          msg('Restauração cancelada — nada foi alterado.');
+          return;
+        }
+        const aplicado = backupAplicar(String(leitor.result || ''));
+        if(aplicado.erro){ msg(aplicado.erro, true); return; }
+        msg('Restaurado. Recarregando o laudo…');
+        setTimeout(()=> location.reload(), 600);
+      };
+      leitor.onerror = ()=>{ msg('Não foi possível ler o arquivo.', true); e.target.value = ''; };
+      leitor.readAsText(arq);
+    });
+  }
+  wireBackupConfig();
+
   // Todo laudo que usa este motor tem #paper e reconcilia por data-blk,
   // incluindo os de medicina interna — o guard de `if(paperEl0)` é só para um
   // eventual laudo futuro que não tenha #paper nenhum.
@@ -1318,6 +1541,10 @@ function criarMotorLaudo(cfg){
     draftSaveNow: draftSaveNow,
     draftSchedule: draftSchedule,
     escapeHtml: escapeHtml,
+    frasesCarregar: frasesCarregar,
+    frasesMarcarCustomizadas: frasesMarcarCustomizadas,
+    frasesPodar: frasesPodar,
+    frasesSalvar: frasesSalvar,
     isValidDecimal: isValidDecimal,
     nomeArquivoLaudo: nomeArquivoLaudo,
     num: num,
