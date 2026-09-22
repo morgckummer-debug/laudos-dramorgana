@@ -485,6 +485,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical — use {MEDIDA}</label><textarea id="ph_polipoEndocervical" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU normoposicionado — use {MEDIDA}</label><textarea id="ph_diuNormo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU de baixa implantação — use {MEDIDA}</label><textarea id="ph_diuBaixa" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hematométrio — use {MEDIDAS} e {VOLUME}</label><textarea id="ph_hematometrio" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Ovários</h3>
@@ -529,6 +530,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical</label><textarea id="ph_impPolipoEndocervical" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU normoposicionado</label><textarea id="ph_impDiuNormo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU de baixa implantação</label><textarea id="ph_impDiuBaixa" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hematométrio</label><textarea id="ph_impHematometrio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado uterino (útero alterado) — use {DESCRICAO}</label><textarea id="ph_impUteroAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado ovariano (ovário alterado) — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário não identificado — use {LADO}</label><textarea id="ph_impOvarioNaoIdentificado" rows="2"></textarea></div>
@@ -664,6 +666,14 @@
             <select id="diuPosicao"><option value="normo">Normoposicionado</option><option value="baixa">De baixa implantação</option></select>
           </div>
           <div class="field"><label>Distância da haste ao fundo da serosa</label><input type="text" inputmode="decimal" data-decimals="1" id="diuDistancia" placeholder="mm"></div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkHematometrio"><label for="chkHematometrio">Hematométrio</label></div>
+        <div class="field-row conditional" id="wrap_hematometrioCampos">
+          <div class="field"><label>Longitudinal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM1" placeholder="mm"></div>
+          <div class="field"><label>Anteroposterior (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM2" placeholder="mm"></div>
+          <div class="field"><label>Transversal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM3" placeholder="mm"></div>
+          <div class="field"><label>Volume informado</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioVolume" placeholder="cm³"></div>
         </div>
 
         <div class="field conditional" id="wrap_uteroDescricao">
@@ -1429,6 +1439,7 @@ if(typeof criarMotorLaudo !== 'function'){
     polipoEndocervical: 'Em canal endocervical, nota-se imagem elipsoide sólida, ecogênica, com pedículo vascular identificado ao mapeamento colorido, medindo {MEDIDA} mm.',
     diuNormo: 'Presença de imagem linear ecogênica que condiciona sombra acústica posterior, compatível com DIU, localizada acima do orifício interno do colo uterino, cuja haste se encontra no fundo da cavidade endometrial e dista {MEDIDA} mm do fundo da serosa uterina.',
     diuBaixa: 'Presença de imagem linear ecogênica que condiciona sombra acústica posterior, compatível com DIU, cuja extremidade distal se encontra no interior do orifício interno do colo uterino (e não acima dele), distando {MEDIDA} mm do fundo da serosa uterina.',
+    hematometrio: 'Observa-se conteúdo hemático na cavidade uterina, medindo {MEDIDAS} mm, com volume de {VOLUME} cm³, compatível com hematométrio.',
     ovarioNormal: 'de topografia usual, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
     ovarioNaoIdentificado: 'não identificado no presente estudo. Não são identificadas massas císticas ou sólidas em sua topografia.',
     ovarioPolicisticoBase: 'de topografia usual, forma globosa e textura micropolicística, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
@@ -1462,6 +1473,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impPolipoEndocervical: 'Imagem sugestiva de pólipo endocervical.',
     impDiuNormo: 'DIU normoposicionado.',
     impDiuBaixa: 'DIU de baixa implantação.',
+    impHematometrio: 'Hematométrio.',
     impUteroAlterado: 'Achado uterino: {DESCRICAO}.',
     impOvarioAlterado: 'Achado no ovário {LADO}: {DESCRICAO}.',
     impOvarioNaoIdentificado: 'Ovário {LADO} não identificado no presente estudo.',
@@ -1677,6 +1689,7 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkIstmocele').addEventListener('change', e=> toggle('wrap_istmoceleCampos', e.target.checked));
   $('chkPolipoEndocervical').addEventListener('change', e=> toggle('wrap_polipoEndocervicalCampos', e.target.checked));
   $('chkDIU').addEventListener('change', e=> toggle('wrap_diuCampos', e.target.checked));
+  $('chkHematometrio').addEventListener('change', e=> toggle('wrap_hematometrioCampos', e.target.checked));
   function wireOvario(prefix){
     const sel = $(prefix+'_aspecto');
     sel.addEventListener('change', e=>{
@@ -1994,6 +2007,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.chkPolipoEndocervical){
       items.push({key:'polipo-endocervical', label:phraseRaw('impPolipoEndocervical'), auto:true});
     }
+    if(state.chkHematometrio){
+      items.push({key:'hematometrio', label:phraseRaw('impHematometrio'), auto:true});
+    }
     if(state.corpoLuteoLado === 'nao_identificado'){
       items.push({key:'ciclo', label:phraseRaw('impCicloAnovulatorio'), auto:true});
     } else {
@@ -2178,6 +2194,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const diuPosicao = v('diuPosicao');
     const diuDistancia = blankOrValue(reqIf('diuDistancia', chkDIU));
 
+    const chkHematometrio = $('chkHematometrio').checked;
+    const hematometrioM1 = blankOrValue(reqIf('hematometrioM1', chkHematometrio));
+    const hematometrioM2 = blankOrValue(reqIf('hematometrioM2', chkHematometrio));
+    const hematometrioM3 = blankOrValue(reqIf('hematometrioM3', chkHematometrio));
+    const hematometrioVolume = blankOrValue(reqIf('hematometrioVolume', chkHematometrio));
+
     const vrOvarioTexto = VR.ovarioMin.toString().replace('.',',')+' e '+VR.ovarioMax.toString().replace('.',',');
 
     function readOvario(prefix){
@@ -2235,7 +2257,7 @@ if(typeof criarMotorLaudo !== 'function'){
       chkAscite, ovarioVolumeAlto,
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
-      chkAdenomiose, chkIstmocele, chkPolipoEndocervical, chkDIU, diuPosicao,
+      chkAdenomiose, chkIstmocele, chkPolipoEndocervical, chkDIU, diuPosicao, chkHematometrio,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
       ovD_aspecto2: ovD.aspecto2, ovD_descricao2: ovD.descricao2,
       ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao, ovE_volNum: ovE.volNum,
@@ -2316,6 +2338,11 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     if(chkDIU){
       blocks.push({id:'diu', html:'<p class="linha">'+phraseRaw(diuPosicao==='baixa' ? 'diuBaixa' : 'diuNormo', {MEDIDA: span(diuDistancia)})+'</p>'});
+    }
+
+    if(chkHematometrio){
+      const hematometrioMedidas = [hematometrioM1, hematometrioM2, hematometrioM3].map(span).join(' x ');
+      blocks.push({id:'hematometrio', html:'<p class="linha">'+phraseRaw('hematometrio', {MEDIDAS: hematometrioMedidas, VOLUME: span(hematometrioVolume)})+'</p>'});
     }
 
     // Dobra a frase do achado dentro da mesma sentença do volume, em vez de um

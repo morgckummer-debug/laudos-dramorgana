@@ -480,6 +480,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Normal — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_endometrioNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial — use {PADRAO}, {ESPESSURA}, {LOCAL}, {PEDICULO} e {MEDIDA}</label><textarea id="ph_endometrioPolipo" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Espessado e heterogêneo (menopausa) — use {ESPESSURA}</label><textarea id="ph_endometrioEspessado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hematométrio — use {MEDIDAS} e {VOLUME}</label><textarea id="ph_hematometrio" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Ovários</h3>
@@ -541,6 +542,7 @@
   <div class="field" style="margin-bottom:8px;"><label>DIU de baixa implantação</label><textarea id="ph_impDiuBaixa" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial</label><textarea id="ph_impPolipoEndometrial" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio espessado (menopausa)</label><textarea id="ph_impEndometrioEspessado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hematométrio</label><textarea id="ph_impHematometrio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário não identificado — use {LADO}</label><textarea id="ph_impOvarioNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário alterado (outro) — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — use {LADO}</label><textarea id="ph_impOvarioPolicistico" rows="2"></textarea></div>
@@ -728,6 +730,14 @@
             <select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option><option value="ecogenico">Ecogênico</option></select>
           </div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="chkHematometrio"><label for="chkHematometrio">Hematométrio</label></div>
+        <div class="field-row conditional" id="wrap_hematometrioCampos">
+          <div class="field"><label>Longitudinal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM1" placeholder="mm"></div>
+          <div class="field"><label>Anteroposterior (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM2" placeholder="mm"></div>
+          <div class="field"><label>Transversal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM3" placeholder="mm"></div>
+          <div class="field"><label>Volume informado</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioVolume" placeholder="cm³"></div>
+        </div>
+
         <div class="field-row conditional" id="wrap_polipoCampos">
           <div class="field"><label>Localização</label>
             <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
@@ -1733,6 +1743,7 @@ if(typeof criarMotorLaudo !== 'function'){
     endometrioNormal: 'de aspecto uniforme, padrão {PADRAO}, apresentando eco endometrial linear e espessura de {ESPESSURA} mm. Cavidade uterina virtual.',
     endometrioPolipo: 'de aspecto uniforme, padrão {PADRAO}, com espessura de {ESPESSURA} mm. Observa-se, no interior da cavidade uterina, em região {LOCAL}, imagem elipsoide sólida, ecogênica e heterogênea, de limites pouco precisos, sem sombra acústica posterior, com pedículo vascular identificado ao mapeamento colorido no folheto endometrial {PEDICULO}, medindo {MEDIDA} mm.',
     endometrioEspessado: 'centrado, regular, ecogênico e heterogêneo, contendo diminutas áreas císticas de permeio, com pedículo vascular identificado ao mapeamento colorido, medindo {ESPESSURA} mm em seu diâmetro ântero-posterior.',
+    hematometrio: 'Observa-se conteúdo hemático na cavidade uterina, medindo {MEDIDAS} mm, com volume de {VOLUME} cm³, compatível com hematométrio.',
 
     ovarioNormal: 'de topografia e forma usuais, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ ({VR}).',
     ovarioNaoIdentificado: 'não identificado no presente estudo. Não são identificadas massas císticas ou sólidas em sua topografia.',
@@ -1787,6 +1798,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impDiuBaixa: 'DIU de baixa implantação.',
     impPolipoEndometrial: 'Nódulo ecogênico intracavitário sugestivo de pólipo.',
     impEndometrioEspessado: 'Endométrio espessado e heterogêneo — dentre as possibilidades diagnósticas, considerar pólipo ocupando toda a cavidade uterina.',
+    impHematometrio: 'Hematométrio.',
     impOvarioNaoIdentificado: 'Ovário {LADO} não identificado no presente estudo.',
     impOvarioAlterado: 'Ovário {LADO}: {DESCRICAO}.',
     impOvarioPolicistico: 'Ovário {LADO} com aspecto sugestivo de ovários policísticos.',
@@ -2158,6 +2170,7 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkIstmocele').addEventListener('change', e=> toggle('wrap_istmoceleCampos', e.target.checked));
   $('chkPolipoEndocervical').addEventListener('change', e=> toggle('wrap_polipoEndocervicalCampos', e.target.checked));
   $('chkDIU').addEventListener('change', e=> toggle('wrap_diuCampos', e.target.checked));
+  $('chkHematometrio').addEventListener('change', e=> toggle('wrap_hematometrioCampos', e.target.checked));
 
   function updateEndometrioWraps(){
     const val = $('endometrioAspecto').value;
@@ -2305,6 +2318,9 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     if(state.chkPolipoEndocervical){
       items.push({key:'polipo-endocervical', label:phraseRaw('impPolipoEndocervical'), auto:true});
+    }
+    if(state.chkHematometrio){
+      items.push({key:'hematometrio', label:phraseRaw('impHematometrio'), auto:true});
     }
     if(state.endometrioAspecto==='polipo'){
       items.push({key:'polipo-endometrial', label:phraseRaw('impPolipoEndometrial'), auto:true});
@@ -2543,6 +2559,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const diuPosicao = v('diuPosicao');
     const diuDistancia = blankOrValue(reqIf('diuDistancia', chkDIU));
 
+    const chkHematometrio = $('chkHematometrio').checked;
+    const hematometrioM1 = blankOrValue(reqIf('hematometrioM1', chkHematometrio));
+    const hematometrioM2 = blankOrValue(reqIf('hematometrioM2', chkHematometrio));
+    const hematometrioM3 = blankOrValue(reqIf('hematometrioM3', chkHematometrio));
+    const hematometrioVolume = blankOrValue(reqIf('hematometrioVolume', chkHematometrio));
+
     const endometrioEspessura = blankOrValue(reqIf('endometrioEspessura', uteroPresente));
     const endometrioAspecto = v('endometrioAspecto');
     const ENDOMETRIO_PADRAO_TEXTO = {trilaminar:'trilaminar', secretor:'secretor', laminar:'laminar', ecogenico:'ecogênico'};
@@ -2626,7 +2648,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const state = {
       bexigaAspecto, bexigaDescricao,
       miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose, uteroVolumeAumentado,
-      chkIstmocele, istmocelePct, chkPolipoEndocervical, chkDIU, diuPosicao,
+      chkIstmocele, istmocelePct, chkPolipoEndocervical, chkDIU, diuPosicao, chkHematometrio,
       endometrioAspecto,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
       ovD_aspecto2: ovD.aspecto2, ovD_descricao2: ovD.descricao2,
@@ -2728,6 +2750,11 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     if(chkDIU){
       blocks.push({id:'diu', html:'<p class="linha">'+phraseRaw(diuPosicao==='baixa' ? 'diuBaixa' : 'diuNormo', {MEDIDA: span(diuDistancia)})+'</p>'});
+    }
+
+    if(chkHematometrio){
+      const hematometrioMedidas = [hematometrioM1, hematometrioM2, hematometrioM3].map(span).join(' x ');
+      blocks.push({id:'hematometrio', html:'<p class="linha">'+phraseRaw('hematometrio', {MEDIDAS: hematometrioMedidas, VOLUME: span(hematometrioVolume)})+'</p>'});
     }
 
     if(uteroPresente){

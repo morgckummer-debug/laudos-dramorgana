@@ -425,6 +425,7 @@
   <hr class="sep">
   <h3>Endométrio</h3>
   <div class="field" style="margin-bottom:8px;"><label>Frase do endométrio — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_endometrioLinha" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hematométrio — use {MEDIDAS} e {VOLUME}</label><textarea id="ph_hematometrio" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Ovários</h3>
@@ -449,6 +450,7 @@
   <hr class="sep">
   <h3>Impressão diagnóstica</h3>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_impEndometrio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hematométrio</label><textarea id="ph_impHematometrio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes bilaterais</label><textarea id="ph_impFoliculosBilaterais" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hiperestimulação ovariana (SHO)</label><textarea id="ph_impSHO" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Liberação para coleta de óvulos</label><textarea id="ph_impLiberacao" rows="2"></textarea></div>
@@ -565,6 +567,14 @@
             <label>Observações adicionais (opcional)</label>
             <textarea id="miometrioDescricao" rows="2" placeholder="qualquer detalhe extra sobre os nódulos, ou demais nódulos além dos listados acima..."></textarea>
           </div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkHematometrio"><label for="chkHematometrio">Hematométrio</label></div>
+        <div class="field-row conditional" id="wrap_hematometrioCampos">
+          <div class="field"><label>Longitudinal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM1" placeholder="mm"></div>
+          <div class="field"><label>Anteroposterior (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM2" placeholder="mm"></div>
+          <div class="field"><label>Transversal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM3" placeholder="mm"></div>
+          <div class="field"><label>Volume informado</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioVolume" placeholder="cm³"></div>
         </div>
 
         <div class="field conditional" id="wrap_uteroDescricao">
@@ -1301,7 +1311,9 @@ if(typeof criarMotorLaudo !== 'function'){
     ovarioEndometriomaTambem: 'Observa-se também, em seu interior, imagem cística regular e unilocular, com conteúdo de textura em "vidro fosco", com mínima captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioAlteradoTambem: 'Observa-se também {DESCRICAO}.',
     endometrioLinha: '{PADRAO}, medindo {ESPESSURA} mm de espessura.',
+    hematometrio: 'Observa-se conteúdo hemático na cavidade uterina, medindo {MEDIDAS} mm, com volume de {VOLUME} cm³, compatível com hematométrio.',
     impEndometrio: 'Endométrio {PADRAO} com espessura de {ESPESSURA} mm.',
+    impHematometrio: 'Hematométrio.',
     impFoliculosBilaterais: 'Folículos dominantes bilaterais.',
     impSHO: 'Ovários de volume aumentado associado a ascite - achados sugestivos de hiperestimulação ovariana (SHO).',
     impLiberacao: 'Achados ecográficos favoráveis, sem contraindicação para a punção folicular guiada por ultrassonografia.',
@@ -1517,6 +1529,7 @@ if(typeof criarMotorLaudo !== 'function'){
       });
     }
   });
+  $('chkHematometrio').addEventListener('change', e=> toggle('wrap_hematometrioCampos', e.target.checked));
   function wireOvario(prefix){
     const sel = $(prefix+'_aspecto');
     sel.addEventListener('change', e=>{
@@ -1743,6 +1756,9 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:'foliculos-bilaterais', label:phraseRaw('impFoliculosBilaterais'), auto:true});
     }
     items.push({key:'endometrio', label:phraseRaw('impEndometrio', {PADRAO: state.endoPadraoTexto, ESPESSURA: state.endoEspessuraTexto}), auto:true});
+    if(state.chkHematometrio){
+      items.push({key:'hematometrio', label:phraseRaw('impHematometrio'), auto:true});
+    }
     // SHO: só o critério visível ao ultrassom — volume ovariano >60 cm³ e ascite.
     if(state.ovarioVolumeAlto && state.chkAscite){
       items.push({key:'sho', label:phraseRaw('impSHO'), auto:true});
@@ -1909,6 +1925,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const uteroContornos = miomaFigos.some(f => f==='F2-5' || f==='F5' || f==='F6' || f==='F7') ? 'irregulares' : 'regulares';
     const miometrioDescricaoExtra = vNoDot('miometrioDescricao');
 
+    const chkHematometrio = $('chkHematometrio').checked;
+    const hematometrioM1 = blankOrValue(reqIf('hematometrioM1', chkHematometrio));
+    const hematometrioM2 = blankOrValue(reqIf('hematometrioM2', chkHematometrio));
+    const hematometrioM3 = blankOrValue(reqIf('hematometrioM3', chkHematometrio));
+    const hematometrioVolume = blankOrValue(reqIf('hematometrioVolume', chkHematometrio));
+
     const vrOvarioTexto = VR.ovarioMin.toString().replace('.',',')+' e '+VR.ovarioMax.toString().replace('.',',');
 
     function readOvario(prefix){
@@ -1953,7 +1975,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const checklistItems = buildImpressao({
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
-      endoPadraoTexto: endoPadraoTextoMinusculo, endoEspessuraTexto: endoEspessura.text,
+      endoPadraoTexto: endoPadraoTextoMinusculo, endoEspessuraTexto: endoEspessura.text, chkHematometrio,
       ovDFoliculosCount: ovD.foliculos.length, ovEFoliculosCount: ovE.foliculos.length,
       chkAscite, ovarioVolumeAlto,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
@@ -2020,6 +2042,10 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
     blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+phrase('endometrioLinha', {PADRAO: endoPadraoTexto, ESPESSURA: endoEspessura.text})+'</p>'});
+    if(chkHematometrio){
+      const hematometrioMedidas = [hematometrioM1, hematometrioM2, hematometrioM3].map(span).join(' x ');
+      blocks.push({id:'hematometrio', html:'<p class="linha">'+phraseRaw('hematometrio', {MEDIDAS: hematometrioMedidas, VOLUME: span(hematometrioVolume)})+'</p>'});
+    }
 
     // Dobra a frase do achado dentro da mesma sentença do volume, em vez de um
     // parágrafo à parte. A maioria das frases de achado começa com "Ovário
