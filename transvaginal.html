@@ -715,6 +715,14 @@
           <div class="field"><label>Distância da haste ao fundo da serosa</label><input type="text" inputmode="decimal" data-decimals="1" id="diuDistancia" placeholder="mm"></div>
         </div>
 
+        <div class="toggle-line"><input type="checkbox" id="chkHematometrio"><label for="chkHematometrio">Hematométrio</label></div>
+        <div class="field-row conditional" id="wrap_hematometrioCampos">
+          <div class="field"><label>Longitudinal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM1" placeholder="mm"></div>
+          <div class="field"><label>Anteroposterior (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM2" placeholder="mm"></div>
+          <div class="field"><label>Transversal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM3" placeholder="mm"></div>
+          <div class="field"><label>Volume informado</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioVolume" placeholder="cm³"></div>
+        </div>
+
         <hr class="sep">
         <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Endométrio</p>
         <div class="field-row">
@@ -730,14 +738,6 @@
             <select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option><option value="ecogenico">Ecogênico</option></select>
           </div>
         </div>
-        <div class="toggle-line"><input type="checkbox" id="chkHematometrio"><label for="chkHematometrio">Hematométrio</label></div>
-        <div class="field-row conditional" id="wrap_hematometrioCampos">
-          <div class="field"><label>Longitudinal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM1" placeholder="mm"></div>
-          <div class="field"><label>Anteroposterior (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM2" placeholder="mm"></div>
-          <div class="field"><label>Transversal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM3" placeholder="mm"></div>
-          <div class="field"><label>Volume informado</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioVolume" placeholder="cm³"></div>
-        </div>
-
         <div class="field-row conditional" id="wrap_polipoCampos">
           <div class="field"><label>Localização</label>
             <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
