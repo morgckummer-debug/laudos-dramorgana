@@ -1480,6 +1480,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impGestacaoGemelarSemDum: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
     impBoaEvolucao: 'Boa evolução até o momento.',
     impObito: 'Perda gestacional {TEMPO} {TIPO}, compatível com {IG}.',
+    impObitoCompleto: 'Perda gestacional precoce completa.',
     impEmbriaoNaoIdentificado: 'Embrião não identificado no momento — sugere-se reavaliação em 10-14 dias.',
     impGestacaoAnembrionada: 'Gestação anembrionada, compatível com {IG}.',
     impGestacaoMolar: 'Sinais ecográficos de gestação molar. Sugere-se correlação com dosagem sérica de beta-hCG e acompanhamento com confirmação histopatológica após o esvaziamento uterino.',
@@ -2181,7 +2182,9 @@ if(typeof criarMotorLaudo !== 'function'){
     } else if(state.perdaSemSacoAtiva){
       // Sem saco gestacional identificável não há "gestação única/eutópica" a
       // descrever — só a perda em si.
-      items.push({key:'evolucao', label:phraseRaw('impObito', {TEMPO:state.tempoPerda, TIPO:state.tipoPerdaDesc, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+      items.push({key:'evolucao', label: state.perdaSemSacoTipo==='completo'
+        ? phraseRaw('impObitoCompleto')
+        : phraseRaw('impObito', {TEMPO:state.tempoPerda, TIPO:state.tipoPerdaDesc, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
     } else {
       const baseadaEmDum = state.cronologiaMetodo === 'dum';
       // DUM incerta/ignorada: sem cronologia, a conclusão não fala em "IG
@@ -2577,7 +2580,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const state = {
       isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
       algumObito, dpp, algumHematoma, algumIsgReduzido, algumContornoIrregular, algumEmbrioNaoIdentificado, algumAnembrionada, cronologiaMetodo,
-      tempoPerda, tipoPerdaDesc, perdaSemSacoAtiva, emCursoAtiva,
+      tempoPerda, tipoPerdaDesc, perdaSemSacoAtiva, perdaSemSacoTipo, emCursoAtiva,
       bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao,
       miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose,
       molaAtiva, molaFetoPresente, molaFetoAusente, molaVitalidade, molaIgTexto,
