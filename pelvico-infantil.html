@@ -548,6 +548,12 @@
       <div class="card-head"><h2>Doppler da artéria uterina</h2></div>
       <div class="card-body">
         <div class="field-row">
+          <div class="field"><label>Padrão do fluxo</label>
+            <select id="dopplerPadrao">
+              <option value="prepuberal">Padrão pré-puberal (alta resistência)</option>
+              <option value="puberal">Padrão puberal (baixa resistência)</option>
+            </select>
+          </div>
           <div class="field"><label>Índice de pulsatilidade (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="dopplerIP" placeholder="ex: 3,45"></div>
           <div class="field"><label>Valor de referência (escolha a frase usada no laudo)</label>
             <select id="dopplerVR">
@@ -1243,11 +1249,16 @@ if(typeof criarMotorLaudo !== 'function'){
   // reescreve o item marcado, à mão, direto no laudo, quando o achado for
   // outro. Não há detecção automática de achados anormais aqui (ao contrário
   // do transvaginal.html), porque não existe frase-padrão de achado alterado
-  // nos modelos de origem para basear isso.
+  // nos modelos de origem para basear isso — exceto o Doppler da artéria
+  // uterina, abaixo: ali "pré-puberal" x "puberal" são as duas leituras
+  // possíveis do mesmo exame, não achado normal x achado a descrever, então
+  // a própria médica (2026-09-24) deu as duas frases prontas.
   function buildImpressao(state){
     const items = [{key:'volumes-normais', label:'Útero e ovários com volumes dentro da normalidade para a idade.', auto:true}];
     if(state.chkDoppler){
-      items.push({key:'doppler-prepuberal', label:'Artéria uterina com padrão pré-puberal.', auto:true});
+      items.push({key:'doppler-prepuberal', label: state.dopplerPadrao==='puberal'
+        ? 'Artéria uterina com padrão puberal.'
+        : 'Artéria uterina com padrão pré-puberal.', auto:true});
     }
     // Observações livres: texto que a médica escreve fora de qualquer campo
     // padrão — cada linha não-vazia vira seu próprio item, já com o texto dela
@@ -1376,6 +1387,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const dopplerIP = blankOrValue(reqIf('dopplerIP', chkDoppler));
     const dopplerVR = v('dopplerVR')==='b' ? 'b' : 'a';
+    const dopplerPadrao = v('dopplerPadrao')==='puberal' ? 'puberal' : 'prepuberal';
 
     const anexiaisAspecto = v('anexiaisAspecto');
     const anexiaisDescricao = vNoDot('anexiaisDescricao');
@@ -1386,7 +1398,7 @@ if(typeof criarMotorLaudo !== 'function'){
     reqIf('liquidoDescricao', liquidoAspecto==='alterado');
 
     // ----- Impressão -----
-    const state = {chkDoppler, obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)};
+    const state = {chkDoppler, dopplerPadrao, obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)};
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
@@ -1442,9 +1454,19 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'ovarioE', html:ovarioParagraph(ovE, 'esquerdo')});
 
     if(chkDoppler){
+      // As duas frases de VR citam o corte que ainda conta como pré-puberal
+      // (padrão de alta resistência) — só fazem sentido junto do "(normal)"
+      // quando é isso que se está relatando. No padrão puberal (IP abaixo do
+      // corte, achado que esta seção existe para pegar) elas ficariam
+      // contraditórias ("...normal, ...padrão puberal"), então a frase
+      // alterada não cita a referência: descreve o achado, do jeito que a
+      // Dra. Morgana pediu (2026-09-24), sem inventar qualificação nova.
       const vrFraseA = '(VR &gt; 3,0) com fluxo diastólico inicial (normal)';
       const vrFraseB = '(VR &gt; 4,6): sem efeito hormonal (normal)';
-      blocks.push({id:'doppler', html:'<p class="linha"><strong>Estudo Doppler da artéria uterina:</strong> Onda de padrão de alta resistência com IP de '+span(dopplerIP)+' '+(dopplerVR==='b' ? vrFraseB : vrFraseA)+'.</p>'});
+      const dopplerTexto = dopplerPadrao==='puberal'
+        ? 'Onda de padrão de baixa resistência com IP de '+span(dopplerIP)+', artéria uterina apresentando padrão puberal.'
+        : 'Onda de padrão de alta resistência com IP de '+span(dopplerIP)+' '+(dopplerVR==='b' ? vrFraseB : vrFraseA)+'.';
+      blocks.push({id:'doppler', html:'<p class="linha"><strong>Estudo Doppler da artéria uterina:</strong> '+dopplerTexto+'</p>'});
     }
 
     const anexiaisTexto = (anexiaisAspecto==='alterado' && anexiaisDescricao)
