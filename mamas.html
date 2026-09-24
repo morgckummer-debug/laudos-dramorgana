@@ -365,6 +365,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Cisto simples (único) — use {LADO}</label><textarea id="ph_impCistoSingular" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cistos simples (2 ou mais) — use {LADO}</label><textarea id="ph_impCistoPlural" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Aglomerado cístico — use {LADO}</label><textarea id="ph_impAglomeradoCistico" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cisto septado — use {LADO}</label><textarea id="ph_impCistoSeptado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido (único) — use {LADO}</label><textarea id="ph_impNoduloSingular" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos (2 ou mais) — use {LADO}</label><textarea id="ph_impNoduloPlural" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos bilaterais</label><textarea id="ph_impNoduloBilateral" rows="2"></textarea></div>
@@ -1084,6 +1085,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impCistoSingular: 'Cisto simples em mama {LADO}.',
     impCistoPlural: 'Cistos simples em mama {LADO}.',
     impAglomeradoCistico: 'Aglomerado cístico em mama {LADO}.',
+    impCistoSeptado: 'Cisto septado em mama {LADO}.',
     impNoduloSingular: 'Nódulo sólido em mama {LADO}.',
     impNoduloPlural: 'Nódulos sólidos em mama {LADO}.',
     impNoduloBilateral: 'Nódulos sólidos bilaterais.',
@@ -1169,6 +1171,7 @@ if(typeof criarMotorLaudo !== 'function'){
     ['cisto3','3 ou mais cistos'],
     ['cistosVarios','Vários cistos dispersos pelo parênquima'],
     ['aglomeradoCistico','Aglomerado cístico'],
+    ['cistoSeptado','Cisto septado'],
     ['nodulo1','Nódulo sólido único'],
     ['nodulo2','2 nódulos sólidos'],
     ['nodulo3','3 ou mais nódulos sólidos'],
@@ -1264,12 +1267,12 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field-row">'
         +'<div class="field"><label>1º cisto — hora</label><input type="text" id="'+p+'Cisto2Hora1" placeholder="ex: 2"></div>'
         +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto2Dist1" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto2Tam1" placeholder="mm"></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'Cisto2Tam1" placeholder="ex: 21,3 x 32,4"></div>'
       +'</div>'
       +'<div class="field-row">'
         +'<div class="field"><label>2º cisto — hora</label><input type="text" id="'+p+'Cisto2Hora2" placeholder="ex: 8"></div>'
         +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto2Dist2" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto2Tam2" placeholder="mm"></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'Cisto2Tam2" placeholder="ex: 21,3 x 32,4"></div>'
       +'</div>'
     +'</div>';
 
@@ -1279,7 +1282,7 @@ if(typeof criarMotorLaudo !== 'function'){
       html += '<div class="field-row">'
         +'<div class="field"><label>C'+n+' — hora</label><input type="text" id="'+p+'Cisto3C'+n+'Hora" placeholder="ex: 2"></div>'
         +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto3C'+n+'Dist" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'Cisto3C'+n+'Tam" placeholder="mm"></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'Cisto3C'+n+'Tam" placeholder="ex: 21,3 x 32,4"></div>'
       +'</div>';
     });
     html += '</div>';
@@ -1293,16 +1296,19 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field-row">'
         +'<div class="field"><label>Maior cisto — hora</label><input type="text" id="'+p+'CistosVariosHora" placeholder="ex: 2"></div>'
         +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CistosVariosDist" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CistosVariosTam" placeholder="mm"></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'CistosVariosTam" placeholder="ex: 21,3 x 32,4"></div>'
       +'</div>'
     +'</div>';
+
+    // Cisto septado
+    html += '<div class="conditional" id="wrap_'+p+'_cistoSeptado">'+campoHoraDistTam(p+'CistoSeptado','Hora', true, true)+'</div>';
 
     // Aglomerado cístico
     html += '<div class="conditional" id="wrap_'+p+'_aglomeradoCistico">'
       +'<div class="field-row">'
         +'<div class="field"><label>Hora</label><input type="text" id="'+p+'AglomeradoHora" placeholder="ex: 2"></div>'
         +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'AglomeradoDist" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho em conjunto</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'AglomeradoTam" placeholder="mm"></div>'
+        +'<div class="field"><label>Tamanho em conjunto (até 3 medidas)</label><input type="text" id="'+p+'AglomeradoTam" placeholder="ex: 21,3 x 32,4"></div>'
       +'</div>'
     +'</div>';
 
@@ -1369,7 +1375,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field-row">'
         +'<div class="field"><label>Fenômeno acústico posterior</label><select id="'+p+'FadFenomeno"><option value="sem causar alteração sônica posterior">Sem causar alteração sônica posterior</option><option value="causando reforço acústico posterior">Causando reforço acústico posterior</option></select></div>'
       +'</div>'
-      + campoHoraDistTam(p+'Fad','Hora')
+      + campoHoraDistTam(p+'Fad','Hora', true)
     +'</div>';
 
     // Linfonodo axilar atípico
@@ -1430,7 +1436,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // Cisto único e nódulo único têm um seletor de Localização (Horário /
     // Retroareolar): retroareolar esconde a linha de hora+distância, que não
     // se aplica a esse caso.
-    ['Cisto1','Nodulo1'].forEach(key=>{
+    ['Cisto1','Nodulo1','CistoSeptado'].forEach(key=>{
       const localSel = $('achado'+uid+key+'Local');
       if(!localSel) return;
       const applyLocal = ()=> toggle('wrap_achado'+uid+key+'_horario', localSel.value !== 'retroareolar');
@@ -1475,9 +1481,11 @@ if(typeof criarMotorLaudo !== 'function'){
   // linhas "Nódulo sólido em mama direita.", um em cada mama viravam duas
   // linhas de lados diferentes em vez de uma só "bilaterais". Essas duas
   // categorias (nodulo1/2/3 e cisto1/2/3/cistosVarios) resumem numa linha só,
-  // cobrindo os dois lados de uma vez. Aglomerado cístico, fibroadenoma,
-  // linfonodo (axilar/intramamário) e seroma continuam uma linha por achado —
-  // são diagnósticos específicos, não entram no resumo genérico.
+  // cobrindo os dois lados de uma vez. Aglomerado cístico, cisto septado,
+  // fibroadenoma, linfonodo (axilar/intramamário) e seroma continuam uma
+  // linha por achado — são diagnósticos específicos, não entram no resumo
+  // genérico (o septado em especial: a frase de "cisto simples" apagaria
+  // justamente a septação que motiva um acompanhamento diferente).
   const RESUMO_PLURAL_TIPOS = ['nodulo2','nodulo3','cisto2','cisto3','cistosVarios'];
   function buildResumoAchado(achados, tipos, key, singularKey, pluralKey, bilateralKey){
     const doTipo = achados.filter(a=> tipos.includes(a.tipo));
@@ -1496,7 +1504,7 @@ if(typeof criarMotorLaudo !== 'function'){
   function buildImpressao(state){
     const items = [{key:'normal', label:phrase('impNormal'), auto:true}];
 
-    const INDIVIDUAIS = ['aglomeradoCistico','fibroadenoma','linfonodoAxilar','linfonodoIntramamario','seroma'];
+    const INDIVIDUAIS = ['aglomeradoCistico','cistoSeptado','fibroadenoma','linfonodoAxilar','linfonodoIntramamario','seroma'];
     state.achados.forEach(a=>{
       if(INDIVIDUAIS.includes(a.tipo)) items.push({key:'achado-'+a.uid, label:a.hd, auto:true});
     });
@@ -1603,15 +1611,15 @@ if(typeof criarMotorLaudo !== 'function'){
         corpo = 'Observa-se imagem anecóica de paredes finas e regulares, condicionando reforço acústico posterior, localizada '+localizacaoTexto(retro, hora, dist)+', medindo '+span(tam)+' mm.';
         hd = phrase('impCistoSingular', {LADO: lado});
       } else if(tipo === 'cisto2'){
-        const h1=blankOrValue(req('achado'+uid+'Cisto2Hora1')), d1=blankOrValue(req('achado'+uid+'Cisto2Dist1')), t1=blankOrValue(req('achado'+uid+'Cisto2Tam1'));
-        const h2=blankOrValue(req('achado'+uid+'Cisto2Hora2')), d2=blankOrValue(req('achado'+uid+'Cisto2Dist2')), t2=blankOrValue(req('achado'+uid+'Cisto2Tam2'));
+        const h1=blankOrValue(req('achado'+uid+'Cisto2Hora1')), d1=blankOrValue(req('achado'+uid+'Cisto2Dist1')), t1=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'Cisto2Tam1')));
+        const h2=blankOrValue(req('achado'+uid+'Cisto2Hora2')), d2=blankOrValue(req('achado'+uid+'Cisto2Dist2')), t2=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'Cisto2Tam2')));
         corpo = 'Observam-se duas imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, uma localizada às '+span(h1)+' horas, distando '+span(d1)+' cm da borda areolar, medindo '+span(t1)+' mm e outra às '+span(h2)+' horas, distando '+span(d2)+' cm da borda areolar, medindo '+span(t2)+' mm.';
         hd = phrase('impCistoPlural', {LADO: lado});
       } else if(tipo === 'cisto3'){
         const itens = [1,2,3].map(n=>{
           const hora=blankOrValue(req('achado'+uid+'Cisto3C'+n+'Hora'));
           const dist=blankOrValue(req('achado'+uid+'Cisto3C'+n+'Dist'));
-          const tam=blankOrValue(req('achado'+uid+'Cisto3C'+n+'Tam'));
+          const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'Cisto3C'+n+'Tam')));
           return 'C'+n+': localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.';
         });
         corpo = 'Observam-se algumas imagens anecóicas de paredes finas e regulares, condicionando reforço acústico posterior, destacando-se as descritas abaixo:';
@@ -1622,13 +1630,21 @@ if(typeof criarMotorLaudo !== 'function'){
         const max=blankOrValue(req('achado'+uid+'CistosVariosTamMax'));
         const hora=blankOrValue(req('achado'+uid+'CistosVariosHora'));
         const dist=blankOrValue(req('achado'+uid+'CistosVariosDist'));
-        const tam=blankOrValue(req('achado'+uid+'CistosVariosTam'));
+        const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'CistosVariosTam')));
         corpo = 'Observam-se algumas imagens anecóicas de paredes finas e regulares, dispersas pelo parênquima, variando entre '+span(min)+' e '+span(max)+' mm, a maior localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.';
         hd = phrase('impCistoPlural', {LADO: lado});
+      } else if(tipo === 'cistoSeptado'){
+        const retro = v('achado'+uid+'CistoSeptadoLocal') === 'retroareolar';
+        const hora = blankOrValue(reqIf('achado'+uid+'CistoSeptadoHora', !retro));
+        const dist = blankOrValue(reqIf('achado'+uid+'CistoSeptadoDist', !retro));
+        const tamRaw = req('achado'+uid+'CistoSeptadoTam');
+        const tam = blankOrValue(tamanhoSemUnidade(tamRaw));
+        corpo = 'Observa-se imagem cística, de contornos pouco regulares e finas septações internas, localizada '+localizacaoTexto(retro, hora, dist)+', medindo '+span(tam)+' mm.';
+        hd = phrase('impCistoSeptado', {LADO: lado});
       } else if(tipo === 'aglomeradoCistico'){
         const hora=blankOrValue(req('achado'+uid+'AglomeradoHora'));
         const dist=blankOrValue(req('achado'+uid+'AglomeradoDist'));
-        const tam=blankOrValue(req('achado'+uid+'AglomeradoTam'));
+        const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'AglomeradoTam')));
         corpo = 'Observam-se algumas imagens anecóicas agrupadas, variando entre 2 e 3 mm cada, localizadas às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo em conjunto '+span(tam)+' mm.';
         hd = phrase('impAglomeradoCistico', {LADO: lado});
       } else if(tipo === 'nodulo1'){
@@ -1669,7 +1685,7 @@ if(typeof criarMotorLaudo !== 'function'){
         const fenomeno = v('achado'+uid+'FadFenomeno') || 'sem causar alteração sônica posterior';
         const hora=blankOrValue(req('achado'+uid+'FadHora'));
         const dist=blankOrValue(req('achado'+uid+'FadDist'));
-        const tam=blankOrValue(req('achado'+uid+'FadTam'));
+        const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'FadTam')));
         corpo = 'Presença de nódulo sólido, hipoecogênico e homogêneo, de limites bem definidos e contornos regulares, formato ovalado, com maior eixo paralelo à pele, '+escapeHtml(fenomeno)+', sem captação de fluxo ao color Doppler, localizado às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.';
         hd = phrase('impFibroadenoma', {LADO: lado});
       } else if(tipo === 'linfonodoAxilar'){
