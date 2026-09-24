@@ -2446,9 +2446,8 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<tr><td>Rel. Cér-placentária:</td><td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td></tr>'
       +'</table>';
 
-    // PBF fica igual nos dois casos; os outros blocos divergem porque a
-    // gemelar/trigemelar agrupa biometria e Doppler numa tabela só (ver
-    // abaixo), no lugar de uma tabela inteira por feto.
+    // Usado só no feto único (abaixo): na gemelar/trigemelar o PBF sai
+    // combinado numa tabela só, uma coluna por feto — ver mais adiante.
     const pbfBlocoHtml = f => '<div>'
       +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Perfil biofísico fetal</strong></p>'
       +'<table class="biometria">'
@@ -2488,48 +2487,43 @@ if(typeof criarMotorLaudo !== 'function'){
         laHtml += '<p class="linha tight">'+(f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormal'))+'</p>';
         laHtml += '<p class="linha">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'. '+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'.</p></div>';
         blocks.push({id:'la'+sfx, html:laHtml});
-
-        if(pbf){
-          blocks.push({id:'pbf'+sfx, html:pbfBlocoHtml(f)});
-        }
       });
 
-      // Doppler materno e fetal, quando os dois entram no laudo, ficam lado a
-      // lado na mesma linha em vez de um abaixo do outro — mesmo tratamento
-      // que o feto único já tinha (colWidth 50/50, abaixo). O fetal também
-      // agrupa os fetos numa tabela só, pelo mesmo motivo da biometria, e
-      // continua saindo depois do relato de cada feto, onde já saía antes.
-      if(dopplerMaterno || dopplerFetal){
-        let tabelaDopplerFetalMulti = '';
-        if(dopplerFetal){
-          tabelaDopplerFetalMulti = '<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Fetal (IP)</strong></p>'
-            +'<table class="biometria biometria-multi doppler-fetal">'
-            +'<tr><td></td>'+fetos.map(f=>'<td>'+escapeHtml(f.label)+'</td>').join('')+'</tr>'
-            +'<tr><td>Art. Umbilical</td>'+fetos.map(f=>'<td>'+span(f.piUmbilicalVal)+(f.auFluxoAlterado ? ' — '+escapeHtml(AU_FLUXO_TXT[f.auFluxo]) : '')+'</td>').join('')+'</tr>'
-            +'<tr><td>Art. Cerebral Média</td>'+fetos.map(f=>'<td>'+span(f.piACMVal)+'</td>').join('')+'</tr>'
-            +'<tr><td>Rel. Cér-placentária</td>'+fetos.map(f=>'<td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td>').join('')+'</tr>'
-            +'</table>';
-        }
-        // Lado a lado só com até 2 fetos: a tabela fetal já tem 3 colunas
-        // (rótulo + 2 valores) e cabe em meia página; com 3 fetos ela ganha
-        // uma 4ª coluna e não cabe mais nos 50% — o border-radius+overflow:
-        // hidden do table.biometria escondia a coluna do Feto 3 em silêncio,
-        // em vez de estourar visivelmente. Testado com Playwright: no
-        // trigemelar com os dois Dopplers marcados, a coluna do Feto 3 sumia
-        // da tela e da impressão sem erro nenhum.
-        if(dopplerMaterno && dopplerFetal && fetos.length <= 2){
-          blocks.push({id:'doppler', html:'<div><table style="width:100%;border-collapse:collapse;"><tr>'
-            +'<td style="vertical-align:top;padding:0 12px 0 0;width:50%;">'+tabelaDopplerMaterno+'</td>'
-            +'<td style="vertical-align:top;padding:0 0 0 12px;width:50%;">'+tabelaDopplerFetalMulti+'</td>'
-            +'</tr></table></div>'});
-        } else if(dopplerMaterno && dopplerFetal){
-          blocks.push({id:'dopplerMaterno', html:'<div>'+tabelaDopplerMaterno+'</div>'});
-          blocks.push({id:'dopplerFetalMulti', html:'<div>'+tabelaDopplerFetalMulti+'</div>'});
-        } else if(dopplerMaterno){
-          blocks.push({id:'dopplerMaterno', html:'<div>'+tabelaDopplerMaterno+'</div>'});
-        } else {
-          blocks.push({id:'dopplerFetalMulti', html:'<div>'+tabelaDopplerFetalMulti+'</div>'});
-        }
+      // PBF combinado, mesmo padrão da biometria: uma tabela só, uma coluna
+      // por feto, em vez de uma tabela inteira repetida (pedido da Dra.
+      // Morgana em 2026-09-24, junto da mudança do Doppler logo abaixo).
+      if(pbf){
+        let pbfHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Perfil biofísico fetal</strong></p>';
+        pbfHtml += '<table class="biometria biometria-multi">'
+          +'<tr><td></td>'+fetos.map(f=>'<td>'+escapeHtml(f.label)+'</td>').join('')+'</tr>'
+          +'<tr><td>Movimentos respiratórios</td>'+fetos.map(f=>'<td>'+(f.pbfResp?'Presentes (2)':'Ausentes (0)')+'</td>').join('')+'</tr>'
+          +'<tr><td>Movimentos corpóreos</td>'+fetos.map(f=>'<td>'+(f.pbfCorpo?'Presentes (2)':'Ausentes (0)')+'</td>').join('')+'</tr>'
+          +'<tr><td>Tônus fetal</td>'+fetos.map(f=>'<td>'+(f.pbfTono?'Presente (2)':'Ausente (0)')+'</td>').join('')+'</tr>'
+          +'<tr><td>Volume de líquido amniótico</td>'+fetos.map(f=>'<td>'+(f.pbfLA?'Normal (2)':'Alterado (0)')+'</td>').join('')+'</tr>'
+          +'<tr><td><strong>Escore total</strong></td>'+fetos.map(f=>'<td><strong>'+f.pbfScore+'/8</strong></td>').join('')+'</tr>'
+          +'</table></div>';
+        blocks.push({id:'pbf', html:pbfHtml});
+      }
+
+      // Doppler materno e fetal não ficam mais lado a lado (pedido revisado
+      // pela Dra. Morgana em 2026-09-24, depois de ver o resultado): o
+      // materno é só 3 linhas — espremido em meia página, o rótulo "Artéria
+      // Uterina Direita/Esquerda" quebrava em duas linhas à toa. Agora ele
+      // sai sozinho, centralizado (o table.biometria já centraliza por
+      // padrão), e o fetal combinado — que precisa da largura toda para as
+      // colunas por feto — vem abaixo dele.
+      if(dopplerMaterno){
+        blocks.push({id:'dopplerMaterno', html:'<div>'+tabelaDopplerMaterno+'</div>'});
+      }
+      if(dopplerFetal){
+        const tabelaDopplerFetalMulti = '<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Fetal (IP)</strong></p>'
+          +'<table class="biometria biometria-multi doppler-fetal">'
+          +'<tr><td></td>'+fetos.map(f=>'<td>'+escapeHtml(f.label)+'</td>').join('')+'</tr>'
+          +'<tr><td>Art. Umbilical</td>'+fetos.map(f=>'<td>'+span(f.piUmbilicalVal)+(f.auFluxoAlterado ? ' — '+escapeHtml(AU_FLUXO_TXT[f.auFluxo]) : '')+'</td>').join('')+'</tr>'
+          +'<tr><td>Art. Cerebral Média</td>'+fetos.map(f=>'<td>'+span(f.piACMVal)+'</td>').join('')+'</tr>'
+          +'<tr><td>Rel. Cér-placentária</td>'+fetos.map(f=>'<td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td>').join('')+'</tr>'
+          +'</table>';
+        blocks.push({id:'dopplerFetalMulti', html:'<div>'+tabelaDopplerFetalMulti+'</div>'});
       }
     } else {
       fetos.forEach(f=>{
