@@ -2316,6 +2316,11 @@ if(typeof criarMotorLaudo !== 'function'){
     reqIf('bacoDescricao', bacoAspecto==='alterado');
     const bacoDiametroNum = num('bacoDiametro');
     reqIf('bacoDiametro', modo !== 'hd' && bacoAspecto!=='esplenectomia');
+    // Decidido aqui, a cada render() — e não só no 'change' do select — porque
+    // "Limpar para nova paciente" tira a classe "show" de todo ".conditional"
+    // (inclusive deste, que é "conditional show" por padrão) sem disparar esse
+    // evento: o campo sumia e só voltava se a médica mexesse no Aspecto à toa.
+    toggle('wrap_bacoDiametro', modo !== 'hd' && bacoAspecto!=='esplenectomia');
     const bacoDiametroTexto = blankOrValue(v('bacoDiametro'));
     const bacoMax = BACO_MAX[sexo];
     flag('bacoDiametro', bacoDiametroNum!==null && bacoDiametroNum > bacoMax);
