@@ -265,7 +265,7 @@
      de feto) é valor, então troca nth-child por first-child. */
   .paper table.biometria.risco-multi td{font-weight:400;text-align:center;white-space:nowrap;}
   .paper table.biometria.risco-multi td:first-child{font-weight:700;text-align:left;}
-  .paper table.biometria.risco-multi thead td{font-weight:600;color:var(--rose-dark);}
+  .paper table.biometria.risco-multi tr.risco-header td{font-weight:600;color:var(--rose-dark);}
   /* Quando a quebra cai dentro da tabela de morfologia o marcador é um <td>,
      e precisa vencer tanto a borda/padding quanto o negrito/centralização
      por coluna acima (por isso o seletor repete .morfologia e vem depois:
@@ -3203,16 +3203,23 @@ if(typeof criarMotorLaudo !== 'function'){
     // passo do Word abaixo, que reflete o mesmo layout).
     if(isMultiple && !isMonocorionica){
       const riscoTitulo = 'Risco Fetal para Trissomias (IM + ON + TN + DV + VT):';
-      const headerRow = '<tr><td></td>'+fetos.map(f=>'<td>'+escapeHtml(f.label)+'</td>').join('')+'</tr>';
+      // Sem <thead>/<tbody> de propósito: nenhuma outra table.biometria do
+      // laudo usa (todas são <tr> soltos, tbody implícito) — e o Chromium
+      // infla a altura do <thead> na hora de imprimir mesmo numa tabela
+      // pequena que não quebra de página (bug/particularidade do motor de
+      // impressão, reproduzido: cabeçalho saindo ~7x mais alto só no PDF,
+      // preview na tela intacto). Uma <tr class="risco-header"> comum evita
+      // o problema por completo.
+      const headerRow = '<tr class="risco-header"><td></td>'+fetos.map(f=>'<td>'+escapeHtml(f.label)+'</td>').join('')+'</tr>';
       const linha = (label, campo) => '<tr><td>'+label+'</td>'+fetos.map(f=>'<td>1: '+span(f[campo])+'</td>').join('')+'</tr>';
       blocks.push({id:'riscos', html:'<div>'
         +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
         +'<table class="biometria risco-multi">'
-        +'<thead>'+headerRow+'</thead><tbody>'
+        +headerRow
         +linha('Síndrome de Down (T21)', 'riscoT21')
         +linha('Síndrome de Edwards (T18)', 'riscoT18')
         +linha('Síndrome de Patau (T13)', 'riscoT13')
-        +'</tbody></table></div>'});
+        +'</table></div>'});
     } else {
       (isMonocorionica ? fetos.slice(0, 1) : fetos).forEach(f=>{
         const sfx = '-f'+f.uid;
@@ -3394,6 +3401,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // table.morfologia logo abaixo).
     clone.querySelectorAll('table.biometria.risco-multi td').forEach(el=>{ el.style.fontWeight='400'; el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
     clone.querySelectorAll('table.biometria.risco-multi td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
+    clone.querySelectorAll('table.biometria.risco-multi tr.risco-header td').forEach(el=>{ el.style.fontWeight='600'; el.style.color='#6d3263'; });
     // table.biometria td acima já deixou lineHeight='1' em TODA célula,
     // inclusive as da morfologia — no vivo essa célula segue inherit (ver
     // CSS), então lê o computed style de uma célula de verdade do #paper
