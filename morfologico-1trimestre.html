@@ -382,8 +382,7 @@
 .anexo-grafico-card .card-multi b{font-weight:700;}
 .anexo-grafico-card svg{display:block;width:100%;}
 .anexo-graficos-legenda{font-size:8px;color:var(--ink-soft);text-align:center;margin-top:6px;}
-.anexo-graficos-legenda .leg-item{display:inline-block;margin:0 6px;}
-.anexo-graficos-legenda .leg-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;vertical-align:middle;}
+.anexo-graficos-legenda .leg-item{display:inline-block;margin:0 6px;font-weight:600;}
   .anexo-actions{display:none;}
   .anexo-actions.show{display:flex;}
   /* Só aparece na tela, nunca na impressão (ver @media print): avisa quando o
@@ -2329,6 +2328,24 @@ if(typeof criarMotorLaudo !== 'function'){
     return table[table.length-1];
   }
   const FETO_CORES = ['#ae5ba0','#3a7d9c','#3aa15c'];
+  // A folha imprime em preto e branco — cor sozinha não distingue os fetos
+  // no papel (relatado pela Dra. Morgana). FETO_FORMAS dá a cada feto uma
+  // forma própria no marcador (círculo/losango/triângulo), que sobrevive à
+  // impressão; a cor continua junto, de bônus, pra quem olha na tela.
+  const FETO_FORMAS = ['circulo','losango','triangulo'];
+  const FORMA_GLIFO = {circulo:'●', losango:'◆', triangulo:'▲'};
+  function marcadorFormaSvg(forma, px, py, cor){
+    if(forma==='losango'){
+      return '<polygon points="'+px+','+(py-4.6)+' '+(px+4.6)+','+py+' '+px+','+(py+4.6)+' '+(px-4.6)+','+py+'" fill="#fff" stroke="'+cor+'" stroke-width="1.2"></polygon>'
+        +'<polygon points="'+px+','+(py-2.6)+' '+(px+2.6)+','+py+' '+px+','+(py+2.6)+' '+(px-2.6)+','+py+'" fill="'+cor+'"></polygon>';
+    }
+    if(forma==='triangulo'){
+      return '<polygon points="'+px+','+(py-5.2)+' '+(px+4.6)+','+(py+3.4)+' '+(px-4.6)+','+(py+3.4)+'" fill="#fff" stroke="'+cor+'" stroke-width="1.2"></polygon>'
+        +'<polygon points="'+px+','+(py-3.0)+' '+(px+2.6)+','+(py+1.9)+' '+(px-2.6)+','+(py+1.9)+'" fill="'+cor+'"></polygon>';
+    }
+    return '<circle cx="'+px+'" cy="'+py+'" r="4" fill="#fff" stroke="'+cor+'" stroke-width="1.2"></circle>'
+      +'<circle cx="'+px+'" cy="'+py+'" r="2.2" fill="'+cor+'"></circle>';
+  }
   // ---------- Cartões de referência: SVG desenhado à mão, sem lib nem CDN
   // nenhum (histórico: o Chart.js já deixou de carregar numa rede real —
   // ver commits anteriores). buildGraficoCard() monta as coordenadas e o
@@ -2366,7 +2383,7 @@ if(typeof criarMotorLaudo !== 'function'){
         pctNum = normalCDF(z)*100;
       }
       const pctText = m.valor>hiV ? '> P95' : m.valor<loV ? '< P5' : 'P'+Math.max(5,Math.min(95,Math.round(pctNum)));
-      return {valor:m.valor, rotulo:m.rotulo, cor:m.cor||(isAlert?'#c05a34':'#6d3263'),
+      return {valor:m.valor, rotulo:m.rotulo, forma:m.forma, cor:m.cor||(isAlert?'#c05a34':'#6d3263'),
         px:sx(m.x), py:sy(m.valor), pctText, isAlert};
     });
     return {
@@ -2387,8 +2404,7 @@ if(typeof criarMotorLaudo !== 'function'){
     ).join('');
     const marcadoresSvg = c.marcadores.map(m=>
       '<line x1="'+m.px+'" y1="'+m.py+'" x2="'+m.px+'" y2="104" stroke="'+m.cor+'" stroke-width="0.7" stroke-dasharray="1.5,1.5" opacity="0.5"></line>'
-      +'<circle cx="'+m.px+'" cy="'+m.py+'" r="4" fill="#fff" stroke="'+m.cor+'" stroke-width="1.2"></circle>'
-      +'<circle cx="'+m.px+'" cy="'+m.py+'" r="2.2" fill="'+m.cor+'"></circle>'
+      + marcadorFormaSvg(m.forma, m.px, m.py, m.cor)
     ).join('');
     const svg =
       '<svg viewBox="0 0 170 128">'
@@ -2414,11 +2430,16 @@ if(typeof criarMotorLaudo !== 'function'){
         +'</div>';
     } else {
       // Gemelar/trigemelar: um número grande só não dá conta de vários fetos —
-      // vira uma lista compacta, uma linha por feto, cor batendo com o
-      // marcador dele no gráfico e na legenda (ver anexoGraficosLegenda).
-      valorHtml = '<div class="card-multi">'+c.marcadores.map((m,i)=>
-        '<span style="color:'+m.cor+'"><b>'+(m.rotulo||('F'+(i+1)))+'</b> '+fmt(m.valor)+c.unit+' · '+m.pctText+'</span>'
-      ).join('')+'</div>';
+      // vira uma lista compacta, uma linha por feto. A forma (glifo) e a cor
+      // batem com o marcador dele no gráfico e com a legenda (ver
+      // anexoGraficosLegenda); o alerta não pode depender só da cor (folha
+      // impressa em P&B) — vira negrito + "⚠", igual funciona sem cor nenhuma.
+      valorHtml = '<div class="card-multi">'+c.marcadores.map((m,i)=>{
+        const glifo = FORMA_GLIFO[m.forma] || '●';
+        const rotulo = m.rotulo || ('F'+(i+1));
+        const pct = m.isAlert ? '<b>'+m.pctText+'</b> ⚠' : m.pctText;
+        return '<span style="color:'+m.cor+'">'+glifo+' <b>'+rotulo+'</b> '+fmt(m.valor)+c.unit+' · '+pct+'</span>';
+      }).join('')+'</div>';
     }
     return '<div class="anexo-grafico-card">'
       +'<div class="card-title">'+c.titulo+'</div>'
@@ -2430,7 +2451,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const igSemanas = gaDays!=null ? gaDays/7 : null;
     const uidsFetos = fetoUids();
     const marcadoresFetos = uidsFetos.map((uid, idx)=>({
-      uid, cor: FETO_CORES[idx % FETO_CORES.length], rotulo: fetoLabel(idx, uidsFetos.length),
+      uid, cor: FETO_CORES[idx % FETO_CORES.length], forma: FETO_FORMAS[idx % FETO_FORMAS.length],
+      rotulo: fetoLabel(idx, uidsFetos.length),
       ccn: num('feto'+uid+'CCN'), fc: num('feto'+uid+'FC'),
       tn: num('feto'+uid+'TN'), dbp: num('feto'+uid+'DBP'),
       dv: num('feto'+uid+'DuctoVenoso')
@@ -2442,7 +2464,7 @@ if(typeof criarMotorLaudo !== 'function'){
       w.forEach(x=>{ const crl=crlFromGAdays_hyett(x*7); const m=181.409-0.324*crl;
         mid.push({x,y:m}); hi.push({x,y:m+1.645*6.6}); lo.push({x,y:m-1.645*6.6}); });
       cfgs.push({titulo:'Freq. cardíaca', unit:'bpm', dec:0, xLabel:'SEMANAS', x:[10,14], y:[120,200], xt:[10,11,12,13,14], yt:[120,140,160,180,200],
-        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.fc:null), cor:f.cor, rotulo:f.rotulo}))});
+        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.fc:null), cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // CCN × IG — só a janela em que o exame de fato é feito (11 a 14
     // semanas); o intervalo antigo (5,5 a 14) desperdiçava a maior parte do
@@ -2451,26 +2473,26 @@ if(typeof criarMotorLaudo !== 'function'){
       w.forEach(x=>{ const crl=crlFromGAdays_hadlock(x*7); const band=2+0.16*crl;
         mid.push({x,y:crl}); hi.push({x,y:crl+band}); lo.push({x,y:Math.max(0,crl-band)}); });
       cfgs.push({titulo:'CCN × IG', unit:'mm', dec:1, xLabel:'SEMANAS', x:[11,14], y:[20,100], xt:[11,12,13,14], yt:[20,40,60,80,100],
-        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.ccn:null), cor:f.cor, rotulo:f.rotulo}))});
+        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.ccn:null), cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // TN × CCN — reta de regressão (ver TN_P5_REG/TN_P50_REG/TN_P95_REG),
     // não os pontos brutos da tabela.
     { const xsTN = range(45,84,1), lo=[], mid=[], hi=[];
       xsTN.forEach(x=>{ lo.push({x,y:TN_P5_REG.m*x+TN_P5_REG.b}); mid.push({x,y:TN_P50_REG.m*x+TN_P50_REG.b}); hi.push({x,y:TN_P95_REG.m*x+TN_P95_REG.b}); });
       cfgs.push({titulo:'Transl. nucal', unit:'mm', dec:1, xLabel:'CCN (MM)', x:[45,84], y:[0,4], xt:[45,55,65,75,84], yt:[0,1,2,3,4],
-        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:f.ccn, valor:f.tn, cor:f.cor, rotulo:f.rotulo}))});
+        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:f.ccn, valor:f.tn, cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // DBP × IG (semanas) — a tabela fornecida é por semana, não por CCN
     { const w = range(12,15,0.1), lo=[], mid=[], hi=[];
       w.forEach(x=>{ const [,l,m,h] = interpTabelaRef(DBP_TABLE_WEEKS, x); lo.push({x,y:l}); mid.push({x,y:m}); hi.push({x,y:h}); });
       cfgs.push({titulo:'Diâm. biparietal', unit:'mm', dec:1, xLabel:'SEMANAS', x:[12,15], y:[5,38], xt:[12,13,14,15], yt:[5,15,25,35],
-        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.dbp:null), cor:f.cor, rotulo:f.rotulo}))});
+        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.dbp:null), cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // IP ducto venoso × CCN
     { const w = range(44,84,1), lo=[], mid=[], hi=[];
       w.forEach(x=>{ const [,l,m,h] = interpTabelaRef(DV_TABLE, x); lo.push({x,y:l}); mid.push({x,y:m}); hi.push({x,y:h}); });
       cfgs.push({titulo:'IP ducto venoso', unit:'IP', dec:2, xLabel:'CCN (MM)', x:[44,84], y:[0,1.8], xt:[44,54,64,74,84], yt:[0,0.4,0.8,1.2,1.6],
-        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:f.ccn, valor:f.dv, cor:f.cor, rotulo:f.rotulo}))});
+        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:f.ccn, valor:f.dv, cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // PI das uterinas × IG (Gómez et al. 2008 — mesma fórmula/SD do campo calculado acima)
     { const w = range(11,40,0.5), lo=[], mid=[], hi=[];
@@ -2488,12 +2510,14 @@ if(typeof criarMotorLaudo !== 'function'){
     const gridEl = $('anexoGraficosGrid');
     if(gridEl) gridEl.innerHTML = cfgs.map(buildGraficoCard).map(renderGraficoCardHtml).join('');
 
-    // Legenda de cores só quando há mais de um feto (gemelar/trigemelar) —
-    // com um feto só a cor não distingue nada e a legenda seria ruído.
+    // Legenda só quando há mais de um feto (gemelar/trigemelar) — com um
+    // feto só a forma não distingue nada e a legenda seria ruído. O glifo
+    // (mesma forma do marcador no gráfico) é quem identifica na impressão
+    // em P&B; a cor no texto é só reforço pra quem olha na tela.
     const legEl = $('anexoGraficosLegenda');
     if(legEl){
       legEl.innerHTML = uidsFetos.length > 1
-        ? marcadoresFetos.map(f=>'<span class="leg-item"><span class="leg-dot" style="background:'+f.cor+'"></span>'+f.rotulo+'</span>').join('')
+        ? marcadoresFetos.map(f=>'<span class="leg-item" style="color:'+f.cor+'">'+(FORMA_GLIFO[f.forma]||'●')+' '+f.rotulo+'</span>').join('')
         : '';
     }
   }
