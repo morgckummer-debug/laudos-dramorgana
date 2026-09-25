@@ -312,6 +312,14 @@
   .anexo-paper{display:flex;flex-direction:column;height:24.2cm;max-height:24.2cm;overflow:visible;}
   .anexo-header{flex:0 0 auto;margin-bottom:0.75em;}
   .anexo-header img{max-height:52px;width:auto;display:block;}
+  .anexo-titulo{flex:0 0 auto;font-family:'Poppins',sans-serif;font-size:10.5px;font-weight:600;color:var(--rose-dark);text-transform:uppercase;letter-spacing:.3px;text-align:center;margin:0 0 6px;}
+  /* Barra de identificação da folha de anexo — texto na mesma fonte do corpo
+     do laudo (Times, herdada de .paper), não do Poppins/Inter do resto da
+     interface: aqui já é conteúdo impresso, não rótulo de tela. Bordas em
+     #2b2b2e (não var(--line)) pelo mesmo motivo do id-card do laudo
+     principal — a cor pastel da UI quase não aparece na impressão. */
+  .anexo-idbar{flex:0 0 auto;font-family:'Times New Roman',Times,serif;font-size:11px;color:var(--ink);text-align:center;border-top:1px solid #2b2b2e;border-bottom:1px solid #2b2b2e;padding:5px 0;margin:0 0 14px;}
+  .anexo-idbar .sep{color:#b9a8b5;margin:0 10px;}
   #anexoImgs{flex:1 0 auto;min-height:160px;}
   #anexoImgs:empty::before{
     content:'Clique aqui e cole (Ctrl+V) a imagem do cálculo de risco da FMF.';
@@ -949,6 +957,8 @@
           <div class="anexo-header">
             <img id="anexoFmfLogo" src="fmf-icon.png" alt="Fetal Medicine Foundation" onerror="this.style.display='none';this.closest('.anexo-header').style.display='none';">
           </div>
+          <div class="anexo-titulo">Anexo — Rastreamento de aneuploidias e pré-eclâmpsia</div>
+          <div class="anexo-idbar" id="anexoIdBar"></div>
           <div id="anexoImgs" contenteditable="true" spellcheck="false"></div>
           <div class="anexo-graficos" id="anexoGraficos">
           <div class="anexo-graficos-titulo">Gráficos de referência — 1º trimestre</div>
@@ -1484,6 +1494,15 @@ if(typeof criarMotorLaudo !== 'function'){
       const r = assinaturaEl.getBoundingClientRect();
       usada += r.height + (parseFloat(getComputedStyle(assinaturaEl).paddingTop) || 0);
     }
+    // Título + barra de identificação (nome/data/IG): mesmo motivo do
+    // cabeçalho/assinatura acima — tamanho fixo, sempre presentes, entram no
+    // orçamento antes da imagem colada decidir se precisa encolher.
+    ['anexoTitulo','anexoIdBar'].forEach(sel=>{
+      const el = sel==='anexoTitulo' ? paperAnexoEl.querySelector('.anexo-titulo') : $(sel);
+      if(!el) return;
+      const r = el.getBoundingClientRect();
+      usada += r.height + (parseFloat(getComputedStyle(el).marginBottom) || 0);
+    });
     // Grid 4x2 dos gráficos de referência (ver CSS .anexo-graficos): tamanho
     // fixo, sempre presente na página — entra no orçamento igual ao
     // cabeçalho e à assinatura, para a(s) imagem(ns) coladas encolherem o
@@ -3099,6 +3118,16 @@ if(typeof criarMotorLaudo !== 'function'){
     // Assinatura da página de anexo (FMF) — mesmo médico executante, sempre
     // no pé da folha (ver .anexo-paper .assinatura{margin-top:auto} no CSS).
     $('anexoAssinatura').innerHTML = buildAssinaturaHtml();
+
+    // Barra de identificação da folha de anexo (nome/data/IG) — mesmos dados
+    // do id-card do laudo principal, versão compacta de uma linha só.
+    { const IG_METODO_ABREV = {dum:'DUM', usg:'USG', fiv:'FIV', incerta:'DUM incerta', ignorada:'DUM ignorada'};
+      const igCore = igAtualTxt ? igAtualTxt+(IG_METODO_ABREV[cronologiaMetodo] ? ' ('+IG_METODO_ABREV[cronologiaMetodo]+')' : '') : '';
+      $('anexoIdBar').innerHTML =
+        '<strong>'+span(blankOrValue(nomePaciente))+'</strong>'
+        +'<span class="sep">|</span><span>'+span(blankOrValue(dataExame))+'</span>'
+        +'<span class="sep">|</span><span>IG: '+span(blankOrValue(igCore))+'</span>';
+    }
 
     renderBlocks(blocks);
     if(titleFontSize){
