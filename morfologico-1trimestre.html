@@ -332,6 +332,17 @@
     cursor:nwse-resize;display:none;user-select:none;-webkit-user-select:none;
   }
   #anexoImgs .anexo-img-wrap.selected .anexo-resize-handle{display:block;}
+  /* Botão de excluir só essa imagem — canto oposto ao de redimensionar, mesma
+     lógica de só aparecer com a imagem selecionada. contenteditable="false"
+     porque #anexoImgs é editável (é onde se cola a imagem) e sem isso o
+     clique cairia dentro da área editável em vez de disparar o botão. */
+  #anexoImgs .anexo-delete-btn{
+    position:absolute;top:0;right:0;width:22px;height:22px;transform:translate(50%,-50%);
+    background:#B4432F;color:#fff;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.35);
+    cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1;
+    font-family:'Inter',sans-serif;font-size:14px;font-weight:700;user-select:none;-webkit-user-select:none;
+  }
+  #anexoImgs .anexo-img-wrap.selected .anexo-delete-btn{display:flex;}
   .anexo-paper .assinatura{margin-top:auto;padding-top:1em;}
   .anexo-actions{display:none;}
   .anexo-actions.show{display:flex;}
@@ -435,6 +446,7 @@
     .anexo-table{display:none;}
     .anexo-table.has-image{display:table;page-break-before:always;}
     #anexoImgs .anexo-resize-handle{display:none !important;}
+    #anexoImgs .anexo-delete-btn{display:none !important;}
     #anexoImgs .anexo-img-wrap img{outline:none !important;}
     /* .combo-list (a lista de médicos que aparece ao digitar) é movida para o
        <body> para não ser cortada pelo overflow:hidden do card — ou seja, ela
@@ -1372,6 +1384,20 @@ if(typeof criarMotorLaudo !== 'function'){
   const anexoImgsEl = $('anexoImgs');
 
   function updateAnexoVisibility(){
+    // Rascunho salvo antes do botão de excluir imagem individual existir
+    // (ou HTML restaurado por qualquer outro caminho antigo) não traz o
+    // `.anexo-delete-btn` em cada wrap — repõe aqui, mesma ideia das redes
+    // de `dedupBlocos()`/`restoreMissingBlocks()` no laudo-core.js: conserta
+    // sozinho no próximo desenho, sem a médica precisar colar de novo.
+    anexoImgsEl.querySelectorAll('.anexo-img-wrap').forEach(wrap=>{
+      if(wrap.querySelector('.anexo-delete-btn')) return;
+      const delBtn = document.createElement('span');
+      delBtn.className = 'anexo-delete-btn';
+      delBtn.setAttribute('contenteditable', 'false');
+      delBtn.title = 'Excluir esta imagem';
+      delBtn.textContent = '×';
+      wrap.appendChild(delBtn);
+    });
     const temImagem = !!anexoImgsEl.querySelector('img');
     $('anexoTable').classList.toggle('has-image', temImagem);
     toggle('anexoActions', temImagem);
@@ -1443,6 +1469,8 @@ if(typeof criarMotorLaudo !== 'function'){
     // O ajuste de tamanho precisa da altura renderizada da imagem, que só
     // existe depois de carregada — por isso espera o onload em vez de medir
     // logo após o appendChild (o <img> ainda estaria com altura 0 ali).
+    // updateAnexoVisibility() logo abaixo é quem acrescenta o
+    // .anexo-delete-btn (ver comentário lá) — sem duplicar a criação aqui.
     img.onload = () => {
       anexoAjustarImagem(wrap);
       updateAnexoVisibility();
@@ -1479,6 +1507,13 @@ if(typeof criarMotorLaudo !== 'function'){
     draftSchedule();
   });
   anexoImgsEl.addEventListener('click', e=>{
+    const delBtn = e.target.closest('.anexo-delete-btn');
+    if(delBtn){
+      delBtn.closest('.anexo-img-wrap').remove();
+      updateAnexoVisibility();
+      draftSchedule();
+      return;
+    }
     const wrap = e.target.closest('.anexo-img-wrap');
     anexoImgsEl.querySelectorAll('.anexo-img-wrap.selected').forEach(w=>{ if(w !== wrap) w.classList.remove('selected'); });
     if(wrap) wrap.classList.add('selected');
@@ -2997,10 +3032,11 @@ if(typeof criarMotorLaudo !== 'function'){
     // estilo inline aplicado ao rodapé do laudo principal.
     if(anexoImgsEl.querySelector('img')){
       const anexoClone = paperAnexoEl.cloneNode(true);
-      // A bolinha de redimensionar e a borda de seleção são só da edição na
-      // tela — não fazem sentido no Word. A largura arrastada na tela (o
-      // style.width do <img>, se a médica reduziu) segue no clone normalmente.
-      anexoClone.querySelectorAll('.anexo-resize-handle').forEach(el=>el.remove());
+      // A bolinha de redimensionar, o botão de excluir e a borda de seleção
+      // são só da edição na tela — não fazem sentido no Word. A largura
+      // arrastada na tela (o style.width do <img>, se a médica reduziu)
+      // segue no clone normalmente.
+      anexoClone.querySelectorAll('.anexo-resize-handle, .anexo-delete-btn').forEach(el=>el.remove());
       anexoClone.querySelectorAll('.anexo-img-wrap.selected').forEach(el=>el.classList.remove('selected'));
       anexoClone.querySelectorAll('#anexoImgs img').forEach(img=>{
         img.style.maxWidth = '100%'; img.style.display = 'block'; img.style.margin = '0 auto 14px'; img.style.outline = 'none';
