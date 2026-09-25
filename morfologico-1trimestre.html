@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js"></script>
 <style>
   .cg-overlay{position:fixed;inset:0;background:rgba(43,43,46,.55);z-index:5000;display:flex;align-items:center;justify-content:center;}
   .cg-overlay.hide{display:none;}
@@ -284,7 +284,9 @@
   /* Página de anexo (cálculo de risco da FMF): a médica cola ali o print da
      tela do software (Ctrl+V) — não é campo de formulário, o conteúdo colado
      é exatamente o que ela colou. Some da impressão/Word enquanto não tem
-     imagem nenhuma (ver .anexo-table.has-image no @media print). A página é
+     imagem colada nem dado nenhum plotado nos gráficos de referência (ver
+     .anexo-table.has-content no @media print, e updateAnexoVisibility()/
+     anexoTemDadosGraficos() no JS). A página é
      uma coluna flex — logo no topo, imagens coladas no meio, assinatura
      empurrada para o pé com margin-top:auto — para a assinatura sair sempre
      no ponto mais baixo da folha, e não logo depois da última imagem. */
@@ -463,7 +465,7 @@
        um laudo que não usa isso não ganha uma folha em branco a mais. Com
        imagem, ela sempre começa numa folha nova, depois de todo o resto. */
     .anexo-table{display:none;}
-    .anexo-table.has-image{display:table;page-break-before:always;}
+    .anexo-table.has-content{display:table;page-break-before:always;}
     #anexoImgs .anexo-resize-handle{display:none !important;}
     #anexoImgs .anexo-delete-btn{display:none !important;}
     #anexoImgs .anexo-img-wrap img{outline:none !important;}
@@ -1416,6 +1418,18 @@ if(typeof criarMotorLaudo !== 'function'){
   const paperAnexoEl = $('paperAnexo');
   const anexoImgsEl = $('anexoImgs');
 
+  // A folha de anexo agora tem conteúdo próprio (os gráficos de referência)
+  // mesmo sem nenhum print da FMF colado — precisa de pelo menos um dado
+  // plotável (CCN/FC/TN/DBP/ducto venoso de algum feto, ou IP de alguma
+  // uterina) para não imprimir uma folha só com bandas de referência vazias
+  // num laudo que nunca preencheu nada disso.
+  function anexoTemDadosGraficos(){
+    if(typeof Chart === 'undefined') return false;
+    const camposFeto = ['CCN','FC','TN','DBP','DuctoVenoso'];
+    const temFeto = fetoUids().some(uid => camposFeto.some(c => num('feto'+uid+c) != null));
+    return temFeto || num('utEsquerda') != null || num('utDireita') != null;
+  }
+
   function updateAnexoVisibility(){
     // Rascunho salvo antes do botão de excluir imagem individual existir
     // (ou HTML restaurado por qualquer outro caminho antigo) não traz o
@@ -1433,6 +1447,10 @@ if(typeof criarMotorLaudo !== 'function'){
     });
     const temImagem = !!anexoImgsEl.querySelector('img');
     $('anexoTable').classList.toggle('has-image', temImagem);
+    // has-content é quem decide se a folha inteira imprime — inclui os
+    // gráficos de referência, que agora têm valor por si (ver
+    // anexoTemDadosGraficos()) mesmo sem nenhum print da FMF colado.
+    $('anexoTable').classList.toggle('has-content', temImagem || anexoTemDadosGraficos());
     toggle('anexoActions', temImagem);
     // .anexo-paper tem altura fixa e overflow:hidden (ver CSS) — se o
     // conteúdo colado ainda estourar mesmo depois do ajuste automático de
@@ -3087,6 +3105,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
     else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
     renderGraficosReferencia(gaDays);
+    updateAnexoVisibility();
     updatePagePreview();
     draftSchedule();
   }
