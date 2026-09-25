@@ -257,6 +257,15 @@
   .paper table.biometria.morfologia td:nth-child(odd){font-weight:400;}
   .paper table.biometria.morfologia td:nth-child(even){text-align:left;white-space:normal;}
   .paper table.biometria.morfologia tbody tr:nth-child(even) td{background:none;}
+  /* Risco fetal para trissomias em gemelar/trigemelar (não monocoriônica):
+     uma tabela só, uma coluna por feto, em vez do quadro repetido um por
+     feto — o padrão par/ímpar de table.biometria (rótulo em negrito à
+     esquerda, valor centralizado) só funciona com exatamente 2 colunas;
+     aqui o rótulo é sempre a 1ª coluna e todo o resto (2, 3 ou 4 colunas
+     de feto) é valor, então troca nth-child por first-child. */
+  .paper table.biometria.risco-multi td{font-weight:400;text-align:center;white-space:nowrap;}
+  .paper table.biometria.risco-multi td:first-child{font-weight:700;text-align:left;}
+  .paper table.biometria.risco-multi thead td{font-weight:600;color:var(--rose-dark);}
   /* Quando a quebra cai dentro da tabela de morfologia o marcador é um <td>,
      e precisa vencer tanto a borda/padding quanto o negrito/centralização
      por coluna acima (por isso o seletor repete .morfologia e vem depois:
@@ -3186,18 +3195,38 @@ if(typeof criarMotorLaudo !== 'function'){
     // Risco de aneuploidias: sempre a última tabela antes da IMPRESSÃO, por
     // isso fica fora do forEach acima (depois da biometria/morfologia/
     // marcadores de todos os fetos e do Doppler materno), num laço à parte.
-    (isMonocorionica ? fetos.slice(0, 1) : fetos).forEach(f=>{
-      const sfx = '-f'+f.uid;
-      const riscoRotulo = isMonocorionica ? rotuloRiscoMono : f.label;
-      const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(riscoRotulo) : '')+' (IM + ON + TN + DV + VT):';
-      blocks.push({id:'riscos'+sfx, html:'<div>'
+    //
+    // Gemelar/trigemelar SEM ser monocoriônica: cada feto tem o cálculo
+    // dele (diferente do caso monocoriônico, que é um só) — mas em vez de
+    // repetir o quadro inteiro um por feto, vira uma tabela só, com uma
+    // coluna por feto (table.biometria.risco-multi — ver CSS e o segundo
+    // passo do Word abaixo, que reflete o mesmo layout).
+    if(isMultiple && !isMonocorionica){
+      const riscoTitulo = 'Risco Fetal para Trissomias (IM + ON + TN + DV + VT):';
+      const headerRow = '<tr><td></td>'+fetos.map(f=>'<td>'+escapeHtml(f.label)+'</td>').join('')+'</tr>';
+      const linha = (label, campo) => '<tr><td>'+label+'</td>'+fetos.map(f=>'<td>1: '+span(f[campo])+'</td>').join('')+'</tr>';
+      blocks.push({id:'riscos', html:'<div>'
         +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
-        +'<table class="biometria">'
-        +'<tr><td>Síndrome de Down (T21)</td><td>1: '+span(f.riscoT21)+'</td></tr>'
-        +'<tr><td>Síndrome de Edwards (T18)</td><td>1: '+span(f.riscoT18)+'</td></tr>'
-        +'<tr><td>Síndrome de Patau (T13)</td><td>1: '+span(f.riscoT13)+'</td></tr>'
-        +'</table></div>'});
-    });
+        +'<table class="biometria risco-multi">'
+        +'<thead>'+headerRow+'</thead><tbody>'
+        +linha('Síndrome de Down (T21)', 'riscoT21')
+        +linha('Síndrome de Edwards (T18)', 'riscoT18')
+        +linha('Síndrome de Patau (T13)', 'riscoT13')
+        +'</tbody></table></div>'});
+    } else {
+      (isMonocorionica ? fetos.slice(0, 1) : fetos).forEach(f=>{
+        const sfx = '-f'+f.uid;
+        const riscoRotulo = isMonocorionica ? rotuloRiscoMono : f.label;
+        const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(riscoRotulo) : '')+' (IM + ON + TN + DV + VT):';
+        blocks.push({id:'riscos'+sfx, html:'<div>'
+          +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
+          +'<table class="biometria">'
+          +'<tr><td>Síndrome de Down (T21)</td><td>1: '+span(f.riscoT21)+'</td></tr>'
+          +'<tr><td>Síndrome de Edwards (T18)</td><td>1: '+span(f.riscoT18)+'</td></tr>'
+          +'<tr><td>Síndrome de Patau (T13)</td><td>1: '+span(f.riscoT13)+'</td></tr>'
+          +'</table></div>'});
+      });
+    }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
@@ -3358,6 +3387,13 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('table.biometria td:nth-child(even)').forEach(el=>{ el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
     clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#fbf8fa'; });
     clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='100%'; el.style.marginLeft='auto'; el.style.marginRight='auto'; el.setAttribute('align', 'center'); });
+    // Risco fetal em gemelar/trigemelar (table.biometria.risco-multi, ver
+    // CSS): o padrão par/ímpar acima só serve pra 2 colunas — aqui é sempre
+    // 1ª coluna = rótulo, todo o resto = valor, não importa quantos fetos.
+    // Vem depois, de propósito, pra vencer a regra geral (mesma lógica do
+    // table.morfologia logo abaixo).
+    clone.querySelectorAll('table.biometria.risco-multi td').forEach(el=>{ el.style.fontWeight='400'; el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
+    clone.querySelectorAll('table.biometria.risco-multi td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
     // table.biometria td acima já deixou lineHeight='1' em TODA célula,
     // inclusive as da morfologia — no vivo essa célula segue inherit (ver
     // CSS), então lê o computed style de uma célula de verdade do #paper
