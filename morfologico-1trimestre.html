@@ -364,7 +364,7 @@
    no JS) — sem depender de nenhuma biblioteca externa nem de CDN: o gráfico
    sai igual com ou sem internet, o que resolve de vez o problema de o
    Chart.js não carregar em algumas redes (ver histórico de commits). */
-.anexo-graficos{margin:8px 0 0;flex:0 0 auto;}
+.anexo-graficos{margin:8px 0 20px;flex:0 0 auto;}
 .anexo-graficos-titulo{font-family:'Poppins',sans-serif;font-size:10.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.3px;text-align:center;margin:0 0 6px;}
 .anexo-graficos-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:8px;}
 .anexo-grafico-card{border:1px solid var(--line);border-radius:8px;padding:6px 8px 5px;background:#fff;}
@@ -1513,7 +1513,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const graficosEl = $('anexoGraficos');
     if(graficosEl){
       const r = graficosEl.getBoundingClientRect();
-      usada += r.height + (parseFloat(getComputedStyle(graficosEl).marginTop) || 0);
+      const graficosStyle = getComputedStyle(graficosEl);
+      usada += r.height + (parseFloat(graficosStyle.marginTop) || 0) + (parseFloat(graficosStyle.marginBottom) || 0);
     }
     Array.from(anexoImgsEl.children).forEach(wrap=>{
       if(wrap === excluirWrap) return;
@@ -2294,6 +2295,21 @@ if(typeof criarMotorLaudo !== 'function'){
     [75,1.5,2.2,2.8],[76,1.6,2.2,2.9],[77,1.6,2.2,2.9],[78,1.6,2.3,2.9],[79,1.6,2.3,2.9],
     [80,1.7,2.3,3.0],[81,1.7,2.4,3.0],[82,1.7,2.4,3.0],[83,1.8,2.4,3.1],[84,1.8,2.4,3.1]
   ];
+  // A TN_TABLE acima é arredondada a cada 1mm de CCN — ligando os pontos
+  // brutos, a "escada" do arredondamento aparecia como uma linha balançando
+  // (relatado pela Dra. Morgana). A tendência real dos três percentis é
+  // linear (a regressão bate com a tabela a menos de 0,05mm no intervalo
+  // inteiro), então o gráfico usa a reta ajustada por mínimos quadrados em
+  // cima da própria tabela — mesma fonte, sem inventar coeficiente novo.
+  function linRegress(pts){
+    const n = pts.length; let sx=0, sy=0, sxy=0, sxx=0;
+    pts.forEach(([x,y])=>{ sx+=x; sy+=y; sxy+=x*y; sxx+=x*x; });
+    const m = (n*sxy - sx*sy) / (n*sxx - sx*sx);
+    return {m, b:(sy - m*sx)/n};
+  }
+  const TN_P5_REG = linRegress(TN_TABLE.map(r=>[r[0],r[1]]));
+  const TN_P50_REG = linRegress(TN_TABLE.map(r=>[r[0],r[2]]));
+  const TN_P95_REG = linRegress(TN_TABLE.map(r=>[r[0],r[3]]));
   const DBP_TABLE_WEEKS = [ [12,9,17,23], [13,15,21,27], [14,19,25,31], [15,23,29,35] ];
   const DV_TABLE = [
     [44,0.78,1.00,1.22],[48,0.77,1.00,1.24],[52,0.77,1.01,1.26],[56,0.76,1.02,1.27],
@@ -2428,16 +2444,19 @@ if(typeof criarMotorLaudo !== 'function'){
       cfgs.push({titulo:'Freq. cardíaca', unit:'bpm', dec:0, xLabel:'SEMANAS', x:[10,14], y:[120,200], xt:[10,11,12,13,14], yt:[120,140,160,180,200],
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.fc:null), cor:f.cor, rotulo:f.rotulo}))});
     }
-    // CCN × IG
-    { const w = range(5.5,14,0.2), lo=[], mid=[], hi=[];
+    // CCN × IG — só a janela em que o exame de fato é feito (11 a 14
+    // semanas); o intervalo antigo (5,5 a 14) desperdiçava a maior parte do
+    // cartão numa faixa que este laudo nunca mede.
+    { const w = range(11,14,0.1), lo=[], mid=[], hi=[];
       w.forEach(x=>{ const crl=crlFromGAdays_hadlock(x*7); const band=2+0.16*crl;
         mid.push({x,y:crl}); hi.push({x,y:crl+band}); lo.push({x,y:Math.max(0,crl-band)}); });
-      cfgs.push({titulo:'CCN × IG', unit:'mm', dec:1, xLabel:'SEMANAS', x:[5.5,14], y:[0,80], xt:[6,8,10,12,14], yt:[0,20,40,60,80],
+      cfgs.push({titulo:'CCN × IG', unit:'mm', dec:1, xLabel:'SEMANAS', x:[11,14], y:[20,100], xt:[11,12,13,14], yt:[20,40,60,80,100],
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.ccn:null), cor:f.cor, rotulo:f.rotulo}))});
     }
-    // TN × CCN
-    { const lo=[], mid=[], hi=[];
-      TN_TABLE.forEach(([c,p5,p50,p95])=>{ lo.push({x:c,y:p5}); mid.push({x:c,y:p50}); hi.push({x:c,y:p95}); });
+    // TN × CCN — reta de regressão (ver TN_P5_REG/TN_P50_REG/TN_P95_REG),
+    // não os pontos brutos da tabela.
+    { const xsTN = range(45,84,1), lo=[], mid=[], hi=[];
+      xsTN.forEach(x=>{ lo.push({x,y:TN_P5_REG.m*x+TN_P5_REG.b}); mid.push({x,y:TN_P50_REG.m*x+TN_P50_REG.b}); hi.push({x,y:TN_P95_REG.m*x+TN_P95_REG.b}); });
       cfgs.push({titulo:'Transl. nucal', unit:'mm', dec:1, xLabel:'CCN (MM)', x:[45,84], y:[0,4], xt:[45,55,65,75,84], yt:[0,1,2,3,4],
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:f.ccn, valor:f.tn, cor:f.cor, rotulo:f.rotulo}))});
     }
