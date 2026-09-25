@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
   .cg-overlay{position:fixed;inset:0;background:rgba(43,43,46,.55);z-index:5000;display:flex;align-items:center;justify-content:center;}
   .cg-overlay.hide{display:none;}
@@ -344,6 +345,24 @@
   }
   #anexoImgs .anexo-img-wrap.selected .anexo-delete-btn{display:flex;}
   .anexo-paper .assinatura{margin-top:auto;padding-top:1em;}
+/* Grid 4x2 dos gráficos de referência do 1º trimestre (FC, CCN, TN, DBP,
+   ducto venoso, PI das uterinas), logo abaixo do(s) print(s) colado(s) do
+   risco da FMF, na mesma página de anexo — antes da assinatura. Tamanho
+   fixo em px (não responsivo): a página de anexo tem altura fixa (24,2cm) e
+   anexoAlturaDisponivelPx() precisa medir a altura real deste bloco para
+   saber quanto espaço sobra para as imagens coladas (ver o comentário lá).
+   Cada canvas usa Chart.js com responsive:false e width/height fixos no
+   próprio atributo HTML, para não depender de um resize assíncrono que
+   deixaria a medição de altura errada no primeiro render(). */
+.anexo-graficos{margin:8px 0 0;flex:0 0 auto;}
+.anexo-graficos-titulo{font-family:'Poppins',sans-serif;font-size:9px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.3px;text-align:center;margin:0 0 4px;}
+.anexo-graficos-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:5px;}
+.anexo-grafico-card{border:1px solid var(--line);border-radius:7px;padding:2px 3px 1px;background:#fff;}
+.anexo-grafico-card h5{margin:0 0 1px;font-family:'Poppins',sans-serif;font-size:6.6px;font-weight:600;color:var(--rose-dark);text-align:center;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.anexo-grafico-card canvas{display:block;width:100%!important;height:72px!important;}
+.anexo-graficos-legenda{font-size:6.5px;color:var(--ink-soft);text-align:center;margin-top:2px;}
+.anexo-graficos-legenda .leg-item{display:inline-block;margin:0 5px;}
+.anexo-graficos-legenda .leg-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:2px;vertical-align:middle;}
   .anexo-actions{display:none;}
   .anexo-actions.show{display:flex;}
   /* Só aparece na tela, nunca na impressão (ver @media print): avisa quando o
@@ -929,6 +948,20 @@
             <img id="anexoFmfLogo" src="fmf-icon.png" alt="Fetal Medicine Foundation" onerror="this.style.display='none';this.closest('.anexo-header').style.display='none';">
           </div>
           <div id="anexoImgs" contenteditable="true" spellcheck="false"></div>
+          <div class="anexo-graficos" id="anexoGraficos">
+          <div class="anexo-graficos-titulo">Gráficos de referência — 1º trimestre</div>
+          <div class="anexo-graficos-grid">
+          <div class="anexo-grafico-card"><h5>Freq. cardíaca</h5><canvas id="gFC" width="140" height="72"></canvas></div>
+          <div class="anexo-grafico-card"><h5>CCN × IG</h5><canvas id="gCCN" width="140" height="72"></canvas></div>
+          <div class="anexo-grafico-card"><h5>Transl. nucal</h5><canvas id="gTN" width="140" height="72"></canvas></div>
+          <div class="anexo-grafico-card"><h5>Diâm. biparietal</h5><canvas id="gDBP" width="140" height="72"></canvas></div>
+          <div class="anexo-grafico-card"><h5>IP ducto venoso</h5><canvas id="gDV" width="140" height="72"></canvas></div>
+          <div class="anexo-grafico-card"><h5>PI uterina E</h5><canvas id="gUtL" width="140" height="72"></canvas></div>
+          <div class="anexo-grafico-card"><h5>PI uterina D</h5><canvas id="gUtR" width="140" height="72"></canvas></div>
+          <div class="anexo-grafico-card"><h5>PI média uterinas</h5><canvas id="gUtM" width="140" height="72"></canvas></div>
+          </div>
+          <div class="anexo-graficos-legenda" id="anexoGraficosLegenda"></div>
+          </div>
           <div class="assinatura" id="anexoAssinatura"></div>
         </div>
       </td></tr></tbody>
@@ -1432,6 +1465,17 @@ if(typeof criarMotorLaudo !== 'function'){
     if(assinaturaEl){
       const r = assinaturaEl.getBoundingClientRect();
       usada += r.height + (parseFloat(getComputedStyle(assinaturaEl).paddingTop) || 0);
+    }
+    // Grid 4x2 dos gráficos de referência (ver CSS .anexo-graficos): tamanho
+    // fixo, sempre presente na página — entra no orçamento igual ao
+    // cabeçalho e à assinatura, para a(s) imagem(ns) coladas encolherem o
+    // suficiente e sobrar espaço para os gráficos, em vez de competir com
+    // eles só na hora da impressão (quando isso já não teria mais jeito de
+    // avisar, além do aviso genérico de estouro que já existe).
+    const graficosEl = $('anexoGraficos');
+    if(graficosEl){
+      const r = graficosEl.getBoundingClientRect();
+      usada += r.height + (parseFloat(getComputedStyle(graficosEl).marginTop) || 0);
     }
     Array.from(anexoImgsEl.children).forEach(wrap=>{
       if(wrap === excluirWrap) return;
@@ -2158,6 +2202,178 @@ if(typeof criarMotorLaudo !== 'function'){
     const z = (Math.log(piMedio) - mean) / sd;
     return normalCDF(z) * 100;
   }
+
+  // ---------- Gráficos de referência do 1º trimestre (grid 4x2, página de
+  // anexo, depois do(s) print(s) de risco da FMF). Fontes de cada curva:
+  //  - Frequência cardíaca: Hyett, Noble, Snijders, Montenegro, Nicolaides.
+  //    Ultrasound Obstet Gynecol 1996;7:239-244. FHR = 181,409 − 0,324×CCN;
+  //    banda ±1,645×6,6bpm (desvio-padrão do artigo).
+  //  - CCN×IG: Hadlock, Shah, Kanon, Lindsey. Radiology 1992;182:501-505 —
+  //    tabela fornecida pela clínica (só mediana; banda é aproximação).
+  //  - Translucência nucal e Diâmetro biparietal: tabelas de referência
+  //    fornecidas pela clínica (P5/P50/P95 por CCN; DBP por semana).
+  //  - IP ducto venoso: leitura visual do gráfico de Pruksanasuk et al.
+  //    (Gynecol Obstet Invest 2014;78:22-25) fornecido pela clínica —
+  //    aproximação, sem tabela numérica disponível.
+  //  - PI das artérias uterinas: gomezPercentilUterina() logo acima usa a
+  //    mesma fórmula de Gómez et al. 2008 — aqui só se desenha a curva com
+  //    o mesmo desvio-padrão (0,272 − 0,000259×IG em dias), para a banda do
+  //    gráfico e o percentil calculado no campo do formulário baterem sempre.
+  function range(a,b,step){ const out=[]; for(let x=a; x<=b+1e-9; x+=step) out.push(+x.toFixed(3)); return out; }
+  function crlFromGAdays_hyett(gaDays){ const v=(gaDays-23.73)/8.052; return v*v; }
+  const HADLOCK_CCN_GA_DAYS = [
+    [2,40],[3,41],[4,43],[5,43],[6,45],[7,46],[8,47],[9,48],[10,50],[11,50],
+    [12,52],[13,53],[14,54],[15,55],[16,56],[17,57],[18,58],[19,59],[20,60],
+    [21,61],[22,62],[23,63],[24,64],[25,65],[26,66],
+    [28,67],[29,68],[30,69],[31,70],[32,71],[33,71],[34,72],[35,73],[36,74],
+    [37,74],[38,75],[39,76],[40,76],[41,77],[42,78],[43,78],[44,78],[45,79],
+    [46,80],[47,81],[48,81],[49,82],[50,82],[51,83],[52,83],
+    [54,84],[55,85],[56,85],[57,86],[58,86],[59,87],[60,88],[61,88],[62,88],
+    [63,89],[64,90],[65,90],[66,90],[67,91],[68,92],[69,92],[70,92],[71,93],
+    [72,94],[73,94],[74,95],[75,95],[76,96],[77,97],[78,97]
+  ];
+  function crlFromGAdays_hadlock(gaDays){
+    const pts = HADLOCK_CCN_GA_DAYS;
+    if(gaDays <= pts[0][1]) return pts[0][0];
+    if(gaDays >= pts[pts.length-1][1]) return pts[pts.length-1][0];
+    for(let i=0;i<pts.length-1;i++){
+      const [ccnA,gaA] = pts[i], [ccnB,gaB] = pts[i+1];
+      if(gaDays>=gaA && gaDays<=gaB){
+        if(gaB===gaA) return ccnB;
+        const t=(gaDays-gaA)/(gaB-gaA);
+        return ccnA + t*(ccnB-ccnA);
+      }
+    }
+    return pts[pts.length-1][0];
+  }
+  const TN_TABLE = [
+    [45,0.7,1.3,2.0],[46,0.7,1.3,2.0],[47,0.7,1.4,2.0],[48,0.7,1.4,2.0],[49,0.8,1.4,2.1],
+    [50,0.8,1.5,2.1],[51,0.8,1.5,2.1],[52,0.9,1.5,2.2],[53,0.9,1.5,2.2],[54,0.9,1.6,2.2],
+    [55,0.9,1.6,2.2],[56,1.0,1.6,2.3],[57,1.0,1.7,2.3],[58,1.0,1.7,2.3],[59,1.1,1.7,2.4],
+    [60,1.1,1.7,2.4],[61,1.1,1.8,2.4],[62,1.2,1.8,2.5],[63,1.2,1.8,2.5],[64,1.2,1.9,2.5],
+    [65,1.2,1.9,2.5],[66,1.3,1.9,2.6],[67,1.3,1.9,2.6],[68,1.3,2.0,2.6],[69,1.4,2.0,2.7],
+    [70,1.4,2.0,2.7],[71,1.4,2.1,2.7],[72,1.4,2.1,2.7],[73,1.5,2.1,2.8],[74,1.5,2.1,2.8],
+    [75,1.5,2.2,2.8],[76,1.6,2.2,2.9],[77,1.6,2.2,2.9],[78,1.6,2.3,2.9],[79,1.6,2.3,2.9],
+    [80,1.7,2.3,3.0],[81,1.7,2.4,3.0],[82,1.7,2.4,3.0],[83,1.8,2.4,3.1],[84,1.8,2.4,3.1]
+  ];
+  const DBP_TABLE_WEEKS = [ [12,9,17,23], [13,15,21,27], [14,19,25,31], [15,23,29,35] ];
+  const DV_TABLE = [
+    [44,0.78,1.00,1.22],[48,0.77,1.00,1.24],[52,0.77,1.01,1.26],[56,0.76,1.02,1.27],
+    [60,0.76,1.02,1.28],[64,0.75,1.01,1.27],[68,0.74,1.00,1.26],[72,0.73,0.99,1.24],
+    [76,0.72,0.97,1.22],[80,0.72,0.95,1.20],[84,0.72,0.93,1.18]
+  ];
+  function interpTabelaRef(table, x){
+    if(x<=table[0][0]) return table[0];
+    if(x>=table[table.length-1][0]) return table[table.length-1];
+    for(let i=0;i<table.length-1;i++){
+      const a=table[i], b=table[i+1];
+      if(x>=a[0] && x<=b[0]){
+        const t=(x-a[0])/(b[0]-a[0]);
+        return [x, a[1]+t*(b[1]-a[1]), a[2]+t*(b[2]-a[2]), a[3]+t*(b[3]-a[3])];
+      }
+    }
+    return table[table.length-1];
+  }
+  const FETO_CORES = ['#ae5ba0','#3a7d9c','#3aa15c'];
+  const graficosRefState = { charts:{} };
+  function graficoRefBanda(canvasId, pontosLower, pontosMean, pontosUpper, marcadores, xOpts, yOpts){
+    const canvas = $(canvasId);
+    if(!canvas || typeof Chart === 'undefined') return;
+    if(graficosRefState.charts[canvasId]) graficosRefState.charts[canvasId].destroy();
+    const datasets = [
+      {data:pontosUpper, borderColor:'#8a2c2c', borderWidth:1, pointRadius:0, tension:0.25, fill:false},
+      {data:pontosMean, borderColor:'#1f6f4a', borderWidth:1.3, pointRadius:0, tension:0.25, fill:false},
+      {data:pontosLower, borderColor:'#8a2c2c', borderWidth:1, pointRadius:0, tension:0.25, fill:'-2', backgroundColor:'rgba(200,214,232,0.35)'}
+    ];
+    marcadores.forEach(m=>{
+      datasets.push({
+        data: m.valor==null ? [] : [{x:m.x, y:m.valor}],
+        type:'scatter', backgroundColor:m.cor, borderColor:m.cor, borderWidth:1,
+        pointStyle:'rectRot', pointRadius:3, pointHoverRadius:3
+      });
+    });
+    graficosRefState.charts[canvasId] = new Chart(canvas.getContext('2d'), {
+      type:'line',
+      data:{datasets},
+      options:{
+        responsive:false, maintainAspectRatio:false, animation:false,
+        layout:{padding:0},
+        scales:{
+          x:{type:'linear', min:xOpts.min, max:xOpts.max, ticks:{font:{size:5}, maxTicksLimit:4}, grid:{color:'#f0f0f0', lineWidth:0.5}},
+          y:{min:yOpts.min, max:yOpts.max, ticks:{font:{size:5}, maxTicksLimit:4}, grid:{color:'#f0f0f0', lineWidth:0.5}}
+        },
+        plugins:{legend:{display:false}}
+      }
+    });
+  }
+  function renderGraficosReferencia(gaDays){
+    if(typeof Chart === 'undefined') return; // Chart.js não carregou (ex.: sem internet) — a página segue sem os gráficos, sem quebrar o resto do laudo.
+    const igSemanas = gaDays!=null ? gaDays/7 : null;
+    const uidsFetos = fetoUids();
+    const marcadoresFetos = uidsFetos.map((uid, idx)=>({
+      uid, cor: FETO_CORES[idx % FETO_CORES.length],
+      ccn: num('feto'+uid+'CCN'), fc: num('feto'+uid+'FC'),
+      tn: num('feto'+uid+'TN'), dbp: num('feto'+uid+'DBP'),
+      dv: num('feto'+uid+'DuctoVenoso')
+    }));
+
+    // FC × IG
+    { const w = range(10,14,0.2), lo=[], mid=[], hi=[];
+      w.forEach(x=>{ const crl=crlFromGAdays_hyett(x*7); const m=181.409-0.324*crl;
+        mid.push({x,y:m}); hi.push({x,y:m+1.645*6.6}); lo.push({x,y:m-1.645*6.6}); });
+      graficoRefBanda('gFC', lo, mid, hi,
+        marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.fc:null), cor:f.cor})),
+        {min:10,max:14}, {min:120,max:200});
+    }
+    // CCN × IG
+    { const w = range(5.5,14,0.2), lo=[], mid=[], hi=[];
+      w.forEach(x=>{ const crl=crlFromGAdays_hadlock(x*7); const band=2+0.16*crl;
+        mid.push({x,y:crl}); hi.push({x,y:crl+band}); lo.push({x,y:Math.max(0,crl-band)}); });
+      graficoRefBanda('gCCN', lo, mid, hi,
+        marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.ccn:null), cor:f.cor})),
+        {min:5.5,max:14}, {min:0,max:80});
+    }
+    // TN × CCN
+    { const lo=[], mid=[], hi=[];
+      TN_TABLE.forEach(([c,p5,p50,p95])=>{ lo.push({x:c,y:p5}); mid.push({x:c,y:p50}); hi.push({x:c,y:p95}); });
+      graficoRefBanda('gTN', lo, mid, hi,
+        marcadoresFetos.map(f=>({x:f.ccn, valor:f.tn, cor:f.cor})),
+        {min:45,max:84}, {min:0,max:4});
+    }
+    // DBP × IG (semanas) — a tabela fornecida é por semana, não por CCN
+    { const w = range(12,15,0.1), lo=[], mid=[], hi=[];
+      w.forEach(x=>{ const [,l,m,h] = interpTabelaRef(DBP_TABLE_WEEKS, x); lo.push({x,y:l}); mid.push({x,y:m}); hi.push({x,y:h}); });
+      graficoRefBanda('gDBP', lo, mid, hi,
+        marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.dbp:null), cor:f.cor})),
+        {min:12,max:15}, {min:5,max:38});
+    }
+    // IP ducto venoso × CCN
+    { const w = range(44,84,1), lo=[], mid=[], hi=[];
+      w.forEach(x=>{ const [,l,m,h] = interpTabelaRef(DV_TABLE, x); lo.push({x,y:l}); mid.push({x,y:m}); hi.push({x,y:h}); });
+      graficoRefBanda('gDV', lo, mid, hi,
+        marcadoresFetos.map(f=>({x:f.ccn, valor:f.dv, cor:f.cor})),
+        {min:44,max:84}, {min:0,max:1.8});
+    }
+    // PI das uterinas × IG (Gómez et al. 2008 — mesma fórmula/SD do campo calculado acima)
+    { const w = range(11,40,0.5), lo=[], mid=[], hi=[];
+      w.forEach(x=>{ const ga=x*7; const logPI=1.39-0.012*ga+0.0000198*ga*ga; const sd=0.272-0.000259*ga;
+        mid.push({x,y:Math.exp(logPI)}); hi.push({x,y:Math.exp(logPI+1.645*sd)}); lo.push({x,y:Math.exp(logPI-1.645*sd)}); });
+      const utE = num('utEsquerda'), utD = num('utDireita');
+      const utM = (utE!=null && utD!=null) ? (utE+utD)/2 : null;
+      graficoRefBanda('gUtL', lo, mid, hi, [{x:igSemanas, valor:(igSemanas!=null?utE:null), cor:'#c0392b'}], {min:11,max:40}, {min:0,max:3.5});
+      graficoRefBanda('gUtR', lo, mid, hi, [{x:igSemanas, valor:(igSemanas!=null?utD:null), cor:'#c0392b'}], {min:11,max:40}, {min:0,max:3.5});
+      graficoRefBanda('gUtM', lo, mid, hi, [{x:igSemanas, valor:(igSemanas!=null?utM:null), cor:'#c0392b'}], {min:11,max:40}, {min:0,max:3.5});
+    }
+
+    // Legenda de cores só quando há mais de um feto (gemelar/trigemelar) —
+    // com um feto só a cor não distingue nada e a legenda seria ruído.
+    const legEl = $('anexoGraficosLegenda');
+    if(legEl){
+      legEl.innerHTML = uidsFetos.length > 1
+        ? marcadoresFetos.map((f,i)=>'<span class="leg-item"><span class="leg-dot" style="background:'+f.cor+'"></span>'+fetoLabel(i, uidsFetos.length)+'</span>').join('')
+        : '';
+    }
+  }
   // ---------- Doppler fetal: percentil da relação cérebro-placentária (RCP).
   // Valores de referência (média e desvio-padrão da RCP por semana de
   // gestação) conforme a tabela adotada no serviço, 20 a 40 semanas.
@@ -2870,6 +3086,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const pill = $('statusPill');
     if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
     else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
+    renderGraficosReferencia(gaDays);
     updatePagePreview();
     draftSchedule();
   }
