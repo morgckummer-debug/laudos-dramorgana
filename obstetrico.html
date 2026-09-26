@@ -569,13 +569,8 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Idade gestacional calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">Ultrassom de datação (1º trimestre)</option><option value="fiv">FIV (transferência embrionária)</option><option value="exame">IG informada neste exame</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
+            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="fiv">FIV (transferência embrionária)</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
           </div>
-        </div>
-        <div class="field-row conditional" id="wrap_usgDatacao">
-          <div class="field"><label>Data do ultrassom de datação</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>IG no ultrassom de datação — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 12"></div>
-          <div class="field"><label>IG no ultrassom de datação — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
         </div>
         <div class="field-row conditional" id="wrap_fivTransferencia">
           <div class="field"><label>Data da transferência embrionária</label><input type="text" id="fivDataTransf" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
@@ -1377,20 +1372,21 @@ if(typeof criarMotorLaudo !== 'function'){
 
 
   // DUM discordante: mesmo método (DUM) da cronologia, mas a médica marca que
-  // não confia nela — libera os mesmos campos de "IG informada neste exame" +
-  // DPP do método "exame", sem trocar o método nem mexer no IG atual/cabeçalho
-  // (que continuam pela DUM). Por isso precisa de dois gatilhos: o método em
-  // si e este select, que só existe quando o método é DUM.
+  // não confia nela — libera os mesmos campos de "IG neste exame" + DPP que a
+  // DUM incerta/ignorada já usa, sem trocar o método nem mexer no IG
+  // atual/cabeçalho (que continuam pela DUM). Por isso precisa de dois
+  // gatilhos: o método em si e este select, que só existe quando o método é
+  // DUM. (Os métodos "Ultrassom de datação" e "IG informada neste exame"
+  // foram removidos do select em 2026-09-26 — pedido da Dra. Morgana.)
   function updateCronologiaWraps(){
     const metodo = $('cronologiaMetodo').value;
     const dumDiscordante = metodo==='dum' && $('dumConcordancia').value==='discordante';
-    toggle('wrap_usgDatacao', metodo==='usg');
     toggle('wrap_fivTransferencia', metodo==='fiv');
     toggle('wrap_dumConcordancia', metodo==='dum');
-    toggle('wrap_impSemanas', metodo==='exame' || ehDumSemCronologia(metodo) || dumDiscordante);
-    toggle('wrap_impDias', metodo==='exame' || ehDumSemCronologia(metodo) || dumDiscordante);
-    toggle('wrap_dppInformada', metodo==='exame' || ehDumSemCronologia(metodo) || dumDiscordante);
-    toggle('wrap_dumEstimada', metodo==='usg' || metodo==='exame' || metodo==='fiv');
+    toggle('wrap_impSemanas', ehDumSemCronologia(metodo) || dumDiscordante);
+    toggle('wrap_impDias', ehDumSemCronologia(metodo) || dumDiscordante);
+    toggle('wrap_dppInformada', ehDumSemCronologia(metodo) || dumDiscordante);
+    toggle('wrap_dumEstimada', metodo==='fiv');
   }
   $('cronologiaMetodo').addEventListener('change', updateCronologiaWraps);
   $('dumConcordancia').addEventListener('change', updateCronologiaWraps);
@@ -1673,7 +1669,7 @@ if(typeof criarMotorLaudo !== 'function'){
       try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
     });
   }
-  ['dataExame','dum','usgDataDatacao','fivDataTransf'].forEach(wireDateMask);
+  ['dataExame','dum','fivDataTransf'].forEach(wireDateMask);
 
   if($('cpfPaciente')) $('cpfPaciente').addEventListener('input', aplicarMascaraCPF);
 
@@ -1737,16 +1733,6 @@ if(typeof criarMotorLaudo !== 'function'){
     // gestante, sem nenhuma cronologia ainda — ela precisa de uma DPP, ainda
     // que estimada (ver dppTxt em render()).
     if(ehDumSemCronologia(metodo)) return null;
-    if(metodo === 'exame'){
-      return computeDataBaseFromIG(v('dataExame'), v('impSemanas'), v('impDias'));
-    }
-    if(metodo === 'usg'){
-      const usgDt = parseDateBR(v('usgDataDatacao'));
-      const semanas = parseInt(v('usgSemanasDatacao'), 10);
-      const dias = parseInt(v('usgDiasDatacao'), 10);
-      if(!usgDt || isNaN(semanas)) return null;
-      return addDays(usgDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
-    }
     if(metodo === 'fiv'){
       // IG na transferência = 14 dias (fecundação, convenção da DUM) + idade
       // do embrião (3 dias em D3, 5 em D5) — DUM equivalente é a transferência
@@ -2099,22 +2085,21 @@ if(typeof criarMotorLaudo !== 'function'){
     const motivoExame = vNoDot('motivoExame');
 
     const cronologiaMetodoRaw = v('cronologiaMetodo');
-    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame' || cronologiaMetodoRaw==='fiv' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
+    const cronologiaMetodo = (cronologiaMetodoRaw==='fiv' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
     // DUM discordante: mesmo método (DUM) continua selecionado — a médica só
     // marca que não confia nela. Cronologia (IG atual, cabeçalho, Doppler,
     // percentis, apresentação — tudo que usa `gaDays`/`dataBase`) continua
     // vindo da própria DUM, sem olhar este select: dataBase nunca troca para
     // a IG informada aqui, só computeDataBase(cronologiaMetodo) mesmo. Só a
-    // DPP e o período do Morfológico usam a IG informada neste exame como se
-    // fosse o método "exame" (dataBaseDppMorfo, abaixo) — mesmo padrão do
-    // obstetrico-1trimestre.html (usaIgInformadaParaDppMorfo/
-    // dataBaseDppMorfo). Reportado em 2026-09-26: uma versão anterior trocava
-    // a cronologia inteira pela IG informada, contradizendo o comentário de
-    // updateCronologiaWraps() ("sem... mexer no IG atual/cabeçalho, que
-    // continuam pela DUM").
+    // DPP e o período do Morfológico usam a IG informada neste exame
+    // (dataBaseDppMorfo, abaixo) — mesmo padrão do obstetrico-1trimestre.html
+    // (usaIgInformadaParaDppMorfo/dataBaseDppMorfo). Reportado em 2026-09-26:
+    // uma versão anterior trocava a cronologia inteira pela IG informada,
+    // contradizendo o comentário de updateCronologiaWraps() ("sem... mexer no
+    // IG atual/cabeçalho, que continuam pela DUM").
     const dumConcordancia = v('dumConcordancia')==='discordante' ? 'discordante' : 'concordante';
     const dumDiscordante = cronologiaMetodo === 'dum' && dumConcordancia === 'discordante';
-    const usaIgInformadaParaDppMorfo = cronologiaMetodo === 'exame' || dumDiscordante;
+    const usaIgInformadaParaDppMorfo = dumDiscordante;
     const dataBase = computeDataBase(cronologiaMetodo);
     const dataBaseDppMorfo = usaIgInformadaParaDppMorfo
       ? computeDataBaseFromIG(dataExame, v('impSemanas'), v('impDias'))
@@ -2132,9 +2117,9 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     // DPP: aparece quando a DUM é incerta/ignorada (sem cronologia nenhuma
     // estabelecida, mas se for o primeiro exame da gestante ela ainda
-    // precisa de uma DPP para levar daqui), no método "IG informada neste
-    // exame" e na DUM discordante — nos três casos a data-base já foi
-    // resolvida acima (`dataBaseDppMorfo`), então é só reaproveitar.
+    // precisa de uma DPP para levar daqui) e na DUM discordante — nos dois
+    // casos a data-base já foi resolvida acima (`dataBaseDppMorfo`), então é
+    // só reaproveitar.
     const dppTxt = ehDumSemCronologia(cronologiaMetodo)
       ? computeDPP(computeDataBaseFromIG(dataExame, v('impSemanas'), v('impDias')))
       : (usaIgInformadaParaDppMorfo ? computeDPP(dataBaseDppMorfo) : '');
@@ -2186,13 +2171,6 @@ if(typeof criarMotorLaudo !== 'function'){
     // método DUM ela já tem a data, não precisa de uma "estimada".
     const dumEstimadaEl = $('dumEstimada');
     if(dumEstimadaEl) dumEstimadaEl.value = (cronologiaMetodo!=='dum' && dataBase) ? formatDateBR(dataBase) : '';
-    // Datação por ultrassom do 1º trimestre: não há DUM informada, então o
-    // cabeçalho troca a linha "DUM: ____" (sempre em branco nesse método)
-    // pela frase que explica de onde veio a IG atual, com a mesma IG já
-    // corrigida no final — em vez de mostrar um campo vazio ao lado dela.
-    const usgDataDatacaoTxt = v('usgDataDatacao');
-    const usgSemanasDatacaoTxt = v('usgSemanasDatacao');
-    const usgDiasDatacaoTxt = v('usgDiasDatacao');
     const fivDataTransfTxt = v('fivDataTransf');
     const fivEstagioTxt = v('fivEstagio')==='d5' ? 'D5 (blastocisto)' : 'D3';
     const semanasTxt = gaDays!=null ? String(Math.floor(gaDays/7)) : '____';
@@ -2494,9 +2472,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // gestação anterior) — nesse caso o cabeçalho fica só com "G: 0", sem
       // repetir os dois campos zerados ao lado.
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+(gpaG==='0' ? '' : ' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>'
-      +(cronologiaMetodo==='usg'
-        ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+'+'+span(blankOrValue(usgDiasDatacaoTxt))+' semanas: '+span(blankOrValue(igAtualTxt))+'</span></div>'
-        : cronologiaMetodo==='fiv'
+      +(cronologiaMetodo==='fiv'
           ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por FIV — transferência de '+span(blankOrValue(fivDataTransfTxt))+' ('+fivEstagioTxt+'): '+span(blankOrValue(igAtualTxt))+'</span></div>'
         // DUM incerta/ignorada: sem DUM não há cronologia — a linha do
         // cabeçalho mostra só "DUM: incerta"/"DUM: ignorada", sem IG atual
@@ -3263,9 +3239,9 @@ if(typeof criarMotorLaudo !== 'function'){
         // Mesma regra do render(): a gestação nasce com a DUM de verdade —
         // dataBase nunca troca para a IG informada aqui, mesmo discordante.
         // Só a DPP sai já corrigida por essa IG, igual à impressa no laudo.
-        const dataBase = computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='exame' || cronologiaMetodoAtual==='fiv') ? cronologiaMetodoAtual : 'dum');
+        const dataBase = computeDataBase(cronologiaMetodoAtual==='fiv' ? cronologiaMetodoAtual : 'dum');
         if(!dataBase){
-          cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
+          cgToast('Nenhuma gestação ativa e não há data de referência (DUM/FIV) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
           return;
         }
         const dataBaseDppAtual = dumDiscordanteAtual
