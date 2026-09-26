@@ -570,9 +570,6 @@
           <div class="field"><label>Idade gestacional calculada com base em</label>
             <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">Ultrassom de datação (1º trimestre)</option><option value="fiv">FIV (transferência embrionária)</option><option value="exame">IG informada neste exame</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
           </div>
-          <div class="field conditional" id="wrap_dumConcordancia"><label>DUM</label>
-            <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
-          </div>
         </div>
         <div class="field-row conditional" id="wrap_usgDatacao">
           <div class="field"><label>Data do ultrassom de datação</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
@@ -659,22 +656,20 @@
       </div>
     </div>
 
-    <div class="card conditional" id="wrap_exameInfo">
-      <div class="card-head"><h2>Idade gestacional informada neste exame</h2></div>
+    <div class="card">
+      <div class="card-head"><h2>Impressões diagnósticas</h2></div>
       <div class="card-body">
         <div class="field-row">
-          <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 28"></div>
-          <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
+          <div class="field conditional" id="wrap_impSemanas"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 28"></div>
+          <div class="field conditional" id="wrap_impDias"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
+          <div class="field conditional" id="wrap_dumConcordancia"><label>DUM</label>
+            <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
+          </div>
         </div>
         <div class="field-row conditional" id="wrap_dppInformada">
           <div class="field"><label>DPP (data provável do parto)</label><input type="text" id="dpp" placeholder="calculada automaticamente" readonly></div>
         </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Impressões diagnósticas</h2></div>
-      <div class="card-body">
+        <hr class="sep">
         <div class="toggle-line"><input type="checkbox" id="chkRecomendacao"><label for="chkRecomendacao">Incluir recomendação de Morfológico do 2º Trimestre</label></div>
         <div class="field-row conditional" id="wrap_recomendacao">
           <div class="field"><label>Período recomendado — início</label><input type="text" id="dataInicioMorfo" placeholder="calculada automaticamente" readonly></div>
@@ -1381,7 +1376,8 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_usgDatacao', metodo==='usg');
     toggle('wrap_fivTransferencia', metodo==='fiv');
     toggle('wrap_dumConcordancia', metodo==='dum');
-    toggle('wrap_exameInfo', metodo==='exame' || ehDumSemCronologia(metodo) || dumDiscordante);
+    toggle('wrap_impSemanas', metodo==='exame' || ehDumSemCronologia(metodo) || dumDiscordante);
+    toggle('wrap_impDias', metodo==='exame' || ehDumSemCronologia(metodo) || dumDiscordante);
     toggle('wrap_dppInformada', metodo==='exame' || ehDumSemCronologia(metodo) || dumDiscordante);
     toggle('wrap_dumEstimada', metodo==='usg' || metodo==='exame' || metodo==='fiv');
   }
