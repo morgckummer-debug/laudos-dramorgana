@@ -521,10 +521,9 @@
   <div class="field" style="margin-bottom:8px;"><label>Ausência de áreas de descolamento (sem hematoma)</label><textarea id="ph_semDescolamento" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG reduzido (calculado sozinho a partir do DMSG e do CCN, abaixo do VR) — use {ISG}</label><textarea id="ph_isgPequeno" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — use {LOCAL}, {FACE} e {MEDIDA}</label><textarea id="ph_hematoma" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ausência de batimentos cardíacos</label><textarea id="ph_fcfAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal</label><textarea id="ph_embriaoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião e vesícula vitelínica — normal, versão curta da lista de achados do gemelar (a linha já começa com "- Embrião A:" ou "- Saco gestacional 1:", então não repita o sujeito)</label><textarea id="ph_embriaoNormalRotulado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Embrião — óbito embrionário</label><textarea id="ph_embriaoObito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Embrião identificado, sem batimentos cardíacos (aceita HTML simples, ex.: &lt;i&gt;itálico&lt;/i&gt;)</label><textarea id="ph_embriaoSemBatimentos" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação muito inicial)</label><textarea id="ph_embriaoNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião — não identificado (gestação anembrionada) — use {VV_TRECHO}</label><textarea id="ph_embriaoAnembrionado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Abortamento sem saco — cavidade vazia (completo) — use {ESPESSURA}</label><textarea id="ph_achadoCavidadeVazia" rows="2"></textarea></div>
@@ -1459,10 +1458,9 @@ if(typeof criarMotorLaudo !== 'function'){
     semDescolamento: 'Não identificadas áreas de descolamentos.',
     isgPequeno: 'Índice do saco gestacional (ISG): {ISG} mm (VR > 5 mm).',
     hematoma: 'Presença de hematoma subcoriônico, de localização {LOCAL}, face {FACE}, medindo {MEDIDA}.',
-    fcfAusente: 'Ausência de batimentos cardíacos identificados ao exame.',
     embriaoNormal: 'Presença de embrião único e vesícula vitelínica, de aspecto normal.',
     embriaoNormalRotulado: 'Aspecto normal, com vesícula vitelínica presente.',
-    embriaoObito: 'Embrião identificado, sem batimentos cardíacos — sugestivo de óbito embrionário.',
+    embriaoSemBatimentos: 'Batimentos cardíacos <i>ausentes</i>.',
     embriaoNaoIdentificado: 'Embrião ainda não identificado — gestação em fase muito inicial.',
     embriaoAnembrionado: 'Saco gestacional sem embrião{VV_TRECHO} — achado compatível com gestação anembrionada.',
     achadoCavidadeVazia: 'Cavidade uterina vazia, sem saco gestacional ou conteúdo residual identificável, endométrio medindo {ESPESSURA} mm.',
@@ -2696,10 +2694,7 @@ if(typeof criarMotorLaudo !== 'function'){
       if(e.isgPequeno){
         itens.push({tight: true, html: phraseRaw('isgPequeno', {ISG: span(blankOrValue(e.isgValor))})});
       }
-      if(e.vitalidade==='ausente'){
-        itens.push({tight: false, html: phrase('fcfAusente')});
-      }
-      itens.push({tight: false, html: (e.vitalidade==='ausente' ? phrase('embriaoObito')
+      itens.push({tight: false, html: (e.vitalidade==='ausente' ? phraseRaw('embriaoSemBatimentos')
         : e.vitalidade==='nao_identificado' ? (e.anembrionada ? phrase('embriaoAnembrionado', {VV_TRECHO: e.vvVisivel ? ' identificável, com vesícula vitelínica presente' : ' ou vesícula vitelínica identificáveis'}) : phrase('embriaoNaoIdentificado'))
         : rotulado ? phrase('embriaoNormalRotulado') : phrase('embriaoNormal'))});
       return itens;
