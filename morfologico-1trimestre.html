@@ -328,6 +328,7 @@
      principal — a cor pastel da UI quase não aparece na impressão. */
   .anexo-idbar{flex:0 0 auto;font-family:'Times New Roman',Times,serif;font-size:11px;color:var(--ink);text-align:center;border-top:1px solid #2b2b2e;border-bottom:1px solid #2b2b2e;padding:5px 0;margin:0 0 14px;}
   .anexo-idbar .sep{color:#b9a8b5;margin:0 10px;}
+  .anexo-idbar-fmf{font-size:9px;color:var(--ink-soft);margin-top:2px;}
   #anexoImgs{flex:1 0 auto;min-height:160px;}
   #anexoImgs:empty::before{
     content:'Clique aqui e cole (Ctrl+V) a imagem do cálculo de risco da FMF.';
@@ -2418,7 +2419,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const svg =
       '<svg viewBox="0 0 170 128">'
       + yTicksSvg
-      + '<path d="'+c.band+'" fill="#ae5ba0" opacity="0.14"></path>'
+      + '<path d="'+c.band+'" fill="#ae5ba0" opacity="0.08"></path>'
       + '<path d="'+c.p95Path+'" fill="none" stroke="#c98ec0" stroke-width="1" stroke-dasharray="3,2"></path>'
       + '<path d="'+c.p5Path+'" fill="none" stroke="#c98ec0" stroke-width="1" stroke-dasharray="3,2"></path>'
       + '<path d="'+c.p50Path+'" fill="none" stroke="#6d3263" stroke-width="1.5"></path>'
@@ -3267,7 +3268,11 @@ if(typeof criarMotorLaudo !== 'function'){
       $('anexoIdBar').innerHTML =
         '<strong>'+span(blankOrValue(nomePaciente))+'</strong>'
         +'<span class="sep">|</span><span>'+span(blankOrValue(dataExame))+'</span>'
-        +'<span class="sep">|</span><span>IG: '+span(blankOrValue(igCore))+'</span>';
+        +'<span class="sep">|</span><span>IG: '+span(blankOrValue(igCore))+'</span>'
+        // Certificação FMF da médica executante — fixo, não vem de campo
+        // nenhum do formulário. Só nesta folha (o anexo do cálculo de risco
+        // da FMF), abaixo do nome da paciente.
+        +'<div class="anexo-idbar-fmf">FMF ID: 144983</div>';
     }
 
     renderBlocks(blocks);
