@@ -425,6 +425,7 @@
   <hr class="sep">
   <h3>Endométrio</h3>
   <div class="field" style="margin-bottom:8px;"><label>Frase do endométrio — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_endometrioLinha" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_sinequias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio — use {MEDIDAS} e {VOLUME}</label><textarea id="ph_hematometrio" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -450,6 +451,7 @@
   <hr class="sep">
   <h3>Impressão diagnóstica</h3>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_impEndometrio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_impSinequias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio</label><textarea id="ph_impHematometrio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes bilaterais</label><textarea id="ph_impFoliculosBilaterais" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hiperestimulação ovariana (SHO)</label><textarea id="ph_impSHO" rows="2"></textarea></div>
@@ -545,6 +547,7 @@
           <div class="field"><label>Padrão endometrial</label><select id="endoPadrao"><option value="trilaminar">Trilaminar</option><option value="ecogenico">Ecogênico</option></select></div>
           <div class="field"><label>Espessura endometrial (mm)</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endoEspessura" placeholder="mm"></div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="chkSinequias"><label for="chkSinequias">Falhas no eco endometrial, sugestivas de sinéquias</label></div>
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
             <select id="uteroAspecto">
@@ -1311,8 +1314,10 @@ if(typeof criarMotorLaudo !== 'function'){
     ovarioEndometriomaTambem: 'Observa-se também, em seu interior, imagem cística regular e unilocular, com conteúdo de textura em "vidro fosco", com mínima captação de fluxo periférico, medindo {MEDIDA} mm.',
     ovarioAlteradoTambem: 'Observa-se também {DESCRICAO}.',
     endometrioLinha: '{PADRAO}, medindo {ESPESSURA} mm de espessura.',
+    sinequias: 'Notam-se falhas no eco endometrial, sugestivas de sinéquias.',
     hematometrio: 'Observa-se conteúdo hemático na cavidade uterina, medindo {MEDIDAS} mm, com volume de {VOLUME} cm³, compatível com hematométrio.',
     impEndometrio: 'Endométrio {PADRAO} com espessura de {ESPESSURA} mm.',
+    impSinequias: 'Falhas no eco endometrial, sugestivas de sinéquias - Seguir propedêutica.',
     impHematometrio: 'Hematométrio.',
     impFoliculosBilaterais: 'Folículos dominantes bilaterais.',
     impSHO: 'Ovários de volume aumentado associado a ascite - achados sugestivos de hiperestimulação ovariana (SHO).',
@@ -1756,6 +1761,9 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:'foliculos-bilaterais', label:phraseRaw('impFoliculosBilaterais'), auto:true});
     }
     items.push({key:'endometrio', label:phraseRaw('impEndometrio', {PADRAO: state.endoPadraoTexto, ESPESSURA: state.endoEspessuraTexto}), auto:true});
+    if(state.chkSinequias){
+      items.push({key:'sinequias', label:phraseRaw('impSinequias'), auto:true});
+    }
     if(state.chkHematometrio){
       items.push({key:'hematometrio', label:phraseRaw('impHematometrio'), auto:true});
     }
@@ -1968,6 +1976,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const endoPadraoTexto = endoPadraoVal==='ecogenico' ? 'Ecogênico' : 'Trilaminar';
     const endoPadraoTextoMinusculo = endoPadraoVal==='ecogenico' ? 'ecogênico' : 'trilaminar';
     const endoEspessura = blankOrValue(req('endoEspessura'));
+    const chkSinequias = $('chkSinequias').checked;
 
     const chkAscite = $('chkAscite').checked;
     const ovarioVolumeAlto = (ovD.volNum!=null && ovD.volNum>60) || (ovE.volNum!=null && ovE.volNum>60);
@@ -1975,7 +1984,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const checklistItems = buildImpressao({
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
-      endoPadraoTexto: endoPadraoTextoMinusculo, endoEspessuraTexto: endoEspessura.text, chkHematometrio,
+      endoPadraoTexto: endoPadraoTextoMinusculo, endoEspessuraTexto: endoEspessura.text, chkHematometrio, chkSinequias,
       ovDFoliculosCount: ovD.foliculos.length, ovEFoliculosCount: ovE.foliculos.length,
       chkAscite, ovarioVolumeAlto,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
@@ -2041,7 +2050,9 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'uteroDescricaoExtra', html:'<p class="linha">'+escapeHtml(miometrioDescricaoExtra)+'.</p>'});
     }
     blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
-    blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+phrase('endometrioLinha', {PADRAO: endoPadraoTexto, ESPESSURA: endoEspessura.text})+'</p>'});
+    let endometrioLinhaTexto = phrase('endometrioLinha', {PADRAO: endoPadraoTexto, ESPESSURA: endoEspessura.text});
+    if(chkSinequias) endometrioLinhaTexto += ' '+phrase('sinequias');
+    blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+endometrioLinhaTexto+'</p>'});
     if(chkHematometrio){
       const hematometrioMedidas = [hematometrioM1, hematometrioM2, hematometrioM3].map(span).join(' x ');
       blocks.push({id:'hematometrio', html:'<p class="linha">'+phraseRaw('hematometrio', {MEDIDAS: hematometrioMedidas, VOLUME: span(hematometrioVolume)})+'</p>'});

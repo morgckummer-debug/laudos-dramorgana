@@ -480,6 +480,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Normal — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_endometrioNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial — use {PADRAO}, {ESPESSURA}, {LOCAL}, {PEDICULO} e {MEDIDA}</label><textarea id="ph_endometrioPolipo" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Espessado e heterogêneo (menopausa) — use {ESPESSURA}</label><textarea id="ph_endometrioEspessado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_sinequias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio — use {MEDIDAS} e {VOLUME}</label><textarea id="ph_hematometrio" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -542,6 +543,7 @@
   <div class="field" style="margin-bottom:8px;"><label>DIU de baixa implantação</label><textarea id="ph_impDiuBaixa" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial</label><textarea id="ph_impPolipoEndometrial" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio espessado (menopausa)</label><textarea id="ph_impEndometrioEspessado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_impSinequias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio</label><textarea id="ph_impHematometrio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário não identificado — use {LADO}</label><textarea id="ph_impOvarioNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário alterado (outro) — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
@@ -738,6 +740,7 @@
             <select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option><option value="ecogenico">Ecogênico</option></select>
           </div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="chkSinequias"><label for="chkSinequias">Falhas no eco endometrial, sugestivas de sinéquias</label></div>
         <div class="field-row conditional" id="wrap_polipoCampos">
           <div class="field"><label>Localização</label>
             <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
@@ -1743,6 +1746,7 @@ if(typeof criarMotorLaudo !== 'function'){
     endometrioNormal: 'de aspecto uniforme, padrão {PADRAO}, apresentando eco endometrial linear e espessura de {ESPESSURA} mm. Cavidade uterina virtual.',
     endometrioPolipo: 'de aspecto uniforme, padrão {PADRAO}, com espessura de {ESPESSURA} mm. Observa-se, no interior da cavidade uterina, em região {LOCAL}, imagem elipsoide sólida, ecogênica e heterogênea, de limites pouco precisos, sem sombra acústica posterior, com pedículo vascular identificado ao mapeamento colorido no folheto endometrial {PEDICULO}, medindo {MEDIDA} mm.',
     endometrioEspessado: 'centrado, regular, ecogênico e heterogêneo, contendo diminutas áreas císticas de permeio, com pedículo vascular identificado ao mapeamento colorido, medindo {ESPESSURA} mm em seu diâmetro ântero-posterior.',
+    sinequias: 'Notam-se falhas no eco endometrial, sugestivas de sinéquias.',
     hematometrio: 'Observa-se conteúdo hemático na cavidade uterina, medindo {MEDIDAS} mm, com volume de {VOLUME} cm³, compatível com hematométrio.',
 
     ovarioNormal: 'de topografia e forma usuais, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ ({VR}).',
@@ -1798,6 +1802,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impDiuBaixa: 'DIU de baixa implantação.',
     impPolipoEndometrial: 'Nódulo ecogênico intracavitário sugestivo de pólipo.',
     impEndometrioEspessado: 'Endométrio espessado e heterogêneo — dentre as possibilidades diagnósticas, considerar pólipo ocupando toda a cavidade uterina.',
+    impSinequias: 'Falhas no eco endometrial, sugestivas de sinéquias - Seguir propedêutica.',
     impHematometrio: 'Hematométrio.',
     impOvarioNaoIdentificado: 'Ovário {LADO} não identificado no presente estudo.',
     impOvarioAlterado: 'Ovário {LADO}: {DESCRICAO}.',
@@ -2328,6 +2333,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.endometrioAspecto==='espessado'){
       items.push({key:'endometrio-espessado', label:phraseRaw('impEndometrioEspessado'), auto:true});
     }
+    if(state.chkSinequias){
+      items.push({key:'sinequias', label:phraseRaw('impSinequias'), auto:true});
+    }
 
     const ambosOvariosPolicisticos = state.ovD_aspecto==='policistico' && state.ovE_aspecto==='policistico';
     if(ambosOvariosPolicisticos){
@@ -2572,6 +2580,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const polipoLocalizacao = v('polipoLocalizacao');
     const polipoPediculo = v('polipoPediculo');
     const polipoMedida = blankOrValue(reqIf('polipoMedida', endometrioAspecto==='polipo'));
+    const chkSinequias = $('chkSinequias').checked;
 
     const vrOvarioTipo = v('vrOvarioTipo');
     const vrOvarioTexto = vrOvarioTipo==='menopausa'
@@ -2649,7 +2658,7 @@ if(typeof criarMotorLaudo !== 'function'){
       bexigaAspecto, bexigaDescricao,
       miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose, uteroVolumeAumentado,
       chkIstmocele, istmocelePct, chkPolipoEndocervical, chkDIU, diuPosicao, chkHematometrio,
-      endometrioAspecto,
+      endometrioAspecto, chkSinequias,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
       ovD_aspecto2: ovD.aspecto2, ovD_descricao2: ovD.descricao2,
       ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao, ovE_volNum: ovE.volNum,
@@ -2758,13 +2767,16 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(uteroPresente){
+      let endometrioTexto;
       if(endometrioAspecto==='polipo'){
-        blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+phraseRaw('endometrioPolipo', {PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida), ESPESSURA: span(endometrioEspessura)})+'</p>'});
+        endometrioTexto = phraseRaw('endometrioPolipo', {PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida), ESPESSURA: span(endometrioEspessura)});
       } else if(endometrioAspecto==='espessado'){
-        blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+phraseRaw('endometrioEspessado', {ESPESSURA: span(endometrioEspessura)})+'</p>'});
+        endometrioTexto = phraseRaw('endometrioEspessado', {ESPESSURA: span(endometrioEspessura)});
       } else {
-        blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+phraseRaw('endometrioNormal', {PADRAO: endometrioPadrao, ESPESSURA: span(endometrioEspessura)})+'</p>'});
+        endometrioTexto = phraseRaw('endometrioNormal', {PADRAO: endometrioPadrao, ESPESSURA: span(endometrioEspessura)});
       }
+      if(chkSinequias) endometrioTexto += ' '+phrase('sinequias');
+      blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+endometrioTexto+'</p>'});
     }
 
     // Folds the abnormality phrase into the same sentence as the volume
