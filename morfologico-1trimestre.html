@@ -3087,6 +3087,9 @@ if(typeof criarMotorLaudo !== 'function'){
       // sai sem essa linha; nome, médico, G/P/A e DUM/cronologia continuam
       // se repetindo normalmente.
       +'<div class="id-card-row id-card-row-once"><span><strong>Idade:</strong> '+span(blankOrValue(idadeTxt))+' anos &nbsp;|&nbsp; <strong>Peso:</strong> '+span(blankOrValue(pesoMaterno))+' kg &nbsp;|&nbsp; <strong>Altura:</strong> '+span(blankOrValue(alturaMaterna))+' cm &nbsp;|&nbsp; <strong>IMC:</strong> '+span(blankOrValue(imcTxt))+' &nbsp;|&nbsp; <strong>PAM:</strong> '+span(blankOrValue(pressaoArterial))+' mmHg</span></div>'
+      // Certificação FMF da médica executante — fixo, não vem de campo
+      // nenhum do formulário. Só na página 1, igual à linha de acima.
+      +'<div class="id-card-row id-card-row-once"><span>FMF ID: 144983</span></div>'
       +'</div>'});
 
     let tituloTxt = 'ULTRASSOM OBSTÉTRICO MORFOLÓGICO DE PRIMEIRO TRIMESTRE';
