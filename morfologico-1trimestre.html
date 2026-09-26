@@ -3451,13 +3451,19 @@ if(typeof criarMotorLaudo !== 'function'){
     const fontSize = $('paper').style.fontSize || '12pt';
     colapsarMargensParaWord(clone);
     let bodyHtml = clone.innerHTML;
-    // A página de anexo (logo da FMF, imagem colada do cálculo de risco e
-    // assinatura) fica de fora do #paper — só entra no Word se a médica
-    // realmente colou alguma imagem ali. O Word ignora o <style> da página
-    // (só sobrevive o que está inline em cada elemento — mesma observação do
-    // clone do #paper acima), então o logo e a assinatura levam o mesmo
-    // estilo inline aplicado ao rodapé do laudo principal.
-    if(anexoImgsEl.querySelector('img')){
+    // A página de anexo (logo da FMF, imagem colada do cálculo de risco,
+    // gráficos de referência e assinatura) fica de fora do #paper — só entra
+    // no Word na mesma condição que a faz imprimir (ver `has-content` em
+    // updateAnexoVisibility()): imagem colada OU gráficos com dado para
+    // plotar. Só checar a imagem, como era antes, deixava a última folha
+    // sair no PDF (que sempre segue o `has-content`) e sumir do Word sempre
+    // que a médica ainda não tivesse colado o print da FMF — mesmo com os
+    // gráficos, o FMF ID e a assinatura dessa folha já prontos. O Word
+    // ignora o <style> da página (só sobrevive o que está inline em cada
+    // elemento — mesma observação do clone do #paper acima), então o logo e
+    // a assinatura levam o mesmo estilo inline aplicado ao rodapé do laudo
+    // principal.
+    if(anexoImgsEl.querySelector('img') || anexoTemDadosGraficos()){
       const anexoClone = paperAnexoEl.cloneNode(true);
       // A bolinha de redimensionar, o botão de excluir e a borda de seleção
       // são só da edição na tela — não fazem sentido no Word. A largura
