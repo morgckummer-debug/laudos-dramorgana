@@ -724,6 +724,41 @@ já que não há onde mais isso ficaria documentado). Ainda usa `patients` para
 achar/criar a paciente pelo CPF — mesma paciente das curvas — o que faz as
 quatro regras abaixo valerem para ele também, exceto a de colunas de exame.
 
+**Um registro em `laudos_ovulacao` é um ciclo, não uma visita** — a chave é
+paciente + `data_exame` (data da 1ª visita, calculada, não digitada), e cada
+"Salvar" dentro do mesmo ciclo faz upsert nesse mesmo registro conforme a
+médica acrescenta visitas. Isso quebrava no ciclo seguinte: para reaproveitar
+nome/CPF/DUM da paciente, "Buscar laudo anterior" carregava o snapshot
+inteiro, visitas antigas inclusas — só apagando essas visitas manualmente é
+que uma nova 1ª visita (e portanto um `data_exame` novo) entrava em vigor;
+esquecer esse passo continuava salvando por cima do ciclo anterior. Relatado
+pela Dra. Morgana em 2026-09-26.
+
+O conserto (2026-09-26) tem três peças, todas só neste arquivo — não é
+comportamento do `laudo-core.js`, já que os outros laudos com integração não
+têm o conceito de "ciclo":
+
+- **`ciclo_encerrado`/`encerrado_em`** (colunas novas em `laudos_ovulacao`,
+  sem migração — ver o comentário no `<script>` com o `ALTER TABLE` a rodar
+  uma vez no SQL Editor do Supabase). Um botão novo, "Salvar e encerrar
+  ciclo" (`#btnEncerrarCiclo`, ao lado de "Salvar"), grava a flag junto do
+  snapshot. "Salvar" normal sempre grava `ciclo_encerrado: false` — editar e
+  salvar de novo um ciclo encerrado por engano já o reabre sozinho, sem
+  precisar de um botão "reabrir" à parte.
+- **Selo nos resultados de "Buscar laudo anterior".** Cada resultado passou a
+  mostrar o período do rastreio (1ª à última visita salva no snapshot, via
+  `cgPeriodoVisitas()`) em vez de só a data da 1ª visita, mais um selo "Ciclo
+  encerrado" ou "Em andamento" — para saber, antes de clicar, se aquele ciclo
+  já tinha sido dado como concluído.
+- **"Novo ciclo"** (`cgIniciarNovoCiclo()`), botão novo em cada resultado,
+  ao lado de "Excluir" — diferente de clicar no resultado (que continua
+  chamando `cgCarregarLaudo()`, carregando as visitas antigas de propósito,
+  para continuar o MESMO ciclo). "Novo ciclo" reaproveita a limpeza do
+  "Limpar" (extraída para `resetFormParaNovaPaciente()`, sem o `confirm()` e
+  sem apagar nome/CPF/médico solicitante/GPA, que são repostos depois a
+  partir do snapshot escolhido) e deixa DUM, visitas e achados em branco —
+  sem tocar no registro do ciclo anterior.
+
 `transvaginal.html` e `pelvico-infantil.html` tinham o mesmo padrão (tabelas
 `laudos_tv` e `laudos_pelvico_infantil`), mas em 2026-08-29 a Dra. Morgana
 pediu para tirar a busca de laudo/paciente anterior desses dois — deve existir

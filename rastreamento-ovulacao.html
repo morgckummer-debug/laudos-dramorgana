@@ -329,6 +329,8 @@
   .cg-toast.err{background:#B4432F;}
   .btn-cg{background:#6d3263;color:#fff;}
   .btn-cg:hover{opacity:.9;}
+  .btn-cg-outline{background:#fff;color:var(--rose-dark);border:1.5px solid var(--rose-dark);}
+  .btn-cg-outline:hover{background:var(--rose-light);}
   .cg-bar{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin:0 28px 14px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow);}
   .cg-bar .field{flex:1;min-width:200px;margin:0;}
   .cg-bar .field label{font-size:12px;color:var(--ink-soft);display:block;margin-bottom:4px;}
@@ -336,12 +338,16 @@
   .cg-results-list{width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;}
   .cg-result-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--line-soft);}
   .cg-result-item:hover{background:var(--rose-light);}
-  .cg-result-item .ri-info{flex:1;min-width:0;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;}
+  .cg-result-item .ri-info{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;cursor:pointer;}
   .cg-result-item .ri-name{font-weight:600;color:var(--ink);font-size:13.5px;}
+  .cg-result-item .ri-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .cg-result-item .ri-meta{font-size:12px;color:var(--ink-soft);}
+  .cg-result-item .ri-novo{flex:0 0 auto;background:#fff;border:1.5px solid var(--rose);color:var(--rose-dark);border-radius:8px;padding:5px 10px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+  .cg-result-item .ri-novo:hover{background:var(--rose-dark);border-color:var(--rose-dark);color:#fff;}
   .cg-result-item .ri-del{flex:0 0 auto;background:#fff;border:1.5px solid var(--line);color:var(--ink-soft);border-radius:8px;padding:5px 10px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
   .cg-result-item .ri-del:hover{background:#B4432F;border-color:#B4432F;color:#fff;}
   .cg-result-empty{font-size:12.5px;color:var(--ink-soft);padding:6px 2px;}
+  .status-pill.sm{margin:0;padding:2px 8px;font-size:10px;}
 </style>
 </head>
 <body>
@@ -997,6 +1003,7 @@
       <button class="btn-print" id="btnPrint">Imprimir / PDF</button>
       <button class="btn-clear" id="btnDownloadWord">Baixar Word</button>
       <button class="btn-cg" id="btnSalvarCG">Salvar na Curva de Crescimento</button>
+      <button class="btn-cg btn-cg-outline" id="btnEncerrarCiclo" title="Salva e marca este rastreio como concluído — a próxima busca por esta paciente mostra &quot;Ciclo encerrado&quot;, sem apagar o histórico">Salvar e encerrar ciclo</button>
     </div>
   </div>
 </div>
@@ -2651,8 +2658,11 @@ if(typeof criarMotorLaudo !== 'function'){
     }
   });
 
-  $('btnReset').addEventListener('click', ()=>{
-    if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
+  // Extraído do listener do botão para ser reaproveitado por
+  // "Novo ciclo" (busca de laudo anterior) — mesma limpeza, sem o confirm()
+  // daqui e sem tocar em nome/CPF/médico solicitante/GPA, que quem chama
+  // repõe depois, se for o caso.
+  function resetFormParaNovaPaciente(){
     document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
     document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
     document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
@@ -2676,6 +2686,10 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_ovD_segunda', true);
     toggle('wrap_ovE_segunda', true);
     draftDiscard();
+  }
+  $('btnReset').addEventListener('click', ()=>{
+    if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
+    resetFormParaNovaPaciente();
   });
 
   // "Número de nódulos" recria os cards ao disparar 'change' — pularia por
@@ -2817,6 +2831,18 @@ if(typeof criarMotorLaudo !== 'function'){
   // igual ao transvaginal.html com `laudos_tv`. O app de curvas nunca lê essa
   // tabela; "buscar laudo anterior" é uma função só deste arquivo, que faz a
   // própria consulta ao Supabase pelo navegador da médica.
+  //
+  // `ciclo_encerrado`/`encerrado_em` (2026-09-26): sinaliza que aquele
+  // registro é um ciclo já concluído, para "Novo ciclo" (ver
+  // cgIniciarNovoCiclo) e o selo nos resultados da busca não confundirem um
+  // ciclo pronto com um em andamento. `laudos_ovulacao` não tem migração
+  // registrada em lugar nenhum (criada direto no painel do Supabase — ver
+  // CLAUDE.md), então esse ALTER TABLE precisa ser rodado manualmente, uma
+  // vez, no SQL Editor do Supabase, antes de usar os botões novos:
+  //
+  //   alter table laudos_ovulacao
+  //     add column if not exists ciclo_encerrado boolean not null default false,
+  //     add column if not exists encerrado_em timestamptz;
   const CG_URL = 'https://ulcqnqwxguydrpoaplcv.supabase.co';
   const CG_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3FucXd4Z3V5ZHJwb2FwbGN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Njk2NjcsImV4cCI6MjEwMTA0NTY2N30.hNrszyJvaBzP08Oild4wivMrTvXnDoGfgL6My1bbtVU';
   const cgClient = window.supabase.createClient(CG_URL, CG_ANON_KEY);
@@ -2920,7 +2946,7 @@ if(typeof criarMotorLaudo !== 'function'){
     let laudos = [];
     try{
       const {data, error} = await cgClient.from('laudos_ovulacao')
-        .select('id, data_exame, paciente_id, created_at, conteudo')
+        .select('id, data_exame, paciente_id, created_at, conteudo, ciclo_encerrado')
         .in('paciente_id', ids).order('data_exame',{ascending:false}).order('created_at',{ascending:false}).limit(50);
       if(error) throw error;
       laudos = data || [];
@@ -2934,22 +2960,81 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     const porNome = {};
-    pacientes.forEach(p=> porNome[p.id] = p.nome);
+    const porCpf = {};
+    pacientes.forEach(p=>{ porNome[p.id] = p.nome; porCpf[p.id] = p.cpf; });
     laudos.forEach(laudo=>{
+      const nomeExibido = porNome[laudo.paciente_id] || 'Paciente';
+      const snap = (laudo.conteudo && typeof laudo.conteudo === 'object') ? laudo.conteudo : {};
+      const periodo = cgPeriodoVisitas(snap.fields, snap.uids);
+      const metaTxt = periodo ? ('Rastreio de ' + periodo) : ('Exame de ' + cgFormatDateBR(laudo.data_exame));
+      const badgeHtml = laudo.ciclo_encerrado
+        ? '<span class="status-pill sm">Ciclo encerrado</span>'
+        : '<span class="status-pill sm pending">Em andamento</span>';
       const item = document.createElement('div');
       item.className = 'cg-result-item';
       item.innerHTML = '<span class="ri-info">'
-        + '<span class="ri-name">'+(porNome[laudo.paciente_id] || 'Paciente')+'</span>'
-        + '<span class="ri-meta">Exame de '+cgFormatDateBR(laudo.data_exame)+'</span>'
+        + '<span class="ri-name">'+nomeExibido+'</span>'
+        + '<span class="ri-meta-row"><span class="ri-meta">'+metaTxt+'</span>'+badgeHtml+'</span>'
         + '</span>'
+        + '<button type="button" class="ri-novo" title="Iniciar um ciclo novo para esta paciente, sem apagar este rastreio">Novo ciclo</button>'
         + '<button type="button" class="ri-del" title="Excluir este laudo">Excluir</button>';
       item.querySelector('.ri-info').addEventListener('click', ()=> cgCarregarLaudo(laudo));
+      item.querySelector('.ri-novo').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        cgIniciarNovoCiclo(laudo, nomeExibido, porCpf[laudo.paciente_id]);
+      });
       item.querySelector('.ri-del').addEventListener('click', (e)=>{
         e.stopPropagation();
-        cgExcluirLaudo(laudo, item, porNome[laudo.paciente_id] || 'Paciente');
+        cgExcluirLaudo(laudo, item, nomeExibido);
       });
       resultsEl.appendChild(item);
     });
+  }
+
+  // Primeira e última data de visita salvas no snapshot do ciclo, na mesma
+  // ordem em que aparecem no formulário (d.uids) — dá o período do
+  // rastreamento sem precisar guardar uma coluna nova só para isso.
+  function cgPeriodoVisitas(fields, uids){
+    if(!fields || !Array.isArray(uids) || !uids.length) return '';
+    const datas = uids.map(uid=> fields['visita'+uid+'Data']).filter(Boolean);
+    if(!datas.length) return '';
+    const primeira = datas[0], ultima = datas[datas.length-1];
+    return primeira === ultima ? primeira : (primeira + ' a ' + ultima);
+  }
+
+  // ---- Iniciar um ciclo novo para uma paciente já cadastrada ----
+  // Mantém a identidade da paciente (nome, CPF, médico solicitante, GPA) e
+  // limpa o que é específico do ciclo anterior (DUM, visitas, achados) —
+  // sem apagar o rastreio já salvo daquele ciclo, diferente de "Carregar"
+  // (cgCarregarLaudo), que traz as visitas antigas junto de propósito para
+  // continuar o MESMO ciclo.
+  function cgIniciarNovoCiclo(laudo, nomeExibido, cpfBruto){
+    const ok = confirm('Iniciar um ciclo novo para '+nomeExibido+'?\n\nOs dados da paciente serão mantidos; o formulário do ciclo (DUM, visitas, achados) começa em branco. O rastreio salvo anteriormente continua guardado, sem ser apagado.');
+    if(!ok) return;
+    const snap = (laudo.conteudo && typeof laudo.conteudo === 'object') ? laudo.conteudo : {};
+    const fields = (snap.fields && typeof snap.fields === 'object') ? snap.fields : {};
+    const manter = {
+      nomePaciente: nomeExibido,
+      cpfPaciente: cpfBruto ? cgFormatCPF(cgOnlyDigits(cpfBruto)) : (fields.cpfPaciente || ''),
+      medicoSolicitante: fields.medicoSolicitante || '',
+      gpaG: fields.gpaG || '',
+      gpaP: fields.gpaP || '',
+      gpaA: fields.gpaA || ''
+    };
+    resetFormParaNovaPaciente();
+    Object.keys(manter).forEach(id=>{
+      const el = $(id);
+      if(el) el.value = manter[id];
+    });
+    render();
+    const note = $('draftNote');
+    if(note){
+      $('draftNoteText').textContent = 'Novo ciclo iniciado para '+nomeExibido+' — nome, CPF, médico solicitante e GPA mantidos. Preencha a DUM e a 1ª visita deste ciclo; o rastreio anterior continua salvo.';
+      note.classList.add('show');
+    }
+    cgToast('Novo ciclo iniciado ✓', false);
+    $('cgResults').innerHTML = '';
+    $('cgBusca').value = '';
   }
 
   // ---- Excluir um laudo indesejado (ex.: duplicata antiga) ----
@@ -2992,8 +3077,13 @@ if(typeof criarMotorLaudo !== 'function'){
     cgToast('Laudo carregado ✓', false);
   }
 
-  // ---- Salvar o laudo atual na Curva (cria um novo registro por visita) ----
-  $('btnSalvarCG').addEventListener('click', async ()=>{
+  // ---- Salvar o laudo atual na Curva (cria um novo registro por ciclo) ----
+  // Compartilhada entre "Salvar" e "Salvar e encerrar ciclo": a única
+  // diferença é a flag `ciclo_encerrado` gravada junto — "Salvar" normal
+  // sempre grava false, então continuar editando e salvar de novo um ciclo
+  // que tinha sido encerrado por engano já reabre ele sozinho, sem precisar
+  // de um botão "reabrir" à parte.
+  async function cgSalvarLaudo(encerrarCiclo){
     const session = await cgCheckSession();
     if(!session){ cgToast('Faça login para salvar.', true); return; }
     const cpf = cgOnlyDigits(v('cpfPaciente'));
@@ -3004,10 +3094,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const dataExameISO = cgDataExameToISO();
     if(!dataExameISO){ cgToast('Data do exame inválida (use dd.mm.aaaa).', true); return; }
 
-    const btn = $('btnSalvarCG');
+    const btn = $(encerrarCiclo ? 'btnEncerrarCiclo' : 'btnSalvarCG');
+    const outroBtn = $(encerrarCiclo ? 'btnSalvarCG' : 'btnEncerrarCiclo');
     btn.disabled = true;
+    outroBtn.disabled = true;
     const originalLabel = btn.textContent;
-    btn.textContent = 'Salvando...';
+    btn.textContent = encerrarCiclo ? 'Encerrando...' : 'Salvando...';
 
     try{
       const userId = session.user.id;
@@ -3034,6 +3126,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // 2) Snapshot completo do laudo (todos os campos, visitas, impressão,
       //    texto digitado à mão) — o mesmo que o rascunho automático já grava.
       const snap = draftSnapshot();
+      const encerradoEmISO = encerrarCiclo ? new Date().toISOString() : null;
 
       // 3) Um registro por rastreamento, não por clique: a "Data do exame" é
       //    sempre a da 1ª visita (campo só leitura, sincronizado em render()),
@@ -3049,13 +3142,13 @@ if(typeof criarMotorLaudo !== 'function'){
         .limit(1);
       if(errBuscaLaudo) throw errBuscaLaudo;
 
-      let mensagemOk = 'Laudo salvo na Curva de Crescimento ✓';
+      let mensagemOk = encerrarCiclo ? 'Ciclo encerrado e salvo na Curva de Crescimento ✓' : 'Laudo salvo na Curva de Crescimento ✓';
       if(existente && existente[0]){
         const {error: errUpdate} = await cgClient.from('laudos_ovulacao')
-          .update({cpf: cpfFormatado, nome: nome, conteudo: snap})
+          .update({cpf: cpfFormatado, nome: nome, conteudo: snap, ciclo_encerrado: !!encerrarCiclo, encerrado_em: encerradoEmISO})
           .eq('id', existente[0].id);
         if(errUpdate) throw errUpdate;
-        mensagemOk = 'Laudo atualizado na Curva de Crescimento ✓';
+        if(!encerrarCiclo) mensagemOk = 'Laudo atualizado na Curva de Crescimento ✓';
       }else{
         const {error: errInsert} = await cgClient.from('laudos_ovulacao').insert({
           user_id: userId,
@@ -3063,7 +3156,9 @@ if(typeof criarMotorLaudo !== 'function'){
           cpf: cpfFormatado,
           nome: nome,
           data_exame: dataExameISO,
-          conteudo: snap
+          conteudo: snap,
+          ciclo_encerrado: !!encerrarCiclo,
+          encerrado_em: encerradoEmISO
         });
         if(errInsert) throw errInsert;
       }
@@ -3074,9 +3169,12 @@ if(typeof criarMotorLaudo !== 'function'){
       cgToast('Erro ao salvar: ' + (e.message || 'tente novamente.'), true);
     }finally{
       btn.disabled = false;
+      outroBtn.disabled = false;
       btn.textContent = originalLabel;
     }
-  });
+  }
+  $('btnSalvarCG').addEventListener('click', ()=> cgSalvarLaudo(false));
+  $('btnEncerrarCiclo').addEventListener('click', ()=> cgSalvarLaudo(true));
 })();
 </script>
 </body>
