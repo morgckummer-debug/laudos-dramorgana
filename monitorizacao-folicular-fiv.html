@@ -124,7 +124,15 @@
     border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
   }
   .mioma-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
-  .foliculo-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  /* Folículos: 3 por linha em vez de um por linha — o container vira um
+     grid de 3 colunas e cada folículo é uma célula compacta (label + input
+     + botão de remover em "×", que substitui o antigo "Remover" por
+     extenso, sem espaço para caber ao lado do input numa coluna estreita). */
+  .foliculos-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:8px 10px;margin-bottom:8px;}
+  .foliculo-item label{font-size:12px;color:var(--ink-soft);font-weight:500;display:block;margin-bottom:5px;}
+  .foliculo-item .foliculo-input-row{display:flex;align-items:center;gap:4px;}
+  .foliculo-item .foliculo-input-row input{min-width:0;}
+  .foliculo-remove{background:none;border:none;color:#B4432F;font-size:19px;font-weight:700;line-height:1;padding:0 2px;cursor:pointer;flex:0 0 auto;}
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
@@ -203,6 +211,9 @@
   }
   .paper p.linha{margin:0 0 var(--linha-margin, 20px);}
   .paper p.linha strong{font-weight:700;}
+  /* Separador entre as medidas dos folículos (F1: __ F2: __ ...) — sem ele
+     ficavam grudados um no outro, só com espaço duplo entre as frases. */
+  .paper .foliculo-sep{color:var(--ink-soft);opacity:.55;font-size:.7em;margin:0 7px;vertical-align:middle;}
   .paper .nodulos-lista{margin:0 0 16px;}
   .paper .nodulos-lista .nodulo-item{margin:0 0 6px;padding-left:2.4em;text-indent:-2.4em;}
   .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
@@ -602,7 +613,7 @@
           </div>
         </div>
         <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes</label></div>
-        <div id="ovDFoliculosContainer"></div>
+        <div id="ovDFoliculosContainer" class="foliculos-grid"></div>
         <button type="button" class="btn-clear" id="btnAddFoliculoOvD" style="margin:2px 0 14px;">+ Adicionar folículo</button>
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
@@ -689,7 +700,7 @@
           </div>
         </div>
         <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes</label></div>
-        <div id="ovEFoliculosContainer"></div>
+        <div id="ovEFoliculosContainer" class="foliculos-grid"></div>
         <button type="button" class="btn-clear" id="btnAddFoliculoOvE" style="margin:2px 0 14px;">+ Adicionar folículo</button>
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
@@ -1647,9 +1658,12 @@ if(typeof criarMotorLaudo !== 'function'){
   const foliculoNextUid = {ovD:1, ovE:1};
   function foliculoRowHTML(prefix, uid){
     return ''
-      +'<div class="field-row" id="wrap_'+prefix+'Fol'+uid+'">'
-      +'<div class="field"><label>F<span class="foliculo-index"></span> — medida (mm)</label><input type="text" id="'+prefix+'Fol'+uid+'Medida" placeholder="ex: 18 x 16"></div>'
-      +'<button type="button" class="foliculo-remove" data-prefix="'+prefix+'" data-uid="'+uid+'" style="align-self:flex-end;">Remover</button>'
+      +'<div class="foliculo-item" id="wrap_'+prefix+'Fol'+uid+'">'
+      +'<label>F<span class="foliculo-index"></span> (mm)</label>'
+      +'<div class="foliculo-input-row">'
+      +'<input type="text" id="'+prefix+'Fol'+uid+'Medida" placeholder="ex: 18 x 16">'
+      +'<button type="button" class="foliculo-remove" data-prefix="'+prefix+'" data-uid="'+uid+'" title="Remover folículo">&times;</button>'
+      +'</div>'
       +'</div>';
   }
   function renumberFoliculos(prefix){
@@ -2125,7 +2139,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // adicionados. Sem folículos cadastrados, não sai linha nenhuma.
     function foliculosLinha(ov){
       if(!ov.foliculos.length) return '';
-      return '<p class="linha">'+ov.foliculos.map((f,i)=>'F'+(i+1)+': '+span(f)+' mm.').join('  ')+'</p>';
+      return '<p class="linha">'+ov.foliculos.map((f,i)=>'F'+(i+1)+': '+span(f)+' mm.').join('<span class="foliculo-sep">&#9679;</span>')+'</p>';
     }
     blocks.push({id:'ovD', html: ovarioParagraph(ovD, 'direito')});
     if(foliculosLinha(ovD)) blocks.push({id:'ovDFoliculos', html: foliculosLinha(ovD)});
@@ -2145,6 +2159,23 @@ if(typeof criarMotorLaudo !== 'function'){
       });
     }
     impressaoListHtml += '</ul>';
+    // Editar a impressão diagnóstica direto no preview pode mesclar duas
+    // <li> (Backspace/Delete na fronteira, ou selecionar e apagar um trecho
+    // que cruza duas linhas) sem que checkedItems mude — o texto acima sai
+    // idêntico ao do render() anterior, então renderBlocks() confia no
+    // cache (st.lastBlockHtml) e nunca chega a tocar no <ul>: o achado
+    // continua marcado no checklist ao lado, mas sumiu da folha, sem aviso
+    // nenhum, e nenhum render() futuro conserta sozinho. Confere a
+    // contagem de <li data-key> ao vivo contra checkedItems.length antes
+    // de montar o bloco, e invalida o cache se não bater — força
+    // renderBlocks() a substituir o <ul> inteiro pela lista correta.
+    {
+      const liveImpressaoUl = $('paper').querySelector(':scope > [data-blk="impressaoList"]');
+      const liveLiCount = liveImpressaoUl ? liveImpressaoUl.querySelectorAll(':scope > li[data-key]').length : -1;
+      if(liveImpressaoUl && liveLiCount !== checkedItems.length){
+        delete st.lastBlockHtml['impressaoList'];
+      }
+    }
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
     let rodapeHtml = '<div class="rodape-final">';
