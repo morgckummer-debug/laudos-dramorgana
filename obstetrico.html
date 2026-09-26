@@ -1371,13 +1371,13 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_usgDatacao', e.target.value==='usg');
     toggle('wrap_fivTransferencia', e.target.value==='fiv');
     toggle('wrap_exameInfo', e.target.value==='exame' || ehDumSemCronologia(e.target.value));
-    toggle('wrap_dppInformada', ehDumSemCronologia(e.target.value));
+    toggle('wrap_dppInformada', e.target.value==='exame' || ehDumSemCronologia(e.target.value));
     toggle('wrap_dumEstimada', e.target.value==='usg' || e.target.value==='exame' || e.target.value==='fiv');
   });
   toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
   toggle('wrap_fivTransferencia', $('cronologiaMetodo').value==='fiv');
   toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame' || ehDumSemCronologia($('cronologiaMetodo').value));
-  toggle('wrap_dppInformada', ehDumSemCronologia($('cronologiaMetodo').value));
+  toggle('wrap_dppInformada', $('cronologiaMetodo').value==='exame' || ehDumSemCronologia($('cronologiaMetodo').value));
   toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg' || $('cronologiaMetodo').value==='exame' || $('cronologiaMetodo').value==='fiv');
 
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
@@ -2082,13 +2082,16 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       gaDays = computeIGDaysAtExam(dataBase, dataExame);
     }
-    // DPP: só aparece quando a DUM é incerta/ignorada — sem cronologia
-    // nenhuma estabelecida, mas se for o primeiro exame da gestante ela
-    // ainda precisa de uma DPP para levar daqui, ainda que estimada a
-    // partir da mesma IG informada acima.
+    // DPP: aparece quando a DUM é incerta/ignorada (sem cronologia nenhuma
+    // estabelecida, mas se for o primeiro exame da gestante ela ainda
+    // precisa de uma DPP para levar daqui) e também no método "IG informada
+    // neste exame" — usado quando a DUM é discordante da datação pelo
+    // ultrassom e a médica prefere basear a IG (e a DPP) no achado deste
+    // exame em vez da DUM. Nos dois casos a data-base é a mesma IG
+    // informada acima; para "exame" ela já foi calculada em `dataBase`.
     const dppTxt = ehDumSemCronologia(cronologiaMetodo)
       ? computeDPP(computeDataBaseFromIG(dataExame, v('impSemanas'), v('impDias')))
-      : '';
+      : (cronologiaMetodo === 'exame' ? computeDPP(dataBase) : '');
     const dppEl = $('dpp');
     if(dppEl) dppEl.value = dppTxt;
     // Recomendação de Morfológico do 2º Trimestre: opt-in (ver checkbox),
