@@ -2001,10 +2001,14 @@ if(typeof criarMotorLaudo !== 'function'){
       });
     }
 
-    // DPP só entra na conclusão quando a DUM é incerta/ignorada — sem
-    // cronologia estabelecida, mas ainda assim útil se for o primeiro exame
-    // da gestante. Sempre por último, mesmo lugar do laudo de 1º trimestre.
-    if(ehDumSemCronologia(state.cronologiaMetodo)){
+    // DPP entra na conclusão quando a DUM é incerta/ignorada (sem cronologia
+    // estabelecida) e também na DUM discordante — nos dois casos está
+    // implícito que é o primeiro exame da gestante com essa cronologia
+    // valendo, então a DPP precisa estar na conclusão, não só no formulário.
+    // Sempre por último, mesmo lugar do laudo de 1º trimestre. Reportado em
+    // 2026-09-27: a DUM discordante não entrava nessa checagem e a conclusão
+    // saía sem DPP nenhuma.
+    if(ehDumSemCronologia(state.cronologiaMetodo) || state.dumDiscordante){
       items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
     }
 
