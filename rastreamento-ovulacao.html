@@ -515,6 +515,7 @@
   <h3>Corpo lúteo</h3>
   <div class="field" style="margin-bottom:8px;"><label>Identificado — use {LADO}</label><textarea id="ph_corpoLuteoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Não identificado</label><textarea id="ph_corpoLuteoNaoIdentificado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_sinequias" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Impressão diagnóstica</h3>
@@ -522,6 +523,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Ciclo anovulatório (corpo lúteo não identificado)</label><textarea id="ph_impCicloAnovulatorio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio concordante</label><textarea id="ph_impEndometrioConcordante" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio discordante (a palavra "discordante" sai sempre sublinhada no laudo, mesmo que você edite este texto)</label><textarea id="ph_impEndometrioDiscordante" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_impSinequias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 mioma</label><textarea id="ph_impMioma1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 ou mais miomas</label><textarea id="ph_impMiomaVarios" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Útero miomatoso (3 ou mais nódulos)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
@@ -909,6 +911,7 @@
             </select>
           </div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="chkSinequias"><label for="chkSinequias">Falhas no eco endometrial, sugestivas de sinéquias</label></div>
         <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
@@ -1461,10 +1464,12 @@ if(typeof criarMotorLaudo !== 'function'){
     foliculosDominantesZero: 'Nenhum folículo dominante no primeiro exame.',
     corpoLuteoIdentificado: 'Corpo lúteo identificado no ovário {LADO}.',
     corpoLuteoNaoIdentificado: 'Corpo lúteo não identificado no presente estudo.',
+    sinequias: 'Notam-se falhas no eco endometrial, sugestivas de sinéquias.',
     impCicloOvulatorio: 'Exame compatível com ciclo ovulatório.',
     impCicloAnovulatorio: 'Corpo lúteo não identificado — sugestivo de ciclo anovulatório.',
     impEndometrioConcordante: 'Endométrio concordante.',
     impEndometrioDiscordante: 'Endométrio discordante.',
+    impSinequias: 'Falhas no eco endometrial, sugestivas de sinéquias - Seguir propedêutica.',
     impMioma1: 'Nódulo sólido sugestivo de mioma.',
     impMiomaVarios: 'Nódulos sólidos sugestivos de miomas.',
     impUteroMiomatoso: 'Útero de volume aumentado, miomatoso.',
@@ -2020,6 +2025,9 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       items.push({key:'endometrio', label:phraseRaw('impEndometrioConcordante'), auto:true});
     }
+    if(state.chkSinequias){
+      items.push({key:'sinequias', label:phraseRaw('impSinequias'), auto:true});
+    }
     if(state.uteroAspecto === 'alterado' && state.uteroDescricao){
       items.push({key:'utero-alterado', label:phraseRaw('impUteroAlterado', {DESCRICAO: state.uteroDescricao}), auto:true});
     }
@@ -2249,11 +2257,12 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const corpoLuteoLado = v('corpoLuteoLado');
     const endometrioConcordancia = v('endometrioConcordancia');
+    const chkSinequias = $('chkSinequias').checked;
     const chkAscite = $('chkAscite').checked;
     const ovarioVolumeAlto = (ovD.volNum!=null && ovD.volNum>60) || (ovE.volNum!=null && ovE.volNum>60);
 
     const checklistItems = buildImpressao({
-      corpoLuteoLado, endometrioConcordancia,
+      corpoLuteoLado, endometrioConcordancia, chkSinequias,
       chkAscite, ovarioVolumeAlto,
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
@@ -2445,6 +2454,10 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'corpoLuteo', html:'<p class="linha">'+(corpoLuteoLado==='nao_identificado'
       ? phrase('corpoLuteoNaoIdentificado')
       : phrase('corpoLuteoIdentificado', {LADO: corpoLuteoLado==='esquerdo' ? 'esquerdo' : 'direito'}))+'</p>'});
+
+    if(chkSinequias){
+      blocks.push({id:'sinequias', html:'<p class="linha">'+phrase('sinequias')+'</p>'});
+    }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
