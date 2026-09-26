@@ -514,6 +514,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Colo normal — impressão</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo curto — impressão</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DPP (com DUM incerta/ignorada) — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Recomendação de morfológico de 2º trimestre — use {DATA_INICIO} e {DATA_FIM}</label><textarea id="ph_recomendacaoMorfologico" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Rodapé</h3>
@@ -671,6 +672,12 @@
     <div class="card">
       <div class="card-head"><h2>Impressões diagnósticas</h2></div>
       <div class="card-body">
+        <div class="toggle-line"><input type="checkbox" id="chkRecomendacao"><label for="chkRecomendacao">Incluir recomendação de Morfológico do 2º Trimestre</label></div>
+        <div class="field-row conditional" id="wrap_recomendacao">
+          <div class="field"><label>Período recomendado — início</label><input type="text" id="dataInicioMorfo" placeholder="calculada automaticamente" readonly></div>
+          <div class="field"><label>Período recomendado — fim</label><input type="text" id="dataFimMorfo" placeholder="calculada automaticamente" readonly></div>
+        </div>
+        <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima e os blocos ativados. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
       </div>
@@ -1240,6 +1247,8 @@ if(typeof criarMotorLaudo !== 'function'){
 
     impDPP: 'DPP: {DATA}.',
 
+    recomendacaoMorfologico: 'Sugere-se a realização do Morfológico do 2º Trimestre para avaliação da anatomia fetal entre {DATA_INICIO} e {DATA_FIM}.',
+
     footerImagens: 'Imagens em anexo.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
@@ -1378,6 +1387,7 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkPBF').addEventListener('change', e=>{ toggle('hintPBF', e.target.checked); updateAllFetoWraps(); render(); });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
   $('cerclagemRealizada').addEventListener('change', e=>{ toggle('wrap_cerclagemIG', e.target.checked); });
+  $('chkRecomendacao').addEventListener('change', e=> toggle('wrap_recomendacao', e.target.checked));
 
   // ---------- Feto(s): lista dinâmica, mesmo padrão dos sacos gestacionais do
   // obstetrico-1trimestre.html — cada card guarda um uid estável, então remover
@@ -1740,6 +1750,13 @@ if(typeof criarMotorLaudo !== 'function'){
   function computeDPP(dataBase){
     return dataBase ? formatDateBR(addDays(dataBase, 280)) : '';
   }
+  // Janela recomendada do Morfológico de 2º Trimestre: 22 semanas e 0 dias
+  // (154 dias) a 24 semanas e 6 dias (174 dias) — só faz sentido quando este
+  // exame é anterior a essa janela (1º ultrassom feito no 2º trimestre).
+  function computeMorfoPeriodo2(dataBase){
+    if(!dataBase) return {inicio:'', fim:''};
+    return { inicio: formatDateBR(addDays(dataBase, 154)), fim: formatDateBR(addDays(dataBase, 174)) };
+  }
 
   // ---------- Doppler: percentil do IP médio das artérias uterinas,
   // Gómez O, Figueras F, Fernández S, Bennasar M, Martínez JM, Puerto B,
@@ -2074,6 +2091,20 @@ if(typeof criarMotorLaudo !== 'function'){
       : '';
     const dppEl = $('dpp');
     if(dppEl) dppEl.value = dppTxt;
+    // Recomendação de Morfológico do 2º Trimestre: opt-in (ver checkbox),
+    // usada quando este é o 1º ultrassom da gestante feito já no 2º
+    // trimestre, antes da janela do exame. A data-base é a mesma cronologia
+    // estabelecida acima — ou, sem cronologia formal (DUM incerta/ignorada),
+    // a mesma IG informada que já alimenta a DPP logo acima.
+    const chkRecomendacao = $('chkRecomendacao').checked;
+    const dataBaseMorfo = ehDumSemCronologia(cronologiaMetodo)
+      ? computeDataBaseFromIG(dataExame, v('impSemanas'), v('impDias'))
+      : dataBase;
+    const morfoPeriodo = computeMorfoPeriodo2(dataBaseMorfo);
+    $('dataInicioMorfo').value = morfoPeriodo.inicio;
+    $('dataFimMorfo').value = morfoPeriodo.fim;
+    const dataInicioMorfo = blankOrValue(morfoPeriodo.inicio);
+    const dataFimMorfo = blankOrValue(morfoPeriodo.fim);
     const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
     const igAtualEl = $('igAtual');
     if(igAtualEl) igAtualEl.value = igAtualTxt;
@@ -2588,6 +2619,10 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
+
+    if(chkRecomendacao){
+      blocks.push({id:'recomendacao', html:'<p class="recomendacao">('+phraseRaw('recomendacaoMorfologico', {DATA_INICIO: span(dataInicioMorfo), DATA_FIM: span(dataFimMorfo)})+')</p>'});
+    }
 
     let rodapeHtml = '<div class="rodape-final">';
     rodapeHtml += '<p class="footnote">'+comDigitadora(phrase('footerImagens'))+'</p>';

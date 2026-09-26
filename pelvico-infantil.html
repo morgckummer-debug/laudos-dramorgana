@@ -126,6 +126,7 @@
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
+  .field-row .field.conditional.show{display:flex;}
 
   /* Custom combobox for "Médico solicitante" — a plain <datalist> doesn't show
      its suggestion popup at all on iOS Safari (and is unreliable on other
@@ -476,9 +477,9 @@
       <div class="card-head"><h2>Endométrio</h2></div>
       <div class="card-body">
         <div class="field-row">
-          <div class="field"><label>Espessura máxima</label><input type="text" inputmode="decimal" data-decimals="1" id="endometrioEspessura" placeholder="mm"></div>
+          <div class="field conditional show" id="wrap_endometrioEspessura"><label>Espessura máxima</label><input type="text" inputmode="decimal" data-decimals="1" id="endometrioEspessura" placeholder="mm"></div>
           <div class="field"><label>Aspecto</label>
-            <select id="endometrioAspecto"><option value="normal">Regular, ecogênico</option><option value="alterado">Alterado (descrever)</option></select>
+            <select id="endometrioAspecto"><option value="normal">Regular, ecogênico</option><option value="alterado">Alterado (descrever)</option><option value="nao_delimitado">Não delimitado</option></select>
           </div>
         </div>
         <div class="field conditional" id="wrap_endometrioDescricao">
@@ -1207,6 +1208,7 @@ if(typeof criarMotorLaudo !== 'function'){
   });
   $('endometrioAspecto').addEventListener('change', e=>{
     toggle('wrap_endometrioDescricao', e.target.value==='alterado');
+    toggle('wrap_endometrioEspessura', e.target.value!=='nao_delimitado');
     if(e.target.value==='alterado') prefillAspectoDescricao('endometrioDescricao', ()=> 'regular, ecogênico, com espessura máxima de '+(v('endometrioEspessura')||'____')+' mm');
   });
   $('anexiaisAspecto').addEventListener('change', e=>{
@@ -1361,8 +1363,8 @@ if(typeof criarMotorLaudo !== 'function'){
     flag('uteroVolume', uteroVolumeNum!==null && uteroVolumeNum > faixa.utero);
     const vrUteroTexto = 'até '+faixa.utero.toString().replace('.',',')+' cm³';
 
-    const endometrioEspessura = blankOrValue(req('endometrioEspessura'));
     const endometrioAspecto = v('endometrioAspecto');
+    const endometrioEspessura = blankOrValue(reqIf('endometrioEspessura', endometrioAspecto!=='nao_delimitado'));
     const endometrioDescricao = vNoDot('endometrioDescricao');
     reqIf('endometrioDescricao', endometrioAspecto==='alterado');
     const chkCavidadeVirtual = $('chkCavidadeVirtual').checked;
@@ -1439,7 +1441,9 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const endometrioTexto = (endometrioAspecto==='alterado' && endometrioDescricao)
       ? escapeHtml(endometrioDescricao)+'.'
-      : 'regular, ecogênico, com espessura máxima de '+span(endometrioEspessura)+' mm.';
+      : endometrioAspecto==='nao_delimitado'
+        ? 'não delimitado.'
+        : 'regular, ecogênico, com espessura máxima de '+span(endometrioEspessura)+' mm.';
     blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+endometrioTexto+(chkCavidadeVirtual ? ' Cavidade uterina virtual.' : '')+'</p>'});
 
     function ovarioParagraph(ov, ladoM){
