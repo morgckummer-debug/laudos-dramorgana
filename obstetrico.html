@@ -2101,17 +2101,24 @@ if(typeof criarMotorLaudo !== 'function'){
     const cronologiaMetodoRaw = v('cronologiaMetodo');
     const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame' || cronologiaMetodoRaw==='fiv' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
     // DUM discordante: mesmo método (DUM) continua selecionado — a médica só
-    // marca que não confia nela —, mas tudo que dependeria da DUM (IG atual,
-    // DPP, período do Morfológico) passa a vir da IG informada neste exame,
-    // igual ao método "exame". Por isso a data-base é recalculada aqui em vez
-    // de vir de computeDataBase('dum'), que ignora esse select (não sabe da
-    // discordância — só olha o método).
+    // marca que não confia nela. Cronologia (IG atual, cabeçalho, Doppler,
+    // percentis, apresentação — tudo que usa `gaDays`/`dataBase`) continua
+    // vindo da própria DUM, sem olhar este select: dataBase nunca troca para
+    // a IG informada aqui, só computeDataBase(cronologiaMetodo) mesmo. Só a
+    // DPP e o período do Morfológico usam a IG informada neste exame como se
+    // fosse o método "exame" (dataBaseDppMorfo, abaixo) — mesmo padrão do
+    // obstetrico-1trimestre.html (usaIgInformadaParaDppMorfo/
+    // dataBaseDppMorfo). Reportado em 2026-09-26: uma versão anterior trocava
+    // a cronologia inteira pela IG informada, contradizendo o comentário de
+    // updateCronologiaWraps() ("sem... mexer no IG atual/cabeçalho, que
+    // continuam pela DUM").
     const dumConcordancia = v('dumConcordancia')==='discordante' ? 'discordante' : 'concordante';
     const dumDiscordante = cronologiaMetodo === 'dum' && dumConcordancia === 'discordante';
-    const usaIgInformada = cronologiaMetodo === 'exame' || dumDiscordante;
-    const dataBase = dumDiscordante
+    const usaIgInformadaParaDppMorfo = cronologiaMetodo === 'exame' || dumDiscordante;
+    const dataBase = computeDataBase(cronologiaMetodo);
+    const dataBaseDppMorfo = usaIgInformadaParaDppMorfo
       ? computeDataBaseFromIG(dataExame, v('impSemanas'), v('impDias'))
-      : computeDataBase(cronologiaMetodo);
+      : dataBase;
     // DUM incerta/ignorada: sem data base, então a IG não sai da conta com a
     // data do exame (não há cronologia) — vem direto dos campos de IG
     // informada, só para virar número solto na conclusão.
@@ -2127,10 +2134,10 @@ if(typeof criarMotorLaudo !== 'function'){
     // estabelecida, mas se for o primeiro exame da gestante ela ainda
     // precisa de uma DPP para levar daqui), no método "IG informada neste
     // exame" e na DUM discordante — nos três casos a data-base já foi
-    // resolvida acima (`dataBase`), então é só reaproveitar.
+    // resolvida acima (`dataBaseDppMorfo`), então é só reaproveitar.
     const dppTxt = ehDumSemCronologia(cronologiaMetodo)
       ? computeDPP(computeDataBaseFromIG(dataExame, v('impSemanas'), v('impDias')))
-      : (usaIgInformada ? computeDPP(dataBase) : '');
+      : (usaIgInformadaParaDppMorfo ? computeDPP(dataBaseDppMorfo) : '');
     const dppEl = $('dpp');
     if(dppEl) dppEl.value = dppTxt;
     // Recomendação de Morfológico: opt-in (ver checkboxes), usada quando este
@@ -2145,12 +2152,11 @@ if(typeof criarMotorLaudo !== 'function'){
     // sugerido — a janela do 1º já fechou ou está fechando e a do 2º nem
     // começa —, então os dois checkboxes ficam escondidos nessa faixa, sem
     // sugestão automática (decisão deliberada, não lacuna esquecida).
-    // A data-base é a mesma cronologia estabelecida acima — ou, sem
-    // cronologia formal (DUM incerta/ignorada), a mesma IG informada que já
-    // alimenta a DPP logo acima.
+    // Mesma data-base da DPP acima (`dataBaseDppMorfo`) — sem cronologia
+    // formal (DUM incerta/ignorada) cai no mesmo caso especial de sempre.
     const dataBaseMorfo = ehDumSemCronologia(cronologiaMetodo)
       ? computeDataBaseFromIG(dataExame, v('impSemanas'), v('impDias'))
-      : dataBase;
+      : dataBaseDppMorfo;
     const mostrarRecomendacao1 = gaDays!=null && gaDays < 84;
     const mostrarRecomendacao2 = gaDays!=null && gaDays >= 98;
     toggle('wrap_chkRecomendacao1', mostrarRecomendacao1);
@@ -2498,7 +2504,7 @@ if(typeof criarMotorLaudo !== 'function'){
         // estimativa daquele exame, nunca como data-base).
         : ehDumSemCronologia(cronologiaMetodo)
           ? '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(cronologiaMetodo))+'</span></div>'
-        : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>IG atual:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
+        : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
       +'</div>'});
 
     // Título acompanha os blocos ativados: sem nenhum é "SIMPLES", e cada
@@ -3254,15 +3260,19 @@ if(typeof criarMotorLaudo !== 'function'){
       if(!gestacao){
         const cronologiaMetodoAtual = v('cronologiaMetodo');
         const dumDiscordanteAtual = cronologiaMetodoAtual==='dum' && v('dumConcordancia')==='discordante';
-        const dataBase = dumDiscordanteAtual
-          ? computeDataBaseFromIG(v('dataExame'), v('impSemanas'), v('impDias'))
-          : computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='exame' || cronologiaMetodoAtual==='fiv') ? cronologiaMetodoAtual : 'dum');
+        // Mesma regra do render(): a gestação nasce com a DUM de verdade —
+        // dataBase nunca troca para a IG informada aqui, mesmo discordante.
+        // Só a DPP sai já corrigida por essa IG, igual à impressa no laudo.
+        const dataBase = computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='exame' || cronologiaMetodoAtual==='fiv') ? cronologiaMetodoAtual : 'dum');
         if(!dataBase){
           cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
           return;
         }
+        const dataBaseDppAtual = dumDiscordanteAtual
+          ? (computeDataBaseFromIG(v('dataExame'), v('impSemanas'), v('impDias')) || dataBase)
+          : dataBase;
         const dumISO = toISODateLocal(dataBase);
-        const dppISO = toISODateLocal(addDays(dataBase, 280));
+        const dppISO = toISODateLocal(addDays(dataBaseDppAtual, 280));
         // 'gemelar' e 'trigemelar' são os valores que o check da tabela aceita
         // (migração 005 do repo curva-fetal); a corionicidade escolhida no laudo
         // precisa combinar com o tipo — tricoriônica só existe em trigemelar.
