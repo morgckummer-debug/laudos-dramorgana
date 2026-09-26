@@ -1366,6 +1366,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const vrUteroTexto = 'até '+faixa.utero.toString().replace('.',',')+' cm³';
 
     const endometrioAspecto = v('endometrioAspecto');
+    // Decidido aqui, a cada render() — e não só no 'change' do select —
+    // porque "Limpar para nova paciente" tira a classe "show" de todo
+    // ".conditional" (inclusive este, que nasce "conditional show") sem
+    // disparar esse evento: o campo sumia e só voltava se alguém trocasse o
+    // Aspecto do endométrio à toa.
+    toggle('wrap_endometrioEspessura', endometrioAspecto!=='nao_delimitado');
     const endometrioEspessura = blankOrValue(reqIf('endometrioEspessura', endometrioAspecto!=='nao_delimitado'));
     const endometrioDescricao = vNoDot('endometrioDescricao');
     reqIf('endometrioDescricao', endometrioAspecto==='alterado');

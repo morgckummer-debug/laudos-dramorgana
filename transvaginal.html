@@ -3161,6 +3161,21 @@ if(typeof criarMotorLaudo !== 'function'){
     // escondidos com esse reset em branco.
     toggle('wrap_ovD_segunda', true);
     toggle('wrap_ovE_segunda', true);
+    // "Mostrar volume (dos cistos) no laudo" nasce marcada — o reset acima
+    // desmarca o checkbox (igual a qualquer outro) e tira o "show" do campo
+    // de volume, mas sem disparar o 'change' que reconecta os dois: sem
+    // isto, a próxima vez que a médica escolhesse "1/2 cistos simples" para
+    // uma nova paciente, o volume vinha escondido e o checkbox aparecia
+    // desmarcado sem motivo aparente.
+    ['ovD','ovE'].forEach(prefix=>{
+      ['', '2'].forEach(suf=>{
+        ['cisto1','cisto2'].forEach(tipo=>{
+          const chk = $(prefix+'_'+tipo+'MostrarVolume'+suf);
+          if(chk) chk.checked = true;
+          toggle('wrap_'+prefix+'_'+tipo+'_volume'+suf, true);
+        });
+      });
+    });
     // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
     draftDiscard();
   });

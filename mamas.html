@@ -1573,6 +1573,13 @@ if(typeof criarMotorLaudo !== 'function'){
     req('nomePaciente'); req('dataExame');
 
     const chkMamasMasculinas = $('chkMamasMasculinas').checked;
+    // Decidido aqui, a cada render() — e não só no 'change' do checkbox —
+    // porque "Limpar para nova paciente" tira a classe "show" de todo
+    // ".conditional" (inclusive destes dois, que nascem "conditional show")
+    // sem disparar esse evento: os campos sumiam e só voltavam se alguém
+    // marcasse e desmarcasse "Mamas masculinas" à toa.
+    toggle('wrap_ecotextura', !chkMamasMasculinas);
+    toggle('wrap_biradsCategoria', !chkMamasMasculinas);
 
     const chkMamografia = $('chkMamografia').checked;
     const mamografiaData = blankOrValue(reqIf('mamografiaData', chkMamografia));
