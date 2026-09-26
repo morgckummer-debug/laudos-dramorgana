@@ -478,9 +478,9 @@
 
   <hr class="sep">
   <h3>Impressões diagnósticas — base</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação — use {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (2 fetos) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar (3 fetos) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação — use {IG} e {CONCORDANCIA} (vira " (DUM discordante)" só quando marcado; também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (2 fetos) — use {CORIONICIDADE}, {IG} e {CONCORDANCIA} (vira " (DUM discordante)" só quando marcado; também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar (3 fetos) — use {CORIONICIDADE}, {IG} e {CONCORDANCIA} (vira " (DUM discordante)" só quando marcado; também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação com DUM incerta/ignorada, menos de 14 semanas — use {SEMANAS}</label><textarea id="ph_impGestacaoDumIncertaCcn" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação com DUM incerta/ignorada, 14 semanas ou mais — use {SEMANAS}</label><textarea id="ph_impGestacaoDumIncertaBiometria" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
@@ -569,6 +569,9 @@
         <div class="field-row">
           <div class="field"><label>Idade gestacional calculada com base em</label>
             <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">Ultrassom de datação (1º trimestre)</option><option value="fiv">FIV (transferência embrionária)</option><option value="exame">IG informada neste exame</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
+          </div>
+          <div class="field conditional" id="wrap_dumConcordancia"><label>DUM</label>
+            <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
           </div>
         </div>
         <div class="field-row conditional" id="wrap_usgDatacao">
@@ -1208,9 +1211,9 @@ if(typeof criarMotorLaudo !== 'function'){
     laValoresBolsao: 'Maior bolsão: {BOLSAO} cm',
     laValoresIla: 'ILA: {ILA} cm (P{ILAP})',
 
-    impGestacao: 'Gestação eutópica, compatível com {IG}.',
-    impGestacaoMultipla: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
-    impGestacaoTrigemelar: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
+    impGestacao: 'Gestação eutópica, compatível com {IG}{CONCORDANCIA}.',
+    impGestacaoMultipla: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}{CONCORDANCIA}.',
+    impGestacaoTrigemelar: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {IG}{CONCORDANCIA}.',
     impGestacaoDumIncertaCcn: 'Gestação eutópica, de {SEMANAS} semanas pelo CCN.',
     impGestacaoDumIncertaBiometria: 'Gestação eutópica com biometria de {SEMANAS} semanas.',
     impBoaEvolucao: 'Gestação com boa evolução.',
@@ -1367,18 +1370,24 @@ if(typeof criarMotorLaudo !== 'function'){
   }
 
 
-  $('cronologiaMetodo').addEventListener('change', e=>{
-    toggle('wrap_usgDatacao', e.target.value==='usg');
-    toggle('wrap_fivTransferencia', e.target.value==='fiv');
-    toggle('wrap_exameInfo', e.target.value==='exame' || ehDumSemCronologia(e.target.value));
-    toggle('wrap_dppInformada', e.target.value==='exame' || ehDumSemCronologia(e.target.value));
-    toggle('wrap_dumEstimada', e.target.value==='usg' || e.target.value==='exame' || e.target.value==='fiv');
-  });
-  toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
-  toggle('wrap_fivTransferencia', $('cronologiaMetodo').value==='fiv');
-  toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame' || ehDumSemCronologia($('cronologiaMetodo').value));
-  toggle('wrap_dppInformada', $('cronologiaMetodo').value==='exame' || ehDumSemCronologia($('cronologiaMetodo').value));
-  toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg' || $('cronologiaMetodo').value==='exame' || $('cronologiaMetodo').value==='fiv');
+  // DUM discordante: mesmo método (DUM) da cronologia, mas a médica marca que
+  // não confia nela — libera os mesmos campos de "IG informada neste exame" +
+  // DPP do método "exame", sem trocar o método nem mexer no IG atual/cabeçalho
+  // (que continuam pela DUM). Por isso precisa de dois gatilhos: o método em
+  // si e este select, que só existe quando o método é DUM.
+  function updateCronologiaWraps(){
+    const metodo = $('cronologiaMetodo').value;
+    const dumDiscordante = metodo==='dum' && $('dumConcordancia').value==='discordante';
+    toggle('wrap_usgDatacao', metodo==='usg');
+    toggle('wrap_fivTransferencia', metodo==='fiv');
+    toggle('wrap_dumConcordancia', metodo==='dum');
+    toggle('wrap_exameInfo', metodo==='exame' || ehDumSemCronologia(metodo) || dumDiscordante);
+    toggle('wrap_dppInformada', metodo==='exame' || ehDumSemCronologia(metodo) || dumDiscordante);
+    toggle('wrap_dumEstimada', metodo==='usg' || metodo==='exame' || metodo==='fiv');
+  }
+  $('cronologiaMetodo').addEventListener('change', updateCronologiaWraps);
+  $('dumConcordancia').addEventListener('change', updateCronologiaWraps);
+  updateCronologiaWraps();
 
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
   // Doppler fetal e PBF são escolhas únicas do laudo, mas seus campos moram
@@ -1908,8 +1917,14 @@ if(typeof criarMotorLaudo !== 'function'){
       ? ((state.gaDays != null && state.gaDays < 14*7) ? 'impGestacaoDumIncertaCcn' : 'impGestacaoDumIncertaBiometria')
       : (!state.isMultiple ? 'impGestacao'
         : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla'));
+    // {CONCORDANCIA}: só aparece com a DUM marcada como discordante (a IG
+    // relatada já vem da IG informada neste exame, não da DUM — ver
+    // dumDiscordante em render() —, e a conclusão avisa disso). Some sozinho
+    // (fica '') nos demais métodos, inclusive "IG informada neste exame", que
+    // nunca teve uma DUM para discordar.
+    const concordanciaTxt = state.dumDiscordante ? ' (DUM discordante)' : '';
     items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
-      {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+      {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:concordanciaTxt}), auto:true});
 
     const algumAchado = state.fetos.some(f=> f.laAlterado || f.placentaAlterada || f.placentaPrevia || f.pesoKey==='impPesoPIG' || f.pesoKey==='impPesoCIUR')
       || state.discordanciaAlterada;
@@ -2070,7 +2085,18 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const cronologiaMetodoRaw = v('cronologiaMetodo');
     const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame' || cronologiaMetodoRaw==='fiv' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
-    const dataBase = computeDataBase(cronologiaMetodo);
+    // DUM discordante: mesmo método (DUM) continua selecionado — a médica só
+    // marca que não confia nela —, mas tudo que dependeria da DUM (IG atual,
+    // DPP, período do Morfológico) passa a vir da IG informada neste exame,
+    // igual ao método "exame". Por isso a data-base é recalculada aqui em vez
+    // de vir de computeDataBase('dum'), que ignora esse select (não sabe da
+    // discordância — só olha o método).
+    const dumConcordancia = v('dumConcordancia')==='discordante' ? 'discordante' : 'concordante';
+    const dumDiscordante = cronologiaMetodo === 'dum' && dumConcordancia === 'discordante';
+    const usaIgInformada = cronologiaMetodo === 'exame' || dumDiscordante;
+    const dataBase = dumDiscordante
+      ? computeDataBaseFromIG(dataExame, v('impSemanas'), v('impDias'))
+      : computeDataBase(cronologiaMetodo);
     // DUM incerta/ignorada: sem data base, então a IG não sai da conta com a
     // data do exame (não há cronologia) — vem direto dos campos de IG
     // informada, só para virar número solto na conclusão.
@@ -2084,14 +2110,12 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     // DPP: aparece quando a DUM é incerta/ignorada (sem cronologia nenhuma
     // estabelecida, mas se for o primeiro exame da gestante ela ainda
-    // precisa de uma DPP para levar daqui) e também no método "IG informada
-    // neste exame" — usado quando a DUM é discordante da datação pelo
-    // ultrassom e a médica prefere basear a IG (e a DPP) no achado deste
-    // exame em vez da DUM. Nos dois casos a data-base é a mesma IG
-    // informada acima; para "exame" ela já foi calculada em `dataBase`.
+    // precisa de uma DPP para levar daqui), no método "IG informada neste
+    // exame" e na DUM discordante — nos três casos a data-base já foi
+    // resolvida acima (`dataBase`), então é só reaproveitar.
     const dppTxt = ehDumSemCronologia(cronologiaMetodo)
       ? computeDPP(computeDataBaseFromIG(dataExame, v('impSemanas'), v('impDias')))
-      : (cronologiaMetodo === 'exame' ? computeDPP(dataBase) : '');
+      : (usaIgInformada ? computeDPP(dataBase) : '');
     const dppEl = $('dpp');
     if(dppEl) dppEl.value = dppTxt;
     // Recomendação de Morfológico do 2º Trimestre: opt-in (ver checkbox),
@@ -2397,7 +2421,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // ----- Impressão -----
     const state = {
-      semanas: semanasTxt, dias: diasTxt, ig: igTxt, gaDays, cronologiaMetodo, dpp: dppTxt,
+      semanas: semanasTxt, dias: diasTxt, ig: igTxt, gaDays, cronologiaMetodo, dumDiscordante, dpp: dppTxt,
       isMultiple, corTxt, fetos,
       discordanciaTxt, discordanciaAlterada, discordanciaSeveridade, discordanciaNum,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
@@ -3187,7 +3211,10 @@ if(typeof criarMotorLaudo !== 'function'){
 
       if(!gestacao){
         const cronologiaMetodoAtual = v('cronologiaMetodo');
-        const dataBase = computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='exame' || cronologiaMetodoAtual==='fiv') ? cronologiaMetodoAtual : 'dum');
+        const dumDiscordanteAtual = cronologiaMetodoAtual==='dum' && v('dumConcordancia')==='discordante';
+        const dataBase = dumDiscordanteAtual
+          ? computeDataBaseFromIG(v('dataExame'), v('impSemanas'), v('impDias'))
+          : computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='exame' || cronologiaMetodoAtual==='fiv') ? cronologiaMetodoAtual : 'dum');
         if(!dataBase){
           cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
           return;
