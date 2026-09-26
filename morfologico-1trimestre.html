@@ -3332,7 +3332,37 @@ if(typeof criarMotorLaudo !== 'function'){
     wordImgParts.push({cid: cid, mime: m[1], base64: m[2]});
     imgEl.src = 'cid:' + cid;
   }
-  function buildReportHtml(){
+  // Word não entende <svg> — o filtro de HTML dele descarta a tag e
+  // despeja só o texto de dentro (cada rótulo de eixo, cada tick, o valor
+  // medido...) tudo emendado, sem quebra nenhuma: "1201401601802001..." em
+  // vez do gráfico. Rasteriza o SVG ao vivo (que já tem os pixels prontos
+  // na tela) num canvas do tamanho renderizado, e devolve um data: URI —
+  // mesmo caminho de embedImgAsCid() usado pro print colado e pro logo.
+  function svgParaDataUrl(svgEl){
+    return new Promise((resolve, reject)=>{
+      const rect = svgEl.getBoundingClientRect();
+      const scale = 2; // nitidez: o card sai pequeno na folha, dobra a resolução
+      const width = Math.max(1, Math.round(rect.width * scale));
+      const height = Math.max(1, Math.round(rect.height * scale));
+      const svgString = new XMLSerializer().serializeToString(svgEl);
+      const img = new Image();
+      img.onload = ()=>{
+        try{
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          // Fundo branco: a folha é branca e o Word não faz composição de
+          // transparência do jeito certo num <img> solto.
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/png'));
+        }catch(e){ reject(e); }
+      };
+      img.onerror = reject;
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+    });
+  }
+  async function buildReportHtml(){
     wordImgParts = [];
     const paperEl = $('paper');
     const clone = paperEl.cloneNode(true);
@@ -3477,7 +3507,6 @@ if(typeof criarMotorLaudo !== 'function'){
       });
       const anexoLogo = anexoClone.querySelector('.anexo-header img');
       if(anexoLogo && anexoLogo.style.display !== 'none'){
-        anexoLogo.style.maxHeight = '52px'; anexoLogo.style.width = 'auto'; anexoLogo.style.display = 'block';
         // fmf-icon.png é um arquivo do site, resolvido por caminho relativo —
         // no Word, aberto isolado de qualquer pasta do site, essa referência
         // não acha nada e o logo sai quebrado. A imagem já carregada na tela
@@ -3487,13 +3516,55 @@ if(typeof criarMotorLaudo !== 'function'){
         const liveLogoImg = paperAnexoEl.querySelector('.anexo-header img');
         if(liveLogoImg && liveLogoImg.naturalWidth > 0){
           try{
+            // O onerror desse <img> (ver HTML: esconde o logo se o caminho
+            // relativo não carregar) é só para quando o .doc é aberto de
+            // verdade, isolado do site — dentro do Word esse atributo é
+            // inerte (Word não roda o onerror de um HTML importado). Mas
+            // atribuir 'cid:...' logo abaixo faz O PRÓPRIO NAVEGADOR, aqui
+            // e agora, tentar carregar essa URL como imagem — falha (não é
+            // um esquema que ele resolve sozinho) e dispara o onerror de
+            // verdade, escondendo o logo no clone assim que o loop dos
+            // gráficos abaixo der a primeira pausa (await). Sem efeito
+            // nenhum no Word real, então tira o atributo antes de mexer no
+            // src, para essa falha de carregamento daqui não sobrar no
+            // HTML final.
+            anexoLogo.removeAttribute('onerror');
+            // Desenha já no tamanho de exibição (52px de altura) — o Word
+            // ignora max-height/width por CSS num <img> importado e mostra
+            // o arquivo no tamanho nativo dos pixels; antes disso o logo
+            // saía enorme, do tamanho original do PNG.
+            const targetH = 52;
+            const targetW = Math.round(liveLogoImg.naturalWidth * (targetH / liveLogoImg.naturalHeight));
             const c = document.createElement('canvas');
-            c.width = liveLogoImg.naturalWidth; c.height = liveLogoImg.naturalHeight;
-            c.getContext('2d').drawImage(liveLogoImg, 0, 0);
+            c.width = targetW; c.height = targetH;
+            c.getContext('2d').drawImage(liveLogoImg, 0, 0, targetW, targetH);
             anexoLogo.src = c.toDataURL('image/png');
+            anexoLogo.setAttribute('width', targetW);
+            anexoLogo.setAttribute('height', targetH);
+            anexoLogo.style.maxHeight = ''; anexoLogo.style.width = ''; anexoLogo.style.display = 'block';
             embedImgAsCid(anexoLogo);
           }catch(e){ /* navegador sem canvas ou imagem bloqueada por CORS: fica só sem o logo no Word, em vez de travar o download */ }
         }
+      }
+      // Gráficos de referência: cada .anexo-grafico-card tem um <svg> vivo
+      // (mesmo elemento, mesmos pixels que aparecem na tela) — troca pelo
+      // <img> rasterizado antes de mandar pro Word (ver svgParaDataUrl()).
+      // Falhar em rasterizar um card tira só aquele <svg> (sopa de texto),
+      // sem travar o download nem derrubar os outros gráficos.
+      const liveGraficoSvgs = Array.from(paperAnexoEl.querySelectorAll('.anexo-grafico-card svg'));
+      const cloneGraficoSvgs = Array.from(anexoClone.querySelectorAll('.anexo-grafico-card svg'));
+      for(let i=0; i<cloneGraficoSvgs.length; i++){
+        const liveSvg = liveGraficoSvgs[i];
+        const cloneSvg = cloneGraficoSvgs[i];
+        if(!liveSvg || !cloneSvg) continue;
+        try{
+          const dataUrl = await svgParaDataUrl(liveSvg);
+          const img = document.createElement('img');
+          img.src = dataUrl;
+          img.style.width = '100%'; img.style.display = 'block';
+          embedImgAsCid(img);
+          cloneSvg.replaceWith(img);
+        }catch(e){ cloneSvg.remove(); }
       }
       anexoClone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
       anexoClone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
@@ -3598,7 +3669,7 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   $('btnDownloadWord').addEventListener('click', async ()=>{
     try{
-      const html = buildReportHtml();
+      const html = await buildReportHtml();
       const docHtml = wordDocHtml(html, nomeArquivoLaudo());
       const blob = montarBlobWord(docHtml, wordImgParts);
       await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
