@@ -2087,16 +2087,17 @@ if(typeof criarMotorLaudo !== 'function'){
     const cronologiaMetodoRaw = v('cronologiaMetodo');
     const cronologiaMetodo = (cronologiaMetodoRaw==='fiv' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
     // DUM discordante: mesmo método (DUM) continua selecionado — a médica só
-    // marca que não confia nela. Cronologia (IG atual, cabeçalho, Doppler,
-    // percentis, apresentação — tudo que usa `gaDays`/`dataBase`) continua
-    // vindo da própria DUM, sem olhar este select: dataBase nunca troca para
-    // a IG informada aqui, só computeDataBase(cronologiaMetodo) mesmo. Só a
-    // DPP e o período do Morfológico usam a IG informada neste exame
-    // (dataBaseDppMorfo, abaixo) — mesmo padrão do obstetrico-1trimestre.html
-    // (usaIgInformadaParaDppMorfo/dataBaseDppMorfo). Reportado em 2026-09-26:
-    // uma versão anterior trocava a cronologia inteira pela IG informada,
-    // contradizendo o comentário de updateCronologiaWraps() ("sem... mexer no
-    // IG atual/cabeçalho, que continuam pela DUM").
+    // marca que não confia nela. Só a IG atual/cabeçalho (gaDaysDum, mais
+    // abaixo) continua vindo da própria DUM sem olhar este select — DPP,
+    // período do Morfológico e a IG "real" usada em todo o resto do laudo
+    // (conclusão, Doppler, percentis, apresentação — `gaDays`) passam a vir
+    // da IG informada neste exame (dataBaseDppMorfo, abaixo) — mesmo padrão
+    // do obstetrico-1trimestre.html (usaIgInformadaParaDppMorfo/
+    // dataBaseDppMorfo). Reportado em 2026-09-26/27: uma versão inicial
+    // trocava a cronologia inteira pela IG informada (contradizendo o
+    // comentário de updateCronologiaWraps()); a correção seguinte foi longe
+    // demais na direção oposta e prendeu `gaDays` à DUM, deixando a conclusão
+    // com a IG cronológica em vez da IG encontrada no exame.
     const dumConcordancia = v('dumConcordancia')==='discordante' ? 'discordante' : 'concordante';
     const dumDiscordante = cronologiaMetodo === 'dum' && dumConcordancia === 'discordante';
     const usaIgInformadaParaDppMorfo = dumDiscordante;
@@ -2107,14 +2108,22 @@ if(typeof criarMotorLaudo !== 'function'){
     // DUM incerta/ignorada: sem data base, então a IG não sai da conta com a
     // data do exame (não há cronologia) — vem direto dos campos de IG
     // informada, só para virar número solto na conclusão.
+    // gaDays é a IG "real" do exame — na DUM discordante vem da IG informada
+    // (dataBaseDppMorfo), não da DUM (dataBase). Alimenta a conclusão, os
+    // placeholders {SEMANAS}/{DIAS}/{IG}, o Doppler, os percentis, a
+    // apresentação e a recomendação de Morfológico. Reportado em 2026-09-27:
+    // a versão anterior usava a DUM aqui, e a conclusão saía com a IG
+    // cronológica em vez da IG encontrada no exame. Só a IG atual/cabeçalho
+    // (gaDaysDum, abaixo) continua pela DUM.
     let gaDays;
     if(ehDumSemCronologia(cronologiaMetodo)){
       const semanasInformadas = parseInt(v('impSemanas'), 10);
       const diasInformados = parseInt(v('impDias'), 10);
       gaDays = !isNaN(semanasInformadas) ? (semanasInformadas*7 + (isNaN(diasInformados) ? 0 : diasInformados)) : null;
     } else {
-      gaDays = computeIGDaysAtExam(dataBase, dataExame);
+      gaDays = computeIGDaysAtExam(dataBaseDppMorfo, dataExame);
     }
+    const gaDaysDum = computeIGDaysAtExam(dataBase, dataExame);
     // DPP: aparece quando a DUM é incerta/ignorada (sem cronologia nenhuma
     // estabelecida, mas se for o primeiro exame da gestante ela ainda
     // precisa de uma DPP para levar daqui) e na DUM discordante — nos dois
@@ -2162,7 +2171,10 @@ if(typeof criarMotorLaudo !== 'function'){
     // impresso calado, sem a caixa nem aparecer mais pra ela desmarcar.
     const chkRecomendacao1 = mostrarRecomendacao1 && $('chkRecomendacao1').checked;
     const chkRecomendacao2 = mostrarRecomendacao2 && $('chkRecomendacao2').checked;
-    const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
+    // IG atual/cabeçalho: sempre pela cronologia (DUM/FIV), nunca pela IG
+    // informada no exame — diferente de gaDays (a IG "real", usada em todo o
+    // resto do laudo), que na DUM discordante vem da IG informada.
+    const igAtualTxt = gaDaysDum!=null ? formatIG(gaDaysDum) : '';
     const igAtualEl = $('igAtual');
     if(igAtualEl) igAtualEl.value = igAtualTxt;
     // DUM estimada: só faz sentido quando a IG veio de ultrassom (anterior ou
@@ -2215,7 +2227,7 @@ if(typeof criarMotorLaudo !== 'function'){
       utPercentilTxt = percentilUt!=null ? String(Math.round(percentilUt)) : '';
       utAlterado = percentilUt!=null ? percentilUt > 95 : false;
       $('utMedioCalc').value = utMedioNum!=null ? utMedioTxt : '';
-      $('utP95Calc').value = percentilUt!=null ? ('P'+utPercentilTxt+' (IG: '+igAtualTxt+')') : (gaDays==null ? 'informe a IG para calcular' : '');
+      $('utP95Calc').value = percentilUt!=null ? ('P'+utPercentilTxt+' (IG: '+igTxt+')') : (gaDays==null ? 'informe a IG para calcular' : '');
     }
 
     // ----- Um estado por feto -----
