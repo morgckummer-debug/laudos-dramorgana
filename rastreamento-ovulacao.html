@@ -202,7 +202,7 @@
   .paper h4.sec{
     text-decoration:underline;font-size:11.5pt;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
   }
-  .paper p.linha{margin:0 0 var(--linha-margin, 16px);}
+  .paper p.linha{margin:0 0 var(--linha-margin, 20px);}
   .paper p.linha strong{font-weight:700;}
   .paper .nodulos-lista{margin:0 0 16px;}
   .paper .nodulos-lista .nodulo-item{margin:0 0 6px;padding-left:2.4em;text-indent:-2.4em;}
@@ -590,6 +590,7 @@
           <div class="field"><label>DUM</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
         </div>
         <div class="field"><label>Medicações</label><textarea id="medicacoes" rows="2" placeholder="ex: Citrato de clomifeno 100mg/dia; Letrozol 5mg/dia... (deixe em branco para &quot;---&quot;)"></textarea></div>
+        <div class="field"><label>Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" rows="2" placeholder="ex: Investigação de infertilidade.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
       </div>
     </div>
 
@@ -2159,6 +2160,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const gpaA = v('gpaA');
     const dum = v('dum');
     const medicacoes = vNoDot('medicacoes');
+    const motivoExame = vNoDot('motivoExame');
 
     const uteroPosicaoVal = v('uteroPosicao');
     const uteroPosicaoTexto = {AVF:'em anteversoflexão', RVF:'em retroversoflexão', MVF:'em posição intermediária (medioversão)'}[uteroPosicaoVal];
@@ -2306,6 +2308,14 @@ if(typeof criarMotorLaudo !== 'function'){
     // já que esse seletor conta só elementos-irmãos, ignorando o nó de texto
     // antes dele. O <span> garante que o <br> não seja mais o primeiro filho.
     blocks.push({id:'doctitle', html:'<h3 class="doctitle"><span>ULTRASSONOGRAFIA TRANSVAGINAL</span><br>PARA RASTREAMENTO DE OVULAÇÃO</h3>'});
+
+    if(motivoExame){
+      const linhas = motivoExame.split('\n').map(l=>l.trim()).filter(Boolean);
+      const relatoHtml = linhas.map((linha, idx)=>
+        '<span style="display:block;'+(idx>0?'margin-top:1mm;':'')+'">'+escapeHtml(linha)+(idx===linhas.length-1?'.':'')+'</span>'
+      ).join('');
+      blocks.push({id:'relato', html:'<p class="relato">'+relatoHtml+'</p>'});
+    }
 
     blocks.push({id:'medicacoes', html:'<p class="linha"><strong>Medicações:</strong> '+(medicacoes ? escapeHtml(medicacoes) : '---')+'</p>'});
 
