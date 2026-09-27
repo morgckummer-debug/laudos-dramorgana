@@ -269,15 +269,6 @@
   .paper table.biometria.morfologia td:nth-child(odd){font-weight:400;}
   .paper table.biometria.morfologia td:nth-child(even){text-align:left;white-space:normal;}
   .paper table.biometria.morfologia tbody tr:nth-child(even) td{background:none;}
-  /* Risco fetal para trissomias em gemelar/trigemelar (não monocoriônica):
-     uma tabela só, uma coluna por feto, em vez do quadro repetido um por
-     feto — o padrão par/ímpar de table.biometria (rótulo em negrito à
-     esquerda, valor centralizado) só funciona com exatamente 2 colunas;
-     aqui o rótulo é sempre a 1ª coluna e todo o resto (2, 3 ou 4 colunas
-     de feto) é valor, então troca nth-child por first-child. */
-  .paper table.biometria.risco-multi td{font-weight:400;text-align:center;white-space:nowrap;}
-  .paper table.biometria.risco-multi td:first-child{font-weight:700;text-align:left;}
-  .paper table.biometria.risco-multi tr.risco-header td{font-weight:600;color:var(--rose-dark);}
   /* Quando a quebra cai dentro da tabela de morfologia o marcador é um <td>,
      e precisa vencer tanto a borda/padding quanto o negrito/centralização
      por coluna acima (por isso o seletor repete .morfologia e vem depois:
@@ -2681,11 +2672,12 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     // Risco ajustado pelos marcadores ultrassonográficos — reaproveita os
-    // mesmos campos feto{uid}RiscoT21/T18/T13 do cartão de cada feto (ver
-    // "Risco Fetal para Trissomias" no corpo do laudo): não duplica a
-    // digitação, só reapresenta no layout da FMF. Mesma regra da
-    // monocoriônica usada lá — um cálculo só, rotulado para os dois/três
-    // fetos (ver a nota "Monocoriônica" no CLAUDE.md).
+    // mesmos campos feto{uid}RiscoT21/T18/T13 do cartão de cada feto: não
+    // duplica a digitação, só apresenta no layout da FMF (o quadro "Risco
+    // Fetal para Trissomias" que existia no corpo do laudo saiu em
+    // 2026-09-27, por repetir estes mesmos números — ver render()). Mesma
+    // regra da monocoriônica usada lá — um cálculo só, rotulado para os
+    // dois/três fetos (ver a nota "Monocoriônica" no CLAUDE.md).
     const temAjustado = uids.some(function(uid){
       return v('feto'+uid+'RiscoT21')!=='' || v('feto'+uid+'RiscoT18')!=='' || v('feto'+uid+'RiscoT13')!=='';
     });
@@ -2694,9 +2686,7 @@ if(typeof criarMotorLaudo !== 'function'){
       html += heading('Risks from History, FHR, NT, DV PI, Nasal bone, Tricuspid'+rotuloMono);
       if(isMultiple && !isMonocorionica){
         // Gemelar/trigemelar sem ser monocoriônica: uma tabela só, uma
-        // coluna por feto — mesmo formato compacto do quadro "Risco Fetal
-        // para Trissomias" no corpo do laudo (ver render(), tabela
-        // risco-multi). Um bloco inteiro por feto (como fazia antes)
+        // coluna por feto. Um bloco inteiro por feto (como fazia antes)
         // ocupava altura demais e estourava a página com os gráficos de
         // referência logo abaixo — a tabela por coluna cabe no mesmo espaço
         // de um bloco só.
@@ -3431,48 +3421,14 @@ if(typeof criarMotorLaudo !== 'function'){
         +'</table></div>'});
     }
 
-    // Risco de aneuploidias: sempre a última tabela antes da IMPRESSÃO, por
-    // isso fica fora do forEach acima (depois da biometria/morfologia/
-    // marcadores de todos os fetos e do Doppler materno), num laço à parte.
-    //
-    // Gemelar/trigemelar SEM ser monocoriônica: cada feto tem o cálculo
-    // dele (diferente do caso monocoriônico, que é um só) — mas em vez de
-    // repetir o quadro inteiro um por feto, vira uma tabela só, com uma
-    // coluna por feto (table.biometria.risco-multi — ver CSS e o segundo
-    // passo do Word abaixo, que reflete o mesmo layout).
-    if(isMultiple && !isMonocorionica){
-      const riscoTitulo = 'Risco Fetal para Trissomias (IM + ON + TN + DV + VT):';
-      // Sem <thead>/<tbody> de propósito: nenhuma outra table.biometria do
-      // laudo usa (todas são <tr> soltos, tbody implícito) — e o Chromium
-      // infla a altura do <thead> na hora de imprimir mesmo numa tabela
-      // pequena que não quebra de página (bug/particularidade do motor de
-      // impressão, reproduzido: cabeçalho saindo ~7x mais alto só no PDF,
-      // preview na tela intacto). Uma <tr class="risco-header"> comum evita
-      // o problema por completo.
-      const headerRow = '<tr class="risco-header"><td></td>'+fetos.map(f=>'<td>'+escapeHtml(f.label)+'</td>').join('')+'</tr>';
-      const linha = (label, campo) => '<tr><td>'+label+'</td>'+fetos.map(f=>'<td>1: '+span(f[campo])+'</td>').join('')+'</tr>';
-      blocks.push({id:'riscos', html:'<div>'
-        +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
-        +'<table class="biometria risco-multi">'
-        +headerRow
-        +linha('Síndrome de Down (T21)', 'riscoT21')
-        +linha('Síndrome de Edwards (T18)', 'riscoT18')
-        +linha('Síndrome de Patau (T13)', 'riscoT13')
-        +'</table></div>'});
-    } else {
-      (isMonocorionica ? fetos.slice(0, 1) : fetos).forEach(f=>{
-        const sfx = '-f'+f.uid;
-        const riscoRotulo = isMonocorionica ? rotuloRiscoMono : f.label;
-        const riscoTitulo = 'Risco Fetal para Trissomias'+(isMultiple ? ' — '+escapeHtml(riscoRotulo) : '')+' (IM + ON + TN + DV + VT):';
-        blocks.push({id:'riscos'+sfx, html:'<div>'
-          +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
-          +'<table class="biometria">'
-          +'<tr><td>Síndrome de Down (T21)</td><td>1: '+span(f.riscoT21)+'</td></tr>'
-          +'<tr><td>Síndrome de Edwards (T18)</td><td>1: '+span(f.riscoT18)+'</td></tr>'
-          +'<tr><td>Síndrome de Patau (T13)</td><td>1: '+span(f.riscoT13)+'</td></tr>'
-          +'</table></div>'});
-      });
-    }
+    // O quadro "Risco Fetal para Trissomias" (T21/T18/T13) saiu do corpo do
+    // laudo em 2026-09-27 — os mesmos números já aparecem na folha de anexo
+    // ("Última página — cálculo de risco (FMF)", ver renderAnexoFmfReport()),
+    // que lê os mesmos campos feto{uid}RiscoT21/T18/T13 direto do formulário.
+    // Duas impressões do mesmo risco no mesmo laudo, a pedido da médica.
+    // Os campos continuam no cartão de cada feto — servem a folha de anexo e
+    // a integração com a Curva de Crescimento (ver "TN, FC e riscos da FMF"
+    // no CLAUDE.md), só o quadro impresso aqui é que saiu.
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
@@ -3668,14 +3624,6 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('table.biometria td:nth-child(even)').forEach(el=>{ el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
     clone.querySelectorAll('table.biometria tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='#fbf8fa'; });
     clone.querySelectorAll('table.biometria').forEach(el=>{ el.style.borderCollapse='collapse'; el.style.width='auto'; el.style.maxWidth='100%'; el.style.marginLeft='auto'; el.style.marginRight='auto'; el.setAttribute('align', 'center'); });
-    // Risco fetal em gemelar/trigemelar (table.biometria.risco-multi, ver
-    // CSS): o padrão par/ímpar acima só serve pra 2 colunas — aqui é sempre
-    // 1ª coluna = rótulo, todo o resto = valor, não importa quantos fetos.
-    // Vem depois, de propósito, pra vencer a regra geral (mesma lógica do
-    // table.morfologia logo abaixo).
-    clone.querySelectorAll('table.biometria.risco-multi td').forEach(el=>{ el.style.fontWeight='400'; el.style.textAlign='center'; el.style.whiteSpace='nowrap'; });
-    clone.querySelectorAll('table.biometria.risco-multi td:first-child').forEach(el=>{ el.style.fontWeight='700'; el.style.textAlign='left'; });
-    clone.querySelectorAll('table.biometria.risco-multi tr.risco-header td').forEach(el=>{ el.style.fontWeight='600'; el.style.color='#6d3263'; });
     // table.biometria td acima já deixou lineHeight='1' em TODA célula,
     // inclusive as da morfologia — no vivo essa célula segue inherit (ver
     // CSS), então lê o computed style de uma célula de verdade do #paper

@@ -1160,3 +1160,33 @@ precisou de nenhum ajuste: ela já reaproveitava essa mesma classe base, só
 ficava de fora do `:not()` que virou o grupo principal fixo — sem esse
 seletor, os dois grupos (`#previewActions` e `#anexoActions`) voltam a se
 comportar igual, em fluxo.
+
+## Risco Fetal para Trissomias saiu do corpo do laudo — repetia a folha de anexo
+
+2026-09-27, mesmo dia. Desde que a folha de anexo ganhou o "Relatório da FMF
+em texto" (`renderAnexoFmfReport()`, ver acima), o risco de T21/T18/T13
+passou a imprimir **duas vezes** no mesmo laudo: no quadro "Risco Fetal para
+Trissomias" no corpo principal (`render()`, perto da biometria/morfologia de
+cada feto) e de novo na folha de anexo ("Risks from History, FHR, NT, DV PI,
+Nasal bone, Tricuspid"), que lê os **mesmos** campos
+`feto{uid}RiscoT21/T18/T13` — o comentário que criou aquela seção já dizia
+"não duplica a digitação, só reapresenta", mas isso descreve a entrada de
+dados, não a impressão: o número sai duplicado no papel de qualquer jeito. A
+médica pediu para manter só a versão na folha de anexo.
+
+Removido: os dois `blocks.push({id:'riscos'...})` do corpo do laudo (feto
+único/monocoriônica e gemelar/trigemelar não-monocoriônica), o CSS
+`table.biometria.risco-multi` que só servia aquele quadro, e o trecho
+correspondente do `WORD_COPY`. **Os campos de entrada continuam intactos**,
+no cartão de cada feto (`feto{uid}RiscoWrap`) — são a fonte tanto da folha de
+anexo quanto do envio pro Curva de Crescimento (`risco_t21`/`risco_t18`/
+`risco_t13`, ver "TN, FC e riscos da FMF" acima); só o quadro impresso no
+corpo é que saiu. Confirmado com Playwright: preencher os três campos e
+`render()` não deixa nenhum `[data-blk^="riscos"]` no `#paper`, mas o texto
+ainda sai na folha de anexo — e o ciclo completo de impressão
+(`beforeprint`/`afterprint`, paginação) continua sem erro.
+
+Se algum dia a folha de anexo for removida ou ficar opcional (hoje ela só
+aparece quando há dado — `anexoTemDadosFmf()`, que checa os mesmos três
+campos), o risco de trissomias passaria a não aparecer em lugar nenhum do
+laudo nesse caso — vale revisitar esta decisão se isso mudar.
