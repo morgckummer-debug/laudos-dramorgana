@@ -2001,8 +2001,8 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
 
       +'<div class="conditional show" id="feto'+uid+'RiscoWrap">'
-      +'<p class="feto-sub">Risco fetal para trissomias (IM + ON + TN + DV + VT)</p>'
-      +'<p class="hint-perfeto">Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).</p>'
+      +'<p class="feto-sub" id="feto'+uid+'RiscoSub">Risco fetal para trissomias (IM + ON + TN + DV + VT)</p>'
+      +'<p class="hint-perfeto" id="feto'+uid+'RiscoHint">Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).</p>'
       +'<div class="field-row">'
       +'<div class="field"><label>Síndrome de Down (T21) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT21" placeholder="ex: 1200"></div>'
       +'<div class="field"><label>Síndrome de Edwards (T18) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT18" placeholder="ex: 5000"></div>'
@@ -3304,6 +3304,21 @@ if(typeof criarMotorLaudo !== 'function'){
     // ignorado em silêncio. Decidido aqui dentro do render(), que é quem roda a
     // cada mudança de corionicidade ou de número de fetos.
     fetos.forEach((f, idx)=> toggle('feto'+f.uid+'RiscoWrap', !(isMonocorionica && idx > 0)));
+    // O único cartão que sobra na monocoriônica (o do 1º feto) é reaproveitado
+    // para o risco da gestação inteira — mas o rótulo e a dica dele continuam
+    // os de "risco individual do feto 1" se nada mudar aqui, o que é enganoso:
+    // esse número não sai do software rodado com a TN de um feto só, sai da
+    // MÉDIA das TN dos fetos (a Dra. Morgana relatou confusão em 2026-09-28
+    // ao ver um card só e não saber por que). Sub/dica trocam de texto
+    // conforme o caso; o valor em si sempre foi digitado à mão, nos dois casos.
+    { const subEl = $('feto'+fetos[0].uid+'RiscoSub'), hintEl = $('feto'+fetos[0].uid+'RiscoHint');
+      if(subEl) subEl.textContent = isMonocorionica
+        ? 'Risco fetal para trissomias — '+rotuloRiscoMono+' (IM + ON + TN + DV + VT)'
+        : 'Risco fetal para trissomias (IM + ON + TN + DV + VT)';
+      if(hintEl) hintEl.innerHTML = isMonocorionica
+        ? 'Gestação monocoriônica: o software da <em>Fetal Medicine Foundation</em> calcula um risco único para a gestação inteira, a partir da média das translucências nucais dos fetos — digite aqui esse valor único, à mão.'
+        : 'Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).';
+    }
 
     // "Riscos por história" da folha de anexo (ver card "Última página —
     // cálculo de risco (FMF)"): virou espelho automático, readonly, do risco
