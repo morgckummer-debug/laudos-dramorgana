@@ -1190,3 +1190,46 @@ Se algum dia a folha de anexo for removida ou ficar opcional (hoje ela só
 aparece quando há dado — `anexoTemDadosFmf()`, que checa os mesmos três
 campos), o risco de trissomias passaria a não aparecer em lugar nenhum do
 laudo nesse caso — vale revisitar esta decisão se isso mudar.
+
+## "Riscos por história" também repetia — virou espelho automático, não mais digitado
+
+Mesmo dia, revisão seguinte. Tirar o quadro do corpo do laudo (seção acima)
+resolveu a duplicação **impressa**, mas a médica ainda via os mesmos números
+pedidos duas vezes no **formulário**: os últimos campos do cartão de cada
+feto (Síndrome de Down/Edwards/Patau — risco ajustado pelos marcadores
+ultrassonográficos) e os primeiros do card "Última página — cálculo de risco
+(FMF)" (Trissomia 21 / Trisomia 13/18 — risco por história, antes da
+ecografia). Tecnicamente são dois números diferentes do relatório da FMF
+(pré-teste vs. pós-teste) — expliquei a diferença, e a médica decidiu que não
+liga para a distinção: quer digitar o risco de cada trissomia **uma vez só**,
+e que o mesmo valor apareça sozinho no card da FMF.
+
+`anexoRiscoHistT21`/`anexoRiscoHistT1318` viraram **readonly**, mesmo padrão
+de `utMedioCalc`/`utP95Calc` (campo calculado dentro do `render()`, não mais
+digitado): espelham o risco do **1º feto** sempre — mesma convenção já usada
+pro risco ajustado em monocoriônica (o risco por história depende só da
+idade materna, não varia por feto, então usar o 1º feto vale também em
+dicoriônica/trigemelar). `anexoIdadeMaterna` continua manual — não tem
+equivalente no cartão do feto.
+
+**A folha de anexo pede um campo só para Trissomia 13/18** (é assim que o
+relatório da FMF imprime o risco por história), mas o cartão do feto guarda
+T18 e T13 separados. Sem uma forma de somar dois riscos em texto livre
+("1 para X") numa única fração de verdade, o campo combinado usa o **maior**
+risco dos dois (o "1 para" **menor**) — o número mais conservador, não uma
+combinação estatística real. Se um dia isso incomodar, a alternativa mais
+honesta é desmembrar esse campo em dois (T18/T13 separados, como o cartão do
+feto já tem) em vez de inventar uma fórmula de combinação.
+
+Efeito colateral aceito: como as duas seções ("Riscos por História" e o
+risco ajustado, mais abaixo na mesma folha) agora sempre mostram o mesmo
+número — só rotuladas diferente —, a folha de anexo em si passou a repetir
+visualmente o mesmo risco duas vezes, só que agora sempre em sincronia (não
+duas digitações que podem divergir). Foi decisão explícita da médica, não
+descuido: ela só pediu para não digitar duas vezes, não para colapsar as
+duas seções da folha de anexo em uma só.
+
+Testado com Playwright: preencher `feto1RiscoT21/T18/T13` atualiza os dois
+campos readonly ao vivo (sem precisar de outro `render()` manual), o texto
+da folha de anexo mostra os valores certos nas duas seções, e o ciclo de
+impressão continua sem erro.
