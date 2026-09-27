@@ -1140,3 +1140,23 @@ mesma janela do cartão de CCN×IG logo acima) e usa `crlFromGAdays_hadlock(x*7)
 `DV_TABLE`. O marcador de cada feto trocou de `x:f.ccn` para
 `x:igSemanas` (mesmo padrão de FC/CCN/DBP, que já usam `igSemanas` do
 `gaDays` da cronologia, não uma medida do feto).
+
+## Botões de Imprimir/Baixar Word ficavam presos na tela, só neste laudo
+
+2026-09-27. `morfologico-1trimestre.html` tinha uma regra própria,
+`.preview-actions:not(.anexo-actions){position:fixed;right:28px;bottom:18px;
+...}`, que os outros treze laudos não têm — lá `.preview-actions` é só
+`display:flex` normal, em fluxo depois do preview. A regra tinha uma
+justificativa registrada no comentário (não depender de rolar até o fim de
+um laudo de 3+ folhas, com o `.preview-wrap` preso no topo por
+`position:sticky`), mas a médica pediu pra tirar: ela quer o mesmo
+comportamento dos outros laudos aqui também.
+
+Removida a regra inteira (a `position:fixed` e o `@media (max-width:980px)`
+que a ajustava em tela estreita) — sobrou só a `.preview-actions{display:
+flex;gap:8px;margin-top:12px;flex-wrap:wrap;}` de sempre, idêntica à dos
+outros treze arquivos. `.anexo-actions` ("Remover imagem(ns) da FMF") não
+precisou de nenhum ajuste: ela já reaproveitava essa mesma classe base, só
+ficava de fora do `:not()` que virou o grupo principal fixo — sem esse
+seletor, os dois grupos (`#previewActions` e `#anexoActions`) voltam a se
+comportar igual, em fluxo.
