@@ -1244,10 +1244,19 @@ if(typeof criarMotorLaudo !== 'function'){
   });
   $('btnSaveVR').addEventListener('click', async ()=>{
     VR = {
+      // Qual1/Qual2/CRM usavam "|| VR.medicoXxx" — parecia uma proteção contra
+      // campo vazio, mas um <input type="text"> nunca devolve undefined, só
+      // ''. Na prática isso impedia deixar um campo em branco de propósito:
+      // limpar "Qualificação (linha 2)" pra um médico sem 2ª qualificação
+      // salvava de volta o texto antigo que estava ali antes — a qualificação
+      // de outro médico sobrevivendo na assinatura de quem não tem (achado
+      // real: Dr. Paulo, sem 2ª qualificação, ficou com a de outro médico
+      // depois de "limpar" o campo). Nome continua com a proteção: assinatura
+      // sem nome nenhum é pior que manter o nome antigo.
       medicoNome: $('vr_medicoNome').value || VR.medicoNome,
-      medicoQual1: $('vr_medicoQual1').value || VR.medicoQual1,
-      medicoQual2: $('vr_medicoQual2').value || VR.medicoQual2,
-      medicoCRM: $('vr_medicoCRM').value || VR.medicoCRM
+      medicoQual1: $('vr_medicoQual1').value,
+      medicoQual2: $('vr_medicoQual2').value,
+      medicoCRM: $('vr_medicoCRM').value
     };
     try{
       await kvStore.set('tireoide-doppler-vr-settings', JSON.stringify(VR));
