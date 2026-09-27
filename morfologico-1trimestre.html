@@ -2443,7 +2443,12 @@ if(typeof criarMotorLaudo !== 'function'){
   function buildGraficoCard(cfg){
     const L=26, R=136, T=8, B=104;
     const [x0,x1] = cfg.x, [y0,y1] = cfg.y;
-    const sx = v => L + (v-x0)/(x1-x0)*(R-L);
+    // Clampado igual ao sy() logo abaixo: sem isso, uma IG fora da janela do
+    // gráfico (exame feito depois do previsto, feto medido fora da tabela)
+    // jogava o marcador para fora do card inteiro, flutuando sozinho ao lado
+    // dos rótulos P90/P50/P10 — em vez de ficar preso na borda da curva mais
+    // próxima, que é o que já acontecia no eixo Y.
+    const sx = v => L + (Math.max(x0,Math.min(x1,v))-x0)/(x1-x0)*(R-L);
     const sy = v => B - (Math.max(y0,Math.min(y1,v))-y0)/(y1-y0)*(B-T);
     const pathFromPts = pts => pts.map((p,i)=>(i?'L':'M')+sx(p.x).toFixed(1)+','+sy(p.y).toFixed(1)).join(' ');
     const band = pathFromPts(cfg.hi)+' '+cfg.lo.slice().reverse().map(p=>'L'+sx(p.x).toFixed(1)+','+sy(p.y).toFixed(1)).join(' ')+' Z';
@@ -2607,9 +2612,9 @@ if(typeof criarMotorLaudo !== 'function'){
       const utM = (utE!=null && utD!=null) ? (utE+utD)/2 : null;
       const percentilUt = (xSemanas, valor) => gomezPercentilUterina(xSemanas*7, valor);
       const baseUt = {xLabel:'SEMANAS', xSuffix:'s', ref:'Gómez et al. (2008)', x:[11,40], y:[0,3.5], xt:[11,20,30,40], lo, mid, hi, percentil:percentilUt};
-      cfgs.push({...baseUt, titulo:'PI uterina E', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utE:null), cor:'#c0392b'}]});
-      cfgs.push({...baseUt, titulo:'PI uterina D', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utD:null), cor:'#c0392b'}]});
-      cfgs.push({...baseUt, titulo:'PI média uterinas', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utM:null), cor:'#c0392b'}]});
+      cfgs.push({...baseUt, titulo:'IP uterina E', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utE:null), cor:'#c0392b'}]});
+      cfgs.push({...baseUt, titulo:'IP uterina D', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utD:null), cor:'#c0392b'}]});
+      cfgs.push({...baseUt, titulo:'IP médio das Uterinas', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utM:null), cor:'#c0392b'}]});
     }
 
     const gridEl = $('anexoGraficosGrid');
