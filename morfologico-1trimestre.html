@@ -4413,6 +4413,21 @@ if(typeof criarMotorLaudo !== 'function'){
       const igDias = (impSemanasVal!=null && impDiasVal!=null) ? (impSemanasVal*7 + impDiasVal) : null;
       const coloVal = num('coloComprimento');
 
+      // Riscos da FMF chegam aqui como só o denominador ("1200"), no mesmo
+      // formato "1 em X" que o app de curvas já usa (placeholder "1 em X" no
+      // próprio formulário dele) — ela lê como texto livre, então a conversão
+      // é só prefixar, sem inventar cálculo novo.
+      const riscoTxt = val => val ? ('1 em ' + val) : null;
+
+      // Pré-eclâmpsia/parto prematuro/diabetes gestacional são achado
+      // materno da visita (rastreamento combinado, não por feto) — mesmo
+      // valor vai em todos os exames, igual às uterinas e ao colo logo
+      // abaixo. Pré-eclâmpsia só entra se o cartão estiver marcado (é o
+      // mesmo checkbox que decide se a frase entra na impressão).
+      const riscoPreEclampsiaVal = $('chkPreEclampsia').checked ? riscoTxt(v('preEclampsiaRisco')) : null;
+      const riscoPartoPrematuroVal = riscoTxt(v('anexoPtbRisco'));
+      const riscoDiabetesVal = riscoTxt(v('anexoDiabetesRisco'));
+
       const exames = uids.map((uid, idx)=>{
         const pre = 'feto'+uid;
         return {
@@ -4425,10 +4440,24 @@ if(typeof criarMotorLaudo !== 'function'){
           cc: num(pre+'CC'),
           ca: num(pre+'CA'),
           femur: num(pre+'CF'),
-          // Uterinas são medidas da mãe: numa gemelar o mesmo par vai nos dois exames.
+          nt: num(pre+'TN'),
+          fc: num(pre+'FC'),
+          // T21/T18/T13: numa monocoriônica o formulário só mostra (e só
+          // preenche) o cartão de risco do 1º feto — o app de curvas já sabe
+          // ler só o feto A nesse caso (ver _riscoFmfCardsHtml/_ehMonocorionica
+          // lá), então não precisa replicar aqui; feto B/C ficam null, como o
+          // próprio formulário já os deixa.
+          risco_t21: riscoTxt(v(pre+'RiscoT21')),
+          risco_t18: riscoTxt(v(pre+'RiscoT18')),
+          risco_t13: riscoTxt(v(pre+'RiscoT13')),
+          // Uterinas, colo e os três riscos maternos são medidas da mãe:
+          // numa gemelar o mesmo valor vai em todos os exames.
           aut_e: num('utEsquerda'),
           aut_d: num('utDireita'),
           colo: coloVal,
+          risco_pre_eclampsia: riscoPreEclampsiaVal,
+          risco_parto_prematuro: riscoPartoPrematuroVal,
+          risco_diabetes_gestacional: riscoDiabetesVal,
           feto: isMultiple ? String.fromCharCode(65 + idx) : null
         };
       });

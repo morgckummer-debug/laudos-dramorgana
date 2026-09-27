@@ -802,11 +802,56 @@ feto**.
 
 | | `obstetrico.html` (2º/3º tri) | `obstetrico-1trimestre.html` | `morfologico-1trimestre.html` | `morfologico-2trimestre.html` |
 |---|---|---|---|---|
-| Colunas de `exams` | `dbp`, `cc`, `ca`, `femur`, `au_ip`, `au_fluxo`, `acm_ip`, `aut_e`, `aut_d`, `cpr`, `ila`, `bolsao`, `colo`, `ig_dias_manual` | `ccn` | `ccn`, `dbp`, `cc`, `ca`, `femur`, `aut_e`, `aut_d`, `colo`, `ig_dias_manual` | `dbp`, `cc`, `ca`, `femur`, `dof`, `umero`, `radio`, `ulna`, `tibia`, `fibula`, `aut_e`, `aut_d`, `ila`, `bolsao`, `colo`, `ig_dias_manual` |
+| Colunas de `exams` | `dbp`, `cc`, `ca`, `femur`, `au_ip`, `au_fluxo`, `acm_ip`, `aut_e`, `aut_d`, `cpr`, `ila`, `bolsao`, `colo`, `ig_dias_manual` | `ccn` | `ccn`, `dbp`, `cc`, `ca`, `femur`, `aut_e`, `aut_d`, `colo`, `ig_dias_manual`, `nt`, `fc`, `risco_t21`, `risco_t18`, `risco_t13`, `risco_pre_eclampsia`, `risco_parto_prematuro`, `risco_diabetes_gestacional` | `dbp`, `cc`, `ca`, `femur`, `dof`, `umero`, `radio`, `ulna`, `tibia`, `fibula`, `aut_e`, `aut_d`, `ila`, `bolsao`, `colo`, `ig_dias_manual` |
 | Múltiplos | um exame por feto, coluna `feto` | um exame por **embrião**, coluna `feto` | um exame por feto, coluna `feto` | um exame por feto, coluna `feto` |
 
 As artérias uterinas e o colo são **maternos**, não fetais: numa gemelar o mesmo
-valor vai repetido nos exames dos dois fetos, de propósito.
+valor vai repetido nos exames dos dois fetos, de propósito. Os oito campos
+novos do morfológico de 1º trimestre (TN/FC/riscos FMF) seguem essa mesma
+regra e têm uma seção própria logo abaixo ("TN, FC e riscos da FMF: o
+morfológico de 1º trimestre fecha o loop com o Curva de Crescimento").
+
+### TN, FC e riscos da FMF: o morfológico de 1º trimestre fecha o loop com o Curva de Crescimento
+
+2026-09-27. O `curva-fetal` já tinha, desde a Fase 1 documentada no
+`CLAUDE.md` de lá ("Riscos T21/T18/T13/pré-eclâmpsia — Fase 1"), colunas para
+translucência nucal, frequência cardíaca fetal e os seis riscos do
+rastreamento combinado da FMF (T21/T18/T13/pré-eclâmpsia/parto
+prematuro/diabetes gestacional) — mas só alimentadas por um formulário
+próprio dele, digitado à parte. Este editor já tem os mesmos campos, no
+mesmo formulário que gera o laudo (é de lá que aquela página foi portada),
+e simplesmente não os mandava para o Supabase. A médica pediu para fechar
+esse loop.
+
+- **`nt`/`fc`: por feto, sempre** — vêm de `feto{uid}TN` (mm) e
+  `feto{uid}FC` (bpm), a mesma medida física que já ia para o CCN/DBP/CC/CA.
+  Sem tratamento especial de corionicidade: cada feto tem a própria TN e a
+  própria FC, mono ou dicoriônica.
+- **`risco_t21`/`risco_t18`/`risco_t13`: por feto, sem replicar em
+  monocoriônica.** O formulário só mostra (e só deixa preencher) o cartão de
+  risco do 1º feto quando a gestação é monocoriônica
+  (`feto{uid}RiscoWrap` escondido para os demais — ver "Monocoriônica: um
+  cálculo de risco só", abaixo). O 2º/3º feto chegam ao Supabase com esses
+  três campos vazios por isso, e está certo: o `curva-fetal` já sabe ler só
+  o feto A nesse caso (`_riscoFmfCardsHtml`/`_ehMonocorionica`, ver
+  `CLAUDE.md` de lá), então não há nada para replicar.
+- **`risco_pre_eclampsia`/`risco_parto_prematuro`/`risco_diabetes_gestacional`:
+  achado materno, replicado em todos os fetos** — mesmo padrão de `aut_e`/
+  `aut_d`/`colo`. Pré-eclâmpsia só entra se `chkPreEclampsia` (o cartão
+  "Rastreamento de pré-eclâmpsia (FMF)") estiver marcado; os outros dois
+  entram sempre que o denominador ("1 para X") da última página estiver
+  preenchido — não têm checkbox próprio.
+- **Formato: o editor só guarda o denominador** (a médica digita "1200", a
+  impressão já mostra "1: 1200"). O `curva-fetal` espera texto livre no
+  formato "1 em X" (mesmo placeholder do formulário dele). Uma função local
+  no handler do `#btnSalvarCG`, `riscoTxt`, prefixa `'1 em '` na hora de
+  montar o `insert` — não muda nada na tela nem na impressão deste laudo,
+  só o que sai pelo Supabase.
+- **Sem reconciliação de divergência**, ao contrário do GPA
+  (`askGpaDivergencia`): estes oito campos não têm "valor anterior que pode
+  estar errado" — cada exame é uma visita nova, o valor vem do software da
+  FMF na hora, não há o que perguntar à médica se já existir um valor
+  diferente salvo de uma visita anterior.
 
 ### O GPA e os quatro laudos: o campo que existia na tela e não chegava no banco
 
