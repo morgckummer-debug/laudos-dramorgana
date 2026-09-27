@@ -802,7 +802,7 @@ feto**.
 
 | | `obstetrico.html` (2º/3º tri) | `obstetrico-1trimestre.html` | `morfologico-1trimestre.html` | `morfologico-2trimestre.html` |
 |---|---|---|---|---|
-| Colunas de `exams` | `dbp`, `cc`, `ca`, `femur`, `au_ip`, `au_fluxo`, `acm_ip`, `aut_e`, `aut_d`, `cpr`, `ila`, `bolsao`, `colo`, `ig_dias_manual` | `ccn` | `ccn`, `dbp`, `cc`, `ca`, `femur`, `aut_e`, `aut_d`, `colo`, `ig_dias_manual`, `nt`, `fc`, `risco_t21`, `risco_t18`, `risco_t13`, `risco_pre_eclampsia`, `risco_parto_prematuro`, `risco_diabetes_gestacional` | `dbp`, `cc`, `ca`, `femur`, `dof`, `umero`, `radio`, `ulna`, `tibia`, `fibula`, `aut_e`, `aut_d`, `ila`, `bolsao`, `colo`, `ig_dias_manual` |
+| Colunas de `exams` | `dbp`, `cc`, `ca`, `femur`, `au_ip`, `au_fluxo`, `acm_ip`, `aut_e`, `aut_d`, `cpr`, `ila`, `bolsao`, `colo`, `ig_dias_manual` | `ccn` | `ccn`, `dbp`, `cc`, `ca`, `femur`, `aut_e`, `aut_d`, `colo`, `ig_dias_manual`, `nt`, `fc`, `dv_ip`, `dv_onda`, `risco_t21`, `risco_t18`, `risco_t13`, `risco_pre_eclampsia`, `risco_parto_prematuro`, `risco_diabetes_gestacional` | `dbp`, `cc`, `ca`, `femur`, `dof`, `umero`, `radio`, `ulna`, `tibia`, `fibula`, `aut_e`, `aut_d`, `ila`, `bolsao`, `colo`, `ig_dias_manual` |
 | Múltiplos | um exame por feto, coluna `feto` | um exame por **embrião**, coluna `feto` | um exame por feto, coluna `feto` | um exame por feto, coluna `feto` |
 
 As artérias uterinas e o colo são **maternos**, não fetais: numa gemelar o mesmo
@@ -852,6 +852,28 @@ esse loop.
   estar errado" — cada exame é uma visita nova, o valor vem do software da
   FMF na hora, não há o que perguntar à médica se já existir um valor
   diferente salvo de uma visita anterior.
+
+**2026-09-27, mesmo dia: IP do ducto venoso e onda A entraram no mesmo
+loop** — a médica pediu depois de testar os campos acima com sucesso.
+`dv_ip`/`dv_onda` já existiam no schema do `curva-fetal` (usados pelo
+`obstetrico.html` de 2º/3º trimestre — ISUOG 2020, ver `CLAUDE.md` de lá),
+então não precisou de migração nova, só de mandar os dois campos que este
+laudo já tinha (`feto{uid}DuctoVenoso`, o IP; `feto{uid}DVOndaA`) no mesmo
+`insert`.
+
+- **`dv_ip`: por feto, direto** — `num(pre+'DuctoVenoso')`, mesmo padrão de
+  `nt`/`fc` (medida física do feto, não acompanha regra de monocoriônica).
+- **`dv_onda`: vocabulário incompatível, mapeado com perda.** O `curva-fetal`
+  distingue três estados (`positiva`/`ausente`/`reversa` — a mesma coluna
+  serve o ducto venoso do 2º/3º trimestre, onde "ausente" e "reversa" já são
+  o mesmo patamar de gravidade pro ISUOG 2020, mas continuam **valores**
+  diferentes na coluna). Este laudo só tem dois (`feto{uid}DVOndaA`:
+  Positiva/Negativa) — sem campo pra distinguir onda ausente de onda
+  reversa. `dvOndaTxt()` mapeia `'Negativa'` → `'reversa'` (leitura mais
+  literal: fluxo em direção contrária, não simplesmente ausente) — decisão
+  tomada aqui, não confirmada com a médica campo a campo. **Se este laudo um
+  dia ganhar uma 3ª opção pra "ausente"**, é só acrescentá-la ao `<select>` e
+  trocar este mapa; até lá, todo "Negativa" grava como `reversa` no banco.
 
 ### O GPA e os quatro laudos: o campo que existia na tela e não chegava no banco
 

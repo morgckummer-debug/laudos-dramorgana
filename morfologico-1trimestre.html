@@ -4382,6 +4382,17 @@ if(typeof criarMotorLaudo !== 'function'){
       // é só prefixar, sem inventar cálculo novo.
       const riscoTxt = val => val ? ('1 em ' + val) : null;
 
+      // Onda A do ducto venoso: o formulário deste laudo só distingue
+      // Positiva/Negativa (rastreio do 1º trimestre, Pruksanasuk et al.);
+      // o app de curvas trabalha com três estados (positiva/ausente/
+      // reversa — ver dv_onda no CLAUDE.md de lá, ISUOG 2020) porque também
+      // usa esta mesma coluna pro ducto venoso do 2º/3º trimestre. Sem um
+      // 3º valor aqui pra "ausente", "Negativa" vira 'reversa' — é a leitura
+      // mais literal (fluxo em direção contrária, não simplesmente ausente).
+      // Se este laudo um dia distinguir os dois, é só acrescentar a opção e
+      // trocar este mapa.
+      const dvOndaTxt = val => (val === 'Negativa') ? 'reversa' : (val === 'Positiva') ? 'positiva' : null;
+
       // Pré-eclâmpsia/parto prematuro/diabetes gestacional são achado
       // materno da visita (rastreamento combinado, não por feto) — mesmo
       // valor vai em todos os exames, igual às uterinas e ao colo logo
@@ -4405,6 +4416,8 @@ if(typeof criarMotorLaudo !== 'function'){
           femur: num(pre+'CF'),
           nt: num(pre+'TN'),
           fc: num(pre+'FC'),
+          dv_ip: num(pre+'DuctoVenoso'),
+          dv_onda: dvOndaTxt(v(pre+'DVOndaA')),
           // T21/T18/T13: numa monocoriônica o formulário só mostra (e só
           // preenche) o cartão de risco do 1º feto — o app de curvas já sabe
           // ler só o feto A nesse caso (ver _riscoFmfCardsHtml/_ehMonocorionica
