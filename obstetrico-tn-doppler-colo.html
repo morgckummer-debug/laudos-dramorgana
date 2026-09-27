@@ -448,6 +448,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Boa vitalidade fetal</label><textarea id="ph_impVitalidade" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Baixo risco para cromossomopatias</label><textarea id="ph_impCromossomopatiasBaixo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Risco aumentado para cromossomopatias</label><textarea id="ph_impCromossomopatiasAlto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ducto venoso normal</label><textarea id="ph_impDuctoVenosoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ducto venoso alterado — use {DETALHE}</label><textarea id="ph_impDuctoVenosoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>IP médio das uterinas — use {PERCENTIL}</label><textarea id="ph_impUterinas" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo normal</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo curto</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
@@ -489,8 +491,7 @@
           <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
         </div>
-        <div class="field"><label>Em uso de — opcional</label><textarea id="medicacoes" rows="2" placeholder="ex: ácido fólico; AAS 100 mg..."></textarea></div>
-        <div class="field" style="margin-top:14px;"><label>Motivo do exame — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de rastreamento de aneuploidias."></textarea></div>
+        <div class="field"><label>Motivo do exame — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de rastreamento de aneuploidias."></textarea></div>
       </div>
     </div>
 
@@ -585,9 +586,9 @@
     <button type="button" class="btn-clear" id="btnAddFeto" style="margin:-8px 0 22px;">+ Adicionar feto</button>
 
     <div class="card">
-      <div class="card-head"><h2>Doppler <span style="font-weight:400;font-size:12px;color:var(--ink-soft);">(se no pedido médico)</span></h2></div>
+      <div class="card-head"><h2>Doppler das artérias uterinas <span style="font-weight:400;font-size:12px;color:var(--ink-soft);">(se no pedido médico)</span></h2></div>
       <div class="card-body">
-        <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno"><label for="chkDopplerMaterno">Incluir Doppler (artérias uterinas + ducto venoso)</label></div>
+        <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno"><label for="chkDopplerMaterno">Incluir Doppler das artérias uterinas</label></div>
         <div id="dopplerMaternoFields" class="conditional">
           <div class="field-row">
             <div class="field"><label>IP artéria uterina direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder="ex: 1,45"></div>
@@ -597,7 +598,6 @@
             <div class="field"><label>IP médio (calculado)</label><input type="text" id="utMedioCalc" readonly placeholder="calculado automaticamente"></div>
             <div class="field"><label>Percentil calculado (Gómez et al., 2008)</label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
           </div>
-          <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;">Ducto venoso de cada feto — preenchido no card do próprio feto, abaixo.</p>
         </div>
       </div>
     </div>
@@ -1163,6 +1163,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impVitalidade: 'Boa vitalidade fetal.',
     impCromossomopatiasBaixo: 'A Translucência Nucal apresenta-se normal, reduzindo o risco para cromossomopatias – Não podemos excluir essa possibilidade somente através da ultrassonografia.',
     impCromossomopatiasAlto: 'A Translucência Nucal apresenta-se aumentada, o que eleva o risco para cromossomopatias – sugere-se avaliação especializada e aconselhamento genético.',
+    impDuctoVenosoNormal: 'Ducto venoso com onda A positiva e índice de pulsatilidade dentro da normalidade (< percentil 95).',
+    impDuctoVenosoAlterado: 'Ducto venoso alterado ({DETALHE}), achado associado a maior risco de cromossomopatias e cardiopatias congênitas – sugere-se avaliação especializada.',
     impUterinas: 'Doppler das artérias estudadas dentro da normalidade (IP médio no percentil {PERCENTIL} para a idade gestacional).',
     impColoNormal: 'Colo uterino sem anormalidades.',
     impColoAlterado: 'Colo curto para a idade gestacional - Sugere-se reavaliação para risco de prematuridade com 16-18 semanas.',
@@ -1313,7 +1315,6 @@ if(typeof criarMotorLaudo !== 'function'){
 
   $('chkDopplerMaterno').addEventListener('change', e=>{
     toggle('dopplerMaternoFields', e.target.checked);
-    fetoUids().forEach(uid=> toggle('feto'+uid+'DVWrap', e.target.checked));
     render();
   });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
@@ -1345,13 +1346,11 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Osso nasal</label><select id="feto'+uid+'OssoNasal"><option value="Presente">Presente</option><option value="Ausente">Ausente</option><option value="Hipoplásico">Hipoplásico</option></select></div>'
       +'</div>'
 
-      +'<div id="feto'+uid+'DVWrap" class="conditional'+(($('chkDopplerMaterno') && $('chkDopplerMaterno').checked) ? ' show' : '')+'">'
-      +'<p class="feto-sub">Ducto venoso <span style="font-weight:400;color:var(--ink-soft);">(entra no laudo se o card "Doppler" estiver marcado)</span></p>'
+      +'<p class="feto-sub">Ducto venoso</p>'
       +'<div class="field-row">'
       +'<div class="field"><label>Ducto venoso — IPV</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'DuctoVenoso" placeholder="ex: 0,95"></div>'
       +'<div class="field"><label>Ducto venoso — percentil</label><select id="feto'+uid+'DVClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
       +'<div class="field"><label>Ducto venoso — onda A</label><select id="feto'+uid+'DVOndaA"><option value="Positiva">Onda A positiva</option><option value="Negativa">Onda A negativa</option></select></div>'
-      +'</div>'
       +'</div>'
 
       +'<div id="feto'+uid+'RiscoWrap">'
@@ -1694,6 +1693,19 @@ if(typeof criarMotorLaudo !== 'function'){
       });
     }
 
+    // Ducto venoso é medido em cada feto individualmente (diferente do risco
+    // de Down, que é um cálculo só e compartilhado na monocoriônica) — por
+    // isso sempre um item por feto, mesmo quando monoCompartilhado.
+    state.fetos.forEach(f=>{
+      const dvAlterado = f.dvClasse==='>P95' || f.dvOndaA==='Negativa';
+      const detalhes = [];
+      if(f.dvOndaA==='Negativa') detalhes.push('onda A negativa');
+      if(f.dvClasse==='>P95') detalhes.push('índice de pulsatilidade acima do percentil 95');
+      items.push({key:k('ducto-venoso', f), label: pre(f) + (dvAlterado
+        ? phraseRaw('impDuctoVenosoAlterado', {DETALHE: detalhes.join(' e ')})
+        : phraseRaw('impDuctoVenosoNormal')), auto:true});
+    });
+
     if(state.dopplerMaterno){
       items.push({key:'uterinas', label: phraseRaw('impUterinas', {PERCENTIL: state.utPercentilTxt || '__'}), auto:true});
     }
@@ -1913,7 +1925,6 @@ if(typeof criarMotorLaudo !== 'function'){
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
     const motivoExame = vNoDot('motivoExame');
-    const medicacoes = vNoDot('medicacoes');
 
     const cronologiaMetodoRaw = v('cronologiaMetodo');
     const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame' || cronologiaMetodoRaw==='fiv' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
@@ -2031,10 +2042,12 @@ if(typeof criarMotorLaudo !== 'function'){
       const tn = blankOrValue(req(pre+'TN'));
       const ossoNasal = v(pre+'OssoNasal') || 'Presente';
 
-      // Ducto venoso só entra no laudo (e só cobra preenchimento) quando o
-      // card "Doppler" estiver marcado: um campo pendente de um bloco
-      // desligado não devia acender o aviso de "campos pendentes" do laudo.
-      const dv = blankOrValue(dopplerMaterno ? req(pre+'DuctoVenoso') : v(pre+'DuctoVenoso'));
+      // Ducto venoso é marcador padrão do rastreamento combinado do 1º
+      // trimestre (risco pós-teste = IM + TN + DV), independente de a
+      // gestante ter pedido também o Doppler das artérias uterinas — por
+      // isso sempre cobra preenchimento, não só quando esse card opcional
+      // está marcado.
+      const dv = blankOrValue(req(pre+'DuctoVenoso'));
       const dvClasse = v(pre+'DVClasse') || '<P95';
       const dvOndaA = v(pre+'DVOndaA') || 'Positiva';
 
@@ -2091,9 +2104,6 @@ if(typeof criarMotorLaudo !== 'function'){
       const relatoTxt = relatoOverride!=null ? relatoOverride : motivoExame+'.';
       blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(relatoTxt)+'</p>'});
     }
-    if(medicacoes){
-      blocks.push({id:'medicacoes', html:'<p class="linha"><strong>Em uso de:</strong> '+escapeHtml(medicacoes)+'.</p>'});
-    }
 
     blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
     // Feto único: a frase do útero fecha com "..., com feto único." Gestação
@@ -2146,19 +2156,17 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Compr. cabeça-nádega (CCN)</td><td>'+span(f.ccn)+' mm</td></tr>'
         +'<tr><td>Translucência Nucal (TN)</td><td>'+span(f.tn)+' mm</td></tr>'
         +'<tr><td>Osso nasal</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
+        +'<tr><td>Ducto Venoso</td><td>'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+', onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>'
         +'</table></div>'});
     });
 
     if(dopplerMaterno){
-      let dopplerHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Estudo Doppler</strong></p>'
+      const dopplerHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Estudo Doppler</strong></p>'
         +'<table class="biometria">'
         +'<tr><td>Artéria Uterina Direita</td><td>'+span(utDireitaVal)+'</td></tr>'
         +'<tr><td>Artéria Uterina Esquerda</td><td>'+span(utEsquerdaVal)+'</td></tr>'
-        +'<tr><td>IP médio</td><td>'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>';
-      fetos.forEach(f=>{
-        dopplerHtml += '<tr><td>Ducto Venoso'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+'</td><td>'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+', onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>';
-      });
-      dopplerHtml += '</table></div>';
+        +'<tr><td>IP médio</td><td>'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
+        +'</table></div>';
       blocks.push({id:'dopplerMaterno', html:dopplerHtml});
     }
 

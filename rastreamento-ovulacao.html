@@ -601,7 +601,6 @@
           <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
           <div class="field"><label>DUM</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
         </div>
-        <div class="field"><label>Medicações</label><textarea id="medicacoes" rows="2" placeholder="ex: Citrato de clomifeno 100mg/dia; Letrozol 5mg/dia... (deixe em branco para &quot;---&quot;)"></textarea></div>
         <div class="field"><label>Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" rows="2" placeholder="ex: Investigação de infertilidade.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
       </div>
     </div>
@@ -2180,7 +2179,6 @@ if(typeof criarMotorLaudo !== 'function'){
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
     const dum = v('dum');
-    const medicacoes = vNoDot('medicacoes');
     const motivoExame = vNoDot('motivoExame');
 
     const uteroPosicaoVal = v('uteroPosicao');
@@ -2337,8 +2335,6 @@ if(typeof criarMotorLaudo !== 'function'){
       ).join('');
       blocks.push({id:'relato', html:'<p class="relato">'+relatoHtml+'</p>'});
     }
-
-    blocks.push({id:'medicacoes', html:'<p class="linha"><strong>Medicações:</strong> '+(medicacoes ? escapeHtml(medicacoes) : '---')+'</p>'});
 
     blocks.push({id:'aoexame', html:'<p class="linha"><strong><u>Ao exame:</u></strong></p>'});
 
