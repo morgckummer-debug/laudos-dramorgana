@@ -3311,7 +3311,14 @@ if(typeof criarMotorLaudo !== 'function'){
     // MÉDIA das TN dos fetos (a Dra. Morgana relatou confusão em 2026-09-28
     // ao ver um card só e não saber por que). Sub/dica trocam de texto
     // conforme o caso; o valor em si sempre foi digitado à mão, nos dois casos.
-    { const subEl = $('feto'+fetos[0].uid+'RiscoSub'), hintEl = $('feto'+fetos[0].uid+'RiscoHint');
+    // render() roda com zero fetos ainda no início da página — antes do
+    // addFeto() do fim do script criar o 1º cartão, loadExecutanteSelecionado()/
+    // applyDigitadora() já chamam render() uma vez (2026-09-28: essa chamada
+    // sem guarda quebrava a página inteira nesse instante, e como ela também
+    // roda dentro do laço de 'change' do draftRestore(), a exceção caía no
+    // catch de "rascunho corrompido" e apagava o rascunho salvo).
+    if(fetos.length){
+      const subEl = $('feto'+fetos[0].uid+'RiscoSub'), hintEl = $('feto'+fetos[0].uid+'RiscoHint');
       if(subEl) subEl.textContent = isMonocorionica
         ? 'Risco fetal para trissomias — '+rotuloRiscoMono+' (IM + ON + TN + DV + VT)'
         : 'Risco fetal para trissomias (IM + ON + TN + DV + VT)';

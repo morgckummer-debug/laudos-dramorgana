@@ -1013,6 +1013,22 @@ Três coisas a respeitar ao mexer aqui:
   de risco nenhum, e para o `obstetrico-tn-doppler-colo.html`, que também não —
   este conserto é só do morfológico de 1º trimestre.
 
+**`render()` roda com zero fetos, de verdade — não é só hipótese de TDZ.** O
+rótulo/dica do cartão único (a peça acrescentada em 2026-09-28, junto do texto
+"Ambos os fetos... a partir da média das TNs") leu `fetos[0].uid` sem checar
+se `fetos` tinha algum elemento, e isso derrubou o laudo inteiro: antes do
+`addFeto()` do fim do script criar o 1º cartão, `loadExecutanteSelecionado()`/
+`applyDigitadora()` já chamam `render()` uma vez, com `fetoUids()` ainda vazio.
+Essa chamada é síncrona e sem guarda nenhuma — quebra na hora, mesmo numa
+página nova, sem rascunho nenhum envolvido. O estrago ficou pior porque esse
+mesmo `render()` também roda dentro do laço de `dispatchEvent('change')` do
+`draftRestore()` (ver a seção do `aplicarMascaraCPF is not defined` logo
+acima — mesmo mecanismo, gatilho diferente): a exceção caiu no `catch` de
+"rascunho corrompido" e apagou o rascunho da Dra. Morgana num F5 comum, sem
+ela ter mexido em gemelar nenhum daquela vez. Qualquer código novo dentro do
+`render()` que leia `fetos[0]` (ou qualquer índice fixo do array) precisa
+checar `fetos.length` antes — o array pode legitimamente estar vazio.
+
 ### Gestação múltipla: um `exams` por feto, A/B/C
 
 O laudo de 2º/3º trimestre atende até três fetos (`MAX_FETOS = 3`) e manda um
