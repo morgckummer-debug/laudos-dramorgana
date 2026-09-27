@@ -2586,11 +2586,16 @@ if(typeof criarMotorLaudo !== 'function'){
       cfgs.push({titulo:'Diâm. biparietal', unit:'mm', dec:1, xLabel:'SEMANAS', x:[12,15], y:[5,38], xt:[12,13,14,15], yt:[5,15,25,35],
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.dbp:null), cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
-    // IP ducto venoso × CCN
-    { const w = range(44,84,1), lo=[], mid=[], hi=[];
-      w.forEach(x=>{ const [,l,m,h] = interpTabelaRef(DV_TABLE, x); lo.push({x,y:l}); mid.push({x,y:m}); hi.push({x,y:h}); });
-      cfgs.push({titulo:'IP ducto venoso', unit:'IP', dec:2, xLabel:'CCN (MM)', x:[44,84], y:[0,1.8], xt:[44,54,64,74,84], yt:[0,0.4,0.8,1.2,1.6],
-        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:f.ccn, valor:f.dv, cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
+    // IP ducto venoso × IG (semanas) — a tabela em si (DV_TABLE) é lida por
+    // CCN (é assim que o gráfico original de Pruksanasuk et al. vem), mas o
+    // eixo do cartão usa idade gestacional, igual aos outros — convertida
+    // aqui via crlFromGAdays_hadlock, a mesma função que já converte IG→CCN
+    // pro cartão de CCN×IG logo acima. Antes saía como IP×CCN (corrigido
+    // 2026-09-27, a pedido da médica).
+    { const w = range(11,14,0.1), lo=[], mid=[], hi=[];
+      w.forEach(x=>{ const ccn=crlFromGAdays_hadlock(x*7); const [,l,m,h] = interpTabelaRef(DV_TABLE, ccn); lo.push({x,y:l}); mid.push({x,y:m}); hi.push({x,y:h}); });
+      cfgs.push({titulo:'IP ducto venoso', unit:'IP', dec:2, xLabel:'SEMANAS', x:[11,14], y:[0,1.8], xt:[11,12,13,14], yt:[0,0.4,0.8,1.2,1.6],
+        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.dv:null), cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // PI das uterinas × IG (Gómez et al. 2008 — mesma fórmula/SD do campo calculado acima)
     { const w = range(11,40,0.5), lo=[], mid=[], hi=[];
