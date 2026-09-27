@@ -4318,18 +4318,18 @@ if(typeof criarMotorLaudo !== 'function'){
 
       // 1) Busca ou cria a paciente por CPF (tenta com e sem pontuação, pois o app Curvas salva formatado)
       let {data: pacientesEncontrados, error: errBusca} = await cgClient
-        .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
+        .from('patients').select('id, nome').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
       if(errBusca) throw errBusca;
       let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
 
       if(!paciente){
         const {data: novaPaciente, error: errCria} = await cgClient
-          .from('patients').insert({user_id: userId, cpf: cpfFormatado, nome}).select('id').single();
+          .from('patients').insert({user_id: userId, cpf: cpfFormatado, nome}).select('id, nome').single();
         if(errCria && errCria.code !== '23505') throw errCria;
         if(errCria && errCria.code === '23505'){
           // Corrida: paciente já foi criada nesse meio-tempo — busca de novo
           const {data: pacienteExistente, error: errBusca2} = await cgClient
-            .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
+            .from('patients').select('id, nome').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
           if(errBusca2) throw errBusca2;
           paciente = (pacienteExistente && pacienteExistente[0]) || null;
         } else {
@@ -4337,6 +4337,22 @@ if(typeof criarMotorLaudo !== 'function'){
         }
       }
       if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
+
+      // CPF já cadastrado na Curva, mas com um nome diferente do digitado
+      // neste laudo — digitação corrigida numa visita anterior, nome de
+      // casada, ou (o caso a temer) um CPF digitado errado caindo por
+      // engano na paciente errada. Ficar calado escondia isso: foi assim
+      // que a Dra. Morgana só percebeu, ao procurar a paciente pelo CPF na
+      // Curva depois de salvar, que o nome lá era outro. Sincroniza e avisa
+      // no toast final — se o nome errado for o da Curva (era mesmo essa
+      // paciente), corrige sozinho; se o CPF é que estava errado, o aviso
+      // no toast chama atenção na hora, em vez de ficar em silêncio.
+      let nomeAntigoDaCurva = null;
+      if((paciente.nome || '') !== nome){
+        nomeAntigoDaCurva = paciente.nome;
+        const {error: errUpdateNome} = await cgClient.from('patients').update({nome}).eq('id', paciente.id);
+        if(errUpdateNome) throw errUpdateNome;
+      }
 
       // 2) Busca a gestação ativa dessa paciente — cria automaticamente se não houver
       let {data: gestacao, error: errGest} = await cgClient
@@ -4481,7 +4497,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const {error: errExame} = await cgClient.from('exams').insert(exames);
       if(errExame) throw errExame;
 
-      cgToast(isMultiple ? 'Exames salvos na Curva de Crescimento ✓' : 'Exame salvo na Curva de Crescimento ✓', false);
+      const avisoNome = nomeAntigoDaCurva ? (' — nome da Curva atualizado (estava "'+nomeAntigoDaCurva+'")') : '';
+      cgToast((isMultiple ? 'Exames salvos na Curva de Crescimento ✓' : 'Exame salvo na Curva de Crescimento ✓') + avisoNome, false);
     }catch(e){
       console.error(e);
       cgToast('Erro ao salvar: ' + (e.message || 'tente novamente.'), true);

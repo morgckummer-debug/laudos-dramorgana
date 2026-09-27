@@ -793,6 +793,27 @@ nova.
   integração — foi o que aconteceu com as artérias uterinas (`aut_e`/`aut_d`)
   entre a criação do bloco e o commit `bb5ecd4`.
 
+### Nome da paciente: sincronizado a cada salvamento, não só na criação
+
+2026-09-27. O "busca ou cria a paciente por CPF" (item 1 de cada handler)
+achava a paciente existente pelo CPF e, se encontrada, nunca atualizava o
+`nome` dela — só gravava o nome digitado quando criava a paciente pela
+primeira vez. A Dra. Morgana salvou um gemelar, o toast disse que salvou, e
+ao procurar a paciente pelo CPF na Curva de Crescimento o nome lá era outro:
+o exame tinha ido, calado, para uma paciente já cadastrada com esse CPF (nome
+digitado errado numa visita anterior, nome de casada não atualizado, ou — o
+caso a temer — um CPF digitado errado batendo com a paciente errada), sem
+nenhum aviso de que o nome não batia.
+
+Os cinco arquivos que buscam paciente por CPF (os quatro da tabela abaixo,
+mais o `rastreamento-ovulacao.html`) agora comparam `paciente.nome` com o
+`nome` deste laudo depois de achar/criar a paciente; se divergem, atualiza
+`patients.nome` e acrescenta ao toast final "— nome da Curva atualizado (era
+"X")". Não é uma escolha entre os dois nomes como a divergência de GPA
+(`askGpaDivergencia`) — aqui o nome do laudo sempre prevalece — mas o aviso
+no toast é o que importa: se o CPF bateu com a paciente errada, é ali que
+isso aparece, não mais em silêncio.
+
 ### O que cada laudo grava
 
 Os quatro seguem a mesma sequência: acha ou cria a paciente pelo CPF → acha a

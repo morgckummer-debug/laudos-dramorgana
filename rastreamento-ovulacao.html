@@ -3146,16 +3146,16 @@ if(typeof criarMotorLaudo !== 'function'){
       const userId = session.user.id;
       // 1) Busca ou cria a paciente por CPF (mesmo cadastro do app de curvas).
       let {data: pacientesEncontrados, error: errBusca} = await cgClient
-        .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
+        .from('patients').select('id, nome').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
       if(errBusca) throw errBusca;
       let paciente = (pacientesEncontrados && pacientesEncontrados[0]) || null;
       if(!paciente){
         const {data: novaPaciente, error: errCria} = await cgClient
-          .from('patients').insert({user_id: userId, cpf: cpfFormatado, nome}).select('id').single();
+          .from('patients').insert({user_id: userId, cpf: cpfFormatado, nome}).select('id, nome').single();
         if(errCria && errCria.code !== '23505') throw errCria;
         if(errCria && errCria.code === '23505'){
           const {data: pacienteExistente, error: errBusca2} = await cgClient
-            .from('patients').select('id').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
+            .from('patients').select('id, nome').in('cpf', [cpf, cpfFormatado]).is('excluido_em', null).limit(1);
           if(errBusca2) throw errBusca2;
           paciente = (pacienteExistente && pacienteExistente[0]) || null;
         }else{
@@ -3163,6 +3163,18 @@ if(typeof criarMotorLaudo !== 'function'){
         }
       }
       if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
+
+      // CPF já cadastrado na Curva, mas com um nome diferente do digitado
+      // neste laudo — digitação corrigida numa visita anterior, nome de
+      // casada, ou (o caso a temer) um CPF digitado errado caindo por
+      // engano na paciente errada. Ficar calado escondia isso; sincroniza e
+      // avisa no toast final, mesma correção feita nos outros laudos.
+      let nomeAntigoDaCurva = null;
+      if((paciente.nome || '') !== nome){
+        nomeAntigoDaCurva = paciente.nome;
+        const {error: errUpdateNome} = await cgClient.from('patients').update({nome}).eq('id', paciente.id);
+        if(errUpdateNome) throw errUpdateNome;
+      }
 
       // 2) Snapshot completo do laudo (todos os campos, visitas, impressão,
       //    texto digitado à mão) — o mesmo que o rascunho automático já grava.
@@ -3204,6 +3216,7 @@ if(typeof criarMotorLaudo !== 'function'){
         if(errInsert) throw errInsert;
       }
 
+      if(nomeAntigoDaCurva) mensagemOk += ' — nome da Curva atualizado (estava "'+nomeAntigoDaCurva+'")';
       cgToast(mensagemOk, false);
     }catch(e){
       console.error(e);
