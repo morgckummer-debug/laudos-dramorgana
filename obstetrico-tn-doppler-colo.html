@@ -1321,12 +1321,38 @@ if(typeof criarMotorLaudo !== 'function'){
   toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame' || ehDumSemCronologia($('cronologiaMetodo').value));
   toggle('wrap_incertaInfo', ehDumSemCronologia($('cronologiaMetodo').value));
 
+  // O software da FMF sempre calcula o risco pós-teste com idade materna
+  // (IM) + CCN + TN + frequência cardíaca (BCF) — isso não muda com o
+  // Doppler. Ducto venoso (DV) e válvula tricúspide (VT) só entram na conta
+  // quando avaliados, tornando o cálculo mais robusto — mas o rótulo do
+  // campo dizia sempre "IM + TN + DV", incluindo o DV mesmo numa TN simples
+  // sem Doppler nenhum. Usada tanto no rótulo do formulário (abaixo) quanto
+  // nas tabelas de risco do laudo impresso (dentro de render()).
+  function riscoLabelTxt(doppler, tricuspide){
+    let txt = 'IM + CCN + TN + BCF';
+    if(doppler){
+      txt += ' + DV';
+      if(tricuspide) txt += ' + VT';
+    }
+    return txt;
+  }
+  function updateRiscoLabels(){
+    const doppler = $('chkDopplerMaterno').checked;
+    const tricuspide = $('chkTricuspide').checked;
+    const txt = riscoLabelTxt(doppler, tricuspide);
+    fetoUids().forEach(uid=>{
+      const el = $('feto'+uid+'RiscoLabel');
+      if(el) el.textContent = txt;
+    });
+  }
   $('chkDopplerMaterno').addEventListener('change', e=>{
     toggle('dopplerMaternoFields', e.target.checked);
+    updateRiscoLabels();
     render();
   });
   $('chkTricuspide').addEventListener('change', e=>{
     fetoUids().forEach(uid=> toggle('feto'+uid+'TricuspideWrap', e.target.checked));
+    updateRiscoLabels();
     render();
   });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
@@ -1363,7 +1389,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<p class="hint-perfeto">Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).</p>'
       +'<div class="field-row">'
       +'<div class="field"><label>Risco basal (idade materna) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoBasal" placeholder="ex: 250"></div>'
-      +'<div class="field"><label>Risco pós-teste (IM + TN + DV) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoPosTeste" placeholder="ex: 8000"></div>'
+      +'<div class="field"><label>Risco pós-teste (<span id="feto'+uid+'RiscoLabel">'+riscoLabelTxt($('chkDopplerMaterno') && $('chkDopplerMaterno').checked, $('chkTricuspide') && $('chkTricuspide').checked)+'</span>) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoPosTeste" placeholder="ex: 8000"></div>'
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Risco para cromossomopatias</label><select id="feto'+uid+'RiscoClasse"><option value="baixo">Baixo risco</option><option value="alto">Risco aumentado</option></select></div>'
@@ -2239,6 +2265,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // Monocoriônica (gemelar ou trigemelar): um card só, com os valores do
     // Feto 1 (o card dos demais fetos fica escondido no formulário —
     // updateRiscoCompartilhado()).
+    const riscoPosTesteLabel = 'Risco pós-teste ('+riscoLabelTxt(dopplerMaterno, tricuspideIncluida)+')';
     if(monoCompartilhado){
       const f = fetos[0];
       const todosTxt = fetos.length >= 3 ? 'todos os fetos' : 'ambos os fetos';
@@ -2247,7 +2274,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
         +'<table class="biometria">'
         +'<tr><td>Risco basal (idade materna)</td><td>1: '+span(f.riscoBasal)+'</td></tr>'
-        +'<tr><td>Risco pós-teste (IM + TN + DV)</td><td>1: '+span(f.riscoPosTeste)+'</td></tr>'
+        +'<tr><td>'+riscoPosTesteLabel+'</td><td>1: '+span(f.riscoPosTeste)+'</td></tr>'
         +'</table></div>'});
     } else {
       fetos.forEach(f=>{
@@ -2257,7 +2284,7 @@ if(typeof criarMotorLaudo !== 'function'){
           +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">'+riscoTitulo+'</strong></p>'
           +'<table class="biometria">'
           +'<tr><td>Risco basal (idade materna)</td><td>1: '+span(f.riscoBasal)+'</td></tr>'
-          +'<tr><td>Risco pós-teste (IM + TN + DV)</td><td>1: '+span(f.riscoPosTeste)+'</td></tr>'
+          +'<tr><td>'+riscoPosTesteLabel+'</td><td>1: '+span(f.riscoPosTeste)+'</td></tr>'
           +'</table></div>'});
       });
     }
