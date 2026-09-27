@@ -506,6 +506,12 @@
     #anexoImgs .anexo-resize-handle{display:none !important;}
     #anexoImgs .anexo-delete-btn{display:none !important;}
     #anexoImgs .anexo-img-wrap img{outline:none !important;}
+    /* As dicas "Clique aqui e cole..."/"Cole aqui alguma imagem extra..." (ver
+       #anexoImgs::before, CSS acima) são chrome de tela, não conteúdo do
+       laudo — sem isto, elas imprimiam junto sempre que a folha de anexo
+       tinha conteúdo (gráficos ou relatório da FMF) mas nenhuma imagem extra
+       colada, que é o caso mais comum agora que os campos substituem o print. */
+    #anexoImgs::before{display:none !important;}
     /* .combo-list (a lista de médicos que aparece ao digitar) é movida para o
        <body> para não ser cortada pelo overflow:hidden do card — ou seja, ela
        NÃO é descendente de #formCol e não some com a regra acima. Sem esta
@@ -3701,97 +3707,112 @@ if(typeof criarMotorLaudo !== 'function'){
     const fontSize = $('paper').style.fontSize || '12pt';
     colapsarMargensParaWord(clone);
     let bodyHtml = clone.innerHTML;
-    // A página de anexo (logo da FMF, imagem colada do cálculo de risco,
-    // gráficos de referência e assinatura) fica de fora do #paper — só entra
-    // no Word na mesma condição que a faz imprimir (ver `has-content` em
-    // updateAnexoVisibility()): imagem colada OU gráficos com dado para
-    // plotar. Só checar a imagem, como era antes, deixava a última folha
-    // sair no PDF (que sempre segue o `has-content`) e sumir do Word sempre
-    // que a médica ainda não tivesse colado o print da FMF — mesmo com os
-    // gráficos, o FMF ID e a assinatura dessa folha já prontos. O Word
-    // ignora o <style> da página (só sobrevive o que está inline em cada
-    // elemento — mesma observação do clone do #paper acima), então o logo e
-    // a assinatura levam o mesmo estilo inline aplicado ao rodapé do laudo
-    // principal.
-    if(anexoImgsEl.querySelector('img') || anexoTemDadosGraficos()){
-      const anexoClone = paperAnexoEl.cloneNode(true);
-      // A bolinha de redimensionar, o botão de excluir e a borda de seleção
-      // são só da edição na tela — não fazem sentido no Word. A largura
-      // arrastada na tela (o style.width do <img>, se a médica reduziu)
-      // segue no clone normalmente.
-      anexoClone.querySelectorAll('.anexo-resize-handle, .anexo-delete-btn').forEach(el=>el.remove());
-      anexoClone.querySelectorAll('.anexo-img-wrap.selected').forEach(el=>el.classList.remove('selected'));
-      anexoClone.querySelectorAll('#anexoImgs img').forEach(img=>{
-        img.style.maxWidth = '100%'; img.style.display = 'block'; img.style.margin = '0 auto 14px'; img.style.outline = 'none';
-        embedImgAsCid(img);
-      });
-      const anexoLogo = anexoClone.querySelector('.anexo-header img');
-      if(anexoLogo && anexoLogo.style.display !== 'none'){
-        // fmf-icon.png é um arquivo do site, resolvido por caminho relativo —
-        // no Word, aberto isolado de qualquer pasta do site, essa referência
-        // não acha nada e o logo sai quebrado. A imagem já carregada na tela
-        // (paperAnexoEl, não o clone) tem os pixels prontos; um canvas vira
-        // esses pixels em data: URI, que embedImgAsCid() embute do mesmo jeito
-        // que o print colado.
-        const liveLogoImg = paperAnexoEl.querySelector('.anexo-header img');
-        if(liveLogoImg && liveLogoImg.naturalWidth > 0){
-          try{
-            // O onerror desse <img> (ver HTML: esconde o logo se o caminho
-            // relativo não carregar) é só para quando o .doc é aberto de
-            // verdade, isolado do site — dentro do Word esse atributo é
-            // inerte (Word não roda o onerror de um HTML importado). Mas
-            // atribuir 'cid:...' logo abaixo faz O PRÓPRIO NAVEGADOR, aqui
-            // e agora, tentar carregar essa URL como imagem — falha (não é
-            // um esquema que ele resolve sozinho) e dispara o onerror de
-            // verdade, escondendo o logo no clone assim que o loop dos
-            // gráficos abaixo der a primeira pausa (await). Sem efeito
-            // nenhum no Word real, então tira o atributo antes de mexer no
-            // src, para essa falha de carregamento daqui não sobrar no
-            // HTML final.
-            anexoLogo.removeAttribute('onerror');
-            // Desenha já no tamanho de exibição (52px de altura) — o Word
-            // ignora max-height/width por CSS num <img> importado e mostra
-            // o arquivo no tamanho nativo dos pixels; antes disso o logo
-            // saía enorme, do tamanho original do PNG.
-            const targetH = 52;
-            const targetW = Math.round(liveLogoImg.naturalWidth * (targetH / liveLogoImg.naturalHeight));
-            const c = document.createElement('canvas');
-            c.width = targetW; c.height = targetH;
-            c.getContext('2d').drawImage(liveLogoImg, 0, 0, targetW, targetH);
-            anexoLogo.src = c.toDataURL('image/png');
-            anexoLogo.setAttribute('width', targetW);
-            anexoLogo.setAttribute('height', targetH);
-            anexoLogo.style.maxHeight = ''; anexoLogo.style.width = ''; anexoLogo.style.display = 'block';
-            embedImgAsCid(anexoLogo);
-          }catch(e){ /* navegador sem canvas ou imagem bloqueada por CORS: fica só sem o logo no Word, em vez de travar o download */ }
-        }
-      }
-      // Gráficos de referência: cada .anexo-grafico-card tem um <svg> vivo
-      // (mesmo elemento, mesmos pixels que aparecem na tela) — troca pelo
-      // <img> rasterizado antes de mandar pro Word (ver svgParaDataUrl()).
-      // Falhar em rasterizar um card tira só aquele <svg> (sopa de texto),
-      // sem travar o download nem derrubar os outros gráficos.
-      const liveGraficoSvgs = Array.from(paperAnexoEl.querySelectorAll('.anexo-grafico-card svg'));
-      const cloneGraficoSvgs = Array.from(anexoClone.querySelectorAll('.anexo-grafico-card svg'));
-      for(let i=0; i<cloneGraficoSvgs.length; i++){
-        const liveSvg = liveGraficoSvgs[i];
-        const cloneSvg = cloneGraficoSvgs[i];
-        if(!liveSvg || !cloneSvg) continue;
-        try{
-          const dataUrl = await svgParaDataUrl(liveSvg);
-          const img = document.createElement('img');
-          img.src = dataUrl;
-          img.style.width = '100%'; img.style.display = 'block';
-          embedImgAsCid(img);
-          cloneSvg.replaceWith(img);
-        }catch(e){ cloneSvg.remove(); }
-      }
-      anexoClone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
-      anexoClone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
-      anexoClone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#8d9391'; el.style.margin='0'; });
-      bodyHtml += '<br clear="all" style="page-break-before:always;mso-special-character:line-break;">' + anexoClone.innerHTML;
+    // A página de anexo (logo da FMF, relatório da FMF em texto, gráficos de
+    // referência, imagem extra colada e assinatura) fica de fora do #paper —
+    // só entra no Word na mesma condição que a faz imprimir (ver
+    // `has-content` em updateAnexoVisibility()): imagem colada, gráficos com
+    // dado para plotar, ou o relatório da FMF com algum campo preenchido.
+    if(anexoImgsEl.querySelector('img') || anexoTemDadosGraficos() || anexoTemDadosFmf()){
+      try{
+        const anexoImg = await rasterizarAnexoParaWord();
+        bodyHtml += '<br clear="all" style="page-break-before:always;mso-special-character:line-break;">' + anexoImg.outerHTML;
+      }catch(e){ /* última página fica de fora do Word se a rasterização falhar — o corpo principal do laudo ainda sai certo */ }
     }
     return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";\">"+bodyHtml+'</div>';
+  }
+
+  // A última página (anexo) tem tabela em coluna par/ímpar, grid de 8
+  // gráficos SVG e texto em várias fontes/cores — cada pedaço já teve seu
+  // próprio conserto pro Word entender (ver histórico: cartão de
+  // identificação virando <table>, cada SVG virando <img>...), mas o Word não
+  // entende display:grid nenhum jeito — os 8 cartões saíam empilhados numa
+  // coluna só, nunca no grid 4×2 de verdade. Em vez de mais um conserto
+  // pedaço por pedaço, esta função tira uma "foto" da página inteira já
+  // renderizada certinha na tela (mesmo pipeline usado pra imprimir/PDF, que
+  // já está correto) e entra no Word como uma imagem só — sem grid, sem
+  // tabela, sem nada pro Word errar.
+  //
+  // A técnica: desenha o clone da página dentro de um <svg><foreignObject>,
+  // com o <style> inteiro da página (o mesmo <style> do <head>, texto puro,
+  // sem precisar rebaixar cada propriedade computada elemento por elemento)
+  // colado dentro em CDATA — texto de CSS bruto quebraria o parser XML sem
+  // isso, por causa de '<'/'&' soltos. Esse SVG vira uma <img> (data:
+  // image/svg+xml), que o navegador sabe desenhar num <canvas> — daí sai um
+  // JPEG. scale=2 (a mesma ideia de svgParaDataUrl(), mais acima): desenha em
+  // pixels dobrados pra nitidez, mas o atributo width/height do <img> final
+  // fica no tamanho lógico (1x) — é isso, não o style, que o Word usa pra
+  // decidir o tamanho na página (ver o comentário antigo sobre o logo, que
+  // valia pelo mesmo motivo).
+  async function rasterizarAnexoParaWord(){
+    const clone = paperAnexoEl.cloneNode(true);
+    clone.querySelectorAll('.anexo-resize-handle, .anexo-delete-btn').forEach(el=>el.remove());
+    clone.querySelectorAll('.anexo-img-wrap.selected').forEach(el=>el.classList.remove('selected'));
+
+    // fmf-icon.png é resolvido por caminho relativo à página — dentro do
+    // documento isolado do data:image/svg+xml não existe essa base, e o logo
+    // sairia quebrado. Mesma solução de sempre: desenha os pixels já
+    // carregados (paperAnexoEl, não o clone) num canvas e troca por um
+    // data: URI antes de serializar.
+    const cloneLogo = clone.querySelector('.anexo-header img');
+    const liveLogo = paperAnexoEl.querySelector('.anexo-header img');
+    if(cloneLogo){
+      if(liveLogo && liveLogo.style.display !== 'none' && liveLogo.naturalWidth > 0){
+        try{
+          const c = document.createElement('canvas');
+          c.width = liveLogo.naturalWidth; c.height = liveLogo.naturalHeight;
+          c.getContext('2d').drawImage(liveLogo, 0, 0);
+          cloneLogo.removeAttribute('onerror');
+          cloneLogo.src = c.toDataURL('image/png');
+        }catch(e){ cloneLogo.remove(); }
+      } else {
+        cloneLogo.remove();
+      }
+    }
+    // Sem imagem extra colada, só sobraria a dica de tela ("Cole aqui...",
+    // ver #anexoImgs::before) — não é conteúdo do laudo, e o CDATA abaixo
+    // reproduziria as regras de :empty::before do jeito que estão na tela.
+    // Tirar o elemento do clone evita rasterizar a dica por engano.
+    const imgsClone = clone.querySelector('#anexoImgs');
+    if(imgsClone && !imgsClone.querySelector('img')) imgsClone.remove();
+
+    const rect = paperAnexoEl.getBoundingClientRect();
+    const W = Math.ceil(rect.width);
+    const H = Math.ceil(paperAnexoEl.scrollHeight);
+    const cssText = Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
+    const xhtml = new XMLSerializer().serializeToString(clone);
+    const svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'">'
+      + '<foreignObject width="100%" height="100%">'
+      + '<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+W+'px;background:#fff;">'
+      + '<style><![CDATA['+cssText+']]></style>'
+      + xhtml
+      + '</div></foreignObject></svg>';
+
+    const scale = 2;
+    const rasterImg = new Image();
+    const dataUrl = await new Promise((resolve, reject)=>{
+      rasterImg.onload = ()=>{
+        try{
+          const canvas = document.createElement('canvas');
+          canvas.width = W*scale; canvas.height = H*scale;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(rasterImg, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.92));
+        }catch(e){ reject(e); }
+      };
+      rasterImg.onerror = ()=> reject(new Error('rasterização da última página falhou'));
+      rasterImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+    });
+
+    const outImg = document.createElement('img');
+    outImg.src = dataUrl;
+    outImg.alt = 'Última página — cálculo de risco (FMF)';
+    outImg.setAttribute('width', W);
+    outImg.setAttribute('height', H);
+    outImg.style.width = '100%';
+    outImg.style.display = 'block';
+    embedImgAsCid(outImg);
+    return outImg;
   }
 
 
