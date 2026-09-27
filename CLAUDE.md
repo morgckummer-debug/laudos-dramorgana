@@ -1075,3 +1075,23 @@ aqui.
   app de curvas passa a enxergar este achado quando a paciente vier por
   aqui, o que alimenta o estadiamento de Barcelona e o Tipo III de Gratacós
   lá também (ver `CLAUDE.md` do `curva-fetal`).
+
+## Ducto venoso do anexo de gráficos: eixo X era CCN, virou idade gestacional
+
+2026-09-27. O cartão "IP ducto venoso" de `renderGraficosReferencia()`
+(`morfologico-1trimestre.html`) saiu com `xLabel:'CCN (MM)'` desde que os 8
+gráficos de referência foram criados — diferente dos outros quatro
+("estreitos", ver `x[Label]:'SEMANAS'` nos cartões de FC/CCN/DBP), que já
+usam idade gestacional. A médica corrigiu ao revisar o mesmo gráfico portado
+para o `curva-fetal` (ver `CLAUDE.md` de lá, "Ducto venoso do 1º trimestre:
+eixo X é idade gestacional, não CCN") — o mesmo engano existia aqui, fonte
+original de onde `DV_TABLE` foi portada.
+
+`DV_TABLE` é uma leitura visual do gráfico de Pruksanasuk et al. (2014), cujo
+eixo original já é CCN (mm) — a tabela não mudou, só a conversão: em vez de
+varrer `x` direto em CCN, o cartão agora varre semanas (`range(11,14,0.1)`,
+mesma janela do cartão de CCN×IG logo acima) e usa `crlFromGAdays_hadlock(x*7)`
+— já usada ali mesmo — para achar o CCN equivalente antes de consultar
+`DV_TABLE`. O marcador de cada feto trocou de `x:f.ccn` para
+`x:igSemanas` (mesmo padrão de FC/CCN/DBP, que já usam `igSemanas` do
+`gaDays` da cronologia, não uma medida do feto).
