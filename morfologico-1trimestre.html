@@ -329,12 +329,21 @@
   .anexo-idbar{flex:0 0 auto;font-family:'Times New Roman',Times,serif;font-size:11px;color:var(--ink);text-align:center;border-top:1px solid #2b2b2e;border-bottom:1px solid #2b2b2e;padding:5px 0;margin:0 0 14px;}
   .anexo-idbar .sep{color:#b9a8b5;margin:0 10px;}
   .anexo-idbar-fmf{font-size:9px;color:var(--ink-soft);margin-top:2px;}
-  #anexoImgs{flex:1 0 auto;min-height:160px;}
-  #anexoImgs:empty::before{
-    content:'Clique aqui e cole (Ctrl+V) a imagem do cálculo de risco da FMF.';
+  /* min-height só entra quando não há relatório da FMF montado por texto
+     acima (ver #anexoFmfReport) — com os campos preenchidos, esta área fica
+     livre para colar algo extra (opcional), sem reservar 160px em branco. */
+  #anexoImgs{flex:1 0 auto;}
+  #anexoFmfReport:empty + #anexoImgs{min-height:160px;}
+  #anexoFmfReport:empty + #anexoImgs:empty::before{
+    content:'Clique aqui e cole (Ctrl+V) a imagem do cálculo de risco da FMF — ou preencha os campos de "Cálculo de risco (FMF)" no formulário ao lado, que o texto sai pronto aqui, sem precisar colar print nenhum.';
     display:flex;align-items:center;justify-content:center;text-align:center;
     min-height:160px;color:var(--ink-soft);border:2px dashed var(--line);border-radius:12px;
     font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;padding:24px;
+  }
+  #anexoFmfReport:not(:empty) + #anexoImgs:empty::before{
+    content:'Cole aqui (Ctrl+V) alguma imagem extra, se precisar — os valores digitados já aparecem acima como texto.';
+    display:block;text-align:center;color:var(--ink-soft);
+    font-family:'Inter',sans-serif;font-size:11px;line-height:1.4;padding:6px 0 0;
   }
   /* Cada imagem colada vem envolvida num .anexo-img-wrap — é nele que mora o
      "canto" que se arrasta para reduzir, do mesmo jeito que no Word: clica na
@@ -876,6 +885,29 @@
     </div>
 
     <div class="card">
+      <div class="card-head"><h2>Última página — cálculo de risco (FMF)</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Estes campos montam a última página como texto, no layout do relatório da FMF — não precisa mais colar o print de lá. Deixe em branco o que a FMF não calculou neste exame; o risco ajustado (com FHR, NT, DV PI, osso nasal e tricúspide) usa os mesmos campos já preenchidos no cartão de cada feto, acima, e o de pré-eclâmpsia usa o cartão de rastreamento logo ali em cima — não precisa repetir.</p>
+        <p style="font-size:12px;font-weight:600;margin:12px 0 4px;">Riscos por história (antes dos marcadores ultrassonográficos)</p>
+        <div class="field-row">
+          <div class="field"><label>Idade materna considerada (anos)</label><input type="text" inputmode="numeric" id="anexoIdadeMaterna" placeholder="ex: 32"></div>
+          <div class="field"><label>Trissomia 21 — 1 para</label><input type="text" inputmode="numeric" id="anexoRiscoHistT21" placeholder="ex: 970"></div>
+          <div class="field"><label>Trisomia 13/18 — 1 para</label><input type="text" inputmode="numeric" id="anexoRiscoHistT1318" placeholder="ex: 1800"></div>
+        </div>
+        <p style="font-size:12px;font-weight:600;margin:12px 0 4px;">Risco de diabetes gestacional</p>
+        <div class="field-row">
+          <div class="field"><label>Risco (%)</label><input type="text" inputmode="decimal" data-decimals="1" id="anexoDiabetesPercent" placeholder="ex: 3,4"></div>
+          <div class="field"><label>1 para</label><input type="text" inputmode="numeric" id="anexoDiabetesRisco" placeholder="ex: 30"></div>
+        </div>
+        <p style="font-size:12px;font-weight:600;margin:12px 0 4px;">Risco de parto prematuro espontâneo antes de 34 semanas (história)</p>
+        <div class="field-row">
+          <div class="field"><label>Risco (%)</label><input type="text" inputmode="decimal" data-decimals="1" id="anexoPtbPercent" placeholder="ex: 0,3"></div>
+          <div class="field"><label>1 para</label><input type="text" inputmode="numeric" id="anexoPtbRisco" placeholder="ex: 372"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="card-head"><h2>Impressões diagnósticas</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
@@ -978,6 +1010,7 @@
           </div>
           <div class="anexo-titulo">Rastreamento de aneuploidias e pré-eclâmpsia</div>
           <div class="anexo-idbar" id="anexoIdBar"></div>
+          <div id="anexoFmfReport"></div>
           <div id="anexoImgs" contenteditable="true" spellcheck="false"></div>
           <div class="anexo-graficos" id="anexoGraficos">
           <div class="anexo-graficos-titulo">Gráficos de referência — 1º trimestre</div>
@@ -1449,6 +1482,16 @@ if(typeof criarMotorLaudo !== 'function'){
     return temFeto || num('utEsquerda') != null || num('utDireita') != null;
   }
 
+  // Mesma ideia de anexoTemDadosGraficos(), para o relatório da FMF em texto
+  // (ver renderAnexoFmfReport()): decide se a folha de anexo tem conteúdo
+  // próprio mesmo sem nenhum print/imagem colada.
+  function anexoTemDadosFmf(){
+    if(v('anexoRiscoHistT21')!=='' || v('anexoRiscoHistT1318')!=='' || v('anexoIdadeMaterna')!=='') return true;
+    if(v('anexoDiabetesRisco')!=='' || v('anexoPtbRisco')!=='') return true;
+    if($('chkPreEclampsia') && $('chkPreEclampsia').checked && v('preEclampsiaRisco')!=='') return true;
+    return fetoUids().some(uid => v('feto'+uid+'RiscoT21')!=='' || v('feto'+uid+'RiscoT18')!=='' || v('feto'+uid+'RiscoT13')!=='');
+  }
+
   function updateAnexoVisibility(){
     // Rascunho salvo antes do botão de excluir imagem individual existir
     // (ou HTML restaurado por qualquer outro caminho antigo) não traz o
@@ -1467,16 +1510,26 @@ if(typeof criarMotorLaudo !== 'function'){
     const temImagem = !!anexoImgsEl.querySelector('img');
     $('anexoTable').classList.toggle('has-image', temImagem);
     // has-content é quem decide se a folha inteira imprime — inclui os
-    // gráficos de referência, que agora têm valor por si (ver
-    // anexoTemDadosGraficos()) mesmo sem nenhum print da FMF colado.
-    $('anexoTable').classList.toggle('has-content', temImagem || anexoTemDadosGraficos());
+    // gráficos de referência e o relatório da FMF em texto, que agora têm
+    // valor por si (ver anexoTemDadosGraficos()/anexoTemDadosFmf()) mesmo
+    // sem nenhum print da FMF colado.
+    $('anexoTable').classList.toggle('has-content', temImagem || anexoTemDadosGraficos() || anexoTemDadosFmf());
     toggle('anexoActions', temImagem);
     // .anexo-paper tem altura fixa e overflow:hidden (ver CSS) — se o
-    // conteúdo colado ainda estourar mesmo depois do ajuste automático de
+    // conteúdo ainda estourar mesmo depois do ajuste automático de
     // anexoAjustarImagem() (ex.: várias imagens já ocupando o espaço todo),
     // isto aqui não empurra mais a margem inferior, só corta em silêncio.
-    // O aviso é o que impede o corte de passar despercebido.
+    // O aviso é o que impede o corte de passar despercebido — hoje por duas
+    // causas possíveis: imagem colada grande demais (como sempre foi), ou o
+    // relatório da FMF em texto com muitos blocos preenchidos ao mesmo tempo
+    // (ver renderAnexoFmfReport()).
     const estourou = paperAnexoEl.scrollHeight > paperAnexoEl.clientHeight + 1;
+    const warnEl = $('anexoOverflowWarning');
+    if(warnEl){
+      warnEl.textContent = temImagem
+        ? 'A imagem colada não coube inteira nesta página — arraste o canto para reduzir, ou remova e cole uma versão menor.'
+        : 'O texto desta página não coube inteiro — está sendo cortado na impressão. Confira se algum dos campos de "Cálculo de risco (FMF)" está mesmo necessário neste exame, ou avise para ajustarmos o espaço.';
+    }
     toggle('anexoOverflowWarning', estourou);
   }
 
@@ -1523,6 +1576,16 @@ if(typeof criarMotorLaudo !== 'function'){
       const r = graficosEl.getBoundingClientRect();
       const graficosStyle = getComputedStyle(graficosEl);
       usada += r.height + (parseFloat(graficosStyle.marginTop) || 0) + (parseFloat(graficosStyle.marginBottom) || 0);
+    }
+    // Relatório da FMF em texto (ver renderAnexoFmfReport()): mesmo raciocínio
+    // do grid de gráficos acima — tamanho que já saiu fixo neste render(),
+    // entra no orçamento antes de decidir quanto encolher uma imagem extra
+    // colada por baixo dele.
+    const fmfReportEl = $('anexoFmfReport');
+    if(fmfReportEl && fmfReportEl.childNodes.length){
+      const r = fmfReportEl.getBoundingClientRect();
+      const fmfStyle = getComputedStyle(fmfReportEl);
+      usada += r.height + (parseFloat(fmfStyle.marginTop) || 0) + (parseFloat(fmfStyle.marginBottom) || 0);
     }
     Array.from(anexoImgsEl.children).forEach(wrap=>{
       if(wrap === excluirWrap) return;
@@ -2530,6 +2593,162 @@ if(typeof criarMotorLaudo !== 'function'){
         : '';
     }
   }
+
+  // ---------- Relatório da FMF (última página), em texto ----------
+  // Substitui o print colado pela médica: reconstrói o mesmo layout do
+  // relatório do software da FMF a partir de campos digitados, sempre vetor
+  // (nunca imagem), nítido em qualquer impressora. Recalcula tudo sozinha —
+  // mesmo padrão de renderGraficosReferencia() logo acima — e não depende do
+  // array `fetos` de dentro de render(): lê os campos de novo por fetoUids(),
+  // mesma leitura independente que os gráficos já fazem.
+  //
+  // Estilo só inline (sem classes CSS): esta div entra sem passar por
+  // copyComputedToClone()/WORD_COPY no "Baixar Word" — só o clone inteiro de
+  // #paperAnexo (ver comentário em buildReportHtml(), "O Word ignora o
+  // <style> da página"). Tabela em vez de flex/grid pelo mesmo motivo de
+  // sempre: Word não entende layout flexível, mas lê célula de tabela sem
+  // erro nenhum.
+  function renderAnexoFmfReport(){
+    const el = $('anexoFmfReport');
+    if(!el) return;
+    const uids = fetoUids();
+    const isMultiple = uids.length > 1;
+    const isMonocorionica = isMultiple && v('corionicidade').indexOf('monocorionica') === 0;
+    const rotuloRiscoMono = uids.length >= 3 ? 'Os três fetos' : 'Ambos os fetos';
+
+    // Tamanhos enxutos de propósito: a folha de anexo tem altura fixa
+    // (24,2cm — ver .anexo-paper no CSS) e já reserva espaço para os 8
+    // cartões do grid de gráficos logo abaixo (ver anexoAlturaDisponivelPx());
+    // com os cinco blocos deste relatório preenchidos, no tamanho de fonte
+    // do resto do laudo (10,5-11px) a página estourava por ~33px nos testes
+    // — cortado silenciosamente pelo overflow:hidden da impressão. Reduzido
+    // até sobrar folga com feto único (~32px livres) e caber também numa
+    // trigemelar com todos os campos preenchidos (ver a tabela por coluna
+    // logo abaixo, para gemelar/trigemelar não-monocoriônica).
+    const HEAD = 'font-family:\'Poppins\',sans-serif;font-weight:600;font-size:10px;color:#1a56b0;margin:6px 0 2px;';
+    const HEAD_FIRST = 'font-family:\'Poppins\',sans-serif;font-weight:600;font-size:10px;color:#1a56b0;margin:0 0 2px;';
+    const TXT = 'font-family:\'Times New Roman\',Times,serif;font-size:9.5px;color:var(--ink);';
+    const PARA = TXT+'margin:2px 0 0;line-height:1.15;';
+
+    let primeiroBloco = true;
+    function heading(txt){
+      const style = primeiroBloco ? HEAD_FIRST : HEAD;
+      primeiroBloco = false;
+      return '<p style="'+style+'">'+escapeHtml(txt)+'</p>';
+    }
+    function tabela(linhas){
+      return '<table style="border-collapse:collapse;'+TXT+'margin:1px 0 0;">'
+        + linhas.map(function(par){
+            return '<tr><td style="padding:0 14px 0 0;white-space:nowrap;">'+escapeHtml(par[0])+'</td>'
+              + '<td style="padding:0;white-space:nowrap;">'+par[1]+'</td></tr>';
+          }).join('')
+        + '</table>';
+    }
+    function linha(txt){
+      return '<p style="'+TXT+'margin:1px 0 0;">'+txt+'</p>';
+    }
+
+    let html = '';
+
+    // Riscos por história (a priori, antes dos marcadores ultrassonográficos).
+    const temHistoria = v('anexoRiscoHistT21')!=='' || v('anexoRiscoHistT1318')!=='' || v('anexoIdadeMaterna')!=='';
+    if(temHistoria){
+      const histT21 = blankOrValue(v('anexoRiscoHistT21'));
+      const histT1318 = blankOrValue(v('anexoRiscoHistT1318'));
+      const idadeM = blankOrValue(v('anexoIdadeMaterna'));
+      html += heading('Riscos por História');
+      html += tabela([
+        ['Trissomia 21:', '1 in '+span(histT21)],
+        ['Trisomia 13/18:', '1 in '+span(histT1318)]
+      ]);
+      html += '<p style="'+PARA+'">O risco baseado nos antecedentes tem por base uma idade materna de '+span(idadeM)+' anos e gravidezes anteriores afetadas.</p>';
+    }
+
+    // Risco ajustado pelos marcadores ultrassonográficos — reaproveita os
+    // mesmos campos feto{uid}RiscoT21/T18/T13 do cartão de cada feto (ver
+    // "Risco Fetal para Trissomias" no corpo do laudo): não duplica a
+    // digitação, só reapresenta no layout da FMF. Mesma regra da
+    // monocoriônica usada lá — um cálculo só, rotulado para os dois/três
+    // fetos (ver a nota "Monocoriônica" no CLAUDE.md).
+    const temAjustado = uids.some(function(uid){
+      return v('feto'+uid+'RiscoT21')!=='' || v('feto'+uid+'RiscoT18')!=='' || v('feto'+uid+'RiscoT13')!=='';
+    });
+    if(temAjustado){
+      const rotuloMono = isMonocorionica ? ' — '+rotuloRiscoMono : '';
+      html += heading('Risks from History, FHR, NT, DV PI, Nasal bone, Tricuspid'+rotuloMono);
+      if(isMultiple && !isMonocorionica){
+        // Gemelar/trigemelar sem ser monocoriônica: uma tabela só, uma
+        // coluna por feto — mesmo formato compacto do quadro "Risco Fetal
+        // para Trissomias" no corpo do laudo (ver render(), tabela
+        // risco-multi). Um bloco inteiro por feto (como fazia antes)
+        // ocupava altura demais e estourava a página com os gráficos de
+        // referência logo abaixo — a tabela por coluna cabe no mesmo espaço
+        // de um bloco só.
+        const campo = function(c){ return uids.map(function(uid){ return blankOrValue(v('feto'+uid+c)); }); };
+        const t21 = campo('RiscoT21'), t18 = campo('RiscoT18'), t13 = campo('RiscoT13');
+        const linhaMulti = function(label, vals){
+          return '<tr><td style="padding:0 10px 0 0;white-space:nowrap;">'+escapeHtml(label)+'</td>'
+            + vals.map(function(x){ return '<td style="padding:0 10px 0 0;white-space:nowrap;">1 in '+span(x)+'</td>'; }).join('')
+            + '</tr>';
+        };
+        html += '<table style="border-collapse:collapse;'+TXT+'margin:1px 0 0;">'
+          + '<tr><td></td>'+uids.map(function(uid, idx){ return '<td style="padding:0 10px 0 0;font-weight:700;white-space:nowrap;">'+escapeHtml(fetoLabel(idx, uids.length))+'</td>'; }).join('')+'</tr>'
+          + linhaMulti('Trissomia 21:', t21)
+          + linhaMulti('Síndrome de Edwards (T18):', t18)
+          + linhaMulti('Síndrome de Patau (T13):', t13)
+          + '</table>';
+      } else {
+        // Feto único, ou monocoriônica (um cálculo só, rotulado acima):
+        // sempre os campos do 1º feto — mesma regra do quadro no corpo do
+        // laudo (ver render(), "Monocoriônica" no CLAUDE.md).
+        const pre = 'feto'+uids[0];
+        const t21 = blankOrValue(v(pre+'RiscoT21'));
+        const t18 = blankOrValue(v(pre+'RiscoT18'));
+        const t13 = blankOrValue(v(pre+'RiscoT13'));
+        html += tabela([
+          ['Trissomia 21:', '1 in '+span(t21)],
+          ['Síndrome de Edwards (T18):', '1 in '+span(t18)],
+          ['Síndrome de Patau (T13):', '1 in '+span(t13)]
+        ]);
+      }
+      html += '<p style="'+PARA+'">The adjusted risk is the risk at the time of screening. The calculation is based on the background risk and the following parameters: Ultrasound factors (FHR, NT, DV PI, Nasal bone, Tricuspid).</p>';
+    }
+
+    // Pré-eclâmpsia — reaproveita o cartão "Rastreamento de pré-eclâmpsia
+    // (FMF)": mesmo risco (preEclampsiaRisco) e mesma opção de texto
+    // (preEclampsiaOpcao) que já alimentam a frase da IMPRESSÃO, sem campo
+    // novo. O nível (baixo/intermediário/aumentado) da 2ª frase segue a
+    // mesma opção escolhida ali. Checkbox vem marcado por padrão (é o caso
+    // comum) — sem checar também o valor do risco, este bloco apareceria
+    // sozinho, com "1 in ____", em todo laudo novo antes da médica preencher
+    // qualquer coisa nesta seção (mesma checagem de anexoTemDadosFmf()).
+    if($('chkPreEclampsia') && $('chkPreEclampsia').checked && v('preEclampsiaRisco')!==''){
+      const risco = blankOrValue(v('preEclampsiaRisco'));
+      const NIVEL = {'1':'baixo', '4':'intermediário', '2':'aumentado', '3':'aumentado'};
+      const nivel = NIVEL[v('preEclampsiaOpcao') || '1'] || 'baixo';
+      html += heading('Risk of preeclampsia before 37 weeks');
+      html += linha('History, MAP, UtA-PI: 1 in '+span(risco));
+      html += '<p style="'+PARA+'">O risco de pré-eclâmpsia foi avaliado através de uma combinação de características maternas e história clínica com medições de pressão arterial e fluxo sanguíneo para o útero.</p>';
+      html += '<p style="'+PARA+'">O risco de desenvolver pré-eclâmpsia antes das 37 semanas é '+nivel+'. No entanto, recomenda-se que o risco seja reavaliado às 20 e às 36 semanas.</p>';
+    }
+
+    if(v('anexoDiabetesRisco')!==''){
+      const pct = blankOrValue(v('anexoDiabetesPercent'));
+      const risco = blankOrValue(v('anexoDiabetesRisco'));
+      html += heading('Risco de Diabetes Gestacional');
+      html += linha(span(pct)+'% (1 in '+span(risco)+')');
+    }
+
+    if(v('anexoPtbRisco')!==''){
+      const pct = blankOrValue(v('anexoPtbPercent'));
+      const risco = blankOrValue(v('anexoPtbRisco'));
+      html += heading('Risco de parto prematuro espontâneo antes das 34 semanas segundo a história');
+      html += linha(span(pct)+'% (1 in '+span(risco)+')');
+    }
+
+    el.innerHTML = html;
+  }
+
   // ---------- Doppler fetal: percentil da relação cérebro-placentária (RCP).
   // Valores de referência (média e desvio-padrão da RCP por semana de
   // gestação) conforme a tabela adotada no serviço, 20 a 40 semanas.
@@ -3288,6 +3507,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
     else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
     renderGraficosReferencia(gaDays);
+    renderAnexoFmfReport();
     updateAnexoVisibility();
     updatePagePreview();
     draftSchedule();
