@@ -450,6 +450,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Risco aumentado para cromossomopatias</label><textarea id="ph_impCromossomopatiasAlto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ducto venoso normal</label><textarea id="ph_impDuctoVenosoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ducto venoso alterado — use {DETALHE}</label><textarea id="ph_impDuctoVenosoAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Válvula tricúspide normal</label><textarea id="ph_impTricuspideNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Válvula tricúspide alterada (regurgitação)</label><textarea id="ph_impTricuspideAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>IP médio das uterinas — use {PERCENTIL}</label><textarea id="ph_impUterinas" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo normal</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo curto</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
@@ -586,10 +588,11 @@
     <button type="button" class="btn-clear" id="btnAddFeto" style="margin:-8px 0 22px;">+ Adicionar feto</button>
 
     <div class="card">
-      <div class="card-head"><h2>Doppler das artérias uterinas <span style="font-weight:400;font-size:12px;color:var(--ink-soft);">(se no pedido médico)</span></h2></div>
+      <div class="card-head"><h2>Doppler <span style="font-weight:400;font-size:12px;color:var(--ink-soft);">(se no pedido médico)</span></h2></div>
       <div class="card-body">
-        <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno"><label for="chkDopplerMaterno">Incluir Doppler das artérias uterinas</label></div>
+        <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno"><label for="chkDopplerMaterno">Incluir Doppler</label></div>
         <div id="dopplerMaternoFields" class="conditional">
+          <p style="font-size:12px;font-weight:600;margin:0 0 4px;">Artérias uterinas</p>
           <div class="field-row">
             <div class="field"><label>IP artéria uterina direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder="ex: 1,45"></div>
             <div class="field"><label>IP artéria uterina esquerda</label><input type="text" inputmode="decimal" data-decimals="2" id="utEsquerda" placeholder="ex: 1,30"></div>
@@ -598,6 +601,9 @@
             <div class="field"><label>IP médio (calculado)</label><input type="text" id="utMedioCalc" readonly placeholder="calculado automaticamente"></div>
             <div class="field"><label>Percentil calculado (Gómez et al., 2008)</label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
           </div>
+          <hr class="sep">
+          <div class="toggle-line"><input type="checkbox" id="chkTricuspide"><label for="chkTricuspide">Incluir avaliação da válvula tricúspide (opcional)</label></div>
+          <div id="dopplerFetalFields"></div>
         </div>
       </div>
     </div>
@@ -1165,6 +1171,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impCromossomopatiasAlto: 'A Translucência Nucal apresenta-se aumentada, o que eleva o risco para cromossomopatias – sugere-se avaliação especializada e aconselhamento genético.',
     impDuctoVenosoNormal: 'Ducto venoso com onda A positiva e índice de pulsatilidade dentro da normalidade (< percentil 95).',
     impDuctoVenosoAlterado: 'Ducto venoso alterado ({DETALHE}), achado associado a maior risco de cromossomopatias e cardiopatias congênitas – sugere-se avaliação especializada.',
+    impTricuspideNormal: 'Válvula tricúspide com fluxo normal, sem sinais de regurgitação.',
+    impTricuspideAlterada: 'Regurgitação tricúspide presente, achado associado a maior risco de cromossomopatias e cardiopatias congênitas – sugere-se avaliação especializada.',
     impUterinas: 'Doppler das artérias estudadas dentro da normalidade (IP médio no percentil {PERCENTIL} para a idade gestacional).',
     impColoNormal: 'Colo uterino sem anormalidades.',
     impColoAlterado: 'Colo curto para a idade gestacional - Sugere-se reavaliação para risco de prematuridade com 16-18 semanas.',
@@ -1317,6 +1325,10 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('dopplerMaternoFields', e.target.checked);
     render();
   });
+  $('chkTricuspide').addEventListener('change', e=>{
+    fetoUids().forEach(uid=> toggle('feto'+uid+'TricuspideWrap', e.target.checked));
+    render();
+  });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
 
   // ---------- Feto(s): lista dinâmica, mesmo padrão dos sacos gestacionais do
@@ -1346,13 +1358,6 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Osso nasal</label><select id="feto'+uid+'OssoNasal"><option value="Presente">Presente</option><option value="Ausente">Ausente</option><option value="Hipoplásico">Hipoplásico</option></select></div>'
       +'</div>'
 
-      +'<p class="feto-sub">Ducto venoso</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Ducto venoso — IPV</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'DuctoVenoso" placeholder="ex: 0,95"></div>'
-      +'<div class="field"><label>Ducto venoso — percentil</label><select id="feto'+uid+'DVClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
-      +'<div class="field"><label>Ducto venoso — onda A</label><select id="feto'+uid+'DVOndaA"><option value="Positiva">Onda A positiva</option><option value="Negativa">Onda A negativa</option></select></div>'
-      +'</div>'
-
       +'<div id="feto'+uid+'RiscoWrap">'
       +'<p class="feto-sub">Risco para Síndrome de Down (T21)</p>'
       +'<p class="hint-perfeto">Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).</p>'
@@ -1373,6 +1378,39 @@ if(typeof criarMotorLaudo !== 'function'){
   function fetoLabel(idx, total){
     return total<=1 ? 'Feto' : 'Feto '+(idx+1);
   }
+  // Ducto venoso e válvula tricúspide moraram no card do próprio feto até
+  // 2026-09-27 — a Dra. Morgana pediu para mudar: são achados de Doppler,
+  // então ficam dentro do card "Doppler" (por isso o id 'wrap_feto'+uid+'Doppler',
+  // separado do 'wrap_feto'+uid do card biométrico), um bloco por feto dentro
+  // de #dopplerFetalFields, na mesma ordem/ciclo de vida dos cards de feto.
+  function fetoDopplerHTML(uid){
+    return ''
+      +'<div class="feto-doppler" id="wrap_feto'+uid+'Doppler">'
+      +'<p class="feto-sub">Ducto venoso <span class="feto-doppler-label"></span></p>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Ducto venoso — IPV</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'DuctoVenoso" placeholder="ex: 0,95"></div>'
+      +'<div class="field"><label>Ducto venoso — percentil</label><select id="feto'+uid+'DVClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
+      +'<div class="field"><label>Ducto venoso — onda A</label><select id="feto'+uid+'DVOndaA"><option value="Positiva">Onda A positiva</option><option value="Negativa">Onda A negativa</option></select></div>'
+      +'</div>'
+      +'<div id="feto'+uid+'TricuspideWrap" class="conditional'+(($('chkTricuspide') && $('chkTricuspide').checked) ? ' show' : '')+'">'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Válvula tricúspide</label><select id="feto'+uid+'Tricuspide"><option value="Normal">Fluxo normal</option><option value="Regurgitacao">Regurgitação presente</option></select></div>'
+      +'</div>'
+      +'</div>'
+      +'</div>';
+  }
+  function wireFetoDoppler(uid){
+    const el = $('wrap_feto'+uid+'Doppler');
+    el.querySelectorAll('input, select').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    wireDecimalInputs();
+  }
+  function addFetoDoppler(uid){
+    $('dopplerFetalFields').insertAdjacentHTML('beforeend', fetoDopplerHTML(uid));
+    wireFetoDoppler(uid);
+  }
   function renumberFetos(){
     const cards = Array.from($('fetosContainer').children);
     cards.forEach((el, idx)=>{
@@ -1380,6 +1418,10 @@ if(typeof criarMotorLaudo !== 'function'){
       if(label) label.textContent = fetoLabel(idx, cards.length);
       const removeBtn = el.querySelector('.feto-remove');
       if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
+    });
+    Array.from($('dopplerFetalFields').children).forEach((el, idx)=>{
+      const label = el.querySelector('.feto-doppler-label');
+      if(label) label.textContent = cards.length>1 ? '— '+fetoLabel(idx, cards.length) : '';
     });
     $('numeroFetos').value = String(Math.min(Math.max(cards.length, 1), MAX_FETOS));
     updateGestacaoWrap();
@@ -1397,6 +1439,8 @@ if(typeof criarMotorLaudo !== 'function'){
     wireDecimalInputs();
     el.querySelector('.feto-remove').addEventListener('click', ()=>{
       el.remove();
+      const db = $('wrap_feto'+uid+'Doppler');
+      if(db) db.remove();
       renumberFetos();
       render();
     });
@@ -1406,6 +1450,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const uid = fetoNextUid++;
     $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
     wireFetoCard(uid);
+    addFetoDoppler(uid);
     renumberFetos();
     render();
   }
@@ -1693,21 +1738,30 @@ if(typeof criarMotorLaudo !== 'function'){
       });
     }
 
-    // Ducto venoso é medido em cada feto individualmente (diferente do risco
-    // de Down, que é um cálculo só e compartilhado na monocoriônica) — por
-    // isso sempre um item por feto, mesmo quando monoCompartilhado.
-    state.fetos.forEach(f=>{
-      const dvAlterado = f.dvClasse==='>P95' || f.dvOndaA==='Negativa';
-      const detalhes = [];
-      if(f.dvOndaA==='Negativa') detalhes.push('onda A negativa');
-      if(f.dvClasse==='>P95') detalhes.push('índice de pulsatilidade acima do percentil 95');
-      items.push({key:k('ducto-venoso', f), label: pre(f) + (dvAlterado
-        ? phraseRaw('impDuctoVenosoAlterado', {DETALHE: detalhes.join(' e ')})
-        : phraseRaw('impDuctoVenosoNormal')), auto:true});
-    });
-
     if(state.dopplerMaterno){
       items.push({key:'uterinas', label: phraseRaw('impUterinas', {PERCENTIL: state.utPercentilTxt || '__'}), auto:true});
+
+      // Ducto venoso e tricúspide são medidos em cada feto individualmente
+      // (diferente do risco de Down, que é um cálculo só e compartilhado na
+      // monocoriônica) — por isso sempre um item por feto, mesmo quando
+      // monoCompartilhado. Os dois só entram na conclusão junto com o resto
+      // do card "Doppler"; a tricúspide, dentro dele, tem sua própria
+      // checkbox (state.tricuspideIncluida), por isso um segundo `if`.
+      state.fetos.forEach(f=>{
+        const dvAlterado = f.dvClasse==='>P95' || f.dvOndaA==='Negativa';
+        const detalhes = [];
+        if(f.dvOndaA==='Negativa') detalhes.push('onda A negativa');
+        if(f.dvClasse==='>P95') detalhes.push('índice de pulsatilidade acima do percentil 95');
+        items.push({key:k('ducto-venoso', f), label: pre(f) + (dvAlterado
+          ? phraseRaw('impDuctoVenosoAlterado', {DETALHE: detalhes.join(' e ')})
+          : phraseRaw('impDuctoVenosoNormal')), auto:true});
+
+        if(state.tricuspideIncluida){
+          items.push({key:k('tricuspide', f), label: pre(f) + (f.tricuspide==='Regurgitacao'
+            ? phraseRaw('impTricuspideAlterada')
+            : phraseRaw('impTricuspideNormal')), auto:true});
+        }
+      });
     }
     if(state.colo){
       items.push({key:'colo', label: state.coloAlterado ? phraseRaw('impColoAlterado') : phraseRaw('impColoNormal'), auto:true});
@@ -2032,6 +2086,14 @@ if(typeof criarMotorLaudo !== 'function'){
       $('utP95Calc').value = percentilUt!=null ? ('P'+utPercentilTxt+' (IG: '+igAtualTxt+')') : (gaDays==null ? 'informe a IG para calcular' : '');
     }
 
+    // Ducto venoso e válvula tricúspide moraram no card do próprio feto até
+    // 2026-09-27, quando a Dra. Morgana pediu para virarem parte do card
+    // "Doppler" (não do card biométrico do feto): ambos só entram no laudo
+    // (e o DV só cobra preenchimento) quando esse card opcional está
+    // marcado. A tricúspide, dentro do Doppler, é opcional por si só —
+    // tem a própria checkbox (chkTricuspide) além da do card.
+    const tricuspideIncluida = dopplerMaterno && $('chkTricuspide').checked;
+
     // ----- Um estado por feto -----
     const fetos = uids.map((uid, idx)=>{
       const pre = 'feto'+uid;
@@ -2042,27 +2104,23 @@ if(typeof criarMotorLaudo !== 'function'){
       const tn = blankOrValue(req(pre+'TN'));
       const ossoNasal = v(pre+'OssoNasal') || 'Presente';
 
-      // Ducto venoso é marcador padrão do rastreamento combinado do 1º
-      // trimestre (risco pós-teste = IM + TN + DV), independente de a
-      // gestante ter pedido também o Doppler das artérias uterinas — por
-      // isso sempre cobra preenchimento, não só quando esse card opcional
-      // está marcado.
-      const dv = blankOrValue(req(pre+'DuctoVenoso'));
+      const dv = blankOrValue(dopplerMaterno ? req(pre+'DuctoVenoso') : v(pre+'DuctoVenoso'));
       const dvClasse = v(pre+'DVClasse') || '<P95';
       const dvOndaA = v(pre+'DVOndaA') || 'Positiva';
+      const tricuspide = v(pre+'Tricuspide') || 'Normal';
 
       const riscoBasal = blankOrValue(v(pre+'RiscoBasal'));
       const riscoPosTeste = blankOrValue(v(pre+'RiscoPosTeste'));
       const riscoAlto = v(pre+'RiscoClasse')==='alto';
 
-      return {uid, label, ccn, fc, tn, ossoNasal, dv, dvClasse, dvOndaA, riscoBasal, riscoPosTeste, riscoAlto};
+      return {uid, label, ccn, fc, tn, ossoNasal, dv, dvClasse, dvOndaA, tricuspide, riscoBasal, riscoPosTeste, riscoAlto};
     });
 
     // ----- Impressão -----
     const state = {
       semanas: semanasTxt, dias: diasTxt, ig: igTxt, metodoTxt, cronologiaMetodo,
       isMultiple, corTxt, fetos, monoCompartilhado,
-      dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
+      dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt, tricuspideIncluida,
       colo, coloAlterado,
       miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose
     };
@@ -2156,17 +2214,22 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Compr. cabeça-nádega (CCN)</td><td>'+span(f.ccn)+' mm</td></tr>'
         +'<tr><td>Translucência Nucal (TN)</td><td>'+span(f.tn)+' mm</td></tr>'
         +'<tr><td>Osso nasal</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
-        +'<tr><td>Ducto Venoso</td><td>'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+', onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>'
         +'</table></div>'});
     });
 
     if(dopplerMaterno){
-      const dopplerHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Estudo Doppler</strong></p>'
+      let dopplerHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Estudo Doppler</strong></p>'
         +'<table class="biometria">'
         +'<tr><td>Artéria Uterina Direita</td><td>'+span(utDireitaVal)+'</td></tr>'
         +'<tr><td>Artéria Uterina Esquerda</td><td>'+span(utEsquerdaVal)+'</td></tr>'
-        +'<tr><td>IP médio</td><td>'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
-        +'</table></div>';
+        +'<tr><td>IP médio</td><td>'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>';
+      fetos.forEach(f=>{
+        dopplerHtml += '<tr><td>Ducto Venoso'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+'</td><td>'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+', onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>';
+        if(tricuspideIncluida){
+          dopplerHtml += '<tr><td>Válvula Tricúspide'+(isMultiple ? ' — '+escapeHtml(f.label) : '')+'</td><td>'+(f.tricuspide==='Regurgitacao' ? 'Regurgitação presente' : 'Fluxo normal')+'</td></tr>';
+        }
+      });
+      dopplerHtml += '</table></div>';
       blocks.push({id:'dopplerMaterno', html:dopplerHtml});
     }
 
@@ -2531,6 +2594,7 @@ if(typeof criarMotorLaudo !== 'function'){
           fetoNextUid = Math.max(fetoNextUid, parseInt(uid, 10) + 1);
           $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
           wireFetoCard(uid);
+          addFetoDoppler(uid);
         });
         renumberFetos();
       }else{
