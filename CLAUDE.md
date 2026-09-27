@@ -863,17 +863,14 @@ laudo já tinha (`feto{uid}DuctoVenoso`, o IP; `feto{uid}DVOndaA`) no mesmo
 
 - **`dv_ip`: por feto, direto** — `num(pre+'DuctoVenoso')`, mesmo padrão de
   `nt`/`fc` (medida física do feto, não acompanha regra de monocoriônica).
-- **`dv_onda`: vocabulário incompatível, mapeado com perda.** O `curva-fetal`
-  distingue três estados (`positiva`/`ausente`/`reversa` — a mesma coluna
-  serve o ducto venoso do 2º/3º trimestre, onde "ausente" e "reversa" já são
-  o mesmo patamar de gravidade pro ISUOG 2020, mas continuam **valores**
-  diferentes na coluna). Este laudo só tem dois (`feto{uid}DVOndaA`:
-  Positiva/Negativa) — sem campo pra distinguir onda ausente de onda
-  reversa. `dvOndaTxt()` mapeia `'Negativa'` → `'reversa'` (leitura mais
-  literal: fluxo em direção contrária, não simplesmente ausente) — decisão
-  tomada aqui, não confirmada com a médica campo a campo. **Se este laudo um
-  dia ganhar uma 3ª opção pra "ausente"**, é só acrescentá-la ao `<select>` e
-  trocar este mapa; até lá, todo "Negativa" grava como `reversa` no banco.
+- **`dv_onda`: mesmo vocabulário do `curva-fetal` desde o início.**
+  `feto{uid}DVOndaA` saiu como Positiva/Negativa (2 opções) na primeira
+  versão deste conserto — a médica corrigiu no mesmo dia: são três opções
+  reais (Positiva/Ausente/Reversa), a mesma coluna `dv_onda` do 2º/3º
+  trimestre já usa esse vocabulário (ver `CLAUDE.md` do `curva-fetal`, ISUOG
+  2020 — lá "ausente" e "reversa" pesam o mesmo na leitura de gravidade, mas
+  continuam **valores** diferentes na coluna). `dvOndaTxt()` virou um mapa
+  1:1 sem perda nenhuma.
 
 ### O GPA e os quatro laudos: o campo que existia na tela e não chegava no banco
 

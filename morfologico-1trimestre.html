@@ -1992,7 +1992,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Ducto venoso — percentil</label><select id="feto'+uid+'DVClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
-      +'<div class="field"><label>Ducto venoso — onda A</label><select id="feto'+uid+'DVOndaA"><option value="Positiva">Onda A positiva</option><option value="Negativa">Onda A negativa</option></select></div>'
+      +'<div class="field"><label>Ducto venoso — onda A</label><select id="feto'+uid+'DVOndaA"><option value="Positiva">Onda A positiva</option><option value="Ausente">Onda A ausente</option><option value="Reversa">Onda A reversa</option></select></div>'
       +'<div class="field"><label>Válvula tricúspide</label><select id="feto'+uid+'Tricuspide"><option value="Sem regurgitação">Sem regurgitação</option><option value="Com regurgitação">Com regurgitação</option></select></div>'
       +'</div>'
       +'<div class="field-row">'
@@ -4382,16 +4382,10 @@ if(typeof criarMotorLaudo !== 'function'){
       // é só prefixar, sem inventar cálculo novo.
       const riscoTxt = val => val ? ('1 em ' + val) : null;
 
-      // Onda A do ducto venoso: o formulário deste laudo só distingue
-      // Positiva/Negativa (rastreio do 1º trimestre, Pruksanasuk et al.);
-      // o app de curvas trabalha com três estados (positiva/ausente/
-      // reversa — ver dv_onda no CLAUDE.md de lá, ISUOG 2020) porque também
-      // usa esta mesma coluna pro ducto venoso do 2º/3º trimestre. Sem um
-      // 3º valor aqui pra "ausente", "Negativa" vira 'reversa' — é a leitura
-      // mais literal (fluxo em direção contrária, não simplesmente ausente).
-      // Se este laudo um dia distinguir os dois, é só acrescentar a opção e
-      // trocar este mapa.
-      const dvOndaTxt = val => (val === 'Negativa') ? 'reversa' : (val === 'Positiva') ? 'positiva' : null;
+      // Onda A do ducto venoso: mesmo vocabulário do app de curvas
+      // (positiva/ausente/reversa — ver dv_onda no CLAUDE.md de lá, ISUOG
+      // 2020), só minúsculo.
+      const dvOndaTxt = val => (val === 'Positiva') ? 'positiva' : (val === 'Ausente') ? 'ausente' : (val === 'Reversa') ? 'reversa' : null;
 
       // Pré-eclâmpsia/parto prematuro/diabetes gestacional são achado
       // materno da visita (rastreamento combinado, não por feto) — mesmo
