@@ -881,10 +881,10 @@
     <div class="card">
       <div class="card-head"><h2>Última página — cálculo de risco (FMF)</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Estes campos montam a última página como texto, no layout do relatório da FMF — não precisa mais colar o print de lá. Deixe em branco o que a FMF não calculou neste exame; o risco de trissomias (T21/T18/T13) usa os mesmos campos já preenchidos no cartão de cada feto, acima, e o de pré-eclâmpsia usa o cartão de rastreamento logo ali em cima — não precisa repetir.</p>
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Estes campos montam a última página como texto, no layout do relatório da FMF — não precisa mais colar o print de lá. Deixe em branco o que a FMF não calculou neste exame; a idade materna usa o campo de nascimento/data do exame já preenchidos acima, o risco de trissomias (T21/T18/T13) usa os mesmos campos já preenchidos no cartão de cada feto, acima, e o de pré-eclâmpsia usa o cartão de rastreamento logo ali em cima — não precisa repetir.</p>
         <p style="font-size:12px;font-weight:600;margin:12px 0 4px;">Riscos por história (antes dos marcadores ultrassonográficos)</p>
         <div class="field-row">
-          <div class="field"><label>Idade materna considerada (anos)</label><input type="text" inputmode="numeric" id="anexoIdadeMaterna" placeholder="ex: 32"></div>
+          <div class="field"><label>Idade materna considerada (anos)</label><input type="text" id="anexoIdadeMaterna" readonly placeholder="calculada automaticamente"></div>
           <div class="field"><label>Trissomia 21 — 1 para</label><input type="text" id="anexoRiscoHistT21" readonly placeholder="igual ao cartão do feto"></div>
           <div class="field"><label>Trisomia 13/18 — 1 para</label><input type="text" id="anexoRiscoHistT1318" readonly placeholder="igual ao cartão do feto"></div>
         </div>
@@ -3056,6 +3056,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const idadeTxt = idadeAnos!=null ? String(idadeAnos) : '';
     const idadeCalcEl = $('idadeCalc');
     if(idadeCalcEl) idadeCalcEl.value = idadeTxt;
+    // Espelha pro card "Última página — cálculo de risco (FMF)": mesma idade
+    // já calculada acima (nascimento + data do exame), não precisa digitar
+    // de novo — mesmo pedido da médica que tirou a digitação dupla do risco
+    // de trissomias (ver CLAUDE.md).
+    const anexoIdadeEl = $('anexoIdadeMaterna');
+    if(anexoIdadeEl) anexoIdadeEl.value = idadeTxt;
 
     // IMC = peso / altura² (altura digitada em cm).
     const pesoNum = num('pesoMaterno');

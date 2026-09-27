@@ -1233,3 +1233,13 @@ Testado com Playwright: preencher `feto1RiscoT21/T18/T13` atualiza os dois
 campos readonly ao vivo (sem precisar de outro `render()` manual), o texto
 da folha de anexo mostra os valores certos nas duas seções, e o ciclo de
 impressão continua sem erro.
+
+**A idade materna do mesmo card também virou espelho automático**, no
+mesmo pedido: `anexoIdadeMaterna` (readonly agora) usa `idadeTxt` — a idade
+já calculada em `computeIdadeAnos(dataNascimento, dataExame)` para o campo
+"Idade (calculada)" (`idadeCalc`) que o formulário principal já tinha. Não
+precisou de campo novo nem de conta nova: as duas atribuições ficam lado a
+lado no `render()`, a mesma idade em dois lugares da tela. Testado: mudar
+data de nascimento/exame atualiza `anexoIdadeMaterna` junto com `idadeCalc`,
+e a frase "O risco baseado nos antecedentes tem por base uma idade materna
+de X anos..." da folha de anexo sai com o valor certo.
