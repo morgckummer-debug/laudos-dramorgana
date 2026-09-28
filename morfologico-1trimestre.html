@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Laudo do Morfológico de 1º Trimestre — Dra. Morgana Kummer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Comfortaa:wght@600&family=Lato:wght@400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   .cg-overlay{position:fixed;inset:0;background:rgba(43,43,46,.55);z-index:5000;display:flex;align-items:center;justify-content:center;}
@@ -389,18 +389,21 @@
 .anexo-graficos{margin:8px 0 20px;flex:0 0 auto;}
 .anexo-graficos-titulo{font-family:'Poppins',sans-serif;font-size:10.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.3px;text-align:center;margin:0 0 6px;}
 .anexo-graficos-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:8px;}
-.anexo-grafico-card{position:relative;border:1px solid var(--line);border-radius:8px;padding:7px 8px 5px;background:#fff;}
-.anexo-grafico-card .card-title{margin:0;padding-right:32px;font-family:'Poppins',sans-serif;font-size:9.5px;font-weight:700;color:var(--rose-darker);text-align:center;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-/* Subtítulo = a referência bibliográfica da curva, no mesmo estilo do
-   modelo pedido pela Dra. Morgana (itálico, serifado, cinza, discreto). */
-.anexo-grafico-card .card-subtitle{margin:0 0 1px;font-family:'Times New Roman',Times,serif;font-style:italic;font-size:6.8px;color:var(--ink-soft);text-align:center;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-/* Tag do percentil: único elemento do desenho anterior que a Dra. Morgana
-   pediu para manter — agora fixo no canto superior direito do card, por
-   cima do título, em vez de numa linha própria abaixo dele. */
-.anexo-grafico-card .badge-corner{position:absolute;top:5px;right:6px;font-family:'Inter',sans-serif;font-size:7px;font-weight:700;border-radius:999px;padding:1.5px 6px;white-space:nowrap;}
-.anexo-grafico-card .badge-corner.alert{color:#fff;background:var(--amber);}
-.anexo-grafico-card .badge-corner.normal{color:var(--rose-dark);background:var(--rose-light);}
-.anexo-grafico-card .card-multi{font-family:'Inter',sans-serif;font-size:7.5px;color:var(--ink);display:flex;flex-wrap:wrap;gap:1px 7px;margin:2px 0 0;}
+/* Mesmo modelo do relatório "Laudo 1º Trimestre" do Curva de Crescimento
+   (curva-fetal/index.html — classes .feto-card/.efw-*, função
+   _buildRel1TriChartSvg/_buildRelChartUtaSvg): paleta roxo/dourado,
+   Comfortaa no título, Lato no resto do card, ponto vazado com o percentil
+   escrito em cima dele em vez de selo no canto. Repetido aqui à mão porque
+   os dois repositórios não compartilham nenhuma linha de código (ver
+   CLAUDE.md, "A integração com a Curva de Crescimento") — um ajuste lá
+   também precisa vir para cá. Cartão de um feto só (inclusive os 3 de
+   artéria uterina, sempre maternos) sai com o friso dourado, igual ao
+   "--unica" de lá; com mais de um feto no mesmo cartão (marcador por feto,
+   ver renderGraficosReferencia) o friso vira roxo. */
+.anexo-grafico-card{border:1px solid #E3D9DE;border-radius:6px;padding:8px 9px 6px;background:#FFFDFB;border-top:3px solid #B08D3F;}
+.anexo-grafico-card .card-title{margin:0;font-family:'Comfortaa',system-ui,sans-serif;font-size:9px;font-weight:600;color:#3D2352;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.anexo-grafico-card .card-subtitle{margin:2px 0 3px;font-family:'Lato',Georgia,serif;font-size:6.8px;color:#9B8C8C;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.anexo-grafico-card .card-multi{font-family:'Lato',sans-serif;font-size:7.5px;color:#3B2A2A;display:flex;flex-wrap:wrap;gap:1px 7px;margin:2px 0 0;}
 .anexo-grafico-card .card-multi b{font-weight:700;}
 .anexo-grafico-card svg{display:block;width:100%;margin-top:2px;}
 .anexo-graficos-legenda{font-size:8px;color:var(--ink-soft);text-align:center;margin-top:6px;}
@@ -2358,6 +2361,17 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     return pts[pts.length-1][0];
   }
+  // Fonte citada no cartão da folha de anexo: Snijders RJM, Noble P, Sebire
+  // N, Souka A, Nicolaides KH (Fetal Medicine Foundation First Trimester
+  // Screening Group). "UK multicentre project on assessment of risk of
+  // trisomy 21 by maternal age and fetal nuchal-translucency thickness at
+  // 10-14 weeks of gestation." Lancet 1998;352(9125):343-346 — a referência
+  // clássica de P5/P50/P95 de TN por CCN nesta mesma janela (38-84mm),
+  // trocada por pedido da médica no lugar do genérico "Tabela de
+  // referência" (2026-09-28). Não foi possível conferir dígito a dígito os
+  // valores de TN_TABLE contra o artigo original (sem acesso ao texto
+  // completo) — se a tabela tiver vindo de outra fonte, é só trocar a
+  // citação abaixo.
   const TN_TABLE = [
     [45,0.7,1.3,2.0],[46,0.7,1.3,2.0],[47,0.7,1.4,2.0],[48,0.7,1.4,2.0],[49,0.8,1.4,2.1],
     [50,0.8,1.5,2.1],[51,0.8,1.5,2.1],[52,0.9,1.5,2.2],[53,0.9,1.5,2.2],[54,0.9,1.6,2.2],
@@ -2383,6 +2397,12 @@ if(typeof criarMotorLaudo !== 'function'){
   const TN_P5_REG = linRegress(TN_TABLE.map(r=>[r[0],r[1]]));
   const TN_P50_REG = linRegress(TN_TABLE.map(r=>[r[0],r[2]]));
   const TN_P95_REG = linRegress(TN_TABLE.map(r=>[r[0],r[3]]));
+  // Fonte citada no cartão: Chitty LS, Altman DG. "Charts of fetal size: 2.
+  // Head measurements." Br J Obstet Gynaecol. 1994;101(1):35-43 — cobre BPD
+  // a partir de 12 semanas, mesma janela desta tabela; trocada por pedido da
+  // médica no lugar do genérico "Tabela de referência" (2026-09-28). Mesma
+  // ressalva do TN_TABLE acima: não foi possível conferir os valores
+  // dígito a dígito contra o artigo original.
   const DBP_TABLE_WEEKS = [ [12,9,17,23], [13,15,21,27], [14,19,25,31], [15,23,29,35] ];
   const DV_TABLE = [
     [44,0.78,1.00,1.22],[48,0.77,1.00,1.24],[52,0.77,1.01,1.26],[56,0.76,1.02,1.27],
@@ -2401,7 +2421,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     return table[table.length-1];
   }
-  const FETO_CORES = ['#ae5ba0','#3a7d9c','#3aa15c'];
+  const FETO_CORES = ['#3D2352','#B08D3F','#8A651F'];
   // A folha imprime em preto e branco — cor sozinha não distingue os fetos
   // no papel (relatado pela Dra. Morgana). FETO_FORMAS dá a cada feto uma
   // forma própria no marcador (círculo/losango/triângulo), que sobrevive à
@@ -2478,19 +2498,24 @@ if(typeof criarMotorLaudo !== 'function'){
         pctNum = normalCDF(z)*100;
       }
       const pctText = m.valor>hiV ? '> P95' : m.valor<loV ? '< P5' : 'P'+Math.max(5,Math.min(95,Math.round(pctNum)));
-      return {valor:m.valor, rotulo:m.rotulo, forma:m.forma, cor:m.cor||(isAlert?'#c05a34':'#6d3263'),
+      return {valor:m.valor, rotulo:m.rotulo, forma:m.forma, cor:m.cor,
         px:sx(m.x), py:sy(m.valor), pctText, isAlert};
     });
     const yStep = (y1-y0)/5;
     const yDec = yStep < 0.099 ? 2 : (yStep < 0.99 ? 1 : 0);
     const xSuf = cfg.xSuffix || '';
+    // Cores do modelo do Curva de Crescimento (curva-fetal/index.html,
+    // .efw-band/.efw-p90/.efw-p50/.efw-p10/.efw-ref-t): roxo/lilás/lavanda,
+    // sempre essa paleta — lá só o cartão do 2º gêmeo (feto-card--b) troca
+    // para dourado, e aqui um cartão com mais de um marcador já é uma lista
+    // por feto (ver renderGraficoCardHtml), não um cartão por gêmeo.
     const endLabels = espalharRotulos([
-      {y:sy(cfg.hi[cfg.hi.length-1].y), label:'P90', cor:'#c98ec0', bold:false},
-      {y:sy(cfg.mid[cfg.mid.length-1].y), label:'P50', cor:'#6d3263', bold:true},
-      {y:sy(cfg.lo[cfg.lo.length-1].y), label:'P10', cor:'#c98ec0', bold:false}
+      {y:sy(cfg.hi[cfg.hi.length-1].y), label:'P90', cor:'#C3B1D1', bold:false},
+      {y:sy(cfg.mid[cfg.mid.length-1].y), label:'P50', cor:'#8B6BA8', bold:true},
+      {y:sy(cfg.lo[cfg.lo.length-1].y), label:'P10', cor:'#C3B1D1', bold:false}
     ], 9);
     return {
-      titulo:cfg.titulo, ref:cfg.ref, unit:cfg.unit, dec:cfg.dec, xLabel:cfg.xLabel,
+      titulo:cfg.titulo, ref:cfg.ref, unit:cfg.unit, dec:cfg.dec,
       band, p50Path:pathFromPts(cfg.mid), p95Path:pathFromPts(cfg.hi), p5Path:pathFromPts(cfg.lo),
       xTicks: cfg.xt.map(v=>({x:sx(v), label:String(v).replace('.',',')+xSuf})),
       yTicks: autoTicks(y0,y1,5).map(v=>({y:sy(v), textY:sy(v)+3, label:fmtNum(v,yDec)})),
@@ -2499,44 +2524,53 @@ if(typeof criarMotorLaudo !== 'function'){
     };
   }
   function renderGraficoCardHtml(c){
+    const FONTE_EIXO = "font-family=\"Lato,Georgia,serif\"";
     const yTicksSvg = c.yTicks.map(t=>
-      '<line x1="26" y1="'+t.y+'" x2="136" y2="'+t.y+'" stroke="#f0eaf0" stroke-width="0.8"></line>'
-      +'<text x="22" y="'+t.textY+'" font-size="8.2" fill="#9a7e95" font-family="Inter,sans-serif" text-anchor="end">'+t.label+'</text>'
+      '<line x1="26" y1="'+t.y+'" x2="136" y2="'+t.y+'" stroke="#E3D9DE" stroke-width="0.8"></line>'
+      +'<text x="4" y="'+t.textY+'" font-size="7.5" fill="#9B8C8C" '+FONTE_EIXO+'>'+t.label+'</text>'
     ).join('');
     const xTicksSvg = c.xTicks.map(t=>
-      '<text x="'+t.x+'" y="114" font-size="8.2" fill="#9a7e95" font-family="Inter,sans-serif" text-anchor="middle">'+t.label+'</text>'
+      '<text x="'+t.x+'" y="114" font-size="7.5" fill="#9B8C8C" '+FONTE_EIXO+' text-anchor="middle">'+t.label+'</text>'
     ).join('');
     const endLabelsSvg = c.endLabels.map(l=>
-      '<text x="140" y="'+(l.y+2.8)+'" font-size="7.5" font-weight="'+(l.bold?'700':'600')+'" fill="'+l.cor+'" font-family="Poppins,sans-serif">'+l.label+'</text>'
+      '<text x="140" y="'+(l.y+2.8)+'" font-size="7.2" font-weight="600" fill="'+l.cor+'" '+FONTE_EIXO+'>'+l.label+'</text>'
     ).join('');
-    const marcadoresSvg = c.marcadores.map(m=>
-      '<line x1="'+m.px+'" y1="'+m.py+'" x2="'+m.px+'" y2="104" stroke="'+m.cor+'" stroke-width="0.7" stroke-dasharray="1.5,1.5" opacity="0.5"></line>'
-      + marcadorFormaSvg(m.forma, m.px, m.py, m.cor)
-    ).join('');
+    // Ponto único (feto sozinho, ou qualquer um dos 3 cartões de artéria
+    // uterina — sempre materna): círculo vazado + percentil escrito em cima
+    // dele, igual ao .efw-pt/.efw-pt-t de lá. Fora da faixa vira o mesmo
+    // vinho (#8a2840) que .rel-tabela td.fora usa lá para marcar "fora".
+    // Mais de um marcador (gemelar/trigemelar) continua com o glifo por
+    // feto (círculo/losango/triângulo) — ver FORMA_GLIFO — porque aqui é
+    // uma lista compacta por feto, não um cartão por gêmeo como lá.
+    const marcadoresSvg = c.marcadores.length === 1
+      ? c.marcadores.map(m=>{
+          const cor = m.isAlert ? '#8A2840' : '#3D2352';
+          return '<circle cx="'+m.px+'" cy="'+m.py+'" r="5" fill="#FFFDFB" stroke="'+cor+'" stroke-width="2"></circle>'
+            +'<text x="'+m.px+'" y="'+Math.max(16,m.py-7)+'" font-size="7.5" font-weight="700" fill="'+cor+'" '+FONTE_EIXO+' text-anchor="middle">'+m.pctText+'</text>';
+        }).join('')
+      : c.marcadores.map(m=>
+          '<line x1="'+m.px+'" y1="'+m.py+'" x2="'+m.px+'" y2="104" stroke="'+m.cor+'" stroke-width="0.7" stroke-dasharray="1.5,1.5" opacity="0.5"></line>'
+          + marcadorFormaSvg(m.forma, m.px, m.py, m.cor)
+        ).join('');
     const svg =
       '<svg viewBox="0 0 190 128">'
       + yTicksSvg
-      + '<path d="'+c.band+'" fill="#ae5ba0" opacity="0.08"></path>'
-      + '<path d="'+c.p95Path+'" fill="none" stroke="#c98ec0" stroke-width="1" stroke-dasharray="3,2"></path>'
-      + '<path d="'+c.p5Path+'" fill="none" stroke="#c98ec0" stroke-width="1" stroke-dasharray="3,2"></path>'
-      + '<path d="'+c.p50Path+'" fill="none" stroke="#6d3263" stroke-width="1.5"></path>'
-      + '<line x1="26" y1="104" x2="136" y2="104" stroke="#d9c9d3" stroke-width="0.8"></line>'
+      + '<path d="'+c.band+'" fill="#8B6BA8" opacity="0.13"></path>'
+      + '<path d="'+c.p95Path+'" fill="none" stroke="#C3B1D1" stroke-width="1.3" stroke-dasharray="4,3"></path>'
+      + '<path d="'+c.p5Path+'" fill="none" stroke="#C3B1D1" stroke-width="1.3" stroke-dasharray="4,3"></path>'
+      + '<path d="'+c.p50Path+'" fill="none" stroke="#8B6BA8" stroke-width="1.6"></path>'
       + xTicksSvg
-      + '<text x="81" y="125" font-size="7.5" fill="#9a7e95" font-family="Inter,sans-serif" text-anchor="middle" letter-spacing="0.4">'+c.xLabel+'</text>'
       + endLabelsSvg
       + marcadoresSvg
       + '</svg>';
     const fmt = v => v.toFixed(c.dec).replace('.', ',');
-    // O valor bruto (número + unidade) saiu do card — a Dra. Morgana pediu
-    // para manter só o tag do percentil, agora fixo no canto superior
-    // direito, e deixar o resto do desenho (linhas, eixos, título) no
-    // modelo novo. Numa gemelar/trigemelar o tag único não dá conta de
-    // vários fetos, então essa lista compacta por feto continua igual.
+    // Cartão de um marcador só (feto único, ou uterina — sempre materna): o
+    // percentil já está desenhado em cima do ponto, dentro do SVG — nenhuma
+    // marcação HTML por cima, igual ao modelo de lá. Gemelar/trigemelar
+    // continua com a lista compacta por feto, que o cartão único não
+    // comportaria.
     let valorHtml = '';
-    if(c.marcadores.length === 1){
-      const m = c.marcadores[0];
-      valorHtml = '<div class="badge-corner '+(m.isAlert?'alert':'normal')+'">'+m.pctText+'</div>';
-    } else if(c.marcadores.length > 1){
+    if(c.marcadores.length > 1){
       const glifo = FORMA_GLIFO;
       valorHtml = '<div class="card-multi">'+c.marcadores.map((m,i)=>{
         const g = glifo[m.forma] || '●';
@@ -2545,11 +2579,14 @@ if(typeof criarMotorLaudo !== 'function'){
         return '<span style="color:'+m.cor+'">'+g+' <b>'+rotulo+'</b> '+fmt(m.valor)+c.unit+' · '+pct+'</span>';
       }).join('')+'</div>';
     }
-    return '<div class="anexo-grafico-card">'
-      +valorHtml
+    // Friso do topo: dourado no cartão de um marcador só (mesmo acento do
+    // "--unica" de lá), roxo quando o cartão reúne mais de um feto.
+    const friso = c.marcadores.length > 1 ? '#3D2352' : '#B08D3F';
+    return '<div class="anexo-grafico-card" style="border-top-color:'+friso+'">'
       +'<div class="card-title">'+c.titulo+'</div>'
       +'<div class="card-subtitle">'+c.ref+'</div>'
       +svg
+      +valorHtml
       +'</div>';
   }
   function renderGraficosReferencia(gaDays){
@@ -2568,7 +2605,7 @@ if(typeof criarMotorLaudo !== 'function'){
     { const w = range(10,14,0.2), lo=[], mid=[], hi=[];
       w.forEach(x=>{ const crl=crlFromGAdays_hyett(x*7); const m=181.409-0.324*crl;
         mid.push({x,y:m}); hi.push({x,y:m+1.645*6.6}); lo.push({x,y:m-1.645*6.6}); });
-      cfgs.push({titulo:'Freq. cardíaca', ref:'Hyett et al. (1996)', unit:'bpm', dec:0, xLabel:'SEMANAS', xSuffix:'s', x:[10,14], y:[120,200], xt:[10,11,12,13,14],
+      cfgs.push({titulo:'BCF', ref:'Hyett et al. (1996)', unit:'bpm', dec:0, xLabel:'SEMANAS', xSuffix:'s', x:[10,14], y:[120,200], xt:[10,11,12,13,14],
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.fc:null), cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // CCN × IG — só a janela em que o exame de fato é feito (11 a 14
@@ -2577,20 +2614,20 @@ if(typeof criarMotorLaudo !== 'function'){
     { const w = range(11,14,0.1), lo=[], mid=[], hi=[];
       w.forEach(x=>{ const crl=crlFromGAdays_hadlock(x*7); const band=2+0.16*crl;
         mid.push({x,y:crl}); hi.push({x,y:crl+band}); lo.push({x,y:Math.max(0,crl-band)}); });
-      cfgs.push({titulo:'CCN × IG', ref:'Referência Hadlock (1992)', unit:'mm', dec:1, xLabel:'SEMANAS', xSuffix:'s', x:[11,14], y:[20,100], xt:[11,12,13,14],
+      cfgs.push({titulo:'CCN', ref:'Referência Hadlock (1992)', unit:'mm', dec:1, xLabel:'SEMANAS', xSuffix:'s', x:[11,14], y:[20,100], xt:[11,12,13,14],
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.ccn:null), cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // TN × CCN — reta de regressão (ver TN_P5_REG/TN_P50_REG/TN_P95_REG),
     // não os pontos brutos da tabela.
     { const xsTN = range(45,84,1), lo=[], mid=[], hi=[];
       xsTN.forEach(x=>{ lo.push({x,y:TN_P5_REG.m*x+TN_P5_REG.b}); mid.push({x,y:TN_P50_REG.m*x+TN_P50_REG.b}); hi.push({x,y:TN_P95_REG.m*x+TN_P95_REG.b}); });
-      cfgs.push({titulo:'Transl. nucal', ref:'Tabela de referência', unit:'mm', dec:1, xLabel:'CCN (MM)', x:[45,84], y:[0,4], xt:[45,55,65,75,84],
+      cfgs.push({titulo:'Transl. Nucal', ref:'Snijders et al., FMF (1998)', unit:'mm', dec:1, xLabel:'CCN (MM)', x:[45,84], y:[0,4], xt:[45,55,65,75,84],
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:f.ccn, valor:f.tn, cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // DBP × IG (semanas) — a tabela fornecida é por semana, não por CCN
     { const w = range(12,15,0.1), lo=[], mid=[], hi=[];
       w.forEach(x=>{ const [,l,m,h] = interpTabelaRef(DBP_TABLE_WEEKS, x); lo.push({x,y:l}); mid.push({x,y:m}); hi.push({x,y:h}); });
-      cfgs.push({titulo:'Diâm. biparietal', ref:'Tabela de referência', unit:'mm', dec:1, xLabel:'SEMANAS', xSuffix:'s', x:[12,15], y:[5,38], xt:[12,13,14,15],
+      cfgs.push({titulo:'DBP', ref:'Chitty & Altman (1994)', unit:'mm', dec:1, xLabel:'SEMANAS', xSuffix:'s', x:[12,15], y:[5,38], xt:[12,13,14,15],
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.dbp:null), cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // IP ducto venoso × IG (semanas) — a tabela em si (DV_TABLE) é lida por
@@ -2601,7 +2638,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // 2026-09-27, a pedido da médica).
     { const w = range(11,14,0.1), lo=[], mid=[], hi=[];
       w.forEach(x=>{ const ccn=crlFromGAdays_hadlock(x*7); const [,l,m,h] = interpTabelaRef(DV_TABLE, ccn); lo.push({x,y:l}); mid.push({x,y:m}); hi.push({x,y:h}); });
-      cfgs.push({titulo:'IP ducto venoso', ref:'Pruksanasuk et al. (2014)', unit:'IP', dec:2, xLabel:'SEMANAS', xSuffix:'s', x:[11,14], y:[0,1.8], xt:[11,12,13,14],
+      cfgs.push({titulo:'Ducto Venoso (IP)', ref:'Pruksanasuk et al. (2014)', unit:'IP', dec:2, xLabel:'SEMANAS', xSuffix:'s', x:[11,14], y:[0,1.8], xt:[11,12,13,14],
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.dv:null), cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // PI das uterinas × IG (Gómez et al. 2008 — mesma fórmula/SD do campo calculado acima)
@@ -2612,9 +2649,9 @@ if(typeof criarMotorLaudo !== 'function'){
       const utM = (utE!=null && utD!=null) ? (utE+utD)/2 : null;
       const percentilUt = (xSemanas, valor) => gomezPercentilUterina(xSemanas*7, valor);
       const baseUt = {xLabel:'SEMANAS', xSuffix:'s', ref:'Gómez et al. (2008)', x:[11,40], y:[0,3.5], xt:[11,20,30,40], lo, mid, hi, percentil:percentilUt};
-      cfgs.push({...baseUt, titulo:'IP uterina E', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utE:null), cor:'#c0392b'}]});
-      cfgs.push({...baseUt, titulo:'IP uterina D', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utD:null), cor:'#c0392b'}]});
-      cfgs.push({...baseUt, titulo:'IP médio das Uterinas', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utM:null), cor:'#c0392b'}]});
+      cfgs.push({...baseUt, titulo:'Art. Uterina Esq. (IP)', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utE:null)}]});
+      cfgs.push({...baseUt, titulo:'Art. Uterina Dir. (IP)', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utD:null)}]});
+      cfgs.push({...baseUt, titulo:'IP Médio Art. Uterinas', unit:'IP', dec:2, marcadores:[{x:igSemanas, valor:(igSemanas!=null?utM:null)}]});
     }
 
     const gridEl = $('anexoGraficosGrid');
