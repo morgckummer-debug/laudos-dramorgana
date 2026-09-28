@@ -1404,6 +1404,53 @@ function criarMotorLaudo(cfg){
     }catch(e){ /* storage indisponível: vale só para esta sessão */ }
     return { phrases: Object.assign({}, defaults, custom), custom };
   }
+
+  // Qual médico está selecionado agora em "Médico executante" — lida direto
+  // do storage, não do <select> na tela: assim funciona tanto na carga da
+  // página (antes de loadExecutanteSelecionado() repor o <select>) quanto
+  // logo depois de trocar de médico. Mesma resolução que cada laudo já fazia
+  // sozinho em loadExecutanteSelecionado() (idêntica nos catorze arquivos) —
+  // 'morgana' é o padrão de sempre quando não há nada salvo ainda.
+  async function executanteSelecionadoId(){
+    const saved = await kvStore.get('medico-executante-selecionado');
+    return (saved && (saved === 'outro' || EXECUTANTES[saved])) ? saved : 'morgana';
+  }
+  // "Outro médico" (nome digitado à mão) não tem chave estável — continua
+  // caindo na chave compartilhada de sempre, mesma limitação já combinada
+  // com a médica: só os quatro médicos cadastrados têm frases próprias.
+  function frasesChavePorExecutante(baseKey, execId){
+    return (execId && execId !== 'outro') ? baseKey+':'+execId : baseKey;
+  }
+  // frasesCarregar()/frasesSalvar() por médico executante (2026-09-28, a
+  // pedido da médica): até aqui as catorze cópias de "Personalizar frases"
+  // usavam uma chave só, compartilhada por quem quer que estivesse no
+  // computador — a Dra. Bárbara reescrever uma frase mudava o que o Dr.
+  // Paulo via também. Cada médico cadastrado (EXECUTANTES) passa a ter sua
+  // própria chave (`baseKey+':'+execId`); "Outro médico" continua
+  // compartilhado.
+  //
+  // Migração: antes desta separação, a chave sem sufixo quase certamente
+  // guardava a personalização da Dra. Morgana (dona da conta, seleção
+  // padrão). Sem nada salvo ainda na chave dela (`:morgana`), lê a chave
+  // antiga como ponto de partida — só leitura, nada é regravado aqui; o
+  // próximo "Salvar frases" grava na chave nova e a antiga fica intocada,
+  // como registro histórico. Os outros três médicos (que nunca tiveram como
+  // salvar frase própria antes) começam do zero, nos padrões do arquivo.
+  async function frasesCarregarPorExecutante(baseKey, defaults){
+    const execId = await executanteSelecionadoId();
+    const key = frasesChavePorExecutante(baseKey, execId);
+    const r = await frasesCarregar(key, defaults);
+    if(execId === 'morgana' && key !== baseKey && Object.keys(r.custom).length === 0){
+      const legado = await frasesCarregar(baseKey, defaults);
+      if(Object.keys(legado.custom).length) return legado;
+    }
+    return r;
+  }
+  async function frasesSalvarPorExecutante(baseKey, defaults, valores){
+    const execId = await executanteSelecionadoId();
+    const key = frasesChavePorExecutante(baseKey, execId);
+    return frasesSalvar(key, defaults, valores);
+  }
   let frasesEstiloPronto = false;
   function frasesInjetarEstilo(){
     if(frasesEstiloPronto) return;
@@ -1623,10 +1670,14 @@ function criarMotorLaudo(cfg){
     aplicarPlaceholders: aplicarPlaceholders,
     escapeHtml: escapeHtml,
     verificarPlaceholders: verificarPlaceholders,
+    executanteSelecionadoId: executanteSelecionadoId,
     frasesCarregar: frasesCarregar,
+    frasesCarregarPorExecutante: frasesCarregarPorExecutante,
+    frasesChavePorExecutante: frasesChavePorExecutante,
     frasesMarcarCustomizadas: frasesMarcarCustomizadas,
     frasesPodar: frasesPodar,
     frasesSalvar: frasesSalvar,
+    frasesSalvarPorExecutante: frasesSalvarPorExecutante,
     isValidDecimal: isValidDecimal,
     nomeArquivoLaudo: nomeArquivoLaudo,
     num: num,
