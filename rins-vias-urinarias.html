@@ -832,7 +832,7 @@ if(typeof criarMotorLaudo !== 'function'){
     nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
     vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml,
-    frasesCarregar, frasesMarcarCustomizadas, frasesSalvar,
+    frasesCarregarPorExecutante, frasesMarcarCustomizadas, frasesSalvarPorExecutante,
     aplicarPlaceholders
   } = motor;
 
@@ -1273,7 +1273,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // ela clicou "Salvar frases".
   const PHRASES_KEY = 'rins-phrase-templates';
   async function loadPhrases(){
-    const r = await frasesCarregar(PHRASES_KEY, PHRASE_DEFAULTS);
+    const r = await frasesCarregarPorExecutante(PHRASES_KEY, PHRASE_DEFAULTS);
     PHRASES = r.phrases;
     applyPhrasesToInputs();
   }
@@ -1292,7 +1292,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const el = $('ph_'+key);
       valores[key] = el ? el.value : PHRASE_DEFAULTS[key];
     });
-    const r = await frasesSalvar(PHRASES_KEY, PHRASE_DEFAULTS, valores);
+    const r = await frasesSalvarPorExecutante(PHRASES_KEY, PHRASE_DEFAULTS, valores);
     PHRASES = r.phrases;
     applyPhrasesToInputs();
     render();
@@ -1318,13 +1318,18 @@ if(typeof criarMotorLaudo !== 'function'){
     await salvarFrasesDaTela();
   });
 
-  $('medicoExecutante').addEventListener('change', e=>{
-    kvStore.set('medico-executante-selecionado', e.target.value);
+  $('medicoExecutante').addEventListener('change', async e=>{
+    await kvStore.set('medico-executante-selecionado', e.target.value);
     if(e.target.value === 'outro'){
       $('settingsPanel').classList.add('show');
     } else {
       applyExecutante(e.target.value);
     }
+    // Cada médico cadastrado tem suas próprias frases personalizadas (ver
+    // frasesCarregarPorExecutante() no laudo-core.js) — troca de executante
+    // recarrega as dele e redesenha o laudo com o texto certo.
+    await loadPhrases();
+    render();
   });
   async function loadExecutanteSelecionado(){
     const saved = await kvStore.get('medico-executante-selecionado');
