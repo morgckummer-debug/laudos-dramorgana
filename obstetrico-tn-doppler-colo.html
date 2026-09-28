@@ -506,13 +506,13 @@
         </div>
         <div class="field-row">
           <div class="field"><label>Idade gestacional calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">Ultrassom de datação (1º trimestre)</option><option value="fiv">FIV (transferência embrionária)</option><option value="exame">IG informada neste exame</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
+            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="fiv">FIV (transferência embrionária)</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
           </div>
         </div>
         <div class="field-row conditional" id="wrap_usgDatacao">
-          <div class="field"><label>Data do ultrassom de datação</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>IG no ultrassom de datação — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
-          <div class="field"><label>IG no ultrassom de datação — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
+          <div class="field"><label>Data do 1º ultrassom</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+          <div class="field"><label>IG no 1º ultrassom — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
+          <div class="field"><label>IG no 1º ultrassom — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
         </div>
         <div class="field-row conditional" id="wrap_fivTransferencia">
           <div class="field"><label>Data da transferência embrionária</label><input type="text" id="fivDataTransf" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
@@ -1318,12 +1318,12 @@ if(typeof criarMotorLaudo !== 'function'){
   $('cronologiaMetodo').addEventListener('change', e=>{
     toggle('wrap_usgDatacao', e.target.value==='usg');
     toggle('wrap_fivTransferencia', e.target.value==='fiv');
-    toggle('wrap_exameInfo', e.target.value==='exame' || ehDumSemCronologia(e.target.value));
+    toggle('wrap_exameInfo', ehDumSemCronologia(e.target.value));
     toggle('wrap_incertaInfo', ehDumSemCronologia(e.target.value));
   });
   toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
   toggle('wrap_fivTransferencia', $('cronologiaMetodo').value==='fiv');
-  toggle('wrap_exameInfo', $('cronologiaMetodo').value==='exame' || ehDumSemCronologia($('cronologiaMetodo').value));
+  toggle('wrap_exameInfo', ehDumSemCronologia($('cronologiaMetodo').value));
   toggle('wrap_incertaInfo', ehDumSemCronologia($('cronologiaMetodo').value));
 
   // O software da FMF sempre calcula o risco pós-teste com idade materna
@@ -1604,13 +1604,6 @@ if(typeof criarMotorLaudo !== 'function'){
     // conclusão) vem direto da IG informada (ver gaDays em render()), nunca
     // desta data-base "oficial".
     if(ehDumSemCronologia(metodo)) return null;
-    if(metodo === 'exame'){
-      const dataExameDt = parseDateBR(v('dataExame'));
-      const semanas = parseInt(v('impSemanas'), 10);
-      const dias = parseInt(v('impDias'), 10);
-      if(!dataExameDt || isNaN(semanas)) return null;
-      return addDays(dataExameDt, -(semanas*7 + (isNaN(dias) ? 0 : dias)));
-    }
     if(metodo === 'usg'){
       const usgDt = parseDateBR(v('usgDataDatacao'));
       const semanas = parseInt(v('usgSemanasDatacao'), 10);
@@ -2012,12 +2005,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const motivoExame = vNoDot('motivoExame');
 
     const cronologiaMetodoRaw = v('cronologiaMetodo');
-    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='exame' || cronologiaMetodoRaw==='fiv' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
+    const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='fiv' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
     // Mesma cronologia usada pra calcular a IG (campo "Idade gestacional
     // calculada com base em") também nomeia a referência na frase da
     // conclusão — sem isto, "de acordo com a DUM/primeira ecografia" ficava
     // ambíguo sobre qual das duas datas o laudo realmente seguiu.
-    const METODO_TXT = {dum:'a DUM', usg:'a primeira ecografia', exame:'a IG informada neste exame', incerta:'a IG informada neste exame', ignorada:'a IG informada neste exame'};
+    const METODO_TXT = {dum:'a DUM', usg:'a primeira ecografia', incerta:'a IG informada neste exame', ignorada:'a IG informada neste exame'};
     const metodoTxt = METODO_TXT[cronologiaMetodo];
     const dataBase = computeDataBase(cronologiaMetodo);
     // DUM incerta/ignorada: sem data base, então a IG não sai da conta com a
@@ -2502,9 +2495,10 @@ if(typeof criarMotorLaudo !== 'function'){
   // o arquivo já sair identificado e ir direto para a pasta da paciente.
   function tituloExame(){
     const n = fetoUids().length;
-    const base = n >= 3 ? 'Obstétrico Trigemelar com TN'
+    const prefixo = n >= 3 ? 'Obstétrico Trigemelar com TN'
       : n === 2 ? 'Obstétrico Gemelar com TN'
       : 'Obstétrico com TN';
+    const base = $('chkDopplerMaterno').checked ? prefixo + ' e Doppler' : prefixo;
     return $('chkColo').checked ? base + ' + Colo' : base;
   }
   async function saveBlobAs(blob, suggestedName){
