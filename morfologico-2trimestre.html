@@ -2971,6 +2971,21 @@ if(typeof criarMotorLaudo !== 'function'){
   const CG_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3FucXd4Z3V5ZHJwb2FwbGN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Njk2NjcsImV4cCI6MjEwMTA0NTY2N30.hNrszyJvaBzP08Oild4wivMrTvXnDoGfgL6My1bbtVU';
   const cgClient = window.supabase.createClient(CG_URL, CG_ANON_KEY);
 
+  // Aba em segundo plano (a médica troca de aba, atende a paciente, volta
+  // depois) faz o navegador desacelerar o temporizador que o supabase-js usa
+  // pra renovar o login sozinho — o relógio do autoRefreshToken não dispara
+  // na hora certa, o token expira em silêncio e ninguém tentou renovar. Ela
+  // só descobre ao clicar em "Salvar na Curva de Crescimento" e ver o login
+  // pedido do nada, mesmo tendo acabado de usar o computador. startAutoRefresh()
+  // ao voltar pra aba força a checagem/renovação na hora; stopAutoRefresh()
+  // ao sair evita renovar à toa com a aba escondida — é a recomendação
+  // oficial do supabase-js para uso em navegador (client.auth.startAutoRefresh/
+  // stopAutoRefresh), sem mexer em nenhuma configuração do projeto no Supabase.
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible') cgClient.auth.startAutoRefresh();
+    else cgClient.auth.stopAutoRefresh();
+  });
+
   function cgToast(msg, isErr){
     const el = $('cgToast');
     el.textContent = msg;
