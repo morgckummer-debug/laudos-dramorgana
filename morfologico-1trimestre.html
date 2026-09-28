@@ -292,34 +292,30 @@
   .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:0.1875em 0.875em 0;margin-bottom:0.125em!important;}
   .paper .assinatura-info{font-size:0.791667em;color:var(--ink-soft);}
 
-  /* Página de anexo (cálculo de risco da FMF): a médica cola ali o print da
-     tela do software (Ctrl+V) — não é campo de formulário, o conteúdo colado
-     é exatamente o que ela colou. Some da impressão/Word enquanto não tem
-     imagem colada nem dado nenhum plotado nos gráficos de referência (ver
+  /* Página de anexo (cálculo de risco da FMF): montada por texto a partir dos
+     campos de "Cálculo de risco (FMF)" (ver renderAnexoFmfReport()) — não se
+     cola mais print nenhum aqui (removido em 2026-09-28; a médica pediu, já
+     que o texto substitui o print). Some da impressão/Word enquanto não tem
+     dado nenhum digitado nem plotado nos gráficos de referência (ver
      .anexo-table.has-content no @media print, e updateAnexoVisibility()/
-     anexoTemDadosGraficos() no JS). A página é
-     uma coluna flex — logo no topo, imagens coladas no meio, assinatura
-     empurrada para o pé com margin-top:auto — para a assinatura sair sempre
-     no ponto mais baixo da folha, e não logo depois da última imagem. */
+     anexoTemDadosGraficos()/anexoTemDadosFmf() no JS). A página é uma coluna
+     flex — logo no topo, relatório e gráficos no meio, assinatura empurrada
+     para o pé com margin-top:auto — para a assinatura sair sempre no ponto
+     mais baixo da folha. */
   .anexo-label{font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;color:var(--ink-soft);text-align:center;text-transform:uppercase;letter-spacing:.3px;margin:26px 0 8px;}
   .anexo-table{margin-top:0;}
-  /* Altura fixa (não só min-height): sem isso, uma imagem colada mais alta que
-     o espaço disponível empurrava a assinatura — e o próprio rodapé reservado
-     de 2cm (ver .paper-table tfoot td) — para fora da folha, em vez de
-     simplesmente não caber. As imagens são ajustadas para caber
-     automaticamente ao colar (ver anexoAjustarImagem()).
+  /* Altura fixa (não só min-height): sem isso, o relatório da FMF ou os
+     gráficos de referência empurrariam a assinatura — e o próprio rodapé
+     reservado de 2cm (ver .paper-table tfoot td) — para fora da folha, em
+     vez de simplesmente não caber (aí entra o aviso de "não coube").
      max-height precisa ser repetido aqui: sem isso, o max-height:calc(100vh -
      150px) da regra genérica .paper (pensado só para o scroll do #paper
      principal na tela) ganha da altura fixa em telas mais baixas — a folha de
-     anexo encolhia antes da hora, o aviso de "não coube" disparava sem
-     motivo, e o ajuste automático da imagem calculava com um orçamento menor
-     que os 24,2cm reais da impressão.
+     anexo encolhia antes da hora e o aviso de "não coube" disparava sem
+     motivo.
      overflow:hidden (a garantia final de que a margem nunca é invadida) só
-     entra no @media print, abaixo — na tela ela precisa ficar visível: senão,
-     uma imagem que ainda não coube empurra a bolinha de arrastar (que fica
-     no canto da própria imagem) para fora da área visível, e a médica não
-     consegue mais agarrar o canto para reduzir justamente a imagem que
-     precisa reduzir. */
+     entra no @media print, abaixo — na tela ela precisa ficar visível para o
+     aviso de estouro (baseado em scrollHeight) continuar detectando o corte. */
   .anexo-paper{display:flex;flex-direction:column;height:24.2cm;max-height:24.2cm;overflow:visible;}
   .anexo-header{flex:0 0 auto;margin-bottom:0.75em;}
   .anexo-header img{max-height:52px;width:auto;display:block;}
@@ -332,56 +328,21 @@
   .anexo-idbar{flex:0 0 auto;font-family:'Times New Roman',Times,serif;font-size:11px;color:var(--ink);text-align:center;border-top:1px solid #2b2b2e;border-bottom:1px solid #2b2b2e;padding:5px 0;margin:0 0 14px;}
   .anexo-idbar .sep{color:#b9a8b5;margin:0 10px;}
   .anexo-idbar-fmf{font-size:9px;color:var(--ink-soft);margin-top:2px;}
-  /* min-height só entra quando não há relatório da FMF montado por texto
-     acima (ver #anexoFmfReport) — com os campos preenchidos, esta área fica
-     livre para colar algo extra (opcional), sem reservar 160px em branco. */
-  #anexoImgs{flex:1 0 auto;}
-  #anexoFmfReport:empty + #anexoImgs{min-height:160px;}
-  #anexoFmfReport:empty + #anexoImgs:empty::before{
-    content:'Clique aqui e cole (Ctrl+V) a imagem do cálculo de risco da FMF — ou preencha os campos de "Cálculo de risco (FMF)" no formulário ao lado, que o texto sai pronto aqui, sem precisar colar print nenhum.';
-    display:flex;align-items:center;justify-content:center;text-align:center;
-    min-height:160px;color:var(--ink-soft);border:2px dashed var(--line);border-radius:12px;
-    font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;padding:24px;
-  }
-  #anexoFmfReport:not(:empty) + #anexoImgs:empty::before{
-    content:'Cole aqui (Ctrl+V) alguma imagem extra, se precisar — os valores digitados já aparecem acima como texto.';
-    display:block;text-align:center;color:var(--ink-soft);
-    font-family:'Inter',sans-serif;font-size:11px;line-height:1.4;padding:6px 0 0;
-  }
-  /* Cada imagem colada vem envolvida num .anexo-img-wrap — é nele que mora o
-     "canto" que se arrasta para reduzir, do mesmo jeito que no Word: clica na
-     imagem (aparece a borda rosa com a bolinha no canto inferior direito) e
-     arrasta a bolinha para dentro. O gap entre imagens empilhadas é margem do
-     wrap, não da imagem — assim o canto fica exatamente no canto da imagem,
-     não abaixo dele. */
-  #anexoImgs .anexo-img-wrap{position:relative;display:block;margin-bottom:14px;}
-  #anexoImgs .anexo-img-wrap:last-child{margin-bottom:0;}
-  #anexoImgs .anexo-img-wrap img{max-width:100%;display:block;margin:0 auto;outline:2px solid transparent;outline-offset:2px;}
-  #anexoImgs .anexo-img-wrap.selected img{outline-color:var(--rose);}
-  #anexoImgs .anexo-resize-handle{
-    position:absolute;right:0;bottom:0;width:14px;height:14px;transform:translate(50%,50%);
-    background:var(--rose);border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.35);
-    cursor:nwse-resize;display:none;user-select:none;-webkit-user-select:none;
-  }
-  #anexoImgs .anexo-img-wrap.selected .anexo-resize-handle{display:block;}
-  /* Botão de excluir só essa imagem — canto oposto ao de redimensionar, mesma
-     lógica de só aparecer com a imagem selecionada. contenteditable="false"
-     porque #anexoImgs é editável (é onde se cola a imagem) e sem isso o
-     clique cairia dentro da área editável em vez de disparar o botão. */
-  #anexoImgs .anexo-delete-btn{
-    position:absolute;top:0;right:0;width:22px;height:22px;transform:translate(50%,-50%);
-    background:#B4432F;color:#fff;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.35);
-    cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1;
-    font-family:'Inter',sans-serif;font-size:14px;font-weight:700;user-select:none;-webkit-user-select:none;
-  }
-  #anexoImgs .anexo-img-wrap.selected .anexo-delete-btn{display:flex;}
+  #anexoFmfReport{flex:0 0 auto;}
+  /* Valor bruto de cada risco (o número digitado, não o rótulo/frase ao
+     redor) em negrito — pedido da médica em 2026-09-28, para o número saltar
+     aos olhos na leitura rápida da folha. .filled/.blank vêm de span()
+     (laudo-core.js): .blank já sai em negrito por padrão (ver ".paper .blank"
+     acima), então só .filled precisa do reforço aqui — e só dentro desta
+     folha, não no laudo inteiro (.paper .filled genérico não ganha peso). */
+  #anexoFmfReport .filled{font-weight:700;}
   .anexo-paper .assinatura{margin-top:auto;padding-top:1em;}
 /* Grid 4x2 dos gráficos de referência do 1º trimestre (FC, CCN, TN, DBP,
-   ducto venoso, PI das uterinas), logo abaixo do(s) print(s) colado(s) do
-   risco da FMF, na mesma página de anexo — antes da assinatura. Tamanho
-   fixo em px (não responsivo): a página de anexo tem altura fixa (24,2cm) e
-   anexoAlturaDisponivelPx() precisa medir a altura real deste bloco para
-   saber quanto espaço sobra para as imagens coladas (ver o comentário lá).
+   ducto venoso, PI das uterinas), logo abaixo do relatório da FMF em texto,
+   na mesma página de anexo — antes da assinatura. Tamanho fixo em px (não
+   responsivo): a página de anexo tem altura fixa (24,2cm), e o aviso de
+   estouro (updateAnexoVisibility()) mede scrollHeight x clientHeight da
+   folha inteira para avisar quando o conteúdo não coube.
    Cada cartão é SVG desenhado à mão (buildGraficoCard()/renderGraficoCardHtml()
    no JS) — sem depender de nenhuma biblioteca externa nem de CDN: o gráfico
    sai igual com ou sem internet, o que resolve de vez o problema de o
@@ -408,11 +369,9 @@
 .anexo-grafico-card svg{display:block;width:100%;margin-top:2px;}
 .anexo-graficos-legenda{font-size:8px;color:var(--ink-soft);text-align:center;margin-top:6px;}
 .anexo-graficos-legenda .leg-item{display:inline-block;margin:0 6px;font-weight:600;}
-  .anexo-actions{display:none;}
-  .anexo-actions.show{display:flex;}
   /* Só aparece na tela, nunca na impressão (ver @media print): avisa quando o
-     que foi colado não coube nem depois do ajuste automático — sinal de que
-     sobrou conteúdo cortado por .anexo-paper{overflow:hidden}. */
+     conteúdo (relatório da FMF + gráficos) não coube na folha de altura fixa
+     — sinal de que sobrou conteúdo cortado por .anexo-paper{overflow:hidden}. */
   .anexo-overflow-warning{
     display:none;background:#B4432F;color:#fff;font-weight:600;font-size:12.5px;
     padding:10px 14px;border-radius:10px;margin:10px 0 0;
@@ -489,20 +448,12 @@
   }
   @media print{
     .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note, .anexo-label, .anexo-overflow-warning{display:none !important;}
-    /* Sem imagem colada, a página de anexo não existe para a impressão/PDF —
-       um laudo que não usa isso não ganha uma folha em branco a mais. Com
-       imagem, ela sempre começa numa folha nova, depois de todo o resto. */
+    /* Sem nenhum dado de risco/gráfico preenchido, a página de anexo não
+       existe para a impressão/PDF — um laudo que não usa isso não ganha uma
+       folha em branco a mais. Com conteúdo, ela sempre começa numa folha
+       nova, depois de todo o resto. */
     .anexo-table{display:none;}
     .anexo-table.has-content{display:table;page-break-before:always;}
-    #anexoImgs .anexo-resize-handle{display:none !important;}
-    #anexoImgs .anexo-delete-btn{display:none !important;}
-    #anexoImgs .anexo-img-wrap img{outline:none !important;}
-    /* As dicas "Clique aqui e cole..."/"Cole aqui alguma imagem extra..." (ver
-       #anexoImgs::before, CSS acima) são chrome de tela, não conteúdo do
-       laudo — sem isto, elas imprimiam junto sempre que a folha de anexo
-       tinha conteúdo (gráficos ou relatório da FMF) mas nenhuma imagem extra
-       colada, que é o caso mais comum agora que os campos substituem o print. */
-    #anexoImgs::before{display:none !important;}
     /* .combo-list (a lista de médicos que aparece ao digitar) é movida para o
        <body> para não ser cortada pelo overflow:hidden do card — ou seja, ela
        NÃO é descendente de #formCol e não some com a regra acima. Sem esta
@@ -1008,7 +959,6 @@
           <div class="anexo-titulo">Rastreamento de aneuploidias e pré-eclâmpsia</div>
           <div class="anexo-idbar" id="anexoIdBar"></div>
           <div id="anexoFmfReport"></div>
-          <div id="anexoImgs" contenteditable="true" spellcheck="false"></div>
           <div class="anexo-graficos" id="anexoGraficos">
           <div class="anexo-graficos-titulo">Gráficos de referência — 1º trimestre</div>
           <div class="anexo-graficos-grid" id="anexoGraficosGrid"></div>
@@ -1018,10 +968,7 @@
         </div>
       </td></tr></tbody>
     </table>
-    <div class="anexo-overflow-warning" id="anexoOverflowWarning">A imagem colada não coube inteira nesta página — arraste o canto para reduzir, ou remova e cole uma versão menor.</div>
-    <div class="preview-actions anexo-actions" id="anexoActions">
-      <button type="button" class="btn-clear" id="btnRemoverAnexo">Remover imagem(ns) da FMF</button>
-    </div>
+    <div class="anexo-overflow-warning" id="anexoOverflowWarning">O conteúdo desta página não coube inteiro na folha — está sendo cortado na impressão.</div>
   </div>
 </div>
 
@@ -1453,23 +1400,20 @@ if(typeof criarMotorLaudo !== 'function'){
 
   wireDecimalInputs();
 
-  // ---------- Anexo: imagem do cálculo de risco (FMF) ----------
-  // Página extra, colada à mão — a médica tira um print da tela do software
-  // de cálculo de risco da FMF e cola (Ctrl+V) direto aqui, como já fazia no
-  // Word. As imagens coladas em #anexoImgs não são campo de formulário e não
-  // passam por render()/renderBlocks(): o conteúdo é exatamente o que foi
-  // colado, guardado como está — comprimido no canvas antes de entrar, para
-  // não estourar o localStorage do rascunho com um print de tela cheia em
-  // PNG. Já o cabeçalho (logo da FMF) e a assinatura (#anexoAssinatura) são
-  // gerados, não colados: a assinatura é reconstruída a cada render() (ver
-  // buildAssinaturaHtml()), igual à do rodapé do laudo principal.
-  const ANEXO_MAX_WIDTH = 1500;
-  const ANEXO_JPEG_QUALITY = 0.85;
+  // ---------- Anexo: cálculo de risco (FMF) ----------
+  // Última página, montada por texto a partir dos campos de "Cálculo de
+  // risco (FMF)" (ver renderAnexoFmfReport()). Até 2026-09-28 a médica
+  // colava aqui (Ctrl+V) um print da tela do software da FMF — removido a
+  // pedido dela, já que o relatório em texto substitui o print e o espaço
+  // que a área de colar reservava passou a ser usado para aumentar a fonte
+  // e o espaçamento do próprio relatório. O cabeçalho (logo da FMF) e a
+  // assinatura (#anexoAssinatura) são gerados, não colados: a assinatura é
+  // reconstruída a cada render() (ver buildAssinaturaHtml()), igual à do
+  // rodapé do laudo principal.
   const paperAnexoEl = $('paperAnexo');
-  const anexoImgsEl = $('anexoImgs');
 
-  // A folha de anexo agora tem conteúdo próprio (os gráficos de referência)
-  // mesmo sem nenhum print da FMF colado — precisa de pelo menos um dado
+  // A folha de anexo tem conteúdo próprio (os gráficos de referência) mesmo
+  // sem nenhum campo do relatório preenchido — precisa de pelo menos um dado
   // plotável (CCN/FC/TN/DBP/ducto venoso de algum feto, ou IP de alguma
   // uterina) para não imprimir uma folha só com bandas de referência vazias
   // num laudo que nunca preencheu nada disso.
@@ -1481,7 +1425,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
   // Mesma ideia de anexoTemDadosGraficos(), para o relatório da FMF em texto
   // (ver renderAnexoFmfReport()): decide se a folha de anexo tem conteúdo
-  // próprio mesmo sem nenhum print/imagem colada.
+  // próprio.
   function anexoTemDadosFmf(){
     if(v('anexoRiscoHistT21')!=='' || v('anexoRiscoHistT1318')!=='' || v('anexoIdadeMaterna')!=='') return true;
     if(v('anexoDiabetesRisco')!=='' || v('anexoPtbRisco')!=='') return true;
@@ -1490,220 +1434,16 @@ if(typeof criarMotorLaudo !== 'function'){
   }
 
   function updateAnexoVisibility(){
-    // Rascunho salvo antes do botão de excluir imagem individual existir
-    // (ou HTML restaurado por qualquer outro caminho antigo) não traz o
-    // `.anexo-delete-btn` em cada wrap — repõe aqui, mesma ideia das redes
-    // de `dedupBlocos()`/`restoreMissingBlocks()` no laudo-core.js: conserta
-    // sozinho no próximo desenho, sem a médica precisar colar de novo.
-    anexoImgsEl.querySelectorAll('.anexo-img-wrap').forEach(wrap=>{
-      if(wrap.querySelector('.anexo-delete-btn')) return;
-      const delBtn = document.createElement('span');
-      delBtn.className = 'anexo-delete-btn';
-      delBtn.setAttribute('contenteditable', 'false');
-      delBtn.title = 'Excluir esta imagem';
-      delBtn.textContent = '×';
-      wrap.appendChild(delBtn);
-    });
-    const temImagem = !!anexoImgsEl.querySelector('img');
-    $('anexoTable').classList.toggle('has-image', temImagem);
     // has-content é quem decide se a folha inteira imprime — inclui os
-    // gráficos de referência e o relatório da FMF em texto, que agora têm
-    // valor por si (ver anexoTemDadosGraficos()/anexoTemDadosFmf()) mesmo
-    // sem nenhum print da FMF colado.
-    $('anexoTable').classList.toggle('has-content', temImagem || anexoTemDadosGraficos() || anexoTemDadosFmf());
-    toggle('anexoActions', temImagem);
+    // gráficos de referência e o relatório da FMF em texto.
+    $('anexoTable').classList.toggle('has-content', anexoTemDadosGraficos() || anexoTemDadosFmf());
     // .anexo-paper tem altura fixa e overflow:hidden (ver CSS) — se o
-    // conteúdo ainda estourar mesmo depois do ajuste automático de
-    // anexoAjustarImagem() (ex.: várias imagens já ocupando o espaço todo),
-    // isto aqui não empurra mais a margem inferior, só corta em silêncio.
-    // O aviso é o que impede o corte de passar despercebido — hoje por duas
-    // causas possíveis: imagem colada grande demais (como sempre foi), ou o
-    // relatório da FMF em texto com muitos blocos preenchidos ao mesmo tempo
-    // (ver renderAnexoFmfReport()).
+    // relatório da FMF em texto tiver muitos blocos preenchidos ao mesmo
+    // tempo, o excesso não empurra mais a margem inferior, só corta em
+    // silêncio. O aviso é o que impede o corte de passar despercebido.
     const estourou = paperAnexoEl.scrollHeight > paperAnexoEl.clientHeight + 1;
-    const warnEl = $('anexoOverflowWarning');
-    if(warnEl){
-      warnEl.textContent = temImagem
-        ? 'A imagem colada não coube inteira nesta página — arraste o canto para reduzir, ou remova e cole uma versão menor.'
-        : 'O texto desta página não coube inteiro — está sendo cortado na impressão. Confira se algum dos campos de "Cálculo de risco (FMF)" está mesmo necessário neste exame, ou avise para ajustarmos o espaço.';
-    }
     toggle('anexoOverflowWarning', estourou);
   }
-
-  // Calcula quanto espaço vertical ainda sobra dentro da folha de anexo (que
-  // tem altura fixa — ver .anexo-paper no CSS) para uma imagem, descontando
-  // cabeçalho, assinatura e as demais imagens já coladas. `excluirWrap` tira
-  // do cálculo o próprio wrap que está sendo ajustado.
-  function anexoAlturaDisponivelPx(excluirWrap){
-    // clientHeight inclui o padding do próprio .anexo-paper (34px em cima,
-    // 40px embaixo, vindos da regra genérica .paper) — na tela, quem soma
-    // nesse padding é o próprio elemento, não os filhos, então tem de sair
-    // do orçamento aqui. Na impressão esse padding é zerado (ver .paper no
-    // @media print), então sobra ainda mais espaço lá — o cálculo aqui, feito
-    // sempre na tela (é onde se cola), fica do lado seguro dos dois casos.
-    const paperStyle = getComputedStyle(paperAnexoEl);
-    let usada = (parseFloat(paperStyle.paddingTop) || 0) + (parseFloat(paperStyle.paddingBottom) || 0);
-    const headerEl = paperAnexoEl.querySelector('.anexo-header');
-    if(headerEl && headerEl.style.display !== 'none'){
-      const r = headerEl.getBoundingClientRect();
-      usada += r.height + (parseFloat(getComputedStyle(headerEl).marginBottom) || 0);
-    }
-    const assinaturaEl = $('anexoAssinatura');
-    if(assinaturaEl){
-      const r = assinaturaEl.getBoundingClientRect();
-      usada += r.height + (parseFloat(getComputedStyle(assinaturaEl).paddingTop) || 0);
-    }
-    // Título + barra de identificação (nome/data/IG): mesmo motivo do
-    // cabeçalho/assinatura acima — tamanho fixo, sempre presentes, entram no
-    // orçamento antes da imagem colada decidir se precisa encolher.
-    ['anexoTitulo','anexoIdBar'].forEach(sel=>{
-      const el = sel==='anexoTitulo' ? paperAnexoEl.querySelector('.anexo-titulo') : $(sel);
-      if(!el) return;
-      const r = el.getBoundingClientRect();
-      usada += r.height + (parseFloat(getComputedStyle(el).marginBottom) || 0);
-    });
-    // Grid 4x2 dos gráficos de referência (ver CSS .anexo-graficos): tamanho
-    // fixo, sempre presente na página — entra no orçamento igual ao
-    // cabeçalho e à assinatura, para a(s) imagem(ns) coladas encolherem o
-    // suficiente e sobrar espaço para os gráficos, em vez de competir com
-    // eles só na hora da impressão (quando isso já não teria mais jeito de
-    // avisar, além do aviso genérico de estouro que já existe).
-    const graficosEl = $('anexoGraficos');
-    if(graficosEl){
-      const r = graficosEl.getBoundingClientRect();
-      const graficosStyle = getComputedStyle(graficosEl);
-      usada += r.height + (parseFloat(graficosStyle.marginTop) || 0) + (parseFloat(graficosStyle.marginBottom) || 0);
-    }
-    // Relatório da FMF em texto (ver renderAnexoFmfReport()): mesmo raciocínio
-    // do grid de gráficos acima — tamanho que já saiu fixo neste render(),
-    // entra no orçamento antes de decidir quanto encolher uma imagem extra
-    // colada por baixo dele.
-    const fmfReportEl = $('anexoFmfReport');
-    if(fmfReportEl && fmfReportEl.childNodes.length){
-      const r = fmfReportEl.getBoundingClientRect();
-      const fmfStyle = getComputedStyle(fmfReportEl);
-      usada += r.height + (parseFloat(fmfStyle.marginTop) || 0) + (parseFloat(fmfStyle.marginBottom) || 0);
-    }
-    Array.from(anexoImgsEl.children).forEach(wrap=>{
-      if(wrap === excluirWrap) return;
-      const r = wrap.getBoundingClientRect();
-      usada += r.height + (parseFloat(getComputedStyle(wrap).marginBottom) || 0);
-    });
-    return paperAnexoEl.clientHeight - usada;
-  }
-
-  // Encolhe a imagem recém-colada (só a largura — a altura acompanha sozinha,
-  // mesma lógica do arraste manual do canto) até caber no espaço que sobrou
-  // na página, para a médica não precisar notar e arrastar toda vez que o
-  // print da tela dela vier mais alto que o normal.
-  function anexoAjustarImagem(wrap){
-    const img = wrap.querySelector('img');
-    const disponivel = anexoAlturaDisponivelPx(wrap);
-    const alturaAtual = img.getBoundingClientRect().height;
-    if(alturaAtual > disponivel && disponivel > 40){
-      const larguraAtual = img.getBoundingClientRect().width;
-      img.style.width = Math.max(60, larguraAtual * (disponivel / alturaAtual)) + 'px';
-    }
-  }
-
-  function inserirImagemAnexo(dataUrl){
-    const wrap = document.createElement('div');
-    wrap.className = 'anexo-img-wrap';
-    const img = document.createElement('img');
-    const handle = document.createElement('span');
-    handle.className = 'anexo-resize-handle';
-    handle.setAttribute('contenteditable', 'false');
-    handle.title = 'Arraste para reduzir';
-    wrap.appendChild(img);
-    wrap.appendChild(handle);
-    anexoImgsEl.appendChild(wrap);
-    // O ajuste de tamanho precisa da altura renderizada da imagem, que só
-    // existe depois de carregada — por isso espera o onload em vez de medir
-    // logo após o appendChild (o <img> ainda estaria com altura 0 ali).
-    // updateAnexoVisibility() logo abaixo é quem acrescenta o
-    // .anexo-delete-btn (ver comentário lá) — sem duplicar a criação aqui.
-    img.onload = () => {
-      anexoAjustarImagem(wrap);
-      updateAnexoVisibility();
-      draftSchedule();
-    };
-    img.src = dataUrl;
-  }
-
-  // Reduzir a imagem colada arrastando o canto — igual ao Word. Clicar numa
-  // imagem seleciona ela (aparece a borda rosa com a bolinha no canto
-  // inferior direito); arrastar a bolinha muda só a largura, e a altura
-  // acompanha sozinha porque a imagem nunca ganha altura fixa (o <img> não
-  // tem style.height, só style.width — a proporção original se mantém).
-  let anexoResize = null;
-  anexoImgsEl.addEventListener('mousedown', e=>{
-    const handle = e.target.closest('.anexo-resize-handle');
-    if(!handle) return;
-    e.preventDefault();
-    const wrap = handle.closest('.anexo-img-wrap');
-    const img = wrap.querySelector('img');
-    anexoResize = { img, startX: e.clientX, startWidth: img.getBoundingClientRect().width };
-  });
-  document.addEventListener('mousemove', e=>{
-    if(!anexoResize) return;
-    const delta = e.clientX - anexoResize.startX;
-    const maxWidth = anexoImgsEl.getBoundingClientRect().width;
-    const novaLargura = Math.min(maxWidth, Math.max(60, anexoResize.startWidth + delta));
-    anexoResize.img.style.width = novaLargura + 'px';
-  });
-  document.addEventListener('mouseup', ()=>{
-    if(!anexoResize) return;
-    anexoResize = null;
-    updateAnexoVisibility();
-    draftSchedule();
-  });
-  anexoImgsEl.addEventListener('click', e=>{
-    const delBtn = e.target.closest('.anexo-delete-btn');
-    if(delBtn){
-      delBtn.closest('.anexo-img-wrap').remove();
-      updateAnexoVisibility();
-      draftSchedule();
-      return;
-    }
-    const wrap = e.target.closest('.anexo-img-wrap');
-    anexoImgsEl.querySelectorAll('.anexo-img-wrap.selected').forEach(w=>{ if(w !== wrap) w.classList.remove('selected'); });
-    if(wrap) wrap.classList.add('selected');
-  });
-  document.addEventListener('click', e=>{
-    if(anexoImgsEl.contains(e.target)) return;
-    anexoImgsEl.querySelectorAll('.anexo-img-wrap.selected').forEach(w=> w.classList.remove('selected'));
-  });
-
-  anexoImgsEl.addEventListener('paste', e=>{
-    e.preventDefault();
-    const items = (e.clipboardData || window.clipboardData || {}).items || [];
-    Array.from(items).forEach(item=>{
-      if(item.kind !== 'file' || item.type.indexOf('image/') !== 0) return;
-      const file = item.getAsFile();
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = () => {
-          const scale = Math.min(1, ANEXO_MAX_WIDTH / img.width);
-          const canvas = document.createElement('canvas');
-          canvas.width = Math.round(img.width * scale);
-          canvas.height = Math.round(img.height * scale);
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          inserirImagemAnexo(canvas.toDataURL('image/jpeg', ANEXO_JPEG_QUALITY));
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  });
-
-  $('btnRemoverAnexo').addEventListener('click', ()=>{
-    if(anexoImgsEl.querySelector('img') && !confirm('Remover a(s) imagem(ns) coladas nesta página?')) return;
-    anexoImgsEl.innerHTML = '';
-    updateAnexoVisibility();
-    draftSchedule();
-  });
 
   updateAnexoVisibility();
 
@@ -2691,19 +2431,18 @@ if(typeof criarMotorLaudo !== 'function'){
     const isMonocorionica = isMultiple && v('corionicidade').indexOf('monocorionica') === 0;
     const rotuloRiscoMono = uids.length >= 3 ? 'Os três fetos' : 'Ambos os fetos';
 
-    // Tamanhos enxutos de propósito: a folha de anexo tem altura fixa
-    // (24,2cm — ver .anexo-paper no CSS) e já reserva espaço para os 8
-    // cartões do grid de gráficos logo abaixo (ver anexoAlturaDisponivelPx());
-    // com os cinco blocos deste relatório preenchidos, no tamanho de fonte
-    // do resto do laudo (10,5-11px) a página estourava por ~33px nos testes
-    // — cortado silenciosamente pelo overflow:hidden da impressão. Reduzido
-    // até sobrar folga com feto único (~32px livres) e caber também numa
+    // Até 2026-09-28 os tamanhos eram enxutos de propósito: a folha de anexo
+    // tem altura fixa (24,2cm — ver .anexo-paper no CSS) e reservava espaço
+    // também para a área de colar o print da FMF (removida — a médica pediu
+    // fonte maior e mais respiro entre linhas no lugar dela). Com essa área
+    // fora, sobra espaço para aumentar fonte e espaçamento e ainda caber os
+    // 8 cartões do grid de gráficos logo abaixo, com feto único ou numa
     // trigemelar com todos os campos preenchidos (ver a tabela por coluna
     // logo abaixo, para gemelar/trigemelar não-monocoriônica).
-    const HEAD = 'font-family:\'Poppins\',sans-serif;font-weight:600;font-size:10px;color:#1a56b0;margin:6px 0 2px;';
-    const HEAD_FIRST = 'font-family:\'Poppins\',sans-serif;font-weight:600;font-size:10px;color:#1a56b0;margin:0 0 2px;';
-    const TXT = 'font-family:\'Times New Roman\',Times,serif;font-size:9.5px;color:var(--ink);';
-    const PARA = TXT+'margin:2px 0 0;line-height:1.15;';
+    const HEAD = 'font-family:\'Poppins\',sans-serif;font-weight:600;font-size:11px;color:#1a56b0;margin:9px 0 3px;';
+    const HEAD_FIRST = 'font-family:\'Poppins\',sans-serif;font-weight:600;font-size:11px;color:#1a56b0;margin:0 0 3px;';
+    const TXT = 'font-family:\'Times New Roman\',Times,serif;font-size:10.5px;color:var(--ink);';
+    const PARA = TXT+'margin:4px 0 0;line-height:1.4;';
 
     let primeiroBloco = true;
     function heading(txt){
@@ -2712,15 +2451,15 @@ if(typeof criarMotorLaudo !== 'function'){
       return '<p style="'+style+'">'+escapeHtml(txt)+'</p>';
     }
     function tabela(linhas){
-      return '<table style="border-collapse:collapse;'+TXT+'margin:1px 0 0;">'
+      return '<table style="border-collapse:collapse;'+TXT+'margin:2px 0 0;">'
         + linhas.map(function(par){
-            return '<tr><td style="padding:0 14px 0 0;white-space:nowrap;">'+escapeHtml(par[0])+'</td>'
-              + '<td style="padding:0;white-space:nowrap;">'+par[1]+'</td></tr>';
+            return '<tr><td style="padding:1px 14px 1px 0;white-space:nowrap;">'+escapeHtml(par[0])+'</td>'
+              + '<td style="padding:1px 0;white-space:nowrap;">'+par[1]+'</td></tr>';
           }).join('')
         + '</table>';
     }
     function linha(txt){
-      return '<p style="'+TXT+'margin:1px 0 0;">'+txt+'</p>';
+      return '<p style="'+TXT+'margin:3px 0 0;">'+txt+'</p>';
     }
 
     let html = '';
@@ -2761,12 +2500,12 @@ if(typeof criarMotorLaudo !== 'function'){
         const campo = function(c){ return uids.map(function(uid){ return blankOrValue(v('feto'+uid+c)); }); };
         const t21 = campo('RiscoT21'), t18 = campo('RiscoT18'), t13 = campo('RiscoT13');
         const linhaMulti = function(label, vals){
-          return '<tr><td style="padding:0 10px 0 0;white-space:nowrap;">'+escapeHtml(label)+'</td>'
-            + vals.map(function(x){ return '<td style="padding:0 10px 0 0;white-space:nowrap;">1 in '+span(x)+'</td>'; }).join('')
+          return '<tr><td style="padding:1px 10px 1px 0;white-space:nowrap;">'+escapeHtml(label)+'</td>'
+            + vals.map(function(x){ return '<td style="padding:1px 10px 1px 0;white-space:nowrap;">1 in '+span(x)+'</td>'; }).join('')
             + '</tr>';
         };
-        html += '<table style="border-collapse:collapse;'+TXT+'margin:1px 0 0;">'
-          + '<tr><td></td>'+uids.map(function(uid, idx){ return '<td style="padding:0 10px 0 0;font-weight:700;white-space:nowrap;">'+escapeHtml(fetoLabel(idx, uids.length))+'</td>'; }).join('')+'</tr>'
+        html += '<table style="border-collapse:collapse;'+TXT+'margin:2px 0 0;">'
+          + '<tr><td></td>'+uids.map(function(uid, idx){ return '<td style="padding:1px 10px 1px 0;font-weight:700;white-space:nowrap;">'+escapeHtml(fetoLabel(idx, uids.length))+'</td>'; }).join('')+'</tr>'
           + linhaMulti('Trissomia 21:', t21)
           + linhaMulti('Síndrome de Edwards (T18):', t18)
           + linhaMulti('Síndrome de Patau (T13):', t13)
@@ -3788,9 +3527,9 @@ if(typeof criarMotorLaudo !== 'function'){
     // A página de anexo (logo da FMF, relatório da FMF em texto, gráficos de
     // referência, imagem extra colada e assinatura) fica de fora do #paper —
     // só entra no Word na mesma condição que a faz imprimir (ver
-    // `has-content` em updateAnexoVisibility()): imagem colada, gráficos com
-    // dado para plotar, ou o relatório da FMF com algum campo preenchido.
-    if(anexoImgsEl.querySelector('img') || anexoTemDadosGraficos() || anexoTemDadosFmf()){
+    // `has-content` em updateAnexoVisibility()): gráficos com dado para
+    // plotar, ou o relatório da FMF com algum campo preenchido.
+    if(anexoTemDadosGraficos() || anexoTemDadosFmf()){
       try{
         const anexoImg = await rasterizarAnexoParaWord();
         bodyHtml += '<br clear="all" style="page-break-before:always;mso-special-character:line-break;">' + anexoImg.outerHTML;
@@ -3823,8 +3562,6 @@ if(typeof criarMotorLaudo !== 'function'){
   // valia pelo mesmo motivo).
   async function rasterizarAnexoParaWord(){
     const clone = paperAnexoEl.cloneNode(true);
-    clone.querySelectorAll('.anexo-resize-handle, .anexo-delete-btn').forEach(el=>el.remove());
-    clone.querySelectorAll('.anexo-img-wrap.selected').forEach(el=>el.classList.remove('selected'));
 
     // fmf-icon.png é resolvido por caminho relativo à página — dentro do
     // documento isolado do data:image/svg+xml não existe essa base, e o logo
@@ -3846,13 +3583,6 @@ if(typeof criarMotorLaudo !== 'function'){
         cloneLogo.remove();
       }
     }
-    // Sem imagem extra colada, só sobraria a dica de tela ("Cole aqui...",
-    // ver #anexoImgs::before) — não é conteúdo do laudo, e o CDATA abaixo
-    // reproduziria as regras de :empty::before do jeito que estão na tela.
-    // Tirar o elemento do clone evita rasterizar a dica por engano.
-    const imgsClone = clone.querySelector('#anexoImgs');
-    if(imgsClone && !imgsClone.querySelector('img')) imgsClone.remove();
-
     const rect = paperAnexoEl.getBoundingClientRect();
     const W = Math.ceil(rect.width);
     const H = Math.ceil(paperAnexoEl.scrollHeight);
@@ -4022,7 +3752,6 @@ if(typeof criarMotorLaudo !== 'function'){
     relatoOverride = null;
     st.lastBlockHtml = {};
     $('paper').innerHTML = '';
-    anexoImgsEl.innerHTML = '';
     updateAnexoVisibility();
     printAttempted = false;
     $('printAlert').classList.remove('show');
@@ -4068,8 +3797,7 @@ if(typeof criarMotorLaudo !== 'function'){
       relatoOverride: relatoOverride,
       titleFontSize: titleFontSize,
       paper: draftPaperHtml(),
-      blocks: st.lastBlockHtml,
-      anexoFmf: anexoImgsEl.innerHTML
+      blocks: st.lastBlockHtml
     };
   }
 
@@ -4157,7 +3885,6 @@ if(typeof criarMotorLaudo !== 'function'){
       relatoOverride = null;
       st.lastBlockHtml = {};
       $('paper').innerHTML = '';
-      anexoImgsEl.innerHTML = '';
       updateAnexoVisibility();
       try{ localStorage.removeItem(DRAFT_KEY); }catch(e2){}
       return false;
@@ -4176,23 +3903,12 @@ if(typeof criarMotorLaudo !== 'function'){
       st.lastBlockHtml = (d.blocks && typeof d.blocks === 'object') ? d.blocks : {};
       updatePagePreview();
     }
-    // Rascunhos gravados antes desta funcionalidade não têm `anexoFmf` — volta
-    // vazia, mesmo estado de um laudo novo. O cabeçalho (logo) e a assinatura
-    // não são salvos no rascunho — são gerados de novo pelo render() logo
-    // abaixo, a partir do médico executante atual.
-    anexoImgsEl.innerHTML = typeof d.anexoFmf === 'string' ? d.anexoFmf : '';
+    // O cabeçalho (logo) e a assinatura não são salvos no rascunho — são
+    // gerados de novo pelo render() logo acima, a partir do médico
+    // executante atual. O relatório da FMF em texto (renderAnexoFmfReport())
+    // também é gerado de novo pelo render(), a partir dos campos que já
+    // voltaram — updateAnexoVisibility() só precisa reavaliar o estouro.
     updateAnexoVisibility();
-    // O aviso de "não coube" depende da altura já carregada das imagens
-    // restauradas — como vieram de volta via innerHTML (não pelo onload do
-    // inserirImagemAnexo), confere de novo assim que elas terminarem de
-    // carregar, para o aviso não ficar errado até a próxima interação.
-    const imgsRestauradas = Array.from(anexoImgsEl.querySelectorAll('img'));
-    if(imgsRestauradas.length){
-      Promise.all(imgsRestauradas.map(img => img.complete
-        ? Promise.resolve()
-        : new Promise(res => { img.onload = img.onerror = res; })
-      )).then(updateAnexoVisibility);
-    }
     const note = $('draftNote');
     if(note){
       $('draftNoteText').textContent = 'Rascunho recuperado — este laudo voltou como estava '
