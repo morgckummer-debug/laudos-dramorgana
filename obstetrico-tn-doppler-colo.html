@@ -2495,9 +2495,10 @@ if(typeof criarMotorLaudo !== 'function'){
   // o arquivo já sair identificado e ir direto para a pasta da paciente.
   function tituloExame(){
     const n = fetoUids().length;
-    const base = n >= 3 ? 'Obstétrico Trigemelar com TN'
+    const prefixo = n >= 3 ? 'Obstétrico Trigemelar com TN'
       : n === 2 ? 'Obstétrico Gemelar com TN'
       : 'Obstétrico com TN';
+    const base = $('chkDopplerMaterno').checked ? prefixo + ' e Doppler' : prefixo;
     return $('chkColo').checked ? base + ' + Colo' : base;
   }
   async function saveBlobAs(blob, suggestedName){
