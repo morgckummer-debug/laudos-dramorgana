@@ -488,7 +488,6 @@
     <div class="field"><label>Qualificação (linha 1)</label><input type="text" id="vr_medicoQual1" value="Especialista em Ultrassonografia Geral pelo CBR."></div>
     <div class="field"><label>Qualificação (linha 2)</label><input type="text" id="vr_medicoQual2" value="Pós-Graduação em Medicina Fetal pela FCMMG."></div>
     <div class="field"><label>CRM / RQE</label><input type="text" id="vr_medicoCRM" value="CRMMG: 45.304 - RQE: 39.156"></div>
-    <div class="field"><label>FMF Id (deixe em branco para não imprimir)</label><input type="text" id="vr_medicoFmfId" value="144983"></div>
   </div>
   <div class="save-row">
     <button class="btn-copy" id="btnSaveVR">Salvar</button>
@@ -1576,22 +1575,8 @@ if(typeof criarMotorLaudo !== 'function'){
     medicoNome:'Dra. Morgana Fialho Caldas Kummer',
     medicoQual1:'Especialista em Ultrassonografia Geral pelo CBR.',
     medicoQual2:'Pós-Graduação em Medicina Fetal pela FCMMG.',
-    medicoCRM:'CRMMG: 45.304 - RQE: 39.156',
-    medicoFmfId:'144983'
+    medicoCRM:'CRMMG: 45.304 - RQE: 39.156'
   };
-  // Id de operador(a) credenciado(a) pela Fetal Medicine Foundation — só faz
-  // sentido para quem de fato tem o credenciamento, então só entra sozinho
-  // (via applyExecutanteComFmf) quando o executante selecionado é a Dra.
-  // Morgana. Para "Outro médico" o campo do painel de configurações fica
-  // valendo do jeito que ela deixou (em branco, se o médico não for
-  // credenciado).
-  const EXECUTANTE_FMF_ID = { morgana: '144983' };
-  function applyExecutanteComFmf(id){
-    applyExecutante(id);
-    VR = Object.assign({}, VR, {medicoFmfId: EXECUTANTE_FMF_ID[id] || ''});
-    applyVRToInputs();
-    render();
-  }
 
   async function loadVR(){
     try{
@@ -1608,7 +1593,6 @@ if(typeof criarMotorLaudo !== 'function'){
     $('vr_medicoQual1').value = VR.medicoQual1;
     $('vr_medicoQual2').value = VR.medicoQual2;
     $('vr_medicoCRM').value = VR.medicoCRM;
-    $('vr_medicoFmfId').value = VR.medicoFmfId || '';
   }
   $('btnSettings').addEventListener('click', ()=>{
     $('settingsPanel').classList.toggle('show');
@@ -1627,11 +1611,7 @@ if(typeof criarMotorLaudo !== 'function'){
       medicoNome: $('vr_medicoNome').value || VR.medicoNome,
       medicoQual1: $('vr_medicoQual1').value,
       medicoQual2: $('vr_medicoQual2').value,
-      medicoCRM: $('vr_medicoCRM').value,
-      // Sem fallback pro valor anterior, diferente dos campos acima: em
-      // branco aqui é uma escolha válida (médico sem credenciamento FMF),
-      // não um campo esquecido.
-      medicoFmfId: $('vr_medicoFmfId').value
+      medicoCRM: $('vr_medicoCRM').value
     };
     try{
       await kvStore.set('ob1t-vr-settings-v2', JSON.stringify(VR));
@@ -1645,14 +1625,14 @@ if(typeof criarMotorLaudo !== 'function'){
     if(e.target.value === 'outro'){
       $('settingsPanel').classList.add('show');
     } else {
-      applyExecutanteComFmf(e.target.value);
+      applyExecutante(e.target.value);
     }
   });
   async function loadExecutanteSelecionado(){
     const saved = await kvStore.get('medico-executante-selecionado');
     const sel = $('medicoExecutante');
     sel.value = (saved && (saved==='outro' || EXECUTANTES[saved])) ? saved : 'morgana';
-    if(sel.value !== 'outro') applyExecutanteComFmf(sel.value);
+    if(sel.value !== 'outro') applyExecutante(sel.value);
   }
 
 
@@ -2944,7 +2924,6 @@ if(typeof criarMotorLaudo !== 'function'){
     if(VR.medicoQual1) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
     if(VR.medicoQual2) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
     rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoCRM)+'</p>';
-    if(VR.medicoFmfId) rodapeHtml += '<p class="assinatura-info">FMF Id: '+escapeHtml(VR.medicoFmfId)+'</p>';
     rodapeHtml += '</div>';
     rodapeHtml += '</div>';
     blocks.push({id:'rodape', html:rodapeHtml});
