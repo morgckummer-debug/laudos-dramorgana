@@ -2244,10 +2244,7 @@ if(typeof criarMotorLaudo !== 'function'){
         fragments.push('Cortical renal homogênea com ecogenicidade usual, espessura normal e diferenciação córtico-medular evidente pelo aumento da ecogenicidade das medulares renais, em rim '+ladoNome+'.');
         hds.push(phrase('impRinsNefrocalcinose', {LADO:ladoHD}));
       }
-      if($(p+'Ferradura').checked && !opts.suprimirFerraduraDesc){
-        // Órgão único: a descrição (dos dois rins) entra uma vez só, no 1º rim marcado.
-        fragments.push('Rins em topografia baixa, com fusão dos polos inferiores por istmo de parênquima renal à frente dos grandes vasos, configurando rim em ferradura.');
-      }
+      // Rins em ferradura: a descrição é única (dos dois rins) e sai no bloco 'rins', não aqui.
       if($(p+'Ureterolitiase').checked){
         const terco = v(p+'UreterTerco') || 'proximal';
         const tam = blankOrValue(req(p+'UreterTamanho'));
@@ -2271,7 +2268,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const rinsAmbosCisto = modoTotal && $('rinsDCisto').checked && $('rinsECisto').checked;
     const rinsAmbosCalculo = modoTotal && $('rinsDCalculo').checked && $('rinsECalculo').checked;
     const rinsDAchado = computeRinsAchado('rinsD', 'direito', 'à direita', {suprimirCistoHD: rinsAmbosCisto, suprimirCalculoHD: rinsAmbosCalculo});
-    const rinsEAchado = computeRinsAchado('rinsE', 'esquerdo', 'à esquerda', {suprimirFerraduraDesc: $('rinsDFerradura').checked, suprimirCistoHD: rinsAmbosCisto, suprimirCalculoHD: rinsAmbosCalculo});
+    const rinsEAchado = computeRinsAchado('rinsE', 'esquerdo', 'à esquerda', {suprimirCistoHD: rinsAmbosCisto, suprimirCalculoHD: rinsAmbosCalculo});
     // Cada rim vira seu próprio parágrafo, rotulado — antes os dois ficavam
     // espremidos numa frase só ("Rins: ..."), sem separação nenhuma entre o
     // texto de um rim e o do outro; com 3+ achados (cálculo, cisto...) num
@@ -2286,7 +2283,8 @@ if(typeof criarMotorLaudo !== 'function'){
     // frase só, como era antes da separação acima, em vez de dois parágrafos
     // quase idênticos ("Rim direito: ... normais... Rim esquerdo: ...
     // normais...").
-    const rinsAmbosNormais = !rinsDAchado.tail && !rinsEAchado.tail;
+    const rinsFerradura = $('rinsDFerradura').checked || $('rinsEFerradura').checked;
+    const rinsAmbosNormais = !rinsFerradura && !rinsDAchado.tail && !rinsEAchado.tail;
     const rinsBilateralHDs = [];
     if(rinsAmbosCisto) rinsBilateralHDs.push(phrase('impRinsCistoBilateral'));
     if(rinsAmbosCalculo) rinsBilateralHDs.push(phrase('impRinsCalculoBilateral'));
@@ -2499,7 +2497,18 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(modoTotal){
-      if(rinsAmbosNormais){
+      if(rinsFerradura){
+        // Órgão único: um parágrafo só, sem dividir entre os dois rins. Outros achados
+        // (cisto, cálculo...) de cada lado, se houver, vêm em parágrafo próprio depois.
+        blocks.push({id:'rins', html:'<p class="linha">Rins em topografia mais baixa, com fusão dos polos inferiores por istmo de parênquima renal à frente dos grandes vasos, configurando rim em ferradura. O direito medindo '+span(rimDireitoTexto)+' cm e o esquerdo, '+span(rimEsquerdoTexto)+' cm. Corticais renais homogêneas com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).</p>'});
+        [['rinsD','Rim direito',rinsDAchado],['rinsE','Rim esquerdo',rinsEAchado]].forEach(([id,nome,ach])=>{
+          if(ach.tail) blocks.push({id:id, html:'<p class="linha"><strong>'+nome+':</strong> '+ach.tail+'</p>'});
+          pushListaBlock(blocks, id+'CalcLista', ach.calcLista);
+          pushListaBlock(blocks, id+'CistoLista', ach.cistoLista);
+          pushListaBlock(blocks, id+'LeiteCalcioLista', ach.leiteCalcioLista);
+          pushListaBlock(blocks, id+'NoduloLista', ach.noduloLista);
+        });
+      } else if(rinsAmbosNormais){
         blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> Topografia, forma e mobilidade normais. O rim direito mede '+span(rimDireitoTexto)+' cm, e o esquerdo, '+span(rimEsquerdoTexto)+' cm. '+RINS_TAIL_PADRAO+' Ureteres sem sinais de dilatações.</p>'});
       } else {
         blocks.push({id:'rinsD', html:'<p class="linha"><strong>Rim direito:</strong> Topografia, forma e mobilidade normais, medindo '+span(rimDireitoTexto)+' cm. '+rinsDTail+'</p>'});
