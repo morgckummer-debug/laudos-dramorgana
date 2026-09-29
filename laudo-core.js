@@ -1488,7 +1488,70 @@ function criarMotorLaudo(cfg){
         campo.appendChild(btn);
       }
     });
+    frasesAtualizarContadores();
   }
+
+  // Painel "Personalizar frases": cada tema (<h3>) vira uma seção que abre e
+  // fecha por uma setinha, fechada por padrão — são dezenas de frases e o
+  // painel inteiro aberto obrigava a rolar a tela toda. Auto-wired ao criar o
+  // motor, nenhum .html precisa mudar. Os <textarea id="ph_...">, o "Salvar
+  // frases" e o resto do código continuam achando tudo pelo id, dentro ou fora
+  // de um <details> fechado.
+  function frasesAtualizarContadores(){
+    const painel = $('phrasesPanel');
+    if(!painel) return;
+    painel.querySelectorAll('details.frases-grupo').forEach(d=>{
+      const n = d.querySelectorAll('.frase-alterada').length;
+      const c = d.querySelector('summary .frases-contador');
+      if(c) c.textContent = n ? (n === 1 ? '1 personalizada' : n + ' personalizadas') : '';
+    });
+  }
+  function wireFrasesAcordeao(){
+    const painel = $('phrasesPanel');
+    if(!painel || painel.querySelector('details.frases-grupo')) return;
+    const titulos = Array.from(painel.children).filter(el=> el.tagName === 'H3');
+    // o 1º <h3> é o título do painel, não um tema; sem 2º, não há o que recolher
+    if(titulos.length < 2) return;
+    const el = document.createElement('style');
+    el.textContent = '@media screen{'
+      + '.frases-grupo{border-top:1px solid rgba(0,0,0,.08);padding:2px 0;}'
+      + '.frases-grupo>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;'
+      +   'font-family:Poppins,sans-serif;font-size:14px;font-weight:600;color:var(--rose-dark,#7a3b70);padding:9px 0;}'
+      + '.frases-grupo>summary::-webkit-details-marker{display:none;}'
+      + '.frases-grupo>summary::before{content:"\\25B8";font-size:13px;transition:transform .15s;}'
+      + '.frases-grupo[open]>summary::before{transform:rotate(90deg);}'
+      + '.frases-grupo .frases-contador{font-size:11.5px;font-weight:600;color:var(--sage,#5b7f6a);margin-left:auto;}'
+      + '.frases-grupo>.frases-corpo{padding:2px 0 8px;}'
+      + '}';
+    document.head.appendChild(el);
+    titulos.slice(1).forEach(h=>{
+      const det = document.createElement('details');
+      det.className = 'frases-grupo';
+      const sum = document.createElement('summary');
+      const tit = document.createElement('span');
+      tit.textContent = h.textContent;
+      const cont = document.createElement('span');
+      cont.className = 'frases-contador';
+      sum.appendChild(tit); sum.appendChild(cont);
+      const corpo = document.createElement('div');
+      corpo.className = 'frases-corpo';
+      det.appendChild(sum); det.appendChild(corpo);
+      // tudo até o próximo tema ou a linha de botões pertence a este tema
+      let n = h.nextSibling;
+      while(n && !(n.nodeType === 1 && (n.tagName === 'H3' || (n.classList && n.classList.contains('save-row'))))){
+        const prox = n.nextSibling;
+        const ehSep = n.nodeType === 1 && n.tagName === 'HR';
+        if(ehSep) n.remove(); else corpo.appendChild(n);
+        n = prox;
+      }
+      h.replaceWith(det);
+    });
+    // o <hr> logo antes dos botões também sai: o tema recolhido já tem a sua borda
+    painel.querySelectorAll(':scope > hr.sep').forEach(hr=> hr.remove());
+    painel.addEventListener('input', ()=> setTimeout(frasesAtualizarContadores, 0));
+    frasesAtualizarContadores();
+  }
+  wireFrasesAcordeao();
 
   // ---------- Backup das configurações da médica ----------
   // As frases personalizadas, a assinatura, os médicos cadastrados e as
