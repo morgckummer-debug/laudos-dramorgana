@@ -337,8 +337,8 @@
      folha, não no laudo inteiro (.paper .filled genérico não ganha peso). */
   #anexoFmfReport .filled{font-weight:700;}
   .anexo-paper .assinatura{margin-top:auto;padding-top:1em;}
-/* Grid 4x2 dos gráficos de referência do 1º trimestre (FC, CCN, TN, DBP,
-   ducto venoso, PI das uterinas), logo abaixo do relatório da FMF em texto,
+/* Grid de 4 colunas (4 + 3) dos 7 gráficos de referência do 1º trimestre (FC,
+   CCN, TN, ducto venoso, PI das uterinas E/D/média — o DBP saiu em 2026-09-29), logo abaixo do relatório da FMF em texto,
    na mesma página de anexo — antes da assinatura. Tamanho fixo em px (não
    responsivo): a página de anexo tem altura fixa (24,2cm), e o aviso de
    estouro (updateAnexoVisibility()) mede scrollHeight x clientHeight da
@@ -1414,11 +1414,11 @@ if(typeof criarMotorLaudo !== 'function'){
 
   // A folha de anexo tem conteúdo próprio (os gráficos de referência) mesmo
   // sem nenhum campo do relatório preenchido — precisa de pelo menos um dado
-  // plotável (CCN/FC/TN/DBP/ducto venoso de algum feto, ou IP de alguma
+  // plotável (CCN/FC/TN/ducto venoso de algum feto, ou IP de alguma
   // uterina) para não imprimir uma folha só com bandas de referência vazias
   // num laudo que nunca preencheu nada disso.
   function anexoTemDadosGraficos(){
-    const camposFeto = ['CCN','FC','TN','DBP','DuctoVenoso'];
+    const camposFeto = ['CCN','FC','TN','DuctoVenoso'];
     const temFeto = fetoUids().some(uid => camposFeto.some(c => num('feto'+uid+c) != null));
     return temFeto || num('utEsquerda') != null || num('utDireita') != null;
   }
@@ -2070,8 +2070,8 @@ if(typeof criarMotorLaudo !== 'function'){
   //    banda ±1,645×6,6bpm (desvio-padrão do artigo).
   //  - CCN×IG: Hadlock, Shah, Kanon, Lindsey. Radiology 1992;182:501-505 —
   //    tabela fornecida pela clínica (só mediana; banda é aproximação).
-  //  - Translucência nucal e Diâmetro biparietal: tabelas de referência
-  //    fornecidas pela clínica (P5/P50/P95 por CCN; DBP por semana).
+  //  - Translucência nucal: tabela de referência fornecida pela clínica
+  //    (P5/P50/P95 por CCN). Não há mais gráfico de DBP (2026-09-29).
   //  - IP ducto venoso: leitura visual do gráfico de Pruksanasuk et al.
   //    (Gynecol Obstet Invest 2014;78:22-25) fornecido pela clínica —
   //    aproximação, sem tabela numérica disponível.
@@ -2142,13 +2142,6 @@ if(typeof criarMotorLaudo !== 'function'){
   const TN_P5_REG = linRegress(TN_TABLE.map(r=>[r[0],r[1]]));
   const TN_P50_REG = linRegress(TN_TABLE.map(r=>[r[0],r[2]]));
   const TN_P95_REG = linRegress(TN_TABLE.map(r=>[r[0],r[3]]));
-  // Fonte citada no cartão: Chitty LS, Altman DG. "Charts of fetal size: 2.
-  // Head measurements." Br J Obstet Gynaecol. 1994;101(1):35-43 — cobre BPD
-  // a partir de 12 semanas, mesma janela desta tabela; trocada por pedido da
-  // médica no lugar do genérico "Tabela de referência" (2026-09-28). Mesma
-  // ressalva do TN_TABLE acima: não foi possível conferir os valores
-  // dígito a dígito contra o artigo original.
-  const DBP_TABLE_WEEKS = [ [12,9,17,23], [13,15,21,27], [14,19,25,31], [15,23,29,35] ];
   const DV_TABLE = [
     [44,0.78,1.00,1.22],[48,0.77,1.00,1.24],[52,0.77,1.01,1.26],[56,0.76,1.02,1.27],
     [60,0.76,1.02,1.28],[64,0.75,1.01,1.27],[68,0.74,1.00,1.26],[72,0.73,0.99,1.24],
@@ -2166,7 +2159,9 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     return table[table.length-1];
   }
-  const FETO_CORES = ['#3D2352','#B08D3F','#8A651F'];
+  // Feto 3 em marrom (2026-09-29): o dourado escuro anterior (#8A651F) mal se
+  // distinguia do dourado do Feto 2. Mesma cor do Curvas (--marrom).
+  const FETO_CORES = ['#3D2352','#B08D3F','#6F3F22'];
   // A folha imprime em preto e branco — cor sozinha não distingue os fetos
   // no papel (relatado pela Dra. Morgana). FETO_FORMAS dá a cada feto uma
   // forma própria no marcador (círculo/losango/triângulo), que sobrevive à
@@ -2368,12 +2363,6 @@ if(typeof criarMotorLaudo !== 'function'){
       xsTN.forEach(x=>{ lo.push({x,y:TN_P5_REG.m*x+TN_P5_REG.b}); mid.push({x,y:TN_P50_REG.m*x+TN_P50_REG.b}); hi.push({x,y:TN_P95_REG.m*x+TN_P95_REG.b}); });
       cfgs.push({titulo:'Transl. Nucal', ref:'Snijders et al., FMF (1998)', unit:'mm', dec:1, xLabel:'CCN (MM)', x:[45,84], y:[0,4], xt:[45,55,65,75,84],
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:f.ccn, valor:f.tn, cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
-    }
-    // DBP × IG (semanas) — a tabela fornecida é por semana, não por CCN
-    { const w = range(12,15,0.1), lo=[], mid=[], hi=[];
-      w.forEach(x=>{ const [,l,m,h] = interpTabelaRef(DBP_TABLE_WEEKS, x); lo.push({x,y:l}); mid.push({x,y:m}); hi.push({x,y:h}); });
-      cfgs.push({titulo:'DBP', ref:'Chitty & Altman (1994)', unit:'mm', dec:1, xLabel:'SEMANAS', xSuffix:'s', x:[12,15], y:[5,38], xt:[12,13,14,15],
-        lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:igSemanas, valor:(igSemanas!=null?f.dbp:null), cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // IP ducto venoso × IG (semanas) — a tabela em si (DV_TABLE) é lida por
     // CCN (é assim que o gráfico original de Pruksanasuk et al. vem), mas o

@@ -1299,3 +1299,20 @@ lado no `render()`, a mesma idade em dois lugares da tela. Testado: mudar
 data de nascimento/exame atualiza `anexoIdadeMaterna` junto com `idadeCalc`,
 e a frase "O risco baseado nos antecedentes tem por base uma idade materna
 de X anos..." da folha de anexo sai com o valor certo.
+
+## Laudo de 1º trimestre: sem gráfico de DBP, e Feto 3 em marrom
+
+2026-09-29, a pedido da médica (mesma mudança no `curva-fetal`, para os dois
+laudos ficarem iguais).
+
+- **O gráfico de DBP saiu do anexo.** Ficam 7 cartões: BCF, CCN, Transl. Nucal,
+  Ducto Venoso, e as três uterinas (E/D/média) — na grade de 4 colunas, 4 + 3.
+  O DBP nessa idade acrescentava pouco ao CCN, e era a referência mais fraca: a
+  tabela daqui (Chitty & Altman) e a do Curvas (Hadlock ± DP) já divergiam entre
+  si. Removidos o cartão, `DBP_TABLE_WEEKS` e o campo `DBP` da lista de dados que
+  ativam o anexo (`anexoTemDadosGraficos`). **O campo DBP do formulário e a linha
+  "Diâmetro biparietal" da tabela do laudo continuam** — é medida, não gráfico.
+- **Feto 3 (trigemelar) é marrom (`#6F3F22`)**, não mais o dourado escuro
+  `#8A651F`, que mal se distinguia do dourado do Feto 2 (`#B08D3F`). A forma do
+  marcador (círculo/losango/triângulo) continua sendo o que separa os fetos na
+  impressão em preto e branco. Mesma cor do `--marrom` do Curvas.
