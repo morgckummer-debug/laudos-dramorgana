@@ -1814,7 +1814,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(rimFerradura){
       // Órgão único: um parágrafo só, sem dividir entre os dois rins. Outros achados
       // (cisto, cálculo...) de cada lado, se houver, vêm em parágrafo próprio depois.
-      blocks.push({id:'rins', html:'<p class="linha">Rins em topografia mais baixa, com fusão dos polos inferiores por istmo de parênquima renal à frente dos grandes vasos, configurando rim em ferradura. O direito medindo '+span(rimDDiametroTexto)+' cm e o esquerdo, '+span(rimEDiametroTexto)+' cm. Corticais renais homogêneas com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).</p>'});
+      blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> Rins em topografia mais baixa, com fusão dos polos inferiores por istmo de parênquima renal à frente dos grandes vasos, configurando rim em ferradura. O direito medindo '+span(rimDDiametroTexto)+' cm e o esquerdo, '+span(rimEDiametroTexto)+' cm. Corticais renais homogêneas com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).</p>'});
       [['rimD','Rim Direito',rimDAchado],['rimE','Rim Esquerdo',rimEAchado]].forEach(([id,nome,ach])=>{
         if(ach.tail) blocks.push({id:id, html:'<p class="linha"><strong>'+nome+':</strong> '+ach.tail+'</p>'});
         pushListaBlock(blocks, id+'CalcLista', ach.calcLista);
