@@ -387,6 +387,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Nódulo renal (angiomiolipoma) — use {LADO}</label><textarea id="ph_impNodulo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hidronefrose — use {LADO} e {GRAU}</label><textarea id="ph_impHidronefrose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nefrocalcinose medular — use {LADO}</label><textarea id="ph_impNefrocalcinose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Rins em ferradura (uma linha só, mesmo se marcado nos dois rins)</label><textarea id="ph_impFerradura" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ureterolitíase — use {TERCO} e {LADO}</label><textarea id="ph_impUreterolitiase" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -441,6 +442,7 @@
           <div class="toggle-line"><input type="checkbox" id="rimDNodulo"><label for="rimDNodulo">Nódulo renal (angiomiolipoma)</label></div>
           <div class="toggle-line"><input type="checkbox" id="rimDHidronefrose"><label for="rimDHidronefrose">Hidronefrose</label></div>
           <div class="toggle-line"><input type="checkbox" id="rimDNefrocalcinose"><label for="rimDNefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</label></div>
+          <div class="toggle-line"><input type="checkbox" id="rimDFerradura"><label for="rimDFerradura">Rins em ferradura</label></div>
           <div class="toggle-line"><input type="checkbox" id="rimDUreterolitiase"><label for="rimDUreterolitiase">Ureterolitíase</label></div>
           <div class="toggle-line"><input type="checkbox" id="rimDAlterado"><label for="rimDAlterado">Outro (descrever)</label></div>
         </div>
@@ -544,6 +546,7 @@
           <div class="toggle-line"><input type="checkbox" id="rimENodulo"><label for="rimENodulo">Nódulo renal (angiomiolipoma)</label></div>
           <div class="toggle-line"><input type="checkbox" id="rimEHidronefrose"><label for="rimEHidronefrose">Hidronefrose</label></div>
           <div class="toggle-line"><input type="checkbox" id="rimENefrocalcinose"><label for="rimENefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</label></div>
+          <div class="toggle-line"><input type="checkbox" id="rimEFerradura"><label for="rimEFerradura">Rins em ferradura</label></div>
           <div class="toggle-line"><input type="checkbox" id="rimEUreterolitiase"><label for="rimEUreterolitiase">Ureterolitíase</label></div>
           <div class="toggle-line"><input type="checkbox" id="rimEAlterado"><label for="rimEAlterado">Outro (descrever)</label></div>
         </div>
@@ -1259,6 +1262,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impNodulo: 'Nódulo renal {LADO} sugestivo de angiomiolipoma.',
     impHidronefrose: 'Hidronefrose {GRAU} {LADO}.',
     impNefrocalcinose: 'Nefrocalcinose medular {LADO}.',
+    impFerradura: 'Fusão dos polos inferiores dos rins (rim em ferradura).',
     impUreterolitiase: 'Ureterolitíase {TERCO} {LADO}.',
     impBexigaEsforco: 'Achados ecográficos sugestivos de bexiga de esforço.',
     impBexigaCistite: 'Paredes vesicais difusamente espessadas sugestivas de cistite crônica.',
@@ -1431,7 +1435,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // ---------- Achados por rim: checkboxes combináveis (cisto e cálculo, por
   // exemplo, podem coexistir no mesmo rim), não mais um select único — "Normal"
   // continua exclusivo com todo o resto.
-  const RIM_ACHADOS = ['Calculo','Cisto','LeiteCalcio','Nodulo','Hidronefrose','Nefrocalcinose','Ureterolitiase','Alterado'];
+  const RIM_ACHADOS = ['Calculo','Cisto','LeiteCalcio','Nodulo','Hidronefrose','Nefrocalcinose','Ferradura','Ureterolitiase','Alterado'];
   function wireRim(p){
     function updateConditionals(){
       Object.keys(LISTA_ACHADO_NOME).forEach(kind=>{
@@ -1697,6 +1701,10 @@ if(typeof criarMotorLaudo !== 'function'){
         diferenciacao = 'evidente pelo aumento da ecogenicidade das medulares renais';
         hds.push(phrase('impNefrocalcinose', {LADO:ladoHD}));
       }
+      if($(p+'Ferradura').checked && !opts.suprimirFerraduraDesc){
+        // Órgão único: a descrição (dos dois rins) entra uma vez só, no 1º rim marcado.
+        fragments.push('Rins em topografia baixa, com fusão dos polos inferiores por istmo de parênquima renal à frente dos grandes vasos, configurando rim em ferradura.');
+      }
       if($(p+'Ureterolitiase').checked){
         const terco = v(p+'UreterTerco') || 'proximal';
         const tam = blankOrValue(req(p+'UreterTamanho'));
@@ -1735,10 +1743,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const rimECorticalNum = num('rimECortical'); req('rimECortical');
     const rimECorticalTexto = blankOrValue(v('rimECortical'));
     flag('rimECortical', rimECorticalNum!==null && rimECorticalNum < CORTICAL_MIN);
-    const rimEAchado = computeRimAchado('rimE', 'à esquerda', {suprimirCistoHD: rimAmbosCisto, suprimirCalculoHD: rimAmbosCalculo});
+    const rimEAchado = computeRimAchado('rimE', 'à esquerda', {suprimirFerraduraDesc: $('rimDFerradura').checked, suprimirCistoHD: rimAmbosCisto, suprimirCalculoHD: rimAmbosCalculo});
     const rimBilateralHDs = [];
     if(rimAmbosCisto) rimBilateralHDs.push(phrase('impCistoBilateral'));
     if(rimAmbosCalculo) rimBilateralHDs.push(phrase('impCalculoBilateral'));
+    if($('rimDFerradura').checked || $('rimEFerradura').checked) rimBilateralHDs.push(phrase('impFerradura'));
 
     // ----- Bexiga -----
     const bexigaAspecto = v('bexigaAspecto');
