@@ -553,6 +553,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Gestação única, DUM incerta/ignorada, 14 semanas ou mais — use {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoUnicaDumIncertaBiometria" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia pela DUM) — use {CORIONICIDADE}, {IG} e {CONCORDANCIA} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoGemelar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar (cronologia por ultrassom/ecografia) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoGemelarSemDum" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar (cronologia pela DUM) — use {CORIONICIDADE}, {IG} e {CONCORDANCIA} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar (cronologia por ultrassom/ecografia) — use {CORIONICIDADE} e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoTrigemelarSemDum" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Perda gestacional — use {TEMPO} (precoce/tardia, automático pela IG), {TIPO} (retida/em curso/incompleta/completa) e {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impObito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Embrião não identificado — impressão (gestação muito inicial)</label><textarea id="ph_impEmbriaoNaoIdentificado" rows="2"></textarea></div>
@@ -645,10 +647,10 @@
         <div class="toggle-line"><input type="checkbox" id="chkMola"><label for="chkMola">Achados sugestivos de mola hidatiforme</label></div>
         <div class="field-row conditional show" id="wrap_gestacaoNormal">
           <div class="field"><label>Número de sacos gestacionais / embriões</label>
-            <select id="numeroEmbrioes"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">3 ou mais</option></select>
+            <select id="numeroEmbrioes"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
           </div>
           <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade</label>
-            <select id="corionicidade"><option value="dicorionica_diamniotica">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica">Monocoriônica e monoamniótica</option></select>
+            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option><option value="monocorionica_triamniotica" data-fetos="3">Monocoriônica e triamniótica</option></select>
           </div>
         </div>
         <div class="conditional" id="wrap_molaCampos">
@@ -1488,6 +1490,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impGestacaoUnicaDumIncertaBiometria: 'Gestação eutópica com biometria de {IG}.',
     impGestacaoGemelar: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG} (DUM {CONCORDANCIA}).',
     impGestacaoGemelarSemDum: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
+    impGestacaoTrigemelar: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {IG} (DUM {CONCORDANCIA}).',
+    impGestacaoTrigemelarSemDum: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
     impBoaEvolucao: 'Boa evolução até o momento.',
     impObito: 'Perda gestacional {TEMPO} {TIPO}, compatível com {IG}.',
     impObitoCompleto: 'Perda gestacional precoce completa.',
@@ -1738,6 +1742,21 @@ if(typeof criarMotorLaudo !== 'function'){
 
   function updateGestacaoWrap(){
     toggle('wrap_corionicidade', $('numeroEmbrioes').value !== '1');
+    // Tricoriônica só existe com três embriões, e as corionicidades de dois
+    // não existem com três: a lista segue o número escolhido. O Curva de
+    // Crescimento guarda a corionicidade junto do tipo da gestação, e o check
+    // de lá (migração 005) recusa a de um tipo gravada no outro.
+    const nEmb = parseInt($('numeroEmbrioes').value, 10) || 1;
+    const sel = $('corionicidade');
+    Array.from(sel.options).forEach(opt=>{
+      const cabe = !opt.dataset.fetos || parseInt(opt.dataset.fetos, 10) === nEmb;
+      opt.hidden = !cabe;
+      opt.disabled = !cabe;
+    });
+    if(nEmb > 1 && sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].disabled){
+      const primeira = Array.from(sel.options).find(o=> !o.disabled);
+      if(primeira) sel.value = primeira.value;
+    }
   }
   // A corionicidade é o que decide quantos sacos existem: monocoriônica é um
   // saco só, com os embriões todos dentro dele; dicoriônica é um saco por
@@ -2235,8 +2254,8 @@ if(typeof criarMotorLaudo !== 'function'){
             : phraseRaw('impGestacaoUnicaSemDum', {IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
         } else {
           items.push({key:'gestacao', label: falaEmDum
-            ? phraseRaw('impGestacaoGemelar', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
-            : phraseRaw('impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
+            ? phraseRaw(state.isTrigemelar ? 'impGestacaoTrigemelar' : 'impGestacaoGemelar', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, CONCORDANCIA:state.concordancia})
+            : phraseRaw(state.isTrigemelar ? 'impGestacaoTrigemelarSemDum' : 'impGestacaoGemelarSemDum', {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
         }
       }
 
@@ -2403,11 +2422,15 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const numeroEmbrioesVal = v('numeroEmbrioes');
     const isMultiple = numeroEmbrioesVal !== '1';
+    const isTrigemelar = numeroEmbrioesVal === '3';
     const corionicidade = v('corionicidade');
     const corTxtMap = {
       dicorionica_diamniotica: 'dicoriônica e diamniótica',
       monocorionica_diamniotica: 'monocoriônica e diamniótica',
-      monocorionica_monoamniotica: 'monocoriônica e monoamniótica'
+      monocorionica_monoamniotica: 'monocoriônica e monoamniótica',
+      tricorionica_triamniotica: 'tricoriônica e triamniótica',
+      dicorionica_triamniotica: 'dicoriônica e triamniótica',
+      monocorionica_triamniotica: 'monocoriônica e triamniótica'
     };
     const corTxt = corTxtMap[corionicidade] || 'dicoriônica e diamniótica';
 
@@ -2602,7 +2625,7 @@ if(typeof criarMotorLaudo !== 'function'){
       tipoPerdaDesc = 'retida';
     }
     const state = {
-      isMultiple, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
+      isMultiple, isTrigemelar, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
       algumObito, dpp, algumHematoma, algumIsgReduzido, algumContornoIrregular, algumEmbrioNaoIdentificado, algumAnembrionada, cronologiaMetodo,
       tempoPerda, tipoPerdaDesc, perdaSemSacoAtiva, perdaSemSacoTipo, emCursoAtiva,
       bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao,
@@ -2642,7 +2665,7 @@ if(typeof criarMotorLaudo !== 'function'){
         : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(cronologia))+'</span></div>')
       +'</div>'});
 
-    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+(isMultiple ? 'ULTRASSOM GEMELAR DO 1º TRIMESTRE' : 'ULTRASSOM OBSTÉTRICO DO 1º TRIMESTRE')+'</h3>'});
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+(isTrigemelar ? 'ULTRASSOM TRIGEMELAR DO 1º TRIMESTRE' : isMultiple ? 'ULTRASSOM GEMELAR DO 1º TRIMESTRE' : 'ULTRASSOM OBSTÉTRICO DO 1º TRIMESTRE')+'</h3>'});
     if(motivoExame){
       blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(motivoExame)+'.</p>'});
     }
@@ -3128,7 +3151,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // do título do exame ("Ana Maria Braga - Obstétrico do 1º trimestre"), para
   // o arquivo já sair identificado e ir direto para a pasta da paciente.
   function tituloExame(){
-    return v('numeroEmbrioes') !== '1' ? 'Gemelar do 1º trimestre' : 'Obstétrico do 1º trimestre';
+    return v('numeroEmbrioes') === '3' ? 'Trigemelar do 1º trimestre' : v('numeroEmbrioes') !== '1' ? 'Gemelar do 1º trimestre' : 'Obstétrico do 1º trimestre';
   }
   async function saveBlobAs(blob, suggestedName){
     if(window.showSaveFilePicker){
@@ -3593,7 +3616,7 @@ if(typeof criarMotorLaudo !== 'function'){
         const dppISO = toISODateLocal(addDays(dataBase, 280));
         const corionicidadeAtual = isMultiple ? v('corionicidade') : null;
         const {data: novaGestacao, error: errCriaGest} = await cgClient
-          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: isMultiple ? 'gemelar' : 'unica', corionicidade: corionicidadeAtual, gestas: gpaGVal, partos: gpaPVal, abortos: gpaAVal, ppt_espontaneo_previo: pptEspontaneoPrevioVal, progesterona_vaginal_em_uso: progesteronaVaginalEmUsoVal, cerclagem_realizada: cerclagemRealizadaVal, cerclagem_ig_semanas: cerclagemIgSemanasVal})
+          .from('gestacoes').insert({paciente_id: paciente.id, user_id: userId, dum: dumISO, dpp: dppISO, status: 'ativa', tipo_gestacao: embrioesCG.length > 2 ? 'trigemelar' : (isMultiple ? 'gemelar' : 'unica'), corionicidade: corionicidadeAtual, gestas: gpaGVal, partos: gpaPVal, abortos: gpaAVal, ppt_espontaneo_previo: pptEspontaneoPrevioVal, progesterona_vaginal_em_uso: progesteronaVaginalEmUsoVal, cerclagem_realizada: cerclagemRealizadaVal, cerclagem_ig_semanas: cerclagemIgSemanasVal})
           .select('id').single();
         if(errCriaGest) throw errCriaGest;
         gestacao = novaGestacao;
