@@ -502,6 +502,9 @@
   <hr class="sep">
   <h3>Endométrio</h3>
   <div class="field" style="margin-bottom:8px;"><label>Normal — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_endometrioNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Normal, útero septado/bicorno (3D) — use {PADRAO}, {ESPESSURAD} e {ESPESSURAE}</label><textarea id="ph_endometrioNormalDuplo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial, útero septado/bicorno (3D) — use {PADRAO}, {ESPESSURAD}, {ESPESSURAE}, {LOCAL}, {PEDICULO} e {MEDIDA}</label><textarea id="ph_endometrioPolipoDuplo" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Espessado e heterogêneo, útero septado/bicorno (3D) — use {ESPESSURAD} e {ESPESSURAE}</label><textarea id="ph_endometrioEspessadoDuplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial — use {PADRAO}, {ESPESSURA}, {LOCAL}, {PEDICULO} e {MEDIDA}</label><textarea id="ph_endometrioPolipo" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Espessado e heterogêneo (menopausa) — use {ESPESSURA}</label><textarea id="ph_endometrioEspessado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_sinequias" rows="2"></textarea></div>
@@ -785,7 +788,9 @@
         <hr class="sep">
         <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Endométrio</p>
         <div class="field-row">
-          <div class="field"><label>Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessura" placeholder="mm"></div>
+          <div class="field" id="wrap_endoEspessuraUnica"><label>Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessura" placeholder="mm"></div>
+          <div class="field conditional" id="wrap_endoEspessuraD"><label>Espessura — cavidade direita</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessuraD" placeholder="mm"></div>
+          <div class="field conditional" id="wrap_endoEspessuraE"><label>Espessura — cavidade esquerda</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessuraE" placeholder="mm"></div>
           <div class="field"><label>Aspecto</label>
             <select id="endometrioAspecto">
               <option value="normal">Normal</option>
@@ -1817,6 +1822,9 @@ if(typeof criarMotorLaudo !== 'function'){
 
     endometrioNormal: 'de aspecto uniforme, padrão {PADRAO}, apresentando eco endometrial linear e espessura de {ESPESSURA} mm. Cavidade uterina virtual.',
     endometrioPolipo: 'de aspecto uniforme, padrão {PADRAO}, com espessura de {ESPESSURA} mm. Observa-se, no interior da cavidade uterina, em região {LOCAL}, imagem elipsoide sólida, ecogênica e heterogênea, de limites pouco precisos, sem sombra acústica posterior, com pedículo vascular identificado ao mapeamento colorido no folheto endometrial {PEDICULO}, medindo {MEDIDA} mm.',
+    endometrioNormalDuplo: 'de aspecto uniforme, padrão {PADRAO}, apresentando eco endometrial linear em cada cavidade, com espessura de {ESPESSURAD} mm à direita e {ESPESSURAE} mm à esquerda.',
+    endometrioPolipoDuplo: 'de aspecto uniforme, padrão {PADRAO}, com espessura de {ESPESSURAD} mm à direita e {ESPESSURAE} mm à esquerda. Observa-se, no interior da cavidade uterina, em região {LOCAL}, imagem elipsoide sólida, ecogênica e heterogênea, de limites pouco precisos, sem sombra acústica posterior, com pedículo vascular identificado ao mapeamento colorido no folheto endometrial {PEDICULO}, medindo {MEDIDA} mm.',
+    endometrioEspessadoDuplo: 'ecogênico e heterogêneo, contendo diminutas áreas císticas de permeio, com pedículo vascular identificado ao mapeamento colorido, medindo {ESPESSURAD} mm à direita e {ESPESSURAE} mm à esquerda em seu diâmetro ântero-posterior.',
     endometrioEspessado: 'centrado, regular, ecogênico e heterogêneo, contendo diminutas áreas císticas de permeio, com pedículo vascular identificado ao mapeamento colorido, medindo {ESPESSURA} mm em seu diâmetro ântero-posterior.',
     sinequias: 'Notam-se falhas no eco endometrial, sugestivas de sinéquias.',
     hematometrio: 'Observa-se conteúdo hemático na cavidade uterina, medindo {MEDIDAS} mm, com volume de {VOLUME} cm³, compatível com hematométrio.',
@@ -2270,6 +2278,11 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_morfSepto', t==='septado_parcial' || t==='septado_completo');
     toggle('wrap_morfFenda', t==='bicorno');
     toggle('wrap_morfIntercornual', t==='bicorno' || t==='didelfo');
+    // Septo/bicorno: duas cavidades, cada uma com a sua espessura endometrial.
+    const duplo = $('chkExame3D').checked && (t==='septado_parcial' || t==='septado_completo' || t==='bicorno');
+    toggle('wrap_endoEspessuraD', duplo);
+    toggle('wrap_endoEspessuraE', duplo);
+    $('wrap_endoEspessuraUnica').style.display = duplo ? 'none' : '';
   }
   $('chkExame3D').addEventListener('change', updateMorf3D);
   $('morfUterina').addEventListener('change', updateMorf3D);
@@ -2701,7 +2714,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const hematometrioM3 = blankOrValue(reqIf('hematometrioM3', chkHematometrio));
     const hematometrioVolume = blankOrValue(reqIf('hematometrioVolume', chkHematometrio));
 
-    const endometrioEspessura = blankOrValue(reqIf('endometrioEspessura', uteroPresente));
+    const endoDuplo = uteroPresente && ['septado_parcial','septado_completo','bicorno'].indexOf(morfUterina) !== -1;
+    const endometrioEspessura = blankOrValue(reqIf('endometrioEspessura', uteroPresente && !endoDuplo));
+    const endometrioEspessuraD = blankOrValue(reqIf('endometrioEspessuraD', endoDuplo));
+    const endometrioEspessuraE = blankOrValue(reqIf('endometrioEspessuraE', endoDuplo));
+    const espDuplo = {ESPESSURAD: span(endometrioEspessuraD), ESPESSURAE: span(endometrioEspessuraE)};
     const endometrioAspecto = v('endometrioAspecto');
     const ENDOMETRIO_PADRAO_TEXTO = {trilaminar:'trilaminar', secretor:'secretor', laminar:'laminar', ecogenico:'ecogênico'};
     const endometrioPadrao = ENDOMETRIO_PADRAO_TEXTO[v('endometrioPadrao')] || 'trilaminar';
@@ -2910,11 +2927,11 @@ if(typeof criarMotorLaudo !== 'function'){
     if(uteroPresente){
       let endometrioTexto;
       if(endometrioAspecto==='polipo'){
-        endometrioTexto = phraseRaw('endometrioPolipo', {PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida), ESPESSURA: span(endometrioEspessura)});
+        endometrioTexto = endoDuplo ? phraseRaw('endometrioPolipoDuplo', Object.assign({PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida)}, espDuplo)) : phraseRaw('endometrioPolipo', {PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida), ESPESSURA: span(endometrioEspessura)});
       } else if(endometrioAspecto==='espessado'){
-        endometrioTexto = phraseRaw('endometrioEspessado', {ESPESSURA: span(endometrioEspessura)});
+        endometrioTexto = endoDuplo ? phraseRaw('endometrioEspessadoDuplo', espDuplo) : phraseRaw('endometrioEspessado', {ESPESSURA: span(endometrioEspessura)});
       } else {
-        endometrioTexto = phraseRaw('endometrioNormal', {PADRAO: endometrioPadrao, ESPESSURA: span(endometrioEspessura)});
+        endometrioTexto = endoDuplo ? phraseRaw('endometrioNormalDuplo', Object.assign({PADRAO: endometrioPadrao}, espDuplo)) : phraseRaw('endometrioNormal', {PADRAO: endometrioPadrao, ESPESSURA: span(endometrioEspessura)});
       }
       if(chkSinequias) endometrioTexto += ' '+phrase('sinequias');
       blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+endometrioTexto+'</p>'});
