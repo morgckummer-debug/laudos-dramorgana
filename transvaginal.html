@@ -460,7 +460,19 @@
   <h3>Útero</h3>
   <div class="field" style="margin-bottom:8px;"><label>Frase-base (sem miomas) — use {POSICAO}</label><textarea id="ph_uteroBase" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Frase-base (com miomas) — use {POSICAO} e {CONTORNOS} (vira "irregulares" automaticamente com mioma FIGO 5, 6 ou 7)</label><textarea id="ph_uteroBaseComNodulos" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Frase-base quando há septo/bicorno/didelfo no 3D — use {POSICAO}</label><textarea id="ph_uteroBaseMorf" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Frase-base quando há septo/bicorno/didelfo no 3D, com miomas — use {POSICAO}</label><textarea id="ph_uteroBaseMorfComNodulos" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Frase-base quando há septo/bicorno/didelfo no 3D, com calcificação das arqueadas — use {POSICAO}</label><textarea id="ph_uteroBaseMorfCalcificacao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Frase-base (calcificação das artérias arqueadas) — use {POSICAO}</label><textarea id="ph_uteroBaseCalcificacao" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Exame 3D — morfologia uterina</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Normal</label><textarea id="ph_morfNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero arqueado — use {MEDIDA}</label><textarea id="ph_morfArqueado" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero septado parcial — use {MEDIDA}</label><textarea id="ph_morfSeptoParcial" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero septado completo — use {MEDIDA}</label><textarea id="ph_morfSeptoCompleto" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero bicorno — use {FENDA} e {INTERCORNUAL}</label><textarea id="ph_morfBicorno" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero didelfo — use {INTERCORNUAL}</label><textarea id="ph_morfDidelfo" rows="3"></textarea></div>
 
   <hr class="sep">
   <h3>Miométrio / miomas</h3>
@@ -551,6 +563,11 @@
   <div class="field" style="margin-bottom:8px;"><label>Adenomiose</label><textarea id="ph_impAdenomiose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Istmocele — impressão (frase fixa, exibida sempre que a istmocele estiver marcada)</label><textarea id="ph_impIstmocele" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical</label><textarea id="ph_impPolipoEndocervical" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero arqueado (3D)</label><textarea id="ph_impMorfArqueado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero septado parcial (3D)</label><textarea id="ph_impMorfSeptoParcial" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero septado completo (3D)</label><textarea id="ph_impMorfSeptoCompleto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero bicorno (3D)</label><textarea id="ph_impMorfBicorno" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero didelfo (3D)</label><textarea id="ph_impMorfDidelfo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU normoposicionado</label><textarea id="ph_impDiuNormo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU de baixa implantação</label><textarea id="ph_impDiuBaixa" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial</label><textarea id="ph_impPolipoEndometrial" rows="2"></textarea></div>
@@ -595,6 +612,7 @@
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkTransabdominal"><label for="chkTransabdominal">Exame Transabdominal</label></div>
+        <div class="toggle-line"><input type="checkbox" id="chkExame3D"><label for="chkExame3D">Exame 3D (avaliação de malformação mülleriana)</label></div>
         <div class="field-row">
           <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
           <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
@@ -666,6 +684,33 @@
               <option value="adolescencia">Adolescência (VR até <span class="vr-uteroAdolescencia">40</span> cm³)</option>
             </select>
           </div>
+        </div>
+        <div class="conditional" id="wrap_morf3D">
+          <div class="field-row">
+            <div class="field"><label>Morfologia uterina (3D)</label>
+              <select id="morfUterina">
+                <option value="normal">Normal (sem malformação mülleriana)</option>
+                <option value="arqueado">Útero arqueado</option>
+                <option value="septado_parcial">Útero septado parcial</option>
+                <option value="septado_completo">Útero septado completo</option>
+                <option value="bicorno">Útero bicorno</option>
+                <option value="didelfo">Útero didelfo</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row conditional" id="wrap_morfIndentacao">
+            <div class="field"><label>Profundidade da indentação do fundo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfIndentacao" placeholder="mm"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_morfSepto">
+            <div class="field"><label>Comprimento do septo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfSepto" placeholder="mm"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_morfFenda">
+            <div class="field"><label>Profundidade da fenda fúndica (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfFenda" placeholder="mm"></div>
+          </div>
+          <div class="field-row conditional" id="wrap_morfIntercornual">
+            <div class="field"><label>Distância intercornual (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfIntercornual" placeholder="mm"></div>
+          </div>
+          <hr class="sep">
         </div>
         <div class="field-row field-row-compact">
           <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder="cm"></div>
@@ -1735,6 +1780,20 @@ if(typeof criarMotorLaudo !== 'function'){
     uteroBaseComNodulos: '{POSICAO}, situado na linha mediana, de configuração anatômica e contornos {CONTORNOS}.',
     uteroBaseCalcificacao: '{POSICAO}, situado na linha mediana, de configuração anatômica, textura heterogênea às custas da calcificação das artérias arqueadas, sem identificação de nódulos sólidos.',
 
+    uteroBaseMorf: '{POSICAO}, de textura homogênea, sem identificação de nódulos sólidos.',
+    uteroBaseMorfComNodulos: '{POSICAO}.',
+    uteroBaseMorfCalcificacao: '{POSICAO}, de textura heterogênea às custas da calcificação das artérias arqueadas, sem identificação de nódulos sólidos.',
+    morfNormal: 'Reconstrução tridimensional: cavidade endometrial de morfologia habitual, com contorno fúndico externo regular, sem sinais de malformação mülleriana.',
+    morfArqueado: 'Reconstrução tridimensional: contorno fúndico externo regular, com discreta indentação do fundo da cavidade endometrial, medindo {MEDIDA} mm de profundidade, sem septo, compatível com útero arqueado.',
+    morfSeptoParcial: 'Reconstrução tridimensional: contorno fúndico externo regular, com septo longitudinal que se projeta do fundo para a cavidade endometrial, medindo {MEDIDA} mm de comprimento, sem alcançar o orifício interno do colo uterino e dividindo parcialmente a cavidade, compatível com útero septado parcial.',
+    morfSeptoCompleto: 'Reconstrução tridimensional: contorno fúndico externo regular, com septo longitudinal que se estende do fundo até o orifício interno do colo uterino, medindo {MEDIDA} mm de comprimento e dividindo completamente a cavidade endometrial, compatível com útero septado completo.',
+    morfBicorno: 'Reconstrução tridimensional: contorno fúndico externo com fenda de {FENDA} mm de profundidade e duas cavidades endometriais distintas, que se comunicam na região caudal, com distância intercornual de {INTERCORNUAL} mm, compatível com útero bicorno.',
+    morfDidelfo: 'Reconstrução tridimensional: duas cavidades uterinas completamente separadas, cada uma com seu colo uterino, com distância intercornual de {INTERCORNUAL} mm, compatível com útero didelfo.',
+    impMorfArqueado: 'Útero arqueado (avaliação tridimensional).',
+    impMorfSeptoParcial: 'Útero septado parcial (avaliação tridimensional).',
+    impMorfSeptoCompleto: 'Útero septado completo (avaliação tridimensional).',
+    impMorfBicorno: 'Útero bicorno (avaliação tridimensional).',
+    impMorfDidelfo: 'Útero didelfo (avaliação tridimensional).',
     miomaIntro1: 'Observa-se imagem nodular sólida, hipoecoica e heterogênea, localizada na {F1}.',
     miomaIntro2: 'Observam-se duas imagens nodulares sólidas, hipoecogênicas e heterogêneas, uma localizada na {F1} e outra na {F2}.',
     miomaIntroVarios: 'Observam-se algumas imagens nodulares sólidas, hipoecogênicas e heterogêneas, de localização e dimensões como descrito abaixo:',
@@ -2202,6 +2261,18 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkIstmocele').addEventListener('change', e=> toggle('wrap_istmoceleCampos', e.target.checked));
   $('chkPolipoEndocervical').addEventListener('change', e=> toggle('wrap_polipoEndocervicalCampos', e.target.checked));
   $('chkDIU').addEventListener('change', e=> toggle('wrap_diuCampos', e.target.checked));
+  // Exame 3D: o seletor de morfologia só aparece com a caixa marcada, e cada
+  // tipo abre só as medidas que descreve.
+  function updateMorf3D(){
+    toggle('wrap_morf3D', $('chkExame3D').checked);
+    const t = $('morfUterina').value;
+    toggle('wrap_morfIndentacao', t==='arqueado');
+    toggle('wrap_morfSepto', t==='septado_parcial' || t==='septado_completo');
+    toggle('wrap_morfFenda', t==='bicorno');
+    toggle('wrap_morfIntercornual', t==='bicorno' || t==='didelfo');
+  }
+  $('chkExame3D').addEventListener('change', updateMorf3D);
+  $('morfUterina').addEventListener('change', updateMorf3D);
   $('chkHematometrio').addEventListener('change', e=> toggle('wrap_hematometrioCampos', e.target.checked));
 
   function updateEndometrioWraps(){
@@ -2440,6 +2511,11 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:'mobilidade-ov-e', label:phraseRaw('impMobilidadeOvarioReduzida', {LADO:'esquerdo'}), auto:true});
     }
 
+    const MORF_IMP = {arqueado:'impMorfArqueado', septado_parcial:'impMorfSeptoParcial', septado_completo:'impMorfSeptoCompleto', bicorno:'impMorfBicorno', didelfo:'impMorfDidelfo'};
+    if(state.morfUterina && MORF_IMP[state.morfUterina]){
+      items.push({key:'morf3d', label:phraseRaw(MORF_IMP[state.morfUterina]), auto:true});
+    }
+
     if(state.chkDIU){
       items.push({key:'diu', label: state.diuPosicao==='baixa' ? phraseRaw('impDiuBaixa') : phraseRaw('impDiuNormo'), auto:true});
     }
@@ -2558,6 +2634,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const histSubtotalColoVolume = blankOrValue(reqIf('histSubtotalColoVolume', uteroEstado==='hist_subtotal'));
 
     const uteroPosicaoVal = v('uteroPosicao');
+    const morfUterina = ($('chkExame3D').checked && uteroPresente) ? (v('morfUterina') || 'normal') : '';
+    const morfAnomalia = ['septado_parcial','septado_completo','bicorno','didelfo'].indexOf(morfUterina) !== -1;
+    const morfIndentacao = blankOrValue(reqIf('morfIndentacao', morfUterina==='arqueado'));
+    const morfSepto = blankOrValue(reqIf('morfSepto', morfUterina==='septado_parcial' || morfUterina==='septado_completo'));
+    const morfFenda = blankOrValue(reqIf('morfFenda', morfUterina==='bicorno'));
+    const morfIntercornual = blankOrValue(reqIf('morfIntercornual', morfUterina==='bicorno' || morfUterina==='didelfo'));
     const uteroPosicaoTexto = {AVF:'em anteversoflexão', RVF:'em retroversoflexão', MVF:'em posição intermediária (medioversão)'}[uteroPosicaoVal];
     const vrUteroCategoria = v('vrUteroCategoria');
     const vrUteroLimite = UTERO_VR_LIMIT[vrUteroCategoria](VR);
@@ -2712,7 +2794,7 @@ if(typeof criarMotorLaudo !== 'function'){
       vrOvarioTipo,
       chkHidrossalpinge, hidrossalpingeLado, chkVarizes,
       chkEndometriose, endometrioseFrags: endometrioseItens, endometrioseRegiao: endometrioseItens[0] && endometrioseItens[0].regiao,
-      chkMobilidadeOvD, chkMobilidadeOvE, chkTransabdominal,
+      chkMobilidadeOvD, chkMobilidadeOvE, chkTransabdominal, morfUterina,
       obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
@@ -2760,9 +2842,11 @@ if(typeof criarMotorLaudo !== 'function'){
     } else if(uteroEstado==='hist_subtotal'){
       blocks.push({id:'utero', html:'<p class="linha"><strong>Útero:</strong> Relato de histerectomia subtotal, com colo medindo '+span(histSubtotalColoMedida)+' cm e volume de '+span(histSubtotalColoVolume)+' cm³.</p>'});
     } else {
-      const uteroPhraseKey = (miometrioAspecto==='mioma' || chkAdenomiose) ? 'uteroBaseComNodulos'
-        : miometrioAspecto==='calcificacao' ? 'uteroBaseCalcificacao'
-        : 'uteroBase';
+      // Septo/bicorno/didelfo: a frase-base padrão afirma "configuração
+      // anatômica" e "contornos regulares", o que contradiz a malformação.
+      const uteroPhraseKey = (miometrioAspecto==='mioma' || chkAdenomiose) ? (morfAnomalia ? 'uteroBaseMorfComNodulos' : 'uteroBaseComNodulos')
+        : miometrioAspecto==='calcificacao' ? (morfAnomalia ? 'uteroBaseMorfCalcificacao' : 'uteroBaseCalcificacao')
+        : (morfAnomalia ? 'uteroBaseMorf' : 'uteroBase');
       let uteroLinha = phrase(uteroPhraseKey, {POSICAO: uteroPosicaoTexto, CONTORNOS: uteroContornos});
       if(chkAdenomiose){
         // Adenomiose (diffuse change) is described before the focal mioma nodules.
@@ -2793,6 +2877,17 @@ if(typeof criarMotorLaudo !== 'function'){
         blocks.push({id:'uteroDescricaoExtra', html:'<p class="linha">'+escapeHtml(miometrioDescricaoExtra)+'.</p>'});
       }
 
+      if(morfUterina){
+        const morfPhrase = {
+          normal: ['morfNormal', {}],
+          arqueado: ['morfArqueado', {MEDIDA: span(morfIndentacao)}],
+          septado_parcial: ['morfSeptoParcial', {MEDIDA: span(morfSepto)}],
+          septado_completo: ['morfSeptoCompleto', {MEDIDA: span(morfSepto)}],
+          bicorno: ['morfBicorno', {FENDA: span(morfFenda), INTERCORNUAL: span(morfIntercornual)}],
+          didelfo: ['morfDidelfo', {INTERCORNUAL: span(morfIntercornual)}]
+        }[morfUterina];
+        blocks.push({id:'uterina3d', html:'<p class="linha">'+phraseRaw(morfPhrase[0], morfPhrase[1])+'</p>'});
+      }
       blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
     }
 
