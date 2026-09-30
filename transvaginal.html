@@ -1228,6 +1228,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // item's <li> carries a data-key matching its checklist entry; edits are
   // captured into this map (keyed the same way) and reapplied in render().
   let impressaoOverrides = {};
+  let impressaoManualSeq = 0;
 
 
 
@@ -2486,7 +2487,26 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!sel || !sel.anchorNode) return;
     const node = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
     const li = node && node.closest ? node.closest('ul.impressao li[data-key]') : null;
-    if(li) impressaoOverrides[li.dataset.key] = li.textContent;
+    if(li){
+      // Enter no fim de uma linha parte o <li> em dois, e a metade nova herda o
+      // mesmo data-key: o texto digitado nela sobrescrevia o override da linha
+      // original e a frase automática (ex.: "DIU normoposicionado") sumia.
+      // A segunda ocorrência vira uma linha manual própria, presa à original.
+      const ul = li.parentElement;
+      const mesmos = Array.prototype.filter.call(ul.children, x=> x.dataset && x.dataset.key === li.dataset.key);
+      if(mesmos.length > 1 && mesmos[0] !== li){
+        const base = li.dataset.key.split('~').pop();
+        Object.keys(impressaoOverrides).forEach(k=>{ if(k.indexOf('man-') === 0) impressaoManualSeq = Math.max(impressaoManualSeq, parseInt(k.slice(4),10) || 0); });
+        li.dataset.key = 'man-'+(++impressaoManualSeq)+'~'+base;
+      }
+      impressaoOverrides[li.dataset.key] = li.textContent;
+    }
+    // Linha manual apagada no preview: descarta o override dela.
+    const vivas = {};
+    $('paper').querySelectorAll('ul.impressao li[data-key]').forEach(x=>{ vivas[x.dataset.key] = true; });
+    Object.keys(impressaoOverrides).forEach(k=>{
+      if(k.indexOf('man-') === 0 && !vivas[k]) delete impressaoOverrides[k];
+    });
   });
  /* ~1cm */
 
@@ -2921,10 +2941,17 @@ if(typeof criarMotorLaudo !== 'function'){
     if(checkedItems.length===0){
       impressaoListHtml += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
     } else {
+      const manuais = Object.keys(impressaoOverrides).filter(k=>k.indexOf('man-') === 0)
+        .sort((a,b)=> parseInt(a.slice(4),10) - parseInt(b.slice(4),10));
+      const chavesVisiveis = checkedItems.map(it=>it.key);
+      const liManual = k=>'<li data-key="'+k+'">'+escapeHtml(impressaoOverrides[k])+'</li>';
       checkedItems.forEach(it=>{
         const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
         impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
+        manuais.forEach(k=>{ if(k.split('~').pop() === it.key) impressaoListHtml += liManual(k); });
       });
+      // Linha manual cuja linha-mãe foi desmarcada: vai para o fim, não some.
+      manuais.forEach(k=>{ if(chavesVisiveis.indexOf(k.split('~').pop()) === -1) impressaoListHtml += liManual(k); });
     }
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
