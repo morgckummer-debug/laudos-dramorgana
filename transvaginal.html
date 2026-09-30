@@ -2817,7 +2817,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +(vrUteroCategoria!=='menopausa' ? '<div class="id-card-row"><span>'+(gpaG==='0' ? '<strong>G:</strong> 0' : '<strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>' : '')
       +'</div>'});
 
-    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+(chkTransabdominal ? 'ULTRASSOM PÉLVICO' : 'ULTRASSOM TRANSVAGINAL')+'</h3>'});
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+(chkTransabdominal ? 'ULTRASSOM PÉLVICO' : 'ULTRASSOM TRANSVAGINAL')+($('chkExame3D').checked ? ' 3D' : '')+'</h3>'});
 
     if(motivoExame){
       const relatoLinhas = motivoExame.split('\n').map(l=>l.trim()).filter(Boolean);
@@ -3232,7 +3232,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // dos Santos - Transvaginal com DIU"), para o arquivo já sair identificado
   // e ir direto para a pasta da paciente sem renomear.
   function tituloExame(){
-    return ($('chkTransabdominal').checked ? 'Pélvico' : 'Transvaginal') + ($('chkDIU').checked ? ' com DIU' : '');
+    return ($('chkTransabdominal').checked ? 'Pélvico' : 'Transvaginal') + ($('chkExame3D').checked ? ' 3D' : '') + ($('chkDIU').checked ? ' com DIU' : '');
   }
   // Chrome/Edge can prompt a native "save as" dialog (File System Access
   // API) instead of always dropping the file in Downloads — only available
