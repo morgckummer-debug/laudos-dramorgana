@@ -190,7 +190,7 @@ function criarMotorLaudo(cfg){
 
   // Folga que sobra entre a assinatura e a borda inferior útil da folha na
   // impressão (só PDF/papel; o Word usa o colchão acima).
-  const PRINT_PIN_SLACK_PX = 5;
+  const PRINT_PIN_SLACK_PX = 10;
 
   const MIN_LINE_HEIGHT = 1.0;
 
@@ -673,7 +673,7 @@ function criarMotorLaudo(cfg){
   function ajustarEspacadores(paperEl, budgetPx){
     const alvo = budgetPx + PAGE_SAFETY_PX - PRINT_PIN_SLACK_PX;
     const pages = Array.from(paperEl.querySelectorAll(':scope > .print-page'));
-    if(!pages.length) return;
+    if(!pages.length) return 0;
     const measure = document.createElement('div');
     measure.className = 'paper';
     measure.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;width:17cm;max-height:none;overflow:visible;background:none;border:none;box-shadow:none;padding:0;margin:0;';
@@ -691,12 +691,21 @@ function criarMotorLaudo(cfg){
       return pageEl.getBoundingClientRect().height;
     });
     document.body.removeChild(measure);
+    // Devolve o quanto a pior folha estoura a altura útil MESMO com o espaçador
+    // zerado: o espaçador só encolhe até 0, e quando o conteúdo em si já passa
+    // do alvo o "Continua…" (ou a assinatura, com page-break-inside:avoid)
+    // pula sozinho para a folha seguinte — deixava uma folha só com
+    // "Continua…" no meio da impressão. Quem chama refaz a paginação com um
+    // orçamento menor para compensar.
+    let excesso = 0;
     pages.forEach((pageEl, i)=>{
       const spacer = pageEl.querySelector(':scope > [data-pin-spacer]');
       if(!spacer || medidas[i] == null) return;
-      const novo = Math.max(0, parseFloat(spacer.style.height) + (alvo - medidas[i]));
-      spacer.style.height = novo + 'px';
+      const bruto = parseFloat(spacer.style.height) + (alvo - medidas[i]);
+      if(bruto < 0) excesso = Math.max(excesso, -bruto);
+      spacer.style.height = Math.max(0, bruto) + 'px';
     });
+    return excesso;
   }
   function paginateForPrint(){
     const paperEl = $('paper');
@@ -712,64 +721,95 @@ function criarMotorLaudo(cfg){
 
     const baseLineHeight = parseFloat(paperEl.style.lineHeight) || 1.15;
     const baseFontSize = parseFloat(paperEl.style.fontSize) || 12;
-    const fit = autoFitPages(paperEl, packBudgetPx);
-    const packed = fit.packed;
-    const usedLineHeight = fit.lineHeight;
-    const usedFontSize = fit.fontSize;
-    if(usedLineHeight !== baseLineHeight) paperEl.style.lineHeight = usedLineHeight;
-    if(usedFontSize !== baseFontSize) paperEl.style.fontSize = usedFontSize + 'pt';
 
-    const {pages, continuaHtml, continuaHeight, idCardHtml, idCardRepeatHeight} = packed;
+    function montarFolhas(orcamentoPx){
+      const fit = autoFitPages(paperEl, orcamentoPx);
+      const packed = fit.packed;
+      const usedLineHeight = fit.lineHeight;
+      const usedFontSize = fit.fontSize;
+      if(usedLineHeight !== baseLineHeight) paperEl.style.lineHeight = usedLineHeight;
+      if(usedFontSize !== baseFontSize) paperEl.style.fontSize = usedFontSize + 'pt';
 
-    const wrap = document.createElement('div');
-    pages.forEach((pageBoxes, pageIdx)=>{
-      const isLast = pageIdx === pages.length - 1;
-      const pinned = isLast ? pageBoxes[pageBoxes.length - 1] : null;
-      const contentBoxes = isLast ? pageBoxes.slice(0, -1) : pageBoxes;
+      const {pages, continuaHtml, continuaHeight, idCardHtml, idCardRepeatHeight} = packed;
 
-      const pageEl = document.createElement('div');
-      pageEl.className = 'print-page';
-      if(pageIdx > 0 && idCardHtml) pageEl.insertAdjacentHTML('beforeend', idCardHtml);
-      let i = 0;
-      while(i < contentBoxes.length){
-        if(contentBoxes[i].kind === 'li'){
-          const ul = document.createElement('ul');
-          ul.className = 'impressao';
-          while(i < contentBoxes.length && contentBoxes[i].kind === 'li'){ ul.insertAdjacentHTML('beforeend', contentBoxes[i].html); i++; }
-          pageEl.appendChild(ul);
-        } else if(contentBoxes[i].kind === 'trow'){
-          // As linhas que couberam nesta folha voltam para dentro de uma tabela
-          // igual à original (mesma classe e mesma largura); o resto monta
-          // outra, na folha seguinte.
-          const abre = contentBoxes[i].tableOpen;
-          let linhas = '';
-          while(i < contentBoxes.length && contentBoxes[i].kind === 'trow' && contentBoxes[i].tableOpen === abre){
-            linhas += contentBoxes[i].html; i++;
+      const wrap = document.createElement('div');
+      pages.forEach((pageBoxes, pageIdx)=>{
+        const isLast = pageIdx === pages.length - 1;
+        const pinned = isLast ? pageBoxes[pageBoxes.length - 1] : null;
+        const contentBoxes = isLast ? pageBoxes.slice(0, -1) : pageBoxes;
+
+        const pageEl = document.createElement('div');
+        pageEl.className = 'print-page';
+        if(pageIdx > 0 && idCardHtml) pageEl.insertAdjacentHTML('beforeend', idCardHtml);
+        let i = 0;
+        while(i < contentBoxes.length){
+          if(contentBoxes[i].kind === 'li'){
+            const ul = document.createElement('ul');
+            ul.className = 'impressao';
+            while(i < contentBoxes.length && contentBoxes[i].kind === 'li'){ ul.insertAdjacentHTML('beforeend', contentBoxes[i].html); i++; }
+            pageEl.appendChild(ul);
+          } else if(contentBoxes[i].kind === 'trow'){
+            // As linhas que couberam nesta folha voltam para dentro de uma tabela
+            // igual à original (mesma classe e mesma largura); o resto monta
+            // outra, na folha seguinte.
+            const abre = contentBoxes[i].tableOpen;
+            let linhas = '';
+            while(i < contentBoxes.length && contentBoxes[i].kind === 'trow' && contentBoxes[i].tableOpen === abre){
+              linhas += contentBoxes[i].html; i++;
+            }
+            pageEl.insertAdjacentHTML('beforeend', abre + linhas + '</table>');
+          } else {
+            pageEl.insertAdjacentHTML('beforeend', contentBoxes[i].html);
+            i++;
           }
-          pageEl.insertAdjacentHTML('beforeend', abre + linhas + '</table>');
-        } else {
-          pageEl.insertAdjacentHTML('beforeend', contentBoxes[i].html);
-          i++;
         }
-      }
-      const contentHeight = contentBoxes.length ? (contentBoxes[contentBoxes.length-1].bottom - contentBoxes[0].top) : 0;
+        const contentHeight = contentBoxes.length ? (contentBoxes[contentBoxes.length-1].bottom - contentBoxes[0].top) : 0;
 
-      const pinnedHtml = isLast ? (pinned ? pinned.html : '') : continuaHtml;
-      const pinnedHeight = isLast ? (pinned ? (pinned.bottom - pinned.top) : 0) : continuaHeight;
-      if(pinnedHtml){
-        const idCardExtra = pageIdx > 0 ? idCardRepeatHeight : 0;
-        const spacerPx = Math.max(0, packBudgetPx - idCardExtra - contentHeight - pinnedHeight - PINNED_BOTTOM_BUFFER_PX);
-        const spacer = document.createElement('div');
-        spacer.style.height = spacerPx + 'px';
-        spacer.setAttribute('data-pin-spacer', '1');
-        pageEl.appendChild(spacer);
-        pageEl.insertAdjacentHTML('beforeend', pinnedHtml);
+        const pinnedHtml = isLast ? (pinned ? pinned.html : '') : continuaHtml;
+        const pinnedHeight = isLast ? (pinned ? (pinned.bottom - pinned.top) : 0) : continuaHeight;
+        if(pinnedHtml){
+          const idCardExtra = pageIdx > 0 ? idCardRepeatHeight : 0;
+          const spacerPx = Math.max(0, orcamentoPx - idCardExtra - contentHeight - pinnedHeight - PINNED_BOTTOM_BUFFER_PX);
+          const spacer = document.createElement('div');
+          spacer.style.height = spacerPx + 'px';
+          spacer.setAttribute('data-pin-spacer', '1');
+          pageEl.appendChild(spacer);
+          pageEl.insertAdjacentHTML('beforeend', pinnedHtml);
+        }
+        wrap.appendChild(pageEl);
+      });
+      st.printPaginated = true;
+      paperEl.innerHTML = wrap.innerHTML;
+      return ajustarEspacadores(paperEl, packBudgetPx);
+    }
+
+    // A soma de alturas do packAt() pode subestimar a folha real (margens que
+    // colapsam, arredondamentos); quando a medição final mostra que uma folha
+    // estoura mesmo sem espaçador, refaz com o orçamento reduzido pelo excesso
+    // (o "Continua…" pulava sozinho para uma folha só dele). Só vale se a
+    // refeita NÃO ganhar folha: a medição também superestima às vezes, e
+    // trocar um estouro hipotético por uma folha a mais seria pior.
+    const contarFolhas = () => paperEl.querySelectorAll(':scope > .print-page').length;
+    let excesso = montarFolhas(packBudgetPx);
+    if(excesso > 0.5){
+      const folhasOriginais = contarFolhas();
+      let reducao = 0, refeito = false;
+      for(let tentativa = 0; tentativa < 5 && excesso > 0.5; tentativa++){
+        reducao += excesso + 1;
+        paperEl.innerHTML = originalHTML;
+        paperEl.style.lineHeight = originalLineHeight;
+        paperEl.style.fontSize = originalFontSize;
+        excesso = montarFolhas(packBudgetPx - reducao);
+        refeito = true;
+        if(contarFolhas() > folhasOriginais) break;
       }
-      wrap.appendChild(pageEl);
-    });
-    st.printPaginated = true;
-    paperEl.innerHTML = wrap.innerHTML;
-    ajustarEspacadores(paperEl, packBudgetPx);
+      if(refeito && contarFolhas() > folhasOriginais){
+        paperEl.innerHTML = originalHTML;
+        paperEl.style.lineHeight = originalLineHeight;
+        paperEl.style.fontSize = originalFontSize;
+        montarFolhas(packBudgetPx);
+      }
+    }
 
     return function restore(){
       paperEl.innerHTML = originalHTML;
