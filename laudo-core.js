@@ -49,6 +49,79 @@
  * comentário de `buildIdCardTable` e `wordDocHtml`, mais abaixo, para o
  * porquê de cada parte.
  */
+/*
+ * Doppler fetal — tabelas de referência adotadas pela Dra. Morgana (2026-10-01):
+ *   - `au`  IP da artéria umbilical: Acharya G et al., Am J Obstet Gynecol
+ *           2005;192(3):937-944 (19 a 40 semanas, de 2 em 2);
+ *   - `acm` IP da artéria cerebral média e `cpr` relação cérebro-placentária
+ *           (IP ACM / IP umbilical): Ciobanu A et al. (FMF), Ultrasound Obstet
+ *           Gynecol 2019;53(4):465-472 (20 a 41 semanas, semana a semana).
+ * Cada linha é [semana, P5, P50, P95]. São TABELAS, não fórmulas: os números
+ * abaixo são os da tabela, transcritos como estão.
+ *
+ * Existe aqui, e não em cada laudo, porque a RCP já foi calculada de formas
+ * diferentes em lugares diferentes. Em 2026-09-21 o percentil passou a usar
+ * `P50 = 1,08 + 0,006 × IG` (portado do app de curvas): esse P50 (~1,3) fica
+ * muito abaixo de uma RCP normal (~1,9) e quase todo exame saía "P95". O app
+ * de curvas (curva-fetal) tem de usar exatamente estes mesmos números —
+ * mudou aqui, muda lá.
+ *
+ * Entre linhas da tabela interpola linearmente pela idade gestacional. O
+ * percentil sai de uma normal "dividida": DP inferior = (P50−P5)/1,645 e
+ * superior = (P95−P50)/1,645, o que devolve exatamente 5/50/95 nos pontos da
+ * tabela e permite valores abaixo de P5 e acima de P95. Fora da faixa da
+ * tabela: null (o laudo deixa o percentil para a médica digitar).
+ */
+const DOPPLER_FMF = {
+  au: [
+    [19,1.02,1.30,1.66], [20,0.99,1.27,1.62], [22,0.92,1.19,1.54], [24,0.86,1.12,1.47],
+    [26,0.80,1.06,1.41], [28,0.75,1.00,1.35], [30,0.70,0.95,1.29], [32,0.66,0.90,1.25],
+    [34,0.62,0.86,1.20], [36,0.58,0.82,1.16], [38,0.55,0.78,1.12], [40,0.51,0.75,1.09]
+  ],
+  acm: [
+    [20,1.16,1.49,1.90], [21,1.21,1.54,1.96], [22,1.26,1.59,2.01], [23,1.31,1.65,2.07],
+    [24,1.36,1.70,2.14], [25,1.40,1.76,2.20], [26,1.44,1.80,2.25], [27,1.48,1.85,2.31],
+    [28,1.50,1.88,2.36], [29,1.52,1.91,2.39], [30,1.52,1.92,2.42], [31,1.52,1.92,2.44],
+    [32,1.50,1.91,2.44], [33,1.47,1.89,2.42], [34,1.42,1.85,2.39], [35,1.37,1.79,2.34],
+    [36,1.30,1.72,2.27], [37,1.22,1.63,2.18], [38,1.13,1.53,2.07], [39,1.03,1.42,1.95],
+    [40,0.93,1.30,1.82], [41,0.83,1.17,1.67]
+  ],
+  cpr: [
+    [20,0.87,1.21,1.69], [21,0.93,1.29,1.78], [22,1.00,1.37,1.88], [23,1.06,1.45,1.98],
+    [24,1.12,1.53,2.08], [25,1.18,1.60,2.18], [26,1.24,1.68,2.28], [27,1.29,1.75,2.38],
+    [28,1.34,1.82,2.47], [29,1.38,1.87,2.56], [30,1.41,1.92,2.63], [31,1.43,1.96,2.70],
+    [32,1.44,1.99,2.75], [33,1.43,2.00,2.79], [34,1.42,2.00,2.81], [35,1.39,1.98,2.81],
+    [36,1.35,1.94,2.79], [37,1.30,1.89,2.75], [38,1.24,1.83,2.69], [39,1.17,1.75,2.61],
+    [40,1.09,1.65,2.51], [41,1.00,1.55,2.39]
+  ]
+};
+function dopplerFmfRef(tipo, gaW){
+  const tab = DOPPLER_FMF[tipo];
+  if(!tab || gaW==null || isNaN(gaW) || gaW < tab[0][0] || gaW > tab[tab.length-1][0]) return null;
+  let i = 0;
+  while(i < tab.length-2 && gaW > tab[i+1][0]) i++;
+  const a = tab[i], b = tab[i+1];
+  const f = (gaW-a[0])/(b[0]-a[0]);
+  return { p5: a[1]+(b[1]-a[1])*f, p50: a[2]+(b[2]-a[2])*f, p95: a[3]+(b[3]-a[3])*f };
+}
+function dopplerFmfNormalCDF(z){
+  const sign = z < 0 ? -1 : 1;
+  const az = Math.abs(z)/Math.SQRT2;
+  const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
+  const t = 1/(1+p*az);
+  const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-az*az);
+  return 0.5*(1+sign*y);
+}
+// Percentil (0-100, sem arredondar) de `valor` para `tipo` ('au' | 'acm' |
+// 'cpr') na idade gestacional `gaW` (semanas, com fração). null sem referência.
+function dopplerFmfPercentil(tipo, valor, gaW){
+  if(valor==null || isNaN(valor)) return null;
+  const ref = dopplerFmfRef(tipo, gaW);
+  if(!ref) return null;
+  const sd = valor <= ref.p50 ? (ref.p50-ref.p5)/1.645 : (ref.p95-ref.p50)/1.645;
+  return dopplerFmfNormalCDF((valor-ref.p50)/sd) * 100;
+}
+
 function criarMotorLaudo(cfg){
   const DRAFT_KEY = cfg.DRAFT_KEY;
 

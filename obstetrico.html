@@ -1833,67 +1833,24 @@ if(typeof criarMotorLaudo !== 'function'){
     return normalCDF(z) * 100;
   }
   // ---------- Doppler fetal: percentil da relação cérebro-placentária (RCP).
-  // Figueras F, Gratacós E — protocolo de Barcelona (mesmo grupo do
-  // estadiamento de CIUR usado na Curva Fetal). Referência linear:
-  //   P50(RCP) = 1,08 + 0,006 × IG (semanas)  |  P10 = P50 − 0,40  |  P90 = P50 + 0,40
-  // Percentil por interpolação linear entre os três pontos — não Gaussiana:
-  // ≤P10 vira 5, ≥P90 vira 95, e entre eles interpola 10↔50 e 50↔90.
-  //
-  // Decisão da Dra. Morgana, 2026-09-21: até esta data o laudo usava uma
-  // tabela própria (média/DP por semana, sem citação de origem, via z-score)
-  // que divergia da fórmula do relatório evolutivo (app curva-fetal) — o
-  // mesmo RCP medido dava percentis diferentes nos dois papéis (ex.: RCP 1,2
-  // em 34 semanas: P42 no relatório, <P5 no laudo). Agora os dois usam a
-  // mesma fórmula e o mesmo método de percentil, ver calcDopplerCpr em
-  // curva-fetal/index.html — precisa mudar nos dois lados se mudar aqui.
-  function dopplerCprRef(gaW){
-    const p50 = 1.08 + 0.006*gaW;
-    return { p10: p50 - 0.40, p50, p90: p50 + 0.40 };
+  // Tabela FMF (Ciobanu et al., UOG 2019) — vive no laudo-core.js
+  // (`dopplerFmfPercentil`), UMA só para todos os laudos e igual à do app de
+  // curvas (curva-fetal). O percentil sai inteiro, entre 1 e 99; abaixo do P5
+  // ou acima do P95 da tabela já aparece como valor <5 / >95.
+  function dopplerPctInteiro(tipo, valor, gaDays){
+    if(gaDays==null || isNaN(gaDays)) return null;
+    const p = dopplerFmfPercentil(tipo, valor, gaDays/7);
+    return p==null ? null : Math.min(99, Math.max(1, Math.round(p)));
   }
-  function cprPercentil(gaDays, cpr){
-    if(gaDays==null || isNaN(gaDays) || cpr==null || isNaN(cpr)) return null;
-    const gaW = gaDays/7;
-    const ref = dopplerCprRef(gaW);
-    if(cpr <= ref.p10) return 5;
-    if(cpr <= ref.p50){ const t=(cpr-ref.p10)/(ref.p50-ref.p10); return Math.round(10+t*40); }
-    if(cpr <= ref.p90){ const t=(cpr-ref.p50)/(ref.p90-ref.p50); return Math.round(50+t*40); }
-    return 95;
-  }
+  function cprPercentil(gaDays, cpr){ return dopplerPctInteiro('cpr', cpr, gaDays); }
 
-  // Artéria umbilical — Acharya 2005. Mesma fórmula do relatório evolutivo
-  // (dopplerAuRef/calcDopplerAu em curva-fetal/index.html): P50 = 1,88 −
-  // 0,026×IG, P10 = P50 − 0,25, P90 = P50 + 0,34. Só para fechar CIUR por
-  // critérios menores (ver bloco de pesoKey, abaixo) — o laudo continua
-  // imprimindo o IP bruto medido, não este percentil.
-  function dopplerAuRef(gaW){
-    const p50 = 1.88 - 0.026*gaW;
-    return { p10: Math.max(0, p50-0.25), p50, p90: p50+0.34 };
-  }
-  function calcAuPercentil(ip, gaW){
-    if(ip==null || gaW==null) return null;
-    const ref = dopplerAuRef(gaW);
-    if(ip >= ref.p90) return 95;
-    if(ip >= ref.p50){ const t=(ip-ref.p50)/(ref.p90-ref.p50); return Math.round(50+t*40); }
-    if(ip >= ref.p10){ const t=(ip-ref.p10)/(ref.p50-ref.p10); return Math.round(10+t*40); }
-    return 5;
-  }
-
-  // Artéria cerebral média — Ebbing et al. 2007. Mesma fórmula do relatório
-  // evolutivo (dopplerAcmRef/calcDopplerAcm): média = 2,32 − 0,026×IG, DP
-  // fixo 0,30. Mesmo uso restrito ao fechamento de CIUR por critérios
-  // menores — sem campo próprio na tela.
-  function dopplerAcmRef(gaW){
-    const mu = 2.32 - 0.026*gaW, sd = 0.30;
-    return { p10: Math.max(0.3, mu-1.28*sd), p50: Math.max(0.3, mu), p90: Math.max(0.3, mu+1.28*sd) };
-  }
-  function calcAcmPercentil(ip, gaW){
-    if(ip==null || gaW==null) return null;
-    const ref = dopplerAcmRef(gaW);
-    if(ip <= ref.p10) return 5;
-    if(ip <= ref.p50){ const t=(ip-ref.p10)/(ref.p50-ref.p10); return Math.round(10+t*40); }
-    if(ip <= ref.p90){ const t=(ip-ref.p50)/(ref.p90-ref.p50); return Math.round(50+t*40); }
-    return 95;
-  }
+  // Artéria umbilical (Acharya 2005) e artéria cerebral média (Ciobanu/FMF
+  // 2019): percentil pela tabela do laudo-core.js, a mesma do app de curvas.
+  // Só para fechar CIUR por critérios menores (ver bloco de pesoKey,
+  // abaixo) — o laudo continua imprimindo o IP bruto medido, não este
+  // percentil.
+  function calcAuPercentil(ip, gaW){ return gaW==null ? null : dopplerPctInteiro('au', ip, gaW*7); }
+  function calcAcmPercentil(ip, gaW){ return gaW==null ? null : dopplerPctInteiro('acm', ip, gaW*7); }
   function fmtNum(n, casas){
     if(n==null || isNaN(n)) return '';
     return n.toFixed(casas).replace('.', ',');
@@ -1942,7 +1899,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // RCP ou da classificação manual normal/alterado.
     const dopplerFetalLabelFor = f => f.auFluxoAlterado
       ? phraseRaw('impAuFluxoAlterado', {FLUXO: AU_FLUXO_TXT[f.auFluxo]})
-      : (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
+      : (f.cprPercentilNum!=null && f.cprPercentilNum <= 5)
         ? phraseRaw('impRcpBaixoP5')
         : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
     const dopplerFetalTodosNormais = state.isMultiple && state.dopplerFetal
@@ -2408,7 +2365,7 @@ if(typeof criarMotorLaudo !== 'function'){
       } else if(percentilNum !== null && percentilNum < 10) {
         const auAboveP95Ciur  = auPercentilNum!=null  && auPercentilNum  >= 95;
         const acmBelowP5Ciur  = acmPercentilNum!=null && acmPercentilNum <= 5;
-        const cprBelowP5Ciur  = cprPercentilNum!=null && cprPercentilNum < 5;
+        const cprBelowP5Ciur  = cprPercentilNum!=null && cprPercentilNum <= 5;
         const utAboveP95Ciur  = utAlterado; // maternal, calculado uma vez para a gestação
         let fechaCiurPorCriterios = false;
         if(!isMultiple && gaWCiur!=null){
