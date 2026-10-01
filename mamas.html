@@ -2088,6 +2088,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
     document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
     document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
+    $('biradsCategoria').value = '1'; // padrão Cat 1 (selectedIndex=0 deixaria Cat 0)
     document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
