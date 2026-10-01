@@ -106,6 +106,10 @@ function criarMotorLaudo(cfg){
   // de métrica de fonte entre navegadores.
   const PINNED_BOTTOM_BUFFER_PX = 14;
 
+  // Folga que sobra entre a assinatura e a borda inferior útil da folha na
+  // impressão (só PDF/papel; o Word usa o colchão acima).
+  const PRINT_PIN_SLACK_PX = 5;
+
   const MIN_LINE_HEIGHT = 1.0;
 
   const LINE_HEIGHT_STEP = 0.03;
@@ -573,6 +577,45 @@ function criarMotorLaudo(cfg){
     }
     return {pages, continuaHtml, continuaHeight, idCardHtml, idCardRepeatHeight};
   }
+  // O espaçador que prende a assinatura (ou o "Continua…") no pé da folha é
+  // calculado por soma de alturas medidas no packAt() — e essa soma erra para
+  // cima em quantidade que varia de laudo para laudo (margens entre blocos que
+  // colapsam, fontes reduzidas pelo ajuste automático...): a assinatura parava
+  // de 0,4 cm a quase 2 cm acima da margem inferior, e a médica precisava
+  // empurrá-la na mão com linhas em branco. Com o laudo já montado em folhas,
+  // mede a altura de cada .print-page como ela vai sair no papel — num
+  // contêiner de 17 cm, a largura útil da impressão (a do preview na tela é
+  // outra e quebra as linhas em outros pontos) — e corrige o espaçador para
+  // que a folha feche a altura útil, menos uma folga pequena para um
+  // arredondamento do navegador não abrir uma folha em branco.
+  function ajustarEspacadores(paperEl, budgetPx){
+    const alvo = budgetPx + PAGE_SAFETY_PX - PRINT_PIN_SLACK_PX;
+    const pages = Array.from(paperEl.querySelectorAll(':scope > .print-page'));
+    if(!pages.length) return;
+    const measure = document.createElement('div');
+    measure.className = 'paper';
+    measure.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;width:17cm;max-height:none;overflow:visible;background:none;border:none;box-shadow:none;padding:0;margin:0;';
+    measure.style.lineHeight = paperEl.style.lineHeight;
+    measure.style.fontSize = paperEl.style.fontSize;
+    measure.innerHTML = paperEl.innerHTML;
+    document.body.appendChild(measure);
+    const medidas = Array.from(measure.querySelectorAll(':scope > .print-page')).map(pageEl=>{
+      // Regra só do @media print dos laudos: a assinatura no pé da folha não
+      // leva a margem de cima que tem no preview.
+      pageEl.querySelectorAll('.rodape-final').forEach(el=>{ el.style.marginTop = '0'; });
+      // flow-root: sem ele a margem de cima do 1º bloco e a de baixo do último
+      // escapam da .print-page e ficariam fora da conta, mas ocupam a folha.
+      pageEl.style.display = 'flow-root';
+      return pageEl.getBoundingClientRect().height;
+    });
+    document.body.removeChild(measure);
+    pages.forEach((pageEl, i)=>{
+      const spacer = pageEl.querySelector(':scope > [data-pin-spacer]');
+      if(!spacer || medidas[i] == null) return;
+      const novo = Math.max(0, parseFloat(spacer.style.height) + (alvo - medidas[i]));
+      spacer.style.height = novo + 'px';
+    });
+  }
   function paginateForPrint(){
     const paperEl = $('paper');
     paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
@@ -636,6 +679,7 @@ function criarMotorLaudo(cfg){
         const spacerPx = Math.max(0, packBudgetPx - idCardExtra - contentHeight - pinnedHeight - PINNED_BOTTOM_BUFFER_PX);
         const spacer = document.createElement('div');
         spacer.style.height = spacerPx + 'px';
+        spacer.setAttribute('data-pin-spacer', '1');
         pageEl.appendChild(spacer);
         pageEl.insertAdjacentHTML('beforeend', pinnedHtml);
       }
@@ -643,6 +687,7 @@ function criarMotorLaudo(cfg){
     });
     st.printPaginated = true;
     paperEl.innerHTML = wrap.innerHTML;
+    ajustarEspacadores(paperEl, packBudgetPx);
 
     return function restore(){
       paperEl.innerHTML = originalHTML;
