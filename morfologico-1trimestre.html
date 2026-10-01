@@ -325,7 +325,7 @@
      interface: aqui já é conteúdo impresso, não rótulo de tela. Bordas em
      #2b2b2e (não var(--line)) pelo mesmo motivo do id-card do laudo
      principal — a cor pastel da UI quase não aparece na impressão. */
-  .anexo-idbar{flex:0 0 auto;font-family:'Times New Roman',Times,serif;font-size:11px;color:var(--ink);text-align:center;border-top:1px solid #2b2b2e;border-bottom:1px solid #2b2b2e;padding:5px 0;margin:0 0 14px;}
+  .anexo-idbar{flex:0 0 auto;font-family:'Times New Roman',Times,serif;font-size:11px;color:var(--ink);text-align:center;border-top:1px solid #2b2b2e;border-bottom:1px solid #2b2b2e;padding:5px 0;margin:0 0 8px;}
   .anexo-idbar .sep{color:#b9a8b5;margin:0 10px;}
   .anexo-idbar-fmf{font-size:9px;color:var(--ink-soft);margin-top:2px;}
   #anexoFmfReport{flex:0 0 auto;}
@@ -347,9 +347,9 @@
    no JS) — sem depender de nenhuma biblioteca externa nem de CDN: o gráfico
    sai igual com ou sem internet, o que resolve de vez o problema de o
    Chart.js não carregar em algumas redes (ver histórico de commits). */
-.anexo-graficos{margin:8px 0 20px;flex:0 0 auto;}
+.anexo-graficos{margin:6px 0 4px;flex:0 0 auto;}
 .anexo-graficos-titulo{font-family:'Poppins',sans-serif;font-size:10.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.3px;text-align:center;margin:0 0 6px;}
-.anexo-graficos-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:8px;}
+.anexo-graficos-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:6px;margin:0 -0.3cm;}
 /* Mesmo modelo do relatório "Laudo 1º Trimestre" do Curva de Crescimento
    (curva-fetal/index.html — classes .feto-card/.efw-*, função
    _buildRel1TriChartSvg/_buildRelChartUtaSvg): paleta roxo/dourado,
@@ -2200,8 +2200,12 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     return ord;
   }
+  // 2026-09-30: gráficos 15%+ maiores na folha de anexo, mantendo a grade 4x2.
+  // A largura é presa pelas 4 colunas, então o ganho vem da altura: a área do
+  // gráfico cresce GRAF_ALTURA_EXTRA unidades do viewBox (antes 190x128).
+  const GRAF_ALTURA_EXTRA = 22;
   function buildGraficoCard(cfg){
-    const L=26, R=136, T=8, B=104;
+    const L=26, R=136, T=8, B=104+GRAF_ALTURA_EXTRA;
     const [x0,x1] = cfg.x, [y0,y1] = cfg.y;
     // Clampado igual ao sy() logo abaixo: sem isso, uma IG fora da janela do
     // gráfico (exame feito depois do previsto, feto medido fora da tabela)
@@ -2270,7 +2274,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<text x="4" y="'+t.textY+'" font-size="7.5" fill="#9B8C8C" '+FONTE_EIXO+'>'+t.label+'</text>'
     ).join('');
     const xTicksSvg = c.xTicks.map(t=>
-      '<text x="'+t.x+'" y="114" font-size="7.5" fill="#9B8C8C" '+FONTE_EIXO+' text-anchor="middle">'+t.label+'</text>'
+      '<text x="'+t.x+'" y="'+(114+GRAF_ALTURA_EXTRA)+'" font-size="7.5" fill="#9B8C8C" '+FONTE_EIXO+' text-anchor="middle">'+t.label+'</text>'
     ).join('');
     const endLabelsSvg = c.endLabels.map(l=>
       '<text x="140" y="'+(l.y+2.8)+'" font-size="7.2" font-weight="600" fill="'+l.cor+'" '+FONTE_EIXO+'>'+l.label+'</text>'
@@ -2289,11 +2293,11 @@ if(typeof criarMotorLaudo !== 'function'){
             +'<text x="'+m.px+'" y="'+Math.max(16,m.py-7)+'" font-size="7.5" font-weight="700" fill="'+cor+'" '+FONTE_EIXO+' text-anchor="middle">'+m.pctText+'</text>';
         }).join('')
       : c.marcadores.map(m=>
-          '<line x1="'+m.px+'" y1="'+m.py+'" x2="'+m.px+'" y2="104" stroke="'+m.cor+'" stroke-width="0.7" stroke-dasharray="1.5,1.5" opacity="0.5"></line>'
+          '<line x1="'+m.px+'" y1="'+m.py+'" x2="'+m.px+'" y2="'+(104+GRAF_ALTURA_EXTRA)+'" stroke="'+m.cor+'" stroke-width="0.7" stroke-dasharray="1.5,1.5" opacity="0.5"></line>'
           + marcadorFormaSvg(m.forma, m.px, m.py, m.cor)
         ).join('');
     const svg =
-      '<svg viewBox="0 0 190 128">'
+      '<svg viewBox="0 0 190 '+(128+GRAF_ALTURA_EXTRA)+'">'
       + yTicksSvg
       + '<path d="'+c.band+'" fill="#8B6BA8" opacity="0.13"></path>'
       + '<path d="'+c.p95Path+'" fill="none" stroke="#C3B1D1" stroke-width="1.3" stroke-dasharray="4,3"></path>'
@@ -2433,10 +2437,10 @@ if(typeof criarMotorLaudo !== 'function'){
     // 8 cartões do grid de gráficos logo abaixo, com feto único ou numa
     // trigemelar com todos os campos preenchidos (ver a tabela por coluna
     // logo abaixo, para gemelar/trigemelar não-monocoriônica).
-    const HEAD = 'font-family:\'Poppins\',sans-serif;font-weight:600;font-size:11px;color:#1a56b0;margin:9px 0 3px;';
-    const HEAD_FIRST = 'font-family:\'Poppins\',sans-serif;font-weight:600;font-size:11px;color:#1a56b0;margin:0 0 3px;';
-    const TXT = 'font-family:\'Times New Roman\',Times,serif;font-size:10.5px;color:var(--ink);';
-    const PARA = TXT+'margin:4px 0 0;line-height:1.4;';
+    const HEAD = 'font-family:\'Poppins\',sans-serif;font-weight:600;font-size:12px;color:#1a56b0;margin:7px 0 2px;';
+    const HEAD_FIRST = 'font-family:\'Poppins\',sans-serif;font-weight:600;font-size:12px;color:#1a56b0;margin:0 0 2px;';
+    const TXT = 'font-family:\'Times New Roman\',Times,serif;font-size:11.5px;color:var(--ink);';
+    const PARA = TXT+'margin:3px 0 0;line-height:1.3;';
 
     let primeiroBloco = true;
     function heading(txt){
