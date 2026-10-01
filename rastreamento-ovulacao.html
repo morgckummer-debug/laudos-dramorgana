@@ -540,6 +540,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Ciclo ovulatório</label><textarea id="ph_impCicloOvulatorio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ciclo anovulatório (corpo lúteo não identificado)</label><textarea id="ph_impCicloAnovulatorio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio concordante</label><textarea id="ph_impEndometrioConcordante" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endométrio atrófico (espessura da última visita menor que 2,0 mm)</label><textarea id="ph_impEndometrioAtrofico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio discordante (a palavra "discordante" sai sempre sublinhada no laudo, mesmo que você edite este texto)</label><textarea id="ph_impEndometrioDiscordante" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_impSinequias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 mioma</label><textarea id="ph_impMioma1" rows="2"></textarea></div>
@@ -1519,6 +1520,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impCicloOvulatorio: 'Exame compatível com ciclo ovulatório.',
     impCicloAnovulatorio: 'Corpo lúteo não identificado — sugestivo de ciclo anovulatório.',
     impEndometrioConcordante: 'Endométrio concordante.',
+    impEndometrioAtrofico: 'Endométrio atrófico.',
     impEndometrioDiscordante: 'Endométrio discordante.',
     impSinequias: 'Falhas no eco endometrial, sugestivas de sinéquias - Seguir propedêutica.',
     impMioma1: 'Nódulo sólido sugestivo de mioma.',
@@ -2085,6 +2087,9 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       items.push({key:'ciclo', label:phraseRaw('impCicloOvulatorio'), auto:true});
     }
+    if(state.endometrioAtrofico){
+      items.push({key:'endometrio-atrofico', label:phraseRaw('impEndometrioAtrofico'), auto:true});
+    }
     if(state.endometrioConcordancia === 'discordante'){
       items.push({key:'endometrio', label:phraseRaw('impEndometrioDiscordante'), auto:true});
     } else {
@@ -2320,6 +2325,11 @@ if(typeof criarMotorLaudo !== 'function'){
       return {data, ciclo, folD, folE, endoPadrao, endoEspessura};
     });
 
+    // Atrófico: espessura da ÚLTIMA visita menor que 2,0 mm.
+    const ultimaVisita = visitaUidsAtuais.length ? visitaUidsAtuais[visitaUidsAtuais.length-1] : null;
+    const espUltima = ultimaVisita !== null ? num('visita'+ultimaVisita+'EndoEspessura') : null;
+    const endometrioAtrofico = espUltima !== null && espUltima < 2.0;
+
     const corpoLuteoLado = v('corpoLuteoLado');
     const endometrioConcordancia = v('endometrioConcordancia');
     const chkSinequias = $('chkSinequias').checked;
@@ -2327,7 +2337,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const ovarioVolumeAlto = (ovD.volNum!=null && ovD.volNum>60) || (ovE.volNum!=null && ovE.volNum>60);
 
     const checklistItems = buildImpressao({
-      corpoLuteoLado, endometrioConcordancia, chkSinequias,
+      corpoLuteoLado, endometrioConcordancia, endometrioAtrofico, chkSinequias,
       chkAscite, ovarioVolumeAlto,
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
