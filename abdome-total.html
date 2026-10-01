@@ -384,6 +384,7 @@
   <hr class="sep">
   <h3>Fígado</h3>
   <div class="field" style="margin-bottom:8px;"><label>Esteatose — dentro da normalidade (QUS) — use {PCT}</label><textarea id="ph_impEsteatoseNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Esteatose — QUS marcado, % em branco</label><textarea id="ph_impEsteatosePendente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Esteatose — alterada (QUS) — use {PCT} e {GRAU}</label><textarea id="ph_impEsteatoseAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Doença de depósito (grau informado manualmente) — use {GRAU}</label><textarea id="ph_impFigadoDeposito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto hepático</label><textarea id="ph_impFigadoCisto" rows="2"></textarea></div>
@@ -1551,6 +1552,7 @@ if(typeof criarMotorLaudo !== 'function'){
   const PHRASE_DEFAULTS = {
     impNormal: 'Exame ecográfico dentro da normalidade.',
     impEsteatoseNormal: 'Quantificação ultrassonográfica pelo método QUS estimou {PCT}% de gordura, valor dentro da faixa normal (S0), sem evidência de esteatose hepática significativa.',
+    impEsteatosePendente: 'Quantificação ultrassonográfica pelo método QUS estimou ___% de gordura.',
     impEsteatoseAlterada: 'Esteatose hepática: Quantificação ultrassonográfica pelo método QUS estimou {PCT}% de gordura, valor que se enquadra no grau {GRAU} de esteatose hepática.',
     impFigadoDeposito: 'Aumento difuso da ecogenicidade hepática sugestivo de doença de depósito em grau {GRAU}.',
     impFigadoCisto: 'Cisto hepático simples.',
@@ -1926,6 +1928,10 @@ if(typeof criarMotorLaudo !== 'function'){
       } else {
         items.push({key:'esteatose', label:phrase('impEsteatoseAlterada', {PCT:pctStr, GRAU:state.grauInfo.numero}), auto:true});
       }
+    } else if(state.chkEsteatose){
+      // QUS marcado com o % ainda em branco: a frase já entra (com lacuna),
+      // em vez de só aparecer depois de digitar o valor.
+      items.push({key:'esteatose', label:phrase('impEsteatosePendente'), auto:true});
     }
     if(state.figadoImpressaoDeposito){
       items.push({key:'figado-deposito', label: state.figadoImpressaoDeposito, auto:true});
