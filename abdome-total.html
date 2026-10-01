@@ -389,6 +389,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Cisto hepático</label><textarea id="ph_impFigadoCisto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hemangioma hepático</label><textarea id="ph_impFigadoHemangioma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hepatomegalia</label><textarea id="ph_impFigadoHepatomegalia" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hepatomegalia com esteatose — use {GRAU} (leve, moderada ou acentuada)</label><textarea id="ph_impFigadoHepatomegaliaEsteatose" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Vesícula</h3>
@@ -1555,6 +1556,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impFigadoCisto: 'Cisto hepático simples.',
     impFigadoHemangioma: 'Nódulo(s) hepático(s) sugestivo(s) de hemangioma(s).',
     impFigadoHepatomegalia: 'Hepatomegalia.',
+    impFigadoHepatomegaliaEsteatose: 'Hepatomegalia associada a aumento difuso da ecogenicidade sugestiva de esteatose {GRAU}.',
     impVesiculaCalculo: 'Colecistolitíase.',
     impVesiculaPolipo: 'Imagem ecogênica em vesícula biliar sugestiva de pólipo.',
     impVesiculaColecistite: 'Colecistite.',
@@ -1688,7 +1690,7 @@ if(typeof criarMotorLaudo !== 'function'){
   }
 
   function updateFigadoGrauManualVisibility(){
-    toggle('wrap_figadoGrauManual', v('figadoAspecto')==='esteatose' && !$('chkEsteatose').checked);
+    toggle('wrap_figadoGrauManual', v('figadoAspecto')==='esteatose' && (!$('chkEsteatose').checked || num('pctGordura')===null));
   }
   $('figadoAspecto').addEventListener('change', e=>{
     const val = e.target.value;
@@ -1934,7 +1936,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.figadoAspecto==='hemangioma'){
       items.push({key:'figado-hemangioma', label:phrase('impFigadoHemangioma'), auto:true});
     }
-    if(state.figadoHepatomegalia){
+    if(state.figadoHepatomegaliaEsteatose){
+      items.push({key:'figado-hepatomegalia-esteatose', label:state.figadoHepatomegaliaEsteatose, auto:true});
+    } else if(state.figadoHepatomegalia){
       items.push({key:'figado-hepatomegalia', label:phrase('impFigadoHepatomegalia'), auto:true});
     }
     if(state.vesiculaImpressaoHD){
@@ -2062,6 +2066,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const pctGorduraNum = num('pctGordura');
     reqIf('pctGordura', chkEsteatose);
     const pctGorduraTexto = v('pctGordura');
+    updateFigadoGrauManualVisibility();
     let grauInfo = null;
     if(chkEsteatose && pctGorduraNum !== null) grauInfo = grauEsteatose(pctGorduraNum);
     const grauLabelEl = $('grauEsteatoseLabel');
@@ -2075,10 +2080,20 @@ if(typeof criarMotorLaudo !== 'function'){
     const figadoHemangiomaSegmentoTexto = blankOrValue(reqIf('figadoHemangiomaSegmento', figadoAspecto==='hemangioma'));
     const figadoHemangiomaTamanhoTexto = blankOrValue(reqIf('figadoHemangiomaTamanho', figadoAspecto==='hemangioma'));
     let figadoImpressaoDeposito = null;
+    let figadoHepatomegaliaEsteatose = null;
     let figadoTextoBase;
     if(figadoAspecto==='esteatose'){
       figadoTextoBase = 'Dimensões '+(figadoVolume==='aumentadas'?'aumentadas':'usuais')+', forma globosa, contornos arredondados e regulares. Parênquima hepático apresentando aumento difuso da ecogenicidade, condicionando '+figadoAtenuacao+' atenuação dos feixes sonoros nos planos posteriores, dificultando a avaliação de lesões intraparenquimatosas ao método. Veia porta, seus ramos e veias hepáticas sem alterações.';
-      if(!chkEsteatose){
+      // Fígado aumentado (lobos acima do limite ou "Dimensões aumentadas") com
+      // esteatose: uma frase só, no lugar de "Hepatomegalia." + doença de
+      // depósito. O grau segue o QUS quando ele está preenchido e alterado (S1/S2/S3);
+      // senão, a atenuação dos feixes (leve/moderada/acentuada).
+      if(figadoHepatomegalia || figadoVolume==='aumentadas'){
+        figadoHepatomegaliaEsteatose = phrase('impFigadoHepatomegaliaEsteatose', {GRAU:(grauInfo && !grauInfo.normal) ? ['','leve','moderada','acentuada'][grauInfo.numero] : figadoAtenuacao});
+      } else if(!chkEsteatose || pctGorduraNum === null){
+        // Sem QUS preenchido não há outra frase de esteatose: sem este ramo
+        // (antes só !chkEsteatose) a conclusão ficava sem nada com o QUS
+        // marcado e o % em branco.
         figadoImpressaoDeposito = phrase('impFigadoDeposito', {GRAU:figadoGrauManual});
       }
     } else if(figadoAspecto==='cisto'){
@@ -2428,7 +2443,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // ----- Impressão -----
     const state = {
       chkEsteatose, pctGorduraNum, pctGorduraTexto, grauInfo,
-      figadoAspecto, figadoImpressaoDeposito, figadoHepatomegalia, vesiculaImpressaoHD, pancreasImpressaoHD, rinsImpressaoHDs, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
+      figadoAspecto, figadoImpressaoDeposito, figadoHepatomegaliaEsteatose, figadoHepatomegalia, vesiculaImpressaoHD, pancreasImpressaoHD, rinsImpressaoHDs, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
       apendiceImpressaoHD, adeniteImpressaoHD, asciteImpressaoHD
     };
     const impressaoItems = buildImpressao(state);
