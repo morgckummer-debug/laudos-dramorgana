@@ -387,6 +387,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Esteatose — alterada (QUS) — use {PCT} e {GRAU}</label><textarea id="ph_impEsteatoseAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Doença de depósito (grau informado manualmente) — use {GRAU}</label><textarea id="ph_impFigadoDeposito" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto hepático</label><textarea id="ph_impFigadoCisto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cirrose hepática</label><textarea id="ph_impFigadoCirrose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hemangioma hepático</label><textarea id="ph_impFigadoHemangioma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hepatomegalia</label><textarea id="ph_impFigadoHepatomegalia" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hepatomegalia com esteatose — use {GRAU} (leve, moderada ou acentuada)</label><textarea id="ph_impFigadoHepatomegaliaEsteatose" rows="2"></textarea></div>
@@ -489,6 +490,7 @@
               <option value="esteatose">Esteatose hepática (aumento difuso da ecogenicidade)</option>
               <option value="cisto">Cisto hepático simples</option>
               <option value="hemangioma">Hemangioma</option>
+              <option value="cirrose">Cirrose hepática</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
@@ -1554,6 +1556,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impEsteatoseAlterada: 'Esteatose hepática: Quantificação ultrassonográfica pelo método QUS estimou {PCT}% de gordura, valor que se enquadra no grau {GRAU} de esteatose hepática.',
     impFigadoDeposito: 'Aumento difuso da ecogenicidade hepática sugestivo de doença de depósito em grau {GRAU}.',
     impFigadoCisto: 'Cisto hepático simples.',
+    impFigadoCirrose: 'Cirrose hepática.',
     impFigadoHemangioma: 'Nódulo(s) hepático(s) sugestivo(s) de hemangioma(s).',
     impFigadoHepatomegalia: 'Hepatomegalia.',
     impFigadoHepatomegaliaEsteatose: 'Hepatomegalia associada a aumento difuso da ecogenicidade sugestiva de esteatose {GRAU}.',
@@ -1930,6 +1933,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.figadoImpressaoDeposito){
       items.push({key:'figado-deposito', label: state.figadoImpressaoDeposito, auto:true});
     }
+    if(state.figadoAspecto==='cirrose'){
+      items.push({key:'figado-cirrose', label:phrase('impFigadoCirrose'), auto:true});
+    }
     if(state.figadoAspecto==='cisto'){
       items.push({key:'figado-cisto', label:phrase('impFigadoCisto'), auto:true});
     }
@@ -2100,6 +2106,8 @@ if(typeof criarMotorLaudo !== 'function'){
       figadoTextoBase = 'Observa-se imagem anecóica de paredes finas e regulares, localizada no segmento '+span(figadoCistoSegmentoTexto)+', medindo '+span(figadoCistoTamanhoTexto)+' mm.';
     } else if(figadoAspecto==='hemangioma'){
       figadoTextoBase = 'Observa-se imagem nodular sólida, ecogênica e pouco heterogênea, de contornos regulares, localizada em segmento '+span(figadoHemangiomaSegmentoTexto)+', medindo '+span(figadoHemangiomaTamanhoTexto)+' cm.';
+    } else if(figadoAspecto==='cirrose'){
+      figadoTextoBase = 'Dimensões normais, forma anatômica e contornos irregulares e bordas rombas lisos e regulares. Parênquima fina e difusamente heterogêneo, sem identificação de lesões intraparenquimatosas. Veia porta, seus ramos e veias hepáticas sem alterações.';
     } else if(figadoAspecto==='alterado' && figadoDescricao){
       figadoTextoBase = escapeHtml(figadoDescricao)+'.';
     } else {
