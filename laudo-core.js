@@ -50,14 +50,24 @@
  * porquê de cada parte.
  */
 /*
- * Doppler fetal — tabelas de referência adotadas pela Dra. Morgana (2026-10-01):
+ * Doppler fetal — referências adotadas pela Dra. Morgana (2026-10-01):
  *   - `au`  IP da artéria umbilical: Acharya G et al., Am J Obstet Gynecol
- *           2005;192(3):937-944 (19 a 40 semanas, de 2 em 2);
- *   - `acm` IP da artéria cerebral média e `cpr` relação cérebro-placentária
- *           (IP ACM / IP umbilical): Ciobanu A et al. (FMF), Ultrasound Obstet
- *           Gynecol 2019;53(4):465-472 (20 a 41 semanas, semana a semana).
- * Cada linha é [semana, P5, P50, P95]. São TABELAS, não fórmulas: os números
- * abaixo são os da tabela, transcritos como estão.
+ *           2005;192(3):937-944 — TABELA [semana, P5, P50, P95], 19 a 40
+ *           semanas, de 2 em 2;
+ *   - `acm` IP da artéria cerebral média: Ciobanu A et al. (FMF), Ultrasound
+ *           Obstet Gynecol 2019;53(4):465-472 — TABELA, 20 a 41 semanas;
+ *   - `cpr` relação cérebro-placentária (IP ACM / IP umbilical): Baschat AA,
+ *           Gembruch U. Ultrasound Obstet Gynecol 2003;21:124-127 —
+ *           EQUAÇÕES, 20 a 42 semanas:
+ *             média = −0,0059×IG² + 0,383×IG − 4,0636          (IG em semanas)
+ *             DP    = −0,00113×IG² + 0,07156×IG − 0,67418
+ *           (a do DP é a versão corrigida, publicada depois, de um erro de
+ *           casas decimais na publicação original; a Dra. Morgana forneceu as
+ *           duas). P5/P95 = média ∓ 1,645×DP. Conferido contra a tabela do
+ *           Fetalmed: diferença máxima 0,005 em todas as semanas.
+ *           Trocada do Ciobanu para o Baschat porque o Fetalmed e a Cetrus —
+ *           o que ela usa na rotina — usam o Baschat (RCP 2,13 em 33s1d:
+ *           P61 pelo Ciobanu, P48 nos dois sites e aqui).
  *
  * Existe aqui, e não em cada laudo, porque a RCP já foi calculada de formas
  * diferentes em lugares diferentes. Em 2026-09-21 o percentil passou a usar
@@ -66,11 +76,12 @@
  * de curvas (curva-fetal) tem de usar exatamente estes mesmos números —
  * mudou aqui, muda lá.
  *
- * Entre linhas da tabela interpola linearmente pela idade gestacional. O
+ * Nas tabelas, interpola linearmente pela idade gestacional entre linhas. O
  * percentil sai de uma normal "dividida": DP inferior = (P50−P5)/1,645 e
  * superior = (P95−P50)/1,645, o que devolve exatamente 5/50/95 nos pontos da
- * tabela e permite valores abaixo de P5 e acima de P95. Fora da faixa da
- * tabela: null (o laudo deixa o percentil para a médica digitar).
+ * tabela e permite valores abaixo de P5 e acima de P95 (na RCP os dois lados
+ * são iguais: é uma normal comum). Fora da faixa: null (o laudo deixa o
+ * percentil para a médica digitar).
  */
 const DOPPLER_FMF = {
   au: [
@@ -85,17 +96,15 @@ const DOPPLER_FMF = {
     [32,1.50,1.91,2.44], [33,1.47,1.89,2.42], [34,1.42,1.85,2.39], [35,1.37,1.79,2.34],
     [36,1.30,1.72,2.27], [37,1.22,1.63,2.18], [38,1.13,1.53,2.07], [39,1.03,1.42,1.95],
     [40,0.93,1.30,1.82], [41,0.83,1.17,1.67]
-  ],
-  cpr: [
-    [20,0.87,1.21,1.69], [21,0.93,1.29,1.78], [22,1.00,1.37,1.88], [23,1.06,1.45,1.98],
-    [24,1.12,1.53,2.08], [25,1.18,1.60,2.18], [26,1.24,1.68,2.28], [27,1.29,1.75,2.38],
-    [28,1.34,1.82,2.47], [29,1.38,1.87,2.56], [30,1.41,1.92,2.63], [31,1.43,1.96,2.70],
-    [32,1.44,1.99,2.75], [33,1.43,2.00,2.79], [34,1.42,2.00,2.81], [35,1.39,1.98,2.81],
-    [36,1.35,1.94,2.79], [37,1.30,1.89,2.75], [38,1.24,1.83,2.69], [39,1.17,1.75,2.61],
-    [40,1.09,1.65,2.51], [41,1.00,1.55,2.39]
   ]
 };
 function dopplerFmfRef(tipo, gaW){
+  if(tipo === 'cpr'){
+    if(gaW==null || isNaN(gaW) || gaW < 20 || gaW > 42) return null;
+    const mu = -0.0059*gaW*gaW + 0.383*gaW - 4.0636;
+    const sd = -0.00113*gaW*gaW + 0.07156*gaW - 0.67418;
+    return { p5: mu - 1.645*sd, p50: mu, p95: mu + 1.645*sd };
+  }
   const tab = DOPPLER_FMF[tipo];
   if(!tab || gaW==null || isNaN(gaW) || gaW < tab[0][0] || gaW > tab[tab.length-1][0]) return null;
   let i = 0;
