@@ -1073,20 +1073,42 @@ gestação ativa, valor no `insert` (gestação nova) e um `if(check && !valorNo
 próprio no bloco de gestação existente — nunca um único `else if` cobrindo
 várias flags, porque aí só a primeira verdadeira do laudo seria gravada.
 
-## RCP: mesma fórmula do relatório evolutivo (curva-fetal)
+## Doppler fetal (umbilical, ACM, RCP): uma tabela só, igual à do curva-fetal
 
-2026-09-21. `obstetrico.html` calculava o percentil do RCP com uma tabela
-própria (`CPR_REF`, média/DP por semana, via z-score/`normalCDF`) sem
-citação de origem no código. O app de curvas (`curva-fetal`) calcula o
-mesmo RCP com outra fórmula (`calcDopplerCpr`, Figueras/Barcelona, linear:
-P50 = 1,08 + 0,006×IG, interpolação linear entre P10/P50/P90, não Gaussiana)
-— usada no relatório evolutivo que ela entrega junto com este laudo. O
-mesmo valor medido dava percentis incompatíveis nos dois papéis: RCP 1,2 em
-34-35 semanas saía ~P40 lá e <P5 aqui. Confirmado com a médica: a fórmula do
-app é a referência. `cprPercentil` aqui foi trocado para portar
-`dopplerCprRef`/`calcDopplerCpr` de `curva-fetal/index.html` linha a linha —
-**mudar a fórmula lá sem mudar aqui volta a abrir a divergência**, e
-vice-versa.
+2026-10-01. A Dra. Morgana notou que vários laudos mostravam o RCP sempre no
+P95 e estava calculando à mão. A causa estava aqui: em 2026-09-21 o percentil
+do RCP foi trocado para a fórmula do app de curvas (`P50 = 1,08 + 0,006 × IG`,
+P10/P90 a ±0,40). Esse P50 (~1,3) está muito abaixo de uma RCP normal (~1,9
+em 34 semanas), então praticamente todo exame normal passava do P90 e saía
+"P95". A fórmula nunca foi conferida contra uma fonte — a anterior, uma tabela
+própria sem citação, não tinha o problema.
+
+Hoje o IP da umbilical, o IP da ACM e a RCP usam **tabelas de P5/P50/P95**
+escolhidas pela médica, em `DOPPLER_FMF` no `laudo-core.js`
+(`dopplerFmfRef()`/`dopplerFmfPercentil()`):
+
+- IP da umbilical: Acharya G et al., Am J Obstet Gynecol 2005;192(3):937-944
+  (19–40 semanas, de 2 em 2);
+- IP da ACM e RCP: Ciobanu A et al. (FMF), Ultrasound Obstet Gynecol
+  2019;53(4):465-472 (20–41 semanas).
+
+São tabelas transcritas, não fórmulas: confira os números contra a fonte, não
+contra o app. O percentil é interpolado linearmente entre linhas pela IG e
+convertido por uma normal "dividida" (DP inferior = (P50−P5)/1,645, superior
+= (P95−P50)/1,645): dá exatamente 5/50/95 nos pontos da tabela e deixa valores
+abaixo de P5 e acima de P95. Fora da faixa da tabela devolve `null` e o campo
+fica para a médica digitar.
+
+**O `curva-fetal` tem de usar exatamente estes mesmos números** (suas
+`dopplerAuRef`/`dopplerAcmRef`/`dopplerCprRef` e os `calcDoppler*` que as
+usam, mais o z-score de `_z.au/acm/cpr`). Mudar a tabela num lado sem mudar no
+outro reabre a divergência de percentis entre os papéis que ela entrega.
+
+Cada laudo só chama `dopplerPctInteiro()` (obstetrico e morfologico-2trimestre;
+percentil inteiro entre 1 e 99). Os critérios de CIUR que usam o RCP e a ACM
+agora são `<= 5` (e `>= 95` para a umbilical): antes o RCP nunca passava de
+"<5" porque a fórmula antiga devolvia no mínimo 5, e o critério "RCP<P5" era
+código morto.
 
 ## PIG vs CIUR: critérios menores, não só o percentil do dia
 
@@ -1114,9 +1136,9 @@ consegue calcular (sem histórico, sem cruzamento de quartis):
   (não três); ACM<P5 (centralização) conta como um **segundo**, independente.
   O percentil ≤10 já é sempre o critério de crescimento que falta — mesmo
   invariante do app (pelo menos um critério tem que ser de crescimento).
-- **IP-umbilical e IP-ACM em percentil são novos aqui** (`calcAuPercentil`/
-  `dopplerAuRef`, Acharya 2005; `calcAcmPercentil`/`dopplerAcmRef`, Ebbing
-  2007) — mesmas fórmulas do `curva-fetal`, portadas função por função. Sem
+- **IP-umbilical e IP-ACM em percentil são novos aqui** (`calcAuPercentil`,
+  `calcAcmPercentil`) — mesmas tabelas do `curva-fetal` (ver "Doppler fetal:
+  uma tabela só", acima). Sem
   campo novo na tela: o laudo continua imprimindo o IP bruto medido e a
   classificação normal/alterada que a médica escolhe manualmente; o
   percentil é cálculo interno, só para decidir CIUR vs PIG.

@@ -1904,27 +1904,16 @@ if(typeof criarMotorLaudo !== 'function'){
   }
 
   // ---------- Doppler fetal: percentil da relação cérebro-placentária (RCP).
-  // Portado do obstetrico.html função por função, de propósito — mesma
-  // fórmula do relatório evolutivo (calcDopplerCpr em curva-fetal/index.html,
-  // protocolo de Barcelona/Figueras): mudar essa fórmula lá sem mudar aqui (e
-  // no obstetrico.html) volta a abrir a divergência de percentis entre os
-  // papéis que a médica entrega. Ver CLAUDE.md, "RCP: mesma fórmula do
-  // relatório evolutivo".
-  //   P50(RCP) = 1,08 + 0,006 × IG (semanas)  |  P10 = P50 − 0,40  |  P90 = P50 + 0,40
-  // Percentil por interpolação linear entre os três pontos — não Gaussiana.
-  function dopplerCprRef(gaW){
-    const p50 = 1.08 + 0.006*gaW;
-    return { p10: p50 - 0.40, p50, p90: p50 + 0.40 };
+  // Tabela FMF (Ciobanu et al., UOG 2019) — vive no laudo-core.js
+  // (`dopplerFmfPercentil`), UMA só para todos os laudos e igual à do app de
+  // curvas (curva-fetal). O percentil sai inteiro, entre 1 e 99; abaixo do P5
+  // ou acima do P95 da tabela já aparece como valor <5 / >95.
+  function dopplerPctInteiro(tipo, valor, gaDays){
+    if(gaDays==null || isNaN(gaDays)) return null;
+    const p = dopplerFmfPercentil(tipo, valor, gaDays/7);
+    return p==null ? null : Math.min(99, Math.max(1, Math.round(p)));
   }
-  function cprPercentil(gaDays, cpr){
-    if(gaDays==null || isNaN(gaDays) || cpr==null || isNaN(cpr)) return null;
-    const gaW = gaDays/7;
-    const ref = dopplerCprRef(gaW);
-    if(cpr <= ref.p10) return 5;
-    if(cpr <= ref.p50){ const t=(cpr-ref.p10)/(ref.p50-ref.p10); return Math.round(10+t*40); }
-    if(cpr <= ref.p90){ const t=(cpr-ref.p50)/(ref.p90-ref.p50); return Math.round(50+t*40); }
-    return 95;
-  }
+  function cprPercentil(gaDays, cpr){ return dopplerPctInteiro('cpr', cpr, gaDays); }
 
   // Mesmos rótulos das opções do select feto{uid}AuFluxo — usados tanto na
   // impressão (impAuFluxoAlterado) quanto na tabela de Doppler fetal.
@@ -1968,7 +1957,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // isolado. Mesmo padrão do obstetrico.html.
     const dopplerFetalLabelFor = f => f.auFluxoAlterado
       ? phraseRaw('impAuFluxoAlterado', {FLUXO: AU_FLUXO_TXT[f.auFluxo]})
-      : (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
+      : (f.cprPercentilNum!=null && f.cprPercentilNum <= 5)
         ? phraseRaw('impRcpBaixoP5')
         : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
     const dopplerFetalTodosNormais = state.isMultiple && state.dopplerFetal
