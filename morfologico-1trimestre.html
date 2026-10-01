@@ -3749,8 +3749,9 @@ if(typeof criarMotorLaudo !== 'function'){
     }
   });
 
-  $('btnReset').addEventListener('click', ()=>{
-    if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
+  // Limpeza compartilhada pelo botão "Limpar" (que pergunta antes) e por
+  // "Carregar medidas" da busca de laudo anterior (que já perguntou).
+  function resetFormParaNovaPaciente(){
     document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
     document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
     document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
@@ -3790,6 +3791,10 @@ if(typeof criarMotorLaudo !== 'function'){
     render();
     // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
     draftDiscard();
+  }
+  $('btnReset').addEventListener('click', ()=>{
+    if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
+    resetFormParaNovaPaciente();
   });
 
   setDefaultDataExame();
@@ -4155,23 +4160,19 @@ if(typeof criarMotorLaudo !== 'function'){
       if(error) throw error;
       laudos = data || [];
     }catch(e){
-      cgToast('Erro ao buscar laudos: ' + (e.message || 'tente novamente.'), true);
-      return;
-    }
-    if(!laudos.length){
-      resultsEl.innerHTML = '<div class="cg-result-empty">Paciente encontrada, mas sem laudo de morfológico de 1º trimestre anterior salvo. (Só entram aqui os laudos salvos com "Salvar na Curva de Crescimento" a partir de agora.)</div>';
-      return;
+      // Sem a tabela (ou sem rede) ainda dá para oferecer as medidas da Curva.
+      cgToast('Erro ao buscar laudos salvos: ' + (e.message || 'tente novamente.'), true);
     }
 
-    const porNome = {};
-    pacientes.forEach(p=>{ porNome[p.id] = p.nome; });
+    const porNome = {}, porCpf = {};
+    pacientes.forEach(p=>{ porNome[p.id] = p.nome; porCpf[p.id] = p.cpf; });
     laudos.forEach(laudo=>{
       const nomeExibido = porNome[laudo.paciente_id] || 'Paciente';
       const item = document.createElement('div');
       item.className = 'cg-result-item';
       item.innerHTML = '<span class="ri-info">'
         + '<span class="ri-name">'+cgEsc(nomeExibido)+'</span>'
-        + '<span class="ri-meta">Exame de '+cgEsc(cgFormatDateBR(laudo.data_exame))+'</span>'
+        + '<span class="ri-meta">Laudo completo · exame de '+cgEsc(cgFormatDateBR(laudo.data_exame))+'</span>'
         + '</span>'
         + '<button type="button" class="ri-del" title="Excluir este laudo">Excluir</button>';
       item.querySelector('.ri-info').addEventListener('click', ()=> cgCarregarLaudo(laudo));
@@ -4181,6 +4182,141 @@ if(typeof criarMotorLaudo !== 'function'){
       });
       resultsEl.appendChild(item);
     });
+
+    // Exames de 1º trimestre já enviados à Curva antes de o laudo completo
+    // passar a ser guardado: só as medidas. Datas que já têm laudo completo
+    // acima não se repetem aqui.
+    const jaTemLaudo = new Set(laudos.map(l=> l.paciente_id+'|'+String(l.data_exame).slice(0,10)));
+    let grupos = [];
+    try{
+      grupos = await cgBuscarMedidasDaCurva(pacientes, jaTemLaudo);
+    }catch(e){
+      cgToast('Erro ao buscar medidas na Curva: ' + (e.message || 'tente novamente.'), true);
+    }
+    grupos.forEach(g=>{
+      const item = document.createElement('div');
+      item.className = 'cg-result-item';
+      const nFetos = g.exames.length;
+      item.innerHTML = '<span class="ri-info">'
+        + '<span class="ri-name">'+cgEsc(g.paciente.nome)+'</span>'
+        + '<span class="ri-meta">Só medidas (da Curva) · exame de '+cgEsc(cgFormatDateBR(g.data_exame))+' · '+nFetos+(nFetos>1?' fetos':' feto')+'</span>'
+        + '</span>';
+      item.querySelector('.ri-info').addEventListener('click', ()=> cgCarregarMedidas(g));
+      resultsEl.appendChild(item);
+    });
+
+    if(!resultsEl.querySelector('.cg-result-item')){
+      resultsEl.innerHTML = '<div class="cg-result-empty">Paciente encontrada, mas sem laudo nem exame de 1º trimestre salvo.</div>';
+    }
+  }
+
+  // Exames de 1º trimestre (têm CCN ou TN) das gestações da paciente, agrupados
+  // por gestação + data — um grupo por visita, com um exame por feto.
+  async function cgBuscarMedidasDaCurva(pacientes, jaTemLaudo){
+    const ids = pacientes.map(p=> p.id);
+    const {data: gests, error: errG} = await cgClient.from('gestacoes')
+      .select('id, paciente_id, dum, gestas, partos, abortos, corionicidade, ppt_espontaneo_previo, progesterona_vaginal_em_uso, cerclagem_realizada, cerclagem_ig_semanas')
+      .in('paciente_id', ids).is('excluido_em', null);
+    if(errG) throw errG;
+    if(!gests || !gests.length) return [];
+    const gestPorId = {};
+    gests.forEach(g=>{ gestPorId[g.id] = g; });
+    const {data: exs, error: errE} = await cgClient.from('exams')
+      .select('*').in('gestacao_id', gests.map(g=> g.id)).is('excluido_em', null)
+      .or('ccn.not.is.null,nt.not.is.null')
+      .order('data_exame',{ascending:false}).limit(100);
+    if(errE) throw errE;
+    const mapa = {}, grupos = [];
+    (exs || []).forEach(ex=>{
+      const gest = gestPorId[ex.gestacao_id];
+      if(!gest) return;
+      const pac = pacientes.find(p=> p.id === gest.paciente_id);
+      if(!pac) return;
+      const data = String(ex.data_exame).slice(0,10);
+      if(jaTemLaudo.has(pac.id+'|'+data)) return;
+      const chave = ex.gestacao_id+'|'+data;
+      if(!mapa[chave]){
+        mapa[chave] = {paciente: pac, gestacao: gest, data_exame: data, exames: []};
+        grupos.push(mapa[chave]);
+      }
+      mapa[chave].exames.push(ex);
+    });
+    grupos.forEach(g=> g.exames.sort((a,b)=> String(a.feto||'A').localeCompare(String(b.feto||'A')) || a.id - b.id));
+    return grupos;
+  }
+
+  // Preenche um formulário novo com as medidas de um exame da Curva. Texto,
+  // impressões e demais achados não existem na Curva e ficam em branco.
+  function cgCarregarMedidas(g){
+    const ok = confirm('Carregar as medidas de '+g.paciente.nome+' (exame de '+cgFormatDateBR(g.data_exame)+')?\n\nIsto substitui o que está no formulário agora. Só as medidas voltam; texto e impressões diagnósticas precisam ser refeitos.');
+    if(!ok) return;
+    resetFormParaNovaPaciente();
+
+    const tocados = [];
+    const setar = (id, valor)=>{
+      const el = $(id);
+      if(!el || valor == null || valor === '') return;
+      el.value = String(valor);
+      tocados.push(el);
+    };
+    const dec = x=> x == null ? null : String(x).replace('.', ',');
+    const risco = t=> t ? String(t).replace(/^\s*1\s*(em|para)\s*/i, '') : null;
+
+    const exames = g.exames;
+    const nFetos = Math.min(Math.max(exames.length, 1), MAX_FETOS);
+    $('numeroFetos').value = String(nFetos);
+    setFetoCount(nFetos);
+    updateGestacaoWrap();
+    if(nFetos > 1 && g.gestacao.corionicidade){
+      const sel = $('corionicidade');
+      if(Array.from(sel.options).some(o=> o.value === g.gestacao.corionicidade && !o.hidden)) sel.value = g.gestacao.corionicidade;
+    }
+
+    setar('nomePaciente', g.paciente.nome);
+    setar('cpfPaciente', g.paciente.cpf ? cgFormatCPF(cgOnlyDigits(g.paciente.cpf)) : '');
+    setar('dataExame', cgFormatDateBR(g.data_exame));
+    setar('gpaG', g.gestacao.gestas); setar('gpaP', g.gestacao.partos); setar('gpaA', g.gestacao.abortos);
+    if(g.gestacao.dum) setar('dum', cgFormatDateBR(g.gestacao.dum));
+    if(g.gestacao.ppt_espontaneo_previo && $('pptEspontaneoPrevio')){ $('pptEspontaneoPrevio').checked = true; tocados.push($('pptEspontaneoPrevio')); }
+    if(g.gestacao.progesterona_vaginal_em_uso && $('progesteronaVaginalEmUso')){ $('progesteronaVaginalEmUso').checked = true; tocados.push($('progesteronaVaginalEmUso')); }
+
+    const primeiro = exames[0];
+    if(primeiro.ig_dias_manual != null){
+      setar('impSemanas', Math.floor(primeiro.ig_dias_manual / 7));
+      setar('impDias', primeiro.ig_dias_manual % 7);
+    }
+    setar('utEsquerda', dec(primeiro.aut_e)); setar('utDireita', dec(primeiro.aut_d));
+    setar('coloComprimento', dec(primeiro.colo));
+    setar('preEclampsiaRisco', risco(primeiro.risco_pre_eclampsia));
+    setar('anexoPtbRisco', risco(primeiro.risco_parto_prematuro));
+    setar('anexoDiabetesRisco', risco(primeiro.risco_diabetes_gestacional));
+
+    const ondaMap = {positiva:'Positiva', ausente:'Ausente', reversa:'Reversa'};
+    const uids = fetoUids();
+    exames.slice(0, uids.length).forEach((ex, i)=>{
+      const pre = 'feto'+uids[i];
+      setar(pre+'CCN', dec(ex.ccn)); setar(pre+'DBP', dec(ex.dbp)); setar(pre+'CC', dec(ex.cc));
+      setar(pre+'CA', dec(ex.ca)); setar(pre+'CF', dec(ex.femur));
+      setar(pre+'TN', dec(ex.nt)); setar(pre+'FC', ex.fc);
+      setar(pre+'DuctoVenoso', dec(ex.dv_ip));
+      if(ex.dv_onda && ondaMap[ex.dv_onda]) setar(pre+'DVOndaA', ondaMap[ex.dv_onda]);
+      setar(pre+'RiscoT21', risco(ex.risco_t21)); setar(pre+'RiscoT18', risco(ex.risco_t18)); setar(pre+'RiscoT13', risco(ex.risco_t13));
+    });
+
+    tocados.forEach(el=>{
+      el.dispatchEvent(new Event(el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input', {bubbles:true}));
+    });
+    aplicarMascaraCPF();
+    render();
+
+    const note = $('draftNote');
+    if(note){
+      $('draftNoteText').textContent = 'Medidas carregadas da Curva de Crescimento (exame de '+cgFormatDateBR(g.data_exame)+'). Só as medidas voltam — confira os campos, complete os achados e as impressões diagnósticas.';
+      note.classList.add('show');
+    }
+    $('cgResults').innerHTML = '';
+    $('cgBusca').value = '';
+    cgToast('Medidas carregadas ✓', false);
   }
 
   // Excluir só apaga a cópia guardada para busca — os exames já enviados às
