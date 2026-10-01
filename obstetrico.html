@@ -498,7 +498,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Boa evolução</label><textarea id="ph_impBoaEvolucao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso antes de 21 semanas (sem percentil)</label><textarea id="ph_impPesoNormalidade" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso adequado — use {PERCENTIL} (já vem como "no percentil 20-30")</label><textarea id="ph_impPesoAdequado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 10 ou abaixo, acima de 3 (PIG) — use {PERCENTIL} (já vem como "no percentil 5-10")</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Peso abaixo do percentil 10, acima de 3 (PIG) — use {PERCENTIL} (já vem como "no percentil 5-10")</label><textarea id="ph_impPesoPIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 3 ou abaixo (CIUR) — use {PERCENTIL} (já vem como "abaixo do percentil 3") e {CIUR} (estágio escolhido no formulário: I, II, III ou IV)</label><textarea id="ph_impPesoCIUR" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 90 ou acima (GIG) — use {PERCENTIL} (já vem como "acima do percentil 90")</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Apresentação pélvica acima de 35 semanas — use {LABEL} ("Feto" ou "Feto N" na múltipla)</label><textarea id="ph_impFetoPelvico" rows="2"></textarea></div>
@@ -1456,7 +1456,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(p == null) return '';
     if(p <= 3) return 'abaixo do percentil 3';
     if(p % 10 === 0 && p >= 10 && p <= 90) return 'no percentil '+p;
-    if(p <= 10) return 'no percentil 5-10';
+    if(p < 10) return 'no percentil 5-10';
     if(p >= 90) return 'acima do percentil 90';
     const low = Math.floor(p/10)*10;
     return 'no percentil '+low+'-'+(low+10);
@@ -2405,7 +2405,7 @@ if(typeof criarMotorLaudo !== 'function'){
         pesoKey = 'impPesoCIUR';
       } else if(!isMultiple && isPrecoceCiur && auDiastoleZero) {
         pesoKey = 'impPesoCIUR';
-      } else if(percentilNum !== null && percentilNum <= 10) {
+      } else if(percentilNum !== null && percentilNum < 10) {
         const auAboveP95Ciur  = auPercentilNum!=null  && auPercentilNum  >= 95;
         const acmBelowP5Ciur  = acmPercentilNum!=null && acmPercentilNum <= 5;
         const cprBelowP5Ciur  = cprPercentilNum!=null && cprPercentilNum < 5;
