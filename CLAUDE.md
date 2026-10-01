@@ -1083,21 +1083,32 @@ em 34 semanas), então praticamente todo exame normal passava do P90 e saía
 "P95". A fórmula nunca foi conferida contra uma fonte — a anterior, uma tabela
 própria sem citação, não tinha o problema.
 
-Hoje o IP da umbilical, o IP da ACM e a RCP usam **tabelas de P5/P50/P95**
-escolhidas pela médica, em `DOPPLER_FMF` no `laudo-core.js`
-(`dopplerFmfRef()`/`dopplerFmfPercentil()`):
+Hoje as três referências são as escolhidas pela médica, em `DOPPLER_FMF` e
+`dopplerFmfRef()` no `laudo-core.js` (`dopplerFmfPercentil()` é a que os
+laudos chamam):
 
 - IP da umbilical: Acharya G et al., Am J Obstet Gynecol 2005;192(3):937-944
-  (19–40 semanas, de 2 em 2);
-- IP da ACM e RCP: Ciobanu A et al. (FMF), Ultrasound Obstet Gynecol
-  2019;53(4):465-472 (20–41 semanas).
+  — **tabela** P5/P50/P95 (19–40 semanas, de 2 em 2);
+- IP da ACM: Ciobanu A et al. (FMF), Ultrasound Obstet Gynecol
+  2019;53(4):465-472 — **tabela** (20–41 semanas);
+- **RCP: Baschat AA, Gembruch U., Ultrasound Obstet Gynecol 2003;21:124-127
+  — equações**, 20–42 semanas. Média = −0,0059×IG² + 0,383×IG − 4,0636 e
+  DP = −0,00113×IG² + 0,07156×IG − 0,67418 (IG em semanas; a do DP é a
+  versão corrigida, publicada depois, de um erro de casas decimais no artigo
+  original). P5/P95 = média ∓ 1,645×DP.
 
-São tabelas transcritas, não fórmulas: confira os números contra a fonte, não
-contra o app. O percentil é interpolado linearmente entre linhas pela IG e
-convertido por uma normal "dividida" (DP inferior = (P50−P5)/1,645, superior
-= (P95−P50)/1,645): dá exatamente 5/50/95 nos pontos da tabela e deixa valores
-abaixo de P5 e acima de P95. Fora da faixa da tabela devolve `null` e o campo
-fica para a médica digitar.
+A RCP saiu do Ciobanu para o Baschat no mesmo dia: o Fetalmed e a Cetrus —
+a rotina da médica — usam o Baschat, e o mesmo exame (33s1d, ACM 1,96,
+umbilical 0,92, RCP 2,13) dava **P61 aqui e P48 lá**. Com o Baschat dá P48 nos
+três. As equações batem com a tabela do Fetalmed em todas as semanas (diferença
+máxima 0,005, o arredondamento da tabela). Só o resumo do artigo foi lido (a
+Tabela 1 é paga): confira os números contra a fonte, não contra o app.
+
+O percentil é convertido por uma normal "dividida" (DP inferior =
+(P50−P5)/1,645, superior = (P95−P50)/1,645): dá exatamente 5/50/95 nos
+pontos da tabela e deixa valores abaixo de P5 e acima de P95; nas tabelas
+interpola linearmente entre linhas pela IG. Fora da faixa devolve `null` e o
+campo fica para a médica digitar.
 
 **O `curva-fetal` tem de usar exatamente estes mesmos números** (suas
 `dopplerAuRef`/`dopplerAcmRef`/`dopplerCprRef` e os `calcDoppler*` que as
