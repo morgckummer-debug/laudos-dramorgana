@@ -915,20 +915,51 @@ if(typeof criarMotorLaudo !== 'function'){
       lastPaperSelectionRange = null;
       return range;
     }
+    // Envolve só o TEXTO selecionado, nó de texto por nó de texto, cada trecho
+    // no seu próprio <span>. Antes usava range.surroundContents() e, quando ele
+    // falhava (seleção que cruza elementos — cartão de identificação, o <div> do
+    // líquido amniótico, linhas de tabela), caía num extractContents() +
+    // insertNode() que PARTIA os blocos da fronteira: o cartão de identificação
+    // e o título sumiam do lugar, blocos ficavam órfãos sem data-blk e o <span>
+    // acabava com <div>/<tr> dentro. Aqui nenhum elemento é movido nem partido —
+    // só nós de texto são divididos —, então a estrutura do #paper não muda.
     function wrapSelectionInStyledSpan(range, applyStyle){
-      const span = document.createElement('span');
-      applyStyle(span.style);
-      try{
-        range.surroundContents(span);
-      }catch(e){
-        const contents = range.extractContents();
-        span.appendChild(contents);
-        range.insertNode(span);
+      const root = range.commonAncestorContainer;
+      const sc = range.startContainer, so = range.startOffset;
+      const ec = range.endContainer, eo = range.endOffset;
+      const textos = [];
+      if(root.nodeType === 3){
+        textos.push(root);
+      } else {
+        const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        let n;
+        while((n = w.nextNode())){ if(range.intersectsNode(n)) textos.push(n); }
       }
+      const SEM_TEXTO = /^(TABLE|THEAD|TBODY|TFOOT|TR|UL|OL)$/;
+      const spans = [];
+      textos.forEach(n=>{
+        const ini = n === sc ? so : 0;
+        const fim = n === ec ? eo : n.length;
+        if(fim <= ini) return;
+        const pai = n.parentNode;
+        if(!pai || SEM_TEXTO.test(pai.nodeName)) return;
+        if(pai.closest && pai.closest('[contenteditable="false"]')) return;
+        if(!n.nodeValue.slice(ini, fim).trim() && textos.length > 1) return;
+        let alvo = n;
+        if(fim < alvo.length) alvo.splitText(fim);
+        if(ini > 0) alvo = alvo.splitText(ini);
+        const span = document.createElement('span');
+        applyStyle(span.style);
+        alvo.parentNode.insertBefore(span, alvo);
+        span.appendChild(alvo);
+        spans.push(span);
+      });
+      if(!spans.length) return;
       const sel = window.getSelection();
       sel.removeAllRanges();
       const newRange = document.createRange();
-      newRange.selectNodeContents(span);
+      newRange.setStartBefore(spans[0]);
+      newRange.setEndAfter(spans[spans.length-1]);
       sel.addRange(newRange);
     }
 
