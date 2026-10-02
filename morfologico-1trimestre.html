@@ -4191,7 +4191,7 @@ if(typeof criarMotorLaudo !== 'function'){
       item.className = 'cg-result-item';
       item.innerHTML = '<span class="ri-info">'
         + '<span class="ri-name">'+cgEsc(nomeExibido)+'</span>'
-        + '<span class="ri-meta">Laudo completo · exame de '+cgEsc(cgFormatDateBR(laudo.data_exame))+'</span>'
+        + '<span class="ri-meta">Morfologico do 1ª trimestre - '+cgEsc(cgFormatDateBR(laudo.data_exame))+'</span>'
         + '</span>'
         + '<button type="button" class="ri-del" title="Excluir este laudo">Excluir</button>';
       item.querySelector('.ri-info').addEventListener('click', ()=> cgCarregarLaudo(laudo));
