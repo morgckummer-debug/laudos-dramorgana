@@ -322,6 +322,24 @@
   .status-pill.pending{background:var(--amber-light);color:var(--amber);}
   .status-pill + .status-pill{margin-left:6px;}
 
+  /* Busca de laudo anterior (mesmo visual do rastreamento-ovulacao.html) */
+  .cg-bar{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin:0 28px 14px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow);}
+  .cg-bar .field{flex:1;min-width:200px;margin:0;}
+  .cg-bar .field label{font-size:12px;color:var(--ink-soft);display:block;margin-bottom:4px;}
+  .cg-bar input{width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13.5px;box-sizing:border-box;}
+  .cg-results-list{width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+  .cg-result-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--line-soft);}
+  .cg-result-item:hover{background:var(--rose-light);}
+  .cg-result-item .ri-info{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;cursor:pointer;}
+  .cg-result-item .ri-name{font-weight:600;color:var(--ink);font-size:13.5px;}
+  .cg-result-item .ri-meta{font-size:12px;color:var(--ink-soft);}
+  .cg-result-item .ri-del{flex:0 0 auto;background:#fff;border:1.5px solid var(--line);color:var(--ink-soft);border-radius:8px;padding:5px 10px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+  .cg-result-item .ri-del:hover{background:#B4432F;border-color:#B4432F;color:#fff;}
+  .cg-result-empty{font-size:12.5px;color:var(--ink-soft);padding:6px 2px;}
+
+  /* Morfológico de 3º trimestre: campos que só se medem no 2º */
+  body.tri3 .t2only{display:none !important;}
+
   .print-alert{
     display:none;background:#B4432F;color:#fff;font-weight:600;font-size:13px;
     padding:10px 14px;border-radius:10px;margin-bottom:10px;
@@ -355,7 +373,7 @@
     margin: 0;
   }
   @media print{
-    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note{display:none !important;}
+    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note, .cg-bar, .cg-results-list{display:none !important;}
     /* .combo-list (a lista de médicos que aparece ao digitar) é movida para o
        <body> para não ser cortada pelo overflow:hidden do card — ou seja, ela
        NÃO é descendente de #formCol e não some com a regra acima. Sem esta
@@ -420,7 +438,7 @@
       <img src="icon-morfolo2T.png" alt="">
     </div>
     <div class="topbar-title">
-      <h1>Ultrassom Morfológico de 2º Trimestre</h1>
+      <h1 id="tituloTopo">Ultrassom Morfológico de 2º Trimestre</h1>
       <div class="sub">Dra. Morgana Kummer · avaliação morfológica fetal órgão a órgão, biometria estendida e cordão umbilical</div>
     </div>
   </div>
@@ -468,6 +486,15 @@
   </div>
 </div>
 
+<div class="cg-bar" id="cgBar">
+  <div class="field">
+    <label>Buscar laudo anterior (nome ou CPF)</label>
+    <input type="text" id="cgBusca" placeholder="Digite o nome ou o CPF da paciente" autocomplete="off">
+  </div>
+  <button type="button" class="btn-cg" id="btnBuscarCG">Buscar</button>
+  <div class="cg-results-list" id="cgResults"></div>
+</div>
+
 <div class="settings-panel" id="settingsPanel">
   <h3>Identificação do médico (assinatura do laudo)</h3>
   <div class="settings-grid">
@@ -511,6 +538,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Tórax / coração</label><textarea id="ph_morfoTorax" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Abdome</label><textarea id="ph_morfoAbdome" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Membros fetais</label><textarea id="ph_morfoMembros" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Membros fetais — morfológico de 3º trimestre</label><textarea id="ph_morfoMembros3tri" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Impressões diagnósticas — base</h3>
@@ -569,6 +597,7 @@
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;"></p>
+        <div class="toggle-line"><input type="checkbox" id="chkTerceiroTrimestre"><label for="chkTerceiroTrimestre"><strong>Morfológico de 3º trimestre</strong> — não mede rádio, ulna, tíbia, fíbula nem prega pré-nasal; ângulo perna-pé limitado</label></div>
         <div class="field-row">
           <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
           <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
@@ -1235,6 +1264,9 @@ if(typeof criarMotorLaudo !== 'function'){
     morfoTorax: 'Conformação usual. Diafragma visibilizado, íntegro. Não há sinais de derrame pleural ou pericárdico. Situs solitus. Coração normoposicionado com eixo em torno de 45º, com quatro cavidades proporcionais. Saída dos grandes vasos, quatro câmaras e 3VT usuais. Septos interatriais e interventriculares aparentemente íntegros.',
     morfoAbdome: 'Contornos regulares sem edemas. Estômago e bexiga repletos e rins de aspecto normal. Vesícula biliar visibilizada de aspecto normal. Inserção normal do cordão umbilical. Rins e bexiga sem alterações.',
     morfoMembros: 'Os membros superiores e inferiores são de aspecto normal em seus diferentes segmentos. Ângulo perna-pé usual.',
+    // Chave própria do 3º trimestre (e não uma troca do texto de morfoMembros): o "Salvar frases" grava
+    // todas as chaves de uma vez, então mexer numa chave existente ficaria escondido atrás da frase salva.
+    morfoMembros3tri: 'Os membros superiores e inferiores são de aspecto normal em seus diferentes segmentos. Ângulo perna-pé limitado devido ao avançar da gestação.',
 
     impGestacao: 'Gestação eutópica, compatível com {IG}.',
     impGestacaoMultipla: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
@@ -1431,6 +1463,22 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
   $('chkDopplerFetal').addEventListener('change', e=>{ toggle('dopplerFetalFields', e.target.checked); updateAllFetoWraps(); render(); });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
+  // Morfológico de 3º trimestre: mesmo laudo, sem rádio/ulna/tíbia/fíbula/prega
+  // pré-nasal e com outra frase para os membros. Quem decide tudo isso é o
+  // render() (lê o checkbox a cada desenho); aqui só troca a frase padrão que
+  // já foi pré-preenchida na descrição dos membros — um segmento marcado
+  // "alterado" guarda a frase do trimestre anterior dentro da caixa.
+  function frasePadraoMembros(tri3){ return phraseRaw(tri3 ? 'morfoMembros3tri' : 'morfoMembros'); }
+  $('chkTerceiroTrimestre').addEventListener('change', e=>{
+    const tri3 = e.target.checked;
+    if(!st.draftRestoring){
+      fetoUids().forEach(uid=>{
+        const box = $('feto'+uid+'MembrosDescricao');
+        if(box && box.value.trim() === frasePadraoMembros(!tri3).replace(/\.+\s*$/, '')) box.value = frasePadraoMembros(tri3);
+      });
+    }
+    render();
+  });
   $('cerclagemRealizada').addEventListener('change', e=>{ toggle('wrap_cerclagemIG', e.target.checked); });
 
   // ---------- Feto(s): lista dinâmica, mesmo padrão dos sacos gestacionais do
@@ -1510,22 +1558,22 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Comprimento umeral (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Umero" placeholder="mm"></div>'
-      +'<div class="field"><label>Prega pré-nasal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'PregaPreNasal" placeholder="mm"></div>'
+      +'<div class="field t2only"><label>Prega pré-nasal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'PregaPreNasal" placeholder="mm"></div>'
       +'</div>'
       +'<div class="field-row">'
-      +'<div class="field"><label>Rádio (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Radio" placeholder="mm"></div>'
+      +'<div class="field t2only"><label>Rádio (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Radio" placeholder="mm"></div>'
       +'<div class="field"><label>Distância orbitária externa (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DOE" placeholder="mm"></div>'
       +'</div>'
       +'<div class="field-row">'
-      +'<div class="field"><label>Ulna (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Ulna" placeholder="mm"></div>'
+      +'<div class="field t2only"><label>Ulna (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Ulna" placeholder="mm"></div>'
       +'<div class="field"><label>Distância orbitária interna (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DOI" placeholder="mm"></div>'
       +'</div>'
       +'<div class="field-row">'
-      +'<div class="field"><label>Tíbia (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Tibia" placeholder="mm"></div>'
+      +'<div class="field t2only"><label>Tíbia (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Tibia" placeholder="mm"></div>'
       +'<div class="field"><label>Peso fetal estimado (g)</label><input type="text" inputmode="numeric" id="feto'+uid+'Peso" placeholder="g"></div>'
       +'</div>'
       +'<div class="field-row">'
-      +'<div class="field"><label>Fíbula (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Fibula" placeholder="mm"></div>'
+      +'<div class="field t2only"><label>Fíbula (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Fibula" placeholder="mm"></div>'
       +'<div class="field"><label>Percentil de peso (Hadlock)</label><input type="text" inputmode="numeric" id="feto'+uid+'Percentil" placeholder="ex: 45"></div>'
       +'</div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'CiurEstagio"><label>CIUR — estágio</label><select id="feto'+uid+'CiurEstagio"><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>'
@@ -1628,12 +1676,16 @@ if(typeof criarMotorLaudo !== 'function'){
   // resto do texto normal. Só preenche caixa vazia — o que a médica já
   // escreveu sobrevive a alternar normal/alterado, e voltar ao padrão é
   // apagar a caixa e marcar alterado de novo.
+  // Frase padrão do segmento: os membros têm texto próprio no 3º trimestre.
+  function segFrase(seg){
+    return (seg.key === 'Membros' && $('chkTerceiroTrimestre').checked) ? 'morfoMembros3tri' : seg.phrase;
+  }
   function prefillSegmentoDescricao(uid, seg){
     const sel = $('feto'+uid+seg.key);
     const box = $('feto'+uid+seg.key+'Descricao');
     if(!sel || !box) return false;
     if(sel.value !== 'alterado' || box.value.trim()) return false;
-    box.value = phraseRaw(seg.phrase);
+    box.value = phraseRaw(segFrase(seg));
     return true;
   }
 
@@ -2087,6 +2139,13 @@ if(typeof criarMotorLaudo !== 'function'){
   let printAttempted = false;
 
   function render(){
+    // Morfológico de 3º trimestre (checkbox no topo do formulário): lido a cada
+    // desenho, então "Limpar" e a restauração do rascunho — que mexem no
+    // checkbox sem passar pelo 'change' — também acertam o formulário e o título.
+    const tri3 = $('chkTerceiroTrimestre').checked;
+    const triNum = tri3 ? 3 : 2;
+    document.body.classList.toggle('tri3', tri3);
+    $('tituloTopo').textContent = 'Ultrassom Morfológico de ' + triNum + 'º Trimestre';
     if(st.draftRestoring) return;
     // Durante a impressão o #paper está remontado em folhas e será reposto
     // inteiro pelo 'afterprint': o que fosse renderizado agora seria jogado
@@ -2201,13 +2260,15 @@ if(typeof criarMotorLaudo !== 'function'){
       const cf = blankOrValue(req(pre+'CF'));
       const ossoNasal = blankOrValue(v(pre+'OssoNasal'));
       const umero = blankOrValue(v(pre+'Umero'));
-      const pregaPreNasal = blankOrValue(v(pre+'PregaPreNasal'));
-      const radio = blankOrValue(v(pre+'Radio'));
+      // No 3º trimestre estas medidas não são feitas: ficam fora do laudo mesmo
+      // que ainda haja valor digitado (o checkbox pode ser desmarcado depois).
+      const pregaPreNasal = tri3 ? '' : blankOrValue(v(pre+'PregaPreNasal'));
+      const radio = tri3 ? '' : blankOrValue(v(pre+'Radio'));
       const doe = blankOrValue(v(pre+'DOE'));
-      const ulna = blankOrValue(v(pre+'Ulna'));
+      const ulna = tri3 ? '' : blankOrValue(v(pre+'Ulna'));
       const doi = blankOrValue(v(pre+'DOI'));
-      const tibia = blankOrValue(v(pre+'Tibia'));
-      const fibula = blankOrValue(v(pre+'Fibula'));
+      const tibia = tri3 ? '' : blankOrValue(v(pre+'Tibia'));
+      const fibula = tri3 ? '' : blankOrValue(v(pre+'Fibula'));
       const peso = blankOrValue(req(pre+'Peso'));
       const pesoNum = num(pre+'Peso');
       const percentil = blankOrValue(v(pre+'Percentil'));
@@ -2217,7 +2278,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // entra a descrição editada e o achado sobe para a impressão.
       const alteracoes = [];
       const segmentos = MORFO_SEGMENTOS.map(seg=>{
-        const generica = phraseRaw(seg.phrase);
+        const generica = phraseRaw(segFrase(seg));
         const alterado = v(pre+seg.key)==='alterado';
         const descricao = vNoDot(pre+seg.key+'Descricao');
         // A caixa de descrição já nasce com a frase padrão dentro
@@ -2402,8 +2463,8 @@ if(typeof criarMotorLaudo !== 'function'){
         : '<div class="id-card-row"><span><strong>DUM:</strong> '+span(blankOrValue(dum))+' &nbsp;&nbsp;&nbsp; <strong>Cronologia:</strong> '+span(blankOrValue(igAtualTxt))+'</span></div>')
       +'</div>'});
 
-    let tituloLinha2 = 'DO 2º TRIMESTRE';
-    if(isMultiple) tituloLinha2 = (fetos.length >= 3 ? 'TRIGEMELAR' : 'GEMELAR') + ' DO 2º TRIMESTRE';
+    let tituloLinha2 = 'DO ' + triNum + 'º TRIMESTRE';
+    if(isMultiple) tituloLinha2 = (fetos.length >= 3 ? 'TRIGEMELAR' : 'GEMELAR') + ' DO ' + triNum + 'º TRIMESTRE';
     // O título acompanha Doppler (materno e/ou fetal) e colo uterino quando
     // ativados, na mesma lógica do obstetrico.html — só que aqui os
     // complementos possíveis são só esses dois (sem PBF).
@@ -2451,10 +2512,10 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Circunferência abdominal (CA)</td><td>'+span(f.ca)+' mm</td></tr>'
         +'<tr><td>Comprimento femoral</td><td>'+span(f.cf)+' mm</td></tr>'
         +'<tr><td>Comprimento umeral</td><td>'+span(f.umero)+' mm</td></tr>'
-        +'<tr><td>Rádio</td><td>'+span(f.radio)+' mm</td></tr>'
-        +'<tr><td>Ulna</td><td>'+span(f.ulna)+' mm</td></tr>'
-        +'<tr><td>Tíbia</td><td>'+span(f.tibia)+' mm</td></tr>'
-        +'<tr><td>Fíbula</td><td>'+span(f.fibula)+' mm</td></tr>'
+        +(tri3 ? '' : '<tr><td>Rádio</td><td>'+span(f.radio)+' mm</td></tr>'
+          +'<tr><td>Ulna</td><td>'+span(f.ulna)+' mm</td></tr>'
+          +'<tr><td>Tíbia</td><td>'+span(f.tibia)+' mm</td></tr>'
+          +'<tr><td>Fíbula</td><td>'+span(f.fibula)+' mm</td></tr>')
         +'</table>';
       const tabelaBiometriaB = '<table class="biometria biometria-fetal">'
         +'<tr><td>Diâmetro cerebelar</td><td>'+span(f.diamCerebelar)+' mm</td></tr>'
@@ -2462,7 +2523,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Prega nucal</td><td>'+span(f.pregaNucal)+' mm</td></tr>'
         +'<tr><td>Ventrículo posterior</td><td>'+span(f.ventriculoPosterior)+' mm</td></tr>'
         +'<tr><td>Osso nasal</td><td>'+span(f.ossoNasal)+' mm</td></tr>'
-        +'<tr><td>Prega pré-nasal</td><td>'+span(f.pregaPreNasal)+' mm</td></tr>'
+        +(tri3 ? '' : '<tr><td>Prega pré-nasal</td><td>'+span(f.pregaPreNasal)+' mm</td></tr>')
         +'<tr><td>Distância orbitária externa</td><td>'+span(f.doe)+' mm</td></tr>'
         +'<tr><td>Distância orbitária interna</td><td>'+span(f.doi)+' mm</td></tr>'
         +'<tr><td>Peso fetal estimado</td><td><strong>'+span(f.peso)+' gramas</strong></td></tr>'
@@ -2737,9 +2798,10 @@ if(typeof criarMotorLaudo !== 'function'){
   // o arquivo já sair identificado e ir direto para a pasta da paciente.
   function tituloExame(){
     const n = fetoUids().length;
-    const prefixo = n >= 3 ? 'Morfológico Trigemelar 2º trimestre'
-      : n === 2 ? 'Morfológico Gemelar 2º trimestre'
-      : 'Morfológico 2º trimestre';
+    const triTxt = $('chkTerceiroTrimestre').checked ? '3º' : '2º';
+    const prefixo = n >= 3 ? 'Morfológico Trigemelar '+triTxt+' trimestre'
+      : n === 2 ? 'Morfológico Gemelar '+triTxt+' trimestre'
+      : 'Morfológico '+triTxt+' trimestre';
     const doppler = $('chkDopplerMaterno').checked || $('chkDopplerFetal').checked;
     const base = doppler ? prefixo + ' com Doppler' : prefixo;
     return $('chkColo').checked ? base + ' + Colo' : base;
@@ -3068,6 +3130,151 @@ if(typeof criarMotorLaudo !== 'function'){
   $('cgLoginOverlay').classList.add('hide');
   cgCheckSession();
 
+  // ---- Buscar laudo anterior por nome ou CPF ----
+  // Mesmo mecanismo do morfologico-1trimestre.html: o laudo inteiro — texto,
+  // impressões, tudo — fica numa tabela própria, `laudos_morfologico_2tri`, como um snapshot
+  // (`draftSnapshot()`) por paciente + data do exame, gravado junto do "Salvar
+  // na Curva de Crescimento". O app de curvas nunca lê essa tabela. Ela não
+  // tem migração registrada em lugar nenhum — rodar UMA vez no SQL Editor do
+  // Supabase:
+  //
+  //   create table if not exists laudos_morfologico_2tri (
+  //     id bigint generated always as identity primary key,
+  //     user_id uuid not null default auth.uid(),
+  //     paciente_id bigint not null references patients(id),
+  //     cpf text, nome text,
+  //     data_exame date not null,
+  //     conteudo jsonb not null,
+  //     created_at timestamptz not null default now(),
+  //     unique (paciente_id, data_exame)
+  //   );
+  //   alter table laudos_morfologico_2tri enable row level security;
+  //   create policy "dono acessa os proprios laudos" on laudos_morfologico_2tri
+  //     for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  //
+  // (ajuste o tipo de `paciente_id` se `patients.id` não for bigint.)
+  function cgFormatCPF(digits){ return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'); }
+  function cgFormatDateBR(iso){
+    const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? (m[3]+'.'+m[2]+'.'+m[1]) : String(iso || '');
+  }
+  function cgEsc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  // Segunda linha de cada resultado: tipo do laudo + data do exame.
+  function cgRotuloLaudo(laudo){
+    const f = (laudo.conteudo && laudo.conteudo.fields) || {};
+    return (f.chkTerceiroTrimestre ? 'Morfologico do 3º trimestre' : 'Morfologico do 2º trimestre') + ' - ' + cgFormatDateBR(laudo.data_exame);
+  }
+
+  async function cgBuscarLaudos(){
+    const session = await cgCheckSession();
+    if(!session){ $('cgLoginOverlay').classList.remove('hide'); cgToast('Faça login para buscar laudos.', true); return; }
+    const term = v('cgBusca');
+    const digits = cgOnlyDigits(term);
+    const resultsEl = $('cgResults');
+    resultsEl.innerHTML = '';
+    if(!term){ cgToast('Digite nome ou CPF para buscar.', true); return; }
+
+    let pacientes = [];
+    try{
+      if(digits.length === 11){
+        const {data, error} = await cgClient.from('patients')
+          .select('id, nome, cpf').in('cpf', [digits, cgFormatCPF(digits)]).is('excluido_em', null).limit(20);
+        if(error) throw error;
+        pacientes = data || [];
+      }else{
+        const nome = term.replace(/[%_]/g, '\\$&');
+        const {data, error} = await cgClient.from('patients')
+          .select('id, nome, cpf').ilike('nome', '%'+nome+'%').is('excluido_em', null).limit(20);
+        if(error) throw error;
+        pacientes = data || [];
+      }
+    }catch(e){
+      cgToast('Erro ao buscar: ' + (e.message || 'tente novamente.'), true);
+      return;
+    }
+    if(!pacientes.length){ resultsEl.innerHTML = '<div class="cg-result-empty">Nenhum paciente encontrado.</div>'; return; }
+
+    let laudos = [];
+    try{
+      const {data, error} = await cgClient.from('laudos_morfologico_2tri')
+        .select('id, data_exame, paciente_id, created_at, conteudo')
+        .in('paciente_id', pacientes.map(p=> p.id))
+        .order('data_exame',{ascending:false}).order('created_at',{ascending:false}).limit(50);
+      if(error) throw error;
+      laudos = data || [];
+    }catch(e){
+      cgToast('Erro ao buscar laudos salvos: ' + (e.message || 'tente novamente.'), true);
+      return;
+    }
+
+    const porNome = {};
+    pacientes.forEach(p=>{ porNome[p.id] = p.nome; });
+    laudos.forEach(laudo=>{
+      const nomeExibido = porNome[laudo.paciente_id] || 'Paciente';
+      const item = document.createElement('div');
+      item.className = 'cg-result-item';
+      item.innerHTML = '<span class="ri-info">'
+        + '<span class="ri-name">'+cgEsc(nomeExibido)+'</span>'
+        + '<span class="ri-meta">'+cgEsc(cgRotuloLaudo(laudo))+'</span>'
+        + '</span>'
+        + '<button type="button" class="ri-del" title="Excluir este laudo">Excluir</button>';
+      item.querySelector('.ri-info').addEventListener('click', ()=> cgCarregarLaudo(laudo));
+      item.querySelector('.ri-del').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        cgExcluirLaudo(laudo, item, nomeExibido);
+      });
+      resultsEl.appendChild(item);
+    });
+
+    if(!resultsEl.querySelector('.cg-result-item')){
+      resultsEl.innerHTML = '<div class="cg-result-empty">Paciente encontrada, mas sem laudo salvo.</div>';
+    }
+  }
+
+  // Excluir só apaga a cópia guardada para busca — os exames já enviados às
+  // curvas (`exams`) não são tocados.
+  async function cgExcluirLaudo(laudo, itemEl, nomeExibido){
+    const ok = confirm('Excluir o laudo de '+nomeExibido+' (exame de '+cgFormatDateBR(laudo.data_exame)+')?\n\nSó some da busca; os exames já salvos na Curva de Crescimento continuam lá. Essa ação não pode ser desfeita.');
+    if(!ok) return;
+    try{
+      const {error} = await cgClient.from('laudos_morfologico_2tri').delete().eq('id', laudo.id);
+      if(error) throw error;
+      itemEl.remove();
+      const resultsEl = $('cgResults');
+      if(!resultsEl.querySelector('.cg-result-item')){
+        resultsEl.innerHTML = '<div class="cg-result-empty">Nenhum laudo restante para esta busca.</div>';
+      }
+      cgToast('Laudo excluído.', false);
+    }catch(e){
+      cgToast('Erro ao excluir: ' + (e.message || 'tente novamente.'), true);
+    }
+  }
+
+  function cgCarregarLaudo(laudo){
+    const snap = laudo.conteudo;
+    if(!snap || typeof snap !== 'object' || !snap.fields){
+      cgToast('Laudo sem conteúdo salvo.', true);
+      return;
+    }
+    if(!draftRestore(snap)){
+      cgToast('Não foi possível carregar este laudo.', true);
+      return;
+    }
+    const note = $('draftNote');
+    if(note){
+      $('draftNoteText').textContent = 'Laudo anterior carregado da Curva de Crescimento. Para começar um laudo novo, use "Limpar" no alto da página.';
+      note.classList.add('show');
+    }
+    $('cgResults').innerHTML = '';
+    $('cgBusca').value = '';
+    cgToast('Laudo carregado ✓', false);
+  }
+
+  $('btnBuscarCG').addEventListener('click', cgBuscarLaudos);
+  $('cgBusca').addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); cgBuscarLaudos(); } });
+
   $('btnSalvarCG').addEventListener('click', async ()=>{
     const session = await cgCheckSession();
     if(!session){ $('cgLoginOverlay').classList.remove('hide'); cgToast('Faça login para salvar.', true); return; }
@@ -3232,10 +3439,10 @@ if(typeof criarMotorLaudo !== 'function'){
           femur: num(pre+'CF'),
           dof: num(pre+'DOF'),
           umero: num(pre+'Umero'),
-          radio: num(pre+'Radio'),
-          ulna: num(pre+'Ulna'),
-          tibia: num(pre+'Tibia'),
-          fibula: num(pre+'Fibula'),
+          radio: $('chkTerceiroTrimestre').checked ? null : num(pre+'Radio'),
+          ulna: $('chkTerceiroTrimestre').checked ? null : num(pre+'Ulna'),
+          tibia: $('chkTerceiroTrimestre').checked ? null : num(pre+'Tibia'),
+          fibula: $('chkTerceiroTrimestre').checked ? null : num(pre+'Fibula'),
           // Doppler materno: aut_e/aut_d são as colunas de artéria uterina esquerda e
           // direita lá na curva de crescimento. As uterinas são da mãe, não do feto —
           // numa gemelar o mesmo par de valores vai nos dois exames.
@@ -3251,8 +3458,36 @@ if(typeof criarMotorLaudo !== 'function'){
       const {error: errExame} = await cgClient.from('exams').insert(exames);
       if(errExame) throw errExame;
 
+      // Cópia do laudo inteiro para "Buscar laudo anterior". Os exames acima
+      // já foram gravados, então uma falha aqui (tabela ainda não criada, por
+      // exemplo) não os desfaz — só avisa que a busca não vai achar este. Um
+      // registro por paciente + data do exame: salvar de novo no mesmo dia
+      // atualiza o mesmo laudo em vez de empilhar duplicatas na busca.
+      let avisoBusca = '';
+      try{
+        const snap = draftSnapshot();
+        const {data: laudoExistente, error: errBuscaLaudo} = await cgClient
+          .from('laudos_morfologico_2tri').select('id')
+          .eq('paciente_id', paciente.id).eq('data_exame', dataExameISO).limit(1);
+        if(errBuscaLaudo) throw errBuscaLaudo;
+        if(laudoExistente && laudoExistente[0]){
+          const {error: errUpd} = await cgClient.from('laudos_morfologico_2tri')
+            .update({cpf: cpfFormatado, nome: nome, conteudo: snap}).eq('id', laudoExistente[0].id);
+          if(errUpd) throw errUpd;
+        }else{
+          const {error: errIns} = await cgClient.from('laudos_morfologico_2tri').insert({
+            user_id: userId, paciente_id: paciente.id, cpf: cpfFormatado, nome: nome,
+            data_exame: dataExameISO, conteudo: snap
+          });
+          if(errIns) throw errIns;
+        }
+      }catch(eLaudo){
+        console.error(eLaudo);
+        avisoBusca = ' — mas a cópia do laudo para busca NÃO foi salva (' + (eLaudo.message || 'erro') + ')';
+      }
+
       const avisoNome = nomeAntigoDaCurva ? (' — nome da Curva atualizado (estava "'+nomeAntigoDaCurva+'")') : '';
-      cgToast((isMultiple ? 'Exames salvos na Curva de Crescimento ✓' : 'Exame salvo na Curva de Crescimento ✓') + avisoNome, false);
+      cgToast((isMultiple ? 'Exames salvos na Curva de Crescimento ✓' : 'Exame salvo na Curva de Crescimento ✓') + avisoNome + avisoBusca, !!avisoBusca);
     }catch(e){
       console.error(e);
       cgToast('Erro ao salvar: ' + (e.message || 'tente novamente.'), true);

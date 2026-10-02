@@ -1073,6 +1073,29 @@ gestação ativa, valor no `insert` (gestação nova) e um `if(check && !valorNo
 próprio no bloco de gestação existente — nunca um único `else if` cobrindo
 várias flags, porque aí só a primeira verdadeira do laudo seria gravada.
 
+## Busca de laudo anterior e morfológico de 3º trimestre (2026-10-02)
+
+- **"Buscar laudo anterior" (nome ou CPF)** passou a existir em
+  `obstetrico.html` (tabela `laudos_obstetrico`) e `morfologico-2trimestre.html`
+  (tabela `laudos_morfologico_2tri`), copiada do `morfologico-1trimestre.html`:
+  mesma barra `#cgBar`, mesmo snapshot (`draftSnapshot()`) gravado junto do
+  "Salvar na Curva de Crescimento", mesmo `unique (paciente_id, data_exame)`.
+  **As duas tabelas não existem até alguém rodar o SQL** que está no comentário
+  do `<script>` de cada arquivo, no SQL Editor do Supabase; sem elas o "Salvar"
+  continua gravando os exames e só avisa no toast que a cópia para busca não foi
+  salva. Não há "só medidas da Curva" nesses dois (isso é só do 1º trimestre).
+  São três cópias do mesmo bloco (1º tri, 2º tri, obstétrico), mais o do
+  `rastreamento-ovulacao`, que é outro — se precisar de conserto, considere extrair.
+- **Morfológico de 3º trimestre** é o checkbox `#chkTerceiroTrimestre` no topo de
+  "Dados do exame" do `morfologico-2trimestre.html` — não é arquivo novo. O
+  `render()` lê o checkbox a cada desenho (e não um listener de `change`), porque
+  "Limpar" e a restauração do rascunho mexem nele sem disparar evento. Com ele
+  marcado: título "DO 3º TRIMESTRE", sem rádio/ulna/tíbia/fíbula/prega pré-nasal
+  (campos escondidos por `body.tri3 .t2only`, linhas fora das tabelas, `null` no
+  insert de `exams`) e frase de membros própria (`morfoMembros3tri`, chave nova de
+  propósito: o "Salvar frases" sobrescreveria uma troca em `morfoMembros`).
+  Os valores digitados nesses campos não são apagados ao marcar — só ignorados.
+
 ## Doppler fetal (umbilical, ACM, RCP): uma tabela só, igual à do curva-fetal
 
 2026-10-01. A Dra. Morgana notou que vários laudos mostravam o RCP sempre no
