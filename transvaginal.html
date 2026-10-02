@@ -575,6 +575,7 @@
   <div class="field" style="margin-bottom:8px;"><label>DIU de baixa implantação</label><textarea id="ph_impDiuBaixa" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial</label><textarea id="ph_impPolipoEndometrial" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio espessado (menopausa)</label><textarea id="ph_impEndometrioEspessado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Endométrio atrófico (espessura menor que 2,0 mm)</label><textarea id="ph_impEndometrioAtrofico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_impSinequias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio</label><textarea id="ph_impHematometrio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário não identificado — use {LADO}</label><textarea id="ph_impOvarioNaoIdentificado" rows="2"></textarea></div>
@@ -1912,6 +1913,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impDiuNormo: 'DIU normoposicionado.',
     impDiuBaixa: 'DIU de baixa implantação.',
     impPolipoEndometrial: 'Nódulo ecogênico intracavitário sugestivo de pólipo.',
+    impEndometrioAtrofico: 'Endométrio atrófico.',
     impEndometrioEspessado: 'Endométrio espessado e heterogêneo — dentre as possibilidades diagnósticas, considerar pólipo ocupando toda a cavidade uterina.',
     impSinequias: 'Falhas no eco endometrial, sugestivas de sinéquias - Seguir propedêutica.',
     impHematometrio: 'Hematométrio.',
@@ -2475,6 +2477,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.endometrioAspecto==='espessado'){
       items.push({key:'endometrio-espessado', label:phraseRaw('impEndometrioEspessado'), auto:true});
     }
+    if(state.endometrioAtrofico){
+      items.push({key:'endometrio-atrofico', label:phraseRaw('impEndometrioAtrofico'), auto:true});
+    }
     if(state.chkSinequias){
       items.push({key:'sinequias', label:phraseRaw('impSinequias'), auto:true});
     }
@@ -2751,6 +2756,10 @@ if(typeof criarMotorLaudo !== 'function'){
     const endometrioEspessuraE = blankOrValue(reqIf('endometrioEspessuraE', endoDuplo));
     const espDuplo = {ESPESSURAD: span(endometrioEspessuraD), ESPESSURAE: span(endometrioEspessuraE)};
     const endometrioAspecto = v('endometrioAspecto');
+    // Menor que 2,0 mm = atrófico. Com útero septado/bicorno vale quando todas
+    // as espessuras digitadas (D/E) estão abaixo disso.
+    const espAtrofia = (endoDuplo ? [num('endometrioEspessuraD'), num('endometrioEspessuraE')] : [num('endometrioEspessura')]).filter(x=> x!==null);
+    const endometrioAtrofico = uteroPresente && espAtrofia.length > 0 && espAtrofia.every(x=> x < 2.0);
     const ENDOMETRIO_PADRAO_TEXTO = {trilaminar:'trilaminar', secretor:'secretor', laminar:'laminar', ecogenico:'ecogênico'};
     const endometrioPadrao = ENDOMETRIO_PADRAO_TEXTO[v('endometrioPadrao')] || 'trilaminar';
     const polipoLocalizacao = v('polipoLocalizacao');
@@ -2834,7 +2843,7 @@ if(typeof criarMotorLaudo !== 'function'){
       bexigaAspecto, bexigaDescricao,
       miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose, uteroVolumeAumentado,
       chkIstmocele, istmocelePct, chkPolipoEndocervical, chkDIU, diuPosicao, chkHematometrio,
-      endometrioAspecto, chkSinequias,
+      endometrioAspecto, endometrioAtrofico, chkSinequias,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
       ovD_aspecto2: ovD.aspecto2, ovD_descricao2: ovD.descricao2,
       ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao, ovE_volNum: ovE.volNum,
