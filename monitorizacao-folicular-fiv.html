@@ -449,6 +449,16 @@
   <h3>Endométrio</h3>
   <div class="field" style="margin-bottom:8px;"><label>Frase do endométrio — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_endometrioLinha" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_sinequias" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Útero e ambos os ovários com mobilidade preservada (frase única, substitui as duas abaixo)</label><textarea id="ph_mobilidadeTodosPreservados" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mobilidade uterina preservada</label><textarea id="ph_mobilidadeUterinaPreservada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mobilidade uterina reduzida</label><textarea id="ph_mobilidadeUterinaReduzida" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Sinal do "sliding" negativo</label><textarea id="ph_slidingSignNegativo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Sinal do "sliding" positivo</label><textarea id="ph_slidingSignPositivo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Kissing ovaries (ovários em contato na linha média)</label><textarea id="ph_kissingOvaries" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mobilidade ovariana — ambos preservados</label><textarea id="ph_mobilidadeOvarianaAmbosPreservados" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mobilidade ovariana — só direito reduzido</label><textarea id="ph_mobilidadeOvarianaDireitaReduzida" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mobilidade ovariana — só esquerdo reduzido</label><textarea id="ph_mobilidadeOvarianaEsquerdaReduzida" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mobilidade ovariana — ambos reduzidos</label><textarea id="ph_mobilidadeOvarianaAmbosReduzidos" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio — use {MEDIDAS} e {VOLUME}</label><textarea id="ph_hematometrio" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -475,6 +485,9 @@
   <h3>Impressão diagnóstica</h3>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_impEndometrio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_impSinequias" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Mobilidade uterina reduzida / sliding negativo</label><textarea id="ph_impSlidingNegativo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Kissing ovaries</label><textarea id="ph_impKissingOvaries" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com mobilidade reduzida — use {LADO}</label><textarea id="ph_impMobilidadeOvarioReduzida" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio</label><textarea id="ph_impHematometrio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes bilaterais</label><textarea id="ph_impFoliculosBilaterais" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hiperestimulação ovariana (SHO)</label><textarea id="ph_impSHO" rows="2"></textarea></div>
@@ -783,6 +796,27 @@
           <div class="field conditional" id="wrap_ovE_descricao_2">
             <label>Descreva o achado adicional</label>
             <textarea id="ovE_descricao2" rows="2" placeholder="ex: formação sólida com fluxo ao Doppler..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Mobilidade (manobras bimanuais)</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Mobilidade uterina</label>
+            <select id="mobilidadeUterina"><option value="preservada">Preservada</option><option value="reduzida">Reduzida</option></select>
+          </div>
+          <div class="field"><label>Sinal do "sliding"</label>
+            <select id="slidingSign"><option value="">Não descrever (negativo se mobilidade reduzida)</option><option value="positivo">Positivo</option><option value="negativo">Negativo</option></select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Mobilidade ovariana</label>
+            <div class="toggle-line" style="margin:6px 0 0;"><input type="checkbox" id="chkMobilidadeOvD"><label for="chkMobilidadeOvD">Ovário direito com mobilidade reduzida</label></div>
+            <div class="toggle-line" style="margin:0;"><input type="checkbox" id="chkMobilidadeOvE"><label for="chkMobilidadeOvE">Ovário esquerdo com mobilidade reduzida</label></div>
+            <div class="toggle-line" style="margin:0;"><input type="checkbox" id="chkKissingOvaries"><label for="chkKissingOvaries">Kissing ovaries (ovários em contato na linha média)</label></div>
           </div>
         </div>
       </div>
@@ -1369,9 +1403,22 @@ if(typeof criarMotorLaudo !== 'function'){
     ovarioAlteradoTambem: 'Observa-se também {DESCRICAO}.',
     endometrioLinha: '{PADRAO}, medindo {ESPESSURA} mm de espessura.',
     sinequias: 'Notam-se falhas no eco endometrial, sugestivas de sinéquias.',
+    mobilidadeTodosPreservados: 'Útero e ovários com mobilidade preservada às manobras bimanuais.',
+    mobilidadeUterinaPreservada: 'Mobilidade uterina preservada.',
+    mobilidadeUterinaReduzida: 'Mobilidade uterina reduzida.',
+    slidingSignNegativo: 'Sinal do "sliding" negativo.',
+    slidingSignPositivo: 'Sinal do "sliding" positivo.',
+    kissingOvaries: 'Ovários em contato na linha média, posicionados no fundo de saco posterior ("kissing ovaries").',
+    mobilidadeOvarianaAmbosPreservados: 'Mobilidade ovariana preservada bilateralmente.',
+    mobilidadeOvarianaDireitaReduzida: 'Mobilidade ovariana preservada à esquerda e reduzida à direita.',
+    mobilidadeOvarianaEsquerdaReduzida: 'Mobilidade ovariana preservada à direita e reduzida à esquerda.',
+    mobilidadeOvarianaAmbosReduzidos: 'Mobilidade ovariana reduzida bilateralmente.',
     hematometrio: 'Observa-se conteúdo hemático na cavidade uterina, medindo {MEDIDAS} mm, com volume de {VOLUME} cm³, compatível com hematométrio.',
     impEndometrio: 'Endométrio {PADRAO} com espessura de {ESPESSURA} mm.',
     impSinequias: 'Falhas no eco endometrial, sugestivas de sinéquias - Seguir propedêutica.',
+    impSlidingNegativo: 'Mobilidade uterina reduzida, sugerindo obliteração do fundo de saco posterior.',
+    impKissingOvaries: 'Kissing ovaries - Considerar processo aderencial / endometriose profunda.',
+    impMobilidadeOvarioReduzida: 'Ovário {LADO} de mobilidade reduzida - Considerar processo aderencial.',
     impHematometrio: 'Hematométrio.',
     impFoliculosBilaterais: 'Folículos dominantes bilaterais.',
     impSHO: 'Ovários de volume aumentado associado a ascite - achados sugestivos de hiperestimulação ovariana (SHO).',
@@ -1835,6 +1882,18 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.chkSinequias){
       items.push({key:'sinequias', label:phraseRaw('impSinequias'), auto:true});
     }
+    if(state.slidingEfetivo==='negativo'){
+      items.push({key:'sliding-negativo', label:phraseRaw('impSlidingNegativo'), auto:true});
+    }
+    if(state.chkKissingOvaries){
+      items.push({key:'kissing-ovaries', label:phraseRaw('impKissingOvaries'), auto:true});
+    }
+    if(state.chkMobilidadeOvD){
+      items.push({key:'mobilidade-ov-d', label:phraseRaw('impMobilidadeOvarioReduzida', {LADO:'direito'}), auto:true});
+    }
+    if(state.chkMobilidadeOvE){
+      items.push({key:'mobilidade-ov-e', label:phraseRaw('impMobilidadeOvarioReduzida', {LADO:'esquerdo'}), auto:true});
+    }
     if(state.chkHematometrio){
       items.push({key:'hematometrio', label:phraseRaw('impHematometrio'), auto:true});
     }
@@ -2048,6 +2107,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const endoPadraoTextoMinusculo = endoPadraoVal==='ecogenico' ? 'ecogênico' : 'trilaminar';
     const endoEspessura = blankOrValue(req('endoEspessura'));
     const chkSinequias = $('chkSinequias').checked;
+    const mobilidadeUterina = v('mobilidadeUterina');
+    const chkMobilidadeOvD = $('chkMobilidadeOvD').checked;
+    const chkMobilidadeOvE = $('chkMobilidadeOvE').checked;
+    const chkKissingOvaries = $('chkKissingOvaries').checked;
+    // Sem escolha explícita, mobilidade reduzida descreve sliding negativo.
+    const slidingEfetivo = v('slidingSign') || (mobilidadeUterina==='reduzida' ? 'negativo' : '');
 
     const chkAscite = $('chkAscite').checked;
     const ovarioVolumeAlto = (ovD.volNum!=null && ovD.volNum>60) || (ovE.volNum!=null && ovE.volNum>60);
@@ -2055,7 +2120,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const checklistItems = buildImpressao({
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
-      endoPadraoTexto: endoPadraoTextoMinusculo, endoEspessuraTexto: endoEspessura.text, chkHematometrio, chkSinequias,
+      endoPadraoTexto: endoPadraoTextoMinusculo, endoEspessuraTexto: endoEspessura.text, chkHematometrio, chkSinequias, chkMobilidadeOvD, chkMobilidadeOvE, chkKissingOvaries, slidingEfetivo, 
       ovDFoliculosCount: ovD.foliculos.length, ovEFoliculosCount: ovE.foliculos.length,
       chkAscite, ovarioVolumeAlto,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
@@ -2198,6 +2263,27 @@ if(typeof criarMotorLaudo !== 'function'){
     if(foliculosLinha(ovD)) blocks.push({id:'ovDFoliculos', html: foliculosLinha(ovD)});
     blocks.push({id:'ovE', html: ovarioParagraph(ovE, 'esquerdo')});
     if(foliculosLinha(ovE)) blocks.push({id:'ovEFoliculos', html: foliculosLinha(ovE)});
+
+    // Mobilidade uterina e ovariana: um bloco por laudo (não por visita).
+    {
+      const slidingTxt = slidingEfetivo==='negativo' ? ' '+phrase('slidingSignNegativo')
+        : slidingEfetivo==='positivo' ? ' '+phrase('slidingSignPositivo') : '';
+      if(mobilidadeUterina!=='reduzida' && !chkMobilidadeOvD && !chkMobilidadeOvE){
+        blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+phrase('mobilidadeTodosPreservados')+slidingTxt+'</p>'});
+      } else {
+        blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+(mobilidadeUterina==='reduzida'
+          ? phrase('mobilidadeUterinaReduzida')
+          : phrase('mobilidadeUterinaPreservada'))+slidingTxt+'</p>'});
+        let mobilidadeOvarianaKey = 'mobilidadeOvarianaAmbosPreservados';
+        if(chkMobilidadeOvD && chkMobilidadeOvE) mobilidadeOvarianaKey = 'mobilidadeOvarianaAmbosReduzidos';
+        else if(chkMobilidadeOvD) mobilidadeOvarianaKey = 'mobilidadeOvarianaDireitaReduzida';
+        else if(chkMobilidadeOvE) mobilidadeOvarianaKey = 'mobilidadeOvarianaEsquerdaReduzida';
+        blocks.push({id:'mobilidadeOvariana', html:'<p class="linha">'+phrase(mobilidadeOvarianaKey)+'</p>'});
+      }
+      if(chkKissingOvaries){
+        blocks.push({id:'kissingOvaries', html:'<p class="linha">'+phrase('kissingOvaries')+'</p>'});
+      }
+    }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
