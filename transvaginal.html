@@ -551,6 +551,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Mobilidade uterina preservada</label><textarea id="ph_mobilidadeUterinaPreservada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mobilidade uterina reduzida</label><textarea id="ph_mobilidadeUterinaReduzida" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Sinal do "sliding" negativo (mobilidade uterina reduzida)</label><textarea id="ph_slidingSignNegativo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Sinal do "sliding" positivo</label><textarea id="ph_slidingSignPositivo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Kissing ovaries (ovários em contato na linha média)</label><textarea id="ph_kissingOvaries" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mobilidade ovariana — ambos preservados</label><textarea id="ph_mobilidadeOvarianaAmbosPreservados" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mobilidade ovariana — só direito reduzido</label><textarea id="ph_mobilidadeOvarianaDireitaReduzida" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mobilidade ovariana — só esquerdo reduzido</label><textarea id="ph_mobilidadeOvarianaEsquerdaReduzida" rows="2"></textarea></div>
@@ -595,6 +597,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda — 1 nódulo — use {REGIAO}</label><textarea id="ph_impEndometriose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda — 2 ou mais nódulos</label><textarea id="ph_impEndometrioseVarios" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário com mobilidade reduzida — use {LADO}</label><textarea id="ph_impMobilidadeOvarioReduzida" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Sinal do "sliding" negativo</label><textarea id="ph_impSlidingNegativo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Kissing ovaries</label><textarea id="ph_impKissingOvaries" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Rodapé</h3>
@@ -1093,13 +1097,17 @@
         <hr class="sep">
         <div class="field-row">
           <div class="field"><label>Mobilidade uterina</label>
-            <select id="mobilidadeUterina"><option value="preservada">Preservada</option><option value="reduzida">Reduzida (sinal do "sliding" negativo)</option></select>
+            <select id="mobilidadeUterina"><option value="preservada">Preservada</option><option value="reduzida">Reduzida</option></select>
+          </div>
+          <div class="field"><label>Sinal do "sliding"</label>
+            <select id="slidingSign"><option value="">Não descrever (negativo se mobilidade reduzida)</option><option value="positivo">Positivo</option><option value="negativo">Negativo</option></select>
           </div>
         </div>
         <div class="field-row">
           <div class="field"><label>Mobilidade ovariana</label>
             <div class="toggle-line" style="margin:6px 0 0;"><input type="checkbox" id="chkMobilidadeOvD"><label for="chkMobilidadeOvD">Ovário direito com mobilidade reduzida</label></div>
             <div class="toggle-line" style="margin:0;"><input type="checkbox" id="chkMobilidadeOvE"><label for="chkMobilidadeOvE">Ovário esquerdo com mobilidade reduzida</label></div>
+            <div class="toggle-line" style="margin:0;"><input type="checkbox" id="chkKissingOvaries"><label for="chkKissingOvaries">Kissing ovaries (ovários em contato na linha média)</label></div>
           </div>
         </div>
       </div>
@@ -1897,6 +1905,8 @@ if(typeof criarMotorLaudo !== 'function'){
     mobilidadeUterinaPreservada: 'Mobilidade uterina preservada.',
     mobilidadeUterinaReduzida: 'Mobilidade uterina reduzida.',
     slidingSignNegativo: 'Sinal do "sliding" negativo.',
+    slidingSignPositivo: 'Sinal do "sliding" positivo.',
+    kissingOvaries: 'Ovários em contato na linha média, posicionados no fundo de saco posterior ("kissing ovaries").',
     mobilidadeOvarianaAmbosPreservados: 'Mobilidade ovariana preservada bilateralmente.',
     mobilidadeOvarianaDireitaReduzida: 'Mobilidade ovariana preservada à esquerda e reduzida à direita.',
     mobilidadeOvarianaEsquerdaReduzida: 'Mobilidade ovariana preservada à direita e reduzida à esquerda.',
@@ -1934,6 +1944,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impEndometriose: 'Nódulo em região {REGIAO} sugestivo de implante endometriótico.',
     impEndometrioseVarios: 'Nódulos de endometriose profunda intestinal, em diferentes regiões, sugestivos de implantes endometrióticos.',
     impMobilidadeOvarioReduzida: 'Ovário {LADO} de mobilidade reduzida - Considerar processo aderencial.',
+    impSlidingNegativo: 'Sinal do "sliding" negativo - Sugere obliteração do fundo de saco posterior (processo aderencial / endometriose profunda).',
+    impKissingOvaries: 'Kissing ovaries - Considerar processo aderencial / endometriose profunda.',
 
     footerImagens: 'Imagens em anexo.'
   };
@@ -2560,6 +2572,13 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:'mobilidade-ov-e', label:phraseRaw('impMobilidadeOvarioReduzida', {LADO:'esquerdo'}), auto:true});
     }
 
+    if(state.slidingEfetivo==='negativo' && !state.chkTransabdominal){
+      items.push({key:'sliding-negativo', label:phraseRaw('impSlidingNegativo'), auto:true});
+    }
+    if(state.chkKissingOvaries && !state.chkTransabdominal){
+      items.push({key:'kissing-ovaries', label:phraseRaw('impKissingOvaries'), auto:true});
+    }
+
     const MORF_IMP = {arqueado:'impMorfArqueado', septado_parcial:'impMorfSeptoParcial', septado_completo:'impMorfSeptoCompleto', bicorno:'impMorfBicorno', didelfo:'impMorfDidelfo'};
     if(state.morfUterina && MORF_IMP[state.morfUterina]){
       items.push({key:'morf3d', label:phraseRaw(MORF_IMP[state.morfUterina]), auto:true});
@@ -2837,6 +2856,9 @@ if(typeof criarMotorLaudo !== 'function'){
     const mobilidadeUterina = v('mobilidadeUterina');
     const chkMobilidadeOvD = $('chkMobilidadeOvD').checked;
     const chkMobilidadeOvE = $('chkMobilidadeOvE').checked;
+    const chkKissingOvaries = $('chkKissingOvaries').checked;
+    // Sem escolha explícita, mobilidade reduzida continua descrevendo sliding negativo (comportamento anterior).
+    const slidingEfetivo = v('slidingSign') || (mobilidadeUterina==='reduzida' ? 'negativo' : '');
 
     // ----- Impressão -----
     const state = {
@@ -2851,7 +2873,7 @@ if(typeof criarMotorLaudo !== 'function'){
       vrOvarioTipo,
       chkHidrossalpinge, hidrossalpingeLado, chkVarizes,
       chkEndometriose, endometrioseFrags: endometrioseItens, endometrioseRegiao: endometrioseItens[0] && endometrioseItens[0].regiao,
-      chkMobilidadeOvD, chkMobilidadeOvE, chkTransabdominal, morfUterina,
+      chkMobilidadeOvD, chkMobilidadeOvE, chkKissingOvaries, slidingEfetivo, chkTransabdominal, morfUterina,
       obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)
     };
     const impressaoItems = buildImpressao(state);
@@ -3073,18 +3095,23 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!chkTransabdominal){
       // When uterus and both ovaries all have preserved mobility, collapse what
       // would otherwise be two separate sentences into a single combined one.
+      const slidingTxt = slidingEfetivo==='negativo' ? ' '+phrase('slidingSignNegativo')
+        : slidingEfetivo==='positivo' ? ' '+phrase('slidingSignPositivo') : '';
       if(mobilidadeUterina!=='reduzida' && !chkMobilidadeOvD && !chkMobilidadeOvE){
-        blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+phrase('mobilidadeTodosPreservados')+'</p>'});
+        blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+phrase('mobilidadeTodosPreservados')+slidingTxt+'</p>'});
       } else {
         blocks.push({id:'mobilidadeUterina', html:'<p class="linha">'+(mobilidadeUterina==='reduzida'
-          ? (phrase('mobilidadeUterinaReduzida')+' '+phrase('slidingSignNegativo'))
-          : phrase('mobilidadeUterinaPreservada'))+'</p>'});
+          ? phrase('mobilidadeUterinaReduzida')
+          : phrase('mobilidadeUterinaPreservada'))+slidingTxt+'</p>'});
 
         let mobilidadeOvarianaKey = 'mobilidadeOvarianaAmbosPreservados';
         if(chkMobilidadeOvD && chkMobilidadeOvE) mobilidadeOvarianaKey = 'mobilidadeOvarianaAmbosReduzidos';
         else if(chkMobilidadeOvD) mobilidadeOvarianaKey = 'mobilidadeOvarianaDireitaReduzida';
         else if(chkMobilidadeOvE) mobilidadeOvarianaKey = 'mobilidadeOvarianaEsquerdaReduzida';
         blocks.push({id:'mobilidadeOvariana', html:'<p class="linha">'+phrase(mobilidadeOvarianaKey)+'</p>'});
+      }
+      if(chkKissingOvaries){
+        blocks.push({id:'kissingOvaries', html:'<p class="linha">'+phrase('kissingOvaries')+'</p>'});
       }
     }
 
