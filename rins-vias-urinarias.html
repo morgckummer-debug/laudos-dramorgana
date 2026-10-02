@@ -1454,6 +1454,11 @@ if(typeof criarMotorLaudo !== 'function'){
   // em linhas com <br> no render(), e aqui o campo é texto livre puro, sem
   // HTML, então fica como uma constante à parte, só para o pré-preenchimento.
   const RIM_TAIL_PADRAO = 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).';
+  // Uma frase por linha: quebra depois de todo ponto final seguido de nova frase
+  // (maiúscula). Pontos de decimais ("3,0 mm") e '.<br>' já existentes não casam.
+  function quebraFrases(h){
+    return h.replace(/\.[ \t]+(?=(?:<[^>]+>)*[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/g, '.<br>');
+  }
   const BEXIGA_NORMAL = 'De topografia usual, boa repleção, contorno interno regular e conteúdo anecoico. Meatos ureterais pérvios, sem alterações.';
   function prefillAlteradoIfEmpty(textareaId, texto){
     const el = $(textareaId);
@@ -1845,9 +1850,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(rimFerradura){
       // Órgão único: um parágrafo só, sem dividir entre os dois rins. Outros achados
       // (cisto, cálculo...) de cada lado, se houver, vêm em parágrafo próprio depois.
-      blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> Rins em topografia mais baixa, com fusão dos polos inferiores por istmo de parênquima renal à frente dos grandes vasos, configurando rim em ferradura. O direito medindo '+span(rimDDiametroTexto)+' cm e o esquerdo, '+span(rimEDiametroTexto)+' cm. Corticais renais homogêneas com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).</p>'});
+      blocks.push({id:'rins', html:'<p class="linha"><strong>Rins:</strong> '+quebraFrases('Rins em topografia mais baixa, com fusão dos polos inferiores por istmo de parênquima renal à frente dos grandes vasos, configurando rim em ferradura. O direito medindo '+span(rimDDiametroTexto)+' cm e o esquerdo, '+span(rimEDiametroTexto)+' cm. Corticais renais homogêneas com ecogenicidade usual, espessura normal e diferenciação córtico-medular preservada. Ausência de dilatação do sistema coletor. Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).')+'</p>'});
       [['rimD','Rim Direito',rimDAchado],['rimE','Rim Esquerdo',rimEAchado]].forEach(([id,nome,ach])=>{
-        if(ach.tail) blocks.push({id:id, html:'<p class="linha"><strong>'+nome+':</strong> '+ach.tail+'</p>'});
+        if(ach.tail) blocks.push({id:id, html:'<p class="linha"><strong>'+nome+':</strong> '+quebraFrases(ach.tail)+'</p>'});
         pushListaBlock(blocks, id+'CalcLista', ach.calcLista);
         pushListaBlock(blocks, id+'CistoLista', ach.cistoLista);
         pushListaBlock(blocks, id+'LeiteCalcioLista', ach.leiteCalcioLista);
@@ -1856,7 +1861,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       const rimDTail = rimDAchado.tail || 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre.<br>Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).<br>Ureter direito sem sinais de dilatações.';
       const rimDDiferenciacao = rimDAchado.diferenciacao || 'anatômica';
-      blocks.push({id:'rimD', html:'<p class="linha"><strong>Rim Direito:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimDDiametroTexto)+' cm.<br>Cortical renal homogênea com espessura de '+span(rimDCorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimDDiferenciacao+'.<br>Área pielovascular livre. '+rimDTail+'</p>'});
+      blocks.push({id:'rimD', html:'<p class="linha"><strong>Rim Direito:</strong> '+quebraFrases('Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimDDiametroTexto)+' cm.<br>Cortical renal homogênea com espessura de '+span(rimDCorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimDDiferenciacao+'.<br>Área pielovascular livre. '+rimDTail)+'</p>'});
       pushListaBlock(blocks, 'rimDCalcLista', rimDAchado.calcLista);
       pushListaBlock(blocks, 'rimDCistoLista', rimDAchado.cistoLista);
       pushListaBlock(blocks, 'rimDLeiteCalcioLista', rimDAchado.leiteCalcioLista);
@@ -1864,7 +1869,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       const rimETail = rimEAchado.tail || 'Ausência de dilatação do sistema coletor. Espaço perirrenal livre.<br>Não se observam sinais de cálculos ecograficamente significativos (&gt;3,0 mm).<br>Ureter esquerdo sem sinais de dilatações.';
       const rimEDiferenciacao = rimEAchado.diferenciacao || 'anatômica';
-      blocks.push({id:'rimE', html:'<p class="linha"><strong>Rim Esquerdo:</strong> Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimEDiametroTexto)+' cm.<br>Cortical renal homogênea com espessura de '+span(rimECorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimEDiferenciacao+'.<br>Área pielovascular livre. '+rimETail+'</p>'});
+      blocks.push({id:'rimE', html:'<p class="linha"><strong>Rim Esquerdo:</strong> '+quebraFrases('Topografia, forma, contornos e mobilidade normais, com diâmetro bipolar de '+span(rimEDiametroTexto)+' cm.<br>Cortical renal homogênea com espessura de '+span(rimECorticalTexto)+' mm (VR&gt;11,0 mm) e diferenciação córtico-medular '+rimEDiferenciacao+'.<br>Área pielovascular livre. '+rimETail)+'</p>'});
       pushListaBlock(blocks, 'rimECalcLista', rimEAchado.calcLista);
       pushListaBlock(blocks, 'rimECistoLista', rimEAchado.cistoLista);
       pushListaBlock(blocks, 'rimELeiteCalcioLista', rimEAchado.leiteCalcioLista);
@@ -1884,7 +1889,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       bexigaTexto = BEXIGA_NORMAL;
     }
-    blocks.push({id:'bexiga', html:'<p class="linha"><strong>Bexiga:</strong> '+bexigaTexto+'</p>'});
+    blocks.push({id:'bexiga', html:'<p class="linha"><strong>Bexiga:</strong> '+quebraFrases(bexigaTexto)+'</p>'});
     blocks.push({id:'volumeInicial', html:'<p class="linha">Volume urinário inicial: '+span(volumeInicialTexto)+' ml.</p>'});
     const desprezivel = (volumePosNum!==null && volumePosNum <= RESIDUO_MAX) ? ' (desprezível)' : '';
     blocks.push({id:'volumePos', html:'<p class="linha">Volume urinário pós-miccional: '+span(volumePosTexto)+' ml'+desprezivel+'.</p>'});
