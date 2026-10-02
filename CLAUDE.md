@@ -1372,3 +1372,18 @@ laudos ficarem iguais).
   `#8A651F`, que mal se distinguia do dourado do Feto 2 (`#B08D3F`). A forma do
   marcador (círculo/losango/triângulo) continua sendo o que separa os fetos na
   impressão em preto e branco. Mesma cor do `--marrom` do Curvas.
+
+## Medida acima do VR em itálico, "e 0 dias" e placenta única (2026-10-02)
+
+- **Itálico acima do VR** — `italicizarAcimaVR()` no `laudo-core.js`, chamada em
+  `renderBlocks()` sobre o HTML de cada bloco, nos catorze laudos. Lê o próprio
+  texto impresso: `<medida> <unidade> (VR até X)` / `(VR: A – B)` / `(VR < X)` e
+  põe `<i>` se a medida passa do limite superior. VR de limite inferior
+  (`VR > x`, `VR ≥ x`) fica de fora, e **medida sem "(VR ...)" impresso ao lado
+  não é coberta** (biometria fetal e Doppler usam percentil, não VR). Ao criar
+  uma frase nova com VR, mantenha a medida colada ao "(VR ...)".
+- **"X semanas e 0 dias"** — `aplicarPlaceholders()` agora corta o "e 0 dias",
+  inclusive em frase que a médica salvou com `{SEMANAS} semanas e {DIAS} dias`
+  soltos (o `{IG}` já saía certo).
+- **Monocoriônica** (`obstetrico.html`, `morfologico-2trimestre.html`): uma
+  só placenta, a do último feto, com o título "Placenta única".

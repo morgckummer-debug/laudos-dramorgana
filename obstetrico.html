@@ -2263,6 +2263,7 @@ if(typeof criarMotorLaudo !== 'function'){
       monocorionica_triamniotica: 'monocoriônica e triamniótica'
     };
     const corTxt = corTxtMap[v('corionicidade')] || 'dicoriônica e diamniótica';
+    const placentaUnica = isMultiple && (v('corionicidade')||'').indexOf('monocorionica')===0;
 
     // ----- Doppler materno e blocos opcionais (escolhas únicas do laudo) -----
     // Materno e fetal são escolhas independentes: cada um entra no laudo
@@ -2633,7 +2634,10 @@ if(typeof criarMotorLaudo !== 'function'){
         blocks.push({id:'fetoHeader'+sfx, html:'<h4 class="sec">'+escapeHtml(f.label.toUpperCase())+'</h4>'});
         blocks.push({id:'apresentacao'+sfx, html:'<p class="linha">'+f.apresentacaoHtml+'</p>'});
         blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+phraseRaw('vitalidadeTexto', {FC: f.fc.text})+'</p>'});
-        blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta</strong></p><p class="linha">'+f.placentaHtml+'</p></div>'});
+        // Monocoriônica divide uma placenta só: uma frase (a do último feto), "Placenta única".
+        if(!placentaUnica || f===fetos[fetos.length-1]){
+          blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">'+(placentaUnica ? 'Placenta única' : 'Placenta')+'</strong></p><p class="linha">'+f.placentaHtml+'</p></div>'});
+        }
 
         let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
         laHtml += '<p class="linha tight">'+(f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormal'))+'</p>';

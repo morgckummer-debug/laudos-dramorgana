@@ -320,6 +320,7 @@ function criarMotorLaudo(cfg){
     const keepIds = new Set();
     blocks.forEach(b=>{
       keepIds.add(b.id);
+      b.html = italicizarAcimaVR(b.html);
       let node = paperEl.querySelector(':scope > [data-blk="'+b.id+'"]');
       if(!node || st.lastBlockHtml[b.id] !== b.html){
         const tmp = document.createElement('div');
@@ -1463,6 +1464,29 @@ function criarMotorLaudo(cfg){
   function normalizarChave(t){
     return String(t).trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
   }
+  // Medida acima do VR sai em itálico. O valor e o limite já estão no próprio
+  // texto do laudo — "<medida> cm (VR até 15,5 cm)", "(VR: 10 – 20 mm)" —, então
+  // a regra lê isso do HTML de cada bloco em vez de cada laudo repetir a conta.
+  // Só VR de limite SUPERIOR conta ("até", "<", "≤" ou faixa): "VR > 11 mm" é
+  // limite inferior e a medida acima dele é o normal.
+  const VR_ACIMA_RE = new RegExp(
+    '(?:<span class="filled">([\\d.,]+)</span>|(?<![\\d.,])([\\d.,]+))'      // valor
+    + '(\\s*(?:mm|cm³|cm3|cm/s|cm|ml|mL|mmHg|bpm|g|%)?)'                        // unidade
+    + '(\\s*\\(?VR:?\\s*(?:até\\s*|&lt;\\s*|<\\s*|≤\\s*)?'                        // "(VR até"
+    + '(?:<[^>]+>)*([\\d.,]+)(?:</[^>]+>)*'                                      // limite
+    + '(?:\\s*(?:–|-|a)\\s*(?:<[^>]+>)*([\\d.,]+))?)', 'g');                    // faixa
+  function italicizarAcimaVR(html){
+    if(!html || html.indexOf('VR') === -1) return html;
+    const num = t => parseFloat(String(t).replace(',', '.'));
+    return html.replace(VR_ACIMA_RE, (todo, v1, v2, unid, resto, lim1, lim2, offset, inteiro)=>{
+      // limite inferior ("VR > x", "VR ≥ x") fica de fora
+      if(/VR:?\s*(?:&gt;|>|≥)/.test(resto)) return todo;
+      const valor = num(v1 || v2), limite = num(lim2 || lim1);
+      if(isNaN(valor) || isNaN(limite) || valor <= limite) return todo;
+      const medida = (v1 ? '<span class="filled">'+v1+'</span>' : v2) + unid;
+      return '<i>'+medida+'</i>'+resto;
+    });
+  }
   function aplicarPlaceholders(texto, repl){
     if(!repl || texto == null) return texto;
     const mapa = {};
@@ -1470,7 +1494,9 @@ function criarMotorLaudo(cfg){
     return String(texto).replace(/\{([^{}]{1,40})\}/g, (todo, dentro)=>{
       const v = mapa[normalizarChave(dentro)];
       return v !== undefined && v !== null ? v : todo;
-    });
+    }).replace(/(\d+ semanas?) e 0 dias?\b/g, '$1').replace(/(\d+ semanas?) e 1 dias\b/g, '$1 e 1 dia');
+    // ^ idade gestacional exata em semanas nunca sai "e 0 dias", mesmo numa frase
+    //   que a médica escreveu com {SEMANAS} semanas e {DIAS} dias soltos.
   }
 
   // Segunda rede, a que importa: nenhum marcador sobra no laudo impresso sem a
