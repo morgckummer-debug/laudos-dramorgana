@@ -262,6 +262,9 @@
   .paper table.biometria.tabela-simples td:nth-child(odd){font-weight:400;}
   .paper table.biometria.tabela-simples td:nth-child(even){text-align:left;}
   .paper table.biometria.tabela-simples tbody tr:nth-child(even) td{background:none;}
+  /* Espaço entre as linhas da morfologia: acompanha o "Espaçamento entre linhas"
+     (--morfo-gap, ajustado em lineHeightSel). Sem a variável, 0.125em como sempre. */
+  .paper table.biometria.morfologia td{padding-bottom:var(--morfo-gap, 0.125em);}
   /* Quando a quebra cai dentro da tabela de morfologia o marcador é um <td>,
      e precisa vencer tanto a borda/padding quanto o negrito/centralização
      por coluna acima (por isso o seletor repete .morfologia e vem depois:
@@ -1007,6 +1010,9 @@ if(typeof criarMotorLaudo !== 'function'){
     // caber numa folha só — com mm fixos, o espaço entre parágrafos ficava
     // do mesmo tamanho e travava boa parte do ganho da redução.
     const LINE_HEIGHT_MARGIN = {'1':'0.236em', '1.15':'0.472em', '1.35':'0.709em', '1.5':'0.945em', '1.8':'1.417em'};
+    // As linhas da Morfologia Fetal são <tr>, não parágrafos: o espaço entre elas é
+    // o padding-bottom da célula (0.125em no "Normal"), e a margem acima não chega nelas.
+    const MORFO_GAP = {'1':'0em', '1.15':'0.125em', '1.35':'0.4em', '1.5':'0.7em', '1.8':'1.1em'};
     lineHeightSel.addEventListener('change', ()=>{
       const range = captureSelectionInPaper();
       const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '1em';
@@ -1041,8 +1047,13 @@ if(typeof criarMotorLaudo !== 'function'){
         const startCel = celulaDoLimite(range.startContainer, range.startOffset);
         const endCel = celulaDoLimite(range.endContainer, range.endOffset);
         const cruzaCelula = (!!startCel || !!endCel) && startCel !== endCel;
-        if(blocosTocados.length > 1 || cruzaCelula){
+        // Seleção dentro da Morfologia Fetal: a unidade é a linha da tabela (rótulo +
+        // descrição), sem <span> — um <span> não encolhe a linha (o strut da <td> manda)
+        // e não mexe no espaço entre as linhas.
+        const linhasMorfo = Array.from(paperEl.querySelectorAll('table.morfologia tr')).filter(tr=> !tr.querySelector('.pg-break-marker') && range.intersectsNode(tr));
+        if(blocosTocados.length > 1 || cruzaCelula || linhasMorfo.length){
           paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; el.style.marginBottom = margin; });
+          linhasMorfo.forEach(tr=> tr.querySelectorAll('td').forEach(td=>{ td.style.lineHeight = lineHeightSel.value; td.style.paddingBottom = MORFO_GAP[lineHeightSel.value] || '0.125em'; }));
         } else {
           wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
           paragraphs.forEach(el=>{ el.style.marginBottom = margin; });
@@ -1053,8 +1064,10 @@ if(typeof criarMotorLaudo !== 'function'){
           if(!el.getAttribute('style')) el.removeAttribute('style');
         });
         paperEl.querySelectorAll('p.linha, p.recomendacao, h4.sec').forEach(el=>{ el.style.marginBottom = ''; });
+        paperEl.querySelectorAll('table.morfologia td').forEach(td=>{ td.style.paddingBottom = ''; });
         paperEl.style.lineHeight = lineHeightSel.value;
         paperEl.style.setProperty('--linha-margin', margin);
+        paperEl.style.setProperty('--morfo-gap', MORFO_GAP[lineHeightSel.value] || '0.125em');
         kvStore.set('paper-line-height', lineHeightSel.value);
       }
     });
@@ -1078,8 +1091,10 @@ if(typeof criarMotorLaudo !== 'function'){
         if(!el.getAttribute('style')) el.removeAttribute('style');
       });
       paperEl.querySelectorAll('p.linha, p.recomendacao, h4.sec').forEach(el=>{ el.style.marginBottom = ''; });
+      paperEl.querySelectorAll('table.morfologia td').forEach(td=>{ td.style.paddingBottom = ''; });
       paperEl.style.lineHeight = '';
       paperEl.style.removeProperty('--linha-margin');
+      paperEl.style.removeProperty('--morfo-gap');
       paperEl.style.removeProperty('--idcard-gap');
       lineHeightSel.value = '1.15';
       idCardGapSel.value = 'default';
@@ -1094,6 +1109,7 @@ if(typeof criarMotorLaudo !== 'function'){
         lineHeightSel.value = saved;
         paperEl.style.lineHeight = saved;
         paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '1em');
+        paperEl.style.setProperty('--morfo-gap', MORFO_GAP[saved] || '0.125em');
       }
       const savedGap = await kvStore.get('idcard-gap');
       if(savedGap){
@@ -2768,6 +2784,23 @@ if(typeof criarMotorLaudo !== 'function'){
     clone.querySelectorAll('table.tabela-simples tbody tr:nth-child(even) td').forEach(el=>{ el.style.background='none'; });
     clone.querySelectorAll('table.tabela-simples').forEach(el=>{ el.style.width='100%'; el.style.maxWidth='none'; el.style.margin='0 0 12px'; el.removeAttribute('align'); });
     clone.querySelectorAll('table.morfologia td:nth-child(even)').forEach(el=>{ el.style.textAlign='justify'; el.style.whiteSpace='normal'; });
+    // Espaçamento da morfologia: o Word herda do vivo, célula a célula. O
+    // lineHeight e o padding-bottom de cada <td> do clone foram sobrescritos
+    // acima por valores fixos; só quando a médica mexeu no espaçamento
+    // (--morfo-gap no #paper, ou estilo próprio na linha escolhida por seleção)
+    // volta o valor computado da célula viva — senão fica byte a byte como antes.
+    (function(){
+      // O clone já perdeu os marcadores de página (.pg-break-marker): fora também no vivo.
+      const vivas = Array.from(paperEl.querySelectorAll('table.morfologia td')).filter(td=> !td.classList.contains('pg-break-marker'));
+      const clones = clone.querySelectorAll('table.morfologia td');
+      if(vivas.length !== clones.length) return;
+      const gapGlobal = paperEl.style.getPropertyValue('--morfo-gap');
+      clones.forEach((el, i)=>{
+        const viva = vivas[i];
+        if(viva.style.paddingBottom || gapGlobal) el.style.paddingBottom = getComputedStyle(viva).paddingBottom;
+        if(viva.style.lineHeight){ el.style.lineHeight = getComputedStyle(viva).lineHeight; el.style.setProperty('mso-line-height-rule', 'exact'); }
+      });
+    })();
     clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='9.5pt'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
