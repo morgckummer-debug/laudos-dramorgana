@@ -2543,13 +2543,16 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Circunferência abdominal (CA)</td><td>'+span(f.ca)+' mm</td></tr>'
         +'<tr><td>Comprimento femoral</td><td>'+span(f.cf)+' mm</td></tr>'
         +'<tr><td>Comprimento umeral</td><td>'+span(f.umero)+' mm</td></tr>'
-        +(tri3 ? '' : '<tr><td>Rádio</td><td>'+span(f.radio)+' mm</td></tr>'
+        // No 3º trimestre a coluna da esquerda perde 4 linhas (rádio...fíbula) e a
+        // da direita só 1 (prega pré-nasal): o cerebelar sobe para a esquerda e as
+        // duas ficam com 7 linhas, em vez de 6 contra 8.
+        +(tri3 ? '<tr><td>Diâmetro cerebelar</td><td>'+span(f.diamCerebelar)+' mm</td></tr>' : '<tr><td>Rádio</td><td>'+span(f.radio)+' mm</td></tr>'
           +'<tr><td>Ulna</td><td>'+span(f.ulna)+' mm</td></tr>'
           +'<tr><td>Tíbia</td><td>'+span(f.tibia)+' mm</td></tr>'
           +'<tr><td>Fíbula</td><td>'+span(f.fibula)+' mm</td></tr>')
         +'</table>';
       const tabelaBiometriaB = '<table class="biometria biometria-fetal">'
-        +'<tr><td>Diâmetro cerebelar</td><td>'+span(f.diamCerebelar)+' mm</td></tr>'
+        +(tri3 ? '' : '<tr><td>Diâmetro cerebelar</td><td>'+span(f.diamCerebelar)+' mm</td></tr>')
         +'<tr><td>Cisterna magna</td><td>'+span(f.cisternaMagna)+' mm</td></tr>'
         +'<tr><td>Prega nucal</td><td>'+span(f.pregaNucal)+' mm</td></tr>'
         +'<tr><td>Ventrículo posterior</td><td>'+span(f.ventriculoPosterior)+' mm</td></tr>'
