@@ -341,6 +341,7 @@ function criarMotorLaudo(cfg){
     });
     autoCompactTitle(paperEl);
     verificarPlaceholders(paperEl);
+    colapsarBlocosVazios(paperEl, true);
   }
   function autoCompactTitle(paperEl){
     // Título longo (nome de exame composto) quebra em 2-3 linhas com o
@@ -357,6 +358,36 @@ function criarMotorLaudo(cfg){
     range.selectNodeContents(el);
     const linhas = range.getClientRects().length;
     el.style.lineHeight = linhas >= 2 ? '1' : '';
+  }
+  // Bloco que a médica esvaziou à mão (apagou a frase que o laudo gerou) some
+  // do papel: some da tela, da impressão e do Word, em vez de deixar um parágrafo
+  // vazio com a margem inteira — o buraco que ela via e não conseguia fechar,
+  // porque o Backspace na borda de um bloco é bloqueado de propósito por
+  // wireBlockBoundaryGuard() (mesclar blocos duplica o laudo). Não se remove o
+  // elemento: restoreMissingBlocks() o devolveria no próximo 'input'. Só ganha
+  // data-vazio, que o CSS injetado abaixo esconde, e que viaja no rascunho.
+  //
+  // Regras: só blocos que NASCERAM com texto (um espaçador gerado vazio de
+  // propósito não é alvo); nunca o bloco onde o cursor está agora — quem apaga
+  // uma frase para redigitar não pode ter a linha escondida debaixo do cursor;
+  // e a marca cai sozinha quando volta a haver texto ou quando render() troca
+  // o bloco por um recém-gerado (mudou um campo do formulário).
+  function colapsarBlocosVazios(paperEl, ignorarCursor){
+    if(!paperEl || st.printPaginated || st.draftRestoring) return;
+    const sel = window.getSelection();
+    const noFoco = (!ignorarCursor && sel && sel.rangeCount) ? sel.getRangeAt(0).startContainer : null;
+    paperEl.querySelectorAll(':scope > [data-blk]').forEach(el=>{
+      const vazio = !el.textContent.replace(/[\s\u00a0\u200b]/g, '')
+        && !el.querySelector('img, svg, canvas, table, hr, input, select, textarea');
+      if(!vazio){ el.removeAttribute('data-vazio'); return; }
+      const base = st.lastBlockHtml[el.getAttribute('data-blk')];
+      if(!base) return;
+      const tmp = document.createElement('div');
+      tmp.innerHTML = base;
+      if(!tmp.textContent.replace(/[\s\u00a0\u200b]/g, '')) return;
+      if(noFoco && el.contains(noFoco)) return;
+      el.setAttribute('data-vazio', '1');
+    });
   }
   function restoreMissingBlocks(paperEl){
     // Rede de segurança irmã do dedupBlocos(): aquele conserta bloco duplicado,
@@ -1030,6 +1061,14 @@ function criarMotorLaudo(cfg){
     cardEl.replaceWith(table);
   }
   function wordDocHtml(bodyHtml, titulo){
+    // Blocos que a médica esvaziou (data-vazio) não vão para o Word: no papel
+    // eles já estão escondidos, e um <p> vazio ali viraria uma linha em branco.
+    if(bodyHtml.indexOf('data-vazio') !== -1){
+      const t = document.createElement('div');
+      t.innerHTML = bodyHtml;
+      t.querySelectorAll('[data-vazio]').forEach(el=> el.remove());
+      bodyHtml = t.innerHTML;
+    }
     return '<html xmlns:o="urn:schemas-microsoft-com:office:office" '
       + 'xmlns:w="urn:schemas-microsoft-com:office:word" '
       + 'xmlns="http://www.w3.org/TR/REC-html40">'
@@ -1885,7 +1924,17 @@ function criarMotorLaudo(cfg){
   // eventual laudo futuro que não tenha #paper nenhum.
   const paperEl0 = $('paper');
   if(paperEl0){
-    paperEl0.addEventListener('input', ()=> restoreMissingBlocks($('paper')));
+    const estiloVazio = document.createElement('style');
+    estiloVazio.textContent = '#paper [data-vazio="1"]{display:none !important;}';
+    document.head.appendChild(estiloVazio);
+    let timerVazio = null;
+    const agendarColapso = ()=>{
+      clearTimeout(timerVazio);
+      timerVazio = setTimeout(()=> colapsarBlocosVazios($('paper')), 0);
+    };
+    paperEl0.addEventListener('input', ()=>{ restoreMissingBlocks($('paper')); agendarColapso(); });
+    // O cursor saindo de um bloco vazio é o que o esconde (ver colapsarBlocosVazios).
+    document.addEventListener('selectionchange', agendarColapso);
     wireBlockBoundaryGuard(paperEl0);
   }
 

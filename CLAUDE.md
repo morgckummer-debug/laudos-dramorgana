@@ -1410,3 +1410,18 @@ semanas = 1º, < 28 = 2º, senão 3º); a IG segue a ordem do `calcIgDays` do Cu
 `ig_dias_manual` da visita, depois `ig_base_data`/`ig_base_valor` da gestação, depois a
 DUM. Laudos completos salvos continuam "Morfológico do 1º trimestre · data", sem IG
 (o snapshot não a guarda de forma consultável).
+
+## Frase apagada à mão não deixa mais um buraco (2026-10-03)
+
+Apagar todo o texto de um bloco gerado (ex.: a frase do "sliding") deixava um
+`<p>` vazio com a margem inteira, e não havia como fechá-lo: o Backspace/Delete na
+borda de um bloco é bloqueado de propósito por `wireBlockBoundaryGuard()` (mesclar
+blocos duplica o laudo). Agora `colapsarBlocosVazios()` (laudo-core.js) põe
+`data-vazio="1"` no bloco que **nasceu com texto** e ficou sem nenhum; o CSS
+injetado pelo motor o esconde (tela, impressão), `wordDocHtml()` o tira do Word, e o
+atributo viaja no rascunho. Não se remove o elemento — `restoreMissingBlocks()` o
+devolveria. Nunca esconde o bloco onde o cursor está (quem apaga para redigitar
+não pode perder a linha); esconde quando o cursor sai. A marca cai sozinha quando
+volta a haver texto ou quando `render()` regenera o bloco (mudou um campo do
+formulário: a frase gerada volta). Vale para os catorze laudos, sem tocar em `.html`.
+Conferido com `ferramentas/testar-laudos.mjs` antes/depois: nenhuma diferença.
