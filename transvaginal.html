@@ -603,7 +603,7 @@
 
   <hr class="sep">
   <h3>Rodapé</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Sugestão de propedêutica — endometriose profunda (sai antes da assinatura quando há nódulo de endometriose profunda, sliding negativo ou kissing ovaries)</label><textarea id="ph_recomendacaoEndometriose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Sugestão de propedêutica — endometriose profunda (sai antes da assinatura quando o checkbox em Mobilidade estiver marcado)</label><textarea id="ph_recomendacaoEndometriose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nota final</label><textarea id="ph_footerImagens" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -1112,6 +1112,8 @@
             <div class="toggle-line" style="margin:0;"><input type="checkbox" id="chkKissingOvaries"><label for="chkKissingOvaries">Kissing ovaries (ovários em contato na linha média)</label></div>
           </div>
         </div>
+        <hr class="sep">
+        <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkRecomendacaoEndo"><label for="chkRecomendacaoEndo">Incluir sugestão de ampliação propedêutica para endometriose profunda (antes da assinatura)</label></div>
       </div>
     </div>
 
@@ -3138,11 +3140,9 @@ if(typeof criarMotorLaudo !== 'function'){
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
-    // Sinais de endometriose profunda: nódulo intestinal, sliding negativo ou
-    // kissing ovaries (os dois últimos só se avaliam por via transvaginal).
-    const sinaisEndoProfunda = endometrioseItens.length>0
-      || (!chkTransabdominal && (slidingEfetivo==='negativo' || chkKissingOvaries));
-    if(sinaisEndoProfunda){
+    // Sugestão de propedêutica para endometriose profunda: opcional, quem
+    // decide é a médica (checkbox em "Mobilidade").
+    if($('chkRecomendacaoEndo').checked){
       blocks.push({id:'recomendacaoEndometriose', html:'<p class="recomendacao">'+phrase('recomendacaoEndometriose')+'</p>'});
     }
 
