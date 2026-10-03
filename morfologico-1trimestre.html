@@ -4224,7 +4224,7 @@ if(typeof criarMotorLaudo !== 'function'){
       item.className = 'cg-result-item';
       item.innerHTML = '<span class="ri-info">'
         + '<span class="ri-name">'+cgEsc(nomeExibido)+'</span>'
-        + '<span class="ri-meta">Morfologico do 1ª trimestre - '+cgEsc(cgFormatDateBR(laudo.data_exame))+'</span>'
+        + '<span class="ri-meta">Morfológico do 1º trimestre · '+cgEsc(cgFormatDateBR(laudo.data_exame))+'</span>'
         + '</span>'
         + '<button type="button" class="ri-del" title="Excluir este laudo">Excluir</button>';
       item.querySelector('.ri-info').addEventListener('click', ()=> cgCarregarLaudo(laudo));
@@ -4249,9 +4249,16 @@ if(typeof criarMotorLaudo !== 'function'){
       const item = document.createElement('div');
       item.className = 'cg-result-item';
       const nFetos = g.exames.length;
+      // Rótulo pela IG da visita. "Morfológico" só quando houve TN (é o que
+      // distingue o morfológico de um obstétrico de 1º trimestre, que só tem CCN).
+      const ehMorfo = g.exames.some(ex=> ex.nt != null);
+      const triTxt = g.ig_dias == null ? '1º trimestre' : (g.ig_dias < 98 ? '1º' : g.ig_dias < 196 ? '2º' : '3º')+' trimestre';
+      const titulo = (ehMorfo ? 'Morfológico do ' : 'Exame do ') + triTxt;
       item.innerHTML = '<span class="ri-info">'
         + '<span class="ri-name">'+cgEsc(g.paciente.nome)+'</span>'
-        + '<span class="ri-meta">Só medidas (da Curva) · exame de '+cgEsc(cgFormatDateBR(g.data_exame))+' · '+nFetos+(nFetos>1?' fetos':' feto')+'</span>'
+        + '<span class="ri-meta">'+cgEsc(titulo)+' · '+cgEsc(cgFormatDateBR(g.data_exame))
+        + (g.ig_dias != null ? ' · IG '+cgEsc(formatIG(g.ig_dias)) : '')
+        + ' · '+nFetos+(nFetos>1?' fetos':' feto')+'</span>'
         + '</span>';
       item.querySelector('.ri-info').addEventListener('click', ()=> cgCarregarMedidas(g));
       resultsEl.appendChild(item);
@@ -4267,7 +4274,7 @@ if(typeof criarMotorLaudo !== 'function'){
   async function cgBuscarMedidasDaCurva(pacientes, jaTemLaudo){
     const ids = pacientes.map(p=> p.id);
     const {data: gests, error: errG} = await cgClient.from('gestacoes')
-      .select('id, paciente_id, dum, gestas, partos, abortos, corionicidade, ppt_espontaneo_previo, progesterona_vaginal_em_uso, cerclagem_realizada, cerclagem_ig_semanas')
+      .select('id, paciente_id, dum, gestas, partos, abortos, corionicidade, ppt_espontaneo_previo, progesterona_vaginal_em_uso, cerclagem_realizada, cerclagem_ig_semanas, ig_base_data, ig_base_valor')
       .in('paciente_id', ids).is('excluido_em', null);
     if(errG) throw errG;
     if(!gests || !gests.length) return [];
@@ -4294,6 +4301,17 @@ if(typeof criarMotorLaudo !== 'function'){
       mapa[chave].exames.push(ex);
     });
     grupos.forEach(g=> g.exames.sort((a,b)=> String(a.feto||'A').localeCompare(String(b.feto||'A')) || a.id - b.id));
+    // IG no dia do exame — mesma ordem de prioridade do Curva (calcIgDays): IG
+    // informada à mão na visita, depois a âncora da gestação (ig_base), depois a DUM.
+    grupos.forEach(g=>{
+      const manual = g.exames.find(ex=> ex.ig_dias_manual != null);
+      const dia = new Date(g.data_exame+'T12:00:00');
+      const gest = g.gestacao;
+      if(manual) g.ig_dias = manual.ig_dias_manual;
+      else if(gest.ig_base_data && gest.ig_base_valor) g.ig_dias = gest.ig_base_valor + Math.round((dia - new Date(gest.ig_base_data+'T12:00:00'))/86400000);
+      else if(gest.dum) g.ig_dias = Math.round((dia - new Date(gest.dum+'T12:00:00'))/86400000);
+      else g.ig_dias = null;
+    });
     return grupos;
   }
 

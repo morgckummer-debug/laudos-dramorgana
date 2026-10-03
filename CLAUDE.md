@@ -1399,3 +1399,14 @@ P10 + uterinas > P95, ou 2 de 3 depois de 32 semanas); aqui esse feto sai
 "adequado", porque o editor não calcula CA. Se um dia ele ganhar percentil de CA,
 o critério entra no mesmo `if` do `pesoKey` e a nota "CA abaixo do P10 com PFE
 adequada" deve ser espelhada. Gemelar: o laudo continua sem CIUR seletivo.
+
+## "Buscar laudo anterior" (morfológico 1º tri): rótulo pela IG da visita (2026-10-03)
+
+Os resultados "só medidas da Curva" deixaram de dizer "Só medidas (da Curva)":
+mostram `Morfológico do 1º trimestre · data · IG X semanas e Y dias · N fetos`.
+"Morfológico" só quando algum feto da visita tem `nt` (TN); sem TN (obstétrico de
+1º trimestre, só CCN) sai "Exame do 1º trimestre". O trimestre vem da IG (< 14
+semanas = 1º, < 28 = 2º, senão 3º); a IG segue a ordem do `calcIgDays` do Curva:
+`ig_dias_manual` da visita, depois `ig_base_data`/`ig_base_valor` da gestação, depois a
+DUM. Laudos completos salvos continuam "Morfológico do 1º trimestre · data", sem IG
+(o snapshot não a guarda de forma consultável).
