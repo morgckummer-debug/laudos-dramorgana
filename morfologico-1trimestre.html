@@ -4505,9 +4505,20 @@ if(typeof criarMotorLaudo !== 'function'){
 
       if(!gestacao){
         const cronologiaMetodoAtual = v('cronologiaMetodo');
-        const dataBase = computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='fiv') ? cronologiaMetodoAtual : 'dum');
+        let dataBase = computeDataBase((cronologiaMetodoAtual==='usg' || cronologiaMetodoAtual==='fiv') ? cronologiaMetodoAtual : 'dum');
+        // DUM incerta/ignorada não tem data de referência (computeDataBase
+        // devolve null de propósito para o laudo), mas sem gestação ativa na
+        // Curva o exame não teria onde ser pendurado. Só para criar a gestação,
+        // usa a IG informada neste exame aplicada sobre a data do exame.
+        if(!dataBase && ehDumSemCronologia(cronologiaMetodoAtual)){
+          const igInf = computeIGDaysInformada();
+          const dtExame = parseDateBR(v('dataExame'));
+          if(igInf!=null && dtExame) dataBase = addDays(dtExame, -igInf);
+        }
         if(!dataBase){
-          cgToast('Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
+          cgToast(ehDumSemCronologia(cronologiaMetodoAtual)
+            ? 'Nenhuma gestação ativa na Curva e a DUM é incerta/ignorada: preencha "IG neste exame" (semanas e dias) para criar a gestação automaticamente, ou cadastre-a no Curva de Crescimento.'
+            : 'Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
           return;
         }
         const dumISO = toISODateLocal(dataBase);
