@@ -337,6 +337,7 @@
     .paper .print-page .rodape-final{margin-top:0;}
   }
 </style>
+<script src="tema.js"></script>
 </head>
 <body>
 
@@ -1830,7 +1831,7 @@ if(typeof criarMotorLaudo !== 'function'){
       if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
       const row = document.createElement('label');
       row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
-      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#6d3263;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+italicizeFMF(escapeHtml(it.label))+'</span>';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:var(--rose-dark);" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+italicizeFMF(escapeHtml(it.label))+'</span>';
       row.querySelector('input').addEventListener('change', e=>{
         checkedState[it.key] = e.target.checked;
         render();

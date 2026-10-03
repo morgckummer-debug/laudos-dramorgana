@@ -1438,3 +1438,7 @@ Conferido com `ferramentas/testar-laudos.mjs` antes/depois: nenhuma diferença.
 - **Policístico** ganhou `{ov}_policisticoVolume` (aumentado/normal). Bilateral só quando os
   dois têm o mesmo volume; as chaves da impressão mudam com o volume e com "um x vários
   cistos" (`hdSufixoChave`) para uma linha reescrita à mão não ficar presa à frase do outro caso.
+
+## Temas de cor da interface (2026-10-03)
+
+`tema.js` (carregado no `<head>` dos quinze `.html`, antes do `<body>`) troca só as variáveis de cor da **interface** — `--rose*`, `--sage*`, `--bg`, `--line*`, `--ink-soft`, `--shadow` — por `:root[data-tema="..."]`, e cria o botão da paleta em `.topbar-actions` (no `index.html`, direto na `.topbar`). Escolha guardada em `localStorage` (`laudo-tema`), valendo para todos os laudos. Seis paletas: Orquídea (padrão, sem atributo), Oceano, Marinho, Turquesa, Sálvia e Floresta. A folha do laudo (`.paper`) refixa `--ink-soft` no valor original, para impressão e Word não mudarem com o tema. Cor nova no CSS de um laudo: use `var(--rose-dark)` etc., nunca o hex — hex fixo não troca com o tema. Paleta nova = uma linha em `TEMAS`.
