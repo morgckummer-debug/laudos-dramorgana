@@ -386,6 +386,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Linfonodo axilar atípico — use {LADO}</label><textarea id="ph_impLinfonodoAxilar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Linfonodo intramamário — use {LADO}</label><textarea id="ph_impLinfonodoIntramamario" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Seroma — use {LADO} e {LOCAL}</label><textarea id="ph_impSeroma" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Abscesso — use {LADO}</label><textarea id="ph_impAbscesso" rows="2"></textarea></div>
 
   <hr class="sep">
   <div class="save-row">
@@ -1145,7 +1146,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impFibroadenoma: 'Nódulo mamário à {LADO}.',
     impLinfonodoAxilar: 'Linfonodo axilar atípico à {LADO}.',
     impLinfonodoIntramamario: 'Linfonodo intramamário à {LADO}.',
-    impSeroma: 'Coleção densa {LOCAL} da mama {LADO} – Seroma?'
+    impSeroma: 'Coleção densa {LOCAL} da mama {LADO} – Seroma?',
+    impAbscesso: 'Imagem sugestiva de abscesso mamário em mama {LADO}.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
 
@@ -1235,7 +1237,8 @@ if(typeof criarMotorLaudo !== 'function'){
     ['fibroadenoma','Fibroadenoma (FAD)'],
     ['linfonodoAxilar','Linfonodo axilar atípico'],
     ['linfonodoIntramamario','Linfonodo intramamário'],
-    ['seroma','Seroma']
+    ['seroma','Seroma'],
+    ['abscesso','Abscesso']
   ];
   let achadoNextUid = 1;
 
@@ -1469,6 +1472,10 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
     +'</div>';
 
+    // Abscesso: localização (horário/retroareolar), tamanho em até 3 medidas e
+    // volume — este calculado pelo elipsoide, como no nódulo sólido único.
+    html += '<div class="conditional" id="wrap_'+p+'_abscesso">'+campoHoraDistTam(p+'Abscesso','Hora', true, true)+'</div>';
+
     html += '<button type="button" class="achado-remove" data-uid="'+uid+'">Remover achado</button>';
     html += '</div>';
     return html;
@@ -1493,7 +1500,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // Cisto único e nódulo único têm um seletor de Localização (Horário /
     // Retroareolar): retroareolar esconde a linha de hora+distância, que não
     // se aplica a esse caso.
-    ['Cisto1','Nodulo1','CistoSeptado'].forEach(key=>{
+    ['Cisto1','Nodulo1','CistoSeptado','Abscesso'].forEach(key=>{
       const localSel = $('achado'+uid+key+'Local');
       if(!localSel) return;
       const applyLocal = ()=> toggle('wrap_achado'+uid+key+'_horario', localSel.value !== 'retroareolar');
@@ -1539,7 +1546,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // linhas de lados diferentes em vez de uma só "bilaterais". Essas duas
   // categorias (nodulo1/2/3 e cisto1/2/3/cistosVarios) resumem numa linha só,
   // cobrindo os dois lados de uma vez. Aglomerado cístico, cisto septado,
-  // fibroadenoma, linfonodo (axilar/intramamário) e seroma continuam uma
+  // fibroadenoma, linfonodo (axilar/intramamário), seroma e abscesso continuam uma
   // linha por achado — são diagnósticos específicos, não entram no resumo
   // genérico (o septado em especial: a frase de "cisto simples" apagaria
   // justamente a septação que motiva um acompanhamento diferente).
@@ -1561,7 +1568,7 @@ if(typeof criarMotorLaudo !== 'function'){
   function buildImpressao(state){
     const items = [{key:'normal', label:phrase('impNormal'), auto:true}];
 
-    const INDIVIDUAIS = ['aglomeradoCistico','cistoSeptado','fibroadenoma','linfonodoAxilar','linfonodoIntramamario','seroma'];
+    const INDIVIDUAIS = ['aglomeradoCistico','cistoSeptado','fibroadenoma','linfonodoAxilar','linfonodoIntramamario','seroma','abscesso'];
     state.achados.forEach(a=>{
       if(INDIVIDUAIS.includes(a.tipo)) items.push({key:'achado-'+a.uid, label:a.hd, auto:true});
     });
@@ -1773,6 +1780,16 @@ if(typeof criarMotorLaudo !== 'function'){
         const vol=blankOrValue(req('achado'+uid+'SeromaVol'));
         corpo = 'Presença de coleção ecogênica com debris em seu interior, localizada '+span(local)+', medindo aproximadamente '+span(tam)+' cm, com volume de '+span(vol)+' ml.';
         hd = phrase('impSeroma', {LADO: lado, LOCAL: local.text});
+      } else if(tipo === 'abscesso'){
+        const retro = v('achado'+uid+'AbscessoLocal') === 'retroareolar';
+        const hora=blankOrValue(reqIf('achado'+uid+'AbscessoHora', !retro));
+        const dist=blankOrValue(reqIf('achado'+uid+'AbscessoDist', !retro));
+        const tamRaw = req('achado'+uid+'AbscessoTam');
+        const volume = volumeElipsoide(parseMedidas(tamRaw));
+        const tam = blankOrValue(tamanhoSemUnidade(tamRaw));
+        corpo = 'Observa-se coleção de contornos irregulares, com conteúdo heterogêneo e debris em seu interior, localizada '+localizacaoTexto(retro, hora, dist)+', medindo '+span(tam)+' mm'
+          + (volume!==null ? ', com volume estimado de '+fmtDecimal(volume)+' cm³.' : '.');
+        hd = phrase('impAbscesso', {LADO: lado});
       }
       return {uid, lado, tipo, corpo, corpoLista, hd};
     }
@@ -1789,6 +1806,9 @@ if(typeof criarMotorLaudo !== 'function'){
     const ACHADO_SOLIDOS = ['nodulo1','nodulo2','nodulo3','fibroadenoma'];
 
     function fraseSemAchado(lista){
+      // Abscesso é uma coleção/desorganização do parênquima: a frase de "não se
+      // observam ... áreas de desorganização" contradiria o achado.
+      if(lista.some(a=> a.tipo === 'abscesso')) return null;
       const hasCistico = lista.some(a=> ACHADO_CISTICOS.includes(a.tipo));
       const hasSolido = lista.some(a=> ACHADO_SOLIDOS.includes(a.tipo));
       if(hasCistico && hasSolido) return null;
