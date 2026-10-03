@@ -1387,3 +1387,15 @@ laudos ficarem iguais).
   soltos (o `{IG}` já saía certo).
 - **Monocoriônica** (`obstetrico.html`, `morfologico-2trimestre.html`): uma
   só placenta, a do último feto, com o título "Placenta única".
+
+## PIG = PFE < P10; a CA não entra neste laudo (2026-10-03)
+
+Decisão da Dra. Morgana, espelhada do `curva-fetal`: o nome PIG só sai com PFE
+< P10. O bloco de `pesoKey` já se comporta assim — decide só pelo percentil do
+peso (`percentilNum`) e o laudo não tem percentil de CA em lugar nenhum —, então
+**nenhum código mudou aqui**. Consequência a conhecer: no app, CA < P10 com PFE
+≥ P10 não vira PIG mas ainda conta como critério de crescimento do CIUR (CA <
+P10 + uterinas > P95, ou 2 de 3 depois de 32 semanas); aqui esse feto sai
+"adequado", porque o editor não calcula CA. Se um dia ele ganhar percentil de CA,
+o critério entra no mesmo `if` do `pesoKey` e a nota "CA abaixo do P10 com PFE
+adequada" deve ser espelhada. Gemelar: o laudo continua sem CIUR seletivo.
