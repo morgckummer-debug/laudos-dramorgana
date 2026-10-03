@@ -1589,6 +1589,18 @@ if(typeof criarMotorLaudo !== 'function'){
     t = aplicarPlaceholders(t, repl);
     return t;
   }
+  // Frases do saco: se a versão em uso (a "sua versão" salva em Frases) não tem
+  // o marcador {CONTORNO}/{CONTORNOS} e traz "contornos regulares" escrito
+  // direto, escolher "Irregulares" no formulário mudava só a conclusão e a
+  // descrição seguia dizendo "regulares". Nesse caso o texto fixo é trocado.
+  function phraseSaco(key, repl, irregular){
+    const t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    let out = phraseRaw(key, repl);
+    if(irregular && !/\{\s*CONTORNOS?\s*\}/i.test(t)){
+      out = out.replace(/contornos?\s+regulares/i, m=> m.replace(/regulares/i, 'irregulares'));
+    }
+    return out;
+  }
   $('btnPhrases').addEventListener('click', ()=>{
     $('phrasesPanel').classList.toggle('show');
   });
@@ -2783,8 +2795,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const multi = s.embrioes.length > 1;
       return [
         multi
-          ? phraseRaw('sacoGestacionalMultiplo', {DMSG: span(s.dmsg), INSERCAO: s.insercao, CONTORNO: s.contorno, EMBRIOES: EMB_EXTENSO[s.embrioes.length] || String(s.embrioes.length)})
-          : phraseRaw('sacoGestacional', {INSERCAO: s.insercao, CONTORNO: s.contorno}),
+          ? phraseSaco('sacoGestacionalMultiplo', {DMSG: span(s.dmsg), INSERCAO: s.insercao, CONTORNO: s.contorno, EMBRIOES: EMB_EXTENSO[s.embrioes.length] || String(s.embrioes.length)}, s.contorno==='irregulares')
+          : phraseSaco('sacoGestacional', {INSERCAO: s.insercao, CONTORNO: s.contorno}, s.contorno==='irregulares'),
         s.hematoma
           ? phraseRaw('hematoma', {LOCAL: s.hematomaLocal, FACE: s.hematomaFace, MEDIDA: span(s.hematomaMedida)})
           : phrase('semDescolamento')
@@ -2801,7 +2813,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const contornos = a.contorno === b.contorno
         ? a.contorno
         : a.contorno+' no '+a.label.toLowerCase()+' e '+b.contorno+' no '+b.label.toLowerCase();
-      const linhas = [phraseRaw('sacosGestacionaisPar', {INSERCOES: insercoes, CONTORNOS: contornos})];
+      const linhas = [phraseSaco('sacosGestacionaisPar', {INSERCOES: insercoes, CONTORNOS: contornos}, a.contorno==='irregulares' && b.contorno==='irregulares')];
       // Com hematoma em algum deles não dá para dizer "não identificadas áreas
       // de descolamentos" para os dois: aí cada saco ganha a sua linha, dita
       // pelo nome.
