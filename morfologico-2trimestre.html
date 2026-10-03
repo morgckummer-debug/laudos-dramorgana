@@ -273,7 +273,7 @@
   .paper table.biometria.morfologia td.pg-break-marker{
     border-top:1.5px dashed #b39ddb;padding:10px 0 4px;text-align:center;font-weight:400;
   }
-  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1.25em) 0;font-size:9.5pt;}
+  .paper p.recomendacao{text-align:center;font-style:italic;margin:var(--linha-margin, 1.25em) 0;font-size:10pt;text-wrap:balance;}
   .paper .blank{color:#B4432F;font-weight:600;}
   .paper .filled{color:var(--ink);}
   .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
@@ -2805,7 +2805,7 @@ if(typeof criarMotorLaudo !== 'function'){
         if(viva.style.lineHeight){ el.style.lineHeight = getComputedStyle(viva).lineHeight; el.style.setProperty('mso-line-height-rule', 'exact'); }
       });
     })();
-    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='9.5pt'; });
+    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='10pt'; });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
