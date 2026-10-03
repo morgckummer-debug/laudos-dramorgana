@@ -1795,7 +1795,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const bexigaCistiteDebris = $('chkBexigaCistiteDebris').checked;
     const bexigaCalculoTamanhoTexto = blankOrValue(reqIf('bexigaCalculoTamanho', bexigaAspecto==='calculo'));
     const volumeInicialTexto = blankOrValue(req('volumeInicial'));
-    const volumePosNum = num('volumePosMiccional'); req('volumePosMiccional');
+    // Opcional: vazio não conta como pendência e a linha some do laudo.
+    const volumePosNum = num('volumePosMiccional');
     const volumePosTexto = blankOrValue(v('volumePosMiccional'));
     const volumePosClassEl = $('volumePosClassificacao');
     if(volumePosClassEl){
@@ -1892,7 +1893,9 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'bexiga', html:'<p class="linha"><strong>Bexiga:</strong> '+quebraFrases(bexigaTexto)+'</p>'});
     blocks.push({id:'volumeInicial', html:'<p class="linha">Volume urinário inicial: '+span(volumeInicialTexto)+' ml.</p>'});
     const desprezivel = (volumePosNum!==null && volumePosNum <= RESIDUO_MAX) ? ' (desprezível)' : '';
-    blocks.push({id:'volumePos', html:'<p class="linha">Volume urinário pós-miccional: '+span(volumePosTexto)+' ml'+desprezivel+'.</p>'});
+    if(volumePosNum!==null){
+      blocks.push({id:'volumePos', html:'<p class="linha">Volume urinário pós-miccional: '+span(volumePosTexto)+' ml'+desprezivel+'.</p>'});
+    }
 
     obsLinhas.forEach((linha, idx)=>{
       blocks.push({id:'obs-'+idx, html:'<p class="linha">'+escapeHtml(linha)+'</p>'});
