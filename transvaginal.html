@@ -234,6 +234,7 @@
      continuação alinha com o começo do texto da linha de cima, não com o
      asterisco — que assim fica isolado numa coluna própria, mais visível. */
   .paper ul.impressao li{margin-bottom:2px;font-weight:700;text-align:justify;padding-left:1em;text-indent:-1em;}
+  .paper p.recomendacao{text-align:center;font-style:italic;font-size:10pt;text-wrap:balance;margin:var(--linha-margin, 1.25em) 0;}
   .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
   .paper .footnote{font-style:italic;font-size:9pt;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
   .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
@@ -602,6 +603,7 @@
 
   <hr class="sep">
   <h3>Rodapé</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Sugestão de propedêutica — endometriose profunda (sai antes da assinatura quando há nódulo de endometriose profunda, sliding negativo ou kissing ovaries)</label><textarea id="ph_recomendacaoEndometriose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nota final</label><textarea id="ph_footerImagens" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -1947,6 +1949,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impSlidingNegativo: 'Mobilidade uterina reduzida, sugerindo obliteração do fundo de saco posterior.',
     impKissingOvaries: 'Kissing ovaries - Considerar processo aderencial / endometriose profunda.',
 
+    recomendacaoEndometriose: 'Sugere-se ampliação propedêutica para pesquisa de endometriose profunda com preparo intestinal.',
     footerImagens: 'Imagens em anexo.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
@@ -3135,6 +3138,14 @@ if(typeof criarMotorLaudo !== 'function'){
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
+    // Sinais de endometriose profunda: nódulo intestinal, sliding negativo ou
+    // kissing ovaries (os dois últimos só se avaliam por via transvaginal).
+    const sinaisEndoProfunda = endometrioseItens.length>0
+      || (!chkTransabdominal && (slidingEfetivo==='negativo' || chkKissingOvaries));
+    if(sinaisEndoProfunda){
+      blocks.push({id:'recomendacaoEndometriose', html:'<p class="recomendacao">'+phrase('recomendacaoEndometriose')+'</p>'});
+    }
+
     // Grouped together so print pagination (which pins whatever the last
     // top-level element is to the bottom of the last page) places both at
     // once: "Imagens em anexo" bottom-left, signature bottom-right.
@@ -3171,6 +3182,7 @@ if(typeof criarMotorLaudo !== 'function'){
     ['p.relato', ['font-size','line-height'].concat(MARGINS)],
     ['h4.sec', ['font-size','line-height'].concat(MARGINS)],
     ['p.linha', ['font-size','line-height'].concat(MARGINS)],
+    ['p.recomendacao', ['font-size','line-height'].concat(MARGINS)],
     ['.footnote', ['font-size','line-height']],
     ['.assinatura', ['line-height']],
     ['.assinatura-info', ['font-size','line-height']]
@@ -3238,6 +3250,7 @@ if(typeof criarMotorLaudo !== 'function'){
       h.replaceWith(p);
     });
     clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
+    clone.querySelectorAll('.recomendacao').forEach(h=>{ h.style.textAlign='center'; h.style.fontStyle='italic'; h.style.fontSize='10pt'; });
     clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
     clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
     clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
