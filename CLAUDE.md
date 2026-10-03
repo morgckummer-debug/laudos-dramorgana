@@ -1425,3 +1425,16 @@ não pode perder a linha); esconde quando o cursor sai. A marca cai sozinha quan
 volta a haver texto ou quando `render()` regenera o bloco (mudou um campo do
 formulário: a frase gerada volta). Vale para os catorze laudos, sem tocar em `.html`.
 Conferido com `ferramentas/testar-laudos.mjs` antes/depois: nenhuma diferença.
+
+## Transvaginal: cistos simples em lista e policístico com volume (2026-10-03)
+
+- **"Cisto simples" é uma opção só** no aspecto do ovário (e na alteração adicional), com
+  um card por cisto (`+ Adicionar cisto`, ids `{ov}_cisto{suf}_{uid}Medida/Volume`, uid
+  próprio como nos miomas) e uma caixa "Mostrar volume" por posição. Um e dois cistos
+  mantêm as frases de sempre (`ovarioCisto1/2`); de três em diante vale
+  `ovarioCistoMultiplos`/`...Tambem`, com `{N}` e `{LISTA}`.
+- **O rascunho guarda `cistoUids`**, e `draftMigrarCistos()` converte rascunho antigo
+  (`cisto1`/`cisto2`, campos fixos) para a lista — sem isso o ovário voltava sem o achado.
+- **Policístico** ganhou `{ov}_policisticoVolume` (aumentado/normal). Bilateral só quando os
+  dois têm o mesmo volume; as chaves da impressão mudam com o volume e com "um x vários
+  cistos" (`hdSufixoChave`) para uma linha reescrita à mão não ficar presa à frase do outro caso.
