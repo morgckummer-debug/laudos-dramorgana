@@ -311,6 +311,7 @@
     .paper .print-page .rodape-final{margin-top:0;}
   }
 </style>
+<script src="tema.js"></script>
 </head>
 <body>
 
@@ -509,7 +510,7 @@
              próprios em vez de opções de um mesmo select exclusivo. -->
         <div class="field-row">
           <label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
-            <input type="checkbox" id="temNodulo" style="accent-color:#6d3263;"> Há nódulo(s)
+            <input type="checkbox" id="temNodulo" style="accent-color:var(--rose-dark);"> Há nódulo(s)
           </label>
         </div>
         <div class="conditional" id="wrap_noduloCampos">
@@ -518,7 +519,7 @@
         </div>
         <div class="field-row">
           <label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
-            <input type="checkbox" id="temCisto" style="accent-color:#6d3263;"> Há cisto colóide
+            <input type="checkbox" id="temCisto" style="accent-color:var(--rose-dark);"> Há cisto colóide
           </label>
         </div>
         <div class="conditional" id="wrap_cistoCampos">
@@ -1652,7 +1653,7 @@ if(typeof criarMotorLaudo !== 'function'){
       if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
       const row = document.createElement('label');
       row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
-      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#6d3263;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:var(--rose-dark);" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
       row.querySelector('input').addEventListener('change', e=>{
         checkedState[it.key] = e.target.checked;
         render();

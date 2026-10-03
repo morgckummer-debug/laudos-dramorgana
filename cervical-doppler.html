@@ -304,6 +304,7 @@
     .paper .print-page .rodape-final{margin-top:0;}
   }
 </style>
+<script src="tema.js"></script>
 </head>
 <body>
 
@@ -444,7 +445,7 @@
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Sem achado marcado abaixo, o laudo sai com "Ausência de sinais de linfonodomegalia." O que importa para o tamanho é sempre o menor eixo do linfonodo — o eixo longo não é avaliado.</p>
         <div class="field-row">
           <label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
-            <input type="checkbox" id="temLinfonodo" style="accent-color:#6d3263;"> Há linfonodo(s) a descrever
+            <input type="checkbox" id="temLinfonodo" style="accent-color:var(--rose-dark);"> Há linfonodo(s) a descrever
           </label>
         </div>
         <div class="conditional" id="wrap_linfonodoCampos">
@@ -1296,7 +1297,7 @@ if(typeof criarMotorLaudo !== 'function'){
       if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
       const row = document.createElement('label');
       row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
-      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:#6d3263;" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:var(--rose-dark);" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
       row.querySelector('input').addEventListener('change', e=>{
         checkedState[it.key] = e.target.checked;
         render();
