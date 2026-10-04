@@ -40,7 +40,18 @@
       + '.tema-opt .dot{width:18px;height:18px;border-radius:50%;flex:0 0 auto;box-shadow:inset 0 0 0 2px rgba(0,0,0,.08);}'
       + '.tema-opt.sel{font-weight:700;}'
       + '.tema-opt.sel::after{content:"✓";margin-left:auto;}'
-      + '@media print{.tema-wrap{display:none !important;}}';
+      + '@media print{.tema-wrap{display:none !important;}}'
+      // Celular em pé: a barra de ações vira uma grade de duas colunas — os seletores
+      // ocupam a linha toda e os botões dividem a linha em partes iguais — em vez de
+      // uma pilha de pílulas de larguras diferentes. Vive aqui (e não em cada .html)
+      // porque o tema.js é o único arquivo que todos os laudos carregam; o seletor
+      // com `.topbar .topbar-actions >` vence as classes de cada laudo sem !important.
+      + '@media (max-width:600px){'
+      +   '.topbar .topbar-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;}'
+      +   '.topbar .topbar-actions > select{grid-column:1/-1;width:100%;min-width:0;text-overflow:ellipsis;}'
+      +   '.topbar .topbar-actions > button{min-width:0;width:100%;padding:10px 8px;text-align:center;line-height:1.2;}'
+      +   '.topbar .topbar-actions > .tema-wrap{justify-self:end;}'
+      + '}';
     return s;
   }
 
@@ -75,7 +86,16 @@
       });
       pop.appendChild(o);
     });
-    btn.addEventListener('click', function(e){ e.stopPropagation(); pop.classList.toggle('aberto'); });
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      // Ancora o menu do lado em que há espaço: com o botão na metade esquerda da
+      // tela (celular), `right:0` jogava o menu para fora da borda esquerda.
+      var r = btn.getBoundingClientRect();
+      var esquerda = (r.left + r.width/2) < window.innerWidth/2;
+      pop.style.left = esquerda ? '0' : 'auto';
+      pop.style.right = esquerda ? 'auto' : '0';
+      pop.classList.toggle('aberto');
+    });
     document.addEventListener('click', function(e){ if(!wrap.contains(e.target)) pop.classList.remove('aberto'); });
     wrap.appendChild(btn); wrap.appendChild(pop); bar.appendChild(wrap);
   }
