@@ -19,7 +19,7 @@
     marinho: {nome:'Azul Marinho', cor:'#4a63b8', v:['#4a63b8','#26357a','#e8ecf8','#19244f','#f5f6fb','#dde0ee','#7a82a3','38,53,122']},
     turquesa:{nome:'Turquesa',     cor:'#1f9a9a', v:['#1f9a9a','#0f5f63','#e1f4f3','#0a4144','#f3f9f9','#d6e7e6','#6c8c8b','15,95,99']},
     salvia:  {nome:'Verde Sálvia', cor:'#6b9a78', v:['#6b9a78','#3f6b4d','#e9f3ec','#2a4a35','#f6f9f6','#dde8df','#7d9484','63,107,77']},
-    floresta:{nome:'Verde Floresta',cor:'#2f8f5b',v:['#2f8f5b','#1b5e3b','#e2f3e9','#123f28','#f3f8f5','#d5e6db','#6a8a76','27,94,59']}
+    laranja: {nome:'Laranja',       cor:'#e07b24', v:['#e07b24','#a8470c','#fdeede','#6e2c05','#fdf8f3','#f0e0d0','#9a8068','168,71,12']}
   };
 
   function css(){
