@@ -521,6 +521,11 @@
             <select id="fivEstagio"><option value="d3">D3 (clivagem)</option><option value="d5">D5 (blastocisto)</option></select>
           </div>
         </div>
+        <div class="field-row conditional" id="wrap_dumConcordancia">
+          <div class="field"><label>DUM</label>
+            <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
+          </div>
+        </div>
         <div class="field-row conditional" id="wrap_exameInfo">
           <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 12"></div>
           <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
@@ -1347,16 +1352,21 @@ if(typeof criarMotorLaudo !== 'function'){
   }
 
 
-  $('cronologiaMetodo').addEventListener('change', e=>{
-    toggle('wrap_usgDatacao', e.target.value==='usg');
-    toggle('wrap_fivTransferencia', e.target.value==='fiv');
-    toggle('wrap_exameInfo', ehDumSemCronologia(e.target.value));
-    toggle('wrap_incertaInfo', ehDumSemCronologia(e.target.value));
-  });
-  toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
-  toggle('wrap_fivTransferencia', $('cronologiaMetodo').value==='fiv');
-  toggle('wrap_exameInfo', ehDumSemCronologia($('cronologiaMetodo').value));
-  toggle('wrap_incertaInfo', ehDumSemCronologia($('cronologiaMetodo').value));
+  // DUM discordante: mesmo método (DUM), mas a médica marca que a IG encontrada
+  // no exame não bate com a da DUM — libera "IG neste exame", que passa a valer
+  // para a conclusão e os percentis; o cabeçalho continua pela DUM.
+  function updateCronologiaWraps(){
+    const metodo = $('cronologiaMetodo').value;
+    const dumDiscordante = metodo==='dum' && $('dumConcordancia').value==='discordante';
+    toggle('wrap_usgDatacao', metodo==='usg');
+    toggle('wrap_fivTransferencia', metodo==='fiv');
+    toggle('wrap_dumConcordancia', metodo==='dum');
+    toggle('wrap_exameInfo', ehDumSemCronologia(metodo) || dumDiscordante);
+    toggle('wrap_incertaInfo', ehDumSemCronologia(metodo));
+  }
+  $('cronologiaMetodo').addEventListener('change', updateCronologiaWraps);
+  $('dumConcordancia').addEventListener('change', updateCronologiaWraps);
+  updateCronologiaWraps();
 
   // O software da FMF sempre calcula o risco pós-teste com idade materna
   // (IM) + CCN + TN + frequência cardíaca (BCF) — isso não muda com o
@@ -2016,21 +2026,24 @@ if(typeof criarMotorLaudo !== 'function'){
     // conclusão — sem isto, "de acordo com a DUM/primeira ecografia" ficava
     // ambíguo sobre qual das duas datas o laudo realmente seguiu.
     const METODO_TXT = {dum:'a DUM', usg:'a primeira ecografia', incerta:'a IG informada neste exame', ignorada:'a IG informada neste exame'};
-    const metodoTxt = METODO_TXT[cronologiaMetodo];
+    const dumDiscordante = cronologiaMetodo === 'dum' && v('dumConcordancia')==='discordante';
+    const metodoTxt = dumDiscordante ? METODO_TXT.incerta : METODO_TXT[cronologiaMetodo];
     const dataBase = computeDataBase(cronologiaMetodo);
     // DUM incerta/ignorada: sem data base, então a IG não sai da conta com a
     // data do exame (não há cronologia) — vem direto dos campos de IG
     // informada, só para virar número solto na conclusão e alimentar os
     // percentis (Doppler das uterinas) que dependem da IG.
     let gaDays;
-    if(ehDumSemCronologia(cronologiaMetodo)){
+    if(ehDumSemCronologia(cronologiaMetodo) || dumDiscordante){
       const semanasInformadas = parseInt(v('impSemanas'), 10);
       const diasInformados = parseInt(v('impDias'), 10);
       gaDays = !isNaN(semanasInformadas) ? (semanasInformadas*7 + (isNaN(diasInformados) ? 0 : diasInformados)) : null;
     } else {
       gaDays = computeIGDaysAtExam(dataBase, dataExame);
     }
-    const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
+    // Cabeçalho e "IG atual" seguem a DUM mesmo quando ela é discordante.
+    const gaDaysCab = dumDiscordante ? computeIGDaysAtExam(dataBase, dataExame) : gaDays;
+    const igAtualTxt = gaDaysCab!=null ? formatIG(gaDaysCab) : '';
     const igAtualEl = $('igAtual');
     if(igAtualEl) igAtualEl.value = igAtualTxt;
     // Datação por ultrassom do 1º trimestre: não há DUM informada, então o
@@ -2112,7 +2125,7 @@ if(typeof criarMotorLaudo !== 'function'){
       utPercentilTxt = percentilUt!=null ? String(Math.round(percentilUt)) : '';
       utAlterado = percentilUt!=null ? percentilUt > 95 : false;
       $('utMedioCalc').value = utMedioNum!=null ? utMedioTxt : '';
-      $('utP95Calc').value = percentilUt!=null ? ('P'+utPercentilTxt+' (IG: '+igAtualTxt+')') : (gaDays==null ? 'informe a IG para calcular' : '');
+      $('utP95Calc').value = percentilUt!=null ? ('P'+utPercentilTxt+' (IG: '+formatIG(gaDays)+')') : (gaDays==null ? 'informe a IG para calcular' : '');
     }
 
     // Ducto venoso e válvula tricúspide moraram no card do próprio feto até
@@ -2562,6 +2575,9 @@ if(typeof criarMotorLaudo !== 'function'){
     // Recria a lista de fetos do zero: os cards antigos levavam junto os valores
     // digitados, e o select de nº de fetos acabou de voltar para "Único".
     $('fetosContainer').innerHTML = '';
+    // A limpeza tirou "show" de todo `.conditional`: refaz o toggle da
+    // cronologia (DUM concordante/discordante, IG neste exame).
+    updateCronologiaWraps();
     // Os nódulos da paciente anterior saem junto: o select de miométrio acabou
     // de voltar para "Textura homogênea", e um nódulo preenchido pendurado aí
     // reapareceria na hora em que ela escolhesse "mioma" para a nova paciente.
