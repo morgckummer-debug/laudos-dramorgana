@@ -2702,11 +2702,21 @@ if(typeof criarMotorLaudo !== 'function'){
           +'</table></div>';
         blocks.push({id:'biometria'+sfx, html:biometriaHtml});
 
-        // Feto único: placenta e líquido amniótico num parágrafo só, sob "Placenta e
-        // anexos" (2026-10-05) — dois blocos com título próprio faziam o laudo com
-        // Doppler + PBF abrir uma segunda folha. Gemelar segue separado, por feto.
-        const laFrase = f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormalUnico');
-        blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta e anexos</strong></p><p class="linha">'+f.placentaHtml+' '+laFrase+' '+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'. '+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'.</p></div>'});
+        // Feto único com Doppler + PBF ou Doppler + colo: placenta e líquido amniótico
+        // num parágrafo só, sob "Placenta e anexos" (2026-10-05) — dois blocos com
+        // título próprio faziam esses laudos abrirem uma segunda folha. No obstétrico
+        // simples e na gemelar continuam em blocos separados.
+        if(doppler && (pbf || colo)){
+          const laFrase = f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormalUnico');
+          blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta e anexos</strong></p><p class="linha">'+f.placentaHtml+' '+laFrase+' '+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'. '+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'.</p></div>'});
+        } else {
+          blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta</strong></p><p class="linha">'+f.placentaHtml+'</p></div>'});
+
+          let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
+          laHtml += '<p class="linha tight">'+(f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormal'))+'</p>';
+          laHtml += '<p class="linha">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'. '+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'.</p></div>';
+          blocks.push({id:'la'+sfx, html:laHtml});
+        }
 
         if(doppler){
           const ambos = dopplerMaterno && dopplerFetal;
