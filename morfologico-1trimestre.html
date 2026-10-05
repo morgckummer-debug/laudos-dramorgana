@@ -656,6 +656,9 @@
 
   <hr class="sep">
   <h3>Impressões diagnósticas</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação única, DUM discordante — use {IG} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoDumDiscordante" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar, DUM discordante — use {CORIONICIDADE} e {IG}</label><textarea id="ph_impGestacaoMultiplaDumDiscordante" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar, DUM discordante — use {CORIONICIDADE} e {IG}</label><textarea id="ph_impGestacaoTrigemelarDumDiscordante" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação — use {IG} e {METODO} (DUM/ecografia/exame, conforme a cronologia escolhida; também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação gemelar — use {CORIONICIDADE}, {IG} e {METODO} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoMultipla" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação trigemelar — use {CORIONICIDADE}, {IG} e {METODO} (também disponíveis: {SEMANAS} e {DIAS} avulsos)</label><textarea id="ph_impGestacaoTrigemelar" rows="2"></textarea></div>
@@ -751,10 +754,6 @@
           <div class="field"><label>Estágio do embrião na transferência</label>
             <select id="fivEstagio"><option value="d3">D3 (clivagem)</option><option value="d5">D5 (blastocisto)</option></select>
           </div>
-        </div>
-        <div class="field-row conditional" id="wrap_igInformadaCampos">
-          <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 12"></div>
-          <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
         </div>
         <div class="field-row conditional" id="wrap_dumEstimada">
           <div class="field"><label>DUM estimada (para lançar na máquina de ultrassom)</label><input type="text" id="dumEstimada" readonly placeholder="calculada automaticamente"></div>
@@ -886,6 +885,15 @@
     <div class="card">
       <div class="card-head"><h2>Impressões diagnósticas</h2></div>
       <div class="card-body">
+        <div class="field-row conditional" id="wrap_dumConcordancia">
+          <div class="field"><label>DUM</label>
+            <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
+          </div>
+        </div>
+        <div class="field-row conditional" id="wrap_igInformadaCampos">
+          <div class="field"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 12"></div>
+          <div class="field"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
+        </div>
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
       </div>
@@ -1551,6 +1559,9 @@ if(typeof criarMotorLaudo !== 'function'){
     morfoExtremidades: 'Os membros superiores e inferiores apresentam aspecto normal em seus diferentes segmentos. Mãos e pés de conformação usual. Ecogenicidade óssea normal.',
     morfoCordao: 'Presença de {VASOS}.',
 
+    impGestacaoDumDiscordante: 'Gestação eutópica, compatível com {IG} (DUM discordante).',
+    impGestacaoMultiplaDumDiscordante: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG} (DUM discordante).',
+    impGestacaoTrigemelarDumDiscordante: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {IG} (DUM discordante).',
     impGestacao: 'Gestação única, compatível com {IG} de acordo com {METODO}.',
     impGestacaoMultipla: 'Gestação gemelar, {CORIONICIDADE}, compatível com {IG} de acordo com {METODO}.',
     impGestacaoTrigemelar: 'Gestação trigemelar, {CORIONICIDADE}, compatível com {IG} de acordo com {METODO}.',
@@ -1703,16 +1714,21 @@ if(typeof criarMotorLaudo !== 'function'){
   }
 
 
-  $('cronologiaMetodo').addEventListener('change', e=>{
-    toggle('wrap_usgDatacao', e.target.value==='usg');
-    toggle('wrap_fivTransferencia', e.target.value==='fiv');
-    toggle('wrap_igInformadaCampos', ehDumSemCronologia(e.target.value));
-    toggle('wrap_dumEstimada', e.target.value==='usg' || e.target.value==='fiv');
-  });
-  toggle('wrap_usgDatacao', $('cronologiaMetodo').value==='usg');
-  toggle('wrap_fivTransferencia', $('cronologiaMetodo').value==='fiv');
-  toggle('wrap_igInformadaCampos', ehDumSemCronologia($('cronologiaMetodo').value));
-  toggle('wrap_dumEstimada', $('cronologiaMetodo').value==='usg' || $('cronologiaMetodo').value==='fiv');
+  // DUM discordante: mesmo método (DUM), mas a IG encontrada no exame não bate
+  // com a da DUM — libera "IG neste exame", que passa a valer para a conclusão
+  // e os percentis; o cabeçalho continua pela DUM.
+  function updateCronologiaWraps(){
+    const metodo = $('cronologiaMetodo').value;
+    const dumDiscordante = metodo==='dum' && $('dumConcordancia').value==='discordante';
+    toggle('wrap_usgDatacao', metodo==='usg');
+    toggle('wrap_fivTransferencia', metodo==='fiv');
+    toggle('wrap_dumConcordancia', metodo==='dum');
+    toggle('wrap_igInformadaCampos', ehDumSemCronologia(metodo) || dumDiscordante);
+    toggle('wrap_dumEstimada', metodo==='usg' || metodo==='fiv');
+  }
+  $('cronologiaMetodo').addEventListener('change', updateCronologiaWraps);
+  $('dumConcordancia').addEventListener('change', updateCronologiaWraps);
+  updateCronologiaWraps();
 
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
   $('chkPreEclampsia').addEventListener('change', e=>{ toggle('preEclampsiaFields', e.target.checked); render(); });
@@ -2670,8 +2686,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const pre = f => state.isMultiple ? (f.label+': ') : '';
     const k = (base, f) => state.isMultiple ? (base+'-f'+f.uid) : base;
 
-    const gestacaoKey = !state.isMultiple ? 'impGestacao'
-      : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla');
+    // DUM discordante: a conclusão só avisa da discordância. Chaves próprias —
+    // mudar o texto de `impGestacao` esconderia o conserto da médica.
+    const sufixoDisc = state.dumDiscordante ? 'DumDiscordante' : '';
+    const gestacaoKey = !state.isMultiple
+      ? (sufixoDisc ? 'impGestacaoDumDiscordante' : 'impGestacao')
+      : (state.fetos.length >= 3 ? 'impGestacaoTrigemelar' : 'impGestacaoMultipla') + sufixoDisc;
     items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
       {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias, METODO:state.metodoTxt}), auto:true});
 
@@ -2945,8 +2965,12 @@ if(typeof criarMotorLaudo !== 'function'){
     const METODO_TXT = {dum:'a DUM', usg:'a primeira ecografia', incerta:'a IG informada neste exame', ignorada:'a IG informada neste exame'};
     const metodoTxt = METODO_TXT[cronologiaMetodo];
     const dataBase = computeDataBase(cronologiaMetodo);
-    const gaDays = ehDumSemCronologia(cronologiaMetodo) ? computeIGDaysInformada() : computeIGDaysAtExam(dataBase, dataExame);
-    const igAtualTxt = gaDays!=null ? formatIG(gaDays) : '';
+    const dumDiscordante = cronologiaMetodo === 'dum' && v('dumConcordancia')==='discordante';
+    // DUM discordante: a IG do exame (informada) vale para conclusão e
+    // percentis; cabeçalho / "IG atual" seguem a DUM (gaDaysCab).
+    const gaDays = (ehDumSemCronologia(cronologiaMetodo) || dumDiscordante) ? computeIGDaysInformada() : computeIGDaysAtExam(dataBase, dataExame);
+    const gaDaysCab = dumDiscordante ? computeIGDaysAtExam(dataBase, dataExame) : gaDays;
+    const igAtualTxt = gaDaysCab!=null ? formatIG(gaDaysCab) : '';
     const igAtualEl = $('igAtual');
     if(igAtualEl) igAtualEl.value = igAtualTxt;
     // DUM estimada: só faz sentido quando a IG veio de ultrassom (anterior ou
@@ -3187,7 +3211,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // ----- Impressão -----
     const state = {
-      semanas: semanasTxt, dias: diasTxt, ig: igTxt, metodoTxt,
+      semanas: semanasTxt, dias: diasTxt, ig: igTxt, dumDiscordante, metodoTxt,
       isMultiple, corTxt, fetos, isMonocorionica, rotuloRiscoMono,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       preEclampsia, preEclampsiaOpcao, preEclampsiaRiscoTxt,
@@ -3834,6 +3858,8 @@ if(typeof criarMotorLaudo !== 'function'){
     setDefaultDataExame();
     // Recria a lista de fetos do zero: os cards antigos levavam junto os valores
     // digitados, e o select de nº de fetos acabou de voltar para "Único".
+    // A limpeza tirou "show" de todo `.conditional`: refaz o toggle da cronologia.
+    updateCronologiaWraps();
     $('fetosContainer').innerHTML = '';
     const _dffReset = $('dopplerFetalFields'); if(_dffReset) _dffReset.innerHTML = '';
     // Os nódulos da paciente anterior saem junto: o select de miométrio acabou
