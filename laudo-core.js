@@ -173,6 +173,15 @@ function criarMotorLaudo(cfg){
   // irem para uma 2ª folha sem precisar.
   const PAGE_SAFETY_PX = 18.9;
 
+  // Reserva no pé da folha impressa para o timbrado físico. Os .html declaram
+  // `tfoot td{height:2cm}`, que o estilo injetado mais abaixo sobrepõe com este
+  // valor. Medido em 2026-10-05: a assinatura já encostava nos 2cm, e a médica
+  // ainda via 2–3cm sobrando entre ela e o rodapé do papel timbrado — então a
+  // reserva foi reduzida. Ajustar SÓ aqui: orçamento da página, tfoot e margem
+  // do Word seguem esta constante.
+  const RODAPE_RESERVA_CM = 1;
+  const RODAPE_CSS_CM = 2;
+
   // Colchão extra só para o espaçador que prende a assinatura no pé da
   // página (impressão e Word) — sem isso o espaçador some com 100% da folga
   // que sobra, encostando a assinatura exatamente na borda inferior do
@@ -503,7 +512,7 @@ function criarMotorLaudo(cfg){
   }
   function pageBudgetPx(){
     const ref = document.createElement('div');
-    ref.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:0;width:0;height:24.2cm;';
+    ref.style.cssText = 'position:absolute;visibility:hidden;left:-99999px;top:0;width:0;height:'+(24.2 + RODAPE_CSS_CM - RODAPE_RESERVA_CM)+'cm;';
     document.body.appendChild(ref);
     const pageHeightPx = ref.getBoundingClientRect().height;
     document.body.removeChild(ref);
@@ -1082,7 +1091,7 @@ function criarMotorLaudo(cfg){
       // treze laudos. Sem fixar isso aqui o Word usa a margem padrão dele
       // (2,54cm iguais nos quatro lados) e o texto começa mais alto na folha,
       // sobrepondo o timbrado quando impresso na mesma papelaria do PDF.
-      + '@page WordSection1{size:21.0cm 29.7cm;margin:3.5cm 2cm 2cm 2cm;}'
+      + '@page WordSection1{size:21.0cm 29.7cm;margin:3.5cm 2cm '+RODAPE_RESERVA_CM+'cm 2cm;}'
       + 'div.WordSection1{page:WordSection1;}'
       // O Word aplica o próprio estilo "Normal" (espaço extra depois de cada
       // parágrafo, Calibri 11) em qualquer coisa que chegue sem um estilo que
@@ -1925,7 +1934,8 @@ function criarMotorLaudo(cfg){
   const paperEl0 = $('paper');
   if(paperEl0){
     const estiloVazio = document.createElement('style');
-    estiloVazio.textContent = '#paper [data-vazio="1"]{display:none !important;}';
+    estiloVazio.textContent = '#paper [data-vazio="1"]{display:none !important;}'
+      + '@media print{.paper-table tfoot td{height:'+RODAPE_RESERVA_CM+'cm !important;}}';
     document.head.appendChild(estiloVazio);
     let timerVazio = null;
     const agendarColapso = ()=>{
