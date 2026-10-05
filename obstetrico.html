@@ -500,14 +500,15 @@
   <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases usadas automaticamente conforme o que você marca no formulário. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui.</p>
 
   <h3>Ao exame — apresentação, placenta, líquido amniótico</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Apresentação cefálica/pélvica — use {APRESENTACAO} e {DORSO}</label><textarea id="ph_apresentacaoTextoLongitudinal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Apresentação córmica (situação transversa)</label><textarea id="ph_apresentacaoTextoTransversa" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Apresentação cefálica/pélvica — use {APRESENTACAO} e {DORSO}</label><textarea id="ph_apresentacaoTextoLongitudinalUnico" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Apresentação córmica (situação transversa)</label><textarea id="ph_apresentacaoTextoTransversaUnico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Apresentação cefálica/pélvica — gestação múltipla — use {APRESENTACAO} e {DORSO}</label><textarea id="ph_apresentacaoTextoLongitudinalMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Apresentação córmica — gestação múltipla</label><textarea id="ph_apresentacaoTextoTransversaMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade — use {FC}</label><textarea id="ph_vitalidadeTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta normal — use {INSERCAO}, {TEXTURA} e {GRAU}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {TEXTURA}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal (feto único, no parágrafo junto da placenta)</label><textarea id="ph_laAspectoNormalUnico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — volume reduzido (oligoâmnio)</label><textarea id="ph_laAspectoOligoamnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — volume aumentado (polidrâmnio)</label><textarea id="ph_laAspectoPolidramnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — maior bolsão (use {BOLSAO})</label><textarea id="ph_laValoresBolsao" rows="2"></textarea></div>
@@ -1271,14 +1272,17 @@ if(typeof criarMotorLaudo !== 'function'){
 
   // ---------- Customizable report phrases ----------
   const PHRASE_DEFAULTS = {
-    apresentacaoTextoLongitudinal: 'Feto único, em situação longitudinal, apresentação {APRESENTACAO}, com dorso {DORSO} da linha mediana.',
-    apresentacaoTextoTransversa: 'Feto único, em situação transversa, apresentação córmica.',
+    // Chaves *Unico: o texto mudou em 2026-10-05 (sem "único" e sem "da linha
+    // mediana"); chave nova para o "Salvar frases" antigo não sobrescrever o padrão.
+    apresentacaoTextoLongitudinalUnico: 'Feto em situação longitudinal, apresentação {APRESENTACAO}, com dorso {DORSO}.',
+    apresentacaoTextoTransversaUnico: 'Feto em situação transversa, apresentação córmica.',
     apresentacaoTextoLongitudinalMultiplo: 'Em situação longitudinal, apresentação {APRESENTACAO}, com dorso {DORSO} da linha mediana.',
     apresentacaoTextoTransversaMultiplo: 'Em situação transversa, apresentação córmica.',
     vitalidadeTexto: 'Movimentação ativa e batimentos cardíacos rítmicos com frequência de {FC} bpm.',
     placentaTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
     laAspectoNormal: 'Aspecto e volume normais para idade gestacional.',
+    laAspectoNormalUnico: 'Líquido amniótico de aspecto e volume normais para idade gestacional.',
     laAspectoOligoamnio: 'Volume de líquido amniótico reduzido para a idade gestacional (oligoâmnio).',
     laAspectoPolidramnio: 'Volume de líquido amniótico aumentado para a idade gestacional (polidrâmnio).',
     laValoresBolsao: 'Maior bolsão: {BOLSAO} cm',
@@ -2301,8 +2305,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const dorso = v(pre+'Dorso');
       const fc = blankOrValue(req(pre+'FC'));
       const apresentacaoHtml = isTransversa
-        ? phraseRaw(isMultiple ? 'apresentacaoTextoTransversaMultiplo' : 'apresentacaoTextoTransversa')
-        : phraseRaw(isMultiple ? 'apresentacaoTextoLongitudinalMultiplo' : 'apresentacaoTextoLongitudinal', {APRESENTACAO: apresentacao, DORSO: dorso});
+        ? phraseRaw(isMultiple ? 'apresentacaoTextoTransversaMultiplo' : 'apresentacaoTextoTransversaUnico')
+        : phraseRaw(isMultiple ? 'apresentacaoTextoLongitudinalMultiplo' : 'apresentacaoTextoLongitudinalUnico', {APRESENTACAO: apresentacao, DORSO: dorso});
 
       const dbp = blankOrValue(req(pre+'DBP'));
       const cf = blankOrValue(req(pre+'CF'));
@@ -2698,12 +2702,11 @@ if(typeof criarMotorLaudo !== 'function'){
           +'</table></div>';
         blocks.push({id:'biometria'+sfx, html:biometriaHtml});
 
-        blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta</strong></p><p class="linha">'+f.placentaHtml+'</p></div>'});
-
-        let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
-        laHtml += '<p class="linha tight">'+(f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormal'))+'</p>';
-        laHtml += '<p class="linha">'+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'. '+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'.</p></div>';
-        blocks.push({id:'la'+sfx, html:laHtml});
+        // Feto único: placenta e líquido amniótico num parágrafo só, sob "Placenta e
+        // anexos" (2026-10-05) — dois blocos com título próprio faziam o laudo com
+        // Doppler + PBF abrir uma segunda folha. Gemelar segue separado, por feto.
+        const laFrase = f.laOligoamnio ? phrase('laAspectoOligoamnio') : f.laPolidramnio ? phrase('laAspectoPolidramnio') : phrase('laAspectoNormalUnico');
+        blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Placenta e anexos</strong></p><p class="linha">'+f.placentaHtml+' '+laFrase+' '+phraseRaw('laValoresBolsao', {BOLSAO: f.laBolsao.text})+'. '+phraseRaw('laValoresIla', {ILA: f.laILA.text, ILAP: f.laILAPercentil.text})+'.</p></div>'});
 
         if(doppler){
           const ambos = dopplerMaterno && dopplerFetal;
