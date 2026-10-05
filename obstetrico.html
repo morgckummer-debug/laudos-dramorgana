@@ -2998,6 +2998,11 @@ if(typeof criarMotorLaudo !== 'function'){
     // digitados, e o select de nº de fetos acabou de voltar para "Único".
     $('fetosContainer').innerHTML = '';
     const _dffReset = $('dopplerFetalFields'); if(_dffReset) _dffReset.innerHTML = '';
+    // A limpeza acima tirou "show" de todo `.conditional`, inclusive os campos de
+    // "IG neste exame" e "DUM concordante/discordante": o select de cronologia
+    // volta para "DUM", mas sem refazer o toggle esses campos ficavam escondidos
+    // para a próxima paciente (mesmo conserto do obstetrico-1trimestre).
+    updateCronologiaWraps();
     addFeto();
     render();
     // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
