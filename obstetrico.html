@@ -500,8 +500,8 @@
   <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases usadas automaticamente conforme o que você marca no formulário. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui.</p>
 
   <h3>Ao exame — apresentação, placenta, líquido amniótico</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Apresentação cefálica/pélvica — use {APRESENTACAO} e {DORSO}</label><textarea id="ph_apresentacaoTextoLongitudinal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Apresentação córmica (situação transversa)</label><textarea id="ph_apresentacaoTextoTransversa" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Apresentação cefálica/pélvica — use {APRESENTACAO} e {DORSO}</label><textarea id="ph_apresentacaoTextoLongitudinalUnico" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Apresentação córmica (situação transversa)</label><textarea id="ph_apresentacaoTextoTransversaUnico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Apresentação cefálica/pélvica — gestação múltipla — use {APRESENTACAO} e {DORSO}</label><textarea id="ph_apresentacaoTextoLongitudinalMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Apresentação córmica — gestação múltipla</label><textarea id="ph_apresentacaoTextoTransversaMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade — use {FC}</label><textarea id="ph_vitalidadeTexto" rows="2"></textarea></div>
@@ -1271,8 +1271,10 @@ if(typeof criarMotorLaudo !== 'function'){
 
   // ---------- Customizable report phrases ----------
   const PHRASE_DEFAULTS = {
-    apresentacaoTextoLongitudinal: 'Feto único, em situação longitudinal, apresentação {APRESENTACAO}, com dorso {DORSO} da linha mediana.',
-    apresentacaoTextoTransversa: 'Feto único, em situação transversa, apresentação córmica.',
+    // Chaves *Unico: o texto mudou em 2026-10-05 (sem "único" e sem "da linha
+    // mediana"); chave nova para o "Salvar frases" antigo não sobrescrever o padrão.
+    apresentacaoTextoLongitudinalUnico: 'Feto em situação longitudinal, apresentação {APRESENTACAO}, com dorso {DORSO}.',
+    apresentacaoTextoTransversaUnico: 'Feto em situação transversa, apresentação córmica.',
     apresentacaoTextoLongitudinalMultiplo: 'Em situação longitudinal, apresentação {APRESENTACAO}, com dorso {DORSO} da linha mediana.',
     apresentacaoTextoTransversaMultiplo: 'Em situação transversa, apresentação córmica.',
     vitalidadeTexto: 'Movimentação ativa e batimentos cardíacos rítmicos com frequência de {FC} bpm.',
@@ -2301,8 +2303,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const dorso = v(pre+'Dorso');
       const fc = blankOrValue(req(pre+'FC'));
       const apresentacaoHtml = isTransversa
-        ? phraseRaw(isMultiple ? 'apresentacaoTextoTransversaMultiplo' : 'apresentacaoTextoTransversa')
-        : phraseRaw(isMultiple ? 'apresentacaoTextoLongitudinalMultiplo' : 'apresentacaoTextoLongitudinal', {APRESENTACAO: apresentacao, DORSO: dorso});
+        ? phraseRaw(isMultiple ? 'apresentacaoTextoTransversaMultiplo' : 'apresentacaoTextoTransversaUnico')
+        : phraseRaw(isMultiple ? 'apresentacaoTextoLongitudinalMultiplo' : 'apresentacaoTextoLongitudinalUnico', {APRESENTACAO: apresentacao, DORSO: dorso});
 
       const dbp = blankOrValue(req(pre+'DBP'));
       const cf = blankOrValue(req(pre+'CF'));
