@@ -2698,7 +2698,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // repetir os dois campos zerados ao lado.
       +'<div class="id-card-row"><span><strong>G:</strong> '+span(blankOrValue(gpaG))+(gpaG==='0' ? '' : ' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>'
       +(cronologiaMetodo==='usg'
-        ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+'+'+span(blankOrValue(usgDiasDatacaoTxt))+' semanas: '+span(blankOrValue(cronologia))+'</span></div>'
+        ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por ecografia de '+span(blankOrValue(usgDataDatacaoTxt))+' com '+span(blankOrValue(usgSemanasDatacaoTxt))+(Number(usgDiasDatacaoTxt)===0 && String(usgDiasDatacaoTxt).trim()!=='' ? '' : '+'+span(blankOrValue(usgDiasDatacaoTxt)))+' semanas: '+span(blankOrValue(cronologia))+'</span></div>'
         : cronologiaMetodo==='fiv'
           ? '<div class="id-card-row"><span><strong>Cronologia:</strong> por FIV — transferência de '+span(blankOrValue(fivDataTransfTxt))+' ('+fivEstagioTxt+'): '+span(blankOrValue(cronologia))+'</span></div>'
         // DUM incerta/ignorada: sem DUM não há cronologia — a linha do
