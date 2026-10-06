@@ -576,6 +576,12 @@
             </select>
           </div>
           <div class="field"><label>Índice de pulsatilidade (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="dopplerIP" placeholder="ex: 3,45"></div>
+          <div class="field"><label>Diástole (padrão puberal)</label>
+            <select id="dopplerDiastole">
+              <option value="presente">Diástole presente</option>
+              <option value="ausente">Sem diástole presente</option>
+            </select>
+          </div>
           <div class="field"><label>Valor de referência (escolha a frase usada no laudo)</label>
             <select id="dopplerVR">
               <option value="a">VR &gt; 3,0 — com fluxo diastólico inicial (normal)</option>
@@ -1548,9 +1554,9 @@ if(typeof criarMotorLaudo !== 'function'){
       const vrFraseA = '(VR &gt; 3,0) com fluxo diastólico inicial (normal)';
       const vrFraseB = '(VR &gt; 4,6): sem efeito hormonal (normal)';
       const dopplerTexto = dopplerPadrao==='puberal'
-        ? 'Onda de padrão de baixa resistência com IP de '+span(dopplerIP)+', artéria uterina apresentando padrão puberal.'
+        ? 'Onda de padrão de baixa resistência com IP de '+span(dopplerIP)+', '+(v('dopplerDiastole')==='ausente' ? 'sem diástole presente' : 'com diástole presente')+'.'
         : 'Onda de padrão de alta resistência com IP de '+span(dopplerIP)+' '+(dopplerVR==='b' ? vrFraseB : vrFraseA)+'.';
-      blocks.push({id:'doppler', html:'<p class="linha"><strong>Estudo Doppler da artéria uterina:</strong> '+dopplerTexto+'</p>'});
+      blocks.push({id:'doppler', html:'<p class="linha"><strong>Doppler da artéria uterina:</strong> '+dopplerTexto+'</p>'});
     }
 
     const anexiaisTexto = (anexiaisAspecto==='alterado' && anexiaisDescricao)
