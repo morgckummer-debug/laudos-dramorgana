@@ -458,8 +458,14 @@
               <option value="MVF">Posição intermediária / medioversão (MVF)</option>
             </select>
           </div>
-          <div class="field"><label>Proporção corpo:colo</label>
-            <input type="text" inputmode="decimal" data-decimals="2" id="uteroProporcaoCorpoColo" placeholder="ex: 0,8">
+          <div class="field"><label>Diâmetro do corpo (mm)</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="uteroDiamCorpo" placeholder="ex: 18,0">
+          </div>
+          <div class="field"><label>Diâmetro do colo (mm)</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="uteroDiamColo" placeholder="ex: 22,0">
+          </div>
+          <div class="field"><label>Proporção corpo:colo (calculada)</label>
+            <input type="text" id="uteroProporcaoCorpoColo" readonly placeholder="corpo ÷ colo">
             <span class="vr">VR &lt; 1,0</span>
             <span class="flag-note" id="flag_uteroProporcaoCorpoColo">Acima do valor de referência</span>
           </div>
@@ -1402,7 +1408,12 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const uteroPosicaoVal = v('uteroPosicao');
     const uteroPosicaoTexto = {AVF:'em anteversoflexão', RVF:'em retroversoflexão', MVF:'em posição intermediária (medioversão)'}[uteroPosicaoVal];
-    const proporcaoNum = num('uteroProporcaoCorpoColo'); req('uteroProporcaoCorpoColo');
+    // Proporção = diâmetro do corpo ÷ diâmetro do colo (campo readonly, calculado aqui).
+    const diamCorpoNum = num('uteroDiamCorpo'); req('uteroDiamCorpo');
+    const diamColoNum = num('uteroDiamColo'); req('uteroDiamColo');
+    const proporcaoCalc = (diamCorpoNum!==null && diamColoNum!==null && diamColoNum>0) ? diamCorpoNum/diamColoNum : null;
+    $('uteroProporcaoCorpoColo').value = proporcaoCalc!==null ? proporcaoCalc.toFixed(2).replace('.', ',') : '';
+    const proporcaoNum = proporcaoCalc!==null ? parseFloat(proporcaoCalc.toFixed(2)) : null;
     const proporcaoTexto = blankOrValue(v('uteroProporcaoCorpoColo'));
     flag('uteroProporcaoCorpoColo', proporcaoNum!==null && proporcaoNum >= 1.0);
 
