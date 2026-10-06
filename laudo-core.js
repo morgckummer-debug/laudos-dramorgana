@@ -319,6 +319,14 @@ function criarMotorLaudo(cfg){
       const id = el.getAttribute ? el.getAttribute('data-blk') : null;
       if(!id || vistos[id]) el.remove(); else vistos[id] = true;
     });
+    // A assinatura ancorada no pé da folha (ajustarEspacadores) fica com estilo
+    // inline de impressão no próprio bloco: sem tirar, ele iria para o rascunho
+    // e para o Word e a assinatura voltaria posicionada em absoluto na tela.
+    root.querySelectorAll(':scope > [data-pin-bottom]').forEach(el=>{
+      el.removeAttribute('data-pin-bottom');
+      ['position','left','right','bottom','margin'].forEach(k=>el.style.removeProperty(k));
+      if(!el.getAttribute('style')) el.removeAttribute('style');
+    });
     dedupBlocos(root);
     return true;
   }
@@ -765,6 +773,7 @@ function criarMotorLaudo(cfg){
       if(!fixado || fixado === spacer) return;
       pageEl.style.position = 'relative';
       pageEl.style.height = alturaFolha + 'px';
+      fixado.setAttribute('data-pin-bottom', '1');
       fixado.style.position = 'absolute';
       fixado.style.left = '0';
       fixado.style.right = '0';
