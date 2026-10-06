@@ -178,12 +178,13 @@ function criarMotorLaudo(cfg){
   // valor. Medido em 2026-10-05: a assinatura já encostava nos 2cm, e a médica
   // ainda via 2–3cm sobrando entre ela e o rodapé do papel timbrado — então a
   // reserva foi reduzida. Ajustar SÓ aqui: orçamento da página, tfoot e margem
-  // do Word seguem esta constante. 2026-10-05: 2cm -> 1cm -> 0 (a médica ainda
+  // do Word seguem esta constante. Um laudo pode trocá-la (cfg.rodapeReservaCm):
+  // o de mamas usa 1.75, a pedido da médica (2026-10-06). 2026-10-05: 2cm -> 1cm -> 0 (a médica ainda
   // media ~2cm de sobra no papel após o 1cm) -> 0.5 (com 0 o obstetrico.html
   // cheio terminava a 0,3cm da borda, por cima do timbrado; os laudos que ela
   // aprovou terminavam a ~0,7cm) -> 1.5 (no papel 0.5 deixou a assinatura a ~1cm
   // da borda; ela pediu o dobro, ~2cm).
-  const RODAPE_RESERVA_CM = 1.5;
+  const RODAPE_RESERVA_CM = cfg.rodapeReservaCm != null ? cfg.rodapeReservaCm : 1.5;
   const RODAPE_CSS_CM = 2;
 
   // Colchão extra só para o espaçador que prende a assinatura no pé da
