@@ -750,6 +750,27 @@ function criarMotorLaudo(cfg){
       if(bruto < 0) excesso = Math.max(excesso, -bruto);
       spacer.style.height = Math.max(0, bruto) + 'px';
     });
+    // O espaçador acima só serviu para medir se o conteúdo cabe (o `excesso`).
+    // A posição final da assinatura (ou do "Continua…") NÃO depende dele:
+    // medir uma folha fora da página e converter em altura de espaçador errava
+    // para cima ou para baixo conforme o conteúdo — dois laudos do mesmo tipo
+    // saíam com a assinatura em alturas diferentes (2026-10-06). Aqui a folha
+    // ganha altura fixa (a altura útil nominal) e o último elemento é ancorado no pé dela.
+    const alturaFolha = alvo;
+    pages.forEach(pageEl=>{
+      const spacer = pageEl.querySelector(':scope > [data-pin-spacer]');
+      if(!spacer) return;
+      const fixado = pageEl.lastElementChild;
+      spacer.remove();
+      if(!fixado || fixado === spacer) return;
+      pageEl.style.position = 'relative';
+      pageEl.style.height = alturaFolha + 'px';
+      fixado.style.position = 'absolute';
+      fixado.style.left = '0';
+      fixado.style.right = '0';
+      fixado.style.bottom = '0';
+      fixado.style.margin = '0';
+    });
     return excesso;
   }
   function paginateForPrint(){
