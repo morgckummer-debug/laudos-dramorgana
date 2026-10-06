@@ -849,7 +849,9 @@ if(typeof criarMotorLaudo !== 'function'){
     DRAFT_KEY: 'laudo-rascunho-obstetrico-v1',
     // Até 2026-10-05 o piso aqui era 12pt (11pt parecia pequeno demais); a
     // médica liberou 11 e 11,5pt para o laudo não ir a uma 2ª folha por poucas
-    // frases. Sem minFontSize, vale o piso padrão do motor (11pt).
+    // frases. 2026-10-06: piso em 10,5pt, para o obstétrico completo (Doppler,
+    // PBF e colo) caber numa folha só.
+    minFontSize: 10.5,
     render:          () => render(),
     draftSnapshot:   () => draftSnapshot(),
     tituloExame:     () => tituloExame(),
