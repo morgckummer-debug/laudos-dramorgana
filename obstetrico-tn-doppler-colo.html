@@ -1216,7 +1216,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impDuctoVenosoAlterado: 'Ducto venoso alterado ({DETALHE}), achado associado a maior risco de cromossomopatias e cardiopatias congênitas – sugere-se avaliação especializada.',
     impTricuspideNormal: 'Válvula tricúspide com fluxo normal, sem sinais de regurgitação.',
     impTricuspideAlterada: 'Regurgitação tricúspide presente, achado associado a maior risco de cromossomopatias e cardiopatias congênitas – sugere-se avaliação especializada.',
-    impUterinasPre: 'IP médio das artérias uterinas normal (abaixo do percentil 95). Cabe ao médico assistente complementar o cálculo de risco de pré-eclâmpsia pelo algoritmo da FMF.',
+    impUterinasPre: 'IP médio das artérias uterinas abaixo do percentil 95 - Recomenda-se a estratificação de risco de pré-eclâmpsia pelo algoritmo da FMF.',
     impColoNormal: 'Colo uterino sem anormalidades.',
     impColoAlterado: 'Colo curto para a idade gestacional - Sugere-se reavaliação para risco de prematuridade com 16-18 semanas.',
     impMioma1: 'Nódulo sólido sugestivo de mioma.',
@@ -1698,6 +1698,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const idxColo = html.indexOf(marcaColo);
     if(idxColo !== -1){
       html = html.slice(0, idxColo) + '<span style="font-weight:400;">' + html.slice(idxColo) + '</span>';
+    }
+    const marcaPE = 'Recomenda-se a estratificação de risco de pré-eclâmpsia';
+    const idxPE = html.indexOf(marcaPE);
+    if(idxPE !== -1){
+      html = html.slice(0, idxPE) + '<span style="font-weight:400;">' + html.slice(idxPE) + '</span>';
     }
     return html;
   }
