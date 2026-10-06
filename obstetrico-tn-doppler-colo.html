@@ -456,7 +456,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Ducto venoso alterado — use {DETALHE}</label><textarea id="ph_impDuctoVenosoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Válvula tricúspide normal</label><textarea id="ph_impTricuspideNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Válvula tricúspide alterada (regurgitação)</label><textarea id="ph_impTricuspideAlterada" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>IP médio das uterinas — use {PERCENTIL}</label><textarea id="ph_impUterinas" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>IP médio das uterinas (normal) + risco de pré-eclâmpsia</label><textarea id="ph_impUterinasPre" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo normal</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo curto</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 mioma</label><textarea id="ph_impMioma1" rows="2"></textarea></div>
@@ -1216,7 +1216,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impDuctoVenosoAlterado: 'Ducto venoso alterado ({DETALHE}), achado associado a maior risco de cromossomopatias e cardiopatias congênitas – sugere-se avaliação especializada.',
     impTricuspideNormal: 'Válvula tricúspide com fluxo normal, sem sinais de regurgitação.',
     impTricuspideAlterada: 'Regurgitação tricúspide presente, achado associado a maior risco de cromossomopatias e cardiopatias congênitas – sugere-se avaliação especializada.',
-    impUterinas: 'Doppler das artérias estudadas dentro da normalidade (IP médio no percentil {PERCENTIL} para a idade gestacional).',
+    impUterinasPre: 'IP médio das artérias uterinas normal (abaixo do percentil 95). Cabe ao médico assistente complementar o cálculo de risco de pré-eclâmpsia pelo algoritmo da FMF.',
     impColoNormal: 'Colo uterino sem anormalidades.',
     impColoAlterado: 'Colo curto para a idade gestacional - Sugere-se reavaliação para risco de prematuridade com 16-18 semanas.',
     impMioma1: 'Nódulo sólido sugestivo de mioma.',
@@ -1789,7 +1789,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(state.dopplerMaterno){
-      items.push({key:'uterinas', label: phraseRaw('impUterinas', {PERCENTIL: state.utPercentilTxt || '__'}), auto:true});
+      items.push({key:'uterinas', label: phraseRaw('impUterinasPre'), auto:true});
 
       // Ducto venoso e tricúspide são medidos em cada feto individualmente
       // (diferente do risco de Down, que é um cálculo só e compartilhado na
