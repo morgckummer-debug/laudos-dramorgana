@@ -319,6 +319,14 @@ function criarMotorLaudo(cfg){
       const id = el.getAttribute ? el.getAttribute('data-blk') : null;
       if(!id || vistos[id]) el.remove(); else vistos[id] = true;
     });
+    // A assinatura ancorada no pé da folha (ajustarEspacadores) fica com estilo
+    // inline de impressão no próprio bloco: sem tirar, ele iria para o rascunho
+    // e para o Word e a assinatura voltaria posicionada em absoluto na tela.
+    root.querySelectorAll(':scope > [data-pin-bottom]').forEach(el=>{
+      el.removeAttribute('data-pin-bottom');
+      ['position','left','right','bottom','margin'].forEach(k=>el.style.removeProperty(k));
+      if(!el.getAttribute('style')) el.removeAttribute('style');
+    });
     dedupBlocos(root);
     return true;
   }
@@ -749,6 +757,28 @@ function criarMotorLaudo(cfg){
       const bruto = parseFloat(spacer.style.height) + (alvo - medidas[i]);
       if(bruto < 0) excesso = Math.max(excesso, -bruto);
       spacer.style.height = Math.max(0, bruto) + 'px';
+    });
+    // O espaçador acima só serviu para medir se o conteúdo cabe (o `excesso`).
+    // A posição final da assinatura (ou do "Continua…") NÃO depende dele:
+    // medir uma folha fora da página e converter em altura de espaçador errava
+    // para cima ou para baixo conforme o conteúdo — dois laudos do mesmo tipo
+    // saíam com a assinatura em alturas diferentes (2026-10-06). Aqui a folha
+    // ganha altura fixa (a altura útil nominal) e o último elemento é ancorado no pé dela.
+    const alturaFolha = alvo;
+    pages.forEach(pageEl=>{
+      const spacer = pageEl.querySelector(':scope > [data-pin-spacer]');
+      if(!spacer) return;
+      const fixado = pageEl.lastElementChild;
+      spacer.remove();
+      if(!fixado || fixado === spacer) return;
+      pageEl.style.position = 'relative';
+      pageEl.style.height = alturaFolha + 'px';
+      fixado.setAttribute('data-pin-bottom', '1');
+      fixado.style.position = 'absolute';
+      fixado.style.left = '0';
+      fixado.style.right = '0';
+      fixado.style.bottom = '0';
+      fixado.style.margin = '0';
     });
     return excesso;
   }
