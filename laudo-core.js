@@ -183,8 +183,9 @@ function criarMotorLaudo(cfg){
   // media ~2cm de sobra no papel após o 1cm) -> 0.5 (com 0 o obstetrico.html
   // cheio terminava a 0,3cm da borda, por cima do timbrado; os laudos que ela
   // aprovou terminavam a ~0,7cm) -> 1.5 (no papel 0.5 deixou a assinatura a ~1cm
-  // da borda; ela pediu o dobro, ~2cm).
-  const RODAPE_RESERVA_CM = cfg.rodapeReservaCm != null ? cfg.rodapeReservaCm : 1.5;
+  // da borda; ela pediu o dobro, ~2cm) -> 2.0 (2026-10-07: pediu para subir a
+  // assinatura mais 0,5cm; mamas foi de 1.75 para 2.25 junto).
+  const RODAPE_RESERVA_CM = cfg.rodapeReservaCm != null ? cfg.rodapeReservaCm : 2.0;
   const RODAPE_CSS_CM = 2;
 
   // Colchão extra só para o espaçador que prende a assinatura no pé da
