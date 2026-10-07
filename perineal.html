@@ -1,0 +1,2995 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laudo de Ultrassonografia Perineal — Dra. Morgana Kummer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f9f5f9;
+    --panel:#ffffff;
+    --ink:#2b2b2e;
+    --ink-soft:#9a7e95;
+    --rose:#ae5ba0;
+    --rose-dark:#6d3263;
+    --rose-light:#f7e9f4;
+    --rose-darker:#4d2346;
+    --sage:#6d3263;
+    --sage-light:#f7e9f4;
+    --amber:#c05a34;
+    --amber-light:#fce7dc;
+    --line:#ebe0e9;
+    --line-soft:#f9f5f9;
+    --radius-lg:26px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --shadow: 0 14px 34px rgba(109,50,99,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;
+    padding:18px 28px;background:var(--rose-dark);color:#fff;
+    box-shadow: var(--shadow);
+    position:sticky;top:0;z-index:50;
+  }
+  @media (orientation: landscape) and (max-height: 500px){
+    .topbar{position:static;}
+  }
+  .topbar-brand{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .logo-badge{display:flex;align-items:center;flex:0 0 auto;}
+  .logo-badge img{height:46px;width:auto;display:block;}
+  .topbar-divider{width:1px;align-self:center;height:32px;background:rgba(255,255,255,.35);flex:0 0 auto;}
+  .exam-icon-badge{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:70px;height:70px;}
+  .exam-icon-badge img{width:100%;height:100%;object-fit:contain;display:block;}
+  /* Sem min-width:0 este item de flex nao encolhe abaixo da largura do
+     titulo sem quebrar linha (min-width:auto e o padrao em flex item) -
+     isso empurrava a .topbar-brand inteira para fora da tela no celular
+     em pe, e so cabia girando para paisagem. */
+  .topbar-title{min-width:0;}
+  .topbar h1{
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:22px;margin:0;letter-spacing:.1px;
+    overflow-wrap:break-word;
+  }
+  .topbar .sub{font-size:12px;opacity:.85;margin-top:2px;font-weight:400;}
+  @media (max-width:480px){
+    .topbar{padding:14px 16px;}
+    .topbar h1{font-size:18px;}
+    .exam-icon-badge{width:52px;height:52px;}
+    .logo-badge img{height:36px;}
+  }
+  .topbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  button{
+    font-family:'Poppins',sans-serif;cursor:pointer;border:none;border-radius:999px;
+    font-size:13px;font-weight:600;padding:9px 18px;transition:transform .06s ease, opacity .15s ease;
+  }
+  button:active{transform:scale(.97);}
+  .btn-ghost{background:rgba(255,255,255,.16);color:#fff;}
+  .btn-ghost:hover{background:rgba(255,255,255,.26);}
+  .btn-primary{background:#fff;color:var(--rose-dark);}
+  .btn-primary:hover{opacity:.9;}
+  .laudo-switch, .medico-switch, .digitadora-switch{
+    background:var(--rose-darker) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.25 7.5L10 12.25L14.75 7.5' stroke='white' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 12px center;
+    background-size:14px;color:#fff;border:none;border-radius:999px;
+    font-family:'Poppins',sans-serif;cursor:pointer;font-size:13px;font-weight:600;
+    padding:9px 32px 9px 18px;-webkit-appearance:none;appearance:none;
+  }
+  .laudo-switch:hover, .medico-switch:hover, .digitadora-switch:hover{filter:brightness(1.18);}
+  .laudo-switch option, .medico-switch option, .digitadora-switch option{color:var(--ink);background:#fff;}
+
+  .layout{
+    display:grid;grid-template-columns: 1.15fr 1fr;gap:22px;
+    max-width:1440px;margin:0 auto;padding:22px 28px 80px;
+    align-items:start;
+  }
+  @media (max-width: 980px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-lg);
+    box-shadow:var(--shadow); margin-bottom:22px; overflow:hidden;
+  }
+  .card-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, #F5F8F6, #FFFFFF);
+  }
+  .card-head h2{
+    font-family:'Poppins',sans-serif;font-size:14px;letter-spacing:.2px;
+    color:var(--rose-dark);margin:0;font-weight:600;
+  }
+  .card-body{padding:18px 20px 20px;}
+
+  .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:14px;}
+  /* Linhas com vários campos numéricos curtos (medidas, volume) — colunas mais
+     estreitas para caberem todas na mesma linha mesmo com a coluna do
+     formulário mais apertada, sem depender da largura da janela. */
+  .field-row-compact{grid-template-columns:repeat(auto-fit,minmax(105px,1fr));}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:12px;color:var(--ink-soft);font-weight:500;}
+  .field .vr{font-size:11px;color:var(--sage);font-weight:500;}
+  .field input[type=text], .field input[type=number], .field select, .field textarea{
+    font-family:'Inter',sans-serif;font-size:13.5px;color:var(--ink);
+    padding:10px 14px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);
+    outline:none;width:100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);
+  }
+  .field input.flag-abnormal{border-color:var(--amber);background:var(--amber-light);}
+  .field input.format-error{border-color:#B4432F;background:#FBEAE6;}
+  .field input.field-missing{border-color:#B4432F;}
+  .format-warning{font-size:11px;color:#B4432F;font-weight:600;display:block;margin-top:3px;}
+  .field .flag-note{font-size:11px;color:var(--amber);font-weight:600;display:none;}
+  .field .flag-note.show{display:block;}
+
+  .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
+  .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
+
+  .subgroup{
+    border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;
+  }
+  .mioma-remove, .endo-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .conditional{display:none;}
+  .conditional.show{display:block;}
+  .field-row.conditional.show{display:grid;}
+
+  /* Custom combobox for "Médico solicitante" — a plain <datalist> doesn't show
+     its suggestion popup at all on iOS Safari (and is unreliable on other
+     mobile browsers too), so the list is rendered by hand here instead.
+     It's moved to a direct child of <body> and positioned with fixed
+     coordinates computed in JS (see medicosComboList setup), because .card
+     has overflow:hidden — nested absolute/relative positioning would get
+     the dropdown clipped by the card's edge instead of floating over it. */
+  .combo-list{
+    display:none;position:fixed;z-index:1000;
+    background:var(--panel);border:1.5px solid var(--line);border-radius:var(--radius-sm);
+    box-shadow:var(--shadow);max-height:220px;overflow-y:auto;
+  }
+  .combo-list.show{display:block;}
+  .combo-list .combo-option{
+    padding:10px 14px;font-size:13.5px;color:var(--ink);cursor:pointer;
+  }
+  .combo-list .combo-option:hover, .combo-list .combo-option.active{background:var(--rose-light);}
+  .combo-list .combo-empty{padding:10px 14px;font-size:12.5px;color:var(--ink-soft);}
+
+  hr.sep{border:none;border-top:1px dashed var(--line);margin:14px 0;}
+
+  /* Preview / laudo pane */
+  .preview-wrap{position:sticky;top:88px;}
+  /* .paper-table wraps the report in a <table> purely so its thead/tfoot can
+     reserve the letterhead margin — thead/tfoot repeat on every physical
+     printed page in every engine we've tested (desktop, mobile, headless),
+     unlike @page margin, which many mobile "print to PDF" pipelines ignore
+     outright. On screen the thead/tfoot stay collapsed to zero height.
+     table-layout:fixed makes the single column actually honor that
+     width:100% — with the default 'auto' layout, the browser sized the
+     column from .paper's own explicit width (17cm + 72px) instead, which
+     made the table (and everything wrapping it, up to the page) overflow
+     horizontally on narrow/mobile screens instead of shrinking to fit. */
+  .paper-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+  .paper-table thead td, .paper-table tfoot td{padding:0;border:none;height:0;}
+  .paper-table tbody td{padding:0;border:none;}
+  .paper{
+    background:#FEFCFE;border:1px solid var(--line);border-radius:4px;
+    box-shadow:var(--shadow);
+    padding:34px 36px 40px;
+    font-family:'Times New Roman', Times, serif;font-size:12pt;line-height:1.15;color:var(--ink);text-align:justify;
+    max-height:calc(100vh - 150px);overflow-y:auto;
+    /* Matches the 17cm content width paginateForPrint() measures against
+       (21cm A4 minus 2cm side margins), so the on-screen page-break preview
+       below lines up with where the real print/Word output actually splits —
+       capped at 100% so it still fits narrow/mobile screens. */
+    width:calc(17cm + 72px);max-width:100%;margin:0 auto;
+  }
+  .pg-break-marker{
+    margin:18px 0;padding-top:8px;border-top:1.5px dashed #c7a2ab;
+    text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-soft);user-select:none;
+  }
+  .paper .id-card{
+    background:#f8f7f7;border:2.5px solid #2b2b2e;border-radius:16px;padding:10px 16px;margin:0 0 var(--idcard-gap, 20px);
+    font-weight:700;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  .paper .id-card-row{display:flex;justify-content:space-between;gap:16px;font-size:12pt;}
+  .paper .id-card-row + .id-card-row{margin-top:2px;}
+  .paper h3.doctitle{
+    text-align:center;text-decoration:underline;font-size:16pt;letter-spacing:.5px;
+    margin:0 0 24px;font-weight:700;text-wrap:balance;
+  }
+  /* Dar Enter no COMEÇO do título (a forma intuitiva de "empurrar o título
+     para baixo") deixava um <br> solto na frente do texto — uma linha vazia
+     com a altura da fonte do título, 16pt. Esse espaço não é margin, então
+     o seletor "Espaço acima do título" não conseguia encolhê-lo, e a
+     impressão era de que o controle não funcionava. Anulando a linha vazia
+     inicial, o seletor volta a ser o único responsável por esse espaço — e
+     passa a mandar nele de verdade. Um <br> no MEIO do título (para quebrá-lo
+     em duas linhas de propósito) não é afetado, só o do começo. */
+  .paper h3.doctitle > br:first-child{display:none;}
+  .paper .relato{color:#C0392B;font-weight:700;margin:0 0 12px;}
+  .paper h4.sec{
+    text-decoration:underline;font-size:11.5pt;letter-spacing:.4px;margin:16px 0 8px;font-weight:600;color:var(--rose-dark);
+  }
+  .paper p.linha{margin:0 0 var(--linha-margin, 20px);}
+  .paper p.linha strong{font-weight:700;}
+  .paper .blank{color:#B4432F;font-weight:600;}
+  .paper .filled{color:var(--ink);}
+  .paper .nodulos-lista{margin:0 0 16px;}
+  .paper .nodulos-lista .nodulo-item{margin:0 0 6px;padding-left:2.4em;text-indent:-2.4em;}
+  .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
+  .paper ul.impressao{margin:0;padding-left:0;list-style:none;}
+  /* Recuo suspenso: o "* " que abre cada item mora fora do parágrafo
+     (text-indent negativo), então quando a frase quebra de linha a
+     continuação alinha com o começo do texto da linha de cima, não com o
+     asterisco — que assim fica isolado numa coluna própria, mais visível. */
+  .paper ul.impressao li{margin-bottom:2px;font-weight:700;text-align:justify;padding-left:1em;text-indent:-1em;}
+  .paper p.recomendacao{text-align:center;font-style:italic;font-size:10pt;text-wrap:balance;margin:var(--linha-margin, 1.25em) 0;}
+  .paper .rodape-final{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:16px;}
+  .paper .footnote{font-style:italic;font-size:9pt;color:var(--ink-soft);margin:0;flex:1 1 auto;min-width:0;}
+  .paper .assinatura{margin:0;text-align:right;flex:0 0 auto;line-height:1.2;}
+  .paper .assinatura p{margin:0;}
+  .paper .assinatura-nome{display:inline-block;font-style:italic;border-top:1px solid var(--ink);padding:3px 14px 0;margin-bottom:2px!important;}
+  .paper .assinatura-info{font-size:9.5pt;color:var(--ink-soft);}
+
+  .preview-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .preview-actions button{flex:1;min-width:110px;}
+  .btn-copy{background:var(--rose);color:#fff;}
+  .btn-copy:hover{background:var(--rose-dark);}
+  .btn-print{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+  .btn-clear{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+
+  .format-toolbar{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+  .format-toolbar .fmt-btn{
+    width:34px;height:32px;padding:0;border-radius:8px;border:1.5px solid var(--line);background:#fff;color:var(--ink);
+    font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .format-toolbar .fmt-btn svg{display:block;}
+  .format-toolbar .fmt-btn:hover{border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-btn.active{background:var(--rose-light);border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-sep{width:1px;height:22px;background:var(--line);margin:0 4px;}
+  /* Keeps each label glued to its own <select> when the toolbar wraps at
+     narrow widths — before this, flex-wrap could break the line between a
+     label and its select (they were separate flex items), leaving a select
+     stranded on the next row with no visible label, easy to mistake for a
+     different control. */
+  .format-toolbar .fmt-group{display:inline-flex;align-items:center;gap:6px;}
+  .format-toolbar .fmt-reset{
+    border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;
+    background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap;
+  }
+  .format-toolbar .fmt-reset:hover{border-color:var(--rose);color:var(--rose-dark);}
+  .format-toolbar .fmt-build{font-size:10.5px;color:var(--ink-soft);opacity:.75;margin-left:auto;white-space:nowrap;}
+  .format-toolbar label{font-size:12px;color:var(--ink-soft);}
+  .format-toolbar select{
+    border:1.5px solid var(--line);border-radius:8px;padding:5px 8px;font-size:12.5px;color:var(--ink);
+    background:#fff;cursor:pointer;
+  }
+
+  .status-pill{
+    font-size:11px;font-weight:600;padding:4px 12px;border-radius:999px;background:var(--sage-light);color:var(--rose-dark);
+    display:inline-block;margin-bottom:10px;
+  }
+  .status-pill.pending{background:var(--amber-light);color:var(--amber);}
+  .status-pill + .status-pill{margin-left:6px;}
+
+  .print-alert{
+    display:none;background:#B4432F;color:#fff;font-weight:600;font-size:13px;
+    padding:10px 14px;border-radius:10px;margin-bottom:10px;
+  }
+  .print-alert.show{display:block;}
+
+  .draft-note{
+    display:none;align-items:center;gap:10px;flex-wrap:wrap;background:var(--rose-light);color:var(--rose-dark);
+    font-size:12.5px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:10px;
+  }
+  .draft-note.show{display:flex;}
+  .draft-note button{
+    background:#fff;border:1.5px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;
+    font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;
+  }
+  .draft-note button:hover{background:var(--sage-light);}
+
+  .settings-panel{display:none;background:var(--rose-light);border-radius:var(--radius-md);padding:16px 18px;margin:0 28px 22px;max-width:1440px;}
+  .settings-panel.show{display:block;margin:0 auto 22px;}
+  .settings-panel h3{font-family:'Poppins',sans-serif;font-size:14px;margin:0 0 10px;color:var(--rose-dark);font-weight:600;}
+  .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
+  .settings-grid .field label{font-size:12px;}
+  .settings-panel .save-row{margin-top:12px;display:flex;gap:8px;align-items:center;}
+  .settings-panel .saved-msg{font-size:12px;color:var(--sage);font-weight:600;display:none;}
+
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;}
+
+  /* Margin is zeroed here on purpose: many mobile browsers' "Salvar como PDF"
+     print pipeline ignores @page margin entirely, so it can't be relied on.
+     The actual 3.5cm top / 2cm sides+bottom letterhead margin is reserved by
+     the .paper-table thead/tfoot below instead, which repeats reliably on
+     every physical page across engines. size:A4 is pinned explicitly because
+     the pagination math in paginateForPrint() (page height 29.7cm minus the
+     3.5cm/2cm bands above) assumes A4 — leaving size unset lets some browsers
+     fall back to Letter (27.94cm tall), which would make that math overrun
+     the real page and misplace "Continua…"/the signature. */
+  @page{
+    size: A4;
+    margin: 0;
+  }
+  @media print{
+    .topbar, .settings-panel, #formCol, .preview-actions, .format-toolbar, .status-pill, .print-alert, .draft-note{display:none !important;}
+    /* Belt-and-suspenders: paginateForPrint() already strips .pg-break-marker
+       (the on-screen "fits on N pages" preview line) before building the real
+       paginated output, but this hides it too in case that ever runs first. */
+    .pg-break-marker{display:none !important;}
+    .layout{display:block;padding:0;margin:0;max-width:none;}
+    .preview-wrap{position:static;}
+    .paper-table thead td{height:3.5cm;}
+    .paper-table tfoot td{height:2cm;}
+    .paper-table tbody td{padding:0 2cm;}
+    .paper{background:none;border:none;box-shadow:none;border-radius:0;max-height:none;overflow:visible;padding:0;margin:0;}
+
+    /* Belt-and-suspenders: paginateForPrint() already breaks pages between
+       these units, never inside one, but keeping these rules means a stray
+       unit that somehow slips past the JS packing still refuses to split
+       across a page instead of printing half a bullet/paragraph. */
+    .paper p.linha, .paper .nodulos-lista, .paper ul.impressao li, .paper .rodape-final{page-break-inside:avoid;}
+    .paper h4.sec{page-break-after:avoid;}
+
+    /* Each .print-page is one physical sheet's worth of content, built by
+       paginateForPrint() right before printing: its own content, then a
+       spacer <div> sized to exactly fill the rest of the 24.2cm content band
+       (29.7cm page − 3.5cm top − 2cm bottom), then "Continua…" or the
+       signature. That spacer — not flex/margin-top:auto, which Chromium's
+       print engine doesn't paginate reliably — is what pins them to the
+       bottom-right corner of that sheet specifically, not wherever the text
+       happens to end. */
+    .paper .print-page + .print-page{page-break-before:always;}
+    .paper .continua{font-style:italic;font-size:10pt;text-align:right;margin:0;}
+    /* The spacer <div> right before it already reserves the gap — the
+       rodape-final row's usual margin-top would double that gap. */
+    .paper .print-page .rodape-final{margin-top:0;}
+  }
+
+  /* ---- Perineal: seções com marcadores (herdado do laudo original) ---- */
+  .paper{font-size:11.5pt;}
+  .paper h3.doctitle{font-size:14pt;margin:0 0 4px;font-weight:600;}
+  .paper .doctitle-sub{text-align:center;font-size:10.5pt;color:var(--ink-soft);margin:0 0 20px;font-weight:400;}
+  /* O título tem 2 linhas de propósito; a regra geral esconde todo <br> que
+     seja o primeiro ELEMENTO do título (um <br> depois de texto também conta). */
+  .paper h3.doctitle > br.quebra-titulo{display:inline !important;}
+  .paper h4.sec{margin:20px 0 8px;}
+  /* Cada marcador é o seu próprio bloco (<ul data-blk><li>): a impressão só
+     quebra a folha entre blocos, então assim a quebra cai entre dois itens
+     e nunca no meio de um. */
+  .paper ul.secul{margin:0;padding-left:20px;text-align:justify;}
+  .paper ul.secul li{margin-bottom:var(--linha-margin, 10px);}
+  .paper .nodulos-lista{margin:6px 0 0;}
+  .paper .nodulos-lista .nodulo-item{margin:0 0 6px;padding-left:2.4em;text-indent:-2.4em;}
+  .paper .nodulos-lista .nodulo-item:last-child{margin-bottom:0;}
+  .paper .filled{color:var(--ink);}
+  @media print{
+    .paper ul.secul li{page-break-inside:avoid;}
+    .paper h4.sec{page-break-after:avoid;}
+  }
+</style>
+<script src="tema.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="logo-badge"><img src="logo-horiz.png" alt="Clínica de Ultrassom — Dra. Morgana Kummer"></div>
+    <div class="topbar-divider"></div>
+    <div class="exam-icon-badge" aria-hidden="true">
+      <img src="icon-pelvico.png" alt="">
+    </div>
+    <div class="topbar-title">
+      <h1>Ultrassom Perineal</h1>
+      <div class="sub">Avaliação perineal e de prolapso genital · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <select class="medico-switch" id="medicoExecutante" title="Médico executante do exame">
+      <option value="morgana">Dra. Morgana Kummer</option>
+      <option value="barbara">Dra. Bárbara R. Moreira</option>
+      <option value="paulo">Dr. Paulo M. Gontijo Junior</option>
+      <option value="carolina">Dra. Carolina P. Martins</option>
+      <option value="outro">Outro (digitar manualmente)</option>
+    </select>
+    <select class="digitadora-switch" id="digitadoraAtual" title="Digitadora responsável por este laudo">
+      <option value="">Digitadora…</option>
+      <option value="smg">Samira Marielle (SMG)</option>
+      <option value="tpsl">Thays Pereira (TPSL)</option>
+      <option value="mel">Maria Eduarda (MEL)</option>
+      <option value="emo">Eduarda Marques (EMO)</option>
+    </select>
+    <select class="laudo-switch" id="laudoSwitch" onchange="if(this.value) location.href=this.value;" title="Trocar de laudo">
+      <option value="index.html">Todos os laudos</option>
+      <optgroup label="Medicina Interna">
+        <option value="abdome-total.html">Abdome Total</option>
+        <option value="cervical-doppler.html">Cervical com Doppler</option>
+        <option value="rins-vias-urinarias.html">Rins e Vias Urinárias</option>
+        <option value="tireoide-doppler.html">Tireóide com Doppler</option>
+      </optgroup>
+      <optgroup label="Ginecológico">
+        <option value="mamas.html">Mamas e Axilas</option>
+        <option value="monitorizacao-folicular-fiv.html">Monitorização Folicular (FIV)</option>
+        <option value="pelvico-infantil.html">Pélvico Infantil</option>
+        <option value="perineal.html" selected>Perineal</option>
+        <option value="rastreamento-ovulacao.html">Rastreamento de Ovulação</option>
+        <option value="transvaginal.html">Transvaginal</option>
+      </optgroup>
+      <optgroup label="Obstétrico">
+        <option value="obstetrico.html">Obstétrico Geral</option>
+        <option value="obstetrico-tn-doppler-colo.html">Obstétrico com Translucência Nucal</option>
+        <option value="obstetrico-1trimestre.html">Obstétrico de 1º Trimestre</option>
+        <option value="morfologico-1trimestre.html">Morfológico de 1º Trimestre</option>
+        <option value="morfologico-2trimestre.html">Morfológico de 2º Trimestre</option>
+      </optgroup>
+    </select>
+    <button class="btn-ghost" id="btnSettings">Valores de referência</button>
+    <button class="btn-ghost" id="btnPhrases">Personalizar frases</button>
+    <button class="btn-ghost" id="btnReset">Limpar</button>
+  </div>
+</div>
+
+
+<div class="settings-panel" id="settingsPanel">
+  <h3>Identificação do médico (assinatura do laudo)</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Nome do médico (assinatura)</label><input type="text" id="vr_medicoNome" value="Dra. Morgana Fialho Caldas Kummer"></div>
+    <div class="field"><label>Qualificação (linha 1)</label><input type="text" id="vr_medicoQual1" value="Especialista em Ultrassonografia Geral pelo CBR."></div>
+    <div class="field"><label>Qualificação (linha 2)</label><input type="text" id="vr_medicoQual2" value="Pós-Graduação em Medicina Fetal pela FCMMG."></div>
+    <div class="field"><label>CRM / RQE</label><input type="text" id="vr_medicoCRM" value="CRMMG: 45.304 - RQE: 39.156"></div>
+  </div>
+  <hr class="sep">
+  <h3>Valores de referência (personalize e salve)</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Ângulo retrovesical — mínimo normal (°)</label><input type="text" inputmode="decimal" data-decimals="0" id="vr_anguloMin" value="90"></div>
+    <div class="field"><label>Ângulo retrovesical — máximo normal (°)</label><input type="text" inputmode="decimal" data-decimals="0" id="vr_anguloMax" value="120"></div>
+    <div class="field"><label>Afunilamento distal — máx. normal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_afunilamento" value="5"></div>
+    <div class="field"><label>Espessura parede vesical — máx. normal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_espessura" value="5"></div>
+    <div class="field"><label>Mobilidade colo vesical — máx. normal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_mobilidade" value="10"></div>
+    <div class="field"><label>Gap uretral — máx. normal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_gap" value="25"></div>
+    <div class="field"><label>Sling–uretra, mínimo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_slingUretraMin" value="3"></div>
+    <div class="field"><label>Sling–uretra, máximo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_slingUretraMax" value="5"></div>
+    <div class="field"><label>Sling–púbis — máx. normal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_slingPubis" value="15"></div>
+    <div class="field"><label>Hiato genital — leve a partir de (cm²)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_hiatoLeve" value="25"></div>
+    <div class="field"><label>Hiato genital — moderado a partir de (cm²)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_hiatoModerado" value="30"></div>
+    <div class="field"><label>Hiato genital — acentuado a partir de (cm²)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_hiatoAcentuado" value="35"></div>
+    <div class="field"><label>Hiato genital — severo a partir de (cm²)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_hiatoSevero" value="40"></div>
+    <div class="field"><label>Esfíncter interno — % abaixo do qual é clinicamente não significativo</label><input type="text" inputmode="decimal" data-decimals="0" id="vr_esfIntSignif" value="30"></div>
+    <div class="field"><label>Esfíncter externo — % abaixo do qual é clinicamente não significativo</label><input type="text" inputmode="decimal" data-decimals="0" id="vr_esfExtSignif" value="50"></div>
+  </div>
+  <hr class="sep">
+  <h3>Opções do dropdown — volume uterino</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Opção 1 — texto exibido</label><input type="text" id="vr_uteroTexto1" value="VR < 90 cm³"></div>
+    <div class="field"><label>Opção 1 — limite máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroMax1" value="90"></div>
+    <div class="field"><label>Opção 2 — texto exibido</label><input type="text" id="vr_uteroTexto2" value="VR até 140 cm³"></div>
+    <div class="field"><label>Opção 2 — limite máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroMax2" value="140"></div>
+    <div class="field"><label>Opção 3 — texto exibido</label><input type="text" id="vr_uteroTexto3" value="VR até 180 cm³"></div>
+    <div class="field"><label>Opção 3 — limite máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroMax3" value="180"></div>
+  </div>
+  <hr class="sep">
+  <h3>Opções do dropdown — volume ovariano</h3>
+  <div class="settings-grid">
+    <div class="field"><label>Opção 1 — texto exibido</label><input type="text" id="vr_ovarioTexto1" value="VR: 3,0 a 9,0 cm³"></div>
+    <div class="field"><label>Opção 1 — mínimo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_ovarioMin1" value="3"></div>
+    <div class="field"><label>Opção 1 — máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_ovarioMax1" value="9"></div>
+    <div class="field"><label>Opção 2 — texto exibido</label><input type="text" id="vr_ovarioTexto2" value="VR: até 5,0 cm³"></div>
+    <div class="field"><label>Opção 2 — máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_ovarioMax2" value="5"></div>
+  </div>
+  <div class="save-row">
+    <button class="btn-copy" id="btnSaveVR">Salvar valores de referência</button>
+    <span class="saved-msg" id="vrSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="settings-panel" id="phrasesPanel">
+  <h3>Personalizar frases do laudo</h3>
+  <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases usadas automaticamente conforme o que você marca no formulário. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta, seu texto continua aqui.</p>
+
+  <h3>Colo uterino</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Aspecto normal — use {COMPRIMENTO}</label><textarea id="ph_coloNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hipertrófico — use {COMPRIMENTO}</label><textarea id="ph_coloHipertrofico" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Miométrio / miomas</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Textura homogênea (sem nódulos)</label><textarea id="ph_miometrioHomogeneo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Textura heterogênea (frase geral, antes da descrição dos nódulos)</label><textarea id="ph_miometrioHeterogeneo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Adenomiose (substitui a frase de textura homogênea quando não há mioma junto) — use {SIMETRIA}</label><textarea id="ph_miometrioAdenomiose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Adenomiose junto com mioma (sem a cláusula "sem nódulos") — use {SIMETRIA}</label><textarea id="ph_miometrioAdenomioseComMioma" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Adenomiose — impressão</label><textarea id="ph_impAdenomiose" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>1 nódulo — use {F1}</label><textarea id="ph_miomaIntro1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>2 nódulos — use {F1} e {F2}</label><textarea id="ph_miomaIntro2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>3 ou mais nódulos (introdução da lista)</label><textarea id="ph_miomaIntroVarios" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 0 — use {POSICAO} e {MEDIDA}</label><textarea id="ph_figoF0" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 1 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 2 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 3 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF3" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 4 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF4" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 5 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF5" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 6 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF6" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 7 — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF7" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 8 — use {DETALHE} e {MEDIDA}</label><textarea id="ph_figoF8" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>FIGO 2-5 (transmural) — use {PAREDE} e {MEDIDA}</label><textarea id="ph_figoF25" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Ovário não identificado</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário não identificado — use {LADO}</label><textarea id="ph_ovarioNaoIdentificado" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Istmocele / pólipos / hidrossalpinge / endometriose (nódulo)</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Istmocele — use {MEDIDA} e {PCT}</label><textarea id="ph_istmocele" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Istmocele — impressão (frase fixa, exibida sempre que a istmocele estiver marcada)</label><textarea id="ph_impIstmocele" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical — use {MEDIDA}</label><textarea id="ph_polipoEndocervical" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical — impressão</label><textarea id="ph_impPolipoEndocervical" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial — use {LOCAL}, {PEDICULO} e {MEDIDA}</label><textarea id="ph_polipoEndometrial" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial — impressão</label><textarea id="ph_impPolipoEndometrial" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hidrossalpinge — use {LADO} e {MEDIDA}</label><textarea id="ph_hidrossalpingeLi" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hidrossalpinge — impressão — use {LADO}</label><textarea id="ph_impHidrossalpinge" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulo de endometriose profunda (intestinal) — use {LOCAL}, {MEDIDA} e {REGIAO}</label><textarea id="ph_endometrioseNodulo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulo de endometriose profunda — impressão — use {REGIAO}</label><textarea id="ph_impEndometrioseNodulo" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Divertículos de sigmoide</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Sem sinais inflamatórios</label><textarea id="ph_diverticulosSemInflamacao" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Com sinais inflamatórios</label><textarea id="ph_diverticulosComInflamacao" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3 style="margin-top:4px;">Descenso da parede vesical anterior (cistocele)</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Permanece acima da borda do púbis (normal)</label><textarea id="ph_cistoceleAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Grau I (leve)</label><textarea id="ph_cistoceleI" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Grau II (moderada)</label><textarea id="ph_cistoceleII" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Grau III (acentuada)</label><textarea id="ph_cistoceleIII" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Grau IV (total)</label><textarea id="ph_cistoceleIV" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Descenso uterino</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Permanece acima da borda do púbis (normal)</label><textarea id="ph_uteroAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Grau I (leve)</label><textarea id="ph_uteroI" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Grau II (moderado)</label><textarea id="ph_uteroII" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Grau III (acentuado)</label><textarea id="ph_uteroIII" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Grau IV (total)</label><textarea id="ph_uteroIV" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Compartimento posterior</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Canal anal sem alterações (nenhum achado marcado)</label><textarea id="ph_canalAnalNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Retocele — use {GRAU} onde o grau (I/II/III) deve entrar</label><textarea id="ph_retocele" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Musculatura puborretal preservada (quando não há lesão)</label><textarea id="ph_puborretalPreservada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Lesão puborretal — use {LADO} e {MEDIDA}</label><textarea id="ph_lesaoPuborretal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Enterocele — use {GRAU}</label><textarea id="ph_enterocele" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>"Casca de cebola" presente</label><textarea id="ph_cascaCebolaPresente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>"Casca de cebola" ausente</label><textarea id="ph_cascaCebolaAusente" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Períneo</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Esfíncter anal interno preservado</label><textarea id="ph_esfIntPreservado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Esfíncter anal interno com defeito — use {HORAS}, {PCT} e {MEDIDA} (mm)</label><textarea id="ph_esfIntDefeito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Esfíncter anal externo preservado</label><textarea id="ph_esfExtPreservado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Esfíncter anal externo com defeito — use {HORAS}, {PCT} e {MEDIDA} (mm)</label><textarea id="ph_esfExtDefeito" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <h3>Sling</h3>
+  <div class="field" style="margin-bottom:8px;"><label>Sling bem posicionado</label><textarea id="ph_slingBem" rows="2"></textarea></div>
+
+  <hr class="sep">
+  <div class="save-row">
+    <button class="btn-copy" id="btnSavePhrases">Salvar frases</button>
+    <button class="btn-clear" id="btnResetPhrases">Restaurar padrão</button>
+    <span class="saved-msg" id="phrasesSavedMsg">Salvo ✓</span>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- FORM COLUMN -->
+  <div id="formCol">
+
+    <div class="card">
+      <div class="card-head"><h2>Dados do exame</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
+        </div>
+        <hr class="sep">
+        <label style="font-size:12.5px;color:var(--ink-soft);font-weight:500;display:block;margin-bottom:8px;">Objetivo do exame</label>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;">
+          <div class="toggle-line" style="margin:0;"><input type="checkbox" id="objIU" checked><label for="objIU">Incontinência urinária</label></div>
+          <div class="toggle-line" style="margin:0;"><input type="checkbox" id="objProlapso" checked><label for="objProlapso">Prolapso genital</label></div>
+          <div class="toggle-line" style="margin:0;"><input type="checkbox" id="objFecal" checked><label for="objFecal">Incontinência fecal</label></div>
+        </div>
+        <div class="field"><label>Outro objetivo (opcional)</label><input type="text" id="objOutro" placeholder="ex: avaliação de sling, dor pélvica..."></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Compartimento anterior</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Comprimento da uretra ao repouso</label><input type="text" inputmode="decimal" data-decimals="1" id="uretraComprimento" placeholder="cm"></div>
+          <div class="field"><label>Abertura uretral à Valsalva</label>
+            <select id="aberturaUretral"><option value="normal">Normal</option><option value="anormal">Anormal</option></select>
+          </div>
+          <div class="field"><label>Afunilamento distal <span class="vr">VR: até <span class="vr-afunilamento">5</span> mm</span></label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="afunilamento" placeholder="mm">
+            <span class="flag-note" id="flag_afunilamento">Acima do valor de referência</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Espessura parietal vesical <span class="vr">VR: até <span class="vr-espessura">5</span> mm</span></label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="espessuraParede" placeholder="mm">
+            <span class="flag-note" id="flag_espessuraParede">Acima do valor de referência</span>
+          </div>
+          <div class="field"><label>Volume vesical pré-miccional</label><input type="text" inputmode="decimal" data-decimals="1" id="volumePre" placeholder="mL"></div>
+          <div class="field"><label>Resíduo pós-miccional</label><input type="text" inputmode="decimal" data-decimals="1" id="residuoPos" placeholder="mL"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Aspecto das paredes / conteúdo vesical</label>
+            <select id="bexigaAspecto"><option value="normal">Normal (paredes finas e regulares, conteúdo anecoico)</option><option value="alterado">Alterado (descrever)</option></select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_bexigaDescricao">
+          <label>Descreva o achado</label>
+          <textarea id="bexigaDescricao" rows="2" placeholder="ex: paredes trabeculadas, compatível com bexiga de esforço; presença de divertículo em parede posterior; conteúdo ecogênico em suspensão..."></textarea>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Ângulo retrovesical ao repouso <span class="vr">VR: <span class="vr-anguloMin">90</span>–<span class="vr-anguloMax">120</span>°</span></label>
+            <input type="text" inputmode="decimal" data-decimals="0" id="anguloRepouso" placeholder="°">
+            <span class="flag-note" id="flag_anguloRepouso">Fora do valor de referência</span>
+          </div>
+          <div class="field"><label>Ângulo retrovesical à Valsalva <span class="vr">VR: <span class="vr-anguloMin">90</span>–<span class="vr-anguloMax">120</span>°</span></label>
+            <input type="text" inputmode="decimal" data-decimals="0" id="anguloValsalva" placeholder="°">
+            <span class="flag-note" id="flag_anguloValsalva">Fora do valor de referência</span>
+          </div>
+          <div class="field"><label>Mobilidade do colo vesical <span class="vr">VR: até <span class="vr-mobilidade">10</span> mm</span></label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="mobilidadeColo" placeholder="mm">
+            <span class="flag-note" id="flag_mobilidadeColo">Acima do valor de referência</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Posição do colo vesical ao esforço</label>
+            <select id="posicaoColo"><option value="intra">Permanece intra-abdominal</option><option value="extra">Torna-se extra-abdominal</option></select>
+          </div>
+          <div class="field"><label>Descenso da parede vesical anterior (Valsalva)</label>
+            <select id="descensoParede">
+              <option value="ausente">Permanece acima da borda inferior do púbis (normal)</option>
+              <option value="1">Alcança a borda inferior do púbis — cistocele grau I (leve)</option>
+              <option value="2">Alcança o intróito vaginal — cistocele grau II (moderada)</option>
+              <option value="3">Ultrapassa o intróito vaginal — cistocele grau III (acentuada)</option>
+              <option value="4">Exterioriza-se completamente pelo intróito — cistocele grau IV (total)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Compartimento médio</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Área do hiato genital</label><input type="text" inputmode="decimal" data-decimals="1" id="hiatoGenital" placeholder="cm²"></div>
+          <div class="field"><label>Classificação (automática)</label><input type="text" id="hiatoClassif" placeholder="—" disabled></div>
+        </div>
+        <hr class="sep">
+        <div class="field-row">
+          <div class="field"><label>Posição uterina</label>
+            <select id="uteroPosicao"><option value="AVF">AVF</option><option value="RVF">RVF</option><option value="MVF">MVF</option></select>
+          </div>
+          <div class="field"><label>Valor de referência — volume uterino</label>
+            <select id="vrUteroTipo">
+              <option value="op1">VR &lt; 90 cm³</option>
+              <option value="op2">VR até 140 cm³</option>
+              <option value="op3">VR até 180 cm³</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Útero — longitudinal (L)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder="cm"></div>
+          <div class="field"><label>Útero — anteroposterior (AP)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder="cm"></div>
+          <div class="field"><label>Útero — transverso (T)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder="cm"></div>
+          <div class="field"><label>Volume uterino</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder="cm³">
+            <span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span>
+          </div>
+          <div class="field"><label>Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrio" placeholder="mm"></div>
+          <div class="field"><label>Textura endometrial</label>
+            <select id="endometrioTextura"><option value="homogenea">Homogênea</option><option value="heterogenea">Heterogênea</option></select>
+          </div>
+          <div class="field"><label>Padrão endometrial</label>
+            <select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option></select>
+          </div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkPolipoEndometrial"><label for="chkPolipoEndometrial">Pólipo endometrial</label></div>
+        <div class="field-row conditional" id="wrap_polipoEndometrialCampos">
+          <div class="field"><label>Localização</label>
+            <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
+          </div>
+          <div class="field"><label>Pedículo no folheto</label>
+            <select id="polipoPediculo"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select>
+          </div>
+          <div class="field"><label>Medida (mm)</label><input type="text" id="polipoMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
+
+        <div class="field-row">
+          <div class="field"><label>Textura miometrial</label>
+            <select id="miometrioTextura"><option value="homogenea">Sólida e homogênea (sem nódulos)</option><option value="heterogenea">Sólida e heterogênea (nódulos/miomas)</option></select>
+          </div>
+          <div class="field"><label>Colo uterino — comprimento</label><input type="text" inputmode="decimal" data-decimals="1" id="coloUterinoComprimento" placeholder="cm"></div>
+          <div class="field"><label>Aspecto do colo uterino</label>
+            <select id="coloUterinoAspecto"><option value="normal">Normal</option><option value="hipertrofico">Hipertrófico</option></select>
+          </div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkPolipoEndocervical"><label for="chkPolipoEndocervical">Pólipo endocervical</label></div>
+        <div class="field-row conditional" id="wrap_polipoEndocervicalCampos">
+          <div class="field"><label>Medida (mm)</label><input type="text" id="polipoEndocervicalMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
+        <div class="conditional" id="wrap_miomaDetalhes">
+          <div class="field-row">
+            <div class="field"><label>Número de nódulos</label>
+              <select id="miomaCount"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4 ou mais</option></select>
+            </div>
+          </div>
+          <div id="miomaNodulosContainer"></div>
+          <button type="button" class="btn-clear" id="btnAddMioma" style="margin:2px 0 12px;">+ Adicionar nódulo</button>
+          <div class="field" style="margin-top:4px;">
+            <label>Observações adicionais (opcional)</label>
+            <textarea id="miometrioDescricao" rows="2" placeholder="qualquer detalhe extra sobre os nódulos, ou demais nódulos além dos listados acima..."></textarea>
+          </div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkAdenomiose"><label for="chkAdenomiose">Adenomiose (pode coexistir com mioma)</label></div>
+        <div class="field-row conditional" id="wrap_adenomioseSimetria">
+          <div class="field"><label>Paredes miometriais</label>
+            <select id="adenomioseSimetria"><option value="simetricas">Simétricas</option><option value="assimetricas">Assimétricas</option></select>
+          </div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkIstmocele"><label for="chkIstmocele">Istmocele (em topografia de cesárea)</label></div>
+        <div class="field-row conditional" id="wrap_istmoceleCampos">
+          <div class="field"><label>Medida da istmocele (mm)</label><input type="text" id="istmoceleMedida" placeholder="ex: 9 x 5 x 8"></div>
+          <div class="field"><label>Espessura do miométrio adjacente — EMA</label><input type="text" inputmode="decimal" data-decimals="1" id="istmoceleAnterior" placeholder="mm"></div>
+          <div class="field"><label>Espessura do miométrio residual — EMR</label><input type="text" inputmode="decimal" data-decimals="1" id="istmoceleResidual" placeholder="mm"></div>
+        </div>
+
+        <div class="field-row">
+          <div class="field"><label>Ovário direito — L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder="cm"></div>
+          <div class="field"><label>Ovário direito — AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_AP" placeholder="cm"></div>
+          <div class="field"><label>Ovário direito — T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_T" placeholder="cm"></div>
+          <div class="field"><label>Ovário direito — volume</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="ovD_volume" placeholder="cm³">
+            <span class="flag-note" id="flag_ovD_volume">Fora do valor de referência</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Ovário esquerdo — L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_L" placeholder="cm"></div>
+          <div class="field"><label>Ovário esquerdo — AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_AP" placeholder="cm"></div>
+          <div class="field"><label>Ovário esquerdo — T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_T" placeholder="cm"></div>
+          <div class="field"><label>Ovário esquerdo — volume</label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="ovE_volume" placeholder="cm³">
+            <span class="flag-note" id="flag_ovE_volume">Fora do valor de referência</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Valor de referência — volume ovariano</label>
+            <select id="vrOvarioTipo">
+              <option value="padrao">VR: 3,0 a 9,0 cm³</option>
+              <option value="menopausa">VR: até 5,0 cm³</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Aspecto do ovário direito</label>
+            <select id="ovD_aspecto"><option value="normal">Normal (dimensões e ecotextura preservadas)</option><option value="alterado">Alterado (descrever)</option><option value="nao_identificado">Não identificado</option></select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_ovD_descricao">
+          <label>Descreva o achado — ovário direito</label>
+          <textarea id="ovD_descricao" rows="2" placeholder="ex: cisto anecoico simples medindo X cm; imagem sugestiva de endometrioma; formação sólida com fluxo ao Doppler..."></textarea>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Aspecto do ovário esquerdo</label>
+            <select id="ovE_aspecto"><option value="normal">Normal (dimensões e ecotextura preservadas)</option><option value="alterado">Alterado (descrever)</option><option value="nao_identificado">Não identificado</option></select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_ovE_descricao">
+          <label>Descreva o achado — ovário esquerdo</label>
+          <textarea id="ovE_descricao" rows="2" placeholder="ex: cisto anecoico simples medindo X cm; imagem sugestiva de endometrioma; formação sólida com fluxo ao Doppler..."></textarea>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkHidrossalpinge"><label for="chkHidrossalpinge">Hidrossalpinge</label></div>
+        <div class="field-row conditional" id="wrap_hidrossalpingeCampos">
+          <div class="field"><label>Lado</label>
+            <select id="hidrossalpingeLado"><option value="direita">Direita</option><option value="esquerda">Esquerda</option></select>
+          </div>
+          <div class="field"><label>Medida (cm)</label><input type="text" id="hidrossalpingeMedida" placeholder="ex: 5,5 x 2,1"></div>
+        </div>
+
+        <hr class="sep">
+        <div class="field-row">
+          <div class="field"><label>Descenso uterino à Valsalva (em relação à borda inferior da sínfise púbica)</label>
+            <select id="descensoUterino">
+              <option value="ausente">Permanece acima da borda inferior do púbis (sem descenso significativo)</option>
+              <option value="1">Alcança a borda inferior do púbis — prolapso grau I (leve)</option>
+              <option value="2">Alcança o intróito vaginal — prolapso grau II (moderado)</option>
+              <option value="3">Ultrapassa o intróito vaginal — prolapso grau III (acentuado)</option>
+              <option value="4">Exterioriza-se completamente pelo intróito — prolapso grau IV (total)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row conditional" id="wrap_inversaoUterina">
+          <div class="toggle-line" style="margin:0;"><input type="checkbox" id="chkInversaoAusente"><label for="chkInversaoAusente">Confirmar ausência de inversão uterina (útero exteriorizado)</label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Compartimento posterior</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marque quantos achados coexistirem — não precisam ser mutuamente exclusivos.</p>
+        <div class="toggle-line"><input type="checkbox" id="chkRetocele"><label for="chkRetocele">Retocele</label></div>
+        <div class="field-row conditional" id="wrap_retoceleGrau">
+          <div class="field"><label>Posição em relação à borda inferior da sínfise púbica</label>
+            <select id="retoceleGrau">
+              <option value="I">Alcança a borda inferior do púbis — grau I (leve)</option>
+              <option value="II">Alcança o intróito vaginal — grau II (moderada)</option>
+              <option value="III">Ultrapassa o intróito vaginal — grau III (acentuada)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkLesao"><label for="chkLesao">Lesão da musculatura puborretal</label></div>
+        <div class="field-row conditional" id="wrap_lesaoCampos">
+          <div class="field"><label>Lado da lesão</label>
+            <select id="lesaoLado"><option value="direita">Direita</option><option value="esquerda">Esquerda</option></select>
+          </div>
+          <div class="field"><label>Grau</label>
+            <select id="lesaoGrau"><option value="leve">Leve</option><option value="moderado">Moderado</option><option value="severo">Severo</option></select>
+          </div>
+          <div class="field"><label>Extensão da lesão</label><input type="text" inputmode="decimal" data-decimals="1" id="lesaoMedida" placeholder="cm"></div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkEnterocele"><label for="chkEnterocele">Enterocele</label></div>
+        <div class="field-row conditional" id="wrap_enteroceleGrau">
+          <div class="field"><label>Grau da enterocele</label>
+            <select id="enteroceleGrau"><option value="leve">Leve</option><option value="moderado">Moderado</option></select>
+          </div>
+        </div>
+
+        <hr class="sep">
+        <div class="field-row">
+          <div class="field"><label>Imagem em "casca de cebola" (intussuscepção)</label>
+            <select id="cascaCebola"><option value="ausente">Ausente</option><option value="presente">Presente</option></select>
+          </div>
+        </div>
+
+        <hr class="sep">
+        <div class="toggle-line"><input type="checkbox" id="chkDiverticulos"><label for="chkDiverticulos">Divertículos de sigmoide</label></div>
+        <div class="field-row conditional" id="wrap_diverticulosStatus">
+          <div class="field"><label>Sinais inflamatórios</label>
+            <select id="diverticulosStatus"><option value="sem">Sem sinais inflamatórios</option><option value="com">Com sinais inflamatórios (descrever)</option></select>
+          </div>
+        </div>
+        <div class="field conditional" id="wrap_diverticulosDescricao">
+          <label>Descreva os sinais inflamatórios</label>
+          <textarea id="diverticulosDescricao" rows="2" placeholder="ex: espessamento parietal segmentar, borramento da gordura pericólica..."></textarea>
+        </div>
+
+        <hr class="sep">
+        <div class="toggle-line"><input type="checkbox" id="chkEndometriose"><label for="chkEndometriose">Sinais sugestivos de endometriose profunda</label></div>
+        <div class="field conditional" id="wrap_endometrioseDescricao">
+          <label>Descreva o achado (localização, tamanho, estruturas acometidas)</label>
+          <textarea id="endometrioseDescricao" rows="2" placeholder="ex: nódulo endometriótico em septo retovaginal medindo X cm; acometimento de ligamento uterossacro direito; aderência entre reto e parede vaginal posterior..."></textarea>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkEndometrioseNodulo"><label for="chkEndometrioseNodulo">Nódulo de endometriose profunda (intestinal)</label></div>
+        <div class="field-row conditional" id="wrap_endometrioseNoduloCampos">
+          <div class="field"><label>Localização (parede intestinal)</label><input type="text" id="endometrioseLocal" placeholder="ex: retossigmoide" value="retossigmoide"></div>
+          <div class="field"><label>Região</label><input type="text" id="endometrioseRegiao" placeholder="ex: retrocervical" value="retrocervical"></div>
+          <div class="field"><label>Medida (mm)</label><input type="text" id="endometrioseMedida" placeholder="ex: 35 x 23"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Períneo</h2></div>
+      <div class="card-body">
+        <div class="field-row">
+          <div class="field"><label>Gap uretral direito <span class="vr">VR: &lt; <span class="vr-gap">25</span> mm</span></label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="gapDireito" placeholder="mm">
+            <span class="flag-note" id="flag_gapDireito">Acima do valor de referência</span>
+          </div>
+          <div class="field"><label>Gap uretral esquerdo <span class="vr">VR: &lt; <span class="vr-gap">25</span> mm</span></label>
+            <input type="text" inputmode="decimal" data-decimals="1" id="gapEsquerdo" placeholder="mm">
+            <span class="flag-note" id="flag_gapEsquerdo">Acima do valor de referência</span>
+          </div>
+        </div>
+        <hr class="sep">
+        <div class="field-row">
+          <div class="field"><label>Esfíncter anal interno</label>
+            <select id="esfIntStatus"><option value="preservado">Íntegro/preservado</option><option value="defeito">Defeito</option></select>
+          </div>
+          <div class="field conditional" id="wrap_esfIntGrau"><label>Grau</label>
+            <select id="esfIntGrau"><option value="leve">Leve</option><option value="moderado">Moderado</option><option value="severo">Severo</option></select>
+          </div>
+          <div class="field conditional" id="wrap_esfIntHoras"><label>Localização (horas)</label><input type="text" id="esfIntHoras" placeholder="ex: 10h"></div>
+          <div class="field conditional" id="wrap_esfIntPct"><label>% da circunferência</label><input type="text" inputmode="decimal" data-decimals="0" id="esfIntPct" placeholder="%"></div>
+          <div class="field conditional" id="wrap_esfIntExtensao"><label>Extensão da lesão (em mm)</label><input type="text" inputmode="numeric" maxlength="2" data-decimals="0" id="esfIntExtensao" placeholder="mm"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Esfíncter anal externo</label>
+            <select id="esfExtStatus"><option value="preservado">Íntegro/preservado</option><option value="defeito">Defeito</option></select>
+          </div>
+          <div class="field conditional" id="wrap_esfExtGrau"><label>Grau</label>
+            <select id="esfExtGrau"><option value="leve">Leve</option><option value="moderado">Moderado</option><option value="severo">Severo</option></select>
+          </div>
+          <div class="field conditional" id="wrap_esfExtHoras"><label>Localização (horas)</label><input type="text" id="esfExtHoras" placeholder="ex: 2h"></div>
+          <div class="field conditional" id="wrap_esfExtPct"><label>% da circunferência</label><input type="text" inputmode="decimal" data-decimals="0" id="esfExtPct" placeholder="%"></div>
+          <div class="field conditional" id="wrap_esfExtExtensao"><label>Extensão da lesão (em mm)</label><input type="text" inputmode="numeric" maxlength="2" data-decimals="0" id="esfExtExtensao" placeholder="mm"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Avaliação do sling</h2></div>
+      <div class="card-body">
+        <div class="toggle-line"><input type="checkbox" id="slingPresente"><label for="slingPresente">Paciente possui sling — incluir seção no laudo</label></div>
+        <div class="conditional" id="wrap_slingFields">
+          <div class="field-row">
+            <div class="field"><label>Distância uretra <span class="vr">VR: <span class="vr-slingMin">3</span>–<span class="vr-slingMax">5</span> mm</span></label>
+              <input type="text" inputmode="decimal" data-decimals="1" id="slingUretra" placeholder="mm">
+              <span class="flag-note" id="flag_slingUretra">Fora do valor de referência</span>
+            </div>
+            <div class="field"><label>Distância púbis <span class="vr">VR: &lt; <span class="vr-slingPubisRef">15</span> mm</span></label>
+              <input type="text" inputmode="decimal" data-decimals="1" id="slingPubis" placeholder="mm">
+              <span class="flag-note" id="flag_slingPubis">Acima do valor de referência</span>
+            </div>
+            <div class="field"><label>Distância meato uretral</label><input type="text" inputmode="decimal" data-decimals="1" id="slingMeato" placeholder="mm"></div>
+            <div class="field"><label>Distância colo vesical</label><input type="text" inputmode="decimal" data-decimals="1" id="slingColo" placeholder="mm"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Posicionamento</label>
+              <select id="slingPosicao"><option value="bem">Bem posicionado</option><option value="outro">Outro (descrever)</option></select>
+            </div>
+            <div class="field conditional" id="wrap_slingOutro"><label>Descrição</label><input type="text" id="slingOutroTexto" placeholder="ex: deslocado proximalmente"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Impressão diagnóstica</h2></div>
+      <div class="card-body">
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
+        <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PREVIEW COLUMN -->
+  <div class="preview-wrap">
+    <span class="status-pill" id="statusPill">0 campos pendentes</span>
+    <span class="status-pill" id="pageCountPill">1 página</span>
+    <span class="status-pill" id="draftPill" style="display:none;" title="O laudo é salvo sozinho neste navegador enquanto você digita"></span>
+    <div class="print-alert" id="printAlert">⚠ Ainda há campos não preenchidos — corrija antes de imprimir.</div>
+    <div class="draft-note" id="draftNote">
+      <span id="draftNoteText"></span>
+      <button type="button" id="btnDraftDiscard">Fechar aviso</button>
+    </div>
+    <div class="format-toolbar" id="formatToolbar">
+      <button type="button" class="fmt-btn" id="fmtBold" title="Negrito (Ctrl+B)"><b>N</b></button>
+      <button type="button" class="fmt-btn" id="fmtItalic" title="Itálico (Ctrl+I)"><i>I</i></button>
+      <button type="button" class="fmt-btn" id="fmtUnderline" title="Sublinhado (Ctrl+U)"><u>S</u></button>
+      <span class="fmt-sep"></span>
+      <button type="button" class="fmt-btn" id="fmtAlignLeft" title="Alinhar à esquerda">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="10" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="10" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignCenter" title="Centralizar">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="3.5" y1="6.5" x2="12.5" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="3.5" y1="13.5" x2="12.5" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignRight" title="Alinhar à direita">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="6" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="6" y1="13.5" x2="15" y2="13.5"/></svg>
+      </button>
+      <button type="button" class="fmt-btn" id="fmtAlignJustify" title="Justificar">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="15" y2="13.5"/></svg>
+      </button>
+      <span class="fmt-sep"></span>
+      <span class="fmt-group">
+        <label for="fmtLineHeight">Espaçamento entre linhas (todo o laudo)</label>
+        <select id="fmtLineHeight" title="Espaçamento entre linhas (todo o laudo)">
+          <option value="1">Mínimo</option>
+          <option value="1.15" selected>Compacto</option>
+          <option value="1.35">Estreito</option>
+          <option value="1.5">Normal</option>
+          <option value="1.8">Largo</option>
+        </select>
+      </span>
+      <span class="fmt-sep"></span>
+      <span class="fmt-group">
+        <label for="fmtIdCardGap">Espaço só acima do título</label>
+        <select id="fmtIdCardGap" title="Espaço só acima do título (não mexe no resto do laudo)">
+          <option value="0">Nenhum</option>
+          <option value="1">1 mm</option>
+          <option value="2">2 mm</option>
+          <option value="3">3 mm</option>
+          <option value="default" selected>5 mm (padrão)</option>
+          <option value="8">8 mm</option>
+          <option value="12">12 mm</option>
+          <option value="16">16 mm</option>
+          <option value="20">20 mm</option>
+        </select>
+      </span>
+      <span class="fmt-sep"></span>
+      <span class="fmt-group">
+        <label for="fmtFontSize">Tamanho da fonte</label>
+        <select id="fmtFontSize" title="Tamanho da fonte">
+          <option value="9">9 pt</option>
+          <option value="10">10 pt</option>
+          <option value="11">11 pt</option>
+          <option value="11.5" selected>11,5 pt (padrão)</option>
+          <option value="12">12 pt</option>
+          <option value="14">14 pt</option>
+          <option value="16">16 pt</option>
+          <option value="18">18 pt</option>
+        </select>
+      </span>
+      <span class="fmt-sep"></span>
+      <button type="button" class="fmt-reset" id="fmtResetSpacing" title="Volta o espaçamento do corpo e o espaço acima do título ao padrão, e apaga o que estiver salvo neste navegador">Restaurar espaçamento padrão</button>
+      <span class="fmt-build" title="Versão deste arquivo de laudo — útil para conferir se o navegador está abrindo a versão mais recente">v2026.10.07-a</span>
+    </div>
+    <table class="paper-table">
+      <thead><tr><td></td></tr></thead>
+      <tfoot><tr><td></td></tr></tfoot>
+      <tbody><tr><td><div class="paper" id="paper" contenteditable="true" spellcheck="false"></div></td></tr></tbody>
+    </table>
+    <div class="preview-actions">
+      <button class="btn-print" id="btnPrint">Imprimir / PDF</button>
+      <button class="btn-clear" id="btnDownloadWord">Baixar Word</button>
+    </div>
+  </div>
+</div>
+
+<script src="laudo-core.js"></script>
+<script>
+// O motor do laudo mora no laudo-core.js ao lado deste arquivo. Se o .html for
+// aberto solto — salvo na área de trabalho, mandado por e-mail, aberto de um
+// pen drive — o motor não carrega e a página fica de enfeite: os campos
+// aparecem, mas nada monta o laudo. O aviso abaixo diz o que houve, em vez de
+// deixar a tela pela metade sem explicação nenhuma.
+if(typeof criarMotorLaudo !== 'function'){
+  document.addEventListener('DOMContentLoaded', function(){
+    const aviso = document.createElement('div');
+    aviso.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;'
+      + 'justify-content:center;padding:24px;background:rgba(43,43,46,.92);color:#fff;'
+      + "font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.6;";
+    aviso.innerHTML = '<div style="max-width:520px;background:#6d3263;padding:28px 32px;'
+      + 'border-radius:20px;box-shadow:0 18px 40px rgba(0,0,0,.35)">'
+      + '<div style="font-size:19px;font-weight:600;margin-bottom:10px">Falta o arquivo laudo-core.js</div>'
+      + '<p style="margin:0 0 12px">Este laudo usa um segundo arquivo, o <b>laudo-core.js</b>, que precisa '
+      + 'estar na mesma pasta que ele. Sem esse arquivo o laudo abre, mas não monta nada.</p>'
+      + '<p style="margin:0">O jeito certo de usar é pelo endereço da clínica no navegador, onde os dois '
+      + 'arquivos já ficam juntos — não por uma cópia solta do .html.</p></div>';
+    document.body.appendChild(aviso);
+  });
+}
+</script>
+<script>
+(function(){
+  // O motor compartilhado dos laudos vive em laudo-core.js: paginação da
+  // impressão, ajuste de fonte, barra de formatação, rascunho automático
+  // e validação de decimais. Consertar qualquer um deles é uma edição só,
+  // lá. Ver o cabeçalho do laudo-core.js.
+  const motor = criarMotorLaudo({
+    DRAFT_KEY: 'laudo-rascunho-perineal-v1',
+    minFontSize: 10.5,
+    render:          () => render(),
+    draftSnapshot:   () => draftSnapshot(),
+    tituloExame:     () => tituloExame(),
+    applyVRToInputs: () => applyVRToInputs(),
+    getVR: () => VR,
+    setVR: novo => { VR = novo; },
+    wordCopy: () => WORD_COPY,
+  });
+  // Sem aplicarMascaraCPF de propósito: este laudo não tem campo de CPF (ver
+  // CLAUDE.md, "aplicarMascaraCPF is not defined").
+  const {
+    $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
+    applyExecutante, blankOrValue, buildIdCardTable, colapsarMargensParaWord, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
+    draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
+    nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview, setDefaultDataExame,
+    setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
+    vNoDot, wireDecimalInputs, wireEnterLineBreaks, wirePastePlainText, wordDocHtml,
+    frasesCarregarPorExecutante, frasesMarcarCustomizadas, frasesSalvarPorExecutante,
+    aplicarPlaceholders
+  } = motor;
+
+  // Tamanho da fonte do título: vive fora do DOM porque render() refaz o
+  // <h3 class="doctitle"> do zero a cada edição.
+  let titleFontSize = null;
+
+  // Texto reescrito à mão dentro de um item da IMPRESSÃO: sem este mapa, o
+  // próximo render() voltaria o item para a frase automática. Cada <li> carrega
+  // um data-key igual ao da checklist; as edições entram aqui e voltam no render().
+  let impressaoOverrides = {};
+  let impressaoManualSeq = 0;
+
+
+  // ---------- Format toolbar: bold/italic on the selection inside #paper, plus
+  // an adjustable line-height. mousedown+preventDefault on the buttons keeps the
+  // browser from moving focus off #paper before click fires, so the text
+  // selection made by the user is still there when execCommand runs. ----------
+  (function(){
+    const paperEl = $('paper');
+    wirePastePlainText(paperEl);
+    const btnBold = $('fmtBold');
+    const btnItalic = $('fmtItalic');
+    const btnUnderline = $('fmtUnderline');
+    const lineHeightSel = $('fmtLineHeight');
+    // [button element, execCommand name] — alignment is radio-like (queryCommandState
+    // reports true for exactly one of these at a time), unlike bold/italic which can
+    // both be active together, so it's kept as its own list rather than merged in.
+    const alignButtons = [
+      [$('fmtAlignLeft'), 'justifyLeft'],
+      [$('fmtAlignCenter'), 'justifyCenter'],
+      [$('fmtAlignRight'), 'justifyRight'],
+      [$('fmtAlignJustify'), 'justifyFull'],
+    ];
+
+    function updateFormatButtons(){
+      try{
+        btnBold.classList.toggle('active', document.queryCommandState('bold'));
+        btnItalic.classList.toggle('active', document.queryCommandState('italic'));
+        btnUnderline.classList.toggle('active', document.queryCommandState('underline'));
+        alignButtons.forEach(([btn, cmd])=>btn.classList.toggle('active', document.queryCommandState(cmd)));
+      }catch(e){ /* queryCommandState unsupported */ }
+    }
+    function applyFormat(cmd){
+      paperEl.focus();
+      document.execCommand(cmd, false, null);
+      updateFormatButtons();
+    }
+    const allFmtButtons = [btnBold, btnItalic, btnUnderline, ...alignButtons.map(([btn])=>btn)];
+    allFmtButtons.forEach(btn=>btn.addEventListener('mousedown', e=>e.preventDefault()));
+    btnBold.addEventListener('click', ()=>applyFormat('bold'));
+    btnItalic.addEventListener('click', ()=>applyFormat('italic'));
+    btnUnderline.addEventListener('click', ()=>applyFormat('underline'));
+    alignButtons.forEach(([btn, cmd])=>btn.addEventListener('click', ()=>applyFormat(cmd)));
+    paperEl.addEventListener('keyup', updateFormatButtons);
+    paperEl.addEventListener('mouseup', updateFormatButtons);
+    paperEl.addEventListener('keydown', e=>{
+      const mod = e.ctrlKey || e.metaKey;
+      if(!mod) return;
+      if(e.key === 'b' || e.key === 'B'){ e.preventDefault(); applyFormat('bold'); }
+      else if(e.key === 'i' || e.key === 'I'){ e.preventDefault(); applyFormat('italic'); }
+      else if(e.key === 'u' || e.key === 'U'){ e.preventDefault(); applyFormat('underline'); }
+    });
+
+    // Enter inside the title splits <h3 class="doctitle"> into two separate
+    // <h3> elements (standard contenteditable behavior for Enter inside a
+    // heading) — the browser clones the tag's attributes onto both halves,
+    // so both end up carrying data-blk="doctitle". renderBlocks() then finds
+    // two nodes for the same block id: it always leaves both alone (the
+    // title's generated HTML never changes between renders, so the
+    // reconciliation check never fires) and never cleans up the extra one,
+    // so the "second line" becomes a permanent stray element instead of
+    // part of the title. Forcing a plain line break inside the same element
+    // keeps the doctor's ability to wrap the title visually without
+    // splitting the block in two.
+    // O espaço acima do título é margin do CSS, não uma linha de texto: não
+    // existe lugar ali para o cursor pousar, então clicar nele para "mexer
+    // naquela linha" é impossível — e a saída natural vira dar Enter no
+    // começo do título para empurrá-lo para baixo. Só que isso criava uma
+    // linha vazia com a altura da fonte do título (16pt), que nenhum controle
+    // de margin conseguia encolher depois.
+    //
+    // Em vez de deixar esse atalho quebrado, ele passa a acionar o controle
+    // de verdade: no COMEÇO do título, Enter aumenta e Backspace diminui o
+    // espaço acima dele, um degrau do seletor por vez. O gesto de sempre
+    // continua valendo, agora com um resultado ajustável (e reversível), e o
+    // Backspace ali deixa de correr o risco de fundir o título com o
+    // cabeçalho, que é o que o contenteditable faria por conta própria.
+    wireEnterLineBreaks(paperEl, () => idCardGapSel);
+
+    // Both selects below act on whatever's selected inside #paper, same as
+    // bold/italic — with nothing selected they fall back to the whole
+    // report. By the time 'change' fires on the <select> (after an option is
+    // picked), the browser has already moved focus there and collapsed
+    // window.getSelection() — reading it then would always fall into the
+    // "nothing selected" branch. Capturing on the select's mousedown was
+    // tried first, but that depends on mousedown firing before the browser's
+    // own focus-shift collapses the selection, which isn't consistent across
+    // browsers/OSes. Tracking continuously via selectionchange instead means
+    // the last real selection made inside #paper is remembered regardless of
+    // when exactly it got collapsed.
+    let lastPaperSelectionRange = null;
+    function capturarSelecaoSeAtiva(){
+      const sel = window.getSelection();
+      if(sel && sel.rangeCount && !sel.isCollapsed && paperEl.contains(sel.anchorNode) && paperEl.contains(sel.focusNode)){
+        lastPaperSelectionRange = sel.getRangeAt(0).cloneRange();
+      }
+    }
+    document.addEventListener('selectionchange', capturarSelecaoSeAtiva);
+    // Abrir o <select> nativo (mousedown nele) pode, dependendo do navegador
+    // e do momento, disparar 'selectionchange' já com a seleção do #paper
+    // limpa, ou atrasar esse evento até depois do popup nativo fechar — nos
+    // dois casos o 'change' do <select> leria lastPaperSelectionRange como
+    // null mesmo com o trecho ainda selecionado na tela, e cairia sem
+    // querer no ramo que aplica o espaçamento no laudo INTEIRO em vez de só
+    // na seleção (foi assim que a Dra. Morgana viu o espaçamento mudar em
+    // tudo, inclusive no título, escolhendo um espaçamento com um trecho
+    // selecionado). Capturar de novo aqui, no mousedown do próprio <select>
+    // — antes do popup abrir, sem depender da corrida com o
+    // selectionchange —, garante que a seleção mais recente nunca se perde
+    // por essa via.
+    lineHeightSel.addEventListener('mousedown', capturarSelecaoSeAtiva);
+    function captureSelectionInPaper(){
+      const range = lastPaperSelectionRange;
+      lastPaperSelectionRange = null;
+      return range;
+    }
+    // Wraps a captured range in a <span> carrying one inline style, then
+    // re-selects that span's contents so a follow-up change (picking another
+    // value right after) still targets the same text.
+    // Envolve só o TEXTO selecionado, nó de texto por nó de texto, cada trecho
+    // no seu próprio <span>. Antes usava range.surroundContents() e, quando ele
+    // falhava (seleção que cruza elementos — cartão de identificação, o <div> do
+    // líquido amniótico, linhas de tabela), caía num extractContents() +
+    // insertNode() que PARTIA os blocos da fronteira: o cartão de identificação
+    // e o título sumiam do lugar, blocos ficavam órfãos sem data-blk e o <span>
+    // acabava com <div>/<tr> dentro. Aqui nenhum elemento é movido nem partido —
+    // só nós de texto são divididos —, então a estrutura do #paper não muda.
+    function wrapSelectionInStyledSpan(range, applyStyle){
+      const root = range.commonAncestorContainer;
+      const sc = range.startContainer, so = range.startOffset;
+      const ec = range.endContainer, eo = range.endOffset;
+      const textos = [];
+      if(root.nodeType === 3){
+        textos.push(root);
+      } else {
+        const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        let n;
+        while((n = w.nextNode())){ if(range.intersectsNode(n)) textos.push(n); }
+      }
+      const SEM_TEXTO = /^(TABLE|THEAD|TBODY|TFOOT|TR|UL|OL)$/;
+      const spans = [];
+      textos.forEach(n=>{
+        const ini = n === sc ? so : 0;
+        const fim = n === ec ? eo : n.length;
+        if(fim <= ini) return;
+        const pai = n.parentNode;
+        if(!pai || SEM_TEXTO.test(pai.nodeName)) return;
+        if(pai.closest && pai.closest('[contenteditable="false"]')) return;
+        if(!n.nodeValue.slice(ini, fim).trim() && textos.length > 1) return;
+        let alvo = n;
+        if(fim < alvo.length) alvo.splitText(fim);
+        if(ini > 0) alvo = alvo.splitText(ini);
+        const span = document.createElement('span');
+        applyStyle(span.style);
+        alvo.parentNode.insertBefore(span, alvo);
+        span.appendChild(alvo);
+        spans.push(span);
+      });
+      if(!spans.length) return;
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      const newRange = document.createRange();
+      newRange.setStartBefore(spans[0]);
+      newRange.setEndAfter(spans[spans.length-1]);
+      sel.addRange(newRange);
+    }
+
+    // Set as an inline style on #paper itself (not on its innerHTML), so it
+    // survives render() re-drawing the report content — render() only ever
+    // reassigns paperEl.innerHTML, never touches paperEl.style. With text
+    // selected inside #paper, it instead scopes to just that selection.
+    // "Espaçamento entre linhas" só mudava o line-height do texto — o
+    // espaço ENTRE parágrafos vem da margin de cada <p class="linha">, que é
+    // outra propriedade. Sem isso, escolher "Mínimo" com frases de
+    // parágrafos diferentes selecionadas não fecha a distância visível entre
+    // elas, mesmo o menu mostrando a opção ativa. Por isso o valor escolhido
+    // também ajusta a margin dos parágrafos que a seleção toca (ou de
+    // todos, sem seleção).
+    const LINE_HEIGHT_MARGIN = {'1':'1mm', '1.15':'2mm', '1.35':'3mm', '1.5':'4mm', '1.8':'6mm'};
+    lineHeightSel.addEventListener('change', ()=>{
+      const range = captureSelectionInPaper();
+      const margin = LINE_HEIGHT_MARGIN[lineHeightSel.value] || '16px';
+      if(range){
+        const paragraphs = Array.from(paperEl.querySelectorAll('p.linha, h4.sec')).filter(el=> range.intersectsNode(el));
+        // A seleção pode legitimamente cruzar de um p.linha/h4.sec para
+        // dentro de OUTRO bloco que esta lista de parágrafos não reconhece —
+        // uma tabela, um <div> com sua própria margem. Contar só os
+        // parágrafos "esperados" já causou corrupção: com um só parágrafo
+        // contado mas a seleção de verdade indo além dele, o código caía no
+        // ramo de span único (abaixo), que tenta envolver a seleção inteira
+        // num <span> — range.surroundContents() falha nesse caso, e o catch
+        // (extractContents + insertNode) duplica o data-blk de cada bloco na
+        // fronteira da seleção. blocosTocados usa TODO filho direto do
+        // #paper (não só os parágrafos) só para decidir o ramo — o bloco
+        // cruzado que não é parágrafo não ganha lineHeight/margin (não faria
+        // sentido nele), mas o span nunca chega a envolver essa fronteira.
+        const blocosTocados = Array.from(paperEl.querySelectorAll(':scope > [data-blk]')).filter(el=> range.intersectsNode(el));
+        // Uma tabela (morfologia, biometria) é UM data-blk só: blocosTocados
+        // nunca vê mais de um ali, e uma seleção que cruza duas <td> (rótulo
+        // pra descrição, linha pra linha) caía no ramo do <span> — que não
+        // pode envolver duas <td> validamente. surroundContents() falha, e o
+        // catch reinsere o conteúdo extraído partindo a linha da tabela. Foi
+        // assim que selecionar do rótulo "Crânio / cérebro" até a descrição e
+        // escolher "Compacto" quebrou as colunas da morfologia.
+        const celulaDoLimite = (container, offset) => {
+          let node = container;
+          if(node.nodeType === 1) node = node.childNodes[offset] || node.childNodes[offset - 1] || node;
+          const el = node.nodeType === 1 ? node : node.parentElement;
+          return el ? el.closest('td, th') : null;
+        };
+        const startCel = celulaDoLimite(range.startContainer, range.startOffset);
+        const endCel = celulaDoLimite(range.endContainer, range.endOffset);
+        const cruzaCelula = (!!startCel || !!endCel) && startCel !== endCel;
+        if(blocosTocados.length > 1 || cruzaCelula){
+          // Seleção cruza mais de um parágrafo: aplica direto em cada um, em
+          // vez de envolver num <span> — um <span> (inline) não pode conter
+          // <p> (bloco) validamente, e a tentativa de "consertar" isso na
+          // mão bagunçava a estrutura do HTML.
+          paragraphs.forEach(el=>{ el.style.lineHeight = lineHeightSel.value; el.style.marginBottom = margin; });
+        } else {
+          wrapSelectionInStyledSpan(range, style=>{ style.lineHeight = lineHeightSel.value; });
+          paragraphs.forEach(el=>{ el.style.marginBottom = margin; });
+        }
+      } else {
+        // Sem seleção: limpa overrides de trechos selecionados antes, senão ficam "presos" e não acompanham a mudança geral.
+        paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
+          el.style.lineHeight = '';
+          if(!el.getAttribute('style')) el.removeAttribute('style');
+        });
+        paperEl.querySelectorAll('p.linha, h4.sec').forEach(el=>{ el.style.marginBottom = ''; });
+        paperEl.style.lineHeight = lineHeightSel.value;
+        paperEl.style.setProperty('--linha-margin', margin);
+        kvStore.set('paper-line-height', lineHeightSel.value);
+      }
+    });
+
+    // Espaço entre o cabeçalho de identificação (.id-card) e o título logo
+    // abaixo: um controle dedicado e sempre visível, em vez de depender de
+    // selecionar texto no título/cabeçalho para "escopar" o seletor de
+    // espaçamento entre linhas — essa seleção é fácil de não acontecer de
+    // verdade (um clique sem arrastar já basta), e quando isso acontecia o
+    // valor caía no modo "sem seleção" do outro seletor, mudando o laudo
+    // inteiro E salvando aquele valor como padrão global — exatamente o bug
+    // relatado. Este controle nunca afeta os parágrafos do corpo.
+    const idCardGapSel = $('fmtIdCardGap');
+    // Valores explícitos em mm: o alcance vai de zero até bem folgado, para
+    // este seletor dar conta sozinho tanto de reduzir quanto de aumentar o
+    // espaço acima do título — sem ninguém precisar recorrer ao Enter.
+    const IDCARD_GAP_MARGIN = {'default':'20px', '0':'0mm', '1':'1mm', '2':'2mm', '3':'3mm', '8':'8mm', '12':'12mm', '16':'16mm', '20':'20mm'};
+    idCardGapSel.addEventListener('change', ()=>{
+      const val = idCardGapSel.value;
+      if(val === 'default'){
+        paperEl.style.removeProperty('--idcard-gap');
+        kvStore.remove('idcard-gap');
+      } else {
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[val] || '20px');
+        kvStore.set('idcard-gap', val);
+      }
+    });
+
+    // Volta os dois espaçamentos ao padrão de fábrica e apaga o que estiver
+    // salvo neste navegador. Existe porque o espaçamento do corpo é gravado
+    // como preferência permanente: uma vez que "Mínimo" entra ali (inclusive
+    // sem querer), TODO laudo aberto depois já nasce comprimido, em qualquer
+    // sessão futura — e sem um botão explícito não há como perceber que a
+    // culpa é de um valor salvo, e não do que se acabou de mexer.
+    function resetEspacamentos(){
+      paperEl.querySelectorAll('[style*="line-height"]').forEach(el=>{
+        el.style.lineHeight = '';
+        if(!el.getAttribute('style')) el.removeAttribute('style');
+      });
+      paperEl.querySelectorAll('p.linha, h4.sec').forEach(el=>{ el.style.marginBottom = ''; });
+      paperEl.style.lineHeight = '';
+      paperEl.style.removeProperty('--linha-margin');
+      paperEl.style.removeProperty('--idcard-gap');
+      lineHeightSel.value = '1.15';
+      idCardGapSel.value = 'default';
+      kvStore.remove('paper-line-height');
+      kvStore.remove('idcard-gap');
+    }
+    $('fmtResetSpacing').addEventListener('click', resetEspacamentos);
+
+    (async function initLineSpacingPrefs(){
+      // Uma tentativa anterior de escopar o espaço acima do título (via
+      // seleção de texto) podia cair sem querer no modo global e gravar
+      // "Mínimo" como o espaçamento padrão do laudo inteiro. A limpeza v1 já
+      // tinha zerado isso uma vez, mas quem voltou a esbarrar no seletor
+      // depois dela regravou o valor e ficou preso de novo — inclusive por
+      // causa de instruções que pediam justamente para selecionar o título
+      // antes de mexer no espaçamento. A v2 zera esse resíduo mais uma vez;
+      // a partir daqui o botão "Restaurar espaçamento padrão" acima resolve
+      // sem depender de uma nova limpeza automática a cada versão.
+      const migrated = await kvStore.get('line-spacing-defaults-reset-v2');
+      if(!migrated){
+        await kvStore.remove('paper-line-height');
+        await kvStore.remove('idcard-gap-margin');
+        await kvStore.remove('idcard-gap');
+        await kvStore.set('line-spacing-defaults-reset-v2', '1');
+      }
+      const saved = await kvStore.get('paper-line-height');
+      if(saved){
+        lineHeightSel.value = saved;
+        paperEl.style.lineHeight = saved;
+        paperEl.style.setProperty('--linha-margin', LINE_HEIGHT_MARGIN[saved] || '16px');
+      }
+      const savedGap = await kvStore.get('idcard-gap');
+      if(savedGap){
+        idCardGapSel.value = savedGap;
+        paperEl.style.setProperty('--idcard-gap', IDCARD_GAP_MARGIN[savedGap] || '20px');
+      }
+    })();
+
+    // Font size: if the user has text selected inside #paper (e.g. just the
+    // title), wrap only that selection in a sized span. With nothing
+    // selected, it falls back to setting the whole report's default size
+    // (and that default is the part that's saved/restored across sessions).
+    const fontSizeSel = $('fmtFontSize');
+    fontSizeSel.addEventListener('mousedown', capturarSelecaoSeAtiva);
+    fontSizeSel.addEventListener('change', ()=>{
+      const size = fontSizeSel.value;
+      const range = captureSelectionInPaper();
+      const titleEl = paperEl.querySelector('h3.doctitle');
+      if(range && titleEl && titleEl.contains(range.commonAncestorContainer)){
+        // Selection is (part of) the title: track it as state instead of just
+        // wrapping a span, so it comes back after render() next rebuilds the
+        // title from scratch — otherwise the very next field edit would erase it.
+        titleFontSize = size;
+        kvStore.set('title-font-size', size);
+        titleEl.style.fontSize = size + 'pt';
+      } else if(range){
+        wrapSelectionInStyledSpan(range, style=>{ style.fontSize = size + 'pt'; });
+      } else {
+        paperEl.style.fontSize = size + 'pt';
+        kvStore.set('paper-font-size', size);
+      }
+    });
+    // The size select otherwise always showed whatever was last applied
+    // globally, even while clicking around text set to a different size (the
+    // title, or an earlier manual override) — so it looked like nothing was
+    // selected, when it was really just not reporting back. Reflect the
+    // actual font-size in effect at the caret/selection instead.
+    document.addEventListener('selectionchange', ()=>{
+      const sel = window.getSelection();
+      if(!sel || !sel.rangeCount) return;
+      const node = sel.anchorNode;
+      if(!node || !paperEl.contains(node)) return;
+      const el = node.nodeType === 3 ? node.parentElement : node;
+      if(!el) return;
+      const px = parseFloat(getComputedStyle(el).fontSize);
+      if(isNaN(px)) return;
+      const pt = px / (96/72);
+      let closest = null, closestDiff = Infinity;
+      Array.from(fontSizeSel.options).forEach(o=>{
+        const diff = Math.abs(parseFloat(o.value) - pt);
+        if(diff < closestDiff){ closest = o; closestDiff = diff; }
+      });
+      if(closest && closestDiff < 0.4) fontSizeSel.value = closest.value;
+    });
+    // A font size saved from a much earlier visit pins this browser to
+    // whatever the app's default happened to be back then (body 11.5pt, or a
+    // title resized off an even older default) — that stale value then
+    // silently outlives any later change to the app's own defaults. Clear it
+    // once so this browser picks up the current defaults again; a size the
+    // user deliberately re-picks afterward is saved fresh and respected as
+    // normal from then on.
+    (async function initFontSizePrefs(){
+      const migrated = await kvStore.get('font-size-defaults-reset-v1');
+      if(!migrated){
+        await kvStore.remove('paper-font-size');
+        await kvStore.remove('title-font-size');
+        await kvStore.set('font-size-defaults-reset-v1', '1');
+      }
+      const savedPaper = await kvStore.get('paper-font-size');
+      if(savedPaper){
+        fontSizeSel.value = savedPaper;
+        paperEl.style.fontSize = savedPaper + 'pt';
+      }
+      const savedTitle = await kvStore.get('title-font-size');
+      if(savedTitle){
+        titleFontSize = savedTitle;
+        const titleEl = paperEl.querySelector('h3.doctitle');
+        if(titleEl) titleEl.style.fontSize = savedTitle + 'pt';
+      }
+    })();
+  })();
+
+  // ---------- Médico solicitante: hand-rolled combobox, seeded with the
+  // clinic's referring-physician list. Any name typed that isn't already in
+  // the list gets saved (this browser only) and shows up as a suggestion from
+  // then on. This used to be a plain <datalist>, but iOS Safari doesn't show
+  // a <datalist> suggestion popup at all (and support is spotty on other
+  // mobile browsers too) — so the dropdown is built and positioned by hand
+  // here instead, which works the same on every browser/device. ----------
+  (function(){
+    const DEFAULT_MEDICOS = [
+      'Nenhum',
+      'Dra. Alice Maciel F. e Santos',
+      'Dra. Aline Torres Alves',
+      'Dra. Ana Rita de Paiva Toledo',
+      'Dr. Antônio José Lobo Ribeiro',
+      'Dr. Carlos Alberto F. Silva',
+      'Dra. Cíntia Aparecida S. Oliveira',
+      'Dra. Cristiane M. Gontijo Campos',
+      'Dra. Daniela Cristina M. Tameirão',
+      'Dr. Enilton Barbosa de Araújo',
+      'Dr. Flávio Pimenta Silveira',
+      'Dra. Galia Marichal Manso',
+      'Dr. Gilton de Menezes',
+      'Dra. Iasmine Corrêa Lanza',
+      'Dr. Jahir Richard de Oliveira',
+      'Dr. João Alberto de B. Ribeiro',
+      'Dr. Kleyton W. Pereira Tomaz',
+      'Dra. Lorenza Rafaela F. Magnago',
+      'Dra. Luciane Lopes F. Sader',
+      'Dra. Luciene Ferreira Calazans',
+      'Dra. Marcela Fernanda F. Cólen',
+      'Dra. Maria Soeli Lanza Meirelles',
+      'Dra. Mayana Lobo de Almeida',
+      'Dra. Patrícia J. Schwenck de Carvalho',
+      'Dra. Priscila R. Baleeiro Marcos',
+      'Dra. Rejane Márcia de Abreu',
+      'Dr. Robson Gonçalves',
+      'Dr. Rogério Vicente de L. Ferreira',
+      'Dr. Samir de P. Abdo Zacarias',
+      'Dr. Samuel Conrado de O. Mourão',
+      'Dra. Samyle O. Vasconcelos Marino',
+      'Dra. Tatiane Ventura Gonçalves',
+      'Dr. Wagner Pinheiro P. Villafort'
+    ];
+    const input = $('medicoSolicitante');
+    const listEl = $('medicosComboList');
+    let customMedicos = [];
+    let currentMatches = [];
+    let activeIndex = -1;
+
+    // Moved to <body> (not left nested in .card, which has overflow:hidden
+    // and would otherwise clip the dropdown) and positioned with fixed
+    // coordinates matched to the input's on-screen position.
+    document.body.appendChild(listEl);
+
+    function allMedicos(){ return DEFAULT_MEDICOS.concat(customMedicos); }
+
+    function positionList(){
+      const r = input.getBoundingClientRect();
+      listEl.style.left = r.left + 'px';
+      listEl.style.top = (r.bottom + 4) + 'px';
+      listEl.style.width = r.width + 'px';
+    }
+
+    function highlight(idx){
+      activeIndex = idx;
+      Array.from(listEl.children).forEach((el, i)=> el.classList.toggle('active', i===activeIndex));
+    }
+
+    function renderList(){
+      const q = input.value.trim().toLowerCase();
+      currentMatches = q ? allMedicos().filter(n=> n.toLowerCase().includes(q)) : allMedicos();
+      activeIndex = -1;
+      listEl.innerHTML = currentMatches.length
+        ? currentMatches.map((n, i)=> '<div class="combo-option" data-idx="'+i+'">'+escapeHtml(n)+'</div>').join('')
+        : '<div class="combo-empty">Nenhum nome encontrado — o que você digitar será salvo.</div>';
+    }
+
+    function showList(){
+      renderList();
+      positionList();
+      listEl.classList.add('show');
+    }
+    function hideList(){ listEl.classList.remove('show'); }
+    function repositionIfVisible(){ if(listEl.classList.contains('show')) positionList(); }
+
+    function selectValue(val){
+      input.value = val;
+      // Dispatched before hideList(): 'input' bubbles back into this same
+      // combobox's own listener (which shows the list), so hiding has to be
+      // the last thing that happens or that listener re-opens it right away.
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+      input.dispatchEvent(new Event('change', {bubbles:true}));
+      hideList();
+    }
+
+    input.addEventListener('focus', showList);
+    input.addEventListener('input', showList);
+    input.addEventListener('blur', ()=>{
+      // Delayed so a tap/click on an option (handled below) still lands —
+      // mousedown on the option already keeps focus on the input by
+      // preventing its default, but this is a safety net for touch devices
+      // where the keyboard closing can blur the field a beat earlier.
+      setTimeout(hideList, 150);
+    });
+    input.addEventListener('keydown', e=>{
+      if(!listEl.classList.contains('show') || !currentMatches.length) return;
+      if(e.key === 'ArrowDown'){ e.preventDefault(); highlight(Math.min(activeIndex+1, currentMatches.length-1)); }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); highlight(Math.max(activeIndex-1, 0)); }
+      else if(e.key === 'Enter'){ if(activeIndex>=0){ e.preventDefault(); selectValue(currentMatches[activeIndex]); } }
+      else if(e.key === 'Escape'){ hideList(); }
+    });
+    // Touch/click synthesis fires mousedown before click on mobile too;
+    // preventing its default keeps focus (and the list) from disappearing
+    // before the click handler below gets to read what was tapped.
+    listEl.addEventListener('mousedown', e=> e.preventDefault());
+    listEl.addEventListener('click', e=>{
+      const opt = e.target.closest('.combo-option');
+      if(!opt) return;
+      selectValue(currentMatches[Number(opt.dataset.idx)]);
+    });
+    window.addEventListener('resize', repositionIfVisible);
+    window.addEventListener('scroll', repositionIfVisible, true);
+
+    kvStore.get('custom-medicos').then(saved=>{
+      if(!saved) return;
+      try{ customMedicos = JSON.parse(saved); }catch(e){ customMedicos = []; }
+    });
+
+    input.addEventListener('change', ()=>{
+      const val = input.value.trim();
+      if(!val) return;
+      const exists = allMedicos().some(n=> n.toLowerCase()===val.toLowerCase());
+      if(!exists){
+        customMedicos.push(val);
+        kvStore.set('custom-medicos', JSON.stringify(customMedicos));
+      }
+    });
+  })();
+
+  wireDecimalInputs();
+
+  // ---------- Frases personalizáveis (a médica edita sem mexer em código) ----------
+  const PHRASE_DEFAULTS = {
+    coloNormal: 'O colo uterino apresenta aspecto ecográfico normal, medindo {COMPRIMENTO} cm, com endocérvix centrada e regular.',
+    coloHipertrofico: 'O colo uterino apresenta aspecto ecográfico hipertrófico, medindo {COMPRIMENTO} cm, com endocérvix centrada e regular.',
+    miometrioHomogeneo: 'A textura miometrial é sólida e homogênea.',
+    miometrioHeterogeneo: 'A textura miometrial é sólida e heterogênea.',
+    miometrioAdenomiose: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque", sem identificação de nódulos sólidos.',
+    miometrioAdenomioseComMioma: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque".',
+    miomaIntro1: 'Observa-se imagem nodular sólida, hipoecóica e heterogênea, localizada na {F1}.',
+    miomaIntro2: 'Observam-se duas imagens nodulares sólidas, hipoecóicas e heterogêneas, uma localizada na {F1} e outra na {F2}.',
+    miomaIntroVarios: 'Observam-se algumas imagens nodulares sólidas, hipoecogênicas e heterogêneas, de localização e dimensões como descrito abaixo:',
+    figoF0: 'submucosa, inteiramente na cavidade uterina, em região {POSICAO} (FIGO 0), medindo {MEDIDA} mm',
+    figoF1: 'parede {PAREDE}, submucosa com menos de 50% do seu componente intramural (FIGO 1), medindo {MEDIDA} mm',
+    figoF2: 'parede {PAREDE}, submucosa com mais de 50% do seu componente intramural (FIGO 2), medindo {MEDIDA} mm',
+    figoF3: 'parede {PAREDE}, intramural, adjacente à cavidade endometrial, sem condicionar abaulamento da mesma (FIGO 3), medindo {MEDIDA} mm',
+    figoF4: 'parede {PAREDE}, totalmente intramural (FIGO 4), medindo {MEDIDA} mm',
+    figoF5: 'parede {PAREDE}, subserosa com mais de 50% do seu componente intramural (FIGO 5), medindo {MEDIDA} mm',
+    figoF6: 'parede {PAREDE}, subserosa com menos de 50% do seu componente intramural (FIGO 6), medindo {MEDIDA} mm',
+    figoF7: 'parede {PAREDE}, totalmente subserosa (FIGO 7), medindo {MEDIDA} mm',
+    figoF8: 'região cervical{DETALHE} (FIGO 8), medindo {MEDIDA} mm',
+    figoF25: 'parede {PAREDE}, transmural (FIGO 2-5), medindo {MEDIDA} mm',
+    ovarioNaoIdentificado: 'Ovário {LADO} não identificado. Não identificadas massas císticas ou tumorais em sua topografia.',
+    diverticulosSemInflamacao: 'Presença de divertículos de sigmoide, sem sinais inflamatórios.',
+    diverticulosComInflamacao: 'Presença de divertículos de sigmoide, com sinais inflamatórios: {DESCRICAO}.',
+    cistoceleAusente: 'À manobra de Valsalva, não se observa descenso significativo da parede vesical anterior, permanecendo acima da borda inferior do púbis.',
+    cistoceleI: 'À manobra de Valsalva, observa-se descenso da parede vesical anterior compatível com cistocele grau I (leve), alcançando a borda inferior do púbis.',
+    cistoceleII: 'À manobra de Valsalva, observa-se descenso da parede vesical anterior compatível com cistocele grau II (moderada), alcançando o intróito vaginal.',
+    cistoceleIII: 'À manobra de Valsalva, observa-se descenso da parede vesical anterior compatível com cistocele grau III (acentuada), ultrapassando o intróito vaginal.',
+    cistoceleIV: 'À manobra de Valsalva, observa-se exteriorização completa da parede vesical anterior através do intróito vaginal, compatível com cistocele grau IV (total).',
+    uteroAusente: 'À manobra de Valsalva, não se observa descenso uterino significativo, permanecendo acima da borda inferior do púbis.',
+    uteroI: 'À manobra de Valsalva, observa-se descenso uterino compatível com prolapso uterino grau I (leve), alcançando a borda inferior do púbis.',
+    uteroII: 'À manobra de Valsalva, observa-se descenso uterino compatível com prolapso uterino grau II (moderado), alcançando o intróito vaginal.',
+    uteroIII: 'À manobra de Valsalva, observa-se descenso uterino compatível com prolapso uterino grau III (acentuado), ultrapassando o intróito vaginal.',
+    uteroIV: 'À manobra de Valsalva, observa-se exteriorização completa do útero através do intróito vaginal, compatível com prolapso uterino grau IV (total).',
+    canalAnalNormal: 'O canal anal apresenta morfologia preservada, com junção anorretal e ampola retal sem alterações ecográficas. À manobra de Valsalva, não se observa protrusão da parede retal anterior.',
+    retocele: 'À manobra de Valsalva observa-se protrusão da parede retal anterior compatível com retocele grau {GRAU}.',
+    puborretalPreservada: 'A musculatura puborretal apresenta aspecto preservado.',
+    lesaoPuborretal: 'Observa-se descontinuidade da musculatura puborretal à {LADO}, medindo aproximadamente {MEDIDA} cm, compatível com lesão muscular.',
+    enterocele: 'Observa-se enterocele grau {GRAU}, atingindo o intróito vaginal durante o esforço.',
+    cascaCebolaPresente: 'Presença de imagem em "casca de cebola", compatível com intussuscepção retal.',
+    cascaCebolaAusente: 'Ausência de imagem em "casca de cebola", compatível com intussuscepção retal.',
+    esfIntPreservado: 'O esfíncter anal interno apresenta integridade preservada.',
+    esfIntDefeito: 'Observa-se defeito do esfíncter anal interno localizado às {HORAS} horas, comprometendo aproximadamente {PCT}% da circunferência, medindo {MEDIDA} mm.',
+    esfExtPreservado: 'O esfíncter anal externo apresenta integridade preservada.',
+    esfExtDefeito: 'Observa-se defeito do esfíncter anal externo localizado às {HORAS} horas, comprometendo aproximadamente {PCT}% da circunferência, medindo {MEDIDA} mm.',
+    slingBem: 'Sling bem posicionado.',
+
+    istmocele: 'Presença de istmocele, medindo {MEDIDA} mm. Relação entre o miométrio residual e o adjacente: {PCT}% (VR < 50%).',
+    polipoEndocervical: 'Em canal endocervical, nota-se imagem elipsoide sólida, ecogênica, com pedículo vascular identificado ao mapeamento colorido, medindo {MEDIDA} mm.',
+    polipoEndometrial: 'No interior da cavidade uterina, em região {LOCAL}, observa-se imagem elipsoide sólida, ecogênica e heterogênea, de limites pouco precisos, sem sombra acústica posterior, com pedículo vascular identificado ao mapeamento colorido no folheto endometrial {PEDICULO}, medindo {MEDIDA} mm.',
+    hidrossalpingeLi: 'Nota-se imagem tubular anecoica, sem captação de fluxo ao Doppler, localizada em região anexial {LADO}, medindo {MEDIDA} cm.',
+    endometrioseNodulo: 'Observa-se imagem nodular irregular, hipoecoica, localizada na muscular da mucosa do {LOCAL}, medindo {MEDIDA} mm, em região {REGIAO}.',
+
+    impTudoNormal: 'Bexiga urinária, útero e anexos normais à ecografia.',
+    impUteroOvariosNormais: 'Útero e ovários normais à ecografia.',
+    impSemIUGenuina: 'Não há sinais ecográficos de incontinência urinária genuína.',
+    impSemProlapso: 'Não há sinais ecográficos de prolapso genital.',
+    impEsfincterIntegro: 'Esfíncter anal íntegro.',
+    impMiomatose: 'Miomatose uterina.',
+    impAdenomiose: 'Alteração difusa da ecotextura miometrial sugestiva de adenomiose.',
+    impSemInversao: 'Ausência de inversão uterina.',
+    impDiverticulose: 'Diverticulose de sigmoide.',
+    impNormal: 'Não há sinais ecográficos de prolapso genital e/ou lesões perineais.',
+    impHipermob: 'Hipermobilidade do colo vesical.',
+    impEspessamento: 'Espessamento discreto das paredes da bexiga urinária (hipertrofia do detrusor?), podendo corresponder a componente de incontinência urinária mista (esforço e urgência).',
+    impCistoceleIsolada: 'Cistocele isolada grau {GRAU}, sem sinais ecográficos de incontinência urinária genuína.',
+    impUretrocistocele: 'Cistouretrocele grau {GRAU}, associada a hipermobilidade do colo vesical, indicativa de incontinência urinária de esforço (genuína).',
+    impIUMista: 'Sinais ecográficos de incontinência urinária mista: espessamento de detrusor + hipermobilidade do colo vesical.',
+    impIUMistaUretrocisto: 'Sinais ecográficos de incontinência urinária mista (espessamento do detrusor + hipermobilidade do colo vesical), associados a uretrocistocele grau {GRAU}.',
+    impProlapsoUterino: 'Prolapso uterino grau {GRAU}{POPQ}.',
+    impLesaoPuborretal: 'Presença de lesão da musculatura puborretal em grau {GRAU} à {LADO}.',
+    impEsfIntDefeito: 'Presença de lesão do esfíncter interno do ânus em grau {GRAU} ({PCT}% da circunferência){SIGNIF}.',
+    impEsfExtDefeito: 'Presença de lesão do esfíncter externo do ânus em grau {GRAU} ({PCT}% da circunferência){SIGNIF}.',
+    impIstmocele: 'Istmocele associada a importante afilamento do miométrio - Recomenda-se avaliação especializada quando houver desejo reprodutivo.',
+    impPolipoEndocervical: 'Imagem sugestiva de pólipo endocervical.',
+    impPolipoEndometrial: 'Nódulo ecogênico intracavitário sugestivo de pólipo.',
+    impHidrossalpinge: 'Hidrossalpinge à {LADO}.',
+    impEndometrioseNodulo: 'Nódulo em região {REGIAO} sugestivo de implante endometriótico.'
+  };
+  let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
+
+  // O storage guarda só as frases que ela de fato reescreveu (ver
+  // frasesPodar() no laudo-core.js): frase não personalizada continua saindo
+  // do PHRASE_DEFAULTS deste arquivo e recebe os consertos feitos aqui.
+  const PHRASES_KEY = 'perineal-phrase-templates';
+  async function loadPhrases(){
+    const r = await frasesCarregarPorExecutante(PHRASES_KEY, PHRASE_DEFAULTS);
+    PHRASES = r.phrases;
+    applyPhrasesToInputs();
+  }
+  function applyPhrasesToInputs(){
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      if(el) el.value = PHRASES[key];
+    });
+    frasesMarcarCustomizadas(PHRASE_DEFAULTS, PHRASES, ()=> salvarFrasesDaTela());
+  }
+  // Caminho único de gravação das frases: "Salvar frases", "Restaurar padrão"
+  // e o "voltar ao padrão" de cada frase passam por aqui.
+  async function salvarFrasesDaTela(){
+    const valores = {};
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      valores[key] = el ? el.value : PHRASE_DEFAULTS[key];
+    });
+    const r = await frasesSalvarPorExecutante(PHRASES_KEY, PHRASE_DEFAULTS, valores);
+    PHRASES = r.phrases;
+    applyPhrasesToInputs();
+    render();
+  }
+  function phrase(key, repl){
+    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    t = aplicarPlaceholders(t, repl);
+    return escapeHtml(t).replace(/\n/g, '<br>');
+  }
+  function phraseRaw(key, repl){
+    // Mesma substituição de phrase(), mas devolve texto puro — usado nos rótulos
+    // da impressão diagnóstica, que são escapados depois.
+    let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
+    t = aplicarPlaceholders(t, repl);
+    return t;
+  }
+  $('btnPhrases').addEventListener('click', ()=>{
+    $('phrasesPanel').classList.toggle('show');
+  });
+  $('btnSavePhrases').addEventListener('click', async ()=>{
+    await salvarFrasesDaTela();
+    const m = $('phrasesSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
+  });
+  $('btnResetPhrases').addEventListener('click', async ()=>{
+    if(!confirm('Restaurar todas as frases para o texto padrão original?')) return;
+    Object.keys(PHRASE_DEFAULTS).forEach(key=>{
+      const el = $('ph_'+key);
+      if(el) el.value = PHRASE_DEFAULTS[key];
+    });
+    await salvarFrasesDaTela();
+  });
+
+  // ---------- Valores de referência ----------
+  let VR = {
+    medicoNome:'Dra. Morgana Fialho Caldas Kummer',
+    medicoQual1:'Especialista em Ultrassonografia Geral pelo CBR.',
+    medicoQual2:'Pós-Graduação em Medicina Fetal pela FCMMG.',
+    medicoCRM:'CRMMG: 45.304 - RQE: 39.156',
+    afunilamento:5, espessura:5, mobilidade:10, gap:25,
+    slingUretraMin:3, slingUretraMax:5, slingPubis:15,
+    hiatoLeve:25, hiatoModerado:30, hiatoAcentuado:35, hiatoSevero:40,
+    anguloMin:90, anguloMax:120,
+    uteroTexto1:'VR < 90 cm³', uteroMax1:90,
+    uteroTexto2:'VR até 140 cm³', uteroMax2:140,
+    uteroTexto3:'VR até 180 cm³', uteroMax3:180,
+    ovarioTexto1:'VR: 3,0 a 9,0 cm³', ovarioMin1:3, ovarioMax1:9,
+    ovarioTexto2:'VR: até 5,0 cm³', ovarioMax2:5,
+    esfIntSignif:30, esfExtSignif:50
+  };
+
+  async function loadVR(){
+    try{
+      const val = await kvStore.get('perineal-vr-settings');
+      if(val){
+        const parsed = JSON.parse(val);
+        VR = Object.assign(VR, parsed);
+      }
+    }catch(e){ /* sem configuração salva ainda — usa o padrão */ }
+    applyVRToInputs();
+    updateVRLabels();
+  }
+  const VR_CAMPOS = ['anguloMin','anguloMax','afunilamento','espessura','mobilidade','gap','slingUretraMin','slingUretraMax',
+    'slingPubis','hiatoLeve','hiatoModerado','hiatoAcentuado','hiatoSevero','uteroTexto1','uteroMax1','uteroTexto2',
+    'uteroMax2','uteroTexto3','uteroMax3','ovarioTexto1','ovarioMin1','ovarioMax1','ovarioTexto2','ovarioMax2',
+    'esfIntSignif','esfExtSignif'];
+  function applyVRToInputs(){
+    $('vr_medicoNome').value = VR.medicoNome;
+    $('vr_medicoQual1').value = VR.medicoQual1;
+    $('vr_medicoQual2').value = VR.medicoQual2;
+    $('vr_medicoCRM').value = VR.medicoCRM;
+    VR_CAMPOS.forEach(k=>{ $('vr_'+k).value = VR[k]; });
+    updateDropdownTexts();
+  }
+  function updateDropdownTexts(){
+    const uteroSel = $('vrUteroTipo');
+    if(uteroSel){
+      uteroSel.options[0].textContent = VR.uteroTexto1;
+      uteroSel.options[1].textContent = VR.uteroTexto2;
+      uteroSel.options[2].textContent = VR.uteroTexto3;
+    }
+    const ovarioSel = $('vrOvarioTipo');
+    if(ovarioSel){
+      ovarioSel.options[0].textContent = VR.ovarioTexto1;
+      ovarioSel.options[1].textContent = VR.ovarioTexto2;
+    }
+  }
+  function updateVRLabels(){
+    const set = (cls, val)=> document.querySelectorAll('.'+cls).forEach(e=>e.textContent=val);
+    set('vr-anguloMin', VR.anguloMin); set('vr-anguloMax', VR.anguloMax);
+    set('vr-afunilamento', VR.afunilamento); set('vr-espessura', VR.espessura);
+    set('vr-mobilidade', VR.mobilidade); set('vr-gap', VR.gap);
+    set('vr-slingMin', VR.slingUretraMin); set('vr-slingMax', VR.slingUretraMax);
+    set('vr-slingPubisRef', VR.slingPubis);
+  }
+
+  $('btnSettings').addEventListener('click', ()=>{
+    $('settingsPanel').classList.toggle('show');
+  });
+  function pf(id, fallback){
+    const x = parseFloat(($(id).value||'').replace(',', '.'));
+    return isNaN(x) ? fallback : x;
+  }
+  const VR_PADRAO = {
+    anguloMin:90, anguloMax:120, afunilamento:5, espessura:5, mobilidade:10, gap:25,
+    slingUretraMin:3, slingUretraMax:5, slingPubis:15, hiatoLeve:25, hiatoModerado:30, hiatoAcentuado:35, hiatoSevero:40,
+    uteroTexto1:'VR < 90 cm³', uteroMax1:90, uteroTexto2:'VR até 140 cm³', uteroMax2:140, uteroTexto3:'VR até 180 cm³', uteroMax3:180,
+    ovarioTexto1:'VR: 3,0 a 9,0 cm³', ovarioMin1:3, ovarioMax1:9, ovarioTexto2:'VR: até 5,0 cm³', ovarioMax2:5,
+    esfIntSignif:30, esfExtSignif:50
+  };
+  $('btnSaveVR').addEventListener('click', async ()=>{
+    const novo = {
+      // Qualificações/CRM podem ficar em branco de propósito (médico sem 2ª
+      // qualificação); só o nome tem proteção — assinatura sem nome é pior que
+      // manter o nome antigo.
+      medicoNome: $('vr_medicoNome').value || VR.medicoNome,
+      medicoQual1: $('vr_medicoQual1').value,
+      medicoQual2: $('vr_medicoQual2').value,
+      medicoCRM: $('vr_medicoCRM').value
+    };
+    VR_CAMPOS.forEach(k=>{
+      const padrao = VR_PADRAO[k];
+      novo[k] = typeof padrao === 'string' ? ($('vr_'+k).value || padrao) : pf('vr_'+k, padrao);
+    });
+    VR = novo;
+    try{
+      await kvStore.set('perineal-vr-settings', JSON.stringify(VR));
+      const m = $('vrSavedMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none', 2200);
+    }catch(e){ /* storage indisponível — os valores valem para esta sessão */ }
+    updateVRLabels();
+    updateDropdownTexts();
+    render();
+  });
+
+  $('medicoExecutante').addEventListener('change', async e=>{
+    await kvStore.set('medico-executante-selecionado', e.target.value);
+    if(e.target.value === 'outro'){
+      $('settingsPanel').classList.add('show');
+    } else {
+      applyExecutante(e.target.value);
+    }
+    // Cada médico cadastrado tem as próprias frases personalizadas (ver
+    // frasesCarregarPorExecutante() no laudo-core.js).
+    await loadPhrases();
+    render();
+  });
+  async function loadExecutanteSelecionado(){
+    const saved = await kvStore.get('medico-executante-selecionado');
+    const sel = $('medicoExecutante');
+    sel.value = (saved && (saved==='outro' || EXECUTANTES[saved])) ? saved : 'morgana';
+    if(sel.value !== 'outro') applyExecutante(sel.value);
+  }
+
+  // ---------- Visibilidade condicional dos campos ----------
+  $('bexigaAspecto').addEventListener('change', e=> toggle('wrap_bexigaDescricao', e.target.value==='alterado'));
+  $('ovD_aspecto').addEventListener('change', e=> toggle('wrap_ovD_descricao', e.target.value==='alterado'));
+  $('ovE_aspecto').addEventListener('change', e=> toggle('wrap_ovE_descricao', e.target.value==='alterado'));
+  $('chkEndometriose').addEventListener('change', e=> toggle('wrap_endometrioseDescricao', e.target.checked));
+  $('chkEndometrioseNodulo').addEventListener('change', e=> toggle('wrap_endometrioseNoduloCampos', e.target.checked));
+  $('chkAdenomiose').addEventListener('change', e=> toggle('wrap_adenomioseSimetria', e.target.checked));
+  $('chkIstmocele').addEventListener('change', e=> toggle('wrap_istmoceleCampos', e.target.checked));
+  $('chkPolipoEndocervical').addEventListener('change', e=> toggle('wrap_polipoEndocervicalCampos', e.target.checked));
+  $('chkPolipoEndometrial').addEventListener('change', e=> toggle('wrap_polipoEndometrialCampos', e.target.checked));
+  $('chkHidrossalpinge').addEventListener('change', e=> toggle('wrap_hidrossalpingeCampos', e.target.checked));
+  $('miometrioTextura').addEventListener('change', e=>{
+    toggle('wrap_miomaDetalhes', e.target.value==='heterogenea');
+    if(e.target.value==='heterogenea' && $('miomaNodulosContainer').children.length===0){
+      addMiomaNodule();
+    }
+  });
+
+
+  // ---------- Myoma nodules: dynamic list instead of a fixed 1/2/3/4-slot cap ----------
+  // Each nodule keeps a stable uid once created (never reused after removal), so
+  // deleting one mid-list never disturbs the others' field ids/listeners. Display
+  // numbering (N1, N2, ...) is purely positional and recomputed on every add/remove.
+  // "Número de nódulos" is a quick-set shortcut for the common 1–4 cases — it adds
+  // or removes nodules to match, same as clicking "+ Adicionar nódulo"/"Remover
+  // nódulo" that many times. "4 ou mais" only sets a floor; the "+" button (and its
+  // own "Remover nódulo") stays available beyond it for the actual "mais de 4" case.
+  let miomaNextUid = 1;
+  function miomaSubgroupHTML(uid){
+    const figoOptions = '<option value="F0">FIGO 0 — submucoso, inteiramente intracavitário</option><option value="F1">FIGO 1 — submucoso, &lt;50% intramural</option><option value="F2">FIGO 2 — submucoso, ≥50% intramural</option><option value="F3">FIGO 3 — intramural adjacente à cavidade (sem abaulamento)</option><option value="F4" selected>FIGO 4 — totalmente intramural</option><option value="F5">FIGO 5 — subseroso, ≥50% intramural</option><option value="F6">FIGO 6 — subseroso, &lt;50% intramural</option><option value="F7">FIGO 7 — totalmente subseroso</option><option value="F25">FIGO 2-5 — transmural</option><option value="F8">FIGO 8 — cervical</option>';
+    return ''
+      +'<div class="subgroup" id="wrap_mioma'+uid+'">'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Nódulo <span class="mioma-index"></span> — classificação FIGO</label><select id="mioma'+uid+'Figo">'+figoOptions+'</select></div>'
+      +'<div class="field conditional" id="wrap_mioma'+uid+'Parede"><label>Parede</label>'
+      +'<select id="mioma'+uid+'Parede"><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="fúndica">Fúndica</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option></select></div>'
+      +'<div class="field conditional" id="wrap_mioma'+uid+'Posicao"><label>Posição</label>'
+      +'<select id="mioma'+uid+'Posicao"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option></select></div>'
+      +'<div class="field conditional" id="wrap_mioma'+uid+'Cervical"><label>Detalhe cervical (opcional)</label><input type="text" id="mioma'+uid+'CervicalDetalhe" placeholder="ex: anterior"></div>'
+      +'<div class="field"><label>Medida</label><input type="text" id="mioma'+uid+'Medida" placeholder="mm"></div>'
+      +'</div>'
+      +'<button type="button" class="mioma-remove" data-uid="'+uid+'">Remover nódulo</button>'
+      +'</div>';
+  }
+  function updateMiomaFigoWraps(uid){
+    const val = $('mioma'+uid+'Figo').value;
+    toggle('wrap_mioma'+uid+'Parede', val!=='F0' && val!=='F8');
+    toggle('wrap_mioma'+uid+'Posicao', val==='F0');
+    toggle('wrap_mioma'+uid+'Cervical', val==='F8');
+  }
+  function renumberMiomaNodules(){
+    const container = $('miomaNodulosContainer');
+    const nodules = Array.from(container.children);
+    nodules.forEach((el, idx)=>{
+      const label = el.querySelector('.mioma-index');
+      if(label) label.textContent = idx+1;
+      const removeBtn = el.querySelector('.mioma-remove');
+      if(removeBtn) removeBtn.style.display = nodules.length>1 ? 'inline' : 'none';
+    });
+    syncMiomaCountSelect();
+  }
+  function wireMiomaNodule(uid){
+    const el = $('wrap_mioma'+uid);
+    el.querySelectorAll('input, select').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    $('mioma'+uid+'Figo').addEventListener('change', ()=> updateMiomaFigoWraps(uid));
+    updateMiomaFigoWraps(uid);
+    el.querySelector('.mioma-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberMiomaNodules();
+      render();
+    });
+  }
+  function addMiomaNodule(){
+    const uid = miomaNextUid++;
+    $('miomaNodulosContainer').insertAdjacentHTML('beforeend', miomaSubgroupHTML(uid));
+    wireMiomaNodule(uid);
+    renumberMiomaNodules();
+    render();
+  }
+  $('btnAddMioma').addEventListener('click', addMiomaNodule);
+  function miomaNoduleUids(){
+    return Array.from($('miomaNodulosContainer').children).map(el=> el.id.replace('wrap_mioma',''));
+  }
+  function syncMiomaCountSelect(){
+    const n = $('miomaNodulosContainer').children.length;
+    $('miomaCount').value = String(Math.min(Math.max(n, 1), 4));
+  }
+  function setMiomaCount(n){
+    const container = $('miomaNodulosContainer');
+    while(container.children.length < n){ addMiomaNodule(); }
+    while(container.children.length > n){ container.lastElementChild.remove(); }
+    renumberMiomaNodules();
+    render();
+  }
+  $('miomaCount').addEventListener('change', e=> setMiomaCount(parseInt(e.target.value, 10)));
+  $('chkDiverticulos').addEventListener('change', e=>{
+    toggle('wrap_diverticulosStatus', e.target.checked);
+    toggle('wrap_diverticulosDescricao', e.target.checked && $('diverticulosStatus').value==='com');
+  });
+  $('diverticulosStatus').addEventListener('change', e=> toggle('wrap_diverticulosDescricao', $('chkDiverticulos').checked && e.target.value==='com'));
+  $('descensoUterino').addEventListener('change', e=>{
+    toggle('wrap_inversaoUterina', e.target.value==='4');
+    if(e.target.value!=='4') $('chkInversaoAusente').checked=false;
+  });
+
+
+  // descensoUterino now directly encodes the clinical position criterion — no separate conditional fields needed
+  $('chkRetocele').addEventListener('change', e=> toggle('wrap_retoceleGrau', e.target.checked));
+  $('chkLesao').addEventListener('change', e=> toggle('wrap_lesaoCampos', e.target.checked));
+  $('chkEnterocele').addEventListener('change', e=> toggle('wrap_enteroceleGrau', e.target.checked));
+  $('esfIntStatus').addEventListener('change', e=>{
+    const d = e.target.value==='defeito';
+    toggle('wrap_esfIntGrau', d); toggle('wrap_esfIntHoras', d); toggle('wrap_esfIntPct', d); toggle('wrap_esfIntExtensao', d);
+  });
+  $('esfExtStatus').addEventListener('change', e=>{
+    const d = e.target.value==='defeito';
+    toggle('wrap_esfExtGrau', d); toggle('wrap_esfExtHoras', d); toggle('wrap_esfExtPct', d); toggle('wrap_esfExtExtensao', d);
+  });
+  $('slingPresente').addEventListener('change', e=>{
+    toggle('wrap_slingFields', e.target.checked);
+  });
+  $('slingPosicao').addEventListener('change', e=>{
+    toggle('wrap_slingOutro', e.target.value==='outro');
+  });
+
+  // ---------- Auxiliares ----------
+  function flag(id, isAbnormal){
+    const el = $(id), note = $('flag_'+id);
+    if(!el) return;
+    el.classList.toggle('flag-abnormal', !!isAbnormal);
+    if(note) note.classList.toggle('show', !!isAbnormal);
+  }
+
+  function classifyHiato(area){
+    if(area===null) return {label:'—', abnormal:false};
+    if(area >= VR.hiatoSevero) return {label:'severo', abnormal:true};
+    if(area >= VR.hiatoAcentuado) return {label:'acentuado', abnormal:true};
+    if(area >= VR.hiatoModerado) return {label:'moderado', abnormal:true};
+    if(area >= VR.hiatoLeve) return {label:'leve', abnormal:true};
+    return {label:'normal', abnormal:false};
+  }
+
+  // ---------- Build impression checklist ----------
+  function buildImpressao(state){
+    const items = [];
+
+    if(state.bexigaAspecto==='alterado' && state.bexigaDescricao){
+      items.push({key:'bexiga-alterada', label:'Alteração vesical: '+state.bexigaDescricao+'.', auto:true});
+    }
+    if(state.ovD_aspecto==='alterado' && state.ovD_descricao){
+      items.push({key:'ovD-alterado', label:'Ovário direito: '+state.ovD_descricao+'.', auto:true});
+    }
+    if(state.ovE_aspecto==='alterado' && state.ovE_descricao){
+      items.push({key:'ovE-alterado', label:'Ovário esquerdo: '+state.ovE_descricao+'.', auto:true});
+    }
+    if(state.chkEndometriose && state.endometrioseDescricao){
+      items.push({key:'endometriose', label:'Sinais sugestivos de endometriose profunda: '+state.endometrioseDescricao+'.', auto:true});
+    }
+    if(state.chkEndometrioseNodulo){
+      items.push({key:'endometriose-nodulo', label:phraseRaw('impEndometrioseNodulo', {REGIAO:state.endometrioseRegiao}), auto:true});
+    }
+    if(state.chkIstmocele){
+      items.push({key:'istmocele', label:phraseRaw('impIstmocele'), auto:true});
+    }
+    if(state.chkPolipoEndocervical){
+      items.push({key:'polipo-endocervical', label:phraseRaw('impPolipoEndocervical'), auto:true});
+    }
+    if(state.chkPolipoEndometrial){
+      items.push({key:'polipo-endometrial', label:phraseRaw('impPolipoEndometrial'), auto:true});
+    }
+    if(state.chkHidrossalpinge){
+      items.push({key:'hidrossalpinge', label:phraseRaw('impHidrossalpinge', {LADO:state.hidrossalpingeLado}), auto:true});
+    }
+
+    const hipermobilidade = (state.mobilidadeColo!==null && state.mobilidadeColo > VR.mobilidade) || state.posicaoColo==='extra';
+    const espessamento = state.espessuraParede!==null && state.espessuraParede > VR.espessura;
+    const temCistocele = state.descensoParede !== 'ausente';
+    const grauMapArabic = {'1':'I','2':'II','3':'III','4':'IV'};
+    const cistoceleGrauRomano = temCistocele ? grauMapArabic[state.descensoParede] : null;
+
+    // Combined anterior-compartment terms
+    if(espessamento && hipermobilidade && temCistocele){
+      items.push({key:'iu-mista-uretrocisto', label:phraseRaw('impIUMistaUretrocisto', {GRAU: cistoceleGrauRomano}), auto:true});
+    } else if(espessamento && hipermobilidade){
+      items.push({key:'iu-mista', label:phraseRaw('impIUMista'), auto:true});
+    } else if(hipermobilidade && temCistocele){
+      items.push({key:'uretrocistocele', label:phraseRaw('impUretrocistocele', {GRAU: cistoceleGrauRomano}), auto:true});
+    } else {
+      if(hipermobilidade) items.push({key:'hipermob', label:phraseRaw('impHipermob'), auto:true});
+      if(espessamento) items.push({key:'espessam', label:phraseRaw('impEspessamento'), auto:true});
+      if(temCistocele) items.push({key:'cistocele', label:phraseRaw('impCistoceleIsolada', {GRAU: cistoceleGrauRomano}), auto:true});
+    }
+
+    if(state.descensoUterino !== 'ausente'){
+      const graduMap = {'1':'I (leve)', '2':'II (moderado)', '3':'III (acentuado)', '4':'IV (total)'};
+      const popqNote = (state.descensoUterino==='3' || state.descensoUterino==='4') ? ' (compatível com POP-Q Estágio III/IV)' : '';
+      items.push({key:'prolapso', label:phraseRaw('impProlapsoUterino', {GRAU: graduMap[state.descensoUterino], POPQ: popqNote}), auto:true});
+    }
+
+    if(state.chkRetocele){
+      items.push({key:'retocele', label:'Retocele grau '+state.retoceleGrau+'.', auto:true});
+    } else {
+      items.push({key:'retocele-ausente', label:'Retocele ausente.', auto:true});
+    }
+    if(state.chkLesao){
+      const grauLabel = {leve:'leve', moderado:'moderado', severo:'severo'}[state.lesaoGrau] || 'leve';
+      items.push({key:'lesao-puborretal', label:phraseRaw('impLesaoPuborretal', {GRAU: grauLabel, LADO: state.lesaoLado}), auto:true});
+    }
+    if(state.chkEnterocele){
+      items.push({key:'enterocele', label:'Enterocele grau '+state.enteroceleGrau+'.', auto:true});
+    } else {
+      items.push({key:'enterocele-ausente', label:'Enterocele ausente.', auto:true});
+    }
+
+    if(state.cascaCebola==='presente'){
+      items.push({key:'intussuscepcao', label:'Imagem em "casca de cebola", compatível com intussuscepção retal.', auto:true});
+    }
+
+    if(state.esfIntStatus==='defeito'){
+      const pctInt = parseFloat((state.esfIntPct||'0').toString().replace(',','.'));
+      const signifInt = (!isNaN(pctInt) && pctInt < VR.esfIntSignif) ? ' (clinicamente não significativa)' : '';
+      const grauInt = {leve:'leve', moderado:'moderado', severo:'severo'}[state.esfIntGrau] || 'leve';
+      items.push({key:'esf-int', label:phraseRaw('impEsfIntDefeito', {GRAU: grauInt, PCT: (state.esfIntPct||'__'), SIGNIF: signifInt}), auto:true});
+    }
+    if(state.esfExtStatus==='defeito'){
+      const pctExt = parseFloat((state.esfExtPct||'0').toString().replace(',','.'));
+      const signifExt = (!isNaN(pctExt) && pctExt < VR.esfExtSignif) ? ' (clinicamente não significativa)' : '';
+      const grauExt = {leve:'leve', moderado:'moderado', severo:'severo'}[state.esfExtGrau] || 'leve';
+      items.push({key:'esf-ext', label:phraseRaw('impEsfExtDefeito', {GRAU: grauExt, PCT: (state.esfExtPct||'__'), SIGNIF: signifExt}), auto:true});
+    }
+
+    if(state.slingPresente){
+      if(state.slingPosicao==='bem'){
+        items.push({key:'sling-ok', label:phraseRaw('slingBem'), auto:true});
+      } else {
+        items.push({key:'sling-outro', label:'Sling: '+(state.slingOutroTexto || 'posicionamento alterado')+'.', auto:true});
+      }
+    }
+
+    if(state.miometrioTextura==='heterogenea' && state.miomaTemDados){
+      items.push({key:'miomatose', label:phraseRaw('impMiomatose'), auto:true});
+    }
+    if(state.chkAdenomiose){
+      items.push({key:'adenomiose', label:phraseRaw('impAdenomiose'), auto:true});
+    }
+    if(state.chkDiverticulos){
+      items.push({key:'diverticulose', label:phraseRaw('impDiverticulose'), auto:true});
+    }
+    if(state.inversaoConfirmada){
+      items.push({key:'sem-inversao', label:phraseRaw('impSemInversao'), auto:true});
+    }
+
+    // "Bladder-abnormal" tracks any anterior-compartment finding (used to decide whether the
+    // uterus/ovary "normal" summary line and the compartment-wide "tudo normal" line apply).
+    const bladderAbnormal = hipermobilidade || espessamento || temCistocele || (state.bexigaAspecto==='alterado');
+    const uterusAbnormal = state.descensoUterino!=='ausente' || (state.miometrioTextura==='heterogenea' && state.miomaTemDados) || state.coloUterinoAspecto==='hipertrofico' || state.chkIstmocele || state.chkPolipoEndocervical || state.chkPolipoEndometrial || state.chkAdenomiose;
+    const ovariesAbnormal = state.ovD_aspecto==='alterado' || state.ovE_aspecto==='alterado' || state.chkHidrossalpinge;
+    const posteriorAbnormal = state.chkRetocele || state.chkLesao || state.chkEnterocele || state.chkDiverticulos || state.cascaCebola==='presente' || (state.chkEndometriose && state.endometrioseDescricao) || state.chkEndometrioseNodulo;
+    const esfincterAbnormal = state.esfIntStatus==='defeito' || state.esfExtStatus==='defeito';
+    // "Genital prolapse" means actual anatomic descent — cistocele, uterine descensus,
+    // retocele or enterocele — not puborretal lesions, diverticulosis, etc.
+    const prolapseAnywhere = temCistocele || state.descensoUterino!=='ausente' || state.chkRetocele || state.chkEnterocele;
+
+    if(!bladderAbnormal && !uterusAbnormal && !ovariesAbnormal && !posteriorAbnormal && !esfincterAbnormal){
+      items.unshift({key:'tudo-normal', label:phraseRaw('impTudoNormal'), auto:true});
+      items.push({key:'sem-iu', label:phraseRaw('impSemIUGenuina'), auto:true});
+      items.push({key:'sem-prolapso', label:phraseRaw('impSemProlapso'), auto:true});
+    } else {
+      if(!uterusAbnormal && !ovariesAbnormal){
+        items.push({key:'utero-ovarios-normais', label:phraseRaw('impUteroOvariosNormais'), auto:true});
+      }
+      if(!bladderAbnormal){
+        items.push({key:'sem-iu', label:phraseRaw('impSemIUGenuina'), auto:true});
+      }
+      if(!prolapseAnywhere){
+        items.push({key:'sem-prolapso', label:phraseRaw('impSemProlapso'), auto:true});
+      }
+    }
+    if(!esfincterAbnormal){
+      items.push({key:'esfincter-integro', label:phraseRaw('impEsfincterIntegro'), auto:true});
+    }
+
+    return items;
+  }
+
+  // ---------- Checklist da impressão diagnóstica ----------
+  let checkedState = {}; // lembra o marcar/desmarcar manual entre os renders
+
+  function renderChecklist(items){
+    const box = $('impressaoChecklist');
+    box.innerHTML = '';
+    items.forEach(it=>{
+      if(!(it.key in checkedState)) checkedState[it.key] = it.auto;
+      const row = document.createElement('label');
+      row.style.display='flex'; row.style.alignItems='flex-start'; row.style.gap='8px'; row.style.cursor='pointer';
+      row.innerHTML = '<input type="checkbox" style="margin-top:3px;accent-color:var(--rose-dark);" '+(checkedState[it.key]?'checked':'')+' data-key="'+it.key+'"> <span>'+escapeHtml(it.label)+'</span>';
+      row.querySelector('input').addEventListener('change', e=>{
+        checkedState[it.key] = e.target.checked;
+        render();
+      });
+      box.appendChild(row);
+    });
+  }
+
+  // Guarda as edições feitas direto num <li> da IMPRESSÃO para o render() repor
+  // (ver impressaoOverrides). Lê a posição do cursor, não o alvo do evento: o
+  // #paper é uma única área editável — cada <li> não é editável sozinho.
+  $('paper').addEventListener('input', ()=>{
+    const sel = window.getSelection();
+    if(!sel || !sel.anchorNode) return;
+    const node = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
+    const li = node && node.closest ? node.closest('ul.impressao li[data-key]') : null;
+    if(li){
+      // Enter no fim de uma linha parte o <li> em dois, e a metade nova herda o
+      // mesmo data-key: a segunda ocorrência vira uma linha manual própria,
+      // presa à original.
+      const ul = li.parentElement;
+      const mesmos = Array.prototype.filter.call(ul.children, x=> x.dataset && x.dataset.key === li.dataset.key);
+      if(mesmos.length > 1 && mesmos[0] !== li){
+        const base = li.dataset.key.split('~').pop();
+        Object.keys(impressaoOverrides).forEach(k=>{ if(k.indexOf('man-') === 0) impressaoManualSeq = Math.max(impressaoManualSeq, parseInt(k.slice(4),10) || 0); });
+        li.dataset.key = 'man-'+(++impressaoManualSeq)+'~'+base;
+      }
+      impressaoOverrides[li.dataset.key] = li.textContent;
+    }
+    // Linha manual apagada no preview: descarta o override dela.
+    const vivas = {};
+    $('paper').querySelectorAll('ul.impressao li[data-key]').forEach(x=>{ vivas[x.dataset.key] = true; });
+    Object.keys(impressaoOverrides).forEach(k=>{
+      if(k.indexOf('man-') === 0 && !vivas[k]) delete impressaoOverrides[k];
+    });
+  });
+
+  $('paper').addEventListener('input', schedulePagePreview);
+  window.addEventListener('resize', schedulePagePreview);
+
+  // ---------- Render principal ----------
+  let pendingCount = 0;
+  // Só marca os campos em vermelho depois de uma tentativa de imprimir com
+  // pendências — senão um formulário em branco pareceria um paredão de erros
+  // antes de ela começar a preencher.
+  let printAttempted = false;
+
+  // Um marcador <ul><li> por bloco (data-blk estável): a paginação da impressão
+  // só quebra a folha entre blocos.
+  function itemLista(id, innerHtml){
+    return {id: id, html: '<ul class="secul"><li>'+innerHtml+'</li></ul>'};
+  }
+
+  function render(){
+    if(st.draftRestoring) return;
+    // Durante a impressão o #paper está remontado em folhas e será reposto
+    // inteiro pelo 'afterprint': anota e roda assim que a impressão termina.
+    if(st.printPaginated){ st.renderPendingAfterPrint = true; return; }
+    pendingCount = 0;
+    function req(id){
+      const val = v(id);
+      const empty = val === '';
+      const el = $(id);
+      if(el) el.classList.toggle('field-missing', printAttempted && empty);
+      if(empty) pendingCount++;
+      return val;
+    }
+    function reqIf(id, cond){
+      if(!cond) return v(id);
+      return req(id);
+    }
+
+    const nomePaciente = v('nomePaciente');
+    const dataExame = v('dataExame');
+    const medicoSolicitante = v('medicoSolicitante');
+    req('nomePaciente'); req('dataExame');
+
+    const uretraComprimento = blankOrValue(req('uretraComprimento'));
+    const aberturaUretral = v('aberturaUretral');
+    const afunilamentoNum = num('afunilamento'); req('afunilamento');
+    const afunilamento = blankOrValue(v('afunilamento'));
+    flag('afunilamento', afunilamentoNum!==null && afunilamentoNum > VR.afunilamento);
+
+    const espessuraNum = num('espessuraParede'); req('espessuraParede');
+    const espessuraParede = blankOrValue(v('espessuraParede'));
+    flag('espessuraParede', espessuraNum!==null && espessuraNum > VR.espessura);
+
+    const bexigaAspecto = v('bexigaAspecto');
+    const bexigaDescricao = vNoDot('bexigaDescricao');
+    const volumePre = blankOrValue(req('volumePre'));
+    const residuoPos = blankOrValue(req('residuoPos'));
+    const anguloRepousoNum = num('anguloRepouso'); req('anguloRepouso');
+    const anguloRepouso = blankOrValue(v('anguloRepouso'));
+    flag('anguloRepouso', anguloRepousoNum!==null && (anguloRepousoNum < VR.anguloMin || anguloRepousoNum > VR.anguloMax));
+    const anguloValsalvaNum = num('anguloValsalva'); req('anguloValsalva');
+    const anguloValsalva = blankOrValue(v('anguloValsalva'));
+    flag('anguloValsalva', anguloValsalvaNum!==null && (anguloValsalvaNum < VR.anguloMin || anguloValsalvaNum > VR.anguloMax));
+
+    const mobilidadeNum = num('mobilidadeColo'); req('mobilidadeColo');
+    const mobilidadeColo = blankOrValue(v('mobilidadeColo'));
+    flag('mobilidadeColo', mobilidadeNum!==null && mobilidadeNum > VR.mobilidade);
+
+    const posicaoColo = v('posicaoColo');
+    const descensoParede = v('descensoParede');
+
+    const hiatoNum = num('hiatoGenital'); req('hiatoGenital');
+    const hiato = blankOrValue(v('hiatoGenital'));
+    const hiatoClass = classifyHiato(hiatoNum);
+    $('hiatoClassif').value = hiatoNum===null ? '' : hiatoClass.label.charAt(0).toUpperCase()+hiatoClass.label.slice(1);
+
+    const uteroPosicao = v('uteroPosicao');
+    const vrUteroTipo = v('vrUteroTipo');
+    const vrUteroLimite = vrUteroTipo==='op2' ? VR.uteroMax2 : (vrUteroTipo==='op3' ? VR.uteroMax3 : VR.uteroMax1);
+    const vrUteroTexto = escapeHtml(vrUteroTipo==='op2' ? VR.uteroTexto2 : (vrUteroTipo==='op3' ? VR.uteroTexto3 : VR.uteroTexto1));
+    const uteroL = blankOrValue(req('uteroL'));
+    const uteroAP = blankOrValue(req('uteroAP'));
+    const uteroT = blankOrValue(req('uteroT'));
+    const uteroVolumeNum = num('uteroVolume'); req('uteroVolume');
+    const uteroVolume = blankOrValue(v('uteroVolume'));
+    flag('uteroVolume', uteroVolumeNum!==null && uteroVolumeNum > vrUteroLimite);
+    const endometrio = blankOrValue(req('endometrio'));
+    const endometrioTextura = v('endometrioTextura');
+    const endometrioPadrao = v('endometrioPadrao');
+    const miometrioTextura = v('miometrioTextura');
+    const chkAdenomiose = $('chkAdenomiose').checked;
+    const adenomioseSimetria = v('adenomioseSimetria')==='assimetricas' ? 'assimétricas' : 'simétricas';
+    const miomaUids = miometrioTextura==='heterogenea' ? miomaNoduleUids() : [];
+    const figoFrags = [];
+    miomaUids.forEach(uid=>{
+      const figo = v('mioma'+uid+'Figo');
+      const medida = v('mioma'+uid+'Medida');
+      if(!medida) return; // untouched slot — the FIGO select always has a default value
+      const parede = v('mioma'+uid+'Parede');
+      const detalhe = v('mioma'+uid+'CervicalDetalhe');
+      const posicao = v('mioma'+uid+'Posicao');
+      figoFrags.push(phraseRaw('figo'+figo, {PAREDE: parede, MEDIDA: medida, DETALHE: (detalhe ? ' '+detalhe : ''), POSICAO: (posicao||'____')}));
+    });
+    let miomaSentenceHtml = '';
+    if(figoFrags.length===1){
+      miomaSentenceHtml = phrase('miomaIntro1', {F1: figoFrags[0]});
+    } else if(figoFrags.length===2){
+      miomaSentenceHtml = phrase('miomaIntro2', {F1: figoFrags[0], F2: figoFrags[1]});
+    } else if(figoFrags.length>=3){
+      // Hanging-indent paragraphs (rather than <br>-joined lines) survive copy/paste
+      // into Word, Gmail, etc. as separate lines — <br> inside a single element tends
+      // to get flattened by paste sanitizers into one run-on sentence — and keep the
+      // wrapped continuation of each sentence aligned after "N1:" instead of the margin.
+      miomaSentenceHtml = phrase('miomaIntroVarios')+'<div class="nodulos-lista">'+figoFrags.map((f,i)=>'<p class="nodulo-item">- N'+(i+1)+': '+escapeHtml(f)+'.</p>').join('')+'</div>';
+    }
+    const miometrioDescricaoExtra = v('miometrioDescricao');
+
+    const chkIstmocele = $('chkIstmocele').checked;
+    const istmoceleMedida = blankOrValue(reqIf('istmoceleMedida', chkIstmocele));
+    const istmoceleAnteriorNum = num('istmoceleAnterior');
+    const istmoceleResidualNum = num('istmoceleResidual');
+    reqIf('istmoceleAnterior', chkIstmocele);
+    reqIf('istmoceleResidual', chkIstmocele);
+    // EMR/EMA (%) = (espessura do miométrio residual ÷ espessura do miométrio adjacente) × 100.
+    // Reported as a plain measurement of thinning severity only — not a uterine rupture risk
+    // classification.
+    const istmocelePct = (istmoceleAnteriorNum!==null && istmoceleResidualNum!==null && istmoceleAnteriorNum>0)
+      ? Math.round((istmoceleResidualNum/istmoceleAnteriorNum)*100) : null;
+
+    const chkPolipoEndocervical = $('chkPolipoEndocervical').checked;
+    const polipoEndocervicalMedida = blankOrValue(reqIf('polipoEndocervicalMedida', chkPolipoEndocervical));
+
+    const chkPolipoEndometrial = $('chkPolipoEndometrial').checked;
+    const polipoLocalizacao = v('polipoLocalizacao');
+    const polipoPediculo = v('polipoPediculo');
+    const polipoMedida = blankOrValue(reqIf('polipoMedida', chkPolipoEndometrial));
+
+    const coloUterinoComprimento = blankOrValue(req('coloUterinoComprimento'));
+    const coloUterinoAspecto = v('coloUterinoAspecto');
+    const vrOvarioTipo = v('vrOvarioTipo');
+    const vrOvarioTexto = escapeHtml(vrOvarioTipo==='menopausa' ? VR.ovarioTexto2 : VR.ovarioTexto1);
+    const ovD_L = blankOrValue(req('ovD_L'));
+    const ovD_AP = blankOrValue(req('ovD_AP'));
+    const ovD_T = blankOrValue(req('ovD_T'));
+    const ovD_volumeNum = num('ovD_volume'); req('ovD_volume');
+    const ovD_volume = blankOrValue(v('ovD_volume'));
+    flag('ovD_volume', ovD_volumeNum!==null && (vrOvarioTipo==='menopausa' ? ovD_volumeNum > VR.ovarioMax2 : (ovD_volumeNum < VR.ovarioMin1 || ovD_volumeNum > VR.ovarioMax1)));
+    const ovD_aspecto = v('ovD_aspecto');
+    const ovD_descricao = vNoDot('ovD_descricao');
+    const ovE_L = blankOrValue(req('ovE_L'));
+    const ovE_AP = blankOrValue(req('ovE_AP'));
+    const ovE_T = blankOrValue(req('ovE_T'));
+    const ovE_volumeNum = num('ovE_volume'); req('ovE_volume');
+    const ovE_volume = blankOrValue(v('ovE_volume'));
+    flag('ovE_volume', ovE_volumeNum!==null && (vrOvarioTipo==='menopausa' ? ovE_volumeNum > VR.ovarioMax2 : (ovE_volumeNum < VR.ovarioMin1 || ovE_volumeNum > VR.ovarioMax1)));
+    const ovE_aspecto = v('ovE_aspecto');
+    const ovE_descricao = vNoDot('ovE_descricao');
+
+    const chkHidrossalpinge = $('chkHidrossalpinge').checked;
+    const hidrossalpingeLado = v('hidrossalpingeLado')==='esquerda' ? 'esquerda' : 'direita';
+    const hidrossalpingeMedida = blankOrValue(reqIf('hidrossalpingeMedida', chkHidrossalpinge));
+
+    const descensoUterino = v('descensoUterino');
+
+    const chkRetocele = $('chkRetocele').checked;
+    const retoceleGrau = v('retoceleGrau');
+    const chkLesao = $('chkLesao').checked;
+    const lesaoLado = v('lesaoLado');
+    const lesaoGrau = v('lesaoGrau');
+    const lesaoMedida = blankOrValue(v('lesaoMedida'));
+    const chkEnterocele = $('chkEnterocele').checked;
+    const enteroceleGrau = v('enteroceleGrau');
+    const cascaCebola = v('cascaCebola');
+    const chkEndometriose = $('chkEndometriose').checked;
+    const endometrioseDescricao = vNoDot('endometrioseDescricao');
+    const chkEndometrioseNodulo = $('chkEndometrioseNodulo').checked;
+    const endometrioseLocal = v('endometrioseLocal') || 'retossigmoide';
+    const endometrioseRegiao = v('endometrioseRegiao') || 'retrocervical';
+    const endometrioseMedida = reqIf('endometrioseMedida', chkEndometrioseNodulo);
+    const chkDiverticulos = $('chkDiverticulos').checked;
+    const diverticulosStatus = v('diverticulosStatus');
+    const diverticulosDescricao = v('diverticulosDescricao');
+    const posteriorNenhum = !chkRetocele && !chkLesao && !chkEnterocele;
+    const inversaoConfirmada = descensoUterino==='4' && $('chkInversaoAusente').checked;
+
+    const gapDNum = num('gapDireito'); req('gapDireito');
+    const gapD = blankOrValue(v('gapDireito'));
+    flag('gapDireito', gapDNum!==null && gapDNum >= VR.gap);
+    const gapENum = num('gapEsquerdo'); req('gapEsquerdo');
+    const gapE = blankOrValue(v('gapEsquerdo'));
+    flag('gapEsquerdo', gapENum!==null && gapENum >= VR.gap);
+
+    const esfIntStatus = v('esfIntStatus');
+    const esfIntGrau = v('esfIntGrau');
+    // A frase já traz "às {HORAS} horas": tira o "h"/"horas" digitado junto ("10h" → "10").
+    const esfIntHoras = v('esfIntHoras').replace(/\s*h(oras?)?\.?\s*$/i, '');
+    const esfIntPct = v('esfIntPct');
+    const esfIntExtensao = v('esfIntExtensao');
+    const esfExtStatus = v('esfExtStatus');
+    const esfExtGrau = v('esfExtGrau');
+    const esfExtHoras = v('esfExtHoras').replace(/\s*h(oras?)?\.?\s*$/i, '');
+    const esfExtPct = v('esfExtPct');
+    const esfExtExtensao = v('esfExtExtensao');
+
+    const slingPresente = $('slingPresente').checked;
+    const slingUretraNum = num('slingUretra');
+    const slingUretra = blankOrValue(v('slingUretra'));
+    flag('slingUretra', slingPresente && slingUretraNum!==null && (slingUretraNum < VR.slingUretraMin || slingUretraNum > VR.slingUretraMax));
+    const slingPubisNum = num('slingPubis');
+    const slingPubis = blankOrValue(v('slingPubis'));
+    flag('slingPubis', slingPresente && slingPubisNum!==null && slingPubisNum > VR.slingPubis);
+    const slingMeato = blankOrValue(v('slingMeato'));
+    const slingColo = blankOrValue(v('slingColo'));
+    const slingPosicao = v('slingPosicao');
+    const slingOutroTexto = vNoDot('slingOutroTexto');
+
+    const objetivos = [];
+    if($('objIU').checked) objetivos.push('incontinência urinária');
+    if($('objProlapso').checked) objetivos.push('prolapso genital');
+    if($('objFecal').checked) objetivos.push('incontinência fecal');
+    const objOutro = v('objOutro');
+    if(objOutro) objetivos.push(objOutro);
+    const objetivoTexto = objetivos.length ? objetivos.join(' / ') : 'avaliação a definir';
+
+
+    // ----- Impressão -----
+    const state = {
+      bexigaAspecto, bexigaDescricao,
+      ovD_aspecto, ovD_descricao, ovE_aspecto, ovE_descricao,
+      chkEndometriose, endometrioseDescricao,
+      chkEndometrioseNodulo, endometrioseRegiao,
+      chkAdenomiose,
+      chkIstmocele, istmocelePct,
+      chkPolipoEndocervical, chkPolipoEndometrial,
+      chkHidrossalpinge, hidrossalpingeLado,
+      mobilidadeColo: mobilidadeNum, posicaoColo, espessuraParede: espessuraNum,
+      descensoParede, descensoUterino, inversaoConfirmada,
+      miometrioTextura, miomaTemDados: figoFrags.length>0, coloUterinoAspecto,
+      chkDiverticulos, diverticulosStatus,
+      chkRetocele, retoceleGrau, chkLesao, lesaoLado, lesaoGrau, chkEnterocele, enteroceleGrau, cascaCebola,
+      esfIntStatus, esfIntGrau, esfIntPct, esfExtStatus, esfExtGrau, esfExtPct,
+      slingPresente, slingPosicao, slingOutroTexto
+    };
+    const impressaoItems = buildImpressao(state);
+    renderChecklist(impressaoItems);
+    const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
+
+    // ----- Monta o laudo, um bloco por título / marcador -----
+    const blocks = [];
+
+    blocks.push({id:'idcard', html:
+      '<div class="id-card">'
+      +'<div class="id-card-row"><span><strong>Nome:</strong> '+span(blankOrValue(nomePaciente))+'</span><span><strong>Data:</strong> '+span(blankOrValue(dataExame))+'</span></div>'
+      // "Nenhum" no combo de médico solicitante é uma escolha explícita de que
+      // não há médico solicitante — tira a linha inteira do cabeçalho.
+      +(medicoSolicitante.toLowerCase()!=='nenhum' ? '<div class="id-card-row"><span><strong>Médico:</strong> '+span(blankOrValue(medicoSolicitante))+'</span></div>' : '')
+      +'</div>'});
+
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle">ULTRASSONOGRAFIA TRANSVAGINAL PARA<br class="quebra-titulo">AVALIAÇÃO PERINEAL E DE PROLAPSO GENITAL</h3>'});
+    blocks.push({id:'doctitleSub', html:'<p class="doctitle-sub">Ultrassom direcionado para '+escapeHtml(objetivoTexto)+'</p>'});
+
+    // ---- Compartimento anterior ----
+    blocks.push({id:'h-ant', html:'<h4 class="sec">COMPARTIMENTO ANTERIOR</h4>'});
+    blocks.push(itemLista('ant-uretra', 'A uretra apresenta morfologia preservada ao repouso, medindo aproximadamente '+span(uretraComprimento)+' cm de comprimento. À manobra de Valsalva observa-se abertura uretral <strong>'+aberturaUretral+'</strong>, com afunilamento distal medindo '+span(afunilamento)+' mm (VR: até '+VR.afunilamento+' mm).'));
+    const bexigaQualitativo = (bexigaAspecto==='alterado' && bexigaDescricao)
+      ? escapeHtml(bexigaDescricao)
+      : 'paredes finas e regulares e conteúdo anecoico';
+    blocks.push(itemLista('ant-bexiga', 'A bexiga encontra-se adequadamente repleta, com espessura parietal de '+span(espessuraParede)+' mm (VR: até '+VR.espessura+' mm), '+bexigaQualitativo+'. Os meatos ureterais são identificados bilateralmente, sem alterações ecográficas. O volume vesical pré-miccional é de '+span(volumePre)+' mL e o resíduo pós-miccional corresponde a '+span(residuoPos)+' mL.'));
+    blocks.push(itemLista('ant-angulo', 'O ângulo retrovesical mede '+span(anguloRepouso)+'° ao repouso e '+span(anguloValsalva)+'° durante a manobra de Valsalva. O colo vesical apresenta mobilidade de '+span(mobilidadeColo)+' mm (VR: até '+VR.mobilidade+' mm), permanecendo '+(posicaoColo==='extra' ? 'em posição extra-abdominal durante o esforço' : 'em posição intra-abdominal')+'.'));
+    const cistoceleKey = {ausente:'cistoceleAusente', '1':'cistoceleI', '2':'cistoceleII', '3':'cistoceleIII', '4':'cistoceleIV'}[descensoParede];
+    if(cistoceleKey) blocks.push(itemLista('ant-descenso', phrase(cistoceleKey)));
+
+    // ---- Compartimento médio ----
+    blocks.push({id:'h-med', html:'<h4 class="sec">COMPARTIMENTO MÉDIO</h4>'});
+    blocks.push(itemLista('med-hiato', 'O hiato genital apresenta área aproximada de '+span(hiato)+' cm² (VR: &lt; '+VR.hiatoLeve+' cm²)'+(hiatoNum!==null?(' — '+hiatoClass.label):'')+'.'));
+    blocks.push(itemLista('med-vagina', 'A vagina apresenta aspecto ecográfico preservado.'));
+    blocks.push(itemLista('med-utero', 'O útero encontra-se em '+uteroPosicao+', medindo '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm (L x AP x T), com volume estimado de '+span(uteroVolume)+' cm³ ('+vrUteroTexto+').'));
+    if(miometrioTextura==='heterogenea'){
+      blocks.push(itemLista('med-miometrio', phrase('miometrioHeterogeneo')));
+      if(chkAdenomiose){
+        blocks.push(itemLista('med-adenomiose', phrase('miometrioAdenomioseComMioma', {SIMETRIA: adenomioseSimetria})));
+      }
+      blocks.push(itemLista('med-mioma', (miomaSentenceHtml || '<span class="blank">Preencha ao menos um nódulo (FIGO + medida) acima.</span>')+(miometrioDescricaoExtra ? ' '+escapeHtml(miometrioDescricaoExtra) : '')));
+    } else if(chkAdenomiose){
+      // Adenomiose substitui a frase "textura homogênea, sem nódulos": as duas
+      // se contradizem quando não há mioma que justifique o miométrio heterogêneo.
+      blocks.push(itemLista('med-miometrio', phrase('miometrioAdenomiose', {SIMETRIA: adenomioseSimetria})));
+    } else {
+      blocks.push(itemLista('med-miometrio', phrase('miometrioHomogeneo')));
+    }
+    if(chkIstmocele){
+      const pctObj = istmocelePct!==null ? {text: String(istmocelePct), filled:true} : {text:'____', filled:false};
+      blocks.push(itemLista('med-istmocele', phraseRaw('istmocele', {MEDIDA: span(istmoceleMedida), PCT: span(pctObj)})));
+    }
+    blocks.push(itemLista('med-endometrio', 'O endométrio é '+(endometrioTextura==='heterogenea'?'heterogêneo':'homogêneo')+', medindo '+span(endometrio)+' mm de espessura, com padrão '+endometrioPadrao+' e interface miometrial bem definida.'));
+    if(chkPolipoEndometrial){
+      blocks.push(itemLista('med-polipoEndometrial', phraseRaw('polipoEndometrial', {LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida)})));
+    }
+    blocks.push(itemLista('med-colo', coloUterinoAspecto==='hipertrofico' ? phrase('coloHipertrofico', {COMPRIMENTO: coloUterinoComprimento.text}) : phrase('coloNormal', {COMPRIMENTO: coloUterinoComprimento.text})));
+    if(chkPolipoEndocervical){
+      blocks.push(itemLista('med-polipoEndocervical', phraseRaw('polipoEndocervical', {MEDIDA: span(polipoEndocervicalMedida)})));
+    }
+    const ovD_qualitativo = (ovD_aspecto==='alterado' && ovD_descricao) ? escapeHtml(ovD_descricao) : null;
+    const ovE_qualitativo = (ovE_aspecto==='alterado' && ovE_descricao) ? escapeHtml(ovE_descricao) : null;
+    if(ovD_aspecto==='nao_identificado'){
+      blocks.push(itemLista('med-ovD', phrase('ovarioNaoIdentificado', {LADO:'direito'})));
+    } else if(ovD_qualitativo){
+      blocks.push(itemLista('med-ovD', 'Ovário direito medindo '+span(ovD_L)+' x '+span(ovD_AP)+' x '+span(ovD_T)+' cm, com volume de '+span(ovD_volume)+' cm³ ('+vrOvarioTexto+'). '+ovD_qualitativo+'.'));
+    } else {
+      blocks.push(itemLista('med-ovD', 'Ovário direito apresenta dimensões e ecotextura preservadas, medindo '+span(ovD_L)+' x '+span(ovD_AP)+' x '+span(ovD_T)+' cm, com volume de '+span(ovD_volume)+' cm³ ('+vrOvarioTexto+').'));
+    }
+    if(ovE_aspecto==='nao_identificado'){
+      blocks.push(itemLista('med-ovE', phrase('ovarioNaoIdentificado', {LADO:'esquerdo'})));
+    } else if(ovE_qualitativo){
+      blocks.push(itemLista('med-ovE', 'Ovário esquerdo medindo '+span(ovE_L)+' x '+span(ovE_AP)+' x '+span(ovE_T)+' cm, com volume de '+span(ovE_volume)+' cm³ ('+vrOvarioTexto+'). '+ovE_qualitativo+'.'));
+    } else {
+      blocks.push(itemLista('med-ovE', 'Ovário esquerdo apresenta dimensões e ecotextura preservadas, medindo '+span(ovE_L)+' x '+span(ovE_AP)+' x '+span(ovE_T)+' cm, com volume de '+span(ovE_volume)+' cm³ ('+vrOvarioTexto+').'));
+    }
+    if(chkHidrossalpinge){
+      blocks.push(itemLista('med-hidrossalpinge', phraseRaw('hidrossalpingeLi', {LADO: hidrossalpingeLado, MEDIDA: span(hidrossalpingeMedida)})));
+    }
+    const uteroKey = {ausente:'uteroAusente', '1':'uteroI', '2':'uteroII', '3':'uteroIII', '4':'uteroIV'}[descensoUterino];
+    if(uteroKey) blocks.push(itemLista('med-descenso', phrase(uteroKey)));
+    if(inversaoConfirmada){
+      blocks.push(itemLista('med-inversao', phrase('impSemInversao')));
+    }
+
+    // ---- Compartimento posterior ----
+    blocks.push({id:'h-post', html:'<h4 class="sec">COMPARTIMENTO POSTERIOR</h4>'});
+    if(posteriorNenhum){
+      blocks.push(itemLista('post-canal', phrase('canalAnalNormal')));
+    } else {
+      if(chkRetocele){
+        blocks.push(itemLista('post-retocele', phrase('retocele', {GRAU: retoceleGrau})));
+      }
+      if(chkLesao){
+        blocks.push(itemLista('post-lesao', phrase('lesaoPuborretal', {LADO: lesaoLado, MEDIDA: (v('lesaoMedida')||'____')})));
+      } else if(chkRetocele){
+        blocks.push(itemLista('post-puborretal', phrase('puborretalPreservada')));
+      }
+      if(chkEnterocele){
+        blocks.push(itemLista('post-enterocele', phrase('enterocele', {GRAU: enteroceleGrau})));
+      }
+    }
+    blocks.push(itemLista('post-casca', cascaCebola==='presente' ? phrase('cascaCebolaPresente') : phrase('cascaCebolaAusente')));
+    if(chkDiverticulos){
+      blocks.push(itemLista('post-diverticulos', diverticulosStatus==='com' ? phrase('diverticulosComInflamacao', {DESCRICAO: (diverticulosDescricao || '____')}) : phrase('diverticulosSemInflamacao')));
+    }
+    if(chkEndometriose && endometrioseDescricao){
+      blocks.push(itemLista('post-endometriose', 'Observam-se sinais sugestivos de endometriose profunda: '+escapeHtml(endometrioseDescricao)+'.'));
+    }
+    if(chkEndometrioseNodulo){
+      blocks.push(itemLista('post-endometrioseNodulo', phraseRaw('endometrioseNodulo', {LOCAL: escapeHtml(endometrioseLocal), MEDIDA: span(blankOrValue(endometrioseMedida)), REGIAO: escapeHtml(endometrioseRegiao)})));
+    }
+
+    // ---- Períneo ----
+    blocks.push({id:'h-per', html:'<h4 class="sec">PERÍNEO</h4>'});
+    blocks.push(itemLista('per-complexo', 'O complexo esfincteriano anal apresenta espessura e ecogenicidade preservadas.'));
+    blocks.push(itemLista('per-gap', 'O gap uretral mede '+span(gapD)+' mm à direita e '+span(gapE)+' mm à esquerda (VR &lt; '+VR.gap+' mm).'));
+    blocks.push(itemLista('per-esfInt', esfIntStatus==='preservado'
+      ? phrase('esfIntPreservado')
+      : phrase('esfIntDefeito', {HORAS: (esfIntHoras||'____'), PCT: (esfIntPct||'__'), MEDIDA: (esfIntExtensao||'__')})));
+    blocks.push(itemLista('per-esfExt', esfExtStatus==='preservado'
+      ? phrase('esfExtPreservado')
+      : phrase('esfExtDefeito', {HORAS: (esfExtHoras||'____'), PCT: (esfExtPct||'__'), MEDIDA: (esfExtExtensao||'__')})));
+
+    // ---- Sling ----
+    if(slingPresente){
+      blocks.push({id:'h-sling', html:'<h4 class="sec">AVALIAÇÃO DO "SLING"</h4>'});
+      blocks.push(itemLista('sling-local', 'Visualiza-se <em>sling</em> localizado no terço médio da uretra.'));
+      blocks.push(itemLista('sling-dist', 'As distâncias medidas correspondem a: uretra '+span(slingUretra)+' mm (VR '+VR.slingUretraMin+'–'+VR.slingUretraMax+' mm); púbis '+span(slingPubis)+' mm (VR &lt; '+VR.slingPubis+' mm); meato uretral '+span(slingMeato)+' mm; colo vesical '+span(slingColo)+' mm.'));
+      blocks.push(itemLista('sling-pos', slingPosicao==='bem' ? phrase('slingBem') : escapeHtml(slingOutroTexto || 'Posicionamento a descrever.')));
+    }
+
+    // ---- Impressão diagnóstica ----
+    blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA</h4>'});
+    let impressaoListHtml = '<ul class="impressao">';
+    if(checkedItems.length===0){
+      impressaoListHtml += '<li style="font-weight:400;color:var(--ink-soft);">Selecione os achados no formulário à esquerda.</li>';
+    } else {
+      const manuais = Object.keys(impressaoOverrides).filter(k=>k.indexOf('man-') === 0)
+        .sort((a,b)=> parseInt(a.slice(4),10) - parseInt(b.slice(4),10));
+      const chavesVisiveis = checkedItems.map(it=>it.key);
+      const liManual = k=>'<li data-key="'+k+'">'+escapeHtml(impressaoOverrides[k])+'</li>';
+      checkedItems.forEach(it=>{
+        const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
+        impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
+        manuais.forEach(k=>{ if(k.split('~').pop() === it.key) impressaoListHtml += liManual(k); });
+      });
+      // Linha manual cuja linha-mãe foi desmarcada: vai para o fim, não some.
+      manuais.forEach(k=>{ if(chavesVisiveis.indexOf(k.split('~').pop()) === -1) impressaoListHtml += liManual(k); });
+    }
+    impressaoListHtml += '</ul>';
+    blocks.push({id:'impressaoList', html:impressaoListHtml});
+
+    // Nota de rodapé à esquerda, assinatura à direita — juntas, para a
+    // paginação da impressão fixar as duas no pé da última folha.
+    let rodapeHtml = '<div class="rodape-final">';
+    rodapeHtml += '<p class="footnote">'+comDigitadora('Este laudo segue a padronização do sistema POP-Q, conforme recomendações da International Continence Society (ICS) e da American Urogynecologic Society (AUGS).')+'</p>';
+    rodapeHtml += '<div class="assinatura"><p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
+    if(VR.medicoQual1) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
+    if(VR.medicoQual2) rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual2)+'</p>';
+    rodapeHtml += '<p class="assinatura-info">'+escapeHtml(VR.medicoCRM)+'</p></div>';
+    rodapeHtml += '</div>';
+    blocks.push({id:'rodape', html:rodapeHtml});
+
+    renderBlocks(blocks);
+    if(titleFontSize){
+      const titleEl = $('paper').querySelector('h3.doctitle');
+      if(titleEl) titleEl.style.fontSize = titleFontSize + 'pt';
+    }
+
+    const pill = $('statusPill');
+    if(pendingCount===0){ pill.textContent='Laudo completo'; pill.classList.remove('pending'); $('printAlert').classList.remove('show'); }
+    else { pill.textContent = pendingCount+' campo'+(pendingCount>1?'s':'')+' pendente'+(pendingCount>1?'s':''); pill.classList.add('pending'); }
+    updatePagePreview();
+    draftSchedule();
+  }
+
+  // ---------- Atualização ao vivo ----------
+  document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
+    el.addEventListener('input', render);
+    el.addEventListener('change', render);
+  });
+
+  const WORD_COPY = [
+    ['h3.doctitle', ['font-size','line-height'].concat(MARGINS)],
+    ['.doctitle-sub', ['font-size','line-height'].concat(MARGINS)],
+    ['h4.sec', ['font-size','line-height'].concat(MARGINS)],
+    ['ul.secul', MARGINS],
+    ['ul.secul li', ['font-size','line-height'].concat(MARGINS)],
+    ['.footnote', ['font-size','line-height']],
+    ['.assinatura', ['line-height']],
+    ['.assinatura-info', ['font-size','line-height']]
+  ];
+  function buildReportHtml(){
+    const paperEl = $('paper');
+    const clone = paperEl.cloneNode(true);
+    copyComputedToClone(paperEl, clone);
+    clone.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
+    // Se a impressão/PDF anterior deixou o laudo em folhas (o 'afterprint' que
+    // não chegou a disparar), o clone herdaria as cópias do cabeçalho de
+    // identificação repetidas em cada folha.
+    unwrapPrintPages(clone);
+    // O importador de HTML do Word aplica marcador próprio a todo <ul><li> e
+    // ignora list-style:none — a impressão diagnóstica (que já traz o "* " no
+    // texto) sai como parágrafos em negrito para não empilhar dois marcadores.
+    const liveLi = paperEl.querySelector('ul.impressao li');
+    const liStyle = liveLi ? getComputedStyle(liveLi) : null;
+    clone.querySelectorAll('ul.impressao').forEach(ul=>{
+      const div = document.createElement('div');
+      // Indentação pendurada em valor absoluto: o Word nem sempre resolve
+      // text-indent relativo direito.
+      const indent = liStyle ? liStyle.fontSize : '12pt';
+      Array.from(ul.children).forEach(li=>{
+        const p = document.createElement('p');
+        p.style.margin = '0 0 6px';
+        p.style.fontWeight = '700';
+        p.style.textAlign = 'justify';
+        p.style.marginLeft = indent;
+        p.style.textIndent = '-'+indent;
+        if(liStyle){ p.style.fontSize = liStyle.fontSize; p.style.lineHeight = liStyle.lineHeight; }
+        p.innerHTML = li.innerHTML;
+        div.appendChild(p);
+      });
+      ul.replaceWith(div);
+    });
+    clone.querySelectorAll('h3.doctitle').forEach(h=>{
+      h.style.textAlign='center'; h.style.textDecoration='underline'; h.style.fontWeight='600';
+      if(!h.style.fontSize) h.style.fontSize='14pt';
+      // <h3>/<h4> viram "Título N" no Word, com a setinha de recolher na
+      // margem — trocar por <p> com o mesmo estilo tira o nível de tópico.
+      const p = document.createElement('p');
+      Array.from(h.attributes).forEach(attr=> p.setAttribute(attr.name, attr.value));
+      p.innerHTML = h.innerHTML;
+      h.replaceWith(p);
+    });
+    clone.querySelectorAll('.doctitle-sub').forEach(h=>{ h.style.textAlign='center'; h.style.color='#5b5b5e'; });
+    buildIdCardTable(clone, paperEl);
+    clone.querySelectorAll('h4.sec').forEach(h=>{
+      h.style.textDecoration='underline'; h.style.fontWeight='600';
+      const p = document.createElement('p');
+      Array.from(h.attributes).forEach(attr=> p.setAttribute(attr.name, attr.value));
+      p.innerHTML = h.innerHTML;
+      h.replaceWith(p);
+    });
+    clone.querySelectorAll('ul.secul').forEach(ul=>{ ul.style.textAlign='justify'; });
+    clone.querySelectorAll('.blank').forEach(el=>{ el.style.color='#B4432F'; el.style.fontWeight='600'; });
+    clone.querySelectorAll('.footnote').forEach(el=>{ el.style.fontStyle='italic'; el.style.color='#5b5b5e'; el.style.fontSize='9pt'; el.style.margin='0'; });
+    clone.querySelectorAll('.assinatura').forEach(el=>{ el.style.textAlign='right'; el.style.margin='0'; el.style.lineHeight='1.2'; });
+    clone.querySelectorAll('.assinatura-nome').forEach(el=>{ el.style.display='inline-block'; el.style.fontStyle='italic'; el.style.borderTop='1px solid #2b2b2e'; el.style.padding='3px 14px 0'; el.style.margin='0 0 2px'; });
+    clone.querySelectorAll('.assinatura-info').forEach(el=>{ el.style.fontSize='9.5pt'; el.style.color='#9a7e95'; el.style.margin='0'; });
+
+    // O Word não entende flexbox: a linha nota-à-esquerda / assinatura-à-direita
+    // é refeita como tabela.
+    pinAssinaturaWord(clone, paperEl);
+    clone.querySelectorAll('.rodape-final').forEach(el=>{
+      const footnote = el.querySelector('.footnote');
+      const assinatura = el.querySelector('.assinatura');
+      const table = document.createElement('table');
+      table.setAttribute('style', 'border-collapse:collapse;width:100%;margin-top:16px;');
+      table.innerHTML = '<tr>'
+        + '<td style="border:none;padding:0;vertical-align:bottom;text-align:left;">'+(footnote ? footnote.outerHTML : '')+'</td>'
+        + '<td style="border:none;padding:0;vertical-align:bottom;text-align:right;width:1%;white-space:nowrap;">'+(assinatura ? assinatura.outerHTML : '')+'</td>'
+        + '</tr>';
+      el.replaceWith(table);
+    });
+
+    const lineHeight = $('paper').style.lineHeight || '1.15';
+    const fontSize = $('paper').style.fontSize || '11.5pt';
+    colapsarMargensParaWord(clone);
+    return "<div style=\"font-family:'Times New Roman',Times,serif;font-size:"+fontSize+";line-height:"+lineHeight+";\">"+clone.innerHTML+'</div>';
+  }
+
+  let printRestore = null;
+  // "Salvar como PDF" sugere o nome do arquivo a partir do document.title:
+  // durante a impressão ele vira "Nome da paciente - Perineal".
+  const tituloPagina = document.title;
+  window.addEventListener('beforeprint', ()=>{
+    document.title = nomeArquivoLaudo();
+    if(st.printPaginated) return; // beforeprint pode disparar mais de uma vez
+    printRestore = paginateForPrint();
+  });
+  window.addEventListener('afterprint', ()=>{
+    document.title = tituloPagina;
+    if(printRestore && st.printPaginated){ printRestore(); }
+    printRestore = null;
+  });
+
+  $('btnPrint').addEventListener('click', ()=>{
+    // Campos pendentes não bloqueiam a impressão — ficam só sinalizados em
+    // vermelho como lembrete.
+    if(pendingCount > 0){
+      printAttempted = true;
+      render();
+      const alertEl = $('printAlert');
+      alertEl.classList.add('show');
+      alertEl.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    try{
+      window.print();
+    }catch(e){
+      alert('Não foi possível abrir a impressão automaticamente. Use "Baixar Word" e imprima a partir de lá.');
+    }
+  });
+
+  // Nome usado no Word e no PDF: "Ana Maria Braga - Perineal".
+  function tituloExame(){
+    return 'Perineal';
+  }
+  // Chrome/Edge podem abrir o "salvar como" nativo (File System Access API);
+  // nos demais cai no download comum.
+  async function saveBlobAs(blob, suggestedName){
+    if(window.showSaveFilePicker){
+      try{
+        const handle = await window.showSaveFilePicker({
+          suggestedName,
+          types: [{description:'Documento Word', accept:{'application/msword':['.doc']}}]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return;
+      }catch(e){
+        if(e && e.name === 'AbortError') return; // ela cancelou
+      }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = suggestedName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  }
+  $('btnDownloadWord').addEventListener('click', async ()=>{
+    try{
+      const html = buildReportHtml();
+      const docHtml = wordDocHtml(html, nomeArquivoLaudo());
+      const blob = new Blob(['﻿', docHtml], {type:'application/msword;charset=utf-8'});
+      await saveBlobAs(blob, nomeArquivoLaudo()+'.doc');
+    }catch(e){
+      alert('Não foi possível baixar o arquivo Word neste navegador.');
+    }
+  });
+
+  $('btnReset').addEventListener('click', ()=>{
+    if(!confirm('Limpar todos os campos preenchidos para uma nova paciente?')) return;
+    document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
+    document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
+    document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
+    $('objIU').checked = true; $('objProlapso').checked = true; $('objFecal').checked = true;
+    $('endometrioseLocal').value = 'retossigmoide';
+    $('endometrioseRegiao').value = 'retrocervical';
+    document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
+    document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
+    document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
+    // Volta a um único nódulo de mioma em branco, como na primeira abertura.
+    $('miomaNodulosContainer').innerHTML = '';
+    checkedState = {};
+    impressaoOverrides = {};
+    // Força todos os blocos a nascerem de novo para a paciente nova — senão um
+    // bloco cujo texto calculado coincide com o da anterior manteria o que a
+    // médica digitou à mão nele.
+    st.lastBlockHtml = {};
+    $('paper').innerHTML = '';
+    printAttempted = false;
+    $('printAlert').classList.remove('show');
+    setDefaultDataExame();
+    addMiomaNodule();
+    // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
+    draftDiscard();
+  });
+
+  setDefaultDataExame();
+
+  // Selects que definem quantos cards existem: ficam fora do disparo de 'change'
+  // da restauração porque recriariam do zero os cards que acabaram de voltar
+  // com os uids certos.
+  const DRAFT_SKIP_CHANGE = ['miomaCount'];
+
+  function draftSnapshot(){
+    const fields = {};
+    document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
+      // Os checkboxes da checklist de impressões não têm id: voltam por
+      // `checked`/`overrides`, que guardam também o texto reescrito à mão.
+      if(!el.id) return;
+      fields[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+    });
+    return {
+      v: 1,
+      ts: Date.now(),
+      fields: fields,
+      uids: miomaNoduleUids(),
+      checked: checkedState,
+      overrides: impressaoOverrides,
+      titleFontSize: titleFontSize,
+      paper: draftPaperHtml(),
+      blocks: st.lastBlockHtml
+    };
+  }
+
+  function draftRestore(d){
+    st.draftRestoring = true;
+    try{
+      // Os nódulos voltam com os mesmos uids de antes: os ids dos campos e dos
+      // blocos derivam deles.
+      const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
+      $('miomaNodulosContainer').innerHTML = '';
+      if(uids.length){
+        uids.forEach(uid=>{
+          miomaNextUid = Math.max(miomaNextUid, parseInt(uid, 10) + 1);
+          $('miomaNodulosContainer').insertAdjacentHTML('beforeend', miomaSubgroupHTML(uid));
+          wireMiomaNodule(uid);
+        });
+        renumberMiomaNodules();
+      }else{
+        addMiomaNodule();
+      }
+
+      Object.keys(d.fields).forEach(id=>{
+        const el = $(id);
+        if(!el || !el.closest('#formCol')) return;
+        if(el.type === 'checkbox') el.checked = !!d.fields[id];
+        else el.value = d.fields[id];
+      });
+
+      // Quais blocos condicionais ficam abertos é decidido pelos handlers de
+      // 'change' — e os valores acima foram escritos na mão, sem passar por
+      // eles. Um 'change' em cada um reabre as seções que estavam abertas.
+      document.querySelectorAll('#formCol select, #formCol input[type=checkbox]').forEach(el=>{
+        if(DRAFT_SKIP_CHANGE.indexOf(el.id) !== -1) return;
+        if(el.closest('#impressaoChecklist')) return;
+        el.dispatchEvent(new Event('change'));
+      });
+
+      checkedState = (d.checked && typeof d.checked === 'object') ? d.checked : {};
+      impressaoOverrides = (d.overrides && typeof d.overrides === 'object') ? d.overrides : {};
+      titleFontSize = d.titleFontSize || null;
+    }catch(e){
+      // Rascunho corrompido ou de uma versão antiga: melhor abrir em branco do
+      // que deixar a tela quebrada.
+      st.draftRestoring = false;
+      $('miomaNodulosContainer').innerHTML = '';
+      checkedState = {};
+      impressaoOverrides = {};
+      st.lastBlockHtml = {};
+      $('paper').innerHTML = '';
+      try{ localStorage.removeItem(DRAFT_KEY); }catch(e2){}
+      return false;
+    }
+    st.draftRestoring = false;
+    render();
+    // O render() remonta o laudo a partir dos campos; por cima dele volta o
+    // HTML exato que estava na tela, com as correções digitadas à mão.
+    // `st.lastBlockHtml` volta junto para a reconciliação seguinte continuar
+    // sabendo o que é texto gerado e o que é texto digitado.
+    if(typeof d.paper === 'string' && d.paper){
+      $('paper').innerHTML = d.paper;
+      unwrapPrintPages($('paper'));
+      st.lastBlockHtml = (d.blocks && typeof d.blocks === 'object') ? d.blocks : {};
+      updatePagePreview();
+    }
+    const note = $('draftNote');
+    if(note){
+      $('draftNoteText').textContent = 'Rascunho recuperado — este laudo voltou como estava '
+        + draftHora(d.ts) + '. Continue de onde parou; para começar um laudo novo, use "Limpar" no alto da página.';
+      note.classList.add('show');
+    }
+    setDraftPill('✓ Rascunho salvo '+draftHora(d.ts));
+    return true;
+  }
+
+  function draftInit(){
+    const d = draftRead();
+    if(!(d && draftRestore(d))){
+      addMiomaNodule();
+      render();
+      st.draftReady = true;
+      st.draftBaseline = draftFingerprint(draftSnapshot());
+      return;
+    }
+    st.draftReady = true;
+  }
+
+  // Texto digitado direto no laudo não passa por render() — tem o próprio
+  // gatilho de gravação.
+  $('paper').addEventListener('input', draftSchedule);
+
+  // Aba fechada, laudo trocado, navegador minimizado: grava na hora o que
+  // estiver pendente.
+  window.addEventListener('pagehide', draftSaveNow);
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'hidden') draftSaveNow();
+  });
+
+  $('btnDraftDiscard').addEventListener('click', ()=>{
+    $('draftNote').classList.remove('show');
+  });
+
+  // A restauração do rascunho — ou o primeiro nódulo em branco — entra no fim
+  // da cadeia: precisa das frases e dos valores de referência já carregados.
+  loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit())));
+})();
+</script>
+</body>
+</html>

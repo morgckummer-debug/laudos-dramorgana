@@ -17,6 +17,39 @@ tabela própria no Supabase: não salvam nada, é preenche-e-imprime). A seção
 "O que cada laudo grava", mais abaixo, é sobre os laudos obstétricos — não se
 aplica a eles.
 
+## O laudo perineal veio de outro repositório (2026-10-07)
+
+`perineal.html` nasceu como o primeiro laudo da clínica, no repositório
+`morgckummer-debug/laudoperineo` (`index.html` = perineal da Dra. Morgana,
+`benito.html` = a mesma coisa assinada pelo Dr. Benito Ceccato). Era um arquivo
+solto de uma geração anterior ao motor: motor embutido, sem rascunho, sem
+`data-blk`, `render()` jogando `innerHTML` no `#paper`.
+
+A migração foi uma **reescrita sobre o padrão atual**, não uma cópia: o casco, a
+barra de formatação, o combobox do médico solicitante e o ciclo
+rascunho/Word/impressão vêm do `transvaginal.html`; o conteúdo clínico (campos,
+frases, valores de referência, `buildImpressao`, miomas) vem do original sem
+mudar texto de frase. O que muda para quem mexer nele:
+
+- **Um marcador = um bloco.** Cada item de lista é um `<ul class="secul" data-blk>`
+  com um `<li>` só (`itemLista()`), não um `<ul>` por seção. A paginação da
+  impressão só quebra entre blocos, e só sabe partir `ul.impressao` por item;
+  assim a folha nunca quebra no meio de um marcador.
+- **Impressão diagnóstica no padrão atual** (`* ` no texto, `ul.impressao`,
+  edição à mão com `impressaoOverrides`). O original usava marcador de bolinha.
+- **Sem CPF, sem GPA, sem Curva de Crescimento.** Não desestruture
+  `aplicarMascaraCPF` aqui (ver a seção do `aplicarMascaraCPF is not defined`).
+- **Passa em `ferramentas/testar-laudos.mjs`** (entrou na lista `LAUDOS`).
+- Correções feitas na migração: `flag_espessura`/`flag_mobilidade` não batiam com
+  os ids dos campos (o aviso "acima do valor de referência" nunca aparecia);
+  "10h" digitado em "Localização (horas)" saía "às 10h horas"; o `<br>` do título
+  era escondido pela regra `br:first-child` (precisa de `class="quebra-titulo"`);
+  a frase `linhaEquipamento` existia no painel de frases mas nunca foi impressa —
+  foi removida.
+- **`benito.html` não foi migrado.** É o mesmo laudo com outra assinatura. O Dr.
+  Benito não está na lista `EXECUTANTES` do motor; enquanto isso não mudar, dá
+  para assinar como ele com "Outro (digitar manualmente)" no seletor de médico.
+
 ## Publicação
 
 O GitHub Pages publica a partir da **`main`** (workflow "pages build and

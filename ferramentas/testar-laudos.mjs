@@ -25,7 +25,7 @@
 import fs from 'fs';
 
 const LAUDOS = ['morfologico-1trimestre','morfologico-2trimestre','obstetrico-1trimestre',
-  'obstetrico','pelvico-infantil','rastreamento-ovulacao','transvaginal'];
+  'obstetrico','pelvico-infantil','perineal','rastreamento-ovulacao','transvaginal'];
 
 // ---------- comparar dois resultados ----------
 if (process.argv[2] === '--comparar') {

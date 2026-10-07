@@ -24,6 +24,7 @@ Como o motor é um arquivo à parte, o `.html` não abre mais sozinho fora da pa
 - `transvaginal.html` — Ultrassonografia Transvaginal
 - `rastreamento-ovulacao.html` — Ultrassonografia Transvaginal para Rastreamento de Ovulação (útero, ovários e acompanhamento folicular visita a visita, até a identificação do corpo lúteo)
 - `pelvico-infantil.html` — Ultrassonografia Pélvica Infantil (propedêutica de puberdade precoce)
+- `perineal.html` — Ultrassonografia Transvaginal para Avaliação Perineal e de Prolapso Genital (compartimentos anterior, médio e posterior, esfíncteres anais interno/externo, hiato genital, sling opcional; impressão diagnóstica montada a partir dos achados). Foi o primeiro laudo da clínica, nascido no repositório `laudoperineo`, e entrou aqui em 2026-10-07. Sem CPF e sem integração com a Curva de Crescimento — preenche-e-imprime, como o `transvaginal.html`.
 
 ### Obstétrico
 - `obstetrico-1trimestre.html` — Ultrassonografia Obstétrica de 1º Trimestre (translucência nucal)
