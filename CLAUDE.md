@@ -107,6 +107,14 @@ simples (um seletor por cisto), vários cistos (maior cisto), aglomerado, nódul
 e seroma ficaram de fora. No modo "horário" o texto sai idêntico ao de antes; rascunho antigo
 volta sem migração (o campo novo não existia e assume "horário").
 
+## Mamas: mamografia prévia com data completa e achado (2026-10-08)
+
+No card "Indicação clínica e mamografia prévia", "Mês/ano" virou **"Data da realização"** (texto livre,
+placeholder `dd.mm.aaaa`), seguida da categoria BI-RADS e do campo opcional `mamografiaAchado`
+("O que foi encontrado"). Sai: `Mamografia de 02.08.2026: Cat 3 (nódulo irregular em mama esquerda).`;
+sem achado, o parêntese não aparece. O id `mamografiaData` não mudou, então rascunho antigo (com "mm/aaaa")
+volta igual.
+
 ## Publicação
 
 O GitHub Pages publica a partir da **`main`** (workflow "pages build and

@@ -434,7 +434,7 @@
         <hr class="sep">
         <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkMamografia"><label for="chkMamografia">Incluir referência a mamografia prévia</label></div>
         <div class="field-row conditional" id="wrap_mamografiaCampos">
-          <div class="field"><label>Mês/ano da mamografia</label><input type="text" id="mamografiaData" placeholder="mm/aaaa"></div>
+          <div class="field"><label>Data da realização</label><input type="text" id="mamografiaData" placeholder="dd.mm.aaaa"></div>
           <div class="field"><label>Categoria BI-RADS (mamografia)</label>
             <select id="mamografiaCategoria">
               <option value="0">Cat 0</option><option value="1" selected>Cat 1</option><option value="2">Cat 2</option>
@@ -442,6 +442,7 @@
               <option value="4C">Cat 4C</option><option value="5">Cat 5</option><option value="6">Cat 6</option>
             </select>
           </div>
+          <div class="field" style="flex:2 1 260px;"><label>O que foi encontrado (opcional)</label><input type="text" id="mamografiaAchado" placeholder="ex: nódulo irregular em mama esquerda"></div>
         </div>
       </div>
     </div>
@@ -1702,6 +1703,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const chkMamografia = $('chkMamografia').checked;
     const mamografiaData = blankOrValue(reqIf('mamografiaData', chkMamografia));
     const mamografiaCategoria = v('mamografiaCategoria') || '1';
+    const mamografiaAchado = v('mamografiaAchado').trim();
 
     const motivoExame = vNoDot('motivoExame');
 
@@ -1930,7 +1932,7 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+doctitleTexto+'</h3>'});
 
     if(chkMamografia){
-      blocks.push({id:'mamografia', html:'<p class="linha compacta">Mamografia de '+span(mamografiaData)+': Cat '+escapeHtml(mamografiaCategoria)+'.</p>'});
+      blocks.push({id:'mamografia', html:'<p class="linha compacta">Mamografia de '+span(mamografiaData)+': Cat '+escapeHtml(mamografiaCategoria)+(mamografiaAchado?' ('+escapeHtml(mamografiaAchado)+')':'')+'.</p>'});
     }
 
     if(motivoExame){
