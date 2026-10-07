@@ -87,6 +87,12 @@ Sem septações o texto sai **byte a byte igual** ao dos três tipos antigos.
   A versão intermediária tinha o campo `achado{uid}CistoSeptacoes` (do achado inteiro); a migração
   o replica para cada cisto como `Sept = sim` quando estava em "presentes".
 - "Vários cistos dispersos" e "Aglomerado cístico" não mudaram.
+- **Layout do card do cisto (2026-10-08):** depois do seletor "Localização", numa única linha
+  (`.cisto-linha`, grade de 4 colunas; 2 em tela estreita): Septações internas, Hora, Distância da
+  borda areolar e Tamanho — nessa ordem. Hora e Distância têm ids de wrapper `wrap_{pref}_hora` /
+  `wrap_{pref}_dist`, e o `data-wrap` do seletor de localização lista os dois separados por espaço
+  (`wireLocalToggle()` aceita vários ids); fora do modo "horário" os dois somem e a linha fica só com
+  Septações e Tamanho.
 
 ## Mamas: localização de cisto e nódulo com quatro modos (2026-10-08)
 

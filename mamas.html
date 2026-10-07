@@ -111,6 +111,12 @@
 
   .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:14px;}
   .field-row-compact{grid-template-columns:repeat(auto-fit,minmax(105px,1fr));}
+  /* Linha de um cisto: septações, hora, distância e tamanho lado a lado. Os rótulos
+     podem quebrar em duas linhas; os campos ficam alinhados pela base. Em tela
+     estreita vira duas colunas. */
+  .cisto-linha{display:grid;grid-template-columns:minmax(92px,.8fr) minmax(70px,.6fr) minmax(110px,1fr) minmax(140px,1.5fr);gap:10px;align-items:end;margin-bottom:14px;}
+  .cisto-linha .field{min-width:0;}
+  @media (max-width:560px){ .cisto-linha{grid-template-columns:1fr 1fr;} }
   .field{display:flex;flex-direction:column;gap:5px;}
   .field label{font-size:12px;color:var(--ink-soft);font-weight:500;}
   .field .vr{font-size:11px;color:var(--sage);font-weight:500;}
@@ -1291,7 +1297,8 @@ if(typeof criarMotorLaudo !== 'function'){
   // Liga o seletor de localização: só o modo "horário" mostra hora + distância.
   function wireLocalToggle(sel){
     if(!sel) return;
-    const apply = ()=> toggle(sel.dataset.wrap, sel.value === 'horario');
+    const ids = sel.dataset.wrap.split(' ');
+    const apply = ()=> ids.forEach(id=> toggle(id, sel.value === 'horario'));
     sel.addEventListener('change', apply);
     apply();
   }
@@ -1474,11 +1481,22 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   function cistoItemHTML(uid, cuid){
     const pref = 'achado'+uid+'CistoS'+cuid;
+    const wHora = 'wrap_'+pref+'_hora', wDist = 'wrap_'+pref+'_dist';
+    // Localização numa linha; embaixo, uma linha só com septações, hora, distância
+    // e tamanho. Hora e distância somem (cada uma com o seu wrap) fora do modo
+    // "horário"; septações e tamanho ficam sempre.
     return '<div class="cisto-item" data-cuid="'+cuid+'">'
       +'<p style="font-size:12px;color:var(--rose-dark);font-weight:600;margin:6px 0 6px;">Cisto <span class="cisto-index"></span></p>'
-      + campoHoraDistTam(pref, 'Hora', true, true)
       +'<div class="field-row">'
-        +'<div class="field" style="max-width:150px;"><label>Septações internas</label><select id="'+pref+'Sept"><option value="nao">Não</option><option value="sim">Sim</option></select></div>'
+        +'<div class="field"><label>Localização</label><select id="'+pref+'Local" class="local-toggle" data-wrap="'+wHora+' '+wDist+'">'
+          + LOCAL_OPCOES.map(([val,label])=>'<option value="'+val+'">'+label+'</option>').join('')
+        +'</select></div>'
+      +'</div>'
+      +'<div class="cisto-linha">'
+        +'<div class="field"><label>Septações internas</label><select id="'+pref+'Sept"><option value="nao">Não</option><option value="sim">Sim</option></select></div>'
+        +'<div class="field conditional show" id="'+wHora+'"><label>Hora</label><input type="text" id="'+pref+'Hora" placeholder="ex: 2"></div>'
+        +'<div class="field conditional show" id="'+wDist+'"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+pref+'Dist" placeholder="cm"></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+pref+'Tam" placeholder="ex: 22,3 x 11,0 x 33,0"></div>'
       +'</div>'
       +'<button type="button" class="cisto-remove">Remover cisto</button>'
     +'</div>';
