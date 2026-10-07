@@ -68,19 +68,24 @@ simples"), com um card por cisto dentro do achado (ids `achado{uid}CistoS{cuid}L
 em diante, a frase de abertura mais `- C1:`, `- C2:`... (o mesmo `corpoLista` de antes).
 Sem septações o texto sai **byte a byte igual** ao dos três tipos antigos.
 
-- **Septações** (`achado{uid}CistoSeptacoes`) valem para o achado inteiro e entram na frase
-  ("com finas septações internas"). Um achado com septações **não entra** no resumo de "cisto
-  simples" da impressão (a frase genérica apagaria a septação): sai uma linha própria, com
-  `impCistoSeptado` (um cisto) ou `impCistosSeptados` (dois ou mais, chave nova).
+- **Septações são de cada cisto** (`achado{uid}CistoS{cuid}Sept`, "Não"/"Sim", campo curto). Todos
+  os cistos do achado iguais: a característica entra na descrição geral ("de paredes finas e
+  regulares, com finas septações internas"). Misturado: a descrição geral não cita septação e cada
+  cisto que a tem diz "com finas septações internas" na sua parte (e no `- C2:` da lista). Com algum
+  cisto septado o achado **não entra** no resumo de "cisto simples" da impressão (a frase genérica
+  apagaria a septação): sai uma linha própria — `impCistoSeptado` (um cisto), `impCistosSeptados`
+  (todos septados) ou `impCistosSeptadosAlguns` (misto).
 - **O primeiro cisto nasce em `addAchado()` e no `change` do tipo** — não em
   `updateAchadoVisibility()`, senão `wireAchado()` do `draftRestore()` criaria um cisto a mais.
 - **Rascunho:** guarda `cistoUids` por achado; `draftMigrarCistos()` converte rascunho com
   `cisto1`/`cisto2`/`cisto3` (campos fixos) para a lista. Sem isso o achado voltava sem tipo.
 - **O tipo "Cisto septado" saiu (2026-10-08)**: o cisto simples com "Finas septações internas:
   presentes" cobre o caso. `draftMigrarCistos()` converte rascunho com `cistoSeptado` para
-  cisto simples + septações presentes **mesmo quando o achado já tem lista de cistos** — na versão
+  cisto simples com septação no cisto **mesmo quando o achado já tem lista de cistos** — na versão
   anterior todo card nascia com um cisto escondido, então a lista não indica formato novo. A chave
   `impCistoSeptado` ficou (é a frase do cisto simples com septações, um só).
+  A versão intermediária tinha o campo `achado{uid}CistoSeptacoes` (do achado inteiro); a migração
+  o replica para cada cisto como `Sept = sim` quando estava em "presentes".
 - "Vários cistos dispersos" e "Aglomerado cístico" não mudaram.
 
 ## Mamas: localização de cisto e nódulo com quatro modos (2026-10-08)
