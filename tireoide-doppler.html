@@ -1450,7 +1450,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Halo periférico</label><select id="nodulo'+uid+'Halo"><option value="ausente">Ausente</option><option value="presente">Presente</option></select></div>'
       +'</div>'
       +'<div class="field-row field-row-compact">'
-      +'<div class="field"><label>Tamanho</label><input type="text" id="nodulo'+uid+'Tamanho" placeholder="ex: 22,1 x 23,4 x 25,3 mm"></div>'
+      +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" id="nodulo'+uid+'Tamanho" placeholder="ex: 22,1 x 23,4 x 25,3"></div>'
       +'<div class="field"><label>Doppler (Chammas)</label><select id="nodulo'+uid+'Chammas">'
       +'<option value="1">Chammas I — sem vascularização</option><option value="2">Chammas II — periférica</option><option value="3">Chammas III — periférica maior que central</option><option value="4">Chammas IV — central maior que periférica</option><option value="5">Chammas V — exclusivamente central</option>'
       +'</select></div>'
@@ -1470,8 +1470,17 @@ if(typeof criarMotorLaudo !== 'function'){
       if(removeBtn) removeBtn.style.display = nodulos.length>1 ? 'inline' : 'none';
     });
   }
+  // O "mm" sai no laudo, não se digita: o campo só aceita números, vírgula e o
+  // "x" entre as medidas (22,1 x 23,4 x 25,3). Ponto vira vírgula.
+  function sanitizeNoduloTamanho(inp){
+    const limpo = inp.value.replace(/\./g, ',').replace(/X/g, 'x').replace(/[^0-9,x ]/g, '');
+    if(limpo !== inp.value) inp.value = limpo;
+  }
   function wireNoduloNodule(uid){
     const el = $('wrap_nodulo'+uid);
+    const tamanhoInp = $('nodulo'+uid+'Tamanho');
+    tamanhoInp.addEventListener('input', ()=> sanitizeNoduloTamanho(tamanhoInp));
+    sanitizeNoduloTamanho(tamanhoInp);
     el.querySelectorAll('input, select').forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
@@ -1744,7 +1753,8 @@ if(typeof criarMotorLaudo !== 'function'){
         const focos = NODULO_FOCOS_TEXTO[v('nodulo'+uid+'Focos')] || NODULO_FOCOS_TEXTO.nenhum;
         const halo = v('nodulo'+uid+'Halo')==='presente' ? 'com halo periférico' : 'sem halo periférico';
         const terco = v('nodulo'+uid+'Terco') || 'superior';
-        const tamanho = blankOrValue(req('nodulo'+uid+'Tamanho'));
+        // rascunho antigo pode trazer o "mm" digitado: tira, que a unidade é fixa
+        const tamanho = blankOrValue(req('nodulo'+uid+'Tamanho').replace(/\s*mm\s*$/i, ''));
         const chammas = NODULO_CHAMMAS_TEXTO[v('nodulo'+uid+'Chammas')] || NODULO_CHAMMAS_TEXTO['1'];
         const tirads = v('nodulo'+uid+'Tirads') || '3';
 
@@ -1774,7 +1784,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
         const descritores = composicao+', '+ecogenicidade+', '+forma+', '+margem+', '+focos+', '+halo+', '+chammas;
         const localizacao = lobo==='istmo' ? 'localizado no istmo' : ('localizado no terço '+terco);
-        const fim = ', medindo '+span(tamanho)+' (TI-RADS – Cat. '+tirads+').';
+        const fim = ', medindo '+span(tamanho)+' mm (TI-RADS – Cat. '+tirads+').';
         return {
           lobo,
           texto: 'Nódulo '+descritores+', '+localizacao+fim
