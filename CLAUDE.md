@@ -87,6 +87,12 @@ Sem septações o texto sai **byte a byte igual** ao dos três tipos antigos.
   A versão intermediária tinha o campo `achado{uid}CistoSeptacoes` (do achado inteiro); a migração
   o replica para cada cisto como `Sept = sim` quando estava em "presentes".
 - "Vários cistos dispersos" e "Aglomerado cístico" não mudaram.
+- **Layout do card do cisto (2026-10-08):** depois do seletor "Localização", numa única linha
+  (`.cisto-linha`, grade de 4 colunas; 2 em tela estreita): Septações internas, Hora, Distância da
+  borda areolar e Tamanho — nessa ordem. Hora e Distância têm ids de wrapper `wrap_{pref}_hora` /
+  `wrap_{pref}_dist`, e o `data-wrap` do seletor de localização lista os dois separados por espaço
+  (`wireLocalToggle()` aceita vários ids); fora do modo "horário" os dois somem e a linha fica só com
+  Septações e Tamanho.
 
 ## Mamas: localização de cisto e nódulo com quatro modos (2026-10-08)
 
@@ -100,6 +106,14 @@ simples (um seletor por cisto), vários cistos (maior cisto), aglomerado, nódul
 `Hora1`/`Dist1`), 3+ nódulos (`Nodulo3N{n}Local`), fibroadenoma e abscesso. Linfonodo intramamário
 e seroma ficaram de fora. No modo "horário" o texto sai idêntico ao de antes; rascunho antigo
 volta sem migração (o campo novo não existia e assume "horário").
+
+## Mamas: mamografia prévia com data completa e achado (2026-10-08)
+
+No card "Indicação clínica e mamografia prévia", "Mês/ano" virou **"Data da realização"** (texto livre,
+placeholder `dd.mm.aaaa`), seguida da categoria BI-RADS e do campo opcional `mamografiaAchado`
+("O que foi encontrado"). Sai: `Mamografia de 02.08.2026: Cat 3 (nódulo irregular em mama esquerda).`;
+sem achado, o parêntese não aparece. O id `mamografiaData` não mudou, então rascunho antigo (com "mm/aaaa")
+volta igual.
 
 ## Publicação
 
