@@ -76,7 +76,12 @@ Sem septações o texto sai **byte a byte igual** ao dos três tipos antigos.
   `updateAchadoVisibility()`, senão `wireAchado()` do `draftRestore()` criaria um cisto a mais.
 - **Rascunho:** guarda `cistoUids` por achado; `draftMigrarCistos()` converte rascunho com
   `cisto1`/`cisto2`/`cisto3` (campos fixos) para a lista. Sem isso o achado voltava sem tipo.
-- "Cisto septado" (tipo próprio), "Vários cistos dispersos" e "Aglomerado cístico" não mudaram.
+- **O tipo "Cisto septado" saiu (2026-10-08)**: o cisto simples com "Finas septações internas:
+  presentes" cobre o caso. `draftMigrarCistos()` converte rascunho com `cistoSeptado` para
+  cisto simples + septações presentes **mesmo quando o achado já tem lista de cistos** — na versão
+  anterior todo card nascia com um cisto escondido, então a lista não indica formato novo. A chave
+  `impCistoSeptado` ficou (é a frase do cisto simples com septações, um só).
+- "Vários cistos dispersos" e "Aglomerado cístico" não mudaram.
 
 ## Mamas: localização de cisto e nódulo com quatro modos (2026-10-08)
 
@@ -85,7 +90,7 @@ Todo achado de cisto ou nódulo tem o seletor "Localização" (`campoHoraDistTam
 padrão), **na borda areolar**, **retromamilar** e **retroareolar**. Só o primeiro usa
 hora + distância (`lerLoc()` só pede os dois campos nesse modo; `wireLocalToggle()` esconde a
 linha nos outros). `localizacaoTexto(modo, hora, dist)` monta o trecho da frase. Vale para cisto
-simples (um seletor por cisto), cisto septado, vários cistos (maior cisto), aglomerado, nódulo
+simples (um seletor por cisto), vários cistos (maior cisto), aglomerado, nódulo
 único, 2 nódulos (um seletor por nódulo; ids `...Local1`/`...Local2`, os mesmos sufixos de
 `Hora1`/`Dist1`), 3+ nódulos (`Nodulo3N{n}Local`), fibroadenoma e abscesso. Linfonodo intramamário
 e seroma ficaram de fora. No modo "horário" o texto sai idêntico ao de antes; rascunho antigo
