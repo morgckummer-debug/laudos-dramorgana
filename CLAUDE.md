@@ -1485,3 +1485,7 @@ Conferido com `ferramentas/testar-laudos.mjs` antes/depois: nenhuma diferença.
 ## Temas de cor da interface (2026-10-03)
 
 `tema.js` (carregado no `<head>` dos quinze `.html`, antes do `<body>`) troca só as variáveis de cor da **interface** — `--rose*`, `--sage*`, `--bg`, `--line*`, `--ink-soft`, `--shadow` — por `:root[data-tema="..."]`, e cria o botão da paleta em `.topbar-actions` (no `index.html`, direto na `.topbar`). Escolha guardada em `localStorage` (`laudo-tema`), valendo para todos os laudos. Seis paletas: Orquídea (padrão, sem atributo), Oceano, Marinho, Turquesa, Sálvia e Laranja. A folha do laudo (`.paper`) refixa `--ink-soft` no valor original, para impressão e Word não mudarem com o tema. Cor nova no CSS de um laudo: use `var(--rose-dark)` etc., nunca o hex — hex fixo não troca com o tema. Paleta nova = uma linha em `TEMAS`.
+
+## Abdome: colecistectomia e VR do hepatocolédoco (2026-10-07)
+
+`abdome-total.html` ganhou a opção "Colecistectomia (vesícula ausente)" em `vesiculaAspecto`: texto "Vesícula biliar não visualizada, compatível com status pós-colecistectomia" e impressão diagnóstica "Status pós-colecistectomia." (frase `impVesiculaColecistectomia`, chave nova de propósito). Com essa opção o VR do hepatocolédoco passa de "até 6 mm" para "até 10,0 mm", no campo, no aviso de valor acima do VR e na frase impressa — decidido dentro do `render()`, a cada desenho.
