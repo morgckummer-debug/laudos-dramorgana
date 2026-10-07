@@ -60,6 +60,24 @@ mudar texto de frase. O que muda para quem mexer nele:
   Benito não está na lista `EXECUTANTES` do motor; enquanto isso não mudar, dá
   para assinar como ele com "Outro (digitar manualmente)" no seletor de médico.
 
+## Mamas: um tipo só de cisto simples, com lista (2026-10-08)
+
+"Cisto único", "2 cistos" e "3 ou mais cistos" viraram **um** tipo, `cisto` ("Cisto
+simples"), com um card por cisto dentro do achado (ids `achado{uid}CistoS{cuid}Local/Hora/Dist/Tam`,
+`cuid` próprio, `cistoUidsDe()`/`addCisto()`). Um ou dois cistos saem numa frase só; de três
+em diante, a frase de abertura mais `- C1:`, `- C2:`... (o mesmo `corpoLista` de antes).
+Sem septações o texto sai **byte a byte igual** ao dos três tipos antigos.
+
+- **Septações** (`achado{uid}CistoSeptacoes`) valem para o achado inteiro e entram na frase
+  ("com finas septações internas"). Um achado com septações **não entra** no resumo de "cisto
+  simples" da impressão (a frase genérica apagaria a septação): sai uma linha própria, com
+  `impCistoSeptado` (um cisto) ou `impCistosSeptados` (dois ou mais, chave nova).
+- **O primeiro cisto nasce em `addAchado()` e no `change` do tipo** — não em
+  `updateAchadoVisibility()`, senão `wireAchado()` do `draftRestore()` criaria um cisto a mais.
+- **Rascunho:** guarda `cistoUids` por achado; `draftMigrarCistos()` converte rascunho com
+  `cisto1`/`cisto2`/`cisto3` (campos fixos) para a lista. Sem isso o achado voltava sem tipo.
+- "Cisto septado" (tipo próprio), "Vários cistos dispersos" e "Aglomerado cístico" não mudaram.
+
 ## Publicação
 
 O GitHub Pages publica a partir da **`main`** (workflow "pages build and
