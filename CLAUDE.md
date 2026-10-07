@@ -37,6 +37,16 @@ mudar texto de frase. O que muda para quem mexer nele:
   assim a folha nunca quebra no meio de um marcador.
 - **Impressão diagnóstica no padrão atual** (`* ` no texto, `ul.impressao`,
   edição à mão com `impressaoOverrides`). O original usava marcador de bolinha.
+- **Alterações do ovário (2026-10-07): bloco copiado do `transvaginal.html`.** Aspecto
+  com cisto simples (lista de cistos com uid, `CISTO_SLOTS`), policístico (com
+  volume), corpo lúteo, folículo, dermoide, endometrioma, volume reduzido, não
+  identificado e "outro", mais a "alteração adicional" por ovário; impressão
+  diagnóstica com bilateral (policísticos / volume reduzido). São as mesmas funções
+  e chaves de frase de lá (`cistosTexto`, `OVARIO_*_TEXT`, `hdSufixoChave`) — outra
+  cópia a conservar em sincronia, nenhuma no motor. Diferenças deliberadas: a
+  frase-base do ovário normal continua a do perineal ("dimensões e ecotextura
+  preservadas"), e com achado ela vira só a medida; `ovarioNaoIdentificado` é a do
+  perineal (com `{LADO}`), não a do transvaginal. O rascunho guarda `cistoUids`.
 - **Sem CPF, sem GPA, sem Curva de Crescimento.** Não desestruture
   `aplicarMascaraCPF` aqui (ver a seção do `aplicarMascaraCPF is not defined`).
 - **Passa em `ferramentas/testar-laudos.mjs`** (entrou na lista `LAUDOS`).
