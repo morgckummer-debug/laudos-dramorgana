@@ -78,6 +78,19 @@ Sem septações o texto sai **byte a byte igual** ao dos três tipos antigos.
   `cisto1`/`cisto2`/`cisto3` (campos fixos) para a lista. Sem isso o achado voltava sem tipo.
 - "Cisto septado" (tipo próprio), "Vários cistos dispersos" e "Aglomerado cístico" não mudaram.
 
+## Mamas: localização de cisto e nódulo com quatro modos (2026-10-08)
+
+Todo achado de cisto ou nódulo tem o seletor "Localização" (`campoHoraDistTam()`, ids `...Local`,
+`data-wrap` com o id da linha de hora/distância): **horário e distância da borda areolar** (o
+padrão), **na borda areolar**, **retromamilar** e **retroareolar**. Só o primeiro usa
+hora + distância (`lerLoc()` só pede os dois campos nesse modo; `wireLocalToggle()` esconde a
+linha nos outros). `localizacaoTexto(modo, hora, dist)` monta o trecho da frase. Vale para cisto
+simples (um seletor por cisto), cisto septado, vários cistos (maior cisto), aglomerado, nódulo
+único, 2 nódulos (um seletor por nódulo; ids `...Local1`/`...Local2`, os mesmos sufixos de
+`Hora1`/`Dist1`), 3+ nódulos (`Nodulo3N{n}Local`), fibroadenoma e abscesso. Linfonodo intramamário
+e seroma ficaram de fora. No modo "horário" o texto sai idêntico ao de antes; rascunho antigo
+volta sem migração (o campo novo não existia e assume "horário").
+
 ## Publicação
 
 O GitHub Pages publica a partir da **`main`** (workflow "pages build and
