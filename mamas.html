@@ -381,8 +381,9 @@
   <div class="field" style="margin-bottom:8px;"><label>Cisto simples (único) — use {LADO}</label><textarea id="ph_impCistoSingular" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cistos simples (2 ou mais) — use {LADO}</label><textarea id="ph_impCistoPlural" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Aglomerado cístico — use {LADO}</label><textarea id="ph_impAglomeradoCistico" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Cisto septado (ou cisto simples com septações, único) — use {LADO}</label><textarea id="ph_impCistoSeptado" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Cistos simples com septações (2 ou mais) — use {LADO}</label><textarea id="ph_impCistosSeptados" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cisto simples com septações (único) — use {LADO}</label><textarea id="ph_impCistoSeptado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cistos simples, todos com septações (2 ou mais) — use {LADO}</label><textarea id="ph_impCistosSeptados" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cistos simples, alguns com septações — use {LADO}</label><textarea id="ph_impCistosSeptadosAlguns" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido (único) — use {LADO}</label><textarea id="ph_impNoduloSingular" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos (2 ou mais) — use {LADO}</label><textarea id="ph_impNoduloPlural" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos bilaterais</label><textarea id="ph_impNoduloBilateral" rows="2"></textarea></div>
@@ -1145,8 +1146,9 @@ if(typeof criarMotorLaudo !== 'function'){
     impCistoSingular: 'Cisto simples em mama {LADO}.',
     impCistoPlural: 'Cistos simples em mama {LADO}.',
     impAglomeradoCistico: 'Aglomerado cístico em mama {LADO}.',
-    impCistoSeptado: 'Cisto septado em mama {LADO}.',
+    impCistoSeptado: 'Cisto septado em mama {LADO}.', // cisto simples com septações (um só)
     impCistosSeptados: 'Cistos com finas septações internas em mama {LADO}.',
+    impCistosSeptadosAlguns: 'Cistos simples, alguns com finas septações internas, em mama {LADO}.',
     impNoduloSingular: 'Nódulo sólido em mama {LADO}.',
     impNoduloPlural: 'Nódulos sólidos em mama {LADO}.',
     impNoduloBilateral: 'Nódulos sólidos bilaterais.',
@@ -1236,7 +1238,6 @@ if(typeof criarMotorLaudo !== 'function'){
     ['cisto','Cisto simples'],
     ['cistosVarios','Vários cistos dispersos pelo parênquima'],
     ['aglomeradoCistico','Aglomerado cístico'],
-    ['cistoSeptado','Cisto septado'],
     ['nodulo1','Nódulo sólido único'],
     ['nodulo2','2 nódulos sólidos'],
     ['nodulo3','3 ou mais nódulos sólidos'],
@@ -1343,11 +1344,8 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // Cisto simples: quantos cistos forem (um card por cisto, como os nódulos de
     // mioma do transvaginal). Um ou dois saem numa frase só; de três em diante,
-    // numa lista C1, C2... A opção de septações vale para o achado inteiro.
+    // numa lista C1, C2... A opção de septações é de cada cisto.
     html += '<div class="conditional" id="wrap_'+p+'_cisto">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Finas septações internas</label><select id="'+p+'CistoSeptacoes"><option value="ausentes">Ausentes</option><option value="presentes">Presentes</option></select></div>'
-      +'</div>'
       +'<div id="'+p+'CistosLista"></div>'
       +'<button type="button" class="btn-clear" id="'+p+'CistoAdd" style="margin:2px 0 8px;">+ Adicionar cisto</button>'
     +'</div>';
@@ -1360,9 +1358,6 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       + campoHoraDistTam(p+'CistosVarios','Maior cisto — hora', true, true, {labelLocal:'Localização do maior cisto'})
     +'</div>';
-
-    // Cisto septado
-    html += '<div class="conditional" id="wrap_'+p+'_cistoSeptado">'+campoHoraDistTam(p+'CistoSeptado','Hora', true, true)+'</div>';
 
     // Aglomerado cístico
     html += '<div class="conditional" id="wrap_'+p+'_aglomeradoCistico">'
@@ -1482,6 +1477,9 @@ if(typeof criarMotorLaudo !== 'function'){
     return '<div class="cisto-item" data-cuid="'+cuid+'">'
       +'<p style="font-size:12px;color:var(--rose-dark);font-weight:600;margin:6px 0 6px;">Cisto <span class="cisto-index"></span></p>'
       + campoHoraDistTam(pref, 'Hora', true, true)
+      +'<div class="field-row">'
+        +'<div class="field" style="max-width:150px;"><label>Septações internas</label><select id="'+pref+'Sept"><option value="nao">Não</option><option value="sim">Sim</option></select></div>'
+      +'</div>'
       +'<button type="button" class="cisto-remove">Remover cisto</button>'
     +'</div>';
   }
@@ -1581,10 +1579,10 @@ if(typeof criarMotorLaudo !== 'function'){
   // linhas "Nódulo sólido em mama direita.", um em cada mama viravam duas
   // linhas de lados diferentes em vez de uma só "bilaterais". Essas duas
   // categorias (nodulo1/2/3 e cisto1/2/3/cistosVarios) resumem numa linha só,
-  // cobrindo os dois lados de uma vez. Aglomerado cístico, cisto septado,
+  // cobrindo os dois lados de uma vez. Aglomerado cístico,
   // fibroadenoma, linfonodo (axilar/intramamário), seroma e abscesso continuam uma
   // linha por achado — são diagnósticos específicos, não entram no resumo
-  // genérico (o septado em especial: a frase de "cisto simples" apagaria
+  // genérico (cisto simples COM septações também não entra: a frase de "cisto simples" apagaria
   // justamente a septação que motiva um acompanhamento diferente).
   const RESUMO_PLURAL_TIPOS = ['nodulo2','nodulo3','cistosVarios'];
   function buildResumoAchado(achados, tipos, key, singularKey, pluralKey, bilateralKey){
@@ -1604,9 +1602,9 @@ if(typeof criarMotorLaudo !== 'function'){
   function buildImpressao(state){
     const items = [{key:'normal', label:phrase('impNormal'), auto:true}];
 
-    const INDIVIDUAIS = ['aglomeradoCistico','cistoSeptado','fibroadenoma','linfonodoAxilar','linfonodoIntramamario','seroma','abscesso'];
+    const INDIVIDUAIS = ['aglomeradoCistico','fibroadenoma','linfonodoAxilar','linfonodoIntramamario','seroma','abscesso'];
     // Cisto simples COM septações não entra no resumo de "cisto simples": a frase
-    // genérica apagaria justamente a septação (mesmo motivo do cisto septado).
+    // genérica apagaria justamente a septação (a frase de "cisto simples" não pode esconder a septação).
     state.achados.forEach(a=>{
       if(INDIVIDUAIS.includes(a.tipo) || (a.tipo==='cisto' && a.septado)) items.push({key:'achado-'+a.uid, label:a.hd, auto:true});
     });
@@ -1723,7 +1721,7 @@ if(typeof criarMotorLaudo !== 'function'){
       let corpo = '';
       let corpoLista = null;
       let hd = '';
-      let plural = false, septado = false;
+      let plural = false, septado = false, septadoAlguns = false;
       if(tipo === 'cisto'){
         const cistos = cistoUidsDe(uid).map(cuid=>{
           const b = 'achado'+uid+'CistoS'+cuid;
@@ -1732,13 +1730,20 @@ if(typeof criarMotorLaudo !== 'function'){
             modo: l.modo,
             hora: l.hora,
             dist: l.dist,
-            tam: blankOrValue(tamanhoSemUnidade(req(b+'Tam')))
+            tam: blankOrValue(tamanhoSemUnidade(req(b+'Tam'))),
+            sept: v(b+'Sept') === 'sim'
           };
         });
-        if(!cistos.length) cistos.push({modo:'horario', hora:blankOrValue(''), dist:blankOrValue(''), tam:blankOrValue('')});
-        septado = v('achado'+uid+'CistoSeptacoes') === 'presentes';
-        const adj = 'de paredes finas e regulares'+(septado ? ', com finas septações internas' : '')+', condicionando reforço acústico posterior';
-        const loc = c=> localizacaoTexto(c.modo, c.hora, c.dist);
+        if(!cistos.length) cistos.push({modo:'horario', hora:blankOrValue(''), dist:blankOrValue(''), tam:blankOrValue(''), sept:false});
+        // Septações são de cada cisto. Todos iguais: a característica entra na descrição
+        // geral ("de paredes finas e regulares, com finas septações internas"). Misturado:
+        // a descrição geral não cita septação e cada cisto que a tem diz isso na sua parte.
+        const nSept = cistos.filter(c=> c.sept).length;
+        septado = nSept > 0;
+        const todosSept = nSept === cistos.length;
+        septadoAlguns = septado && !todosSept;
+        const adj = 'de paredes finas e regulares'+(todosSept ? ', com finas septações internas' : '')+', condicionando reforço acústico posterior';
+        const loc = c=> localizacaoTexto(c.modo, c.hora, c.dist) + (septadoAlguns && c.sept ? ', com finas septações internas' : '');
         plural = cistos.length >= 2;
         if(cistos.length === 1){
           corpo = 'Observa-se imagem anecóica '+adj+', localizada '+loc(cistos[0])+', medindo '+span(cistos[0].tam)+' mm.';
@@ -1749,7 +1754,7 @@ if(typeof criarMotorLaudo !== 'function'){
           corpoLista = cistos.map((c, i)=> 'C'+(i+1)+': localizada '+loc(c)+', medindo '+span(c.tam)+' mm.');
         }
         hd = septado
-          ? phrase(plural ? 'impCistosSeptados' : 'impCistoSeptado', {LADO: lado})
+          ? phrase(!plural ? 'impCistoSeptado' : (septadoAlguns ? 'impCistosSeptadosAlguns' : 'impCistosSeptados'), {LADO: lado})
           : phrase(plural ? 'impCistoPlural' : 'impCistoSingular', {LADO: lado});
       } else if(tipo === 'cistosVarios'){
         const min=blankOrValue(req('achado'+uid+'CistosVariosTamMin'));
@@ -1758,12 +1763,6 @@ if(typeof criarMotorLaudo !== 'function'){
         const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'CistosVariosTam')));
         corpo = 'Observam-se algumas imagens anecóicas de paredes finas e regulares, dispersas pelo parênquima, variando entre '+span(min)+' e '+span(max)+' mm, a maior localizada '+localizacaoTexto(loc.modo, loc.hora, loc.dist)+', medindo '+span(tam)+' mm.';
         hd = phrase('impCistoPlural', {LADO: lado});
-      } else if(tipo === 'cistoSeptado'){
-        const loc = lerLoc('achado'+uid+'CistoSeptado');
-        const tamRaw = req('achado'+uid+'CistoSeptadoTam');
-        const tam = blankOrValue(tamanhoSemUnidade(tamRaw));
-        corpo = 'Observa-se imagem cística, de contornos pouco regulares e finas septações internas, localizada '+localizacaoTexto(loc.modo, loc.hora, loc.dist)+', medindo '+span(tam)+' mm.';
-        hd = phrase('impCistoSeptado', {LADO: lado});
       } else if(tipo === 'aglomeradoCistico'){
         const loc = lerLoc('achado'+uid+'Aglomerado');
         const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'AglomeradoTam')));
@@ -2225,13 +2224,17 @@ if(typeof criarMotorLaudo !== 'function'){
   }
 
   // Rascunho gravado quando existiam "Cisto único" / "2 cistos" / "3 ou mais
-  // cistos" (campos fixos): converte para o cisto simples com lista, senão esses
+  // cistos" / "Cisto septado" (campos fixos): converte para o cisto simples com lista, senão esses
   // achados voltariam sem o tipo.
   function draftMigrarCistos(d){
-    if(d.cistoUids || !d.fields || !Array.isArray(d.uids)) return;
+    if(!d.fields || !Array.isArray(d.uids)) return;
     const f = d.fields;
-    d.cistoUids = {};
+    if(!d.cistoUids) d.cistoUids = {};
     d.uids.forEach(uid=>{
+      // Só os tipos que saíram precisam de conversão (cisto simples novo cai no
+      // `else return`). Um achado que virou "Cisto septado" na versão anterior
+      // JÁ traz uma lista de cistos — o cisto escondido que nasceu com o card —,
+      // então a presença da lista não significa que o achado está no formato novo.
       const p = 'achado'+uid;
       const tipo = f[p+'Tipo'];
       const lista = [];
@@ -2241,6 +2244,10 @@ if(typeof criarMotorLaudo !== 'function'){
         [1,2].forEach(n=> lista.push({Hora:f[p+'Cisto2Hora'+n], Dist:f[p+'Cisto2Dist'+n], Tam:f[p+'Cisto2Tam'+n]}));
       } else if(tipo === 'cisto3'){
         [1,2,3].forEach(n=> lista.push({Hora:f[p+'Cisto3C'+n+'Hora'], Dist:f[p+'Cisto3C'+n+'Dist'], Tam:f[p+'Cisto3C'+n+'Tam']}));
+      } else if(tipo === 'cistoSeptado'){
+        // O tipo "Cisto septado" saiu: vira cisto simples com septações presentes.
+        lista.push({Local:f[p+'CistoSeptadoLocal'], Hora:f[p+'CistoSeptadoHora'], Dist:f[p+'CistoSeptadoDist'], Tam:f[p+'CistoSeptadoTam']});
+        f[p+'CistoSeptacoes'] = 'presentes';
       } else { return; }
       f[p+'Tipo'] = 'cisto';
       d.cistoUids[uid] = lista.map(c=>{
@@ -2251,6 +2258,16 @@ if(typeof criarMotorLaudo !== 'function'){
         f[b+'Dist'] = c.Dist || '';
         f[b+'Tam'] = c.Tam || '';
         return cuid;
+      });
+    });
+    // Versão anterior: "Finas septações internas" era um campo do ACHADO
+    // (`achado{uid}CistoSeptacoes`). Agora é de cada cisto (`...CistoS{cuid}Sept`).
+    d.uids.forEach(uid=>{
+      const p = 'achado'+uid;
+      if(f[p+'CistoSeptacoes'] !== 'presentes') return;
+      (d.cistoUids[uid] || []).forEach(cuid=>{
+        const k = p+'CistoS'+cuid+'Sept';
+        if(f[k] === undefined) f[k] = 'sim';
       });
     });
   }
