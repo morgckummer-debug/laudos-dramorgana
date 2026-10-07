@@ -2695,7 +2695,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
-    blocks.push({id:'recomendacao', html:'<p class="recomendacao">'+phrase('recomendacaoTexto')+'</p>'});
+    if(!tri3) blocks.push({id:'recomendacao', html:'<p class="recomendacao">'+phrase('recomendacaoTexto')+'</p>'});
 
     let rodapeHtml = '<div class="rodape-final">';
     rodapeHtml += '<p class="footnote">'+comDigitadora(phrase('footerImagens'))+'</p>';
