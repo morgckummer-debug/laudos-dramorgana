@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laudo de Ultrassonografia Perineal — Dra. Morgana Kummer</title>
+<title>Laudo de Ultrassonografia de Períneo — Dra. Morgana Kummer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -393,7 +393,7 @@
       <img src="icon-pelvico.png" alt="">
     </div>
     <div class="topbar-title">
-      <h1>Ultrassom Perineal</h1>
+      <h1>Ultrassom de Períneo</h1>
       <div class="sub">Avaliação perineal e de prolapso genital · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
     </div>
   </div>
@@ -424,7 +424,7 @@
         <option value="mamas.html">Mamas e Axilas</option>
         <option value="monitorizacao-folicular-fiv.html">Monitorização Folicular (FIV)</option>
         <option value="pelvico-infantil.html">Pélvico Infantil</option>
-        <option value="perineal.html" selected>Perineal</option>
+        <option value="perineal.html" selected>Períneo</option>
         <option value="rastreamento-ovulacao.html">Rastreamento de Ovulação</option>
         <option value="transvaginal.html">Transvaginal</option>
       </optgroup>
@@ -479,6 +479,8 @@
     <div class="field"><label>Opção 2 — limite máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroMax2" value="140"></div>
     <div class="field"><label>Opção 3 — texto exibido</label><input type="text" id="vr_uteroTexto3" value="VR até 180 cm³"></div>
     <div class="field"><label>Opção 3 — limite máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroMax3" value="180"></div>
+    <div class="field"><label>Opção 4 (pós-menopausa) — texto exibido</label><input type="text" id="vr_uteroTexto4" value="VR < 70 cm³"></div>
+    <div class="field"><label>Opção 4 (pós-menopausa) — limite máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_uteroMax4" value="70"></div>
   </div>
   <hr class="sep">
   <h3>Opções do dropdown — volume ovariano</h3>
@@ -760,6 +762,7 @@
               <option value="op1">VR &lt; 90 cm³</option>
               <option value="op2">VR até 140 cm³</option>
               <option value="op3">VR até 180 cm³</option>
+              <option value="op4">Pós-menopausa — VR &lt; 70 cm³</option>
             </select>
           </div>
         </div>
@@ -2058,6 +2061,7 @@ if(typeof criarMotorLaudo !== 'function'){
     uteroTexto1:'VR < 90 cm³', uteroMax1:90,
     uteroTexto2:'VR até 140 cm³', uteroMax2:140,
     uteroTexto3:'VR até 180 cm³', uteroMax3:180,
+    uteroTexto4:'VR < 70 cm³', uteroMax4:70,
     ovarioTexto1:'VR: 3,0 a 9,0 cm³', ovarioMin1:3, ovarioMax1:9,
     ovarioTexto2:'VR: até 5,0 cm³', ovarioMax2:5,
     esfIntSignif:30, esfExtSignif:50
@@ -2076,7 +2080,7 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   const VR_CAMPOS = ['anguloMin','anguloMax','afunilamento','espessura','mobilidade','gap','slingUretraMin','slingUretraMax',
     'slingPubis','hiatoLeve','hiatoModerado','hiatoAcentuado','hiatoSevero','uteroTexto1','uteroMax1','uteroTexto2',
-    'uteroMax2','uteroTexto3','uteroMax3','ovarioTexto1','ovarioMin1','ovarioMax1','ovarioTexto2','ovarioMax2',
+    'uteroMax2','uteroTexto3','uteroMax3','uteroTexto4','uteroMax4','ovarioTexto1','ovarioMin1','ovarioMax1','ovarioTexto2','ovarioMax2',
     'esfIntSignif','esfExtSignif'];
   function applyVRToInputs(){
     $('vr_medicoNome').value = VR.medicoNome;
@@ -2092,6 +2096,7 @@ if(typeof criarMotorLaudo !== 'function'){
       uteroSel.options[0].textContent = VR.uteroTexto1;
       uteroSel.options[1].textContent = VR.uteroTexto2;
       uteroSel.options[2].textContent = VR.uteroTexto3;
+      uteroSel.options[3].textContent = 'Pós-menopausa — '+VR.uteroTexto4;
     }
     const ovarioSel = $('vrOvarioTipo');
     if(ovarioSel){
@@ -2118,7 +2123,7 @@ if(typeof criarMotorLaudo !== 'function'){
   const VR_PADRAO = {
     anguloMin:90, anguloMax:120, afunilamento:5, espessura:5, mobilidade:10, gap:25,
     slingUretraMin:3, slingUretraMax:5, slingPubis:15, hiatoLeve:25, hiatoModerado:30, hiatoAcentuado:35, hiatoSevero:40,
-    uteroTexto1:'VR < 90 cm³', uteroMax1:90, uteroTexto2:'VR até 140 cm³', uteroMax2:140, uteroTexto3:'VR até 180 cm³', uteroMax3:180,
+    uteroTexto1:'VR < 90 cm³', uteroMax1:90, uteroTexto2:'VR até 140 cm³', uteroMax2:140, uteroTexto3:'VR até 180 cm³', uteroMax3:180, uteroTexto4:'VR < 70 cm³', uteroMax4:70,
     ovarioTexto1:'VR: 3,0 a 9,0 cm³', ovarioMin1:3, ovarioMax1:9, ovarioTexto2:'VR: até 5,0 cm³', ovarioMax2:5,
     esfIntSignif:30, esfExtSignif:50
   };
@@ -2803,8 +2808,8 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const uteroPosicao = v('uteroPosicao');
     const vrUteroTipo = v('vrUteroTipo');
-    const vrUteroLimite = vrUteroTipo==='op2' ? VR.uteroMax2 : (vrUteroTipo==='op3' ? VR.uteroMax3 : VR.uteroMax1);
-    const vrUteroTexto = escapeHtml(vrUteroTipo==='op2' ? VR.uteroTexto2 : (vrUteroTipo==='op3' ? VR.uteroTexto3 : VR.uteroTexto1));
+    const vrUteroLimite = vrUteroTipo==='op2' ? VR.uteroMax2 : (vrUteroTipo==='op3' ? VR.uteroMax3 : (vrUteroTipo==='op4' ? VR.uteroMax4 : VR.uteroMax1));
+    const vrUteroTexto = escapeHtml(vrUteroTipo==='op2' ? VR.uteroTexto2 : (vrUteroTipo==='op3' ? VR.uteroTexto3 : (vrUteroTipo==='op4' ? VR.uteroTexto4 : VR.uteroTexto1)));
     const uteroL = blankOrValue(req('uteroL'));
     const uteroAP = blankOrValue(req('uteroAP'));
     const uteroT = blankOrValue(req('uteroT'));
@@ -3284,7 +3289,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
   let printRestore = null;
   // "Salvar como PDF" sugere o nome do arquivo a partir do document.title:
-  // durante a impressão ele vira "Nome da paciente - Perineal".
+  // durante a impressão ele vira "Nome da paciente - Períneo".
   const tituloPagina = document.title;
   window.addEventListener('beforeprint', ()=>{
     document.title = nomeArquivoLaudo();
@@ -3314,9 +3319,9 @@ if(typeof criarMotorLaudo !== 'function'){
     }
   });
 
-  // Nome usado no Word e no PDF: "Ana Maria Braga - Perineal".
+  // Nome usado no Word e no PDF: "Ana Maria Braga - Períneo".
   function tituloExame(){
-    return 'Perineal';
+    return 'Períneo';
   }
   // Chrome/Edge podem abrir o "salvar como" nativo (File System Access API);
   // nos demais cai no download comum.
