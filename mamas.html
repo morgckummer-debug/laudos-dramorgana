@@ -143,6 +143,8 @@
   }
   .cisto-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
   .cisto-item + .cisto-item{margin-top:10px;padding-top:6px;border-top:1px dashed var(--line);}
+  .nod-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .nod-card + .nod-card{margin-top:10px;padding-top:6px;border-top:1px dashed var(--line);}
   .achado-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
 
   .conditional{display:none;}
@@ -394,7 +396,6 @@
   <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos (2 ou mais) — use {LADO}</label><textarea id="ph_impNoduloPlural" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos bilaterais</label><textarea id="ph_impNoduloBilateral" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cistos simples bilaterais</label><textarea id="ph_impCistoBilateral" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Fibroadenoma (FAD) — use {LADO}</label><textarea id="ph_impFibroadenoma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Linfonodo axilar atípico — use {LADO}</label><textarea id="ph_impLinfonodoAxilar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Linfonodo intramamário — use {LADO}</label><textarea id="ph_impLinfonodoIntramamario" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Seroma — use {LADO} e {LOCAL}</label><textarea id="ph_impSeroma" rows="2"></textarea></div>
@@ -1150,7 +1151,6 @@ if(typeof criarMotorLaudo !== 'function'){
     impNoduloPlural: 'Nódulos sólidos em mama {LADO}.',
     impNoduloBilateral: 'Nódulos sólidos bilaterais.',
     impCistoBilateral: 'Cistos simples bilaterais.',
-    impFibroadenoma: 'Nódulo mamário à {LADO}.',
     impLinfonodoAxilar: 'Linfonodo axilar atípico à {LADO}.',
     impLinfonodoIntramamario: 'Linfonodo intramamário à {LADO}.',
     impSeroma: 'Coleção densa {LOCAL} da mama {LADO} – Seroma?',
@@ -1235,10 +1235,7 @@ if(typeof criarMotorLaudo !== 'function'){
     ['cisto','Cisto simples'],
     ['cistosVarios','Vários cistos dispersos pelo parênquima'],
     ['aglomeradoCistico','Aglomerado cístico'],
-    ['nodulo1','Nódulo sólido único'],
-    ['nodulo2','2 nódulos sólidos'],
-    ['nodulo3','3 ou mais nódulos sólidos'],
-    ['fibroadenoma','Fibroadenoma (FAD)'],
+    ['nodulo','Nódulo sólido'],
     ['linfonodoAxilar','Linfonodo axilar atípico'],
     ['linfonodoIntramamario','Linfonodo intramamário'],
     ['seroma','Seroma'],
@@ -1362,60 +1359,11 @@ if(typeof criarMotorLaudo !== 'function'){
       + campoHoraDistTam(p+'Aglomerado','Hora', true, true, {labelTam:'Tamanho em conjunto (até 3 medidas)'})
     +'</div>';
 
-    // Nódulo sólido único
-    html += '<div class="conditional" id="wrap_'+p+'_nodulo1">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Forma</label><select id="'+p+'Nodulo1Forma"><option value="oval">Oval</option><option value="irregular">Irregular</option></select></div>'
-        +'<div class="field"><label>Orientação</label><select id="'+p+'Nodulo1Orientacao"><option value="paralela à pele">Paralela à pele</option><option value="não paralela à pele">Não paralela à pele</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Margens</label><select id="'+p+'Nodulo1Margens">'
-          +'<option value="circunscritas">Circunscritas</option>'
-          +'<option value="não circunscritas (indistintas)">Não circunscritas — indistintas</option>'
-          +'<option value="não circunscritas (anguladas)">Não circunscritas — anguladas</option>'
-          +'<option value="não circunscritas (espiculadas)">Não circunscritas — espiculadas</option>'
-          +'<option value="não circunscritas (microlobuladas)">Não circunscritas — microlobuladas</option>'
-        +'</select></div>'
-        +'<div class="field"><label>Ecogenicidade</label><select id="'+p+'Nodulo1Ecogenicidade"><option value="hipoecóica">Hipoecóica</option><option value="ecogênica">Ecogênica</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Fenômeno acústico posterior</label><select id="'+p+'Nodulo1Fenomeno">'
-          +'<option value="com reforço acústico posterior">Reforço acústico</option>'
-          +'<option value="com sombra acústica posterior">Sombra acústica</option>'
-          +'<option value="sem condicionar fenômenos acústicos posteriores">Sem condicionar fenômenos acústicos</option>'
-        +'</select></div>'
-      +'</div>'
-      + campoHoraDistTam(p+'Nodulo1','Hora', true, true)
-    +'</div>';
-
-    // 2 nódulos sólidos
-    html += '<div class="conditional" id="wrap_'+p+'_nodulo2">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Contornos</label><select id="'+p+'Nodulo2Contornos"><option value="regulares">Regulares</option><option value="lobulados">Lobulados</option></select></div>'
-      +'</div>'
-      + campoHoraDistTam(p+'Nodulo2','1º nódulo — hora', true, true, {suf:'1', labelLocal:'Localização do 1º nódulo'})
-      + campoHoraDistTam(p+'Nodulo2','2º nódulo — hora', true, true, {suf:'2', labelLocal:'Localização do 2º nódulo'})
-    +'</div>';
-
-    // 3 ou mais nódulos sólidos (N1-N4)
-    html += '<div class="conditional" id="wrap_'+p+'_nodulo3">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Contornos</label><select id="'+p+'Nodulo3Contornos"><option value="regulares">Regulares</option><option value="lobulados">Lobulados</option></select></div>'
-        +'<div class="field"><label>Quantidade</label><select id="'+p+'Nodulo3Qtd"><option value="3">3 nódulos</option><option value="4">4 nódulos</option></select></div>'
-      +'</div>';
-    [1,2,3,4].forEach(n=>{
-      html += '<div class="conditional" id="wrap_'+p+'_nodulo3N'+n+'">'
-        + campoHoraDistTam(p+'Nodulo3N'+n,'N'+n+' — hora', true, true, {labelLocal:'Localização de N'+n})
-      +'</div>';
-    });
-    html += '</div>';
-
-    // Fibroadenoma
-    html += '<div class="conditional" id="wrap_'+p+'_fibroadenoma">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Fenômeno acústico posterior</label><select id="'+p+'FadFenomeno"><option value="sem causar alteração sônica posterior">Sem causar alteração sônica posterior</option><option value="causando reforço acústico posterior">Causando reforço acústico posterior</option></select></div>'
-      +'</div>'
-      + campoHoraDistTam(p+'Fad','Hora', true, true)
+    // Nódulo sólido: quantos nódulos forem (um card por nódulo, cada um com as
+    // próprias características e localização).
+    html += '<div class="conditional" id="wrap_'+p+'_nodulo">'
+      +'<div id="'+p+'NodulosLista"></div>'
+      +'<button type="button" class="btn-clear" id="'+p+'NoduloAdd" style="margin:2px 0 8px;">+ Adicionar nódulo</button>'
     +'</div>';
 
     // Linfonodo axilar atípico
@@ -1525,13 +1473,79 @@ if(typeof criarMotorLaudo !== 'function'){
     if(cistoLista(uid) && cistoLista(uid).children.length === 0) addCisto(uid);
   }
 
+  // ---------- Nódulos sólidos de um achado: lista dinâmica, um card por nódulo ----------
+  // Mesmo molde dos cistos: uid próprio por nódulo (ids achado{uid}NodS{nuid}...),
+  // remover o do meio não mexe nos ids dos outros e o rascunho guarda a lista.
+  let noduloNextUid = 1;
+  function noduloLista(uid){ return $('achado'+uid+'NodulosLista'); }
+  function noduloUidsDe(uid){
+    const lista = noduloLista(uid);
+    return lista ? Array.from(lista.children).map(el=> el.dataset.nuid) : [];
+  }
+  function noduloItemHTML(uid, nuid){
+    const pref = 'achado'+uid+'NodS'+nuid;
+    return '<div class="nod-card" data-nuid="'+nuid+'">'
+      +'<p style="font-size:12px;color:var(--rose-dark);font-weight:600;margin:6px 0 6px;">Nódulo <span class="nod-index"></span></p>'
+      +'<div class="field-row">'
+        +'<div class="field"><label>Forma</label><select id="'+pref+'Forma"><option value="oval">Oval</option><option value="irregular">Irregular</option></select></div>'
+        +'<div class="field"><label>Orientação</label><select id="'+pref+'Orientacao"><option value="paralela à pele">Paralela à pele</option><option value="não paralela à pele">Não paralela à pele</option></select></div>'
+      +'</div>'
+      +'<div class="field-row">'
+        +'<div class="field"><label>Margens</label><select id="'+pref+'Margens">'
+          +'<option value="circunscritas">Circunscritas</option>'
+          +'<option value="não circunscritas (indistintas)">Não circunscritas — indistintas</option>'
+          +'<option value="não circunscritas (anguladas)">Não circunscritas — anguladas</option>'
+          +'<option value="não circunscritas (espiculadas)">Não circunscritas — espiculadas</option>'
+          +'<option value="não circunscritas (microlobuladas)">Não circunscritas — microlobuladas</option>'
+        +'</select></div>'
+        +'<div class="field"><label>Ecogenicidade</label><select id="'+pref+'Ecogenicidade"><option value="hipoecóica">Hipoecóica</option><option value="isoecóica">Isoecóica</option><option value="ecogênica">Ecogênica</option></select></div>'
+      +'</div>'
+      +'<div class="field-row">'
+        +'<div class="field"><label>Fenômeno acústico posterior</label><select id="'+pref+'Fenomeno">'
+          +'<option value="com reforço acústico posterior">Reforço acústico</option>'
+          +'<option value="com sombra acústica posterior">Sombra acústica</option>'
+          +'<option value="sem condicionar fenômenos acústicos posteriores" selected>Sem condicionar fenômenos acústicos</option>'
+        +'</select></div>'
+      +'</div>'
+      + campoHoraDistTam(pref,'Hora', true, true)
+      +'<button type="button" class="nod-remove">Remover nódulo</button>'
+    +'</div>';
+  }
+  function atualizarNodulos(uid){
+    const itens = Array.from(noduloLista(uid).children);
+    itens.forEach((el, idx)=>{
+      const lab = el.querySelector('.nod-index');
+      if(lab) lab.textContent = itens.length>1 ? String(idx+1) : '';
+      const rm = el.querySelector('.nod-remove');
+      if(rm) rm.style.display = itens.length>1 ? 'block' : 'none';
+    });
+  }
+  function addNodulo(uid, nuidFixo){
+    const nuid = nuidFixo!=null ? String(nuidFixo) : String(noduloNextUid++);
+    if(nuidFixo!=null) noduloNextUid = Math.max(noduloNextUid, parseInt(nuidFixo, 10)+1);
+    noduloLista(uid).insertAdjacentHTML('beforeend', noduloItemHTML(uid, nuid));
+    const el = noduloLista(uid).lastElementChild;
+    el.querySelectorAll('input, select').forEach(f=>{
+      f.addEventListener('input', render);
+      f.addEventListener('change', render);
+    });
+    el.querySelectorAll('select.local-toggle').forEach(wireLocalToggle);
+    el.querySelector('.nod-remove').addEventListener('click', ()=>{
+      el.remove();
+      atualizarNodulos(uid);
+      render();
+    });
+    wireDecimalInputs();
+    atualizarNodulos(uid);
+    render();
+  }
+  function garantirPrimeiroNodulo(uid){
+    if(noduloLista(uid) && noduloLista(uid).children.length === 0) addNodulo(uid);
+  }
+
   function updateAchadoVisibility(uid){
     const tipo = $('achado'+uid+'Tipo').value;
     ACHADO_TIPOS.forEach(([val])=> toggle('wrap_achado'+uid+'_'+val, val===tipo));
-    if(tipo === 'nodulo3'){
-      const qtd = parseInt($('achado'+uid+'Nodulo3Qtd').value || '3', 10);
-      [1,2,3,4].forEach(n=> toggle('wrap_achado'+uid+'_nodulo3N'+n, n<=qtd));
-    }
   }
 
   function wireAchado(uid){
@@ -1540,10 +1554,10 @@ if(typeof criarMotorLaudo !== 'function'){
     $('achado'+uid+'Tipo').addEventListener('change', ()=>{
       updateAchadoVisibility(uid);
       if($('achado'+uid+'Tipo').value === 'cisto') garantirPrimeiroCisto(uid);
+      if($('achado'+uid+'Tipo').value === 'nodulo') garantirPrimeiroNodulo(uid);
     });
     $('achado'+uid+'CistoAdd').addEventListener('click', ()=> addCisto(uid));
-    const qtdSel = $('achado'+uid+'Nodulo3Qtd');
-    if(qtdSel) qtdSel.addEventListener('change', ()=> updateAchadoVisibility(uid));
+    $('achado'+uid+'NoduloAdd').addEventListener('click', ()=> addNodulo(uid));
     updateAchadoVisibility(uid);
     // Todo achado de cisto ou nódulo tem um seletor de Localização (horário /
     // borda areolar / retromamilar / retroareolar): só "horário" mostra a linha
@@ -1576,6 +1590,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $('achadosContainer').insertAdjacentHTML('beforeend', achadoSubgroupHTML(uid));
     wireAchado(uid);
     garantirPrimeiroCisto(uid);
+    garantirPrimeiroNodulo(uid);
     renumberAchados();
     render();
   }
@@ -1587,13 +1602,13 @@ if(typeof criarMotorLaudo !== 'function'){
   // Impressão para cada achado — dois nódulos na mesma mama viravam duas
   // linhas "Nódulo sólido em mama direita.", um em cada mama viravam duas
   // linhas de lados diferentes em vez de uma só "bilaterais". Essas duas
-  // categorias (nodulo1/2/3 e cisto1/2/3/cistosVarios) resumem numa linha só,
+  // categorias (nodulo e cisto/cistosVarios) resumem numa linha só,
   // cobrindo os dois lados de uma vez. Aglomerado cístico,
-  // fibroadenoma, linfonodo (axilar/intramamário), seroma e abscesso continuam uma
+  // linfonodo (axilar/intramamário), seroma e abscesso continuam uma
   // linha por achado — são diagnósticos específicos, não entram no resumo
   // genérico (cisto simples COM septações também não entra: a frase de "cisto simples" apagaria
   // justamente a septação que motiva um acompanhamento diferente).
-  const RESUMO_PLURAL_TIPOS = ['nodulo2','nodulo3','cistosVarios'];
+  const RESUMO_PLURAL_TIPOS = ['cistosVarios'];
   function buildResumoAchado(achados, tipos, key, singularKey, pluralKey, bilateralKey){
     const doTipo = achados.filter(a=> tipos.includes(a.tipo));
     if(!doTipo.length) return null;
@@ -1611,14 +1626,14 @@ if(typeof criarMotorLaudo !== 'function'){
   function buildImpressao(state){
     const items = [{key:'normal', label:phrase('impNormal'), auto:true}];
 
-    const INDIVIDUAIS = ['aglomeradoCistico','fibroadenoma','linfonodoAxilar','linfonodoIntramamario','seroma','abscesso'];
+    const INDIVIDUAIS = ['aglomeradoCistico','linfonodoAxilar','linfonodoIntramamario','seroma','abscesso'];
     // Cisto simples COM septações não entra no resumo de "cisto simples": a frase
     // genérica apagaria justamente a septação (a frase de "cisto simples" não pode esconder a septação).
     state.achados.forEach(a=>{
       if(INDIVIDUAIS.includes(a.tipo) || (a.tipo==='cisto' && a.septado)) items.push({key:'achado-'+a.uid, label:a.hd, auto:true});
     });
 
-    const resumoNodulo = buildResumoAchado(state.achados, ['nodulo1','nodulo2','nodulo3'], 'resumo-nodulo', 'impNoduloSingular', 'impNoduloPlural', 'impNoduloBilateral');
+    const resumoNodulo = buildResumoAchado(state.achados, ['nodulo'], 'resumo-nodulo', 'impNoduloSingular', 'impNoduloPlural', 'impNoduloBilateral');
     if(resumoNodulo) items.push(resumoNodulo);
     const resumoCisto = buildResumoAchado(state.achados.filter(a=> !(a.tipo==='cisto' && a.septado)), ['cisto','cistosVarios'], 'resumo-cisto', 'impCistoSingular', 'impCistoPlural', 'impCistoBilateral');
     if(resumoCisto) items.push(resumoCisto);
@@ -1778,43 +1793,35 @@ if(typeof criarMotorLaudo !== 'function'){
         const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'AglomeradoTam')));
         corpo = 'Observam-se algumas imagens anecóicas agrupadas, variando entre 2 e 3 mm cada, localizadas '+localizacaoTexto(loc.modo, loc.hora, loc.dist)+', medindo em conjunto '+span(tam)+' mm.';
         hd = phrase('impAglomeradoCistico', {LADO: lado});
-      } else if(tipo === 'nodulo1'){
-        const forma = v('achado'+uid+'Nodulo1Forma') || 'oval';
-        const orientacao = v('achado'+uid+'Nodulo1Orientacao') || 'paralela à pele';
-        const margens = v('achado'+uid+'Nodulo1Margens') || 'circunscritas';
-        const eco = v('achado'+uid+'Nodulo1Ecogenicidade') || 'hipoecóica';
-        const fenomeno = v('achado'+uid+'Nodulo1Fenomeno') || 'sem condicionar fenômenos acústicos posteriores';
-        const loc = lerLoc('achado'+uid+'Nodulo1');
-        const tamRaw = req('achado'+uid+'Nodulo1Tam');
-        const volume = volumeElipsoide(parseMedidas(tamRaw));
-        const tam = blankOrValue(tamanhoSemUnidade(tamRaw));
-        corpo = 'Observa-se imagem nodular sólida, de forma '+escapeHtml(forma)+', orientação '+escapeHtml(orientacao)+' e margens '+escapeHtml(margens)+', '+escapeHtml(eco)+', '+escapeHtml(fenomeno)+', localizada '+localizacaoTexto(loc.modo, loc.hora, loc.dist)+', medindo '+span(tam)+' mm'
-          + (volume!==null ? ', com volume estimado de '+fmtDecimal(volume)+' cm³.' : '.');
-        hd = phrase('impNoduloSingular', {LADO: lado});
-      } else if(tipo === 'nodulo2'){
-        const contornos = v('achado'+uid+'Nodulo2Contornos') || 'regulares';
-        const l1 = lerLoc('achado'+uid+'Nodulo2', '1'), t1 = blankOrValue(tamanhoSemUnidade(req('achado'+uid+'Nodulo2Tam1')));
-        const l2 = lerLoc('achado'+uid+'Nodulo2', '2'), t2 = blankOrValue(tamanhoSemUnidade(req('achado'+uid+'Nodulo2Tam2')));
-        corpo = 'Observam-se duas imagens nodulares sólidas, hipoecogênicas de contornos '+escapeHtml(contornos)+' e orientação paralela à pele, uma localizada '+localizacaoTexto(l1.modo, l1.hora, l1.dist)+', medindo '+span(t1)+' mm e outra '+localizacaoTexto(l2.modo, l2.hora, l2.dist)+', medindo '+span(t2)+' mm.';
-        hd = phrase('impNoduloPlural', {LADO: lado});
-      } else if(tipo === 'nodulo3'){
-        const contornos = v('achado'+uid+'Nodulo3Contornos') || 'regulares';
-        const qtd = parseInt(v('achado'+uid+'Nodulo3Qtd') || '3', 10);
-        const itens = [];
-        for(let n=1; n<=qtd; n++){
-          const loc = lerLoc('achado'+uid+'Nodulo3N'+n);
-          const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'Nodulo3N'+n+'Tam')));
-          itens.push('N'+n+': '+localizacaoTexto(loc.modo, loc.hora, loc.dist)+', medindo '+span(tam)+' mm.');
+      } else if(tipo === 'nodulo'){
+        // Um card por nódulo, cada um com as próprias características. Um nódulo
+        // sai numa frase só; de dois em diante, a frase de abertura e uma lista N1, N2...
+        const nodulos = noduloUidsDe(uid).map(nuid=>{
+          const b = 'achado'+uid+'NodS'+nuid;
+          const loc = lerLoc(b);
+          const tamRaw = req(b+'Tam');
+          return {
+            forma: v(b+'Forma') || 'oval',
+            orientacao: v(b+'Orientacao') || 'paralela à pele',
+            margens: v(b+'Margens') || 'circunscritas',
+            eco: v(b+'Ecogenicidade') || 'hipoecóica',
+            fenomeno: v(b+'Fenomeno') || 'sem condicionar fenômenos acústicos posteriores',
+            loc,
+            volume: volumeElipsoide(parseMedidas(tamRaw)),
+            tam: blankOrValue(tamanhoSemUnidade(tamRaw))
+          };
+        });
+        if(!nodulos.length) nodulos.push({forma:'oval', orientacao:'paralela à pele', margens:'circunscritas', eco:'hipoecóica', fenomeno:'sem condicionar fenômenos acústicos posteriores', loc:{modo:'horario', hora:blankOrValue(''), dist:blankOrValue('')}, volume:null, tam:blankOrValue('')});
+        const descNod = n=> 'de forma '+escapeHtml(n.forma)+', orientação '+escapeHtml(n.orientacao)+' e margens '+escapeHtml(n.margens)+', '+escapeHtml(n.eco)+', '+escapeHtml(n.fenomeno)+', localizada '+localizacaoTexto(n.loc.modo, n.loc.hora, n.loc.dist)+', medindo '+span(n.tam)+' mm'
+          + (n.volume!==null ? ', com volume estimado de '+fmtDecimal(n.volume)+' cm³.' : '.');
+        plural = nodulos.length >= 2;
+        if(nodulos.length === 1){
+          corpo = 'Observa-se imagem nodular sólida, '+descNod(nodulos[0]);
+        } else {
+          corpo = 'Observam-se algumas imagens nodulares sólidas, de características, localização e dimensões como descrito abaixo:';
+          corpoLista = nodulos.map((n, i)=> 'N'+(i+1)+': imagem nodular sólida, '+descNod(n));
         }
-        corpo = 'Observam-se algumas imagens nodulares sólidas, hipoecogênicas de contornos '+escapeHtml(contornos)+' e orientação paralela à pele, de localização e dimensões como descrito abaixo:';
-        corpoLista = itens;
-        hd = phrase('impNoduloPlural', {LADO: lado});
-      } else if(tipo === 'fibroadenoma'){
-        const fenomeno = v('achado'+uid+'FadFenomeno') || 'sem causar alteração sônica posterior';
-        const loc = lerLoc('achado'+uid+'Fad');
-        const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'FadTam')));
-        corpo = 'Presença de nódulo sólido, hipoecogênico e homogêneo, de limites bem definidos e contornos regulares, formato ovalado, com maior eixo paralelo à pele, '+escapeHtml(fenomeno)+', sem captação de fluxo ao color Doppler, localizado '+localizacaoTexto(loc.modo, loc.hora, loc.dist)+', medindo '+span(tam)+' mm.';
-        hd = phrase('impFibroadenoma', {LADO: lado});
+        hd = phrase(plural ? 'impNoduloPlural' : 'impNoduloSingular', {LADO: lado});
       } else if(tipo === 'linfonodoAxilar'){
         const tam=blankOrValue(req('achado'+uid+'LnaxTam'));
         const forma = v('achado'+uid+'LnaxForma') || 'oval';
@@ -1857,7 +1864,7 @@ if(typeof criarMotorLaudo !== 'function'){
     });
 
     const ACHADO_CISTICOS = ['cisto','cistosVarios','aglomeradoCistico'];
-    const ACHADO_SOLIDOS = ['nodulo1','nodulo2','nodulo3','fibroadenoma'];
+    const ACHADO_SOLIDOS = ['nodulo'];
 
     function fraseSemAchado(lista){
       // Abscesso é uma coleção/desorganização do parênquima: a frase de "não se
@@ -2220,6 +2227,7 @@ if(typeof criarMotorLaudo !== 'function'){
       fields: fields,
       uids: achadoUids(),
       cistoUids: achadoUids().reduce((o, u)=>{ o[u] = cistoUidsDe(u); return o; }, {}),
+      noduloUids: achadoUids().reduce((o, u)=>{ o[u] = noduloUidsDe(u); return o; }, {}),
       checked: checkedState,
       overrides: impressaoOverrides,
       titleFontSize: titleFontSize,
@@ -2277,10 +2285,54 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   }
 
+  // Rascunho gravado quando existiam "Nódulo sólido único" / "2 nódulos" / "3 ou
+  // mais" / "Fibroadenoma (FAD)" (campos fixos): converte para o nódulo sólido com lista.
+  function draftMigrarNodulos(d){
+    if(!d.fields || !Array.isArray(d.uids)) return;
+    const f = d.fields;
+    if(!d.noduloUids) d.noduloUids = {};
+    const base = {Forma:'oval', Orientacao:'paralela à pele', Margens:'circunscritas', Ecogenicidade:'hipoecóica', Fenomeno:'sem condicionar fenômenos acústicos posteriores'};
+    d.uids.forEach(uid=>{
+      const p = 'achado'+uid;
+      const tipo = f[p+'Tipo'];
+      const lista = [];
+      const loc = (pre, suf)=> ({Local:f[pre+'Local'+suf], Hora:f[pre+'Hora'+suf], Dist:f[pre+'Dist'+suf], Tam:f[pre+'Tam'+suf]});
+      if(tipo === 'nodulo1'){
+        lista.push(Object.assign({}, loc(p+'Nodulo1',''), {
+          Forma:f[p+'Nodulo1Forma'], Orientacao:f[p+'Nodulo1Orientacao'], Margens:f[p+'Nodulo1Margens'],
+          Ecogenicidade:f[p+'Nodulo1Ecogenicidade'], Fenomeno:f[p+'Nodulo1Fenomeno']}));
+      } else if(tipo === 'nodulo2'){
+        [1,2].forEach(n=> lista.push(loc(p+'Nodulo2', String(n))));
+      } else if(tipo === 'nodulo3'){
+        const qtd = parseInt(f[p+'Nodulo3Qtd'] || '3', 10);
+        for(let n=1; n<=qtd; n++) lista.push(loc(p+'Nodulo3N'+n, ''));
+      } else if(tipo === 'fibroadenoma'){
+        lista.push(Object.assign({}, loc(p+'Fad',''), {
+          Fenomeno: f[p+'FadFenomeno'] === 'causando reforço acústico posterior' ? 'com reforço acústico posterior' : base.Fenomeno}));
+      } else { return; }
+      f[p+'Tipo'] = 'nodulo';
+      d.noduloUids[uid] = lista.map(n=>{
+        const nuid = String(noduloNextUid++);
+        const b = p+'NodS'+nuid;
+        f[b+'Forma'] = n.Forma || base.Forma;
+        f[b+'Orientacao'] = n.Orientacao || base.Orientacao;
+        f[b+'Margens'] = n.Margens || base.Margens;
+        f[b+'Ecogenicidade'] = n.Ecogenicidade || base.Ecogenicidade;
+        f[b+'Fenomeno'] = n.Fenomeno || base.Fenomeno;
+        f[b+'Local'] = n.Local || 'horario';
+        f[b+'Hora'] = n.Hora || '';
+        f[b+'Dist'] = n.Dist || '';
+        f[b+'Tam'] = n.Tam || '';
+        return nuid;
+      });
+    });
+  }
+
   function draftRestore(d){
     st.draftRestoring = true;
     try{
       draftMigrarCistos(d);
+      draftMigrarNodulos(d);
       const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
       $('achadosContainer').innerHTML = '';
       uids.forEach(uid=>{
@@ -2294,6 +2346,8 @@ if(typeof criarMotorLaudo !== 'function'){
       uids.forEach(uid=>{
         const us = d.cistoUids && Array.isArray(d.cistoUids[uid]) ? d.cistoUids[uid].filter(c=> /^[0-9]+$/.test(String(c))) : [];
         us.forEach(c=> addCisto(uid, c));
+        const ns = d.noduloUids && Array.isArray(d.noduloUids[uid]) ? d.noduloUids[uid].filter(n=> /^[0-9]+$/.test(String(n))) : [];
+        ns.forEach(n=> addNodulo(uid, n));
       });
 
       Object.keys(d.fields).forEach(id=>{
