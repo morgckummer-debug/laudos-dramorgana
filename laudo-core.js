@@ -784,8 +784,11 @@ function criarMotorLaudo(cfg){
     });
     return excesso;
   }
-  function paginateForPrint(){
-    const paperEl = $('paper');
+  // `alvo` + `simular`: roda a MESMA paginação da impressão (inclusive a rodada
+  // que reduz o orçamento quando uma folha estoura) sobre uma cópia solta do
+  // #paper, para o preview mostrar a quebra de página que o PDF terá.
+  function paginateForPrint(alvo, simular){
+    const paperEl = alvo || $('paper');
     paperEl.querySelectorAll('.pg-break-marker').forEach(el=>el.remove());
     // Um 'afterprint' que não chegou a disparar deixaria o laudo em folhas:
     // paginar por cima disso guardaria a remontagem como "original".
@@ -855,7 +858,7 @@ function criarMotorLaudo(cfg){
         }
         wrap.appendChild(pageEl);
       });
-      st.printPaginated = true;
+      if(!simular) st.printPaginated = true;
       paperEl.innerHTML = wrap.innerHTML;
       return ajustarEspacadores(paperEl, packBudgetPx);
     }
@@ -888,6 +891,7 @@ function criarMotorLaudo(cfg){
       }
     }
 
+    if(simular) return null;
     return function restore(){
       paperEl.innerHTML = originalHTML;
       paperEl.style.lineHeight = originalLineHeight;
@@ -938,15 +942,63 @@ function criarMotorLaudo(cfg){
     const pill = $('pageCountPill');
     if(!paperEl.children.length){ if(pill){ pill.textContent='1 página'; pill.classList.remove('pending'); } return; }
 
-    const pages = autoFitPages(paperEl, pageBudgetPx()).packed.pages;
+    // Marca cada candidato a início de folha (bloco, item da impressão, linha da
+    // morfologia) com um id temporário, simula a paginação da impressão numa
+    // cópia solta e lê, em cada folha a partir da 2ª, qual marca abre a folha.
+    // Só a paginação real (e não packAt() sozinho) sabe do orçamento reduzido
+    // quando uma folha estoura — por isso o preview divergia do PDF.
+    const marcados = [];
+    const marca = (el, id)=>{ el.setAttribute('data-pv', id); marcados.push(el); };
+    Array.from(paperEl.children).forEach((c, i)=>{
+      marca(c, String(i));
+      if(c.tagName==='UL' && c.classList.contains('impressao')){
+        Array.from(c.children).forEach((li, j)=> marca(li, i+'.'+j));
+      } else if(c.getAttribute('data-split')==='rows'){
+        Array.from(c.children).forEach((part, j)=>{
+          marca(part, i+'.'+j);
+          if(part.tagName==='TABLE') part.querySelectorAll('tr').forEach((tr, k)=> marca(tr, i+'.'+j+'.'+k));
+        });
+      }
+    });
+    const sim = document.createElement('div');
+    sim.className = 'paper';
+    sim.style.lineHeight = paperEl.style.lineHeight;
+    sim.style.fontSize = paperEl.style.fontSize;
+    sim.innerHTML = paperEl.innerHTML;
+    marcados.forEach(el=> el.removeAttribute('data-pv'));
+    paginateForPrint(sim, true);
 
+    const folhas = Array.from(sim.querySelectorAll(':scope > .print-page'));
+    const quebras = [];
+    folhas.slice(1).forEach(f=>{
+      let c = f.firstElementChild;
+      if(c && c.classList.contains('id-card')) c = c.nextElementSibling;
+      if(!c) return;
+      const alvoEl = c.hasAttribute('data-pv') ? c : c.querySelector('[data-pv]');
+      if(alvoEl) quebras.push(alvoEl.getAttribute('data-pv'));
+    });
+    // Reaplica as marcas só enquanto os marcadores são inseridos.
+    const idDe = new Map();
+    Array.from(paperEl.children).forEach((c, i)=>{
+      idDe.set(String(i), c);
+      if(c.tagName==='UL' && c.classList.contains('impressao')){
+        Array.from(c.children).forEach((li, j)=> idDe.set(i+'.'+j, li));
+      } else if(c.getAttribute('data-split')==='rows'){
+        Array.from(c.children).forEach((part, j)=>{
+          idDe.set(i+'.'+j, part);
+          if(part.tagName==='TABLE') part.querySelectorAll('tr').forEach((tr, k)=> idDe.set(i+'.'+j+'.'+k, tr));
+        });
+      }
+    });
+
+    const npaginas = folhas.length || 1;
     if(pill){
-      pill.textContent = pages.length===1 ? '1 página' : pages.length+' páginas';
-      pill.classList.toggle('pending', pages.length > 1);
+      pill.textContent = npaginas===1 ? '1 página' : npaginas+' páginas';
+      pill.classList.toggle('pending', npaginas > 1);
     }
-    for(let p=0; p<pages.length-1; p++){
-      const node = pages[p+1][0] && pages[p+1][0].node;
-      if(!node || !node.parentNode) continue;
+    quebras.forEach((id, p)=>{
+      const node = idDe.get(id);
+      if(!node || !node.parentNode) return;
       // A quebra pode cair no meio da lista de impressões ou da tabela de
       // morfologia: ali o marcador precisa ser um <li> ou um <tr>, senão vira
       // um filho inválido do <ul>/<table> e o navegador o joga para fora.
@@ -966,7 +1018,7 @@ function criarMotorLaudo(cfg){
       marker.className = 'pg-break-marker';
       marker.contentEditable = 'false';
       node.parentNode.insertBefore(marker, node);
-    }
+    });
   }
   function copyComputedToClone(liveRoot, cloneRoot){
     cfg.wordCopy().forEach(function(rule){
