@@ -593,12 +593,18 @@
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico de volume normal — use {LADO}</label><textarea id="ph_impOvarioPolicisticoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário de volume reduzido — use {LADO}</label><textarea id="ph_impOvarioVolumeReduzido" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovários de volume reduzido bilateral (ambos os ovários)</label><textarea id="ph_impOvariosVolumeReduzidoBilateral" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ovário com 1 cisto simples — use {LADO}</label><textarea id="ph_impOvarioCisto1" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ovário com 2 cistos simples — use {LADO}</label><textarea id="ph_impOvarioCisto2" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com 1 cisto simples, volume aumentado — use {LADO}</label><textarea id="ph_impOvarioCisto1" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com 2 cistos simples, volume aumentado — use {LADO}</label><textarea id="ph_impOvarioCisto2" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário com corpo lúteo, volume aumentado — use {LADO}</label><textarea id="ph_impOvarioCorpoLuteo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com folículo dominante, volume aumentado — use {LADO}</label><textarea id="ph_impOvarioFoliculo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com 1 cisto simples, volume normal — use {LADO}</label><textarea id="ph_impOvarioCisto1Normal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com 1 cisto simples, volume não preenchido — use {LADO}</label><textarea id="ph_impOvarioCisto1SemVolume" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com 2 cistos simples, volume normal — use {LADO}</label><textarea id="ph_impOvarioCisto2Normal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com 2 cistos simples, volume não preenchido — use {LADO}</label><textarea id="ph_impOvarioCisto2SemVolume" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário com corpo lúteo, volume normal — use {LADO}</label><textarea id="ph_impOvarioCorpoLuteoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário com corpo lúteo, volume não preenchido — use {LADO}</label><textarea id="ph_impOvarioCorpoLuteoSemVolume" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Ovário com folículo dominante — use {LADO}</label><textarea id="ph_impOvarioFoliculo" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com folículo dominante, volume normal — use {LADO}</label><textarea id="ph_impOvarioFoliculoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário com folículo dominante, volume não preenchido — use {LADO}</label><textarea id="ph_impOvarioFoliculoSemVolume" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {LADO}</label><textarea id="ph_impOvarioDermoide" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {LADO}</label><textarea id="ph_impOvarioEndometrioma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hidrossalpinge — use {LADO}</label><textarea id="ph_impHidrossalpinge" rows="2"></textarea></div>
@@ -1895,9 +1901,15 @@ if(typeof criarMotorLaudo !== 'function'){
     impOvarioCisto1: 'Ovário {LADO} de volume aumentado às custas de cisto uniloculado.',
     impOvarioCisto2: 'Ovário {LADO} de volume aumentado às custas de cistos uniloculados.',
     impOvarioCorpoLuteo: 'Ovário {LADO} de volume aumentado, apresentando imagem compatível com corpo lúteo.',
+    impOvarioFoliculo: 'Ovário {LADO} de volume aumentado às custas de imagem sugestiva de folículo funcional.',
+    impOvarioCisto1Normal: 'Ovário {LADO} de volume normal, com cisto uniloculado.',
+    impOvarioCisto1SemVolume: 'Ovário {LADO} com cisto uniloculado.',
+    impOvarioCisto2Normal: 'Ovário {LADO} de volume normal, com cistos uniloculados.',
+    impOvarioCisto2SemVolume: 'Ovário {LADO} com cistos uniloculados.',
     impOvarioCorpoLuteoNormal: 'Ovário {LADO} de volume normal, apresentando imagem compatível com corpo lúteo.',
     impOvarioCorpoLuteoSemVolume: 'Ovário {LADO} apresentando imagem compatível com corpo lúteo.',
-    impOvarioFoliculo: 'Ovário {LADO} de volume aumentado às custas de imagem sugestiva de folículo funcional.',
+    impOvarioFoliculoNormal: 'Ovário {LADO} de volume normal, com imagem sugestiva de folículo funcional.',
+    impOvarioFoliculoSemVolume: 'Ovário {LADO} com imagem sugestiva de folículo funcional.',
     impOvarioDermoide: 'Nódulo ovariano à {LADO} sugestivo de teratoma.',
     impOvarioEndometrioma: 'Imagem sugestiva de endometrioma à {LADO}.',
     impHidrossalpinge: 'Hidrossalpinge à {LADO}.',
@@ -2473,10 +2485,9 @@ if(typeof criarMotorLaudo !== 'function'){
     policistico: (lado, extra)=> extra==='normal'
       ? phraseRaw('impOvarioPolicisticoNormal', {LADO:lado})
       : phraseRaw('impOvarioPolicistico', {LADO:lado}),
-    cisto: (lado, extra)=> phraseRaw(extra>=2 ? 'impOvarioCisto2' : 'impOvarioCisto1', {LADO:lado}),
-    // `extra`: o volume do ovário frente ao VR ('aumentado'/'normal'; 'sem' = volume não preenchido).
-    corpoluteo: (lado, extra)=> phraseRaw(extra==='normal' ? 'impOvarioCorpoLuteoNormal' : (extra==='sem' ? 'impOvarioCorpoLuteoSemVolume' : 'impOvarioCorpoLuteo'), {LADO:lado}),
-    foliculo: (lado)=> phraseRaw('impOvarioFoliculo', {LADO:lado}),
+    cisto: (lado, extra, vol)=> phraseRaw((extra>=2 ? 'impOvarioCisto2' : 'impOvarioCisto1')+volFrase(vol), {LADO:lado}),
+    corpoluteo: (lado, extra, vol)=> phraseRaw('impOvarioCorpoLuteo'+volFrase(vol), {LADO:lado}),
+    foliculo: (lado, extra, vol)=> phraseRaw('impOvarioFoliculo'+volFrase(vol), {LADO:lado}),
     dermoide: (lado)=> phraseRaw('impOvarioDermoide', {LADO:lado}),
     endometrioma: (lado)=> phraseRaw('impOvarioEndometrioma', {LADO:lado})
   };
@@ -2484,18 +2495,22 @@ if(typeof criarMotorLaudo !== 'function'){
   // Chaves diferentes para frases diferentes do mesmo achado (um cisto x
   // vários; policístico de volume normal x aumentado): sem isso, uma linha
   // reescrita à mão para uma ficaria presa à frase da outra.
-  // Corpo lúteo: a frase da conclusão não pode afirmar "volume aumentado" sem
-  // olhar o volume do ovário — compara com o VR (máximo do padrão, ou da menopausa).
-  function volumeCorpoLuteo(state, prefix){
+  // Cisto, folículo e corpo lúteo: a frase da conclusão não pode afirmar "volume
+  // aumentado" sem olhar o volume do ovário — compara com o VR (máximo do padrão,
+  // ou da menopausa). 'aumentado' (texto de sempre), 'normal', ou 'sem' (volume em branco).
+  function volumeOvario(state, prefix){
     const vol = state[prefix+'_volNum'];
     if(vol === null || vol === undefined) return 'sem';
     const limite = state.vrOvarioTipo==='menopausa' ? VR.ovarioMenopausa : VR.ovarioMax;
     return vol > limite ? 'aumentado' : 'normal';
   }
-  function hdSufixoChave(aspecto, extra){
-    if(aspecto==='cisto') return extra>=2 ? 's' : '';
+  const ASPECTOS_COM_VOLUME = ['cisto','foliculo','corpoluteo'];
+  function volFrase(vol){ return vol==='normal' ? 'Normal' : (vol==='sem' ? 'SemVolume' : ''); }
+  function hdSufixoChave(aspecto, extra, vol){
+    const volSuf = vol==='normal' ? '-vn' : (vol==='sem' ? '-sv' : '');
+    if(aspecto==='cisto') return (extra>=2 ? 's' : '') + volSuf;
+    if(aspecto==='foliculo' || aspecto==='corpoluteo') return volSuf;
     if(aspecto==='policistico') return extra==='normal' ? '-normal' : '';
-    if(aspecto==='corpoluteo') return extra==='normal' ? '-normal' : (extra==='sem' ? '-semvol' : '');
     return '';
   }
 
@@ -2586,8 +2601,9 @@ if(typeof criarMotorLaudo !== 'function'){
           items.push({key:prefix+'-volume-reduzido', label:phraseRaw('impOvarioVolumeReduzido', {LADO:lado}), auto:true});
         } else if(OVARIO_HD_TEXT[aspecto]){
           const ladoUsado = (aspecto==='dermoide' || aspecto==='endometrioma') ? ladoFem : lado;
-          const extra = aspecto==='cisto' ? state[prefix+'_nCistos'] : (aspecto==='corpoluteo' ? volumeCorpoLuteo(state, prefix) : state[prefix+'_polVol']);
-          items.push({key:prefix+'-'+aspecto+hdSufixoChave(aspecto, extra), label:OVARIO_HD_TEXT[aspecto](ladoUsado, extra), auto:true});
+          const extra = aspecto==='cisto' ? state[prefix+'_nCistos'] : state[prefix+'_polVol'];
+          const vol = ASPECTOS_COM_VOLUME.includes(aspecto) ? volumeOvario(state, prefix) : undefined;
+          items.push({key:prefix+'-'+aspecto+hdSufixoChave(aspecto, extra, vol), label:OVARIO_HD_TEXT[aspecto](ladoUsado, extra, vol), auto:true});
         }
       }
       // Segunda alteração no mesmo ovário (ex.: teratoma + cisto simples):
@@ -2600,8 +2616,9 @@ if(typeof criarMotorLaudo !== 'function'){
           items.push({key:prefix+'-alterado-2', label:phraseRaw('impOvarioAlterado', {LADO:lado, DESCRICAO:state[prefix+'_descricao2']}), auto:true});
         } else if(OVARIO_HD_TEXT[aspecto2]){
           const ladoUsado2 = (aspecto2==='dermoide' || aspecto2==='endometrioma') ? ladoFem : lado;
-          const extra2 = aspecto2==='cisto' ? state[prefix+'_nCistos2'] : (aspecto2==='corpoluteo' ? volumeCorpoLuteo(state, prefix) : undefined);
-          items.push({key:prefix+'-'+aspecto2+hdSufixoChave(aspecto2, extra2)+'-2', label:OVARIO_HD_TEXT[aspecto2](ladoUsado2, extra2), auto:true});
+          const extra2 = aspecto2==='cisto' ? state[prefix+'_nCistos2'] : undefined;
+          const vol2 = ASPECTOS_COM_VOLUME.includes(aspecto2) ? volumeOvario(state, prefix) : undefined;
+          items.push({key:prefix+'-'+aspecto2+hdSufixoChave(aspecto2, extra2, vol2)+'-2', label:OVARIO_HD_TEXT[aspecto2](ladoUsado2, extra2, vol2), auto:true});
         }
       }
     });
