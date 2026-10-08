@@ -619,16 +619,6 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Observações</h2></div>
-      <div class="card-body">
-        <div class="field">
-          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
-          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um item próprio na Impressão Diagnóstica, ao lado"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
       <div class="card-head"><h2>Impressão diagnóstica</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base no exame normal. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
@@ -1329,12 +1319,6 @@ if(typeof criarMotorLaudo !== 'function'){
         ? 'Artéria uterina com padrão puberal.'
         : 'Artéria uterina com padrão pré-puberal.', auto:true});
     }
-    // Observações livres: texto que a médica escreve fora de qualquer campo
-    // padrão — cada linha não-vazia vira seu próprio item, já com o texto dela
-    // (não um gabarito), então editar/desmarcar funciona igual aos demais.
-    state.obsLinhas.forEach((linha, idx)=>{
-      items.push({key:'obs-'+idx, label: linha, auto:true});
-    });
     return items;
   }
 
@@ -1479,7 +1463,7 @@ if(typeof criarMotorLaudo !== 'function'){
     reqIf('liquidoDescricao', liquidoAspecto==='alterado');
 
     // ----- Impressão -----
-    const state = {chkDoppler, dopplerPadrao, obsLinhas: $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean)};
+    const state = {chkDoppler, dopplerPadrao};
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);

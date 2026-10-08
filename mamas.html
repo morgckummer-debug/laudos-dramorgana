@@ -494,16 +494,6 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Observações</h2></div>
-      <div class="card-body">
-        <div class="field">
-          <label>Observações (achado fora dos campos acima — uma linha por observação)</label>
-          <textarea id="obsAdicionais" rows="3" placeholder="cada linha vira um parágrafo no corpo do laudo"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
       <div class="card-head"><h2>Finalização</h2></div>
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkProtese"><label for="chkProtese">Prótese mamária — incluir observação padrão no fim do laudo, antes da Impressão</label></div>
@@ -1974,11 +1964,6 @@ if(typeof criarMotorLaudo !== 'function'){
         : 'Próteses mamárias apresentando contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro.';
       blocks.push({id:'protese', html:'<p class="linha">'+proteseTexto+'</p>'});
     }
-
-    const obsLinhas = $('obsAdicionais').value.split('\n').map(l=>l.trim()).filter(Boolean);
-    obsLinhas.forEach((linha, idx)=>{
-      blocks.push({id:'obs-'+idx, html:'<p class="linha">'+escapeHtml(linha)+'</p>'});
-    });
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">'+(chkMamasMasculinas ? 'IMPRESSÃO:' : 'IMPRESSÃO DIAGNÓSTICA:')+'</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
