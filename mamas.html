@@ -395,6 +395,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido (único) — use {LADO}</label><textarea id="ph_impNoduloSingular" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos (2 ou mais) — use {LADO}</label><textarea id="ph_impNoduloPlural" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos bilaterais</label><textarea id="ph_impNoduloBilateral" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulo sólido suspeito (único) — use {LADO}</label><textarea id="ph_impNoduloSuspeito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Nódulos sólidos suspeitos (2 ou mais) — use {LADO}</label><textarea id="ph_impNoduloSuspeitos" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cistos simples bilaterais</label><textarea id="ph_impCistoBilateral" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Linfonodo axilar atípico — use {LADO}</label><textarea id="ph_impLinfonodoAxilar" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Linfonodo intramamário — use {LADO}</label><textarea id="ph_impLinfonodoIntramamario" rows="2"></textarea></div>
@@ -1150,6 +1152,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impNoduloSingular: 'Nódulo sólido em mama {LADO}.',
     impNoduloPlural: 'Nódulos sólidos em mama {LADO}.',
     impNoduloBilateral: 'Nódulos sólidos bilaterais.',
+    impNoduloSuspeito: 'Nódulo sólido de aspecto suspeito em mama {LADO}.',
+    impNoduloSuspeitos: 'Nódulos sólidos de aspecto suspeito em mama {LADO}.',
     impCistoBilateral: 'Cistos simples bilaterais.',
     impLinfonodoAxilar: 'Linfonodo axilar atípico à {LADO}.',
     impLinfonodoIntramamario: 'Linfonodo intramamário à {LADO}.',
@@ -1630,10 +1634,10 @@ if(typeof criarMotorLaudo !== 'function'){
     // Cisto simples COM septações não entra no resumo de "cisto simples": a frase
     // genérica apagaria justamente a septação (a frase de "cisto simples" não pode esconder a septação).
     state.achados.forEach(a=>{
-      if(INDIVIDUAIS.includes(a.tipo) || (a.tipo==='cisto' && a.septado)) items.push({key:'achado-'+a.uid, label:a.hd, auto:true});
+      if(INDIVIDUAIS.includes(a.tipo) || (a.tipo==='cisto' && a.septado) || (a.tipo==='nodulo' && a.nSuspeitos)) items.push({key:'achado-'+a.uid, label:a.hd, auto:true});
     });
 
-    const resumoNodulo = buildResumoAchado(state.achados, ['nodulo'], 'resumo-nodulo', 'impNoduloSingular', 'impNoduloPlural', 'impNoduloBilateral');
+    const resumoNodulo = buildResumoAchado(state.achados.filter(a=> !(a.tipo==='nodulo' && !a.nBenignos)), ['nodulo'], 'resumo-nodulo', 'impNoduloSingular', 'impNoduloPlural', 'impNoduloBilateral');
     if(resumoNodulo) items.push(resumoNodulo);
     const resumoCisto = buildResumoAchado(state.achados.filter(a=> !(a.tipo==='cisto' && a.septado)), ['cisto','cistosVarios'], 'resumo-cisto', 'impCistoSingular', 'impCistoPlural', 'impCistoBilateral');
     if(resumoCisto) items.push(resumoCisto);
@@ -1747,6 +1751,7 @@ if(typeof criarMotorLaudo !== 'function'){
       let corpoLista = null;
       let hd = '';
       let plural = false, septado = false, septadoAlguns = false;
+      let partesAchado = null, nSuspeitos = 0, nBenignos = 0;
       if(tipo === 'cisto'){
         const cistos = cistoUidsDe(uid).map(cuid=>{
           const b = 'achado'+uid+'CistoS'+cuid;
@@ -1812,16 +1817,50 @@ if(typeof criarMotorLaudo !== 'function'){
           };
         });
         if(!nodulos.length) nodulos.push({forma:'oval', orientacao:'paralela à pele', margens:'circunscritas', eco:'hipoecóica', fenomeno:'sem condicionar fenômenos acústicos posteriores', loc:{modo:'horario', hora:blankOrValue(''), dist:blankOrValue('')}, volume:null, tam:blankOrValue('')});
-        const descNod = n=> 'de forma '+escapeHtml(n.forma)+', orientação '+escapeHtml(n.orientacao)+' e margens '+escapeHtml(n.margens)+', '+escapeHtml(n.eco)+', '+escapeHtml(n.fenomeno)+', localizada '+localizacaoTexto(n.loc.modo, n.loc.hora, n.loc.dist)+', medindo '+span(n.tam)+' mm'
+        // Nódulo de aspecto suspeito (margens não circunscritas, forma irregular ou
+        // orientação não paralela à pele) sai SEMPRE sozinho, com a descrição completa,
+        // para ter destaque. Os demais, quando há mais de um com as mesmas características,
+        // resumem numa frase de abertura e uma lista só de localização e tamanho.
+        const mais = nodulos.length >= 2;
+        nodulos.forEach((n, i)=>{
+          n.num = i+1;
+          n.suspeito = n.margens !== 'circunscritas' || n.forma === 'irregular' || n.orientacao !== 'paralela à pele';
+        });
+        const car = n=> 'de forma '+escapeHtml(n.forma)+', orientação '+escapeHtml(n.orientacao)+' e margens '+escapeHtml(n.margens)+', '+escapeHtml(n.eco)+', '+escapeHtml(n.fenomeno);
+        const locTam = n=> localizacaoTexto(n.loc.modo, n.loc.hora, n.loc.dist)+', medindo '+span(n.tam)+' mm'
           + (n.volume!==null ? ', com volume estimado de '+fmtDecimal(n.volume)+' cm³.' : '.');
-        plural = nodulos.length >= 2;
-        if(nodulos.length === 1){
-          corpo = 'Observa-se imagem nodular sólida, '+descNod(nodulos[0]);
-        } else {
-          corpo = 'Observam-se algumas imagens nodulares sólidas, de características, localização e dimensões como descrito abaixo:';
-          corpoLista = nodulos.map((n, i)=> 'N'+(i+1)+': imagem nodular sólida, '+descNod(n));
-        }
-        hd = phrase(plural ? 'impNoduloPlural' : 'impNoduloSingular', {LADO: lado});
+        const unico = n=> 'Observa-se imagem nodular sólida'+(mais ? ' (N'+n.num+')' : '')+', '+car(n)+', localizada '+locTam(n);
+        const benignos = nodulos.filter(n=> !n.suspeito);
+        const suspeitos = nodulos.filter(n=> n.suspeito);
+        // Benignos com as mesmas características formam um grupo.
+        const grupos = [];
+        benignos.forEach(n=>{
+          const chave = car(n);
+          let g = grupos.find(x=> x.chave === chave);
+          if(!g){ g = {chave, itens:[]}; grupos.push(g); }
+          g.itens.push(n);
+        });
+        const pluralEco = t=> t.replace(/(\S+)$/, '$1s');
+        const partes = [];
+        grupos.forEach(g=>{
+          if(g.itens.length === 1){ partes.push({corpo: unico(g.itens[0]), corpoLista: null}); return; }
+          const n0 = g.itens[0];
+          const carPl = 'de forma '+escapeHtml(n0.forma)+', orientação '+escapeHtml(n0.orientacao)+' e margens '+escapeHtml(n0.margens)+', '+pluralEco(escapeHtml(n0.eco))+', '+escapeHtml(n0.fenomeno);
+          partes.push({
+            corpo: 'Observam-se algumas imagens nodulares sólidas, '+carPl+', de localização e dimensões como descrito abaixo:',
+            corpoLista: g.itens.map(n=> 'N'+n.num+': '+locTam(n))
+          });
+        });
+        suspeitos.forEach(n=> partes.push({corpo: unico(n), corpoLista: null}));
+        corpo = partes[0].corpo;
+        corpoLista = partes[0].corpoLista;
+        partesAchado = partes;
+        plural = benignos.length >= 2;
+        nSuspeitos = suspeitos.length;
+        nBenignos = benignos.length;
+        hd = nSuspeitos
+          ? phrase(nSuspeitos > 1 ? 'impNoduloSuspeitos' : 'impNoduloSuspeito', {LADO: lado})
+          : phrase(plural ? 'impNoduloPlural' : 'impNoduloSingular', {LADO: lado});
       } else if(tipo === 'linfonodoAxilar'){
         const tam=blankOrValue(req('achado'+uid+'LnaxTam'));
         const forma = v('achado'+uid+'LnaxForma') || 'oval';
@@ -1852,7 +1891,7 @@ if(typeof criarMotorLaudo !== 'function'){
           + (volume!==null ? ', com volume estimado de '+fmtDecimal(volume)+' cm³.' : '.');
         hd = phrase('impAbscesso', {LADO: lado});
       }
-      return {uid, lado, tipo, corpo, corpoLista, hd, plural, septado};
+      return {uid, lado, tipo, corpo, corpoLista, partes: partesAchado, hd, plural, septado, nSuspeitos, nBenignos};
     }
 
     const achados = achadoUids().map(lerAchado);
@@ -1890,10 +1929,14 @@ if(typeof criarMotorLaudo !== 'function'){
           out.push({id:'mama-'+lado+'-semachado', html:'<p class="linha">'+semAchado+'</p>'});
         }
         lista.forEach(a=>{
-          out.push({id:'mama-'+lado+'-'+a.uid, html:'<p class="linha">'+a.corpo+'</p>'});
-          if(a.corpoLista){
-            out.push({id:'mama-'+lado+'-lista-'+a.uid, html:'<div class="linha nodulos-lista">'+a.corpoLista.map(t=>'<p class="nodulo-item">- '+t+'</p>').join('')+'</div>'});
-          }
+          const partes = a.partes || [{corpo: a.corpo, corpoLista: a.corpoLista}];
+          partes.forEach((pt, k)=>{
+            const suf = k ? '-p'+k : '';
+            out.push({id:'mama-'+lado+'-'+a.uid+suf, html:'<p class="linha">'+pt.corpo+'</p>'});
+            if(pt.corpoLista){
+              out.push({id:'mama-'+lado+'-lista-'+a.uid+suf, html:'<div class="linha nodulos-lista">'+pt.corpoLista.map(t=>'<p class="nodulo-item">- '+t+'</p>').join('')+'</div>'});
+            }
+          });
         });
         if(!chkMamasMasculinas){
           out.push({id:'mama-'+lado+'-retromamilar', html:'<p class="linha">Região retromamilar sem alterações.</p>'});
