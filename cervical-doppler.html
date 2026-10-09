@@ -1028,7 +1028,8 @@ if(typeof criarMotorLaudo !== 'function'){
     microcalcificacoes: 'com microcalcificações de permeio',
     cisticas: 'com áreas de alteração cística de permeio',
     ecoAumentada: 'com ecogenicidade aumentada',
-    perdaHilo: 'com perda do hilo ecogênico central'
+    perdaHilo: 'com perda do hilo ecogênico central',
+    reacional: 'de aspecto reacional, com hilo ecogênico central preservado'
   };
 
   async function loadVR(){
@@ -1193,6 +1194,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field-row field-row-compact">'
       +'<div class="field"><label>Ecogenicidade</label><select id="linfo'+uid+'Eco">'
       +'<option value="normal">Hipoecoico com hilo ecogênico (padrão normal)</option>'
+      +'<option value="reacional">Reacional</option>'
       +'<option value="calcificacoes">Calcificações</option>'
       +'<option value="microcalcificacoes">Microcalcificações</option>'
       +'<option value="cisticas">Alterações císticas</option>'
@@ -1362,7 +1364,10 @@ if(typeof criarMotorLaudo !== 'function'){
           const limite = NIVEL_LIMITE[nivel] || 9;
           const aumentado = medidaNum!==null && medidaNum > limite;
           const suspeito = aumentado || forma==='arredondado' || eco!=='normal';
-          (suspeito ? suspeitoNiveis : reacionalNiveis).push(nivel);
+          // Padrão normal não é reacional: só entra na impressão como
+          // reacional quem a médica marcou como "Reacional".
+          if(suspeito) suspeitoNiveis.push(nivel);
+          else if(eco==='reacional') reacionalNiveis.push(nivel);
           const formaTxt = FORMA_TEXTO[forma] || FORMA_TEXTO.oval;
           const ecoTxt = ECO_TEXTO[eco] || ECO_TEXTO.normal;
           const sufixo = aumentado ? ' (acima do valor de referência para o nível)' : '';
