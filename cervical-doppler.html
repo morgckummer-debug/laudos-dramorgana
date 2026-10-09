@@ -1005,21 +1005,18 @@ if(typeof criarMotorLaudo !== 'function'){
 
   // Limite de normalidade do menor eixo, por nível — Nível II (10 mm) e os
   // demais níveis (9 mm), conforme os dois patamares que a Dra. Morgana pediu.
-  // Sem um nível "IA" separado na lista (ela optou por manter só "I"), o nível
-  // I usa o mesmo limite geral de 9 mm dos demais — não o de 7 mm que valeria
-  // só para IA isoladamente.
-  const NIVEL_LIMITE = {I:9, IIA:10, IIB:10, III:9, IV:9, V:9, VI:9, VII:9};
+  // Nível I: até 7,0 mm (2026-10-09). Nível II é um só (sem IIA/IIB).
+  const NIVEL_LIMITE = {I:7, II:10, III:9, IV:9, V:9, VI:9, VII:9};
   const NIVEL_ROTULO = {
     I:'I — submandibular/submentual',
-    IIA:'IIA — jugular superior (anterior ao NAE)',
-    IIB:'IIB — jugular superior (posterior ao NAE)',
+    II:'II — jugular superior',
     III:'III — jugular médio',
     IV:'IV — jugular inferior',
     V:'V — triângulo posterior',
     VI:'VI — compartimento central',
     VII:'VII — mediastinal superior'
   };
-  const NIVEL_ORDEM = ['I','IIA','IIB','III','IV','V','VI','VII'];
+  const NIVEL_ORDEM = ['I','II','III','IV','V','VI','VII'];
 
   const FORMA_TEXTO = {
     oval: 'de contorno oval/fusiforme, com hilo preservado',
@@ -1695,6 +1692,8 @@ if(typeof criarMotorLaudo !== 'function'){
         if(!el || !el.closest('#formCol')) return;
         if(el.type === 'checkbox') el.checked = !!d.fields[id];
         else el.value = d.fields[id];
+        // Rascunho antigo: IIA/IIB viraram um nível II só.
+        if(el.tagName === 'SELECT' && /^linfo\d+Nivel$/.test(id) && /^II[AB]$/.test(d.fields[id])) el.value = 'II';
       });
 
       document.querySelectorAll('#formCol select, #formCol input[type=checkbox]').forEach(el=>{
