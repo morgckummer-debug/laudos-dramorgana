@@ -611,10 +611,22 @@ function criarMotorLaudo(cfg){
       return (d && d.v === 1 && d.fields) ? d : null;
     }catch(e){ return null; }
   }
+  // As variáveis CSS que a médica escolhe na barra de formatação (--linha-margin,
+  // --idcard-gap...) ficam no style do #paper. A caixa de medição é outro
+  // elemento: sem copiá-las, ela mede com as margens PADRÃO (20px) enquanto a
+  // folha usa as compactas — o laudo parece não caber numa página que cabe e
+  // quebra em duas, deixando um vão em branco.
+  function copiarVarsCss(de, para){
+    for(let i = 0; i < de.style.length; i++){
+      const nome = de.style[i];
+      if(nome.indexOf('--') === 0) para.style.setProperty(nome, de.style.getPropertyValue(nome));
+    }
+  }
   function packAt(paperEl, html, lineHeight, fontSize, budgetPx){
     const measure = document.createElement('div');
     measure.className = 'paper';
     measure.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;width:17cm;max-height:none;overflow:visible;background:none;border:none;box-shadow:none;padding:0;margin:0;';
+    copiarVarsCss(paperEl, measure);
     measure.style.lineHeight = lineHeight;
     measure.style.fontSize = fontSize;
     measure.innerHTML = html;
@@ -732,6 +744,7 @@ function criarMotorLaudo(cfg){
     const measure = document.createElement('div');
     measure.className = 'paper';
     measure.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;left:-99999px;top:0;width:17cm;max-height:none;overflow:visible;background:none;border:none;box-shadow:none;padding:0;margin:0;';
+    copiarVarsCss(paperEl, measure);
     measure.style.lineHeight = paperEl.style.lineHeight;
     measure.style.fontSize = paperEl.style.fontSize;
     measure.innerHTML = paperEl.innerHTML;
@@ -962,6 +975,7 @@ function criarMotorLaudo(cfg){
     });
     const sim = document.createElement('div');
     sim.className = 'paper';
+    copiarVarsCss(paperEl, sim);
     sim.style.lineHeight = paperEl.style.lineHeight;
     sim.style.fontSize = paperEl.style.fontSize;
     sim.innerHTML = paperEl.innerHTML;
@@ -2034,6 +2048,14 @@ function criarMotorLaudo(cfg){
     // O cursor saindo de um bloco vazio é o que o esconde (ver colapsarBlocosVazios).
     document.addEventListener('selectionchange', agendarColapso);
     wireBlockBoundaryGuard(paperEl0);
+    // Espaçamento entre linhas, margens e fonte moram no style do #paper (e mudam
+    // a altura do laudo sem passar por render()): refaz a contagem de páginas e a
+    // linha "Fim da página" quando o style muda — senão o preview fica com a
+    // paginação do espaçamento anterior.
+    if(typeof MutationObserver !== 'undefined'){
+      new MutationObserver(()=>{ if(!st.printPaginated) schedulePagePreview(); })
+        .observe(paperEl0, {attributes:true, attributeFilter:['style']});
+    }
   }
 
   // Select #digitadoraAtual, quando o laudo tem um: liga a troca e já carrega
