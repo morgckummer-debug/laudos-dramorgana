@@ -1274,14 +1274,16 @@ if(typeof criarMotorLaudo !== 'function'){
       ? '<div class="field"><label>'+labelTam+'</label><input type="text" id="'+idPrefix+'Tam'+suf+'" placeholder="ex: 22,3 x 11,0 x 33,0"></div>'
       : '<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Tam'+suf+'" placeholder="mm"></div>';
     const wrapId = 'wrap_'+idPrefix+'_horario'+suf;
+    const wrapDist = 'wrap_'+idPrefix+'_dist'+suf;
+    // A linha da hora aparece em "horário" e em "na borda areolar"; a distância só em "horário".
     return '<div class="field-row">'
-        +'<div class="field"><label>'+(opts.labelLocal || 'Localização')+'</label><select id="'+idPrefix+'Local'+suf+'" class="local-toggle" data-wrap="'+wrapId+'">'
+        +'<div class="field"><label>'+(opts.labelLocal || 'Localização')+'</label><select id="'+idPrefix+'Local'+suf+'" class="local-toggle" data-wrap="'+wrapDist+'" data-wrap-hora="'+wrapId+'">'
           + LOCAL_OPCOES.map(([val,label])=>'<option value="'+val+'">'+label+'</option>').join('')
         +'</select></div>'
       +'</div>'
       +'<div class="field-row conditional show" id="'+wrapId+'">'
         +'<div class="field"><label>'+labelHora+'</label><input type="text" id="'+idPrefix+'Hora'+suf+'" placeholder="ex: 2"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Dist'+suf+'" placeholder="cm"></div>'
+        +'<div class="field conditional show" id="'+wrapDist+'"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Dist'+suf+'" placeholder="cm"></div>'
       +'</div>'
       +'<div class="field-row">'+campoTam+'</div>';
   }
@@ -1290,7 +1292,11 @@ if(typeof criarMotorLaudo !== 'function'){
   function wireLocalToggle(sel){
     if(!sel) return;
     const ids = sel.dataset.wrap.split(' ');
-    const apply = ()=> ids.forEach(id=> toggle(id, sel.value === 'horario'));
+    const idsHora = (sel.dataset.wrapHora || '').split(' ').filter(Boolean);
+    const apply = ()=>{
+      ids.forEach(id=> toggle(id, sel.value === 'horario'));
+      idsHora.forEach(id=> toggle(id, sel.value === 'horario' || sel.value === 'bordaAreolar'));
+    };
     sel.addEventListener('change', apply);
     apply();
   }
@@ -1299,7 +1305,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // cm da borda areolar" no padrão de sempre, ou a descrição fixa dos outros
   // três modos (sem hora/distância).
   function localizacaoTexto(modo, hora, dist){
-    if(modo === 'bordaAreolar') return 'na borda areolar';
+    if(modo === 'bordaAreolar') return 'na borda areolar' + (hora ? ', às '+span(hora)+' horas' : '');
     if(modo === 'retromamilar') return 'na região retromamilar';
     if(modo === 'retroareolar') return 'na região retroareolar';
     return 'às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar';
@@ -1431,7 +1437,7 @@ if(typeof criarMotorLaudo !== 'function'){
     return '<div class="cisto-item" data-cuid="'+cuid+'">'
       +'<p style="font-size:12px;color:var(--rose-dark);font-weight:600;margin:6px 0 6px;">Cisto <span class="cisto-index"></span></p>'
       +'<div class="field-row">'
-        +'<div class="field"><label>Localização</label><select id="'+pref+'Local" class="local-toggle" data-wrap="'+wHora+' '+wDist+'">'
+        +'<div class="field"><label>Localização</label><select id="'+pref+'Local" class="local-toggle" data-wrap="'+wDist+'" data-wrap-hora="'+wHora+'">'
           + LOCAL_OPCOES.map(([val,label])=>'<option value="'+val+'">'+label+'</option>').join('')
         +'</select></div>'
       +'</div>'
@@ -1740,7 +1746,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const horario = modo === 'horario';
       return {
         modo,
-        hora: blankOrValue(reqIf(prefix+'Hora'+suf, horario)),
+        hora: horario ? blankOrValue(reqIf(prefix+'Hora'+suf, true)) : (modo === 'bordaAreolar' ? v(prefix+'Hora'+suf) : ''),
         dist: blankOrValue(reqIf(prefix+'Dist'+suf, horario))
       };
     }
