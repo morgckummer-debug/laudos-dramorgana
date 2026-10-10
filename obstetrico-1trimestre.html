@@ -905,6 +905,7 @@
       <button class="btn-print" id="btnPrint">Imprimir / PDF</button>
       <button class="btn-clear" id="btnDownloadWord">Baixar Word</button>
       <button class="btn-cg" id="btnSalvarCG">Salvar na Curva de Crescimento</button>
+      <label class="cg-extra" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;"><input type="checkbox" id="chkExtraAcomp"> Ultrassom extra do acompanhamento</label>
     </div>
   </div>
 </div>
@@ -3725,11 +3726,13 @@ if(typeof criarMotorLaudo !== 'function'){
         gestacao_id: gestacao.id,
         data_exame: dataExameISO,
         ccn: num(p+'CCN'),
+        extra: !!($('chkExtraAcomp') && $('chkExtraAcomp').checked),
         feto: isMultiple ? String.fromCharCode(65 + idx) : null
       }));
 
       const {error: errExame} = await cgClient.from('exams').insert(exames);
       if(errExame) throw errExame;
+      if($('chkExtraAcomp')) $('chkExtraAcomp').checked = false; // não vaza para o próximo laudo
 
       const avisoNome = nomeAntigoDaCurva ? (' — nome da Curva atualizado (estava "'+nomeAntigoDaCurva+'")') : '';
       cgToast('Exame(s) salvo(s) na Curva de Crescimento ✓' + avisoNome, false);
