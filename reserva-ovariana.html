@@ -3140,13 +3140,13 @@ if(typeof criarMotorLaudo !== 'function'){
     // de cada ovário e o total depois dos dois.
     const afcTxt = n => span(n===null ? {text:'--', filled:false} : {text:String(n), filled:true});
     const afcLinha = (id, n, colada) => blocks.push({id:id, html:'<p class="linha'+(colada?' colada':'')+'">'+phraseRaw('afcOvario', {N: afcTxt(n)})+'</p>'});
-    // Sem espaço entre o ovário e a sua contagem, nem entre a contagem do
-    // esquerdo e o total (classe .colada zera só a margem de baixo).
+    // Sem espaço entre o ovário e a sua contagem (classe .colada zera só a
+    // margem de baixo).
     const colar = h => h.replace('<p class="linha">', '<p class="linha colada">');
     blocks.push({id:'ovarioD', html:colar(ovarioParagraph(ovD, 'direito', 'direita'))});
     afcLinha('afcD', afcD);
     blocks.push({id:'ovarioE', html:colar(ovarioParagraph(ovE, 'esquerdo', 'esquerda'))});
-    afcLinha('afcE', afcE, true);
+    afcLinha('afcE', afcE);
     blocks.push({id:'afcTotal', html:'<p class="linha">'+phraseRaw('afcTotal', {N: afcTxt(afcTotalNum), VR: String(VR.afcMin)})+'</p>'});
 
     if(chkHidrossalpinge){
@@ -3204,6 +3204,17 @@ if(typeof criarMotorLaudo !== 'function'){
       }
     }
 
+    // Frases de anexos / líquido livre / mobilidade: coladas umas nas outras (só
+    // quando a seguinte também é um parágrafo comum; a última mantém o espaço).
+    {
+      const iTotal = blocks.findIndex(b=>b.id==='afcTotal');
+      for(let i=iTotal+1;i<blocks.length-1;i++){
+        const cur = blocks[i], prox = blocks[i+1];
+        if(cur.html.indexOf('<p class="linha">')===0 && prox.html.indexOf('<p class="linha">')===0){
+          cur.html = cur.html.replace('<p class="linha">','<p class="linha colada">');
+        }
+      }
+    }
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
     if(checkedItems.length===0){
