@@ -445,7 +445,7 @@
     <div class="field"><label>Padrão — mínimo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_ovarioMin" value="3"></div>
     <div class="field"><label>Padrão — máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_ovarioMax" value="9"></div>
     <div class="field"><label>Menopausa — máximo (cm³)</label><input type="text" inputmode="decimal" data-decimals="1" id="vr_ovarioMenopausa" value="5"></div>
-    <div class="field"><label>Folículos antrais — boa reserva acima de</label><input type="text" inputmode="numeric" data-maxint="2" id="vr_afcMin" value="8"></div>
+    <div class="field"><label>Folículos antrais — boa reserva a partir de</label><input type="text" inputmode="numeric" data-maxint="2" id="vr_afcMin" value="8"></div>
   </div>
   <div class="save-row">
     <button class="btn-copy" id="btnSaveVR">Salvar valores de referência</button>
@@ -1889,7 +1889,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     impNormal: 'Exame ecográfico dentro da normalidade.',
     afcOvario: 'Folículos antrais: {N}',
-    afcTotal: 'Total de folículos antrais: {N} (VR>{VR})',
+    afcTotal: 'Total de folículos antrais: {N} (VR≥{VR})',
     impReservaBoa: 'Boa reserva ovariana.',
     impReservaBaixa: 'Baixa reserva ovariana.',
     impBexigaAlterada: 'Alteração vesical: {DESCRICAO}.',
@@ -2680,7 +2680,7 @@ if(typeof criarMotorLaudo !== 'function'){
       items.unshift({key:'normal', label:phraseRaw('impNormal'), auto:true});
     }
     if(state.afcTotalNum!==null){
-      items.push(state.afcTotalNum > VR.afcMin
+      items.push(state.afcTotalNum >= VR.afcMin
         ? {key:'reserva-ovariana-boa', label:phraseRaw('impReservaBoa'), auto:true}
         : {key:'reserva-ovariana-baixa', label:phraseRaw('impReservaBaixa'), auto:true});
     }
