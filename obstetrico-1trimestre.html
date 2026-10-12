@@ -3727,6 +3727,7 @@ if(typeof criarMotorLaudo !== 'function'){
         gestacao_id: gestacao.id,
         data_exame: dataExameISO,
         ccn: num(p+'CCN'),
+        impressao_laudo: impressaoLaudoTexto(),
         extra: !!($('chkExtraAcomp') && $('chkExtraAcomp').checked),
         feto: isMultiple ? String.fromCharCode(65 + idx) : null
       }));

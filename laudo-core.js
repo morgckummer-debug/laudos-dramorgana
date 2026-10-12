@@ -131,6 +131,16 @@ function dopplerFmfPercentil(tipo, valor, gaW){
   return dopplerFmfNormalCDF((valor-ref.p50)/sd) * 100;
 }
 
+// Texto final da impressão diagnóstica (já com as edições à mão), uma linha por item,
+// sem o "* " do marcador. Vai para a coluna exams.impressao_laudo do Curva de Crescimento.
+function impressaoLaudoTexto(){
+  const paper = document.getElementById('paper');
+  if(!paper) return null;
+  const linhas = [...paper.querySelectorAll('ul.impressao li[data-key]')]
+    .map(li=> li.textContent.replace(/^\s*\*\s*/, '').trim()).filter(Boolean);
+  return linhas.length ? linhas.join('\n').slice(0, 3000) : null;
+}
+
 function criarMotorLaudo(cfg){
   const DRAFT_KEY = cfg.DRAFT_KEY;
 

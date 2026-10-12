@@ -1570,3 +1570,9 @@ A conclusão do corpo lúteo dizia sempre "Ovário X de volume aumentado, ...". 
 ## Ultrassom extra do acompanhamento: checkbox no editor (2026-10-10)
 
 `obstetrico.html` e `obstetrico-1trimestre.html` ganharam, ao lado de "Salvar na Curva de Crescimento", o checkbox `#chkExtraAcomp` ("Ultrassom extra do acompanhamento"). Marcado, o insert em `exams` leva `extra: true` (coluna da migração 015 do `curva-fetal`): a visita conta como extra do plano, não ocupa janela do calendário. Desmarca sozinho depois de salvar, para não vazar para o laudo seguinte, e não vai no rascunho. Os morfológicos não têm: são exames do calendário do plano.
+
+## Conclusão enviada ao Curva de Crescimento (2026-10-12)
+
+Os quatro laudos obstétricos mandam `impressao_laudo` no insert de `exams`: o texto final da impressão
+diagnóstica lido do `#paper` (`impressaoLaudoTexto()`, no `laudo-core.js`), com as edições à mão. Exige a migração
+028 do `curva-fetal`; sem a coluna o insert falha.
