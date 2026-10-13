@@ -250,7 +250,6 @@ function criarMotorLaudo(cfg){
   // "quem assina" (isso é EXECUTANTES/VR). Some no rodapé impresso, coladas
   // nas iniciais depois de "Imagens em anexo.": ver comDigitadora() abaixo.
   const DIGITADORAS = {
-    smg: {nome:'Samira Marielle', iniciais:'SMG'},
     tpsl: {nome:'Thays Pereira', iniciais:'TPSL'},
     mel: {nome:'Maria Eduarda', iniciais:'MEL'},
     emo: {nome:'Eduarda Marques', iniciais:'EMO'}
@@ -1564,7 +1563,7 @@ function criarMotorLaudo(cfg){
   // Cola " - INICIAIS" no fim da frase do rodapé (normalmente "Imagens em
   // anexo.") quando há uma digitadora selecionada; sem digitadora, devolve o
   // texto como veio. Troca o ponto final por " - INICIAIS." em vez de
-  // simplesmente concatenar, para não sair "anexo. - SMG".
+  // simplesmente concatenar, para não sair "anexo. - TPSL".
   function comDigitadora(texto){
     if(!st.digitadoraIniciais) return texto;
     return texto.replace(/\.\s*$/, '') + ' - ' + st.digitadoraIniciais + '.';
