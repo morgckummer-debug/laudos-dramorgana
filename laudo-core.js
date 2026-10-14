@@ -511,6 +511,17 @@ function criarMotorLaudo(cfg){
   function v(id){ const el = $(id); return el ? el.value.trim() : ''; }
   function num(id){ const x = parseFloat(v(id).replace(',', '.')); return isNaN(x) ? null : x; }
   function vNoDot(id){ return v(id).replace(/\.+\s*$/, ''); }
+  // Dígitos verificadores do CPF; rejeita também 111.111.111-11 etc.
+  function cpfValido(cpf){
+    const d = String(cpf).replace(/\D/g, '');
+    if(d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+    for(let t = 9; t <= 10; t++){
+      let soma = 0;
+      for(let i = 0; i < t; i++) soma += parseInt(d[i], 10) * (t + 1 - i);
+      if(((soma * 10) % 11) % 10 !== parseInt(d[t], 10)) return false;
+    }
+    return true;
+  }
   function aplicarMascaraCPF(){
     const el = $('cpfPaciente');
     if(!el) return;
@@ -2085,6 +2096,7 @@ function criarMotorLaudo(cfg){
     PAGE_SAFETY_PX: PAGE_SAFETY_PX, MIN_LINE_HEIGHT: MIN_LINE_HEIGHT,
     LINE_HEIGHT_STEP: LINE_HEIGHT_STEP, MIN_FONT_SIZE: MIN_FONT_SIZE, FONT_SIZE_STEP: FONT_SIZE_STEP,
     aplicarMascaraCPF: aplicarMascaraCPF,
+    cpfValido: cpfValido,
     applyExecutante: applyExecutante,
     comDigitadora: comDigitadora,
     autoFitPages: autoFitPages,
