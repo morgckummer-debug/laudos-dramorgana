@@ -3436,7 +3436,15 @@ if(typeof criarMotorLaudo !== 'function'){
       // paciente), corrige sozinho; se o CPF é que estava errado, o aviso
       // no toast chama atenção na hora, em vez de ficar em silêncio.
       let nomeAntigoDaCurva = null;
+      // Paciente com acompanhamento contratado: o nome é o da adesão (veio do
+      // contrato, completo) e NUNCA é trocado por um laudo — o do editor pode
+      // estar abreviado. Só pacientes sem plano seguem sincronizando o nome.
+      let nomeDaAdesao = false;
       if((paciente.nome || '') !== nome){
+        const {data: comPlano} = await cgClient.from('gestacoes').select('id').eq('paciente_id', paciente.id).not('acompanhamento', 'is', null).is('excluido_em', null).limit(1);
+        nomeDaAdesao = !!(comPlano && comPlano.length);
+      }
+      if((paciente.nome || '') !== nome && !nomeDaAdesao){
         nomeAntigoDaCurva = paciente.nome;
         const {error: errUpdateNome} = await cgClient.from('patients').update({nome}).eq('id', paciente.id);
         if(errUpdateNome) throw errUpdateNome;

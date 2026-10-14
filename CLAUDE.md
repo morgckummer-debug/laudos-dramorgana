@@ -1576,3 +1576,7 @@ A conclusão do corpo lúteo dizia sempre "Ovário X de volume aumentado, ...". 
 Os quatro laudos obstétricos mandam `impressao_laudo` no insert de `exams`: o texto final da impressão
 diagnóstica lido do `#paper` (`impressaoLaudoTexto()`, no `laudo-core.js`), com as edições à mão. Exige a migração
 028 do `curva-fetal`; sem a coluna o insert falha.
+
+## Nome da adesão nunca é trocado por um laudo (2026-10-14)
+
+A sincronização do nome (acima) agora pula a paciente que tem gestação com `acompanhamento` (plano contratado): o nome dela veio do contrato, completo, e o do editor pode estar abreviado ("só os dois primeiros nomes"). Só paciente sem plano continua tendo o nome atualizado e o aviso no toast. Mesmo bloco nos cinco arquivos com busca por CPF.
