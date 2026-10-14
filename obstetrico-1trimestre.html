@@ -3569,6 +3569,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     const cpfDigits = cgOnlyDigits(v('cpfPaciente'));
     if(cpfDigits.length !== 11){ cgToast('CPF inválido — preencha os 11 dígitos.', true); return; }
+    if(!motor.cpfValido(cpfDigits)){ cgToast('CPF inválido — confira os números digitados.', true); return; }
     const cpf = cgFormatCPF(cpfDigits);
     const nome = v('nomePaciente');
     if(!nome){ cgToast('Preencha o nome da paciente.', true); return; }
