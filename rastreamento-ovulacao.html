@@ -325,7 +325,7 @@
     .paper .continua{font-style:italic;font-size:10pt;text-align:right;margin:0;}
     .paper .print-page .rodape-final{margin-top:0;}
   }
-  /* ---- Curva de Crescimento: login + buscar/salvar laudo anterior ---- */
+  /* ---- Acompanhamento Fetal MK: login + buscar/salvar laudo anterior ---- */
   .cg-overlay{position:fixed;inset:0;background:rgba(43,43,46,.55);z-index:5000;display:flex;align-items:center;justify-content:center;}
   .cg-overlay.hide{display:none;}
   .cg-box{background:#fff;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);padding:28px 30px;width:340px;max-width:90vw;font-family:'Inter',sans-serif;}
@@ -368,7 +368,7 @@
 <div class="cg-overlay" id="cgLoginOverlay">
   <div class="cg-box">
     <h3>Entrar</h3>
-    <p>Login da Curva de Crescimento — necessário para salvar e buscar laudos anteriores.</p>
+    <p>Login do Acompanhamento Fetal MK — necessário para salvar e buscar laudos anteriores.</p>
     <input type="email" id="cgEmail" placeholder="E-mail" autocomplete="username">
     <input type="password" id="cgSenha" placeholder="Senha" autocomplete="current-password">
     <div class="cg-err" id="cgLoginErr"></div>
@@ -3000,7 +3000,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
   loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit())));
 
-  // ---- Curva de Crescimento: login + buscar/salvar laudo anterior ----
+  // ---- Acompanhamento Fetal MK: login + buscar/salvar laudo anterior ----
   // Mesmo Supabase do app de curvas (mesmo cadastro de paciente, por CPF),
   // mas o histórico deste laudo fica só na tabela própria `laudos_ovulacao` —
   // igual ao transvaginal.html com `laudos_tv`. O app de curvas nunca lê essa
@@ -3261,13 +3261,13 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     const note = $('draftNote');
     if(note){
-      $('draftNoteText').textContent = 'Laudo anterior carregado da Curva de Crescimento — continue preenchendo a visita de hoje. Para começar um laudo novo, use "Limpar" no alto da página.';
+      $('draftNoteText').textContent = 'Laudo anterior carregado do Acompanhamento Fetal MK — continue preenchendo a visita de hoje. Para começar um laudo novo, use "Limpar" no alto da página.';
       note.classList.add('show');
     }
     cgToast('Laudo carregado ✓', false);
   }
 
-  // ---- Salvar o laudo atual na Curva (cria um novo registro por ciclo) ----
+  // ---- Salvar o laudo atual no Acompanhamento (cria um novo registro por ciclo) ----
   // Compartilhada entre "Salvar" e "Salvar e encerrar ciclo": a única
   // diferença é a flag `ciclo_encerrado` gravada junto — "Salvar" normal
   // sempre grava false, então continuar editando e salvar de novo um ciclo
@@ -3314,7 +3314,7 @@ if(typeof criarMotorLaudo !== 'function'){
       }
       if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
 
-      // CPF já cadastrado na Curva, mas com um nome diferente do digitado
+      // CPF já cadastrado no Acompanhamento, mas com um nome diferente do digitado
       // neste laudo — digitação corrigida numa visita anterior, nome de
       // casada, ou (o caso a temer) um CPF digitado errado caindo por
       // engano na paciente errada. Ficar calado escondia isso; sincroniza e
@@ -3353,13 +3353,13 @@ if(typeof criarMotorLaudo !== 'function'){
         .limit(1);
       if(errBuscaLaudo) throw errBuscaLaudo;
 
-      let mensagemOk = encerrarCiclo ? 'Ciclo encerrado e salvo na Curva de Crescimento ✓' : 'Laudo salvo na Curva de Crescimento ✓';
+      let mensagemOk = encerrarCiclo ? 'Ciclo encerrado e salvo no Acompanhamento Fetal MK ✓' : 'Laudo salvo no Acompanhamento Fetal MK ✓';
       if(existente && existente[0]){
         const {error: errUpdate} = await cgClient.from('laudos_ovulacao')
           .update({cpf: cpfFormatado, nome: nome, conteudo: snap, ciclo_encerrado: !!encerrarCiclo, encerrado_em: encerradoEmISO})
           .eq('id', existente[0].id);
         if(errUpdate) throw errUpdate;
-        if(!encerrarCiclo) mensagemOk = 'Laudo atualizado na Curva de Crescimento ✓';
+        if(!encerrarCiclo) mensagemOk = 'Laudo atualizado no Acompanhamento Fetal MK ✓';
       }else{
         const {error: errInsert} = await cgClient.from('laudos_ovulacao').insert({
           user_id: userId,
@@ -3374,7 +3374,7 @@ if(typeof criarMotorLaudo !== 'function'){
         if(errInsert) throw errInsert;
       }
 
-      if(nomeAntigoDaCurva) mensagemOk += ' — nome da Curva atualizado (estava "'+nomeAntigoDaCurva+'")';
+      if(nomeAntigoDaCurva) mensagemOk += ' — nome do Acompanhamento atualizado (estava "'+nomeAntigoDaCurva+'")';
       cgToast(mensagemOk, false);
     }catch(e){
       console.error(e);

@@ -399,7 +399,7 @@
 <div class="cg-overlay" id="cgLoginOverlay">
   <div class="cg-box">
     <h3>Entrar</h3>
-    <p>Login da Curva de Crescimento — necessário para salvar exames na pasta da paciente.</p>
+    <p>Login do Acompanhamento Fetal MK — necessário para salvar exames na pasta da paciente.</p>
     <input type="email" id="cgEmail" placeholder="E-mail" autocomplete="username">
     <input type="password" id="cgSenha" placeholder="Senha" autocomplete="current-password">
     <div class="cg-err" id="cgLoginErr"></div>
@@ -411,10 +411,10 @@
 <div class="cg-overlay hide" id="cgGpaOverlay">
   <div class="cg-gpa-box">
     <h3>Divergência no GPA</h3>
-    <p>O GPA deste laudo é diferente do que já está salvo na Curva de Crescimento para esta gestação. Escolha qual manter.</p>
+    <p>O GPA deste laudo é diferente do que já está salvo no Acompanhamento Fetal MK para esta gestação. Escolha qual manter.</p>
     <div class="cg-gpa-cards">
       <div class="cg-gpa-card" id="cgGpaCardCurva" tabindex="0" role="button">
-        <span class="cg-gpa-card-label">Na Curva de Crescimento</span>
+        <span class="cg-gpa-card-label">No Acompanhamento Fetal MK</span>
         <span class="cg-gpa-card-value" id="cgGpaCardCurvaValue">G0 P0 A0</span>
       </div>
       <div class="cg-gpa-card" id="cgGpaCardLaudo" tabindex="0" role="button">
@@ -1901,7 +1901,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // Sem embrião identificado não há CCN a medir: limpa o campo escondido
     // para não deixar um valor antigo (digitado antes de trocar para "Não
     // identificado") vazar pro cálculo do ISG nem pro botão "Salvar" da
-    // Curva de Crescimento, que lê o CCN direto pelo id.
+    // Acompanhamento Fetal MK, que lê o CCN direto pelo id.
     if(embriaoNaoIdentificado){
       $(p+'CCN').value = '';
       $(p+'FC').value = '';
@@ -2601,7 +2601,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // confiável) e passa a ser a IG digitada na conclusão do laudo, aplicada
     // sobre a data do exame.
     // DUM incerta/ignorada segue a mesma lógica: não há cronologia formal
-    // (sem "DUM estimada", sem gestação criada na Curva de Crescimento a
+    // (sem "DUM estimada", sem gestação criada no Acompanhamento Fetal MK a
     // partir daqui — ver computeDataBase), mas a DPP e o período do
     // Morfológico do 1º Trimestre continuam úteis como estimativa e saem da
     // mesma IG informada, aplicada sobre a data deste exame.
@@ -3446,7 +3446,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // referência já carregados para o laudo voltar exatamente como estava.
   loadPhrases().then(()=> loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit())));
 
-  // ---------- Integração com a Curva de Crescimento (Supabase) ----------
+  // ---------- Integração com o Acompanhamento Fetal MK (Supabase) ----------
   const CG_URL = 'https://ulcqnqwxguydrpoaplcv.supabase.co';
   const CG_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsY3FucXd4Z3V5ZHJwb2FwbGN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Njk2NjcsImV4cCI6MjEwMTA0NTY2N30.hNrszyJvaBzP08Oild4wivMrTvXnDoGfgL6My1bbtVU';
   const cgClient = window.supabase.createClient(CG_URL, CG_ANON_KEY);
@@ -3455,7 +3455,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // depois) faz o navegador desacelerar o temporizador que o supabase-js usa
   // pra renovar o login sozinho — o relógio do autoRefreshToken não dispara
   // na hora certa, o token expira em silêncio e ninguém tentou renovar. Ela
-  // só descobre ao clicar em "Salvar na Curva de Crescimento" e ver o login
+  // só descobre ao clicar em "Salvar no Acompanhamento Fetal MK" e ver o login
   // pedido do nada, mesmo tendo acabado de usar o computador. startAutoRefresh()
   // ao voltar pra aba força a checagem/renovação na hora; stopAutoRefresh()
   // ao sair evita renovar à toa com a aba escondida — é a recomendação
@@ -3479,8 +3479,8 @@ if(typeof criarMotorLaudo !== 'function'){
   function fmtGPA(g,p,a){ return 'G'+(g??'?')+' P'+(p??'?')+' A'+(a??'?'); }
 
   // Modal de escolha quando o GPA deste laudo diverge do que já está salvo
-  // na Curva de Crescimento — resolve com true (usar o do laudo) ou false
-  // (manter o que já está salvo na Curva).
+  // no Acompanhamento Fetal MK — resolve com true (usar o do laudo) ou false
+  // (manter o que já está salvo no Acompanhamento).
   function askGpaDivergencia(curva, laudo){
     return new Promise(resolve=>{
       const overlay = $('cgGpaOverlay');
@@ -3534,7 +3534,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // clique e teclado até a médica notar (a rolagem continua funcionando —
   // nada aqui bloqueia scroll, só clique e digitação). Por isso esta função
   // só ESCONDE o modal quando encontra sessão; quem decide abri-lo é só o
-  // clique em "Salvar na Curva de Crescimento", quando ela realmente foi
+  // clique em "Salvar no Acompanhamento Fetal MK", quando ela realmente foi
   // tentar usar a integração.
   async function cgCheckSession(){
     const {data} = await cgClient.auth.getSession();
@@ -3562,7 +3562,7 @@ if(typeof criarMotorLaudo !== 'function'){
   cgCheckSession();
 
   $('btnSalvarCG').addEventListener('click', async ()=>{
-    if($('chkMola').checked){ cgToast('Achados de mola hidatiforme não são gravados na Curva de Crescimento — não é uma gestação viável a acompanhar.', true); return; }
+    if($('chkMola').checked){ cgToast('Achados de mola hidatiforme não são gravados no Acompanhamento Fetal MK — não é uma gestação viável a acompanhar.', true); return; }
     const session = await cgCheckSession();
     if(!session){ $('cgLoginOverlay').classList.remove('hide'); cgToast('Faça login para salvar.', true); return; }
 
@@ -3620,13 +3620,13 @@ if(typeof criarMotorLaudo !== 'function'){
       }
       if(!paciente){ throw new Error('Não foi possível localizar ou criar a paciente.'); }
 
-      // CPF já cadastrado na Curva, mas com um nome diferente do digitado
+      // CPF já cadastrado no Acompanhamento, mas com um nome diferente do digitado
       // neste laudo — digitação corrigida numa visita anterior, nome de
       // casada, ou (o caso a temer) um CPF digitado errado caindo por
       // engano na paciente errada. Ficar calado escondia isso: foi assim
       // que a Dra. Morgana só percebeu, ao procurar a paciente pelo CPF na
       // Curva depois de salvar, que o nome lá era outro. Sincroniza e avisa
-      // no toast final — se o nome errado for o da Curva (era mesmo essa
+      // no toast final — se o nome errado for o do Acompanhamento (era mesmo essa
       // paciente), corrige sozinho; se o CPF é que estava errado, o aviso
       // no toast chama atenção na hora, em vez de ficar em silêncio.
       let nomeAntigoDaCurva = null;
@@ -3662,8 +3662,8 @@ if(typeof criarMotorLaudo !== 'function'){
         }
         if(!dataBase){
           cgToast(ehDumSemCronologia(cronologiaMetodoAtual)
-            ? 'Nenhuma gestação ativa na Curva e a DUM é incerta/ignorada: preencha "Idade gestacional pela USG" (semanas e dias) para criar a gestação automaticamente, ou cadastre-a no Curva de Crescimento.'
-            : 'Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Curva de Crescimento.', true);
+            ? 'Nenhuma gestação ativa no Acompanhamento e a DUM é incerta/ignorada: preencha "Idade gestacional pela USG" (semanas e dias) para criar a gestação automaticamente, ou cadastre-a no Acompanhamento Fetal MK.'
+            : 'Nenhuma gestação ativa e não há data de referência (DUM/USG) preenchida para criar uma automaticamente. Preencha a cronologia no laudo ou cadastre a gestação no Acompanhamento Fetal MK.', true);
           return;
         }
         const dumISO = toISODateLocal(dataBase);
@@ -3675,7 +3675,7 @@ if(typeof criarMotorLaudo !== 'function'){
         if(errCriaGest) throw errCriaGest;
         gestacao = novaGestacao;
       } else {
-        // A gestação já existia na Curva de Crescimento (visita anterior) com
+        // A gestação já existia no Acompanhamento Fetal MK (visita anterior) com
         // seu próprio G/P/A — se o que está digitado neste laudo diverge do
         // que já está salvo, pergunta qual dos dois prevalece antes de gravar.
         // Sem divergência (ex.: o que está salvo é nulo, primeira sincronização
@@ -3744,8 +3744,8 @@ if(typeof criarMotorLaudo !== 'function'){
       if(errExame) throw errExame;
       if($('chkExtraAcomp')) $('chkExtraAcomp').checked = false; // não vaza para o próximo laudo
 
-      const avisoNome = nomeAntigoDaCurva ? (' — nome da Curva atualizado (estava "'+nomeAntigoDaCurva+'")') : '';
-      cgToast('Exame(s) salvo(s) na Curva de Crescimento ✓' + avisoNome, false);
+      const avisoNome = nomeAntigoDaCurva ? (' — nome do Acompanhamento atualizado (estava "'+nomeAntigoDaCurva+'")') : '';
+      cgToast('Exame(s) salvo(s) no Acompanhamento Fetal MK ✓' + avisoNome, false);
     }catch(e){
       console.error(e);
       cgToast('Erro ao salvar: ' + (e.message || 'tente novamente.'), true);
