@@ -2060,6 +2060,14 @@ if(typeof criarMotorLaudo !== 'function'){
     draftSchedule();
   }
 
+  // ---------- Máscara da data da mamografia prévia (dd.mm.aaaa) ----------
+  // Antes do render(): o listener de mascara roda primeiro e o texto já sai formatado.
+  $('mamografiaData').addEventListener('input', e=>{
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
+    const masked = digits.replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2}\.\d{2})(\d)/, '$1.$2');
+    if(e.target.value !== masked) e.target.value = masked;
+  });
+
   // ---------- Wire up live updates ----------
   document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
     el.addEventListener('input', render);
