@@ -1358,6 +1358,12 @@ if(typeof criarMotorLaudo !== 'function'){
       const sel = window.getSelection();
       if(sel && sel.rangeCount && !sel.isCollapsed && paperEl.contains(sel.anchorNode) && paperEl.contains(sel.focusNode)){
         lastPaperSelectionRange = sel.getRangeAt(0).cloneRange();
+      } else if(sel && sel.rangeCount && sel.isCollapsed && paperEl.contains(sel.anchorNode)){
+        // Clicou no laudo sem selecionar nada: a seleção antiga não vale mais.
+        // Sem isto, escolher uma fonte ou espaçamento "para o laudo todo"
+        // aplicava no trecho selecionado minutos antes — às vezes um trecho
+        // que nem existia mais na tela, e nada parecia acontecer.
+        lastPaperSelectionRange = null;
       }
     }
     document.addEventListener('selectionchange', capturarSelecaoSeAtiva);
@@ -1377,6 +1383,9 @@ if(typeof criarMotorLaudo !== 'function'){
     function captureSelectionInPaper(){
       const range = lastPaperSelectionRange;
       lastPaperSelectionRange = null;
+      // Um render() no meio do caminho pode ter trocado o bloco selecionado
+      // por um novo: a seleção guardada aponta para nós que já saíram do laudo.
+      if(range && !paperEl.contains(range.commonAncestorContainer)) return null;
       return range;
     }
     // Wraps a captured range in a <span> carrying one inline style, then

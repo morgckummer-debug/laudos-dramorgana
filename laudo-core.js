@@ -291,9 +291,28 @@ function criarMotorLaudo(cfg){
     const involucros = [];
     Array.from(root.querySelectorAll('[data-blk]')).forEach(el=>{
       const id = el.getAttribute('data-blk');
-      // Segundo elemento com o mesmo id: é a cópia órfã, e some.
-      if(vistos[id]){ el.remove(); return; }
-      vistos[id] = true;
+      if(vistos[id]){
+        // Segundo elemento com o mesmo id logo depois do primeiro, do mesmo
+        // tipo, separado dele só por andaime vazio do navegador: é o bloco
+        // PARTIDO em dois (um Enter que escapou, o <ul> da impressão
+        // diagnóstica cortado ao meio) — as duas metades são texto do laudo, e
+        // apagar a segunda levava junto tudo o que estava depois do corte.
+        // Junta de volta no primeiro. Qualquer outro caso é cópia órfã, e some.
+        const primeiro = vistos[id];
+        if(primeiro.parentElement === root && el.parentElement === root && primeiro.tagName === el.tagName){
+          const meio = [];
+          let n = primeiro.nextElementSibling;
+          while(n && n !== el && !n.hasAttribute('data-blk') && !n.querySelector('[data-blk]')
+            && (n.classList.contains('pg-break-marker') || !n.textContent.replace(/[\s\u00a0\u200b]/g, ''))){ meio.push(n); n = n.nextElementSibling; }
+          if(n === el){
+            meio.forEach(m=> m.remove());
+            while(el.firstChild) primeiro.appendChild(el.firstChild);
+          }
+        }
+        el.remove();
+        return;
+      }
+      vistos[id] = el;
       if(el.parentElement === root) return;
       // Aninhado, mas único: o bloco é bom, só está na altura errada — sobe
       // até virar filho direto, na mesma posição. Apagar aqui custaria a
@@ -409,6 +428,19 @@ function criarMotorLaudo(cfg){
     const sel = window.getSelection();
     const noFoco = (!ignorarCursor && sel && sel.rangeCount) ? sel.getRangeAt(0).startContainer : null;
     paperEl.querySelectorAll(':scope > [data-blk]').forEach(el=>{
+      // O título nunca some: escondido, não havia onde clicar para digitá-lo
+      // de novo — o "some o título do ultrassom" que a médica relatou em
+      // 2026-10-18. Vazio, ele fica como uma linha em branco clicável.
+      if(el.matches('h3.doctitle')){
+        el.removeAttribute('data-vazio');
+        if(!el.textContent.trim() && !(noFoco && el.contains(noFoco)) && st.lastBlockHtml[el.getAttribute('data-blk')]){
+          // Apagou o título e saiu dele: volta o título gerado.
+          const tmp = document.createElement('div');
+          tmp.innerHTML = st.lastBlockHtml[el.getAttribute('data-blk')];
+          if(tmp.firstElementChild){ tmp.firstElementChild.setAttribute('data-blk', el.getAttribute('data-blk')); el.replaceWith(tmp.firstElementChild); }
+        }
+        return;
+      }
       const vazio = !el.textContent.replace(/[\s\u00a0\u200b]/g, '')
         && !el.querySelector('img, svg, canvas, table, hr, input, select, textarea');
       if(!vazio){ el.removeAttribute('data-vazio'); return; }
@@ -1227,6 +1259,63 @@ function criarMotorLaudo(cfg){
       + '</style>'
       + '</head><body><div class="WordSection1">' + bodyHtml + '</div></body></html>';
   }
+  // Um limite de seleção entre dois blocos (ex.: um clique-arrasto que
+  // começa antes do título e termina depois de "Ao exame:") tem como
+  // container o próprio #paper, não um nó de texto dentro do bloco — o
+  // offset é que aponta o índice do filho vizinho. closest('[data-blk]')
+  // direto no container erraria (devolveria null, o #paper não tem
+  // data-blk), então aqui se pega o nó vizinho de verdade antes de subir.
+  function blocoDoLimite(container, offset){
+    let node = container;
+    if(node.nodeType === 1) node = node.childNodes[offset] || node.childNodes[offset - 1] || node;
+    const el = node.nodeType === 1 ? node : node.parentElement;
+    return el ? el.closest('[data-blk]') : null;
+  }
+  // Irmã de blocoDoLimite(), para tabela. Uma tabela como a de morfologia
+  // (rótulo numa célula, descrição na vizinha, uma <tr> por segmento) é UM
+  // data-blk só — o guard nunca veria problema numa seleção que cruza
+  // células ou linhas dentro dela, porque o bloco é o mesmo dos dois lados.
+  // O navegador não mescla células por Delete/Backspace como faz com <p>:
+  // ele desmembra a seleção em duas edições independentes, uma em cada
+  // célula, cortando o texto de cada lado pela metade sem juntar nada —
+  // reproduzido selecionando da descrição de "Crânio / cérebro" até a
+  // descrição da linha seguinte e apertando Delete: "Calota craniana
+  // íntegra..." virou "Calot", a linha seguinte perdeu as primeiras letras,
+  // e a tabela continuou com o mesmo número de linhas e de datablk — nem
+  // dedupBlocos() nem restoreMissingBlocks() enxergam esse tipo de estrago.
+  // Tratar toda célula como fronteira, igual já se faz para data-blk, fecha
+  // esse caminho para qualquer tabela do #paper, não só a da morfologia.
+  function celulaDoLimite(container, offset){
+    let node = container;
+    if(node.nodeType === 1) node = node.childNodes[offset] || node.childNodes[offset - 1] || node;
+    const el = node.nodeType === 1 ? node : node.parentElement;
+    return el ? el.closest('td, th') : null;
+  }
+  // A seleção (não vazia) passa de um bloco para outro, ou de uma célula de
+  // tabela para outra? Apagar ou substituir uma seleção assim mistura o que
+  // sobra dos dois lados (ver wireBlockBoundaryGuard). Quem for apagar ou
+  // inserir por cima de uma seleção sem passar pelo 'beforeinput' — o colar,
+  // o soltar de um arrastar, qualquer execCommand — tem de olhar isto antes.
+  function selecaoCruzaLimite(range){
+    if(!range || range.collapsed) return false;
+    const startBlk = blocoDoLimite(range.startContainer, range.startOffset);
+    const endBlk = blocoDoLimite(range.endContainer, range.endOffset);
+    const startCel = celulaDoLimite(range.startContainer, range.startOffset);
+    const endCel = celulaDoLimite(range.endContainer, range.endOffset);
+    return (!!startBlk && startBlk !== endBlk) || ((!!startCel || !!endCel) && startCel !== endCel);
+  }
+  // execCommand('insertText') com texto de várias linhas faz o contenteditable
+  // PARTIR o parágrafo a cada "\n" — e cada pedaço herda o mesmo data-blk, o
+  // laudo duplicado de novo (reproduzido colando texto copiado de vários
+  // parágrafos num bloco, 2026-10-18). Aqui cada linha entra como texto e as
+  // quebras viram insertLineBreak, que não parte o bloco.
+  function inserirTextoSemPartirBloco(texto){
+    const linhas = String(texto).replace(/\r\n?/g, '\n').split('\n');
+    linhas.forEach((l, i)=>{
+      if(i > 0) document.execCommand('insertLineBreak');
+      if(l) document.execCommand('insertText', false, l);
+    });
+  }
   function wirePastePlainText(paperEl){
     // Colar dentro do #paper com o HTML original do clipboard é o mesmo risco
     // que o Enter no meio do título (ver o comentário no laudo, perto do
@@ -1243,10 +1332,44 @@ function criarMotorLaudo(cfg){
     // texto de dentro do próprio laudo ou de fora (Word, e-mail, WhatsApp).
     if(paperEl.dataset.pastePlainWired) return;
     paperEl.dataset.pastePlainWired = '1';
+    //
+    // O execCommand('insertText') abaixo NÃO dispara 'beforeinput', então o
+    // wireBlockBoundaryGuard() não o enxerga: colar com uma seleção que cruza
+    // dois blocos apagava tudo o que estava no meio e mesclava as pontas — foi
+    // assim que o título do laudo sumia ao colar com o texto do título e o
+    // começo do parágrafo seguinte selecionados (reproduzido em 2026-10-18 no
+    // abdome-total.html). Mesma regra do guard: a seleção larga colapsa para o
+    // início e o texto entra ali, sem apagar nada que já estava escrito.
     paperEl.addEventListener('paste', e=>{
       e.preventDefault();
       const texto = (e.clipboardData || window.clipboardData).getData('text/plain');
-      document.execCommand('insertText', false, texto);
+      const sel = window.getSelection();
+      if(sel && sel.rangeCount && selecaoCruzaLimite(sel.getRangeAt(0))) sel.collapseToStart();
+      inserirTextoSemPartirBloco(texto);
+    });
+    // Arrastar um trecho selecionado e soltar em outro ponto do laudo é um
+    // recortar + colar com o HTML original: o trecho arrastado leva junto o
+    // data-blk do bloco de onde saiu (um subtítulo inteiro, por exemplo) e cai
+    // dentro de outro bloco — o mesmo data-blk duplicado e aninhado que o colar
+    // em texto puro acima evita. Soltar vira colar texto puro no ponto onde o
+    // mouse soltou; o trecho de origem fica onde estava (para mover, recortar e
+    // colar). Começar o arrasto dentro do #paper fica bloqueado pelo mesmo motivo.
+    paperEl.addEventListener('dragstart', e=>{ e.preventDefault(); });
+    paperEl.addEventListener('drop', e=>{
+      e.preventDefault();
+      const texto = e.dataTransfer ? e.dataTransfer.getData('text/plain') : '';
+      if(!texto) return;
+      let r = null;
+      if(document.caretRangeFromPoint) r = document.caretRangeFromPoint(e.clientX, e.clientY);
+      else if(document.caretPositionFromPoint){
+        const pos = document.caretPositionFromPoint(e.clientX, e.clientY);
+        if(pos){ r = document.createRange(); r.setStart(pos.offsetNode, pos.offset); r.collapse(true); }
+      }
+      if(!r || !paperEl.contains(r.startContainer)) return;
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+      inserirTextoSemPartirBloco(texto);
     });
   }
   function wireEnterLineBreaks(paperEl, getIdCardGapSel){
@@ -1348,6 +1471,21 @@ function criarMotorLaudo(cfg){
       const endBlk = endEl ? endEl.closest('[data-blk]') : null;
       const selecaoCruzaBloco = !range.collapsed && blk !== endBlk;
 
+      // Enter num item VAZIO da lista (a médica apagou o texto da linha, ou
+      // acabou de criar uma linha nova com Enter e aperta Enter de novo) não
+      // parte o item: o navegador trata isso como "sair da lista" e PARTE O
+      // <ul> em dois, com um <div> solto no meio — os dois <ul> com o mesmo
+      // data-blk="impressaoList". dedupBlocos() apagava o segundo, e com ele
+      // todas as linhas da impressão diagnóstica abaixo do item vazio.
+      // Reproduzido em 2026-10-18 no transvaginal.html. Linha vazia não tem o
+      // que partir: o Enter ali não faz nada.
+      const itemEl = anchorEl ? anchorEl.closest('li') : null;
+      if(itemEl && paperEl.contains(itemEl) && range.collapsed
+        && !itemEl.textContent.replace(/[\s\u00a0\u200b]/g, '')){
+        e.preventDefault();
+        return;
+      }
+
       if(blk && (selecaoCruzaBloco || enterDivideOProprioBlk(blk, anchorEl))){
         e.preventDefault();
         // Uma seleção não vazia (clique duplo numa palavra, clique-arrasto
@@ -1400,38 +1538,6 @@ function criarMotorLaudo(cfg){
     // diferente.
     if(paperEl.dataset.blockBoundaryGuardWired) return;
     paperEl.dataset.blockBoundaryGuardWired = '1';
-    // Um limite de seleção entre dois blocos (ex.: um clique-arrasto que
-    // começa antes do título e termina depois de "Ao exame:") tem como
-    // container o próprio #paper, não um nó de texto dentro do bloco — o
-    // offset é que aponta o índice do filho vizinho. closest('[data-blk]')
-    // direto no container erraria (devolveria null, o #paper não tem
-    // data-blk), então aqui se pega o nó vizinho de verdade antes de subir.
-    function blocoDoLimite(container, offset){
-      let node = container;
-      if(node.nodeType === 1) node = node.childNodes[offset] || node.childNodes[offset - 1] || node;
-      const el = node.nodeType === 1 ? node : node.parentElement;
-      return el ? el.closest('[data-blk]') : null;
-    }
-    // Irmã de blocoDoLimite(), para tabela. Uma tabela como a de morfologia
-    // (rótulo numa célula, descrição na vizinha, uma <tr> por segmento) é UM
-    // data-blk só — o guard acima nunca vê problema numa seleção que cruza
-    // células ou linhas dentro dela, porque startBlk === endBlk os dois lados.
-    // O navegador não mescla células por Delete/Backspace como faz com <p>:
-    // ele desmembra a seleção em duas edições independentes, uma em cada
-    // célula, cortando o texto de cada lado pela metade sem juntar nada —
-    // reproduzido selecionando da descrição de "Crânio / cérebro" até a
-    // descrição da linha seguinte e apertando Delete: "Calota craniana
-    // íntegra..." virou "Calot", a linha seguinte perdeu as primeiras letras,
-    // e a tabela continuou com o mesmo número de linhas e de datablk — nem
-    // dedupBlocos() nem restoreMissingBlocks() enxergam esse tipo de estrago.
-    // Tratar toda célula como fronteira, igual já se faz para data-blk, fecha
-    // esse caminho para qualquer tabela do #paper, não só a da morfologia.
-    function celulaDoLimite(container, offset){
-      let node = container;
-      if(node.nodeType === 1) node = node.childNodes[offset] || node.childNodes[offset - 1] || node;
-      const el = node.nodeType === 1 ? node : node.parentElement;
-      return el ? el.closest('td, th') : null;
-    }
     // Cursor colapsado (nenhum texto selecionado) bem na borda de um bloco:
     // Backspace no início ou Delete no fim tentam mesclar o bloco com o
     // vizinho — igual ao Enter que divide, só que ao contrário, e sem
@@ -1454,13 +1560,7 @@ function criarMotorLaudo(cfg){
       if(!sel || !sel.rangeCount) return;
       const range = sel.getRangeAt(0);
       if(!sel.isCollapsed){
-        const startBlk = blocoDoLimite(range.startContainer, range.startOffset);
-        const endBlk = blocoDoLimite(range.endContainer, range.endOffset);
-        const startCel = celulaDoLimite(range.startContainer, range.startOffset);
-        const endCel = celulaDoLimite(range.endContainer, range.endOffset);
-        const cruzaBloco = !!startBlk && startBlk !== endBlk;
-        const cruzaCelula = (!!startCel || !!endCel) && startCel !== endCel;
-        if(!cruzaBloco && !cruzaCelula) return;
+        if(!selecaoCruzaLimite(range)) return;
         e.preventDefault();
         sel.collapseToStart();
         if((e.inputType === 'insertText' || e.inputType === 'insertReplacementText') && e.data){
@@ -1506,6 +1606,41 @@ function criarMotorLaudo(cfg){
       if(!cursorNaBordaDoBloco(range, blk, direcao === 'tras')) return;
       e.preventDefault();
     });
+  }
+  // "Refazer laudo": a saída de emergência quando o texto do #paper ficou
+  // estragado (bloco duplicado, título sumido, trecho embaralhado depois de
+  // muita edição de fonte e espaçamento) — antes disso a médica desistia e
+  // terminava o laudo no Word. Monta o laudo de novo a partir do formulário,
+  // que nunca se estraga com a edição do texto: perde só o que foi digitado
+  // direto no laudo e a fonte/espaçamento aplicados a trechos. As linhas da
+  // impressão diagnóstica reescritas à mão moram no estado do laudo
+  // (impressaoOverrides), não no #paper, e voltam como estavam. O botão entra
+  // sozinho ao lado de "Restaurar espaçamento padrão", nos laudos que o têm.
+  function wireRefazerLaudo(){
+    const ref = $('fmtResetSpacing');
+    if(!ref || $('fmtRefazerLaudo')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = ref.className || 'fmt-reset';
+    btn.id = 'fmtRefazerLaudo';
+    btn.textContent = 'Refazer laudo';
+    btn.title = 'O laudo ficou com páginas ou trechos repetidos, ou sumiu o título? Monta o laudo de novo a partir do formulário';
+    ref.insertAdjacentElement('afterend', btn);
+    btn.addEventListener('click', ()=>{
+      if(!confirm('Refazer o laudo a partir do formulário?\n\nO texto volta a ser o gerado pelos campos preenchidos. '
+        + 'O que foi digitado direto no laudo (fora da impressão diagnóstica) e a fonte ou espaçamento aplicados a trechos selecionados se perdem. '
+        + 'Os campos do formulário não mudam.')) return;
+      refazerLaudo();
+    });
+  }
+  function refazerLaudo(){
+    const paperEl = $('paper');
+    if(!paperEl) return;
+    if(st.printPaginated){ unwrapPrintPages(paperEl); st.printPaginated = false; st.renderPendingAfterPrint = false; }
+    st.lastBlockHtml = {};
+    paperEl.innerHTML = '';
+    cfg.render();
+    draftSchedule();
   }
   function wireDecimalInputs(){
     document.querySelectorAll('input[data-decimals]').forEach(el=>{
@@ -2068,6 +2203,7 @@ function criarMotorLaudo(cfg){
     // O cursor saindo de um bloco vazio é o que o esconde (ver colapsarBlocosVazios).
     document.addEventListener('selectionchange', agendarColapso);
     wireBlockBoundaryGuard(paperEl0);
+    wireRefazerLaudo();
     // Espaçamento entre linhas, margens e fonte moram no style do #paper (e mudam
     // a altura do laudo sem passar por render()): refaz a contagem de páginas e a
     // linha "Fim da página" quando o style muda — senão o preview fica com a
@@ -2143,6 +2279,7 @@ function criarMotorLaudo(cfg){
     unwrapPrintPages: unwrapPrintPages,
     dedupBlocos: dedupBlocos,
     restoreMissingBlocks: restoreMissingBlocks,
+    refazerLaudo: refazerLaudo,
     updatePagePreview: updatePagePreview,
     v: v,
     vNoDot: vNoDot,
