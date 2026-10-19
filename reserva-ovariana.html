@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laudo Transvaginal - Reserva Ovariana — Dra. Morgana Kummer</title>
+<title>Laudo Transvaginal - Contagem de Folículos — Dra. Morgana Kummer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -372,7 +372,7 @@
       <img src="icon-transvaaginal.png" alt="">
     </div>
     <div class="topbar-title">
-      <h1>Transvaginal - Reserva Ovariana</h1>
+      <h1>Transvaginal - Contagem de Folículos</h1>
       <div class="sub">Dra. Morgana Kummer · preencha as medidas obtidas — o laudo é montado automaticamente ao lado</div>
     </div>
   </div>
@@ -406,7 +406,7 @@
         <option value="transvaginal.html">Transvaginal</option>
         <option value="monitorizacao-folicular-fiv.html">Transvaginal - Monitorização Folicular (FIV)</option>
         <option value="rastreamento-ovulacao.html">Transvaginal - Rastreamento de Ovulação</option>
-        <option value="reserva-ovariana.html" selected>Transvaginal - Reserva Ovariana</option>
+        <option value="reserva-ovariana.html" selected>Transvaginal - Contagem de Folículos</option>
       </optgroup>
       <optgroup label="Obstétrico">
         <option value="morfologico-1trimestre.html">Morfológico de 1º Trimestre</option>
@@ -3444,7 +3444,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // dos Santos - Transvaginal com DIU"), para o arquivo já sair identificado
   // e ir direto para a pasta da paciente sem renomear.
   function tituloExame(){
-    return ($('chkTransabdominal').checked ? 'Pélvico' : 'Transvaginal') + ' - Reserva Ovariana' + ($('chkExame3D').checked ? ' 3D' : '') + ($('chkDIU').checked ? ' com DIU' : '');
+    return ($('chkTransabdominal').checked ? 'Pélvico' : 'Transvaginal') + ' - Contagem de Folículos' + ($('chkExame3D').checked ? ' 3D' : '') + ($('chkDIU').checked ? ' com DIU' : '');
   }
   // Chrome/Edge can prompt a native "save as" dialog (File System Access
   // API) instead of always dropping the file in Downloads — only available
