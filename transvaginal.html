@@ -517,6 +517,7 @@
   <hr class="sep">
   <h3>Ovários</h3>
   <div class="field" style="margin-bottom:8px;"><label>Normal — use {LADO}, {L}, {AP}, {T}, {VOLUME} e {VR}</label><textarea id="ph_ovarioNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ausente (ooforectomia prévia)</label><textarea id="ph_ovarioAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Não identificado — use {LADO}</label><textarea id="ph_ovarioNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Policístico — frase-base (substitui "Normal" quando policístico) — use {L}, {AP}, {T}, {VOLUME} e {VR}</label><textarea id="ph_ovarioPolicisticoBase" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — complemento (achado, após a frase-base) — use {LADO}</label><textarea id="ph_ovarioPolicistico" rows="2"></textarea></div>
@@ -586,6 +587,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Endométrio atrófico (espessura menor que 2,0 mm)</label><textarea id="ph_impEndometrioAtrofico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_impSinequias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio</label><textarea id="ph_impHematometrio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário ausente (ooforectomia prévia) — use {LADO}</label><textarea id="ph_impOvarioAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário não identificado — use {LADO}</label><textarea id="ph_impOvarioNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário alterado (outro) — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — use {LADO}</label><textarea id="ph_impOvarioPolicistico" rows="2"></textarea></div>
@@ -852,7 +854,7 @@
 
         <hr class="sep">
         <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário direito</p>
-        <div class="field-row field-row-compact">
+        <div class="field-row field-row-compact conditional show" id="wrap_ovD_medidas">
           <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder="cm"></div>
           <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_AP" placeholder="cm"></div>
           <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_T" placeholder="cm"></div>
@@ -872,6 +874,7 @@
               <option value="foliculo">Folículo dominante</option>
               <option value="dermoide">Cisto dermoide (teratoma)</option>
               <option value="endometrioma">Endometrioma</option>
+              <option value="ausente">Ausente (ooforectomia prévia)</option>
               <option value="nao_identificado">Não identificado</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
@@ -942,7 +945,7 @@
 
         <hr class="sep">
         <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário esquerdo</p>
-        <div class="field-row field-row-compact">
+        <div class="field-row field-row-compact conditional show" id="wrap_ovE_medidas">
           <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_L" placeholder="cm"></div>
           <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_AP" placeholder="cm"></div>
           <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_T" placeholder="cm"></div>
@@ -962,6 +965,7 @@
               <option value="foliculo">Folículo dominante</option>
               <option value="dermoide">Cisto dermoide (teratoma)</option>
               <option value="endometrioma">Endometrioma</option>
+              <option value="ausente">Ausente (ooforectomia prévia)</option>
               <option value="nao_identificado">Não identificado</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
@@ -1842,6 +1846,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     ovarioNormal: 'de topografia e forma usuais, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ ({VR}).',
     ovarioNaoIdentificado: 'não identificado no presente estudo. Não são identificadas massas císticas ou sólidas em sua topografia.',
+    ovarioAusente: 'ausente, compatível com ooforectomia prévia.',
     ovarioPolicisticoBase: 'de topografia usual, forma globosa e textura micropolicística, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ ({VR}).',
     ovarioPolicistico: 'Ovário {LADO} apresentando folículos antrais de distribuição predominantemente periférica, com diâmetro médio de 5 mm, associado a aumento da ecogenicidade do estroma.',
     ovarioCisto1: 'Ovário {LADO}, em seu interior observa-se imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm, com volume de {VOLUME} cm³.',
@@ -1901,6 +1906,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impSinequias: 'Falhas no eco endometrial, sugestivas de sinéquias - Seguir propedêutica.',
     impHematometrio: 'Hematométrio.',
     impOvarioNaoIdentificado: 'Ovário {LADO} não identificado no presente estudo.',
+    impOvarioAusente: 'Ovário {LADO} ausente (ooforectomia prévia).',
     impOvarioAlterado: 'Ovário {LADO}: {DESCRICAO}.',
     impOvarioPolicistico: 'Ovário {LADO} com aspecto sugestivo de ovários policísticos.',
     impOvariosPolicisticosBilateral: 'Ovários de volume aumentado, micropolicísticos.',
@@ -2399,8 +2405,9 @@ if(typeof criarMotorLaudo !== 'function'){
       toggle('wrap_'+prefix+'_descricao', val==='alterado');
       // Sem ovário identificado não há o que descrever a mais: esconde (e
       // limpa) a segunda alteração para não deixar um achado órfão salvo.
-      toggle('wrap_'+prefix+'_segunda', val!=='nao_identificado');
-      if(val==='nao_identificado'){
+      toggle('wrap_'+prefix+'_medidas', val!=='ausente');
+      toggle('wrap_'+prefix+'_segunda', val!=='nao_identificado' && val!=='ausente');
+      if(val==='nao_identificado' || val==='ausente'){
         const sel2 = $(prefix+'_aspecto2');
         if(sel2 && sel2.value){ sel2.value=''; sel2.dispatchEvent(new Event('change')); }
       }
@@ -2603,7 +2610,9 @@ if(typeof criarMotorLaudo !== 'function'){
       // principal virou um item bilateral.
       const primarioBilateral = (ambosOvariosPolicisticos && aspecto==='policistico') || (ambosOvariosVolumeReduzido && volumeReduzido);
       if(!primarioBilateral){
-        if(aspecto==='nao_identificado'){
+        if(aspecto==='ausente'){
+          items.push({key:prefix+'-ausente', label:phraseRaw('impOvarioAusente', {LADO:lado}), auto:true});
+        } else if(aspecto==='nao_identificado'){
           items.push({key:prefix+'-nao-identificado', label:phraseRaw('impOvarioNaoIdentificado', {LADO:lado}), auto:true});
         } else if(aspecto==='alterado' && state[prefix+'_descricao']){
           items.push({key:prefix+'-alterado', label:phraseRaw('impOvarioAlterado', {LADO:lado, DESCRICAO:state[prefix+'_descricao']}), auto:true});
@@ -2621,7 +2630,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // o campo nesse caso, mas o estado de um rascunho antigo pode ter
       // sobrado com um valor, então a checagem é repetida aqui.
       const aspecto2 = state[prefix+'_aspecto2'];
-      if(aspecto!=='nao_identificado' && aspecto2){
+      if(aspecto!=='nao_identificado' && aspecto!=='ausente' && aspecto2){
         if(aspecto2==='alterado' && state[prefix+'_descricao2']){
           items.push({key:prefix+'-alterado-2', label:phraseRaw('impOvarioAlterado', {LADO:lado, DESCRICAO:state[prefix+'_descricao2']}), auto:true});
         } else if(OVARIO_HD_TEXT[aspecto2]){
@@ -2868,12 +2877,14 @@ if(typeof criarMotorLaudo !== 'function'){
       });
     }
     function readOvario(prefix){
-      const L = blankOrValue(req(prefix+'_L'));
-      const AP = blankOrValue(req(prefix+'_AP'));
-      const T = blankOrValue(req(prefix+'_T'));
-      const volNum = num(prefix+'_volume'); req(prefix+'_volume');
+      // Ovário ausente (ooforectomia): medidas e volume não são pedidos.
+      const ausente = v(prefix+'_aspecto')==='ausente';
+      const L = blankOrValue(reqIf(prefix+'_L', !ausente));
+      const AP = blankOrValue(reqIf(prefix+'_AP', !ausente));
+      const T = blankOrValue(reqIf(prefix+'_T', !ausente));
+      const volNum = num(prefix+'_volume'); reqIf(prefix+'_volume', !ausente);
       const volume = blankOrValue(v(prefix+'_volume'));
-      flag(prefix+'_volume', volNum!==null && (vrOvarioTipo==='menopausa' ? volNum > VR.ovarioMenopausa : (volNum < VR.ovarioMin || volNum > VR.ovarioMax)));
+      flag(prefix+'_volume', !ausente && volNum!==null && (vrOvarioTipo==='menopausa' ? volNum > VR.ovarioMenopausa : (volNum < VR.ovarioMin || volNum > VR.ovarioMax)));
       const aspecto = v(prefix+'_aspecto');
       const descricao = vNoDot(prefix+'_descricao');
       const cistoMostrarVolume = $(prefix+'_cistoMostrarVolume').checked;
@@ -3072,6 +3083,9 @@ if(typeof criarMotorLaudo !== 'function'){
       return ' '+semLeadIn.charAt(0).toUpperCase()+semLeadIn.slice(1);
     }
     function ovarioParagraph(ov, ladoM, ladoF){
+      if(ov.aspecto==='ausente'){
+        return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+phrase('ovarioAusente')+'</p>';
+      }
       if(ov.aspecto==='nao_identificado'){
         return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+phrase('ovarioNaoIdentificado')+'</p>';
       }

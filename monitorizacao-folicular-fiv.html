@@ -467,6 +467,7 @@
   <hr class="sep">
   <h3>Ovários</h3>
   <div class="field" style="margin-bottom:8px;"><label>Normal — use {L}, {AP}, {T}, {VOLUME}, {VRMIN}, {VRMAX}, {N} (nº de folículos dominantes) e {PL} (vira "s" no plural, nada no singular)</label><textarea id="ph_ovarioNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ausente (ooforectomia prévia)</label><textarea id="ph_ovarioAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Não identificado</label><textarea id="ph_ovarioNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Policístico — frase-base (substitui "Normal" quando policístico) — use {L}, {AP}, {T}, {VOLUME}, {VRMIN} e {VRMAX}</label><textarea id="ph_ovarioPolicisticoBase" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — complemento (achado, após a frase-base) — use {LADO}</label><textarea id="ph_ovarioPolicistico" rows="2"></textarea></div>
@@ -500,6 +501,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Útero miomatoso (3 ou mais nódulos)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado uterino (útero alterado) — use {DESCRICAO}</label><textarea id="ph_impUteroAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado ovariano (ovário alterado) — use {LADO} e {DESCRICAO}</label><textarea id="ph_impOvarioAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Ovário ausente (ooforectomia prévia) — use {LADO}</label><textarea id="ph_impOvarioAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário não identificado — use {LADO}</label><textarea id="ph_impOvarioNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — use {LADO}</label><textarea id="ph_impOvarioPolicistico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovários policísticos bilateral (ambos os ovários)</label><textarea id="ph_impOvariosPolicisticosBilateral" rows="2"></textarea></div>
@@ -630,7 +632,7 @@
       <div class="card-head"><h2>Ovários</h2></div>
       <div class="card-body">
         <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário direito</p>
-        <div class="field-row">
+        <div class="field-row conditional show" id="wrap_ovD_medidas">
           <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder="cm"></div>
           <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_AP" placeholder="cm"></div>
           <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_T" placeholder="cm"></div>
@@ -653,6 +655,7 @@
               <option value="corpoluteo">Corpo lúteo</option>
               <option value="dermoide">Cisto dermoide (teratoma)</option>
               <option value="endometrioma">Endometrioma</option>
+              <option value="ausente">Ausente (ooforectomia prévia)</option>
               <option value="nao_identificado">Não identificado</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
@@ -717,7 +720,7 @@
 
         <hr class="sep">
         <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário esquerdo</p>
-        <div class="field-row">
+        <div class="field-row conditional show" id="wrap_ovE_medidas">
           <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_L" placeholder="cm"></div>
           <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_AP" placeholder="cm"></div>
           <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_T" placeholder="cm"></div>
@@ -740,6 +743,7 @@
               <option value="corpoluteo">Corpo lúteo</option>
               <option value="dermoide">Cisto dermoide (teratoma)</option>
               <option value="endometrioma">Endometrioma</option>
+              <option value="ausente">Ausente (ooforectomia prévia)</option>
               <option value="nao_identificado">Não identificado</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
@@ -1399,6 +1403,7 @@ if(typeof criarMotorLaudo !== 'function'){
     figoF7: 'parede {PAREDE}, totalmente subserosa (FIGO 7), medindo {MEDIDA} mm',
     figoF8: 'região cervical{DETALHE} (FIGO 8), medindo {MEDIDA} mm',
     ovarioNormal: 'polifolicular, de forma globosa, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³), apresentando {N} folículo{PL} dominante{PL}, com diâmetros médios descritos abaixo.',
+    ovarioAusente: 'ausente, compatível com ooforectomia prévia.',
     ovarioNaoIdentificado: 'não identificado no presente estudo. Não são identificadas massas císticas ou sólidas em sua topografia.',
     ovarioPolicisticoBase: 'de topografia usual, forma globosa e textura micropolicística, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ (normal entre {VRMIN} e {VRMAX} cm³).',
     ovarioPolicistico: 'Ovário {LADO} apresentando folículos antrais de distribuição predominantemente periférica, com diâmetro médio de 5 mm, associado a aumento da ecogenicidade do estroma.',
@@ -1440,6 +1445,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impUteroMiomatoso: 'Útero de volume aumentado, miomatoso.',
     impUteroAlterado: 'Achado uterino: {DESCRICAO}.',
     impOvarioAlterado: 'Achado no ovário {LADO}: {DESCRICAO}.',
+    impOvarioAusente: 'Ovário {LADO} ausente (ooforectomia prévia).',
     impOvarioNaoIdentificado: 'Ovário {LADO} não identificado no presente estudo.',
     impOvarioPolicistico: 'Ovário {LADO} com aspecto sugestivo de ovários policísticos.',
     impOvariosPolicisticosBilateral: 'Ovários de volume aumentado, micropolicísticos.',
@@ -1674,8 +1680,9 @@ if(typeof criarMotorLaudo !== 'function'){
       toggle('wrap_'+prefix+'_descricao', val==='alterado');
       // Sem ovário identificado não há o que descrever a mais: esconde (e
       // limpa) a segunda alteração para não deixar um achado órfão salvo.
-      toggle('wrap_'+prefix+'_segunda', val!=='nao_identificado');
-      if(val==='nao_identificado'){
+      toggle('wrap_'+prefix+'_medidas', val!=='ausente');
+      toggle('wrap_'+prefix+'_segunda', val!=='nao_identificado' && val!=='ausente');
+      if(val==='nao_identificado' || val==='ausente'){
         const sel2 = $(prefix+'_aspecto2');
         if(sel2 && sel2.value){ sel2.value=''; sel2.dispatchEvent(new Event('change')); }
       }
@@ -1952,8 +1959,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const volumeReduzido = prefix==='ovD' ? ovD_volumeReduzido : ovE_volumeReduzido;
       const primarioBilateral = (ambosOvariosPolicisticos && aspecto==='policistico') || (ambosOvariosVolumeReduzido && volumeReduzido);
       if(!primarioBilateral){
-        if(aspecto==='nao_identificado'){
-          items.push({key:prefix+'-nao-identificado', label:phraseRaw('impOvarioNaoIdentificado', {LADO:lado}), auto:true});
+        if(aspecto==='ausente'){          items.push({key:prefix+'-ausente', label:phraseRaw('impOvarioAusente', {LADO:lado}), auto:true});
+        } else if(aspecto==='nao_identificado'){          items.push({key:prefix+'-nao-identificado', label:phraseRaw('impOvarioNaoIdentificado', {LADO:lado}), auto:true});
         } else if(aspecto==='alterado' && state[prefix+'_descricao']){
           items.push({key:prefix+'-alterado', label:phraseRaw('impOvarioAlterado', {LADO:lado, DESCRICAO:state[prefix+'_descricao']}), auto:true});
         } else if(volumeReduzido){
@@ -1964,7 +1971,7 @@ if(typeof criarMotorLaudo !== 'function'){
         }
       }
       const aspecto2 = state[prefix+'_aspecto2'];
-      if(aspecto!=='nao_identificado' && aspecto2){
+      if(aspecto!=='nao_identificado' && aspecto!=='ausente' && aspecto2){
         if(aspecto2==='alterado' && state[prefix+'_descricao2']){
           items.push({key:prefix+'-alterado-2', label:phraseRaw('impOvarioAlterado', {LADO:lado, DESCRICAO:state[prefix+'_descricao2']}), auto:true});
         } else if(OVARIO_HD_TEXT[aspecto2]){
@@ -2084,12 +2091,13 @@ if(typeof criarMotorLaudo !== 'function'){
     const vrOvarioTexto = VR.ovarioMin.toString().replace('.',',')+' e '+VR.ovarioMax.toString().replace('.',',');
 
     function readOvario(prefix){
-      const L = blankOrValue(req(prefix+'_L'));
-      const AP = blankOrValue(req(prefix+'_AP'));
-      const T = blankOrValue(req(prefix+'_T'));
-      const volNum = num(prefix+'_volume'); req(prefix+'_volume');
+      const ausente = v(prefix+'_aspecto')==='ausente';
+      const L = blankOrValue(reqIf(prefix+'_L', !ausente));
+      const AP = blankOrValue(reqIf(prefix+'_AP', !ausente));
+      const T = blankOrValue(reqIf(prefix+'_T', !ausente));
+      const volNum = num(prefix+'_volume'); reqIf(prefix+'_volume', !ausente);
       const volume = blankOrValue(v(prefix+'_volume'));
-      flag(prefix+'_volume', volNum!==null && (volNum < VR.ovarioMin || volNum > VR.ovarioMax));
+      flag(prefix+'_volume', !ausente && volNum!==null && (volNum < VR.ovarioMin || volNum > VR.ovarioMax));
       const aspecto = v(prefix+'_aspecto');
       const descricao = vNoDot(prefix+'_descricao');
       const cisto1Medida = reqIf(prefix+'_cisto1Medida', aspecto==='cisto1');
@@ -2221,6 +2229,9 @@ if(typeof criarMotorLaudo !== 'function'){
       return ' '+semLeadIn.charAt(0).toUpperCase()+semLeadIn.slice(1);
     }
     function ovarioParagraph(ov, ladoM){
+      if(ov.aspecto==='ausente'){
+        return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+phrase('ovarioAusente')+'</p>';
+      }
       if(ov.aspecto==='nao_identificado'){
         return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+phrase('ovarioNaoIdentificado')+'</p>';
       }
