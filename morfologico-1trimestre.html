@@ -871,6 +871,12 @@
           <div class="field"><label>Trissomia 21 — 1 para</label><input type="text" inputmode="numeric" id="anexoRiscoHistT21" placeholder="ex: 840"></div>
           <div class="field"><label>Trisomia 13/18 — 1 para</label><input type="text" inputmode="numeric" id="anexoRiscoHistT1318" placeholder="ex: 1500"></div>
         </div>
+        <p style="font-size:12px;font-weight:600;margin:12px 0 4px;">Riscos calculados pelo exame (com os marcadores ultrassonográficos)</p>
+        <p style="font-size:12px;color:var(--ink-soft);margin:0 0 4px;">Feto único ou monocoriônica: um cálculo só, da gestação inteira. Gemelar dicoriônica ou trigemelar: cada feto digita o seu no próprio cartão, lá em cima.</p>
+        <div class="field-row">
+          <div class="field"><label>Trissomia 21 — 1 para</label><input type="text" inputmode="numeric" id="anexoCalcRiscoT21" placeholder="ex: 1200"></div>
+          <div class="field"><label>Trissomia 13/18 — 1 para</label><input type="text" inputmode="numeric" id="anexoCalcRiscoT1318" placeholder="ex: 5000"></div>
+        </div>
         <p style="font-size:12px;font-weight:600;margin:12px 0 4px;">Risco de diabetes gestacional</p>
         <div class="field-row">
           <div class="field"><label>Risco (%)</label><input type="text" inputmode="decimal" data-decimals="1" id="anexoDiabetesPercent" placeholder="ex: 3,4"></div>
@@ -1514,6 +1520,19 @@ if(typeof criarMotorLaudo !== 'function'){
     return temFeto || num('utEsquerda') != null || num('utDireita') != null;
   }
 
+  // Riscos calculados pelo exame (T21 e T13/18). Com feto único ou
+  // monocoriônica o cálculo é um só da gestação e os campos ficam na última
+  // página, junto dos riscos pela história; com gemelar/trigemelar
+  // dicoriônica, cada feto digita o seu no próprio cartão.
+  function riscoNaUltimaPagina(uid){
+    const uids = fetoUids();
+    return uids[0] === uid && (uids.length < 2 || v('corionicidade').indexOf('monocorionica') === 0);
+  }
+  function riscoCampo(uid, t){
+    if(riscoNaUltimaPagina(uid)) return t === 'T21' ? 'anexoCalcRiscoT21' : 'anexoCalcRiscoT1318';
+    return 'feto'+uid+'Risco'+(t === 'T21' ? 'T21' : 'T18');
+  }
+
   // Mesma ideia de anexoTemDadosGraficos(), para o relatório da FMF em texto
   // (ver renderAnexoFmfReport()): decide se a folha de anexo tem conteúdo
   // próprio.
@@ -1521,7 +1540,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(v('anexoRiscoHistT21')!=='' || v('anexoRiscoHistT1318')!=='' || v('anexoIdadeMaterna')!=='') return true;
     if(v('anexoDiabetesRisco')!=='' || v('anexoPtbRisco')!=='') return true;
     if($('chkPreEclampsia') && $('chkPreEclampsia').checked && v('preEclampsiaRisco')!=='') return true;
-    return fetoUids().some(uid => v('feto'+uid+'RiscoT21')!=='' || v('feto'+uid+'RiscoT18')!=='' || v('feto'+uid+'RiscoT13')!=='');
+    return fetoUids().some(uid => v(riscoCampo(uid, 'T21'))!=='' || v(riscoCampo(uid, 'T1318'))!=='');
   }
 
   function updateAnexoVisibility(){
@@ -1852,10 +1871,9 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<p class="hint-perfeto" id="feto'+uid+'RiscoHint">Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).</p>'
       +'<div class="field-row">'
       +'<div class="field"><label>Síndrome de Down (T21) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT21" placeholder="ex: 1200"></div>'
-      +'<div class="field"><label>Síndrome de Edwards (T18) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT18" placeholder="ex: 5000"></div>'
+      +'<div class="field"><label>Síndrome de Edwards/Patau (T18/T13) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT18" placeholder="ex: 5000"></div>'
       +'</div>'
       +'<div class="field-row">'
-      +'<div class="field"><label>Síndrome de Patau (T13) — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT13" placeholder="ex: 8000"></div>'
       +'<div class="field"><label>Risco para cromossomopatias</label><select id="feto'+uid+'RiscoClasse"><option value="baixo">Baixo risco</option><option value="alto">Risco aumentado</option></select></div>'
       +'</div>'
       +'</div>'
@@ -1919,7 +1937,6 @@ if(typeof criarMotorLaudo !== 'function'){
     wireDigitsOnlyInput('feto'+uid+'FC', 3);
     wireDigitsOnlyInput('feto'+uid+'RiscoT21', 6);
     wireDigitsOnlyInput('feto'+uid+'RiscoT18', 6);
-    wireDigitsOnlyInput('feto'+uid+'RiscoT13', 6);
     el.querySelectorAll('input, select, textarea').forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
@@ -2597,7 +2614,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // regra da monocoriônica usada lá — um cálculo só, rotulado para os
     // dois/três fetos (ver a nota "Monocoriônica" no CLAUDE.md).
     const temAjustado = uids.some(function(uid){
-      return v('feto'+uid+'RiscoT21')!=='' || v('feto'+uid+'RiscoT18')!=='' || v('feto'+uid+'RiscoT13')!=='';
+      return v(riscoCampo(uid, 'T21'))!=='' || v(riscoCampo(uid, 'T1318'))!=='';
     });
     if(temAjustado){
       const rotuloMono = isMonocorionica ? ' — '+rotuloRiscoMono : '';
@@ -2608,8 +2625,8 @@ if(typeof criarMotorLaudo !== 'function'){
         // ocupava altura demais e estourava a página com os gráficos de
         // referência logo abaixo — a tabela por coluna cabe no mesmo espaço
         // de um bloco só.
-        const campo = function(c){ return uids.map(function(uid){ return blankOrValue(v('feto'+uid+c)); }); };
-        const t21 = campo('RiscoT21'), t18 = campo('RiscoT18'), t13 = campo('RiscoT13');
+        const campo = function(t){ return uids.map(function(uid){ return blankOrValue(v(riscoCampo(uid, t))); }); };
+        const t21 = campo('T21'), t1318 = campo('T1318');
         const linhaMulti = function(label, vals){
           return '<tr><td style="padding:1px 10px 1px 0;white-space:nowrap;">'+escapeHtml(label)+'</td>'
             + vals.map(function(x){ return '<td style="padding:1px 10px 1px 0;white-space:nowrap;">1 in '+span(x)+'</td>'; }).join('')
@@ -2618,22 +2635,17 @@ if(typeof criarMotorLaudo !== 'function'){
         html += '<table style="border-collapse:collapse;'+TXT+'margin:2px 0 0;">'
           + '<tr><td></td>'+uids.map(function(uid, idx){ return '<td style="padding:1px 10px 1px 0;font-weight:700;white-space:nowrap;">'+escapeHtml(fetoLabel(idx, uids.length))+'</td>'; }).join('')+'</tr>'
           + linhaMulti('Trissomia 21:', t21)
-          + linhaMulti('Síndrome de Edwards (T18):', t18)
-          + linhaMulti('Síndrome de Patau (T13):', t13)
+          + linhaMulti('Síndrome de Edwards/Patau (T18/T13):', t1318)
           + '</table>';
       } else {
         // Feto único, ou monocoriônica (um cálculo só, rotulado acima):
         // sempre os campos do 1º feto — mesma regra do quadro no corpo do
         // laudo (ver render(), "Monocoriônica" no CLAUDE.md).
-        const pre = 'feto'+uids[0];
-        const t21 = blankOrValue(v(pre+'RiscoT21'));
-        const t18 = blankOrValue(v(pre+'RiscoT18'));
-        const t13 = blankOrValue(v(pre+'RiscoT13'));
-        html += tabela([
-          ['Trissomia 21:', '1 in '+span(t21)],
-          ['Síndrome de Edwards (T18):', '1 in '+span(t18)],
-          ['Síndrome de Patau (T13):', '1 in '+span(t13)]
-        ]);
+        // Só as linhas preenchidas, como nos riscos pela história.
+        const linhasCalc = [];
+        if(v(riscoCampo(uids[0], 'T21'))!=='') linhasCalc.push(['Trissomia 21:', '1 in '+escapeHtml(v(riscoCampo(uids[0], 'T21')))]);
+        if(v(riscoCampo(uids[0], 'T1318'))!=='') linhasCalc.push(['Síndrome de Edwards/Patau (T18/T13):', '1 in '+escapeHtml(v(riscoCampo(uids[0], 'T1318')))]);
+        if(linhasCalc.length) html += tabela(linhasCalc);
       }
       html += '<p style="'+PARA+'">The adjusted risk is the risk at the time of screening. The calculation is based on the background risk and the following parameters: Ultrasound factors (FHR, NT, DV PI, Nasal bone, Tricuspid).</p>';
     }
@@ -3156,9 +3168,9 @@ if(typeof criarMotorLaudo !== 'function'){
       const pelves = v(pre+'Pelves') || 'Sem dilatação';
       const bexiga = blankOrValue(v(pre+'Bexiga'));
 
-      const riscoT21 = blankOrValue(v(pre+'RiscoT21'));
-      const riscoT18 = blankOrValue(v(pre+'RiscoT18'));
-      const riscoT13 = blankOrValue(v(pre+'RiscoT13'));
+      const riscoT21 = blankOrValue(v(riscoCampo(uid, 'T21')));
+      const riscoT18 = blankOrValue(v(riscoCampo(uid, 'T1318')));
+      const riscoT13 = riscoT18; // campo único T18/T13: o mesmo valor vai para as duas
       const riscoAlto = v(pre+'RiscoClasse')==='alto';
 
       return {uid, label, ccn, dbp, cc, ca, cf, fc, segmentos, alteracoes,
@@ -3171,7 +3183,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // senão haveria dois lugares para digitar o mesmo número e um deles seria
     // ignorado em silêncio. Decidido aqui dentro do render(), que é quem roda a
     // cada mudança de corionicidade ou de número de fetos.
-    fetos.forEach((f, idx)=> toggle('feto'+f.uid+'RiscoWrap', !(isMonocorionica && idx > 0)));
+    fetos.forEach((f, idx)=> toggle('feto'+f.uid+'RiscoWrap', !riscoNaUltimaPagina(f.uid) && !(isMonocorionica && idx > 0)));
     // O único cartão que sobra na monocoriônica (o do 1º feto) é reaproveitado
     // para o risco da gestação inteira — mas o rótulo e a dica dele continuam
     // os de "risco individual do feto 1" se nada mudar aqui, o que é enganoso:
@@ -4383,7 +4395,7 @@ if(typeof criarMotorLaudo !== 'function'){
       setar(pre+'TN', dec(ex.nt)); setar(pre+'FC', ex.fc);
       setar(pre+'DuctoVenoso', dec(ex.dv_ip));
       if(ex.dv_onda && ondaMap[ex.dv_onda]) setar(pre+'DVOndaA', ondaMap[ex.dv_onda]);
-      setar(pre+'RiscoT21', risco(ex.risco_t21)); setar(pre+'RiscoT18', risco(ex.risco_t18)); setar(pre+'RiscoT13', risco(ex.risco_t13));
+      setar(riscoCampo(uids[i], 'T21'), risco(ex.risco_t21)); setar(riscoCampo(uids[i], 'T1318'), risco(ex.risco_t18 || ex.risco_t13));
     });
 
     tocados.forEach(el=>{
@@ -4657,9 +4669,9 @@ if(typeof criarMotorLaudo !== 'function'){
           // ler só o feto A nesse caso (ver _riscoFmfCardsHtml/_ehMonocorionica
           // lá), então não precisa replicar aqui; feto B/C ficam null, como o
           // próprio formulário já os deixa.
-          risco_t21: riscoTxt(v(pre+'RiscoT21')),
-          risco_t18: riscoTxt(v(pre+'RiscoT18')),
-          risco_t13: riscoTxt(v(pre+'RiscoT13')),
+          risco_t21: riscoTxt(v(riscoCampo(uid, 'T21'))),
+          risco_t18: riscoTxt(v(riscoCampo(uid, 'T1318'))),
+          risco_t13: riscoTxt(v(riscoCampo(uid, 'T1318'))),
           // Uterinas, colo e os três riscos maternos são medidas da mãe:
           // numa gemelar o mesmo valor vai em todos os exames.
           aut_e: num('utEsquerda'),
