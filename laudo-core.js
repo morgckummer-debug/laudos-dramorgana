@@ -252,7 +252,8 @@ function criarMotorLaudo(cfg){
   const DIGITADORAS = {
     tpsl: {nome:'Thays Pereira', iniciais:'TPSL'},
     mel: {nome:'Maria Eduarda', iniciais:'MEL'},
-    emo: {nome:'Eduarda Marques', iniciais:'EMO'}
+    emo: {nome:'Eduarda Marques', iniciais:'EMO'},
+    mesc: {nome:'Maria Eduarda de Souza Cunha', iniciais:'MESC'}
   };
 
   const DRAFT_DEBOUNCE_MS = 800;
