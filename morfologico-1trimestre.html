@@ -864,12 +864,12 @@
     <div class="card">
       <div class="card-head"><h2>Última página — cálculo de risco (FMF)</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Estes campos montam a última página como texto, no layout do relatório da FMF — não precisa mais colar o print de lá. Deixe em branco o que a FMF não calculou neste exame; a idade materna usa o campo de nascimento/data do exame já preenchidos acima, o risco de trissomias (T21/T18/T13) usa os mesmos campos já preenchidos no cartão de cada feto, acima, e o de pré-eclâmpsia usa o cartão de rastreamento logo ali em cima — não precisa repetir.</p>
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Estes campos montam a última página como texto, no layout do relatório da FMF — não precisa mais colar o print de lá. Deixe em branco o que a FMF não calculou neste exame; a idade materna usa o campo de nascimento/data do exame já preenchidos acima, o risco de trissomias pela história é digitado aqui, como o software da FMF o devolve, e o risco calculado com os marcadores (T21/T18/T13) continua vindo dos cartões de cada feto, acima. O de pré-eclâmpsia usa o cartão de rastreamento logo ali em cima — não precisa repetir.</p>
         <p style="font-size:12px;font-weight:600;margin:12px 0 4px;">Riscos por história (antes dos marcadores ultrassonográficos)</p>
         <div class="field-row">
           <div class="field"><label>Idade materna considerada (anos)</label><input type="text" id="anexoIdadeMaterna" readonly placeholder="calculada automaticamente"></div>
-          <div class="field"><label>Trissomia 21 — 1 para</label><input type="text" id="anexoRiscoHistT21" readonly placeholder="igual ao cartão do feto"></div>
-          <div class="field"><label>Trisomia 13/18 — 1 para</label><input type="text" id="anexoRiscoHistT1318" readonly placeholder="igual ao cartão do feto"></div>
+          <div class="field"><label>Trissomia 21 — 1 para</label><input type="text" inputmode="numeric" id="anexoRiscoHistT21" placeholder="ex: 840"></div>
+          <div class="field"><label>Trisomia 13/18 — 1 para</label><input type="text" inputmode="numeric" id="anexoRiscoHistT1318" placeholder="ex: 1500"></div>
         </div>
         <p style="font-size:12px;font-weight:600;margin:12px 0 4px;">Risco de diabetes gestacional</p>
         <div class="field-row">
@@ -2577,17 +2577,16 @@ if(typeof criarMotorLaudo !== 'function'){
     let html = '';
 
     // Riscos por história (a priori, antes dos marcadores ultrassonográficos).
-    const temHistoria = v('anexoRiscoHistT21')!=='' || v('anexoRiscoHistT1318')!=='' || v('anexoIdadeMaterna')!=='';
-    if(temHistoria){
-      const histT21 = blankOrValue(v('anexoRiscoHistT21'));
-      const histT1318 = blankOrValue(v('anexoRiscoHistT1318'));
-      const idadeM = blankOrValue(v('anexoIdadeMaterna'));
+    // Só sai o que foi digitado: campo em branco não vira linha nem frase.
+    const histLinhas = [];
+    if(v('anexoRiscoHistT21')!=='') histLinhas.push(['Trissomia 21:', '1 in '+escapeHtml(v('anexoRiscoHistT21'))]);
+    if(v('anexoRiscoHistT1318')!=='') histLinhas.push(['Trisomia 13/18:', '1 in '+escapeHtml(v('anexoRiscoHistT1318'))]);
+    if(histLinhas.length){
       html += heading('Riscos por História');
-      html += tabela([
-        ['Trissomia 21:', '1 in '+span(histT21)],
-        ['Trisomia 13/18:', '1 in '+span(histT1318)]
-      ]);
-      html += '<p style="'+PARA+'">O risco baseado nos antecedentes tem por base uma idade materna de '+span(idadeM)+' anos e gravidezes anteriores afetadas.</p>';
+      html += tabela(histLinhas);
+    }
+    if(v('anexoIdadeMaterna')!==''){
+      html += '<p style="'+PARA+'">O risco baseado nos antecedentes tem por base uma idade materna de '+escapeHtml(v('anexoIdadeMaterna'))+' anos e gravidezes anteriores afetadas.</p>';
     }
 
     // Risco ajustado pelos marcadores ultrassonográficos — reaproveita os
@@ -3195,30 +3194,6 @@ if(typeof criarMotorLaudo !== 'function'){
         ? 'Gestação monocoriônica: o software da <em>Fetal Medicine Foundation</em> calcula um risco único para a gestação inteira, a partir da média das translucências nucais dos fetos — digite aqui esse valor único, à mão.'
         : 'Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).';
     }
-
-    // "Riscos por história" da folha de anexo (ver card "Última página —
-    // cálculo de risco (FMF)"): virou espelho automático, readonly, do risco
-    // já digitado no cartão do 1º feto — a médica pediu para escrever o
-    // risco de cada trissomia uma vez só, não duas (2026-09-27). Mesmo
-    // padrão de utMedioCalc/utP95Calc acima (campo readonly, calculado aqui
-    // dentro do render()). Sempre o 1º feto: é a mesma convenção já usada
-    // pro risco ajustado em monocoriônica (um cálculo só) e faz sentido aqui
-    // também, já que o risco por história depende só da idade materna — não
-    // varia de feto para feto.
-    // Trissomia 13/18 é um campo só na folha de anexo (é assim que o
-    // relatório da FMF imprime o risco por história), mas o cartão do feto
-    // guarda T18 e T13 separados — usa o maior risco dos dois (o "1 para"
-    // menor) como o número mais conservador para o campo combinado.
-    const uid1 = uids[0];
-    const histT21Src = v('feto'+uid1+'RiscoT21');
-    const histT18Num = parseInt(v('feto'+uid1+'RiscoT18'), 10);
-    const histT13Num = parseInt(v('feto'+uid1+'RiscoT13'), 10);
-    let histT1318Src = '';
-    if(!isNaN(histT18Num) && !isNaN(histT13Num)) histT1318Src = String(Math.min(histT18Num, histT13Num));
-    else if(!isNaN(histT18Num)) histT1318Src = String(histT18Num);
-    else if(!isNaN(histT13Num)) histT1318Src = String(histT13Num);
-    $('anexoRiscoHistT21').value = histT21Src;
-    $('anexoRiscoHistT1318').value = histT1318Src;
 
     // ----- Impressão -----
     const state = {
