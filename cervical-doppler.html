@@ -385,8 +385,8 @@
   <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px;">Estas são as frases que entram na Impressão conforme o exame estiver normal. Edite o texto do jeito que preferir — a próxima vez que você abrir a ferramenta (neste mesmo navegador), seu texto continua aqui. Achados alterados não geram frase automática: descreva-os nos campos do formulário e ajuste a Impressão diretamente no laudo, ao lado.</p>
   <div class="field" style="margin-bottom:8px;"><label>Ultrassom cervical sem alterações</label><textarea id="ph_impNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Estudo Doppler dentro da normalidade</label><textarea id="ph_impDopplerNormal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Linfonodo(s) reacional(is) — use {NIVEIS}</label><textarea id="ph_impLinfonodoReacional" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Linfonodo(s) suspeito(s) — use {NIVEIS}</label><textarea id="ph_impLinfonodoSuspeito" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Linfonodo(s) reacional(is) — use {LADO}</label><textarea id="ph_impLinfonodoReacional" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Linfonodo(s) suspeito(s) — use {LADO}</label><textarea id="ph_impLinfonodoSuspeito" rows="2"></textarea></div>
   <hr class="sep">
   <div class="save-row">
     <button class="btn-copy" id="btnSavePhrases">Salvar frases</button>
@@ -1088,8 +1088,8 @@ if(typeof criarMotorLaudo !== 'function'){
   const PHRASE_DEFAULTS = {
     impNormal: 'Ultrassom cervical sem alterações.',
     impDopplerNormal: 'Estudo Doppler dentro da normalidade.',
-    impLinfonodoReacional: 'Linfonodo(s) reacional(is) em nível cervical {NIVEIS}.',
-    impLinfonodoSuspeito: 'Linfonodo(s) suspeito(s) em nível cervical {NIVEIS} — sugere-se correlação clínica e seguimento.'
+    impLinfonodoReacional: 'Linfonodo(s) reacional(is) {LADO}.',
+    impLinfonodoSuspeito: 'Linfonodo(s) suspeito(s) {LADO} — sugere-se correlação clínica e seguimento.'
   };
   let PHRASES = Object.assign({}, PHRASE_DEFAULTS);
 
@@ -1361,10 +1361,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(temLinfonodo){
       const construirLado = (lado, rotulo)=>{
         const uids = linfonodoUids(lado);
-        if(!uids.length) return {linhas: [], suspeitoNiveis: [], reacionalNiveis: []};
+        if(!uids.length) return {linhas: [], suspeito: false, reacional: false};
         const linhasLado = ['<span style="display:block;margin-top:3mm;"><strong>À '+rotulo+':</strong></span>'];
-        const suspeitoNiveis = [];
-        const reacionalNiveis = [];
+        let suspeito = false, reacional = false;
         uids.forEach(uid=>{
           const nivel = v('linfo'+uid+'Nivel') || 'I';
           const forma = v('linfo'+uid+'Forma') || 'oval';
@@ -1373,17 +1372,19 @@ if(typeof criarMotorLaudo !== 'function'){
           const medidaNum = num('linfo'+uid+'Medida');
           const limite = NIVEL_LIMITE[nivel] || 9;
           const aumentado = medidaNum!==null && medidaNum > limite;
-          const suspeito = aumentado || forma==='arredondado' || eco!=='normal';
-          // Padrão normal não é reacional: só entra na impressão como
-          // reacional quem a médica marcou como "Reacional".
-          if(suspeito) suspeitoNiveis.push(nivel);
-          else if(eco==='reacional') reacionalNiveis.push(nivel);
+          // Suspeito: tamanho acima do VR, forma arredondada ou ecogenicidade
+          // alterada. Reacional não é suspeito (só quem a médica marcou como
+          // "Reacional" entra como reacional); oval/fusiforme com hilo
+          // preservado não entra em nenhuma das duas.
+          const ecoSuspeita = eco!=='normal' && eco!=='reacional';
+          if(aumentado || forma==='arredondado' || ecoSuspeita) suspeito = true;
+          else if(eco==='reacional') reacional = true;
           const formaTxt = FORMA_TEXTO[forma] || FORMA_TEXTO.oval;
           const ecoTxt = ECO_TEXTO[eco] || ECO_TEXTO.normal;
           const sufixo = aumentado ? ' (acima do valor de referência para o nível)' : '';
           linhasLado.push('<span style="display:block;">- Nível '+nivel+': linfonodo '+formaTxt+', '+ecoTxt+', medindo '+span(medida)+' mm no menor eixo'+sufixo+'.</span>');
         });
-        return {linhas: linhasLado, suspeitoNiveis, reacionalNiveis};
+        return {linhas: linhasLado, suspeito, reacional};
       };
       const direita = construirLado('D', 'direita');
       const esquerda = construirLado('E', 'esquerda');
@@ -1391,12 +1392,13 @@ if(typeof criarMotorLaudo !== 'function'){
       if(todasLinhas.length){
         linfonodosTexto = 'Observam-se linfonodos, com as seguintes características:'+todasLinhas.join('');
       }
-      const todosSuspeitos = direita.suspeitoNiveis.concat(esquerda.suspeitoNiveis);
-      const todosReacionais = direita.reacionalNiveis.concat(esquerda.reacionalNiveis);
-      if(todosSuspeitos.length){
-        linfonodoImpressaoHD = phrase('impLinfonodoSuspeito', {NIVEIS: Array.from(new Set(todosSuspeitos)).join(', ')});
-      } else if(todosReacionais.length){
-        linfonodoImpressaoHD = phrase('impLinfonodoReacional', {NIVEIS: Array.from(new Set(todosReacionais)).join(', ')});
+      // A conclusão traz só o lado (à direita, à esquerda ou bilateralmente),
+      // sem o nível: o nível já aparece na descrição de cada linfonodo.
+      const ladoTxt = (d, e)=> d && e ? 'bilateralmente' : (d ? 'à direita' : 'à esquerda');
+      if(direita.suspeito || esquerda.suspeito){
+        linfonodoImpressaoHD = phrase('impLinfonodoSuspeito', {LADO: ladoTxt(direita.suspeito, esquerda.suspeito)});
+      } else if(direita.reacional || esquerda.reacional){
+        linfonodoImpressaoHD = phrase('impLinfonodoReacional', {LADO: ladoTxt(direita.reacional, esquerda.reacional)});
       }
     }
 
