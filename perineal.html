@@ -3446,6 +3446,10 @@ if(typeof criarMotorLaudo !== 'function'){
     // A alteração adicional volta a aparecer (só some com ovário não identificado).
     toggle('wrap_ovD_segunda', true);
     toggle('wrap_ovE_segunda', true);
+    // As medidas do ovário (L/AP/T/volume) só somem com "Ausente"; o reset
+    // acima escondeu todo .conditional, então voltam aqui junto com o aspecto.
+    toggle('wrap_ovD_medidas', true);
+    toggle('wrap_ovE_medidas', true);
     // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
     draftDiscard();
   });
