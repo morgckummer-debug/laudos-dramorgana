@@ -1396,7 +1396,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // Linfonodo axilar atípico
     html += '<div class="conditional" id="wrap_'+p+'_linfonodoAxilar">'
       +'<div class="field-row field-row-compact">'
-        +'<div class="field"><label>Maior diâmetro</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'LnaxTam" placeholder="mm"><span class="vr">VR até 20,0 mm</span></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'LnaxTam" placeholder="ex: 22,2 x 23,3 x 15 mm"><span class="vr">VR do maior diâmetro até 20,0 mm</span></div>'
         +'<div class="field"><label>Forma</label><select id="'+p+'LnaxForma"><option value="oval">Oval</option><option value="arredondada">Arredondada</option><option value="irregular">Irregular</option></select></div>'
       +'</div>'
       +'<div class="field-row">'
@@ -1413,8 +1413,9 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'LnimDist" placeholder="cm"></div>'
       +'</div>'
       +'<div class="field-row field-row-compact">'
-        +'<div class="field"><label>Tamanho — eixo 1</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'LnimTam1" placeholder="mm"></div>'
-        +'<div class="field"><label>Tamanho — eixo 2</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'LnimTam2" placeholder="mm"></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'LnimTam1" placeholder="ex: 22,2 x 23,3 x 15 mm"></div>'
+        // Antigo "eixo 2": escondido, só para rascunho antigo voltar com a 2ª medida.
+        +'<input type="hidden" id="'+p+'LnimTam2">'
       +'</div>'
     +'</div>';
 
@@ -1885,19 +1886,30 @@ if(typeof criarMotorLaudo !== 'function'){
           ? phrase(nSuspeitos > 1 ? 'impNoduloSuspeitos' : 'impNoduloSuspeito', {LADO: lado})
           : phrase(plural ? 'impNoduloPlural' : 'impNoduloSingular', {LADO: lado});
       } else if(tipo === 'linfonodoAxilar'){
-        const tam=blankOrValue(req('achado'+uid+'LnaxTam'));
+        // Uma medida: "em seu maior diâmetro", como sempre. Duas ou três: as medidas
+        // e o maior diâmetro à parte, para o VR (e o itálico acima dele) olharem só ele.
+        const lnaxRaw = req('achado'+uid+'LnaxTam');
+        const lnaxMed = parseMedidas(lnaxRaw);
+        const tamTxt = tamanhoSemUnidade(lnaxRaw);
+        const partesLnax = tamTxt.split(' x ');
+        const maiorLnax = partesLnax.length === lnaxMed.length
+          ? partesLnax[lnaxMed.indexOf(Math.max(...lnaxMed))]
+          : fmtDecimal(Math.max(...lnaxMed), 1);
+        const maiorTxt = lnaxMed.length >= 2 && /[x×X]/.test(lnaxRaw)
+          ? span(blankOrValue(tamTxt))+' mm, com maior diâmetro de '+maiorLnax+' mm'
+          : span(blankOrValue(tamTxt))+' mm em seu maior diâmetro';
         const forma = v('achado'+uid+'LnaxForma') || 'oval';
         const espessamento = v('achado'+uid+'LnaxEspessamento') || 'focal';
         const margens = v('achado'+uid+'LnaxMargens') || 'circunscritas';
         const hilo = v('achado'+uid+'LnaxHilo') || 'central';
-        corpo = 'Observa-se imagem ovalada compatível com linfonodo, medindo '+span(tam)+' mm em seu maior diâmetro (VR até 20,0 mm), de forma '+escapeHtml(forma)+', apresentando espessamento cortical '+escapeHtml(espessamento)+', margens '+escapeHtml(margens)+' e hilo '+escapeHtml(hilo)+', à '+lado+'.';
+        corpo = 'Observa-se imagem ovalada compatível com linfonodo, medindo '+maiorTxt+' (VR até 20,0 mm), de forma '+escapeHtml(forma)+', apresentando espessamento cortical '+escapeHtml(espessamento)+', margens '+escapeHtml(margens)+' e hilo '+escapeHtml(hilo)+', à '+lado+'.';
         hd = phrase('impLinfonodoAxilar', {LADO: lado});
       } else if(tipo === 'linfonodoIntramamario'){
         const hora=blankOrValue(req('achado'+uid+'LnimHora'));
         const dist=blankOrValue(req('achado'+uid+'LnimDist'));
-        const t1=blankOrValue(req('achado'+uid+'LnimTam1'));
-        const t2=blankOrValue(req('achado'+uid+'LnimTam2'));
-        corpo = 'Observa-se imagem ovalada, fusiforme, margens circunscritas, com hilo central ecogênico, cortical de aspecto usual, localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(t1)+' x '+span(t2)+' mm.';
+        const t2old = v('achado'+uid+'LnimTam2');
+        const tam=blankOrValue(tamanhoSemUnidade(req('achado'+uid+'LnimTam1') + (t2old ? ' x '+t2old : '')));
+        corpo = 'Observa-se imagem ovalada, fusiforme, margens circunscritas, com hilo central ecogênico, cortical de aspecto usual, localizada às '+span(hora)+' horas, distando '+span(dist)+' cm da borda areolar, medindo '+span(tam)+' mm.';
         hd = phrase('impLinfonodoIntramamario', {LADO: lado});
       } else if(tipo === 'seroma'){
         const local = blankOrValue(req('achado'+uid+'SeromaLocal'));
