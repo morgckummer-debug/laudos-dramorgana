@@ -921,7 +921,7 @@ feto**.
 
 | | `obstetrico.html` (2º/3º tri) | `obstetrico-1trimestre.html` | `morfologico-1trimestre.html` | `morfologico-2trimestre.html` |
 |---|---|---|---|---|
-| Colunas de `exams` | `dbp`, `cc`, `ca`, `femur`, `au_ip`, `au_fluxo`, `acm_ip`, `aut_e`, `aut_d`, `cpr`, `ila`, `bolsao`, `colo`, `ig_dias_manual` | `ccn` | `ccn`, `dbp`, `cc`, `ca`, `femur`, `aut_e`, `aut_d`, `colo`, `ig_dias_manual`, `nt`, `fc`, `dv_ip`, `dv_onda`, `risco_t21`, `risco_t18`, `risco_t13`, `risco_pre_eclampsia`, `risco_parto_prematuro`, `risco_diabetes_gestacional` | `dbp`, `cc`, `ca`, `femur`, `dof`, `umero`, `radio`, `ulna`, `tibia`, `fibula`, `aut_e`, `aut_d`, `ila`, `bolsao`, `colo`, `ig_dias_manual` |
+| Colunas de `exams` | `dbp`, `cc`, `ca`, `femur`, `au_ip`, `au_fluxo`, `acm_ip`, `aut_e`, `aut_d`, `cpr`, `ila`, `bolsao`, `colo`, `ig_dias_manual` | `ccn`, `colo` | `ccn`, `dbp`, `cc`, `ca`, `femur`, `aut_e`, `aut_d`, `colo`, `ig_dias_manual`, `nt`, `fc`, `dv_ip`, `dv_onda`, `risco_t21`, `risco_t18`, `risco_t13`, `risco_pre_eclampsia`, `risco_parto_prematuro`, `risco_diabetes_gestacional` | `dbp`, `cc`, `ca`, `femur`, `dof`, `umero`, `radio`, `ulna`, `tibia`, `fibula`, `aut_e`, `aut_d`, `ila`, `bolsao`, `colo`, `ig_dias_manual` |
 | Múltiplos | um exame por feto, coluna `feto` | um exame por **embrião**, coluna `feto` | um exame por feto, coluna `feto` | um exame por feto, coluna `feto` |
 
 As artérias uterinas e o colo são **maternos**, não fetais: numa gemelar o mesmo
@@ -1580,3 +1580,7 @@ diagnóstica lido do `#paper` (`impressaoLaudoTexto()`, no `laudo-core.js`), com
 ## Nome da adesão nunca é trocado por um laudo (2026-10-14)
 
 A sincronização do nome (acima) agora pula a paciente que tem gestação com `acompanhamento` (plano contratado): o nome dela veio do contrato, completo, e o do editor pode estar abreviado ("só os dois primeiros nomes"). Só paciente sem plano continua tendo o nome atualizado e o aviso no toast. Mesmo bloco nos cinco arquivos com busca por CPF.
+
+## Obstétrico de 1º trimestre: colo uterino opcional (2026-10-20)
+
+Card "Colo uterino" depois de "Regiões anexiais", com a caixa `chkColo` ("Incluir medida do colo uterino no laudo"), desmarcada por padrão: só com ela marcada o campo `coloComprimento` aparece, a frase `coloTexto` entra depois dos anexos e a impressão ganha `impColoNormal`/`impColoAlterado` (abaixo de 30 mm). Frases e corte copiados do `obstetrico-tn-doppler-colo.html` (mesmas chaves). Com a caixa desmarcada o laudo sai byte a byte igual ao de antes. O "Salvar no Acompanhamento" manda `colo` em `exams` só com a caixa marcada (materno: repetido em todos os fetos).
