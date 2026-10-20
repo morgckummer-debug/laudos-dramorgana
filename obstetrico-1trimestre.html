@@ -508,6 +508,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Útero — com miomas — use {POSICAO}, {CONTORNOS}, {MEDIDA} e {VOLUME} (CONTORNOS vira "irregulares" automaticamente com mioma FIGO 5, 6 ou 7)</label><textarea id="ph_uteroComNodulos" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Útero — calcificação das artérias arqueadas — use {POSICAO}, {MEDIDA} e {VOLUME}</label><textarea id="ph_uteroCalcificacao" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Regiões anexiais — normais</label><textarea id="ph_anexosNormais" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo uterino — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Miométrio / miomas</h3>
@@ -572,6 +573,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Hematoma subcoriônico — impressão</label><textarea id="ph_impHematoma" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Bexiga alterada — use {DESCRICAO}</label><textarea id="ph_impBexigaAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Anexos alterados — use {DESCRICAO}</label><textarea id="ph_impAnexosAlterados" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo normal</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo curto (abaixo de 30 mm)</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>1 mioma</label><textarea id="ph_impMioma1" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>2 ou mais miomas</label><textarea id="ph_impMiomaVarios" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Útero miomatoso (3 ou mais nódulos)</label><textarea id="ph_impUteroMiomatoso" rows="2"></textarea></div>
@@ -795,6 +798,18 @@
         <div class="field conditional" id="wrap_anexosDescricao">
           <label>Descreva o achado</label>
           <textarea id="anexosDescricao" rows="2" placeholder="ex: cisto simples em ovário direito..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Colo uterino</h2></div>
+      <div class="card-body">
+        <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino no laudo</label></div>
+        <div id="coloFields" class="conditional">
+          <div class="field-row">
+            <div class="field"><label>Comprimento do colo — via transvaginal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1489,6 +1504,7 @@ if(typeof criarMotorLaudo !== 'function'){
     uteroComNodulos: '{POSICAO}, de configuração globosa e contornos {CONTORNOS}, medindo {MEDIDA} cm, com volume estimado em {VOLUME} cm³.',
     uteroCalcificacao: '{POSICAO}, de configuração globosa e contornos regulares, textura heterogênea às custas da calcificação das artérias arqueadas, medindo {MEDIDA} cm, com volume estimado em {VOLUME} cm³.',
     anexosNormais: 'Regiões anexiais sem alterações.',
+    coloTexto: 'Colo uterino: de textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm. "Sludge" não identificado.',
 
     miomaIntro1: 'Observa-se imagem nodular sólida, hipoecoica e heterogênea, localizada na {F1}.',
     miomaIntro2: 'Observam-se duas imagens nodulares sólidas, hipoecogênicas e heterogêneas, uma localizada na {F1} e outra na {F2}.',
@@ -1548,6 +1564,8 @@ if(typeof criarMotorLaudo !== 'function'){
     impHematoma: 'Hematoma subcoriônico - acompanhar.',
     impBexigaAlterada: 'Alteração vesical: {DESCRICAO}.',
     impAnexosAlterados: 'Achado em região anexial: {DESCRICAO}.',
+    impColoNormal: 'Colo uterino sem anormalidades.',
+    impColoAlterado: 'Colo curto para a idade gestacional - Sugere-se reavaliação para risco de prematuridade com 16-18 semanas.',
     impMioma1: 'Nódulo sólido sugestivo de mioma.',
     impMiomaVarios: 'Nódulos sólidos sugestivos de miomas.',
     impUteroMiomatoso: 'Útero de volume aumentado, miomatoso.',
@@ -1722,6 +1740,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
   });
   $('chkAdenomiose').addEventListener('change', e=> toggle('wrap_adenomioseSimetria', e.target.checked));
+  $('chkColo').addEventListener('change', e=> toggle('coloFields', e.target.checked));
   $('chkRecomendacao').addEventListener('change', e=> toggle('wrap_recomendacao', e.target.checked));
   $('cerclagemRealizada').addEventListener('change', e=> toggle('wrap_cerclagemIG', e.target.checked));
   // Mola hidatiforme e "saco gestacional ausente" (abortamento incompleto/
@@ -2340,6 +2359,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.anexosAspecto==='alterado' && state.anexosDescricao){
       items.push({key:'anexos-alterado', label:phraseRaw('impAnexosAlterados', {DESCRICAO:state.anexosDescricao}), auto:true});
     }
+    if(state.colo){
+      items.push({key:'colo', label: state.coloAlterado ? phraseRaw('impColoAlterado') : phraseRaw('impColoNormal'), auto:true});
+    }
     if(state.miometrioAspecto==='mioma' && state.miomaTemDados){
       if(state.miomaFrags.length>=3){
         items.push({key:'miomatose', label:phraseRaw('impMiomaVarios'), auto:true});
@@ -2603,6 +2625,17 @@ if(typeof criarMotorLaudo !== 'function'){
     const anexosAspecto = v('anexosAspecto');
     const anexosDescricao = vNoDot('anexosDescricao');
 
+    // ----- Colo uterino: só entra no laudo com a caixa marcada -----
+    // Corte de 30 mm no 1º trimestre (o mesmo do obstetrico-tn-doppler-colo e
+    // do avaliarRiscoColoCurto do curva-fetal abaixo de 16 semanas).
+    const colo = $('chkColo').checked;
+    let coloComprimentoVal = {text:'____',filled:false}, coloAlterado = false;
+    if(colo){
+      coloComprimentoVal = blankOrValue(req('coloComprimento'));
+      const coloNum = num('coloComprimento');
+      coloAlterado = coloNum!=null && coloNum < 30;
+    }
+
     const impSemanas = req('impSemanas');
     const impDias = req('impDias');
     const dumConcordancia = v('dumConcordancia')==='discordante' ? 'discordante' : 'concordante';
@@ -2674,7 +2707,7 @@ if(typeof criarMotorLaudo !== 'function'){
       isMultiple, isTrigemelar, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
       algumObito, dpp, algumHematoma, algumIsgReduzido, algumContornoIrregular, algumEmbrioNaoIdentificado, algumAnembrionada, cronologiaMetodo,
       tempoPerda, tipoPerdaDesc, perdaSemSacoAtiva, perdaSemSacoTipo, emCursoAtiva,
-      bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao,
+      bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao, colo, coloAlterado,
       miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose,
       molaAtiva, molaFetoPresente, molaFetoAusente, molaVitalidade, molaIgTexto
     };
@@ -2960,6 +2993,10 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     blocks.push({id:'anexos', html:'<p class="linha">'+(anexosAspecto==='alterado' && anexosDescricao ? escapeHtml(anexosDescricao) : phrase('anexosNormais'))+'</p>'});
+
+    if(colo){
+      blocks.push({id:'colo', html:'<p class="linha">'+phraseRaw('coloTexto', {MEDIDA: span(coloComprimentoVal)})+'</p>'});
+    }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÕES DIAGNÓSTICAS:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
@@ -3745,6 +3782,8 @@ if(typeof criarMotorLaudo !== 'function'){
         gestacao_id: gestacao.id,
         data_exame: dataExameISO,
         ccn: num(p+'CCN'),
+        // Materno: numa múltipla vai repetido em todos os fetos, como no obstetrico.html.
+        colo: $('chkColo').checked ? num('coloComprimento') : null,
         impressao_laudo: impressaoLaudoTexto(),
         extra: !!($('chkExtraAcomp') && $('chkExtraAcomp').checked),
         feto: isMultiple ? String.fromCharCode(65 + idx) : null
