@@ -1281,7 +1281,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const suf = opts.suf || '';
     const labelTam = opts.labelTam || 'Tamanho (até 3 medidas)';
     const campoTam = medidasLivres
-      ? '<div class="field"><label>'+labelTam+'</label><input type="text" id="'+idPrefix+'Tam'+suf+'" placeholder="ex: 22,3 x 11,0 x 33,0"></div>'
+      ? '<div class="field"><label>'+labelTam+'</label><input type="text" id="'+idPrefix+'Tam'+suf+'" placeholder="ex: 22,2 x 23,3 x 15 mm"></div>'
       : '<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Tam'+suf+'" placeholder="mm"></div>';
     const wrapId = 'wrap_'+idPrefix+'_horario'+suf;
     const wrapDist = 'wrap_'+idPrefix+'_dist'+suf;
@@ -1341,10 +1341,17 @@ if(typeof criarMotorLaudo !== 'function'){
     return n.toLocaleString('pt-BR', {minimumFractionDigits:c, maximumFractionDigits:c});
   }
 
-  // Some remove um "mm" digitado por engano no fim, pra não duplicar a
-  // unidade que a frase já acrescenta.
+  // Tira o "mm" digitado (a frase já acrescenta a unidade) e, quando o campo
+  // traz de uma a três medidas, padroniza a escrita: "22.2x23,3mm x 15 mm" sai
+  // "22,2 x 23,3 x 15". Os algarismos ficam como foram digitados. Texto que não
+  // é só medida fica como está.
   function tamanhoSemUnidade(raw){
-    return String(raw||'').replace(/\s*mm\.?\s*$/i, '').trim();
+    const s = String(raw||'').trim();
+    const num = '\\d+(?:[.,]\\d+)?\\s*(?:mm\\.?)?';
+    if(new RegExp('^'+num+'(?:\\s*[x×X]\\s*'+num+'){0,2}$', 'i').test(s)){
+      return s.split(/[x×X]/).map(p=> p.replace(/mm\.?/i,'').trim().replace('.', ',')).join(' x ');
+    }
+    return s.replace(/\s*mm\.?\s*$/i, '').trim();
   }
 
   function achadoSubgroupHTML(uid){
@@ -1455,7 +1462,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<div class="field"><label>Septações internas</label><select id="'+pref+'Sept"><option value="nao">Não</option><option value="sim">Sim</option></select></div>'
         +'<div class="field conditional show" id="'+wHora+'"><label>Hora</label><input type="text" id="'+pref+'Hora" placeholder="ex: 2"></div>'
         +'<div class="field conditional show" id="'+wDist+'"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+pref+'Dist" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+pref+'Tam" placeholder="ex: 22,3 x 11,0 x 33,0"></div>'
+        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+pref+'Tam" placeholder="ex: 22,2 x 23,3 x 15 mm"></div>'
       +'</div>'
       +'<button type="button" class="cisto-remove">Remover cisto</button>'
     +'</div>';
