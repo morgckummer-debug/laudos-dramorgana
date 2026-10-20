@@ -2548,6 +2548,10 @@ if(typeof criarMotorLaudo !== 'function'){
     // escondidos com esse reset em branco.
     toggle('wrap_ovD_segunda', true);
     toggle('wrap_ovE_segunda', true);
+    // As medidas do ovário (L/AP/T/volume) só somem com "Ausente"; o reset
+    // acima escondeu todo .conditional, então voltam aqui junto com o aspecto.
+    toggle('wrap_ovD_medidas', true);
+    toggle('wrap_ovE_medidas', true);
     draftDiscard();
   });
 
