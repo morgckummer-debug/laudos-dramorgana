@@ -2920,6 +2920,15 @@ if(typeof criarMotorLaudo !== 'function'){
 
   // Mesma assinatura do rodapé do laudo principal — reusada também no rodapé
   // da página de anexo (FMF), para as duas saírem sempre iguais.
+  const FMF_IDS = {
+    morgana: 'FMF ID (Dra. Morgana Kummer): 144983',
+    paulo: 'FMF ID (Dr. Paulo Gontijo): 329429'
+  };
+  function fmfIdTexto(){
+    const sel = $('medicoExecutante');
+    return FMF_IDS[sel && sel.value] || FMF_IDS.morgana;
+  }
+
   function buildAssinaturaHtml(){
     let html = '<p class="assinatura-nome">'+escapeHtml(VR.medicoNome)+'</p>';
     if(VR.medicoQual1) html += '<p class="assinatura-info">'+escapeHtml(VR.medicoQual1)+'</p>';
@@ -3400,10 +3409,11 @@ if(typeof criarMotorLaudo !== 'function'){
         '<strong>'+span(blankOrValue(nomePaciente))+'</strong>'
         +'<span class="sep">|</span><span>'+span(blankOrValue(dataExame))+'</span>'
         +'<span class="sep">|</span><span>IG: '+span(blankOrValue(igCore))+'</span>'
-        // Certificação FMF da médica executante — fixo, não vem de campo
-        // nenhum do formulário. Só nesta folha (o anexo do cálculo de risco
-        // da FMF), abaixo do nome da paciente.
-        +'<div class="anexo-idbar-fmf">FMF ID (Dra. Morgana Kummer): 144983</div>';
+        // Certificação FMF do médico executante — fixa por médico, não vem de
+        // campo nenhum do formulário. Só nesta folha (o anexo do cálculo de
+        // risco da FMF), abaixo do nome da paciente. Quem não tem ID próprio
+        // aqui continua saindo com o da Dra. Morgana.
+        +'<div class="anexo-idbar-fmf">'+escapeHtml(fmfIdTexto())+'</div>';
     }
 
     renderBlocks(blocks);
