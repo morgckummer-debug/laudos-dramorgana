@@ -1972,7 +1972,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // RCP ou da classificação manual normal/alterado.
     const dopplerFetalLabelFor = f => f.auFluxoAlterado
       ? phraseRaw('impAuFluxoAlterado', {FLUXO: AU_FLUXO_TXT[f.auFluxo]})
-      : (f.cprPercentilNum!=null && f.cprPercentilNum <= 5)
+      : (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
         ? phraseRaw('impRcpBaixoP5')
         : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
     const dopplerFetalTodosNormais = state.isMultiple && state.dopplerFetal
@@ -2439,7 +2439,7 @@ if(typeof criarMotorLaudo !== 'function'){
       } else if(percentilNum !== null && percentilNum < 10) {
         const auAboveP95Ciur  = auPercentilNum!=null  && auPercentilNum  >= 95;
         const acmBelowP5Ciur  = acmPercentilNum!=null && acmPercentilNum <= 5;
-        const cprBelowP5Ciur  = cprPercentilNum!=null && cprPercentilNum <= 5;
+        const cprBelowP5Ciur  = cprPercentilNum!=null && cprPercentilNum < 5;
         const utAboveP95Ciur  = utAlterado; // maternal, calculado uma vez para a gestação
         let fechaCiurPorCriterios = false;
         if(!isMultiple && gaWCiur!=null){
