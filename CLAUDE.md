@@ -1588,3 +1588,7 @@ Card "Colo uterino" depois de "Regiões anexiais", com a caixa `chkColo` ("Inclu
 ## Endométrio na menopausa: VR até 5,0 mm (2026-10-22)
 
 `transvaginal.html` e `reserva-ovariana.html` (VR do útero em "Menopausa") e `perineal.html` (VR "Pós-menopausa", `op4`) imprimem a espessura endometrial com "(VR até 5,0 mm)" logo depois do "mm", e o campo fica marcado acima de 5,0 (a medida sai em itálico por `italicizarAcimaVR()`). Fora da menopausa nada muda. As frases não mudaram: a medida leva um marcador invisível (`ENDO_MK`) que vira o VR depois de montada a frase, então vale também para frase salva pela médica, desde que ela mantenha `{ESPESSURA} mm`.
+
+## RCP no percentil 5 é normal (2026-10-22)
+
+Regra da médica: a RCP só é anormal (redistribuição) com percentil **menor que 5**; P5 é normal. A frase `impRcpBaixoP5` (obstetrico e morfologico-2trimestre) e o critério RCP<P5 do CIUR (obstetrico) passaram de `<= 5` para `< 5`. O percentil vem inteiro de `dopplerPctInteiro()`, então P4 é anormal, P5 e P6 normais. A ACM continua `<= 5` (ninguém pediu para mudar).

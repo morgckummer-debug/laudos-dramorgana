@@ -2084,7 +2084,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // isolado. Mesmo padrão do obstetrico.html.
     const dopplerFetalLabelFor = f => f.auFluxoAlterado
       ? phraseRaw('impAuFluxoAlterado', {FLUXO: AU_FLUXO_TXT[f.auFluxo]})
-      : (f.cprPercentilNum!=null && f.cprPercentilNum <= 5)
+      : (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
         ? phraseRaw('impRcpBaixoP5')
         : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
     const dopplerFetalTodosNormais = state.isMultiple && state.dopplerFetal
