@@ -1584,3 +1584,7 @@ A sincronização do nome (acima) agora pula a paciente que tem gestação com `
 ## Obstétrico de 1º trimestre: colo uterino opcional (2026-10-20)
 
 Card "Colo uterino" depois de "Regiões anexiais", com a caixa `chkColo` ("Incluir medida do colo uterino no laudo"), desmarcada por padrão: só com ela marcada o campo `coloComprimento` aparece, a frase `coloTexto` entra depois dos anexos e a impressão ganha `impColoNormal`/`impColoAlterado` (abaixo de 30 mm). Frases e corte copiados do `obstetrico-tn-doppler-colo.html` (mesmas chaves). Com a caixa desmarcada o laudo sai byte a byte igual ao de antes. O "Salvar no Acompanhamento" manda `colo` em `exams` só com a caixa marcada (materno: repetido em todos os fetos).
+
+## Endométrio na menopausa: VR até 5,0 mm (2026-10-22)
+
+`transvaginal.html` e `reserva-ovariana.html` (VR do útero em "Menopausa") e `perineal.html` (VR "Pós-menopausa", `op4`) imprimem a espessura endometrial com "(VR até 5,0 mm)" logo depois do "mm", e o campo fica marcado acima de 5,0 (a medida sai em itálico por `italicizarAcimaVR()`). Fora da menopausa nada muda. As frases não mudaram: a medida leva um marcador invisível (`ENDO_MK`) que vira o VR depois de montada a frase, então vale também para frase salva pela médica, desde que ela mantenha `{ESPESSURA} mm`.

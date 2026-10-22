@@ -2852,7 +2852,18 @@ if(typeof criarMotorLaudo !== 'function'){
     const endometrioEspessura = blankOrValue(reqIf('endometrioEspessura', uteroPresente && !endoDuplo));
     const endometrioEspessuraD = blankOrValue(reqIf('endometrioEspessuraD', endoDuplo));
     const endometrioEspessuraE = blankOrValue(reqIf('endometrioEspessuraE', endoDuplo));
-    const espDuplo = {ESPESSURAD: span(endometrioEspessuraD), ESPESSURAE: span(endometrioEspessuraE)};
+    // Na menopausa a espessura sai com o VR (até 5,0 mm) logo depois do "mm".
+    // O marcador entra colado à medida e vira " mm (VR até 5,0 mm)" depois de
+    // montada a frase, para valer também nas frases salvas pela médica.
+    const endoMenopausa = uteroPresente && vrUteroCategoria==='menopausa';
+    const ENDO_VR_MENOPAUSA = 5;
+    const ENDO_MK = '\u2063';
+    const espSpan = x => span(x) + (endoMenopausa ? ENDO_MK : '');
+    ['endometrioEspessura','endometrioEspessuraD','endometrioEspessuraE'].forEach(id=>{
+      const n = num(id);
+      flag(id, endoMenopausa && n!==null && n > ENDO_VR_MENOPAUSA);
+    });
+    const espDuplo = {ESPESSURAD: espSpan(endometrioEspessuraD), ESPESSURAE: espSpan(endometrioEspessuraE)};
     const endometrioAspecto = v('endometrioAspecto');
     // Menor que 2,0 mm = atrófico. Com útero septado/bicorno vale quando todas
     // as espessuras digitadas (D/E) estão abaixo disso.
@@ -3064,12 +3075,13 @@ if(typeof criarMotorLaudo !== 'function'){
     if(uteroPresente){
       let endometrioTexto;
       if(endometrioAspecto==='polipo'){
-        endometrioTexto = endoDuplo ? phraseRaw('endometrioPolipoDuplo', Object.assign({PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida)}, espDuplo)) : phraseRaw('endometrioPolipo', {PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida), ESPESSURA: span(endometrioEspessura)});
+        endometrioTexto = endoDuplo ? phraseRaw('endometrioPolipoDuplo', Object.assign({PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida)}, espDuplo)) : phraseRaw('endometrioPolipo', {PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida), ESPESSURA: espSpan(endometrioEspessura)});
       } else if(endometrioAspecto==='espessado'){
-        endometrioTexto = endoDuplo ? phraseRaw('endometrioEspessadoDuplo', espDuplo) : phraseRaw('endometrioEspessado', {ESPESSURA: span(endometrioEspessura)});
+        endometrioTexto = endoDuplo ? phraseRaw('endometrioEspessadoDuplo', espDuplo) : phraseRaw('endometrioEspessado', {ESPESSURA: espSpan(endometrioEspessura)});
       } else {
-        endometrioTexto = endoDuplo ? phraseRaw('endometrioNormalDuplo', Object.assign({PADRAO: endometrioPadrao}, espDuplo)) : phraseRaw('endometrioNormal', {PADRAO: endometrioPadrao, ESPESSURA: span(endometrioEspessura)});
+        endometrioTexto = endoDuplo ? phraseRaw('endometrioNormalDuplo', Object.assign({PADRAO: endometrioPadrao}, espDuplo)) : phraseRaw('endometrioNormal', {PADRAO: endometrioPadrao, ESPESSURA: espSpan(endometrioEspessura)});
       }
+      if(endoMenopausa) endometrioTexto = endometrioTexto.replace(new RegExp(ENDO_MK+'([ \\u00a0]|&nbsp;)mm', 'g'), '$1mm (VR até '+ENDO_VR_MENOPAUSA.toFixed(1).replace('.',',')+' mm)').split(ENDO_MK).join('');
       if(chkSinequias) endometrioTexto += ' '+phrase('sinequias');
       blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+endometrioTexto+'</p>'});
     }
