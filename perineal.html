@@ -3096,7 +3096,15 @@ if(typeof criarMotorLaudo !== 'function'){
       const pctObj = istmocelePct!==null ? {text: String(istmocelePct), filled:true} : {text:'____', filled:false};
       blocks.push(itemLista('med-istmocele', phraseRaw('istmocele', {MEDIDA: span(istmoceleMedida), PCT: span(pctObj)})));
     }
-    blocks.push(itemLista('med-endometrio', phraseRaw('endometrioBase', {TEXTURA: (endometrioTextura==='heterogenea'?'heterogêneo':'homogêneo'), ESPESSURA: span(endometrio), PADRAO: endometrioPadrao})));
+    // Pós-menopausa: a espessura sai com o VR (até 5,0 mm) logo depois do "mm".
+    const endoMenopausa = vrUteroTipo==='op4';
+    const ENDO_VR_MENOPAUSA = 5;
+    const ENDO_MK = '\u2063';
+    const endoNum = num('endometrio');
+    flag('endometrio', endoMenopausa && endoNum!==null && endoNum > ENDO_VR_MENOPAUSA);
+    let endometrioTexto = phraseRaw('endometrioBase', {TEXTURA: (endometrioTextura==='heterogenea'?'heterogêneo':'homogêneo'), ESPESSURA: span(endometrio)+(endoMenopausa ? ENDO_MK : ''), PADRAO: endometrioPadrao});
+    if(endoMenopausa) endometrioTexto = endometrioTexto.replace(new RegExp(ENDO_MK+'([ \\u00a0]|&nbsp;)mm', 'g'), '$1mm (VR até '+ENDO_VR_MENOPAUSA.toFixed(1).replace('.',',')+' mm)').split(ENDO_MK).join('');
+    blocks.push(itemLista('med-endometrio', endometrioTexto));
     if(chkPolipoEndometrial){
       blocks.push(itemLista('med-polipoEndometrial', phraseRaw('polipoEndometrial', {LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida)})));
     }
