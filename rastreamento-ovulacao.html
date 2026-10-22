@@ -504,6 +504,7 @@
   <h3>Istmocele / colo / DIU</h3>
   <div class="field" style="margin-bottom:8px;"><label>Istmocele — use {MEDIDA} e {PCT}</label><textarea id="ph_istmocele" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical — use {MEDIDA}</label><textarea id="ph_polipoEndocervical" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial — use {LOCAL}, {PEDICULO} e {MEDIDA}</label><textarea id="ph_polipoEndometrial" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU normoposicionado — use {MEDIDA}</label><textarea id="ph_diuNormo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU de baixa implantação — use {MEDIDA}</label><textarea id="ph_diuBaixa" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio — use {MEDIDAS} e {VOLUME}</label><textarea id="ph_hematometrio" rows="2"></textarea></div>
@@ -566,6 +567,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Adenomiose</label><textarea id="ph_impAdenomiose" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Istmocele — impressão (frase fixa, exibida sempre que a istmocele estiver marcada)</label><textarea id="ph_impIstmocele" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical</label><textarea id="ph_impPolipoEndocervical" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial</label><textarea id="ph_impPolipoEndometrial" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU normoposicionado</label><textarea id="ph_impDiuNormo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU de baixa implantação</label><textarea id="ph_impDiuBaixa" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio</label><textarea id="ph_impHematometrio" rows="2"></textarea></div>
@@ -697,6 +699,17 @@
         <div class="toggle-line"><input type="checkbox" id="chkPolipoEndocervical"><label for="chkPolipoEndocervical">Pólipo endocervical</label></div>
         <div class="field-row conditional" id="wrap_polipoEndocervicalCampos">
           <div class="field"><label>Medida (mm)</label><input type="text" id="polipoEndocervicalMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
+
+        <div class="toggle-line"><input type="checkbox" id="chkPolipoEndometrial"><label for="chkPolipoEndometrial">Pólipo endometrial</label></div>
+        <div class="field-row conditional" id="wrap_polipoEndometrialCampos">
+          <div class="field"><label>Localização</label>
+            <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
+          </div>
+          <div class="field"><label>Pedículo no folheto</label>
+            <select id="polipoPediculo"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select>
+          </div>
+          <div class="field"><label>Medida (mm)</label><input type="text" id="polipoMedida" placeholder="ex: 15 x 12,2"></div>
         </div>
 
         <div class="toggle-line"><input type="checkbox" id="chkDIU"><label for="chkDIU">Paciente com DIU</label></div>
@@ -1541,6 +1554,7 @@ if(typeof criarMotorLaudo !== 'function'){
     adenomiose: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque", sem identificação de nódulos sólidos.',
     adenomioseComMioma: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque".',
     istmocele: 'Presença de istmocele, medindo {MEDIDA} mm. Relação entre o miométrio residual e o adjacente: {PCT}% (VR < 50%).',
+    polipoEndometrial: 'No interior da cavidade uterina, em região {LOCAL}, observa-se imagem elipsoide sólida, ecogênica e heterogênea, de limites pouco precisos, sem sombra acústica posterior, com pedículo vascular identificado ao mapeamento colorido no folheto endometrial {PEDICULO}, medindo {MEDIDA} mm.',
     polipoEndocervical: 'Em canal endocervical, nota-se imagem elipsoide sólida, ecogênica, com pedículo vascular identificado ao mapeamento colorido, medindo {MEDIDA} mm.',
     diuNormo: 'Presença de imagem linear ecogênica que condiciona sombra acústica posterior, compatível com DIU, localizada acima do orifício interno do colo uterino, cuja haste se encontra no fundo da cavidade endometrial e dista {MEDIDA} mm do fundo da serosa uterina.',
     diuBaixa: 'Presença de imagem linear ecogênica que condiciona sombra acústica posterior, compatível com DIU, cuja extremidade distal se encontra no interior do orifício interno do colo uterino (e não acima dele), distando {MEDIDA} mm do fundo da serosa uterina.',
@@ -1593,6 +1607,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impAdenomiose: 'Alteração difusa da ecotextura miometrial sugestiva de adenomiose.',
     impIstmocele: 'Istmocele associada a importante afilamento do miométrio - Recomenda-se avaliação especializada quando houver desejo reprodutivo.',
     impPolipoEndocervical: 'Imagem sugestiva de pólipo endocervical.',
+    impPolipoEndometrial: 'Nódulo ecogênico intracavitário sugestivo de pólipo.',
     impDiuNormo: 'DIU normoposicionado.',
     impDiuBaixa: 'DIU de baixa implantação.',
     impHematometrio: 'Hematométrio.',
@@ -1825,6 +1840,7 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkAdenomiose').addEventListener('change', e=> toggle('wrap_adenomioseSimetria', e.target.checked));
   $('chkIstmocele').addEventListener('change', e=> toggle('wrap_istmoceleCampos', e.target.checked));
   $('chkPolipoEndocervical').addEventListener('change', e=> toggle('wrap_polipoEndocervicalCampos', e.target.checked));
+  $('chkPolipoEndometrial').addEventListener('change', e=> toggle('wrap_polipoEndometrialCampos', e.target.checked));
   $('chkDIU').addEventListener('change', e=> toggle('wrap_diuCampos', e.target.checked));
   $('chkHematometrio').addEventListener('change', e=> toggle('wrap_hematometrioCampos', e.target.checked));
   function wireOvario(prefix){
@@ -2142,6 +2158,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.chkIstmocele){
       items.push({key:'istmocele', label:phraseRaw('impIstmocele'), auto:true});
     }
+    if(state.chkPolipoEndometrial){
+      items.push({key:'polipo-endometrial', label:phraseRaw('impPolipoEndometrial'), auto:true});
+    }
     if(state.chkPolipoEndocervical){
       items.push({key:'polipo-endocervical', label:phraseRaw('impPolipoEndocervical'), auto:true});
     }
@@ -2346,6 +2365,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const chkPolipoEndocervical = $('chkPolipoEndocervical').checked;
     const polipoEndocervicalMedida = blankOrValue(reqIf('polipoEndocervicalMedida', chkPolipoEndocervical));
 
+    const chkPolipoEndometrial = $('chkPolipoEndometrial').checked;
+    const polipoLocalizacao = v('polipoLocalizacao');
+    const polipoPediculo = v('polipoPediculo');
+    const polipoMedida = blankOrValue(reqIf('polipoMedida', chkPolipoEndometrial));
+
     const chkDIU = $('chkDIU').checked;
     const diuPosicao = v('diuPosicao');
     const diuDistancia = blankOrValue(reqIf('diuDistancia', chkDIU));
@@ -2426,7 +2450,7 @@ if(typeof criarMotorLaudo !== 'function'){
       chkAscite, ovarioVolumeAlto,
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
-      chkAdenomiose, chkIstmocele, chkPolipoEndocervical, chkDIU, diuPosicao, chkHematometrio,
+      chkAdenomiose, chkIstmocele, chkPolipoEndocervical, chkPolipoEndometrial, chkDIU, diuPosicao, chkHematometrio,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
       ovD_aspecto2: ovD.aspecto2, ovD_descricao2: ovD.descricao2,
       ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao, ovE_volNum: ovE.volNum,
@@ -2507,6 +2531,9 @@ if(typeof criarMotorLaudo !== 'function'){
     if(chkIstmocele){
       const pctObj = istmocelePct!==null ? {text: String(istmocelePct), filled:true} : {text:'____', filled:false};
       blocks.push({id:'istmocele', html:'<p class="linha">'+phraseRaw('istmocele', {MEDIDA: span(istmoceleMedida), PCT: span(pctObj)})+'</p>'});
+    }
+    if(chkPolipoEndometrial){
+      blocks.push({id:'polipoEndometrial', html:'<p class="linha">'+phraseRaw('polipoEndometrial', {LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida)})+'</p>'});
     }
     if(chkPolipoEndocervical){
       blocks.push({id:'polipoEndocervical', html:'<p class="linha">'+phraseRaw('polipoEndocervical', {MEDIDA: span(polipoEndocervicalMedida)})+'</p>'});
