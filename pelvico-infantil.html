@@ -1574,6 +1574,7 @@ if(typeof criarMotorLaudo !== 'function'){
         impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
       });
     }
+    impressaoListHtml = linhasLivresNaLista(impressaoListHtml);
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
