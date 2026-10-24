@@ -3225,6 +3225,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // Linha manual cuja linha-mãe foi desmarcada: vai para o fim, não some.
       manuais.forEach(k=>{ if(chavesVisiveis.indexOf(k.split('~').pop()) === -1) impressaoListHtml += liManual(k); });
     }
+    impressaoListHtml = linhasLivresNaLista(impressaoListHtml);
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 

@@ -141,6 +141,47 @@ function impressaoLaudoTexto(){
   return linhas.length ? linhas.join('\n').slice(0, 3000) : null;
 }
 
+// Linhas livres da impressão diagnóstica (2026-10-23). Cada checkbox da checklist
+// é uma frase gerada pelos campos; a médica pediu linhas em branco onde escrever o
+// que quiser sem risco de o texto voltar ao original. O texto mora num <input> do
+// formulário (#livre{n}Txt), não no override do <li>: desmarcar e marcar de novo
+// só esconde e mostra a linha, e o rascunho a guarda como qualquer outro campo.
+// Editar a linha direto no preview atualiza o <input> (ver o listener em
+// criarMotorLaudo). Cada laudo só chama esta função antes de fechar o </ul>.
+const LIVRES_MAX = 10, LIVRES_MIN_VISIVEIS = 3;
+let livresMostradas = LIVRES_MIN_VISIVEIS;
+function livresAtualizarVisiveis(){
+  if(!document.getElementById('linhasLivres')) return;
+  let ultimo = 0;
+  for(let i=1;i<=LIVRES_MAX;i++){
+    const t = document.getElementById('livre'+i+'Txt');
+    if(t && t.value.trim()) ultimo = i;
+  }
+  const n = Math.min(LIVRES_MAX, Math.max(LIVRES_MIN_VISIVEIS, livresMostradas, ultimo+1));
+  for(let i=1;i<=LIVRES_MAX;i++){
+    const r = document.getElementById('livreRow'+i);
+    if(r) r.style.display = i <= n ? 'flex' : 'none';
+  }
+  const add = document.getElementById('livreAdd');
+  if(add) add.style.display = n >= LIVRES_MAX ? 'none' : '';
+}
+function linhasLivresNaLista(listaHtml){
+  livresAtualizarVisiveis();
+  let lis = '';
+  for(let i=1;i<=LIVRES_MAX;i++){
+    const on = document.getElementById('livre'+i+'On');
+    const t = document.getElementById('livre'+i+'Txt');
+    if(!on || !t || !on.checked) continue;
+    const txt = t.value.replace(/^\s*\*\s*/, '').trim();
+    if(!txt) continue;
+    const esc = txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    lis += '<li data-key="livre-'+i+'">* '+esc+'</li>';
+  }
+  if(!lis) return listaHtml;
+  // Com uma linha livre marcada, o aviso "Selecione os achados..." sai.
+  return listaHtml.replace(/<li style="font-weight:400;color:var\(--ink-soft\);">Selecione os achados[^<]*<\/li>/, '') + lis;
+}
+
 function criarMotorLaudo(cfg){
   const DRAFT_KEY = cfg.DRAFT_KEY;
 
@@ -1691,6 +1732,61 @@ function criarMotorLaudo(cfg){
     cfg.setVR(Object.assign({}, cfg.getVR(), {medicoNome:d.nome, medicoQual1:d.qual1, medicoQual2:d.qual2, medicoCRM:d.crm}));
     cfg.applyVRToInputs();
     cfg.render();
+  }
+
+  // Linhas livres da impressão diagnóstica (ver linhasLivresNaLista, acima).
+  // Auto-wired: basta o laudo ter o #impressaoChecklist e chamar
+  // linhasLivresNaLista() ao montar a lista. Os campos têm id e ficam dentro do
+  // #formCol, então o rascunho os guarda e devolve sem código a mais.
+  const checklist0 = $('impressaoChecklist');
+  if(checklist0 && !$('linhasLivres')){
+    let h = '<div id="linhasLivres" style="margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);font-size:13px;">'
+      + '<p style="font-size:12px;color:var(--ink-soft);margin:0 0 8px;"><strong>Linhas livres</strong>: escreva o que quiser. Desmarcar só tira a linha do laudo; o texto fica guardado aqui.</p>';
+    for(let i=1;i<=LIVRES_MAX;i++){
+      h += '<div id="livreRow'+i+'" style="display:'+(i<=LIVRES_MIN_VISIVEIS?'flex':'none')+';align-items:center;gap:8px;margin-bottom:6px;">'
+        + '<input type="checkbox" id="livre'+i+'On" style="margin:0;flex:0 0 auto;accent-color:var(--rose-dark);" aria-label="Incluir linha livre '+i+'">'
+        + '<input type="text" id="livre'+i+'Txt" placeholder="Linha livre '+i+'" autocomplete="off" style="flex:1 1 auto;min-width:0;">'
+        + '</div>';
+    }
+    h += '<button type="button" class="btn-clear" id="livreAdd" style="margin:2px 0 0;">+ Adicionar linha livre</button></div>';
+    checklist0.insertAdjacentHTML('afterend', h);
+    for(let i=1;i<=LIVRES_MAX;i++){
+      const on = $('livre'+i+'On'), t = $('livre'+i+'Txt');
+      on.addEventListener('change', ()=> cfg.render());
+      t.addEventListener('focus', ()=>{ t.dataset.antes = t.value; });
+      t.addEventListener('input', ()=>{
+        // Começou a escrever numa linha vazia e desmarcada: já entra no laudo.
+        // Linha com texto que ela desmarcou continua desmarcada enquanto edita.
+        if(!(t.dataset.antes || '').trim() && t.value.trim() && !on.checked) on.checked = true;
+        t.dataset.antes = t.value;
+        cfg.render();
+      });
+    }
+    $('livreAdd').addEventListener('click', ()=>{
+      livresMostradas = Math.min(LIVRES_MAX, livresMostradas+1);
+      livresAtualizarVisiveis();
+      const n = livresMostradas, t = $('livre'+n+'Txt');
+      // A próxima linha vazia visível recebe o foco.
+      for(let i=1;i<=LIVRES_MAX;i++){
+        const ti = $('livre'+i+'Txt'), ri = $('livreRow'+i);
+        if(ti && !ti.value.trim() && ri && ri.style.display !== 'none'){ ti.focus(); return; }
+      }
+      if(t) t.focus();
+    });
+    // Linha livre editada direto no preview: o texto volta para o campo, para
+    // desmarcar/marcar de novo trazer a versão editada.
+    const paperL = $('paper');
+    if(paperL){
+      paperL.addEventListener('input', ()=>{
+        const sel = window.getSelection();
+        if(!sel || !sel.anchorNode) return;
+        const node = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
+        const li = node && node.closest ? node.closest('ul.impressao li[data-key^="livre-"]') : null;
+        if(!li) return;
+        const t = $('livre'+li.dataset.key.slice(6)+'Txt');
+        if(t) t.value = li.textContent.replace(/^\s*\*\s*/, '').trim();
+      });
+    }
   }
 
   // Select #digitadoraAtual, quando o laudo tem um (auto-wired mais abaixo):

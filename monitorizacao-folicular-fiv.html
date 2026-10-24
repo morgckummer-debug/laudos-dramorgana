@@ -2320,6 +2320,7 @@ if(typeof criarMotorLaudo !== 'function'){
         impressaoListHtml += '<li data-key="'+it.key+'">'+html+'</li>';
       });
     }
+    impressaoListHtml = linhasLivresNaLista(impressaoListHtml);
     impressaoListHtml += '</ul>';
     // Editar a impressão diagnóstica direto no preview pode mesclar duas
     // <li> (Backspace/Delete na fronteira, ou selecionar e apagar um trecho
@@ -2333,7 +2334,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // renderBlocks() a substituir o <ul> inteiro pela lista correta.
     {
       const liveImpressaoUl = $('paper').querySelector(':scope > [data-blk="impressaoList"]');
-      const liveLiCount = liveImpressaoUl ? liveImpressaoUl.querySelectorAll(':scope > li[data-key]').length : -1;
+      const liveLiCount = liveImpressaoUl ? liveImpressaoUl.querySelectorAll(':scope > li[data-key]:not([data-key^="livre-"])').length : -1;
       if(liveImpressaoUl && liveLiCount !== checkedItems.length){
         delete st.lastBlockHtml['impressaoList'];
       }
