@@ -452,6 +452,7 @@
   <h3>Endométrio</h3>
   <div class="field" style="margin-bottom:8px;"><label>Frase do endométrio — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_endometrioLinha" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_sinequias" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial — use {LOCAL}, {PEDICULO} e {MEDIDA}</label><textarea id="ph_polipoEndometrial" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Útero e ambos os ovários com mobilidade preservada (frase única, substitui as duas abaixo)</label><textarea id="ph_mobilidadeTodosPreservados" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mobilidade uterina preservada</label><textarea id="ph_mobilidadeUterinaPreservada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mobilidade uterina reduzida</label><textarea id="ph_mobilidadeUterinaReduzida" rows="2"></textarea></div>
@@ -489,6 +490,7 @@
   <h3>Impressão diagnóstica</h3>
   <div class="field" style="margin-bottom:8px;"><label>Endométrio — use {PADRAO} e {ESPESSURA}</label><textarea id="ph_impEndometrio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_impSinequias" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial</label><textarea id="ph_impPolipoEndometrial" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mobilidade uterina reduzida / sliding negativo</label><textarea id="ph_impSlidingNegativo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Kissing ovaries</label><textarea id="ph_impKissingOvaries" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário com mobilidade reduzida — use {LADO}</label><textarea id="ph_impMobilidadeOvarioReduzida" rows="2"></textarea></div>
@@ -589,6 +591,16 @@
           <div class="field"><label>Espessura endometrial (mm)</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endoEspessura" placeholder="mm"></div>
         </div>
         <div class="toggle-line"><input type="checkbox" id="chkSinequias"><label for="chkSinequias">Falhas no eco endometrial, sugestivas de sinéquias</label></div>
+        <div class="toggle-line"><input type="checkbox" id="chkPolipoEndometrial"><label for="chkPolipoEndometrial">Pólipo endometrial</label></div>
+        <div class="field-row conditional" id="wrap_polipoCampos">
+          <div class="field"><label>Localização</label>
+            <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
+          </div>
+          <div class="field"><label>Pedículo no folheto</label>
+            <select id="polipoPediculo"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select>
+          </div>
+          <div class="field"><label>Medida (mm)</label><input type="text" id="polipoMedida" placeholder="ex: 15 x 12,2"></div>
+        </div>
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
             <select id="uteroAspecto">
@@ -1420,6 +1432,7 @@ if(typeof criarMotorLaudo !== 'function'){
     ovarioAlteradoTambem: 'Observa-se também {DESCRICAO}.',
     endometrioLinha: '{PADRAO}, medindo {ESPESSURA} mm de espessura.',
     sinequias: 'Notam-se falhas no eco endometrial, sugestivas de sinéquias.',
+    polipoEndometrial: 'No interior da cavidade uterina, em região {LOCAL}, observa-se imagem elipsoide sólida, ecogênica e heterogênea, de limites pouco precisos, sem sombra acústica posterior, com pedículo vascular identificado ao mapeamento colorido no folheto endometrial {PEDICULO}, medindo {MEDIDA} mm.',
     mobilidadeTodosPreservados: 'Útero e ovários com mobilidade preservada às manobras bimanuais.',
     mobilidadeUterinaPreservada: 'Mobilidade uterina preservada.',
     mobilidadeUterinaReduzida: 'Mobilidade uterina reduzida.',
@@ -1433,6 +1446,7 @@ if(typeof criarMotorLaudo !== 'function'){
     hematometrio: 'Observa-se conteúdo hemático na cavidade uterina, medindo {MEDIDAS} mm, com volume de {VOLUME} cm³, compatível com hematométrio.',
     impEndometrio: 'Endométrio {PADRAO} com espessura de {ESPESSURA} mm.',
     impSinequias: 'Falhas no eco endometrial, sugestivas de sinéquias - Seguir propedêutica.',
+    impPolipoEndometrial: 'Nódulo ecogênico intracavitário sugestivo de pólipo.',
     impSlidingNegativo: 'Mobilidade uterina reduzida, sugerindo obliteração do fundo de saco posterior.',
     impKissingOvaries: 'Kissing ovaries - Considerar processo aderencial / endometriose profunda.',
     impMobilidadeOvarioReduzida: 'Ovário {LADO} de mobilidade reduzida - Considerar processo aderencial.',
@@ -1668,6 +1682,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
   });
   $('chkHematometrio').addEventListener('change', e=> toggle('wrap_hematometrioCampos', e.target.checked));
+  $('chkPolipoEndometrial').addEventListener('change', e=> toggle('wrap_polipoCampos', e.target.checked));
   function wireOvario(prefix){
     const sel = $(prefix+'_aspecto');
     sel.addEventListener('change', e=>{
@@ -1898,6 +1913,9 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:'foliculos-bilaterais', label:phraseRaw('impFoliculosBilaterais'), auto:true});
     }
     items.push({key:'endometrio', label:phraseRaw('impEndometrio', {PADRAO: state.endoPadraoTexto, ESPESSURA: state.endoEspessuraTexto}), auto:true});
+    if(state.chkPolipoEndometrial){
+      items.push({key:'polipo-endometrial', label:phraseRaw('impPolipoEndometrial'), auto:true});
+    }
     if(state.chkSinequias){
       items.push({key:'sinequias', label:phraseRaw('impSinequias'), auto:true});
     }
@@ -2127,6 +2145,10 @@ if(typeof criarMotorLaudo !== 'function'){
     const endoPadraoTextoMinusculo = endoPadraoVal==='ecogenico' ? 'ecogênico' : 'trilaminar';
     const endoEspessura = blankOrValue(req('endoEspessura'));
     const chkSinequias = $('chkSinequias').checked;
+    const chkPolipoEndometrial = $('chkPolipoEndometrial').checked;
+    const polipoLocalizacao = v('polipoLocalizacao');
+    const polipoPediculo = v('polipoPediculo');
+    const polipoMedida = blankOrValue(reqIf('polipoMedida', chkPolipoEndometrial));
     const mobilidadeUterina = v('mobilidadeUterina');
     const chkMobilidadeOvD = $('chkMobilidadeOvD').checked;
     const chkMobilidadeOvE = $('chkMobilidadeOvE').checked;
@@ -2140,7 +2162,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const checklistItems = buildImpressao({
       uteroAspecto, uteroDescricao,
       miomaTemDados: miomaFrags.length>0, miomaFrags,
-      endoPadraoTexto: endoPadraoTextoMinusculo, endoEspessuraTexto: endoEspessura.text, chkHematometrio, chkSinequias, chkMobilidadeOvD, chkMobilidadeOvE, chkKissingOvaries, slidingEfetivo, 
+      endoPadraoTexto: endoPadraoTextoMinusculo, endoEspessuraTexto: endoEspessura.text, chkHematometrio, chkSinequias, chkPolipoEndometrial, chkMobilidadeOvD, chkMobilidadeOvE, chkKissingOvaries, slidingEfetivo, 
       ovDFoliculosCount: ovD.foliculos.length, ovEFoliculosCount: ovE.foliculos.length,
       chkAscite, ovarioVolumeAlto,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum,
@@ -2213,6 +2235,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
     let endometrioLinhaTexto = phrase('endometrioLinha', {PADRAO: endoPadraoTexto, ESPESSURA: endoEspessura.text});
+    if(chkPolipoEndometrial) endometrioLinhaTexto += ' '+phraseRaw('polipoEndometrial', {LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida)});
     if(chkSinequias) endometrioLinhaTexto += ' '+phrase('sinequias');
     blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+endometrioLinhaTexto+'</p>'});
     if(chkHematometrio){
