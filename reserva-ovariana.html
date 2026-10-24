@@ -824,7 +824,6 @@
           <div class="field"><label>Aspecto</label>
             <select id="endometrioAspecto">
               <option value="normal">Normal</option>
-              <option value="polipo">Pólipo endometrial</option>
               <option value="espessado">Espessado e heterogêneo (menopausa)</option>
             </select>
           </div>
@@ -833,6 +832,7 @@
           </div>
         </div>
         <div class="toggle-line"><input type="checkbox" id="chkSinequias"><label for="chkSinequias">Falhas no eco endometrial, sugestivas de sinéquias</label></div>
+        <div class="toggle-line" id="wrap_chkPolipoEndometrial"><input type="checkbox" id="chkPolipoEndometrial"><label for="chkPolipoEndometrial">Pólipo endometrial</label></div>
         <div class="field-row conditional" id="wrap_polipoCampos">
           <div class="field"><label>Localização</label>
             <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
@@ -2343,10 +2343,15 @@ if(typeof criarMotorLaudo !== 'function'){
 
   function updateEndometrioWraps(){
     const val = $('endometrioAspecto').value;
-    toggle('wrap_endometrioPadrao', val==='normal' || val==='polipo');
-    toggle('wrap_polipoCampos', val==='polipo');
+    // Pólipo é um checkbox à parte (2026-10-24), não mais um "Aspecto": com o
+    // endométrio espessado ele some, porque a frase do espessado já cita pólipo.
+    const polipo = val!=='espessado' && $('chkPolipoEndometrial').checked;
+    toggle('wrap_endometrioPadrao', val==='normal');
+    $('wrap_chkPolipoEndometrial').style.display = val==='espessado' ? 'none' : '';
+    toggle('wrap_polipoCampos', polipo);
   }
   $('endometrioAspecto').addEventListener('change', updateEndometrioWraps);
+  $('chkPolipoEndometrial').addEventListener('change', updateEndometrioWraps);
   updateEndometrioWraps();
 
   // ---------- Cistos simples do ovário: quantos forem, um card por cisto ----------
@@ -2575,7 +2580,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.chkHematometrio){
       items.push({key:'hematometrio', label:phraseRaw('impHematometrio'), auto:true});
     }
-    if(state.endometrioAspecto==='polipo'){
+    if(state.endometrioPolipo){
       items.push({key:'polipo-endometrial', label:phraseRaw('impPolipoEndometrial'), auto:true});
     }
     if(state.endometrioAspecto==='espessado'){
@@ -2896,7 +2901,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const endometrioPadrao = ENDOMETRIO_PADRAO_TEXTO[v('endometrioPadrao')] || 'trilaminar';
     const polipoLocalizacao = v('polipoLocalizacao');
     const polipoPediculo = v('polipoPediculo');
-    const polipoMedida = blankOrValue(reqIf('polipoMedida', endometrioAspecto==='polipo'));
+    const endometrioPolipo = endometrioAspecto!=='espessado' && $('chkPolipoEndometrial').checked;
+    const polipoMedida = blankOrValue(reqIf('polipoMedida', endometrioPolipo));
     const chkSinequias = $('chkSinequias').checked;
 
     const vrOvarioTipo = v('vrOvarioTipo');
@@ -2977,7 +2983,7 @@ if(typeof criarMotorLaudo !== 'function'){
       bexigaAspecto, bexigaDescricao,
       miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose, uteroVolumeAumentado,
       chkIstmocele, istmocelePct, chkPolipoEndocervical, chkDIU, diuPosicao, chkHematometrio,
-      endometrioAspecto, endometrioAtrofico, chkSinequias,
+      endometrioAspecto, endometrioPolipo, endometrioAtrofico, chkSinequias,
       ovD_aspecto: ovD.aspecto, ovD_descricao: ovD.descricao, ovD_volNum: ovD.volNum, ovD_polVol: ovD.policisticoVolume, ovD_nCistos: ovD.cistos.length, ovD_nCistos2: ovD.cistos2.length,
       ovD_aspecto2: ovD.aspecto2, ovD_descricao2: ovD.descricao2,
       ovE_aspecto: ovE.aspecto, ovE_descricao: ovE.descricao, ovE_volNum: ovE.volNum, ovE_polVol: ovE.policisticoVolume, ovE_nCistos: ovE.cistos.length, ovE_nCistos2: ovE.cistos2.length,
@@ -3099,7 +3105,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
     if(uteroPresente){
       let endometrioTexto;
-      if(endometrioAspecto==='polipo'){
+      if(endometrioPolipo){
         endometrioTexto = endoDuplo ? phraseRaw('endometrioPolipoDuplo', Object.assign({PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida)}, espDuplo)) : phraseRaw('endometrioPolipo', {PADRAO: endometrioPadrao, LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida), ESPESSURA: espSpan(endometrioEspessura)});
       } else if(endometrioAspecto==='espessado'){
         endometrioTexto = endoDuplo ? phraseRaw('endometrioEspessadoDuplo', espDuplo) : phraseRaw('endometrioEspessado', {ESPESSURA: espSpan(endometrioEspessura)});
@@ -3633,6 +3639,11 @@ if(typeof criarMotorLaudo !== 'function'){
     st.draftRestoring = true;
     try{
       draftMigrarCistos(d);
+      // Rascunho de antes de 2026-10-24: o pólipo era uma opção do "Aspecto".
+      if(d.fields && d.fields.endometrioAspecto==='polipo'){
+        d.fields.endometrioAspecto = 'normal';
+        d.fields.chkPolipoEndometrial = true;
+      }
       // Os cards repetidos voltam com os mesmos uids de antes: os ids dos campos,
       // as chaves da checklist de impressões e os ids dos blocos do laudo derivam
       // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.
