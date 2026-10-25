@@ -1999,7 +1999,10 @@ if(typeof criarMotorLaudo !== 'function'){
       }
     });
 
-    items.push({key:'liberacao', label:phraseRaw('impLiberacao'), auto:true});
+    // Com pólipo ou sinéquias a liberação para a punção não sai (pedido da médica, 2026-10-25).
+    if(!state.chkPolipoEndometrial && !state.chkSinequias){
+      items.push({key:'liberacao', label:phraseRaw('impLiberacao'), auto:true});
+    }
     return items;
   }
   function renderChecklist(items){
