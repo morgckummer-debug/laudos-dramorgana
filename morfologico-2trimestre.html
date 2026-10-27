@@ -359,6 +359,8 @@
   /* Variações de linha dos cards fixos (dados do exame, datação, Doppler), as
      mesmas do morfologico-1trimestre.html. */
   .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
+  .field.bio-linha.conditional.show{display:grid;}
+  .bio-grupo .field.conditional.show{margin:4px 0 8px;}
   .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
   .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;font-weight:500;text-align:left;padding:8px 10px;}
   .bio-col:only-child{flex:1 1 100%;}
@@ -708,14 +710,14 @@
     <div class="card">
       <div class="card-head"><h2>Gestação</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Número de fetos</label>
-            <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
+        <div class="bio-grupos"><div class="bio-col">
+          <div class="bio-grupo"><h4>Tipo de gestação</h4>
+            <div class="field bio-linha bio-sel"><label for="numeroFetos">Número de fetos</label><select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select></div>
+            <div class="field bio-linha bio-sel bio-sel-larga conditional" id="wrap_corionicidade"><label for="corionicidade">Corionicidade / amnionicidade</label>
+              <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option><option value="monocorionica_triamniotica" data-fetos="3">Monocoriônica e triamniótica</option></select>
+            </div>
           </div>
-          <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade / amnionicidade</label>
-            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option><option value="monocorionica_triamniotica" data-fetos="3">Monocoriônica e triamniótica</option></select>
-          </div>
-        </div>
+        </div></div>
       </div>
     </div>
 
@@ -726,9 +728,9 @@
       <div class="card-head"><h2>Discordância de peso</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Calculada a partir dos pesos fetais estimados acima: (maior − menor) ÷ maior. A partir de 20% entra o alerta de acompanhamento especializado.</p>
-        <div class="field-row">
-          <div class="field"><label>Discordância entre os fetos</label><input type="text" id="discordanciaCalc" readonly placeholder="calculada automaticamente"></div>
-        </div>
+        <div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Resultado</h4>
+          <div class="field bio-linha bio-larga"><label for="discordanciaCalc">Discordância entre os fetos<small>calculada</small></label><input type="text" id="discordanciaCalc" readonly placeholder="calculada automaticamente"></div>
+        </div></div></div>
       </div>
     </div>
 
@@ -761,19 +763,21 @@
     <div class="card">
       <div class="card-head"><h2>Miométrio</h2></div>
       <div class="card-body">
-        <div class="field"><label>Miomas / achados miometriais — opcional (texto livre)</label><textarea id="miometrioObservacoes" rows="2" placeholder="ex: nódulo sólido hipoecoico em parede anterior do útero, medindo 22 x 20 mm, compatível com mioma."></textarea></div>
+        <div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Miométrio</h4>
+          <div class="field bio-linha bio-larga"><label for="miometrioObservacoes">Miomas / achados miometriais<small>opcional · texto livre</small></label><textarea id="miometrioObservacoes" rows="2" placeholder="ex: nódulo sólido hipoecoico em parede anterior do útero, medindo 22 x 20 mm, compatível com mioma."></textarea></div>
+        </div></div></div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-head"><h2>Medida do colo uterino</h2></div>
       <div class="card-body">
-        <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
-        <div id="coloFields" class="conditional">
-          <div class="field-row">
-            <div class="field"><label>Comprimento do colo — via transvaginal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
+        <div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Colo uterino</h4>
+          <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
+          <div id="coloFields" class="conditional">
+            <div class="field bio-linha"><label for="coloComprimento">Comprimento do colo<small>via transvaginal</small></label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"><span class="bio-un">mm</span></div>
           </div>
-        </div>
+        </div></div></div>
       </div>
     </div>
 
@@ -1663,6 +1667,19 @@ if(typeof criarMotorLaudo !== 'function'){
       }).join('')
       + '</div>';
   }
+  // Avaliação morfológica em quadro, como os demais cards (2026-10-27): um select
+  // por segmento e, abaixo dele, a descrição e o resumo quando "Alterado". Ids,
+  // textos e ordem iguais aos de antes.
+  function morfoQuadro(uid){
+    const seg = (k, nome)=>
+      '<div class="field bio-linha bio-sel"><label for="feto'+uid+k+'">'+nome+'</label><select id="feto'+uid+k+'"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+k+'Descricao"><label>Descreva o achado — '+nome+'</label><textarea id="feto'+uid+k+'Descricao" rows="2"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+k+'Resumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+k+'Resumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+k+'ResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>';
+    return '<p class="feto-sub">Avaliação morfológica fetal</p>'
+      +'<div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Segmentos fetais</h4>'
+      +seg('Cranio','Crânio / cérebro')+seg('Face','Face')+seg('Coluna','Coluna vertebral')+seg('Torax','Tórax / coração')+seg('Abdome','Abdome')+seg('Membros','Membros fetais')
+      +'</div></div></div>';
+  }
   function fetoCardHTML(uid){
     return ''
       +'<div class="card" id="wrap_feto'+uid+'">'
@@ -1724,37 +1741,32 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'CiurEstagio"><label>CIUR — estágio</label><select id="feto'+uid+'CiurEstagio"><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>'
 
-      +'<p class="feto-sub">Placenta e cordão umbilical</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Posição / inserção</label><select id="feto'+uid+'PlacentaInsercao">'
-      +'<option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option>'
-      +'<option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option>'
-      +'<option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option>'
-      +'<option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option>'
+      +'<p class="feto-sub">Placenta, cordão umbilical e líquido amniótico</p>'
+      +'<div class="bio-grupos">'
+      +'<div class="bio-col">'
+      +'<div class="bio-grupo"><h4>Placenta</h4>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'PlacentaInsercao">Posição / inserção</label><select id="feto'+uid+'PlacentaInsercao">'
+      +'<option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option><option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option><option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option>'
       +'</select></div>'
-      +'<div class="field"><label>Textura</label><select id="feto'+uid+'PlacentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Grau (Grannum)</label><select id="feto'+uid+'PlacentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div>'
-      +'<div class="field"><label>Espessura</label><select id="feto'+uid+'PlacentaEspessura"><option value="normal">Normal</option><option value="alterada">Alterada (descrever)</option></select></div>'
-      +'</div>'
+      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaTextura">Textura</label><select id="feto'+uid+'PlacentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div>'
+      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaGrau">Grau<small>Grannum</small></label><select id="feto'+uid+'PlacentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div>'
+      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaEspessura">Espessura</label><select id="feto'+uid+'PlacentaEspessura"><option value="normal">Normal</option><option value="alterada">Alterada (descrever)</option></select></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'PlacentaDescricao"><label>Descreva o achado</label><textarea id="feto'+uid+'PlacentaDescricao" rows="2" placeholder="ex: espessura aumentada, medindo..."></textarea></div>'
       +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'PlacentaDistalCheck"><label for="feto'+uid+'PlacentaDistalCheck">Incluir distância da porção distal da placenta ao orifício interno do colo</label></div>'
-      +'<div class="field-row conditional" id="wrap_feto'+uid+'PlacentaDistalMedida">'
-      +'<div class="field"><label>Distância ao orifício interno do colo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'PlacentaDistalMedida" placeholder="mm"></div>'
+      +'<div class="field bio-linha conditional" id="wrap_feto'+uid+'PlacentaDistalMedida"><label for="feto'+uid+'PlacentaDistalMedida">Distância ao orifício interno do colo</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'PlacentaDistalMedida" placeholder="mm"><span class="bio-un">mm</span></div>'
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Cordão umbilical</label><select id="feto'+uid+'Cordao"><option value="2 artérias e 1 veia">2 artérias e 1 veia</option><option value="artéria umbilical única">Artéria umbilical única</option></select></div>'
       +'</div>'
-
-      +'<p class="feto-sub">Líquido amniótico</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Aspecto e volume</label><select id="feto'+uid+'LaAspecto"><option value="normal">Normal</option><option value="reduzido">Volume reduzido (oligoâmnio)</option><option value="aumentado">Volume aumentado (polidrâmnio)</option></select></div>'
+      +'<div class="bio-col">'
+      +'<div class="bio-grupo"><h4>Cordão umbilical</h4>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'Cordao">Vasos do cordão</label><select id="feto'+uid+'Cordao"><option value="2 artérias e 1 veia">2 artérias e 1 veia</option><option value="artéria umbilical única">Artéria umbilical única</option></select></div>'
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Maior bolsão (cm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaBolsao" placeholder="cm"></div>'
-      +'<div class="field conditional show" id="wrap_feto'+uid+'LaILA"><label>ILA (cm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaILA" placeholder="cm"></div>'
-      +'<div class="field conditional show" id="wrap_feto'+uid+'LaILAPercentil"><label>Percentil do ILA</label><input type="text" inputmode="numeric" id="feto'+uid+'LaILAPercentil" placeholder="ex: 50"></div>'
+      +'<div class="bio-grupo"><h4>Líquido amniótico</h4>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'LaAspecto">Aspecto e volume</label><select id="feto'+uid+'LaAspecto"><option value="normal">Normal</option><option value="reduzido">Volume reduzido (oligoâmnio)</option><option value="aumentado">Volume aumentado (polidrâmnio)</option></select></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'LaBolsao">Maior bolsão</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaBolsao" placeholder="cm"><span class="bio-un">cm</span></div>'
+      +'<div class="field bio-linha conditional show" id="wrap_feto'+uid+'LaILA"><label for="feto'+uid+'LaILA">ILA</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaILA" placeholder="cm"><span class="bio-un">cm</span></div>'
+      +'<div class="field bio-linha conditional show" id="wrap_feto'+uid+'LaILAPercentil"><label for="feto'+uid+'LaILAPercentil">Percentil do ILA</label><input type="text" inputmode="numeric" id="feto'+uid+'LaILAPercentil" placeholder="ex: 50"><span class="bio-un"></span></div>'
+      +'</div>'
+      +'</div>'
       +'</div>'
 
       +'<div class="conditional" id="wrap_feto'+uid+'Doppler">'
@@ -1789,31 +1801,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'</div>'
 
-      +'<p class="feto-sub">Avaliação morfológica fetal</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Crânio / cérebro</label><select id="feto'+uid+'Cranio"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'<div class="field"><label>Face</label><select id="feto'+uid+'Face"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'CranioDescricao"><label>Descreva o achado — Crânio / cérebro</label><textarea id="feto'+uid+'CranioDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'CranioResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'CranioResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'CranioResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'FaceDescricao"><label>Descreva o achado — Face</label><textarea id="feto'+uid+'FaceDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'FaceResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'FaceResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'FaceResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Coluna vertebral</label><select id="feto'+uid+'Coluna"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'<div class="field"><label>Tórax / coração</label><select id="feto'+uid+'Torax"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'ColunaDescricao"><label>Descreva o achado — Coluna vertebral</label><textarea id="feto'+uid+'ColunaDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'ColunaResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'ColunaResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'ColunaResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'ToraxDescricao"><label>Descreva o achado — Tórax / coração</label><textarea id="feto'+uid+'ToraxDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'ToraxResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'ToraxResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'ToraxResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Abdome</label><select id="feto'+uid+'Abdome"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'<div class="field"><label>Membros fetais</label><select id="feto'+uid+'Membros"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'AbdomeDescricao"><label>Descreva o achado — Abdome</label><textarea id="feto'+uid+'AbdomeDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'AbdomeResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'AbdomeResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'AbdomeResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'MembrosDescricao"><label>Descreva o achado — Membros fetais</label><textarea id="feto'+uid+'MembrosDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'MembrosResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'MembrosResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'MembrosResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
+      +morfoQuadro(uid)
 
       +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
       +'</div>'
