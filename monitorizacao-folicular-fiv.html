@@ -699,9 +699,10 @@
           </div>
         </div>
         <p class="ov-titulo">Ovário direito</p>
-        <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes</label></div>
-        <div id="ovDFoliculosContainer" class="foliculos-grid"></div>
-        <button type="button" class="btn-clear" id="btnAddFoliculoOvD" style="margin:2px 0 14px;">+ Adicionar folículo</button>
+        <div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Folículos dominantes</h4>
+          <div id="ovDFoliculosContainer"></div>
+          <button type="button" class="btn-clear" id="btnAddFoliculoOvD" style="margin:2px 0 12px;">+ Adicionar folículo</button>
+        </div></div></div>
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
             <select id="ovD_aspecto">
@@ -778,9 +779,10 @@
 
         <hr class="sep">
         <p class="ov-titulo">Ovário esquerdo</p>
-        <div class="field" style="margin-bottom:8px;"><label>Folículos dominantes</label></div>
-        <div id="ovEFoliculosContainer" class="foliculos-grid"></div>
-        <button type="button" class="btn-clear" id="btnAddFoliculoOvE" style="margin:2px 0 14px;">+ Adicionar folículo</button>
+        <div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Folículos dominantes</h4>
+          <div id="ovEFoliculosContainer"></div>
+          <button type="button" class="btn-clear" id="btnAddFoliculoOvE" style="margin:2px 0 12px;">+ Adicionar folículo</button>
+        </div></div></div>
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
             <select id="ovE_aspecto">
@@ -1832,8 +1834,8 @@ if(typeof criarMotorLaudo !== 'function'){
   const foliculoNextUid = {ovD:1, ovE:1};
   function foliculoRowHTML(prefix, uid){
     return ''
-      +'<div class="foliculo-item" id="wrap_'+prefix+'Fol'+uid+'">'
-      +'<label>F<span class="foliculo-index"></span> (mm)</label>'
+      +'<div class="field bio-linha bio-texto foliculo-item" id="wrap_'+prefix+'Fol'+uid+'">'
+      +'<label for="'+prefix+'Fol'+uid+'Medida">Folículo <span class="foliculo-index"></span><small>mm</small></label>'
       +'<div class="foliculo-input-row">'
       +'<input type="text" id="'+prefix+'Fol'+uid+'Medida" placeholder="ex: 18 x 16">'
       +'<button type="button" class="foliculo-remove" data-prefix="'+prefix+'" data-uid="'+uid+'" title="Remover folículo">&times;</button>'
