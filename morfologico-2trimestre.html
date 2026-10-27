@@ -609,6 +609,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 90 ou acima (GIG) — use {PERCENTIL} (já vem como "acima do percentil 90")</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Sem anomalia estrutural — todos os segmentos normais</label><textarea id="ph_impSemAnomalias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado morfológico alterado — use {SEGMENTO} e {DESCRICAO}</label><textarea id="ph_impMorfoAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Artéria umbilical única (na conclusão)</label><textarea id="ph_impAchadoAUU" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — oligoâmnio (impressão)</label><textarea id="ph_impLaOligoamnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — polidrâmnio (impressão)</label><textarea id="ph_impLaPolidramnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta alterada — use {DESCRICAO}</label><textarea id="ph_impPlacentaAlterada" rows="2"></textarea></div>
@@ -1399,6 +1400,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impPesoGIG: 'Peso fetal {PERCENTIL} (Hadlock) - feto GIG.',
     impSemAnomalias: 'Ao exame morfológico não evidenciamos nenhuma anomalia estrutural, passível de identificação para essa idade gestacional.',
     impMorfoAlterado: '{SEGMENTO}: {DESCRICAO}.',
+    impAchadoAUU: 'Artéria umbilical única',
     impLaOligoamnio: 'Oligoâmnio — redução do volume de líquido amniótico para a idade gestacional.',
     impLaPolidramnio: 'Polidrâmnio — aumento do volume de líquido amniótico para a idade gestacional.',
     impPlacentaAlterada: 'Placenta com espessura alterada: {DESCRICAO}.',
@@ -2139,6 +2141,16 @@ if(typeof criarMotorLaudo !== 'function'){
   const PLACENTA_PREVIA_VALORES = ['baixa', 'marginal', 'previa'];
 
   // ---------- Build impression checklist ----------
+  // Achado/medida alterada em itálico no corpo do laudo (pedido da médica,
+  // 2026-10-27) — mesmo critério que leva o achado à conclusão.
+  function emSe(cond, html){ return cond ? '<em>'+html+'</em>' : html; }
+  // Na conclusão, "risco aumentado para cromossomopatias" e "risco aumentado
+  // (1:X) para pré-eclâmpsia" saem sublinhados (pedido da médica,
+  // 2026-10-27). Depois de escapeHtml, por busca de texto, como italicizeFMF:
+  // vale também para a linha reescrita à mão e vai inline para o Word.
+  function sublinharRiscoAumentado(html){
+    return html.replace(/(risco aumentado(?: \(1:[^)]*\))? para (?:cromossomopatias|pré-eclâmpsia(?: pré-termo)?))/gi, '<u>$1</u>');
+  }
   function buildImpressao(state){
     const items = [];
     // Com mais de um feto, cada achado fetal vira uma chave própria ('peso-f2')
@@ -2192,10 +2204,27 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!algumAlterado){
       items.push({key:'sem-anomalias', label: phraseRaw('impSemAnomalias'), auto:true});
     }
+    // Achados fetais (marcadores e segmentos com resumo): um achado sozinho
+    // sai com a frase de sempre; dois ou mais saem numa linha só, unidos por
+    // " + " (pedido da médica, 2026-10-27: "Artéria umbilical única + IP DV
+    // >P95 + Holoprosencefalia."). A chave da linha junta os achados: mudou
+    // o conjunto, a redação feita à mão naquela linha deixa de valer.
+    function linhaAchados(f, achados, extra){
+      if(!achados.length) return null;
+      if(achados.length === 1){
+        const a = achados[0];
+        return {key:k(a.key, f), label: pre(f) + a.unico, auto:true, italic:!!a.italic};
+      }
+      const corpo = achados.map(a=> a.curto.replace(/\.+\s*$/, '')).join(' + ') + '.';
+      return {key:k('achados-'+achados.map(a=>a.key).join('-'), f), label: pre(f) + corpo + (extra ? ' '+extra : ''), auto:true};
+    }
     state.fetos.forEach(f=>{
-      f.alteracoes.forEach(a=>{
-        items.push({key:k('morfo-'+a.slug, f), label: pre(f) + phraseRaw('impMorfoAlterado', {SEGMENTO:a.titulo, DESCRICAO:a.descricao}), auto:true});
-      });
+      const achados = [];
+      if(f.auu){ const t = phraseRaw('impAchadoAUU'); achados.push({key:'auu', curto:t, unico:t.replace(/\.*\s*$/, '')+'.'}); }
+      f.alteracoes.forEach(a=> achados.push({key:'morfo-'+a.slug, curto:a.descricao,
+        unico:phraseRaw('impMorfoAlterado', {SEGMENTO:a.titulo, DESCRICAO:a.descricao})}));
+      const linha = linhaAchados(f, achados, '');
+      if(linha) items.push(linha);
     });
 
     state.fetos.forEach(f=>{
@@ -2538,7 +2567,7 @@ if(typeof criarMotorLaudo !== 'function'){
         dbp, diamCerebelar, dof, cisternaMagna, cc, pregaNucal, ca, ventriculoPosterior,
         cf, ossoNasal, umero, pregaPreNasal, radio, doe, ulna, doi, tibia, fibula,
         peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
-        segmentos, alteracoes, morfoAlterado, cordaoTxt,
+        segmentos, alteracoes, morfoAlterado, cordaoTxt, auu: cordaoTxt === 'artéria umbilical única',
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
         placentaDistalCheck, placentaDistalMedida,
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
@@ -2711,7 +2740,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const placentaDistalHtml = f.placentaDistalCheck ? ' '+phraseRaw('placentaDistalTexto', {MEDIDA: span(f.placentaDistalMedida)}) : '';
       // Monocoriônica divide uma placenta só: uma frase (a do último feto), "Placenta única".
       if(!placentaUnica || f===fetos[fetos.length-1]){
-        blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">'+(placentaUnica ? 'Placenta única' : 'Placenta')+'</strong></p><p class="linha">'+f.placentaHtml+placentaDistalHtml+' '+phraseRaw('cordaoTexto', {VASOS: f.cordaoTxt})+'</p></div>'});
+        blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">'+(placentaUnica ? 'Placenta única' : 'Placenta')+'</strong></p><p class="linha">'+f.placentaHtml+placentaDistalHtml+' '+phraseRaw('cordaoTexto', {VASOS: emSe(f.auu, f.cordaoTxt)})+'</p></div>'});
       }
 
       let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
@@ -2776,7 +2805,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       checkedItems.forEach(it=>{
         const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
-        impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
+        impressaoListHtml += '<li data-key="'+it.key+'">'+sublinharRiscoAumentado(escapeHtml(text))+'</li>';
       });
     }
     impressaoListHtml = linhasLivresNaLista(impressaoListHtml);
