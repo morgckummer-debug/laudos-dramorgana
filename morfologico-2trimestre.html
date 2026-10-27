@@ -149,6 +149,8 @@
     border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);
   }
   .field input[readonly]{background:var(--line-soft);color:var(--ink-soft);cursor:not-allowed;}
+  .resumo-aviso{display:block;margin-top:4px;font-size:12px;color:var(--amber);font-weight:600;}
+  .resumo-aviso[hidden]{display:none;}
   .field input.flag-abnormal{border-color:var(--amber);background:var(--amber-light);}
   .field input.format-error{border-color:#B4432F;background:#FBEAE6;}
   .field input.field-missing{border-color:#B4432F;}
@@ -607,6 +609,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Peso no percentil 90 ou acima (GIG) — use {PERCENTIL} (já vem como "acima do percentil 90")</label><textarea id="ph_impPesoGIG" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Sem anomalia estrutural — todos os segmentos normais</label><textarea id="ph_impSemAnomalias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado morfológico alterado — use {SEGMENTO} e {DESCRICAO}</label><textarea id="ph_impMorfoAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Artéria umbilical única (na conclusão)</label><textarea id="ph_impAchadoAUU" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — oligoâmnio (impressão)</label><textarea id="ph_impLaOligoamnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — polidrâmnio (impressão)</label><textarea id="ph_impLaPolidramnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta alterada — use {DESCRICAO}</label><textarea id="ph_impPlacentaAlterada" rows="2"></textarea></div>
@@ -1397,6 +1400,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impPesoGIG: 'Peso fetal {PERCENTIL} (Hadlock) - feto GIG.',
     impSemAnomalias: 'Ao exame morfológico não evidenciamos nenhuma anomalia estrutural, passível de identificação para essa idade gestacional.',
     impMorfoAlterado: '{SEGMENTO}: {DESCRICAO}.',
+    impAchadoAUU: 'Artéria umbilical única',
     impLaOligoamnio: 'Oligoâmnio — redução do volume de líquido amniótico para a idade gestacional.',
     impLaPolidramnio: 'Polidrâmnio — aumento do volume de líquido amniótico para a idade gestacional.',
     impPlacentaAlterada: 'Placenta com espessura alterada: {DESCRICAO}.',
@@ -1791,25 +1795,25 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Face</label><select id="feto'+uid+'Face"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'</div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'CranioDescricao"><label>Descreva o achado — Crânio / cérebro</label><textarea id="feto'+uid+'CranioDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'CranioResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'CranioResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'CranioResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'CranioResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'CranioResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'FaceDescricao"><label>Descreva o achado — Face</label><textarea id="feto'+uid+'FaceDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'FaceResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'FaceResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'FaceResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'FaceResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'FaceResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Coluna vertebral</label><select id="feto'+uid+'Coluna"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'<div class="field"><label>Tórax / coração</label><select id="feto'+uid+'Torax"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'</div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'ColunaDescricao"><label>Descreva o achado — Coluna vertebral</label><textarea id="feto'+uid+'ColunaDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'ColunaResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'ColunaResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'ColunaResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'ColunaResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'ColunaResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'ToraxDescricao"><label>Descreva o achado — Tórax / coração</label><textarea id="feto'+uid+'ToraxDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'ToraxResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'ToraxResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'ToraxResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'ToraxResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'ToraxResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
       +'<div class="field-row">'
       +'<div class="field"><label>Abdome</label><select id="feto'+uid+'Abdome"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'<div class="field"><label>Membros fetais</label><select id="feto'+uid+'Membros"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'</div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'AbdomeDescricao"><label>Descreva o achado — Abdome</label><textarea id="feto'+uid+'AbdomeDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'AbdomeResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'AbdomeResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'AbdomeResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'AbdomeResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'AbdomeResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'MembrosDescricao"><label>Descreva o achado — Membros fetais</label><textarea id="feto'+uid+'MembrosDescricao" rows="2"></textarea></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'MembrosResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'MembrosResumo" rows="2" placeholder="frase objetiva p/ a conclusão — em branco repete o texto acima"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+'MembrosResumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+'MembrosResumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+'MembrosResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>'
 
       +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
       +'</div>'
@@ -2137,6 +2141,16 @@ if(typeof criarMotorLaudo !== 'function'){
   const PLACENTA_PREVIA_VALORES = ['baixa', 'marginal', 'previa'];
 
   // ---------- Build impression checklist ----------
+  // Achado/medida alterada em itálico no corpo do laudo (pedido da médica,
+  // 2026-10-27) — mesmo critério que leva o achado à conclusão.
+  function emSe(cond, html){ return cond ? '<em>'+html+'</em>' : html; }
+  // Na conclusão, "risco aumentado para cromossomopatias" e "risco aumentado
+  // (1:X) para pré-eclâmpsia" saem sublinhados (pedido da médica,
+  // 2026-10-27). Depois de escapeHtml, por busca de texto, como italicizeFMF:
+  // vale também para a linha reescrita à mão e vai inline para o Word.
+  function sublinharRiscoAumentado(html){
+    return html.replace(/(risco aumentado(?: \(1:[^)]*\))? para (?:cromossomopatias|pré-eclâmpsia(?: pré-termo)?))/gi, '<u>$1</u>');
+  }
   function buildImpressao(state){
     const items = [];
     // Com mais de um feto, cada achado fetal vira uma chave própria ('peso-f2')
@@ -2170,7 +2184,7 @@ if(typeof criarMotorLaudo !== 'function'){
     items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
       {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
 
-    const algumAchado = state.fetos.some(f=> f.laAlterado || f.placentaAlterada || f.placentaPrevia || f.alteracoes.length>0 || f.pesoKey==='impPesoPIG' || f.pesoKey==='impPesoCIUR')
+    const algumAchado = state.fetos.some(f=> f.laAlterado || f.placentaAlterada || f.placentaPrevia || f.morfoAlterado || f.pesoKey==='impPesoPIG' || f.pesoKey==='impPesoCIUR')
       || state.discordanciaAlterada;
 
     // O percentil de peso fetal vai sempre no 2º item da conclusão, logo após
@@ -2186,14 +2200,31 @@ if(typeof criarMotorLaudo !== 'function'){
     // Achados morfológicos: quando nenhum feto tem segmento alterado, a
     // impressão traz a frase única de normalidade; cada segmento marcado como
     // alterado (com descrição) sobe como item próprio, um por feto.
-    const algumAlterado = state.fetos.some(f=> f.alteracoes.length > 0);
+    const algumAlterado = state.fetos.some(f=> f.morfoAlterado);
     if(!algumAlterado){
       items.push({key:'sem-anomalias', label: phraseRaw('impSemAnomalias'), auto:true});
     }
+    // Achados fetais (marcadores e segmentos com resumo): um achado sozinho
+    // sai com a frase de sempre; dois ou mais saem numa linha só, unidos por
+    // " + " (pedido da médica, 2026-10-27: "Artéria umbilical única + IP DV
+    // >P95 + Holoprosencefalia."). A chave da linha junta os achados: mudou
+    // o conjunto, a redação feita à mão naquela linha deixa de valer.
+    function linhaAchados(f, achados, extra){
+      if(!achados.length) return null;
+      if(achados.length === 1){
+        const a = achados[0];
+        return {key:k(a.key, f), label: pre(f) + a.unico, auto:true, italic:!!a.italic};
+      }
+      const corpo = achados.map(a=> a.curto.replace(/\.+\s*$/, '')).join(' + ') + '.';
+      return {key:k('achados-'+achados.map(a=>a.key).join('-'), f), label: pre(f) + corpo + (extra ? ' '+extra : ''), auto:true};
+    }
     state.fetos.forEach(f=>{
-      f.alteracoes.forEach(a=>{
-        items.push({key:k('morfo-'+a.slug, f), label: pre(f) + phraseRaw('impMorfoAlterado', {SEGMENTO:a.titulo, DESCRICAO:a.descricao}), auto:true});
-      });
+      const achados = [];
+      if(f.auu){ const t = phraseRaw('impAchadoAUU'); achados.push({key:'auu', curto:t, unico:t.replace(/\.*\s*$/, '')+'.'}); }
+      f.alteracoes.forEach(a=> achados.push({key:'morfo-'+a.slug, curto:a.descricao,
+        unico:phraseRaw('impMorfoAlterado', {SEGMENTO:a.titulo, DESCRICAO:a.descricao})}));
+      const linha = linhaAchados(f, achados, '');
+      if(linha) items.push(linha);
     });
 
     state.fetos.forEach(f=>{
@@ -2432,6 +2463,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // Segmentos morfológicos: texto padrão quando normal; quando alterado,
       // entra a descrição editada e o achado sobe para a impressão.
       const alteracoes = [];
+      let morfoAlterado = false;
       const segmentos = MORFO_SEGMENTOS.map(seg=>{
         const generica = phraseRaw(segFrase(seg));
         const alterado = v(pre+seg.key)==='alterado';
@@ -2443,15 +2475,18 @@ if(typeof criarMotorLaudo !== 'function'){
         // nada inventaria um achado na Impressão Diagnóstica e apagaria a
         // frase de ausência de anomalias.
         const reescrita = !!descricao && descricao !== generica.replace(/\.+\s*$/, '');
-        // O corpo do laudo leva a descrição inteira; a conclusão, se ficasse
-        // com o mesmo texto, herdaria um parágrafo — o resumo é uma frase
-        // objetiva à parte. Vazio, a conclusão repete a descrição (mesmo
-        // comportamento de antes deste campo existir; nenhum achado some por
-        // falta de preenchimento).
-        const resumo = vNoDot(pre+seg.key+'Resumo') || descricao;
+        // O corpo do laudo leva a descrição inteira; a conclusão leva só o
+        // resumo (pedido da médica, 2026-10-27). Sem resumo o achado fica fora
+        // da conclusão — nada de repetir a descrição nem inventar frase —, mas
+        // conta como alteração (a frase de ausência de anomalias não sai) e um
+        // aviso aparece embaixo do campo, no formulário, fora da impressão.
+        const resumo = vNoDot(pre+seg.key+'Resumo');
         if(alterado && reescrita){
-          alteracoes.push({slug: seg.slug, titulo: seg.titulo, descricao: resumo});
+          morfoAlterado = true;
+          if(resumo) alteracoes.push({slug: seg.slug, titulo: seg.titulo, descricao: resumo});
         }
+        const aviso = $(pre+seg.key+'ResumoAviso');
+        if(aviso) aviso.hidden = !(alterado && reescrita && !resumo);
         return {
           titulo: seg.titulo,
           texto: (alterado && descricao) ? (descricao+'.') : generica
@@ -2532,7 +2567,7 @@ if(typeof criarMotorLaudo !== 'function'){
         dbp, diamCerebelar, dof, cisternaMagna, cc, pregaNucal, ca, ventriculoPosterior,
         cf, ossoNasal, umero, pregaPreNasal, radio, doe, ulna, doi, tibia, fibula,
         peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
-        segmentos, alteracoes, cordaoTxt,
+        segmentos, alteracoes, morfoAlterado, cordaoTxt, auu: cordaoTxt === 'artéria umbilical única',
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
         placentaDistalCheck, placentaDistalMedida,
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
@@ -2705,7 +2740,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const placentaDistalHtml = f.placentaDistalCheck ? ' '+phraseRaw('placentaDistalTexto', {MEDIDA: span(f.placentaDistalMedida)}) : '';
       // Monocoriônica divide uma placenta só: uma frase (a do último feto), "Placenta única".
       if(!placentaUnica || f===fetos[fetos.length-1]){
-        blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">'+(placentaUnica ? 'Placenta única' : 'Placenta')+'</strong></p><p class="linha">'+f.placentaHtml+placentaDistalHtml+' '+phraseRaw('cordaoTexto', {VASOS: f.cordaoTxt})+'</p></div>'});
+        blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">'+(placentaUnica ? 'Placenta única' : 'Placenta')+'</strong></p><p class="linha">'+f.placentaHtml+placentaDistalHtml+' '+phraseRaw('cordaoTexto', {VASOS: emSe(f.auu, f.cordaoTxt)})+'</p></div>'});
       }
 
       let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';
@@ -2770,7 +2805,7 @@ if(typeof criarMotorLaudo !== 'function'){
     } else {
       checkedItems.forEach(it=>{
         const text = Object.prototype.hasOwnProperty.call(impressaoOverrides, it.key) ? impressaoOverrides[it.key] : ('* '+it.label);
-        impressaoListHtml += '<li data-key="'+it.key+'">'+escapeHtml(text)+'</li>';
+        impressaoListHtml += '<li data-key="'+it.key+'">'+sublinharRiscoAumentado(escapeHtml(text))+'</li>';
       });
     }
     impressaoListHtml = linhasLivresNaLista(impressaoListHtml);
