@@ -666,6 +666,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Útero e saco gestacional</label><textarea id="ph_uteroTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Útero e saco(s) gestacional(is) — gestação múltipla — use {SACOS} (montado a partir da corionicidade: um saco só com dois embriões na monocoriônica, dois sacos na dicoriônica)</label><textarea id="ph_uteroTextoMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta — use {INSERCAO}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta de cada feto (dicoriônica) — use {FETO} e {INSERCAO}</label><textarea id="ph_placentaTextoFeto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo uterino — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="2"></textarea></div>
 
   <hr class="sep">
@@ -826,7 +827,7 @@
       <div class="card-head"><h2>Ao exame — útero, placenta e colo</h2></div>
       <div class="card-body">
         <div class="field-row">
-          <div class="field"><label>Inserção placentária</label>
+          <div class="field conditional show" id="wrap_placentaInsercao"><label>Inserção placentária</label>
             <select id="placentaInsercao"><option value="anterior">Parede anterior</option><option value="posterior">Parede posterior</option><option value="fúndica">Fúndica</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option></select>
           </div>
           <div class="field"><label>Comprimento do colo uterino (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
@@ -870,7 +871,7 @@
     <button type="button" class="btn-clear" id="btnAddFeto" style="margin:-8px 0 22px;">+ Adicionar feto</button>
 
     <div class="card">
-      <div class="card-head"><h2>Doppler</h2></div>
+      <div class="card-head"><h2>Doppler das Artérias Uterinas</h2></div>
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno" checked><label for="chkDopplerMaterno">Dopplerfluxometria materna (artérias uterinas)</label></div>
         <div id="dopplerMaternoFields" class="conditional show">
@@ -1626,6 +1627,7 @@ if(typeof criarMotorLaudo !== 'function'){
     uteroTexto: 'Útero de volume aumentado e contornos normais, contendo em seu interior saco gestacional regular.',
     uteroTextoMultiplo: 'Útero de volume aumentado e contornos normais, contendo em seu interior {SACOS}.',
     placentaTexto: 'Placenta de inserção na parede {INSERCAO} do útero, de aspecto e espessura normais.',
+    placentaTextoFeto: '{FETO}: placenta de inserção {INSERCAO}, de aspecto e espessura normais.',
     coloTexto: 'Colo uterino apresentando orifícios interno e externo fechados e comprimento de {MEDIDA} mm.',
 
     miomaIntro1: 'Observa-se imagem nodular sólida, hipoecoica e heterogênea, localizada na {F1}.',
@@ -1906,6 +1908,14 @@ if(typeof criarMotorLaudo !== 'function'){
         ['PpoCalc','Relação ponte/ponte-occipital','calculada · VR 0,5 - 1,0','',{readonly:true}]])
       +bioGrupo(uid, 'Vitalidade', [
         ['FC','Frequência cardíaca','','bpm',{modo:'numeric'}]])
+      +'</div>'
+      +'</div>'
+
+      // Dicoriônica: cada feto tem a própria placenta. Visibilidade decidida no render().
+      +'<div class="conditional" id="feto'+uid+'PlacentaWrap">'
+      +'<p class="feto-sub">Placenta</p>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Localização placentária</label><select id="feto'+uid+'Placenta"><option value="anterior alta">Anterior alta</option><option value="posterior alta">Posterior alta</option><option value="fúndica">Fúndica</option><option value="baixa">Baixa</option></select></div>'
       +'</div>'
       +'</div>'
 
@@ -2843,6 +2853,12 @@ if(typeof criarMotorLaudo !== 'function'){
     'marginal': 'prévia marginal',
     'previa': 'prévia total'
   };
+  const PLACENTA_FETO_TXT = {
+    'anterior alta': 'na parede anterior alta',
+    'posterior alta': 'na parede posterior alta',
+    'fúndica': 'fúndica',
+    'baixa': 'baixa'
+  };
   const PLACENTA_PREVIA_VALORES = ['baixa', 'marginal', 'previa'];
 
   // ---------- Build impression checklist ----------
@@ -3378,6 +3394,11 @@ if(typeof criarMotorLaudo !== 'function'){
     // senão haveria dois lugares para digitar o mesmo número e um deles seria
     // ignorado em silêncio. Decidido aqui dentro do render(), que é quem roda a
     // cada mudança de corionicidade ou de número de fetos.
+    // Dicoriônica diamniótica / tricoriônica: uma placenta por feto, dentro do card
+    // de cada um; o seletor único de "Inserção placentária" some.
+    const placentaPorFeto = isMultiple && ['dicorionica_diamniotica','tricorionica_triamniotica'].indexOf(v('corionicidade')) !== -1;
+    toggle('wrap_placentaInsercao', !placentaPorFeto);
+    fetos.forEach(f=> toggle('feto'+f.uid+'PlacentaWrap', placentaPorFeto));
     fetos.forEach((f, idx)=> toggle('feto'+f.uid+'RiscoWrap', !riscoNaUltimaPagina(f.uid) && !(isMonocorionica && idx > 0)));
     // O único cartão que sobra na monocoriônica (o do 1º feto) é reaproveitado
     // para o risco da gestação inteira — mas o rótulo e a dica dele continuam
@@ -3498,7 +3519,9 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'uteroDescricaoExtra', html:'<p class="linha">'+escapeHtml(miometrioDescricaoExtra)+'.</p>'});
     }
     blocks.push({id:'placentaColoTexto', html:'<div>'
-      +'<p class="linha tight">'+phrase('placentaTexto', {INSERCAO: placentaInsercao})+'</p>'
+      +(placentaPorFeto
+        ? fetos.map(f=>'<p class="linha tight">'+phrase('placentaTextoFeto', {FETO: f.label, INSERCAO: PLACENTA_FETO_TXT[v('feto'+f.uid+'Placenta')] || ''})+'</p>').join('')
+        : '<p class="linha tight">'+phrase('placentaTexto', {INSERCAO: placentaInsercao})+'</p>')
       +'<p class="linha">'+phraseRaw('coloTexto', {MEDIDA: span(coloComprimentoVal)})+'</p>'
       +'</div>'});
 
