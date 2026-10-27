@@ -1628,3 +1628,21 @@ O "Percentil" do ducto venoso (`feto{uid}DVClasse`) deixou de ser o select manua
 ## Morfológico 2º/3º: cards fixos em quadros, como no 1º trimestre (2026-10-27)
 
 Pedido da médica: levar ao `morfologico-2trimestre.html` o layout em quadros do 1º trimestre, com as mesmas classes `bio-*` (cópia do CSS de lá). "Dados do exame" tem "Paciente e exame" (nome, CPF, data, médico solicitante) e "Antecedentes obstétricos" (G, P, A numa linha); o 2º trimestre **não tem** nascimento, peso, altura nem PAM, então não há quadro de dados maternos. "Idade gestacional" é um quadro "Datação" começando por "Idade baseada em:". O Doppler materno tem "Artérias uterinas" e "Resultado"; o Doppler fetal de cada feto tem "Artérias fetais" (IP da umbilical, IP da ACM, fluxo diastólico) e "Resultado" (RCP, percentil com o botão "Recalcular percentil" dentro do rótulo, classificação). Gestação, placenta, líquido, morfologia, miométrio e colo continuam no formato antigo, como no 1º trimestre. Ids, laudo e rascunho iguais aos da `main`, conferido no Chromium preenchendo por id (feto único com DUM, FIV no 3º trimestre e gemelar, com recarga do rascunho).
+
+## Transvaginal, Contagem de Folículos e Perineal em quadros (2026-10-27)
+
+Pedido da médica, primeira etapa de levar o layout dos morfológicos aos outros laudos. Mesmas classes `bio-*` (cópia
+do CSS no `<style>` de cada arquivo; no celular as colunas viram uma só, com `.bio-col{flex:0 0 auto}` para a
+`flex-basis` não virar altura). `transvaginal.html` e `reserva-ovariana.html`: "Paciente e exame" + "Antecedentes
+obstétricos" (G, P, A numa linha), "Medidas do útero", "Endométrio" (espessura única ou D/E do 3D, aspecto, padrão)
+e os dois ovários lado a lado (L, AP, T, volume; na Contagem, também os folículos antrais), logo abaixo do VR; o
+aspecto e as alterações de cada ovário continuam embaixo, como antes. `perineal.html`: "Paciente e exame", "Uretra e
+colo vesical" + "Bexiga" (os VR continuam nos `span.vr-*` que `applyVRToInputs()` reescreve), "Hiato genital",
+"Medidas do útero" + "Colo uterino", "Endométrio" e os ovários. O aviso de valor fora do VR (`flag_*`) foi para
+dentro do rótulo. Ids, laudo, Word e rascunho iguais aos da `main`.
+
+**`ferramentas/conferir-por-id.mjs`** é a conferência destas mudanças só de layout: preenche cada campo pelo id (o
+`testar-laudos.mjs` preenche pela ordem da tela e acusa diferença sempre que um campo muda de lugar), em 5
+cenários (cada select numa opção, caixas variando), e compara laudo, todos os campos depois do `render()`
+(calculados inclusive), lista de ids, Word, rascunho e o formulário depois de recarregar. A ordem das chaves no
+rascunho muda com a ordem da tela e fica fora da comparação.
