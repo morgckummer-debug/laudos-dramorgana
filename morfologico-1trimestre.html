@@ -188,6 +188,9 @@
   .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 64px);justify-content:start;column-gap:10px;}
   .field.bio-linha.bio-gpa label{font-weight:600;}
   .field.bio-linha.bio-gpa label:not(:first-child){margin-left:14px;}
+  .field.bio-linha.bio-sel.bio-sel-larga{grid-template-columns:1fr 240px;}
+  .field.bio-linha.bio-ig{grid-template-columns:1fr 52px auto 52px auto;}
+  .field.bio-linha.bio-texto input[readonly]{font-size:13px;}
   .bio-nota{margin:-2px 0 6px;font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
   .bio-grupo h4 + .bio-linha{border-top:0;}
   .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;}
@@ -768,28 +771,29 @@
     <div class="card">
       <div class="card-head"><h2>Idade gestacional</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>DUM (data da última menstruação)</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>IG atual</label><input type="text" id="igAtual" placeholder="calculada automaticamente" readonly></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Idade gestacional calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="fiv">FIV (transferência embrionária)</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Datação</h4>
+              <div class="field bio-linha bio-sel bio-sel-larga"><label for="cronologiaMetodo">Idade baseada em:</label>
+                <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="fiv">FIV (transferência embrionária)</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
+              </div>
+              <div class="field bio-linha bio-data"><label for="dum">DUM<small>data da última menstruação</small></label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+              <div class="field bio-linha bio-texto"><label for="igAtual">IG atual</label><input type="text" id="igAtual" placeholder="calculada automaticamente" readonly></div>
+              <div class="conditional" id="wrap_usgDatacao">
+                <div class="field bio-linha bio-data"><label for="usgDataDatacao">Data do ultrassom de datação</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+                <div class="field bio-linha bio-ig"><label for="usgSemanasDatacao">IG no ultrassom de datação</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="8"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="3" aria-label="IG no ultrassom de datação — dias"><span class="bio-un">dias</span></div>
+              </div>
+              <div class="conditional" id="wrap_fivTransferencia">
+                <div class="field bio-linha bio-data"><label for="fivDataTransf">Data da transferência embrionária</label><input type="text" id="fivDataTransf" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+                <div class="field bio-linha bio-sel"><label for="fivEstagio">Estágio do embrião na transferência</label>
+                  <select id="fivEstagio"><option value="d3">D3 (clivagem)</option><option value="d5">D5 (blastocisto)</option></select>
+                </div>
+              </div>
+              <div class="conditional" id="wrap_dumEstimada">
+                <div class="field bio-linha bio-data"><label for="dumEstimada">DUM estimada<small>para lançar na máquina de ultrassom</small></label><input type="text" id="dumEstimada" readonly placeholder="automática"></div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="field-row conditional" id="wrap_usgDatacao">
-          <div class="field"><label>Data do ultrassom de datação</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>IG no ultrassom de datação — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 8"></div>
-          <div class="field"><label>IG no ultrassom de datação — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
-        </div>
-        <div class="field-row conditional" id="wrap_fivTransferencia">
-          <div class="field"><label>Data da transferência embrionária</label><input type="text" id="fivDataTransf" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>Estágio do embrião na transferência</label>
-            <select id="fivEstagio"><option value="d3">D3 (clivagem)</option><option value="d5">D5 (blastocisto)</option></select>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_dumEstimada">
-          <div class="field"><label>DUM estimada (para lançar na máquina de ultrassom)</label><input type="text" id="dumEstimada" readonly placeholder="calculada automaticamente"></div>
         </div>
       </div>
     </div>
