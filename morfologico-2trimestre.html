@@ -342,6 +342,25 @@
 
   /* Morfológico de 3º trimestre: campos que só se medem no 2º */
   body.tri3 .t2only{display:none !important;}
+  /* Parâmetros biométricos do cartão do feto, em quadros por região
+     (bioGrupo()). .bio-linha também é .field: anula o empilhamento dela. */
+  .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+  .bio-col{flex:1 1 280px;display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
+  .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);}
+  .bio-grupo h4 + .bio-linha{border-top:0;}
+  .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;}
+  .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
+  .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  /* Uma coluna só: os membros (último quadro de cada coluna) descem para o fim. */
+  @media (max-width:720px){
+    .bio-grupos{flex-direction:column;}
+    .bio-col{display:contents;}
+    .bio-col:first-child .bio-grupo:last-child{order:1;}
+    .bio-col:last-child .bio-grupo:last-child{order:2;}
+  }
 
   .print-alert{
     display:none;background:#B4432F;color:#fff;font-weight:600;font-size:13px;
@@ -1594,6 +1613,23 @@ if(typeof criarMotorLaudo !== 'function'){
     {key:'Membros', slug:'membros', titulo:'Membros fetais', phrase:'morfoMembros'},
   ];
 
+  // Um quadro de medidas do cartão do feto. Cada item: [sufixo do id, nome,
+  // sigla, unidade, inputmode, só no 2º trimestre]. Unidade ausente = 'mm';
+  // '' = sem unidade (percentil). inputmode ausente = 'decimal', que ganha
+  // data-decimals="1" como os campos de antes. soT2 esconde o quadro inteiro
+  // no 3º trimestre (membros inferiores: só tíbia e fíbula).
+  function bioGrupo(uid, titulo, itens, soT2){
+    return '<div class="bio-grupo'+(soT2?' t2only':'')+'"><h4>'+titulo+'</h4>'
+      + itens.map(([suf, nome, sigla, un, modo, t2])=>{
+        const unidade = un === undefined ? 'mm' : un;
+        const im = modo || 'decimal';
+        return '<div class="field bio-linha'+(t2?' t2only':'')+'">'
+          +'<label for="feto'+uid+suf+'">'+nome+(sigla?'<small>'+sigla+'</small>':'')+'</label>'
+          +'<input type="text" inputmode="'+im+'"'+(im==='decimal'?' data-decimals="1"':'')+' id="feto'+uid+suf+'">'
+          +'<span class="bio-un">'+unidade+'</span></div>';
+      }).join('')
+      + '</div>';
+  }
   function fetoCardHTML(uid){
     return ''
       +'<div class="card" id="wrap_feto'+uid+'">'
@@ -1611,45 +1647,41 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field"><label>Observações / alterações (texto livre)</label><textarea id="feto'+uid+'Observacoes" rows="2" placeholder="ex: um achado que não se encaixa nos campos abaixo"></textarea></div>'
 
       +'<p class="feto-sub">Parâmetros biométricos</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Diâmetro biparietal — DBP (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DBP" placeholder="mm"></div>'
-      +'<div class="field"><label>Diâmetro cerebelar (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DiamCerebelar" placeholder="mm"></div>'
+      // Quadros por região (2026-10-27, esquema da médica): nome à esquerda,
+      // caixa curta e igual para todas, unidade à direita. Duas colunas que
+      // viram uma em tela estreita. Os ids não mudaram (rascunho, Curva e
+      // busca de laudo anterior dependem deles), e cada linha continua
+      // .field para as marcas de valor alterado/faltando valerem aqui.
+      +'<div class="bio-grupos">'
+      +'<div class="bio-col">'
+      +bioGrupo(uid, 'Biometria fetal', [
+        ['DBP','Diâmetro biparietal','DBP'],
+        ['DOF','Diâmetro occipitofrontal','DOF'],
+        ['CC','Circunferência cefálica','CC'],
+        ['CA','Circunferência abdominal','CA'],
+        ['CF','Comprimento femoral','CF'],
+        ['Peso','Peso fetal estimado','Hadlock','g','numeric'],
+        ['Percentil','Percentil de peso','Hadlock','','numeric']])
+      +bioGrupo(uid, 'Membros superiores', [
+        ['Umero','Úmero'],
+        ['Radio','Rádio','',undefined,'',true],
+        ['Ulna','Ulna','',undefined,'',true]])
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Diâmetro occipitofrontal — DOF (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DOF" placeholder="mm"></div>'
-      +'<div class="field"><label>Cisterna magna (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CisternaMagna" placeholder="mm"></div>'
+      +'<div class="bio-col">'
+      +bioGrupo(uid, 'Crânio e sistema nervoso', [
+        ['DiamCerebelar','Diâmetro cerebelar'],
+        ['CisternaMagna','Cisterna magna'],
+        ['VentriculoPosterior','Ventrículo posterior'],
+        ['PregaNucal','Prega nucal']])
+      +bioGrupo(uid, 'Face', [
+        ['OssoNasal','Osso nasal'],
+        ['DOE','Distância orbitária externa','DI externo'],
+        ['DOI','Distância orbitária interna','DI interno'],
+        ['PregaPreNasal','Prega pré-nasal','',undefined,'',true]])
+      +bioGrupo(uid, 'Membros inferiores', [
+        ['Tibia','Tíbia','',undefined,'',true],
+        ['Fibula','Fíbula','',undefined,'',true]], true)
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Circunferência cefálica — CC (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CC" placeholder="mm"></div>'
-      +'<div class="field"><label>Prega nucal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'PregaNucal" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Circunferência abdominal — CA (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CA" placeholder="mm"></div>'
-      +'<div class="field"><label>Ventrículo posterior (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'VentriculoPosterior" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Comprimento femoral — CF (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CF" placeholder="mm"></div>'
-      +'<div class="field"><label>Osso nasal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'OssoNasal" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Comprimento umeral (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Umero" placeholder="mm"></div>'
-      +'<div class="field t2only"><label>Prega pré-nasal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'PregaPreNasal" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field t2only"><label>Rádio (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Radio" placeholder="mm"></div>'
-      +'<div class="field"><label>Distância orbitária externa (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DOE" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field t2only"><label>Ulna (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Ulna" placeholder="mm"></div>'
-      +'<div class="field"><label>Distância orbitária interna (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DOI" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field t2only"><label>Tíbia (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Tibia" placeholder="mm"></div>'
-      +'<div class="field"><label>Peso fetal estimado (g)</label><input type="text" inputmode="numeric" id="feto'+uid+'Peso" placeholder="g"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field t2only"><label>Fíbula (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Fibula" placeholder="mm"></div>'
-      +'<div class="field"><label>Percentil de peso (Hadlock)</label><input type="text" inputmode="numeric" id="feto'+uid+'Percentil" placeholder="ex: 45"></div>'
       +'</div>'
       +'<div class="field conditional" id="wrap_feto'+uid+'CiurEstagio"><label>CIUR — estágio</label><select id="feto'+uid+'CiurEstagio"><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>'
 
