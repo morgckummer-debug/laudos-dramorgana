@@ -1675,6 +1675,112 @@ function criarMotorLaudo(cfg){
       refazerLaudo();
     });
   }
+  // Mais botões na barra de formatação (2026-10-26, pedido da médica): desfazer/
+  // refazer, tachado, sobrescrito (cm³), subscrito, cor do texto, marca-texto e
+  // limpar formatação. Entram sozinhos na barra dos laudos que têm #fmtBold, sem
+  // tocar em nenhum .html. Tudo é execCommand dentro do #paper, como o negrito:
+  // muda só o trecho selecionado, nunca divide nem junta blocos com data-blk.
+  // Listas (marcadores/numeração) ficaram de fora de propósito: insertUnorderedList
+  // troca o <p data-blk> por <ul><li>, e o bloco perderia o data-blk.
+  const COR_TEXTO = [['#000000','Preto'],['#c62828','Vermelho'],['#1565c0','Azul'],['#2e7d32','Verde'],['#6d6d6d','Cinza']];
+  const COR_MARCA = [['#fff176','Amarelo'],['#c5e1a5','Verde claro'],['#b3e5fc','Azul claro'],['#f8bbd0','Rosa'],['transparent','Sem marca-texto']];
+  function wireMaisFormatacao(){
+    const paperEl = $('paper');
+    const bold = $('fmtBold'), under = $('fmtUnderline');
+    const bar = bold ? bold.parentElement : null;
+    if(!paperEl || !bar || !under || $('fmtUndo')) return;
+    const css = document.createElement('style');
+    css.textContent = '.format-toolbar .fmt-cor{position:relative;display:inline-flex;}'
+      + '.format-toolbar .fmt-cor .fmt-btn{flex-direction:column;gap:2px;}'
+      + '.format-toolbar .fmt-cor-barra{display:block;width:16px;height:3px;border-radius:2px;}'
+      + '.fmt-paleta{position:absolute;top:36px;left:0;z-index:50;display:none;gap:6px;padding:8px;background:#fff;'
+      + 'border:1.5px solid var(--line);border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.12);}'
+      + '.fmt-paleta.aberta{display:flex;}'
+      + '.fmt-paleta button{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);cursor:pointer;padding:0;}'
+      + '.fmt-paleta button:hover{border-color:var(--rose);}'
+      + '.fmt-paleta button.sem{background:#fff linear-gradient(135deg,transparent 45%,#c62828 45%,#c62828 55%,transparent 55%);}'
+      // Marca-texto na impressão: sem isto o Chrome não imprime cor de fundo.
+      + '#paper [style*="background"]{-webkit-print-color-adjust:exact;print-color-adjust:exact;}';
+    document.head.appendChild(css);
+    const svg = d => '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
+    function botao(id, titulo, html){
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'fmt-btn'; b.id = id; b.title = titulo; b.innerHTML = html;
+      b.addEventListener('mousedown', e=>e.preventDefault());
+      return b;
+    }
+    const sep = ()=>{ const s = document.createElement('span'); s.className = 'fmt-sep'; return s; };
+    function aplicar(cmd, valor, comCss){
+      paperEl.focus();
+      try{ if(comCss) document.execCommand('styleWithCSS', false, true); }catch(e){}
+      document.execCommand(cmd, false, valor == null ? null : valor);
+      try{ if(comCss) document.execCommand('styleWithCSS', false, false); }catch(e){}
+      atualizar();
+    }
+    const undo = botao('fmtUndo', 'Desfazer (Ctrl+Z)', svg('<path d="M5 3 2 6l3 3"/><path d="M2 6h7.5a4 4 0 0 1 0 8H6"/>'));
+    const redo = botao('fmtRedo', 'Refazer (Ctrl+Y)', svg('<path d="m11 3 3 3-3 3"/><path d="M14 6H6.5a4 4 0 0 0 0 8H10"/>'));
+    undo.addEventListener('click', ()=>aplicar('undo'));
+    redo.addEventListener('click', ()=>aplicar('redo'));
+    bar.insertBefore(undo, bold);
+    bar.insertBefore(redo, bold);
+    bar.insertBefore(sep(), bold);
+
+    const tachado = botao('fmtStrike', 'Tachado', '<s>T</s>');
+    const sup = botao('fmtSuperscript', 'Sobrescrito (ex.: cm³)', 'x<span style="font-size:9px;position:relative;top:-5px">2</span>');
+    const sub = botao('fmtSubscript', 'Subscrito', 'x<span style="font-size:9px;position:relative;top:4px">2</span>');
+    tachado.addEventListener('click', ()=>aplicar('strikeThrough'));
+    sup.addEventListener('click', ()=>aplicar('superscript'));
+    sub.addEventListener('click', ()=>aplicar('subscript'));
+
+    function seletorCor(id, titulo, letra, cores, padrao, cmd){
+      const wrap = document.createElement('span');
+      wrap.className = 'fmt-cor';
+      const barra = '<span class="fmt-cor-barra" style="background:'+padrao+'"></span>';
+      const b = botao(id, titulo, letra + barra);
+      const paleta = document.createElement('span');
+      paleta.className = 'fmt-paleta';
+      cores.forEach(([cor, nome])=>{
+        const c = document.createElement('button');
+        c.type = 'button'; c.title = nome;
+        if(cor === 'transparent') c.className = 'sem'; else c.style.background = cor;
+        c.addEventListener('mousedown', e=>e.preventDefault());
+        c.addEventListener('click', ()=>{
+          paleta.classList.remove('aberta');
+          if(cor !== 'transparent') b.querySelector('.fmt-cor-barra').style.background = cor;
+          aplicar(cmd, cor, true);
+        });
+        paleta.appendChild(c);
+      });
+      b.addEventListener('click', ()=>{
+        document.querySelectorAll('.fmt-paleta.aberta').forEach(p=>{ if(p !== paleta) p.classList.remove('aberta'); });
+        paleta.classList.toggle('aberta');
+      });
+      wrap.append(b, paleta);
+      return wrap;
+    }
+    // hiliteColor é o comando do Chrome/Firefox; backColor fica de reserva.
+    const marcaCmd = (()=>{ try{ return document.queryCommandSupported('hiliteColor') ? 'hiliteColor' : 'backColor'; }catch(e){ return 'backColor'; } })();
+    const corTexto = seletorCor('fmtForeColor', 'Cor do texto', '<b style="font-size:13px">A</b>', COR_TEXTO, '#c62828', 'foreColor');
+    const marca = seletorCor('fmtHighlight', 'Marca-texto', '<b style="font-size:13px">M</b>', COR_MARCA, '#fff176', marcaCmd);
+    const limpar = botao('fmtClear', 'Limpar formatação do trecho selecionado',
+      svg('<path d="M3 3h9M7.5 3 5 13"/><path d="m10 9 4 4M14 9l-4 4"/>'));
+    limpar.addEventListener('click', ()=>aplicar('removeFormat'));
+    let ref = under;
+    [tachado, sup, sub, sep(), corTexto, marca, limpar].forEach(el=>{ ref.insertAdjacentElement('afterend', el); ref = el; });
+
+    document.addEventListener('mousedown', e=>{
+      if(!e.target.closest('.fmt-cor')) document.querySelectorAll('.fmt-paleta.aberta').forEach(p=>p.classList.remove('aberta'));
+    });
+    function atualizar(){
+      try{
+        tachado.classList.toggle('active', document.queryCommandState('strikeThrough'));
+        sup.classList.toggle('active', document.queryCommandState('superscript'));
+        sub.classList.toggle('active', document.queryCommandState('subscript'));
+      }catch(e){}
+    }
+    paperEl.addEventListener('keyup', atualizar);
+    paperEl.addEventListener('mouseup', atualizar);
+  }
   function refazerLaudo(){
     const paperEl = $('paper');
     if(!paperEl) return;
@@ -2301,6 +2407,7 @@ function criarMotorLaudo(cfg){
     document.addEventListener('selectionchange', agendarColapso);
     wireBlockBoundaryGuard(paperEl0);
     wireRefazerLaudo();
+    wireMaisFormatacao();
     // Espaçamento entre linhas, margens e fonte moram no style do #paper (e mudam
     // a altura do laudo sem passar por render()): refaz a contagem de páginas e a
     // linha "Fim da página" quando o style muda — senão o preview fica com a
