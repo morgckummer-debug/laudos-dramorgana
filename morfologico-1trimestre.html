@@ -181,6 +181,13 @@
   .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
   .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;font-weight:500;text-align:left;padding:8px 10px;}
   .bio-col:only-child{flex:0 1 520px;}
+  .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
+  .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
+  .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
+  .field.bio-linha.bio-texto.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 64px);justify-content:start;column-gap:10px;}
+  .field.bio-linha.bio-gpa label{font-weight:600;}
+  .field.bio-linha.bio-gpa label:not(:first-child){margin-left:14px;}
   .bio-nota{margin:-2px 0 6px;font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
   .bio-grupo h4 + .bio-linha{border-top:0;}
   .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;}
@@ -721,34 +728,38 @@
     <div class="card">
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
-          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Paciente e exame</h4>
+              <div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+              <div class="field bio-linha bio-texto"><label for="cpfPaciente">CPF</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
+              <div class="field bio-linha bio-data"><label for="dataExame">Data do exame</label><input type="text" id="dataExame" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+              <div class="field bio-linha bio-texto"><label for="medicoSolicitante">Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
+            </div>
+          </div>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Dados maternos</h4>
+              <div class="field bio-linha bio-data"><label for="dataNascimento">Data de nascimento</label><input type="text" id="dataNascimento" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+              <div class="field bio-linha"><label for="idadeCalc">Idade<small>calculada</small></label><input type="text" id="idadeCalc" readonly placeholder="auto"><span class="bio-un">anos</span></div>
+              <div class="field bio-linha"><label for="pesoMaterno">Peso</label><input type="text" inputmode="decimal" data-decimals="1" id="pesoMaterno"><span class="bio-un">kg</span></div>
+              <div class="field bio-linha"><label for="alturaMaterna">Altura</label><input type="text" inputmode="numeric" id="alturaMaterna"><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="imcCalc">IMC<small>calculado</small></label><input type="text" id="imcCalc" readonly placeholder="auto"><span class="bio-un">kg/m²</span></div>
+              <div class="field bio-linha"><label for="pressaoArterial">Pressão arterial média<small>PAM</small></label><input type="text" id="pressaoArterial" placeholder="--"><span class="bio-un">mmHg</span></div>
+            </div>
+          </div>
         </div>
-        <div class="field-row">
-          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
-          <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
-          <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Antecedentes obstétricos</h4>
+              <div class="field bio-linha bio-gpa"><label for="gpaG">G</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"><label for="gpaP">P</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"><label for="gpaA">A</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+            </div>
+          </div>
         </div>
         <div class="toggle-line"><input type="checkbox" id="pptEspontaneoPrevio"><label for="pptEspontaneoPrevio">Antecedente de parto prematuro espontâneo</label></div>
         <div class="toggle-line"><input type="checkbox" id="progesteronaVaginalEmUso"><label for="progesteronaVaginalEmUso">Em uso de progesterona vaginal</label></div>
         <div class="toggle-line"><input type="checkbox" id="cerclagemRealizada"><label for="cerclagemRealizada">Cerclagem realizada</label></div>
         <div class="field-row conditional" id="wrap_cerclagemIG">
           <div class="field"><label>IG da cerclagem (semanas)</label><input type="text" inputmode="numeric" id="cerclagemIgSemanas" placeholder="ex: 14"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Data de nascimento</label><input type="text" id="dataNascimento" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>Idade (calculada)</label><input type="text" id="idadeCalc" readonly placeholder="calculada automaticamente"></div>
-          <div class="field"><label>Peso (kg)</label><input type="text" inputmode="decimal" data-decimals="1" id="pesoMaterno" placeholder="kg"></div>
-          <div class="field"><label>Altura (cm)</label><input type="text" inputmode="numeric" id="alturaMaterna" placeholder="cm"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>IMC (calculado)</label><input type="text" id="imcCalc" readonly placeholder="calculado automaticamente"></div>
-          <div class="field"><label>Pressão arterial média (PAM) (mmHg)</label><input type="text" id="pressaoArterial" placeholder="ex: 110x70"></div>
         </div>
         <div class="field" style="margin-top:14px;"><label>Motivo do exame / observações — opcional (uma ou mais linhas)</label><textarea id="motivoExame" rows="3" placeholder="ex: Relato de rastreamento de aneuploidias.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
       </div>
@@ -892,9 +903,8 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Última página — cálculo de risco (FMF)</h2></div>
+      <div class="card-head"><h2>Cálculo de Risco pela FMF (Fetal Medicine Foundation)</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Estes campos montam a última página como texto, no layout do relatório da FMF — não precisa mais colar o print de lá. Deixe em branco o que a FMF não calculou neste exame; a idade materna usa o campo de nascimento/data do exame já preenchidos acima, o risco de trissomias pela história é digitado aqui, como o software da FMF o devolve, e o risco calculado com os marcadores (T21/T18/T13) continua vindo dos cartões de cada feto, acima. O de pré-eclâmpsia usa o cartão de rastreamento logo ali em cima — não precisa repetir.</p>
         <div class="bio-grupos">
           <div class="bio-col">
             <div class="bio-grupo"><h4>Riscos por história</h4>
