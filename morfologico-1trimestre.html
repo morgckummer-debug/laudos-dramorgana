@@ -178,6 +178,8 @@
   .bio-col{flex:1 1 280px;display:flex;flex-direction:column;gap:14px;min-width:0;}
   .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
   .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .bio-grupo.risco-feto{border:0;border-top:1px dashed var(--line);border-radius:0;padding:10px 0 0;margin-top:8px;}
+  .bio-grupo.risco-feto h4{color:var(--rose-dark);}
   .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);}
   .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
   .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
@@ -929,10 +931,11 @@
               <div class="field bio-linha"><label for="anexoRiscoHistT1318">Trisomia 13/18<small>1 para</small></label><input type="text" inputmode="numeric" id="anexoRiscoHistT1318" placeholder="ex: 1500"><span class="bio-un"></span></div>
             </div>
             <div class="bio-grupo"><h4>Trissomias pela FMF</h4>
-              <p class="bio-nota">CCN + TN + ON + DV + VT. Feto único ou monocoriônica: um cálculo só, da gestação inteira. Gemelar dicoriônica ou trigemelar: cada feto digita o seu no próprio cartão, lá em cima.</p>
-              <div class="field bio-linha"><label for="anexoCalcRiscoT21">Trissomia 21<small>1 para</small></label><input type="text" inputmode="numeric" id="anexoCalcRiscoT21" placeholder="ex: 1200"><span class="bio-un"></span></div>
+              <p class="bio-nota">CCN + TN + ON + DV + VT. Feto único ou monocoriônica: um cálculo só, da gestação inteira. Gemelar dicoriônica ou trigemelar: um quadro para cada feto, logo abaixo.</p>
+              <div id="wrap_anexoCalcUnico" class="conditional show"><div class="field bio-linha"><label for="anexoCalcRiscoT21">Trissomia 21<small>1 para</small></label><input type="text" inputmode="numeric" id="anexoCalcRiscoT21" placeholder="ex: 1200"><span class="bio-un"></span></div>
               <div class="field bio-linha"><label for="anexoCalcRiscoT1318">Trissomia 13/18<small>1 para</small></label><input type="text" inputmode="numeric" id="anexoCalcRiscoT1318" placeholder="ex: 5000"><span class="bio-un"></span></div>
-              <div class="field bio-linha bio-sel"><label for="anexoRiscoClasse">Risco para cromossomopatias<small>texto da impressão</small></label><select id="anexoRiscoClasse"><option value="auto">Automático (pela TN)</option><option value="baixo">Baixo risco</option><option value="alto">Risco aumentado</option></select></div>
+              <div class="field bio-linha bio-sel"><label for="anexoRiscoClasse">Risco para cromossomopatias<small>texto da impressão</small></label><select id="anexoRiscoClasse"><option value="auto">Automático (pela TN)</option><option value="baixo">Baixo risco</option><option value="alto">Risco aumentado</option></select></div></div>
+              <div id="riscoFetosContainer"></div>
             </div>
           </div>
           <div class="bio-col">
@@ -1584,6 +1587,11 @@ if(typeof criarMotorLaudo !== 'function'){
   // monocoriônica o cálculo é um só da gestação e os campos ficam na última
   // página, junto dos riscos pela história; com gemelar/trigemelar
   // dicoriônica, cada feto digita o seu no próprio cartão.
+  // Verdadeiro quando o risco é um só (feto único ou monocoriônica).
+  function riscoUnico(){
+    const u = fetoUids();
+    return u.length < 2 || v('corionicidade').indexOf('monocorionica') === 0;
+  }
   function riscoNaUltimaPagina(uid){
     const uids = fetoUids();
     return uids[0] === uid && (uids.length < 2 || v('corionicidade').indexOf('monocorionica') === 0);
@@ -1974,14 +1982,14 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'</div>'
 
-      +'<div class="conditional show" id="feto'+uid+'RiscoWrap">'
-      +'<p class="feto-sub" id="feto'+uid+'RiscoSub">Risco fetal para trissomias (IM + ON + TN + DV + VT)</p>'
-      +'<p class="hint-perfeto" id="feto'+uid+'RiscoHint">Valores calculados pelo software da <em>Fetal Medicine Foundation</em> — digite o denominador de cada risco (1 para ...).</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Trissomia 21 — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT21" placeholder="ex: 1200"></div>'
-      +'<div class="field"><label>Trissomia 13/18 — 1 para</label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT18" placeholder="ex: 5000"></div>'
-      +'<div class="field"><label>Risco para cromossomopatias</label><select id="feto'+uid+'RiscoClasse"><option value="auto">Automático (pela TN)</option><option value="baixo">Baixo risco</option><option value="alto">Risco aumentado</option></select></div>'
-      +'</div>'
+      // Dicoriônica/trigemelar: o risco de cada feto é digitado no card final
+      // "Cálculo de Risco pela FMF". O bloco nasce aqui (ids feto{uid}Risco*,
+      // iguais aos de sempre) e wireFetoCard() o move para #riscoFetosContainer.
+      +'<div class="conditional show bio-grupo risco-feto" id="feto'+uid+'RiscoWrap">'
+      +'<h4><span class="feto-label-risco"></span></h4>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'RiscoT21">Trissomia 21<small>1 para</small></label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT21" placeholder="ex: 1200"><span class="bio-un"></span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'RiscoT18">Trissomia 13/18<small>1 para</small></label><input type="text" inputmode="numeric" id="feto'+uid+'RiscoT18" placeholder="ex: 5000"><span class="bio-un"></span></div>'
+      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'RiscoClasse">Risco para cromossomopatias<small>texto da impressão</small></label><select id="feto'+uid+'RiscoClasse"><option value="auto">Automático (pela TN)</option><option value="baixo">Baixo risco</option><option value="alto">Risco aumentado</option></select></div>'
       +'</div>'
 
       +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
@@ -2028,6 +2036,9 @@ if(typeof criarMotorLaudo !== 'function'){
     cards.forEach((el, idx)=>{
       const label = el.querySelector('.feto-label');
       if(label) label.textContent = fetoLabel(idx, cards.length);
+      const uidCard = el.id.replace('wrap_feto','');
+      const labelRisco = document.querySelector('#feto'+uidCard+'RiscoWrap .feto-label-risco');
+      if(labelRisco) labelRisco.textContent = fetoLabel(idx, cards.length);
       const removeBtn = el.querySelector('.feto-remove');
       if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
       const uid = el.id.replace('wrap_feto','');
@@ -2048,6 +2059,9 @@ if(typeof criarMotorLaudo !== 'function'){
       field.addEventListener('change', render);
     });
     wireDecimalInputs();
+    // O bloco de risco vai para o card final, depois de ligar os listeners.
+    const riscoWrap = $('feto'+uid+'RiscoWrap');
+    if(riscoWrap) $('riscoFetosContainer').appendChild(riscoWrap);
     ['Cranio','Face','Torax','Abdome','Coluna','Extremidades'].forEach(sufixo=>{
       const sel = $('feto'+uid+sufixo);
       if(sel) sel.addEventListener('change', ()=> updateFetoWraps(uid));
@@ -2058,6 +2072,7 @@ if(typeof criarMotorLaudo !== 'function'){
     });
     updateFetoWraps(uid);
     el.querySelector('.feto-remove').addEventListener('click', ()=>{
+      if(riscoWrap) riscoWrap.remove();
       el.remove();
       renumberFetos();
       render();
@@ -3399,6 +3414,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const placentaPorFeto = isMultiple && ['dicorionica_diamniotica','tricorionica_triamniotica'].indexOf(v('corionicidade')) !== -1;
     toggle('wrap_placentaInsercao', !placentaPorFeto);
     fetos.forEach(f=> toggle('feto'+f.uid+'PlacentaWrap', placentaPorFeto));
+    toggle('wrap_anexoCalcUnico', riscoUnico());
     fetos.forEach((f, idx)=> toggle('feto'+f.uid+'RiscoWrap', !riscoNaUltimaPagina(f.uid) && !(isMonocorionica && idx > 0)));
     // O único cartão que sobra na monocoriônica (o do 1º feto) é reaproveitado
     // para o risco da gestação inteira — mas o rótulo e a dica dele continuam
@@ -4078,7 +4094,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // digitados, e o select de nº de fetos acabou de voltar para "Único".
     // A limpeza tirou "show" de todo `.conditional`: refaz o toggle da cronologia.
     updateCronologiaWraps();
-    $('fetosContainer').innerHTML = '';
+    $('fetosContainer').innerHTML = ''; $('riscoFetosContainer').innerHTML = '';
     const _dffReset = $('dopplerFetalFields'); if(_dffReset) _dffReset.innerHTML = '';
     // Os nódulos da paciente anterior saem junto: o select de miométrio acabou
     // de voltar para "Textura homogênea", e um nódulo preenchido pendurado aí
@@ -4139,7 +4155,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // as chaves da checklist de impressões e os ids dos blocos do laudo derivam
       // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.
       const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
-      $('fetosContainer').innerHTML = '';
+      $('fetosContainer').innerHTML = ''; $('riscoFetosContainer').innerHTML = '';
       const _dffRestore = $('dopplerFetalFields'); if(_dffRestore) _dffRestore.innerHTML = '';
       if(uids.length){
         uids.forEach(uid=>{
@@ -4202,7 +4218,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // Rascunho corrompido ou de uma versão antiga deste laudo: melhor abrir em
       // branco do que deixar a tela quebrada.
       st.draftRestoring = false;
-      $('fetosContainer').innerHTML = '';
+      $('fetosContainer').innerHTML = ''; $('riscoFetosContainer').innerHTML = '';
       $('miomaNodulosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
