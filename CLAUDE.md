@@ -1670,3 +1670,7 @@ virou `<div class="conditional show">`). `rastreamento-ovulacao.html` e `monitor
 do útero" (na FIV, ao lado de "Endométrio": padrão e espessura) e os ovários lado a lado com L/AP/T/volume (no
 rastreamento, também os folículos dominantes do 1º exame); aspecto, cistos e a lista de folículos da FIV continuam
 embaixo, com o título `.ov-titulo`. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`).
+
+## Morfológicos: a conclusão leva só o "Resumo" do segmento alterado (2026-10-27)
+
+Pedido da médica. Nos dois morfológicos, um segmento em "Alterado (descrever)" tem a descrição (vai inteira para o corpo do laudo) e o "Resumo para a conclusão diagnóstica". Só o Resumo entra na impressão diagnóstica. Antes, com o Resumo vazio, a conclusão repetia a descrição inteira. Agora, sem Resumo, o achado fica fora da conclusão e aparece embaixo do campo o aviso `feto{uid}{Seg}ResumoAviso` ("Sem resumo, este achado não entra na conclusão diagnóstica."), que fica no formulário e não sai na impressão. A frase de ausência de anomalias continua não saindo (`f.morfoAlterado`, separado de `f.alteracoes`, que só tem os segmentos com resumo). Os outros laudos com "Alterado (descrever)" não têm campo de Resumo e não mudaram.
