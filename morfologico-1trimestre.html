@@ -922,6 +922,7 @@
               <p class="bio-nota">CCN + TN + ON + DV + VT. Feto único ou monocoriônica: um cálculo só, da gestação inteira. Gemelar dicoriônica ou trigemelar: cada feto digita o seu no próprio cartão, lá em cima.</p>
               <div class="field bio-linha"><label for="anexoCalcRiscoT21">Trissomia 21<small>1 para</small></label><input type="text" inputmode="numeric" id="anexoCalcRiscoT21" placeholder="ex: 1200"><span class="bio-un"></span></div>
               <div class="field bio-linha"><label for="anexoCalcRiscoT1318">Trissomia 13/18<small>1 para</small></label><input type="text" inputmode="numeric" id="anexoCalcRiscoT1318" placeholder="ex: 5000"><span class="bio-un"></span></div>
+              <div class="field bio-linha bio-sel"><label for="anexoRiscoClasse">Risco para cromossomopatias<small>texto da impressão</small></label><select id="anexoRiscoClasse"><option value="baixo">Baixo risco</option><option value="alto">Risco aumentado</option></select></div>
             </div>
           </div>
           <div class="bio-col">
@@ -1576,6 +1577,11 @@ if(typeof criarMotorLaudo !== 'function'){
   function riscoNaUltimaPagina(uid){
     const uids = fetoUids();
     return uids[0] === uid && (uids.length < 2 || v('corionicidade').indexOf('monocorionica') === 0);
+  }
+  // O seletor baixo/aumentado da impressão acompanha os campos de risco: com o
+  // cálculo na última página, mora lá (o cartão do feto fica escondido nesse caso).
+  function riscoClasseCampo(uid){
+    return riscoNaUltimaPagina(uid) ? 'anexoRiscoClasse' : 'feto'+uid+'RiscoClasse';
   }
   function riscoCampo(uid, t){
     if(riscoNaUltimaPagina(uid)) return t === 'T21' ? 'anexoCalcRiscoT21' : 'anexoCalcRiscoT1318';
@@ -3305,7 +3311,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const riscoT21 = blankOrValue(v(riscoCampo(uid, 'T21')));
       const riscoT18 = blankOrValue(v(riscoCampo(uid, 'T1318')));
       const riscoT13 = riscoT18; // campo único T18/T13: o mesmo valor vai para as duas
-      const riscoAlto = v(pre+'RiscoClasse')==='alto';
+      const riscoAlto = v(riscoClasseCampo(uid))==='alto';
 
       return {uid, label, ccn, dbp, cc, ca, cf, fc, segmentos, alteracoes,
         tic, ponte, ponteOcc, ppoTxt, cordaoTxt,
