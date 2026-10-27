@@ -1657,3 +1657,16 @@ morfológicos. No morfológico de 1º trimestre, "Dados maternos" virou um segun
 grade (nascimento/idade, peso/altura, IMC/PAM). O quadro "Antecedentes obstétricos" deixou de existir.
 CSS copiado nos cinco `<style>`. Ids, laudo, Word e rascunho iguais aos da `main`
 (`ferramentas/conferir-por-id.mjs`, 5 cenários por laudo).
+
+## Pélvico infantil, Rastreamento de ovulação e FIV em quadros (2026-10-27)
+
+Segunda etapa do layout dos morfológicos, a pedido da médica. Mesmas classes `bio-*` (bloco de CSS copiado do
+`transvaginal.html`, com `.bio-grade2`). Nos três, o quadro da paciente é o da opção B: nome em cima e, em duas
+colunas, CPF, data, médico, G/P/A (pélvico: idade no lugar do GPA; rastreamento e FIV: também DUM, e na FIV o dia
+do ciclo). `pelvico-infantil.html`: "Medidas do útero" + "Corpo e colo" lado a lado (o VR do volume, `#vrUteroTexto`,
+e o da proporção ficam no `<small>` do rótulo; `applyVRToInputs` continua achando os spans), "Endométrio" num quadro
+e os ovários lado a lado com aspecto, dimensões, volume e maior folículo dentro do quadro (`wrap_ov*_normalCampos`
+virou `<div class="conditional show">`). `rastreamento-ovulacao.html` e `monitorizacao-folicular-fiv.html`: "Medidas
+do útero" (na FIV, ao lado de "Endométrio": padrão e espessura) e os ovários lado a lado com L/AP/T/volume (no
+rastreamento, também os folículos dominantes do 1º exame); aspecto, cistos e a lista de folículos da FIV continuam
+embaixo, com o título `.ov-titulo`. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`).
