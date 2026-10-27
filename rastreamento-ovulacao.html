@@ -360,6 +360,42 @@
   .cg-result-item .ri-del:hover{background:#B4432F;border-color:#B4432F;color:#fff;}
   .cg-result-empty{font-size:12.5px;color:var(--ink-soft);padding:6px 2px;}
   .status-pill.sm{margin:0;padding:2px 8px;font-size:10px;}
+  /* Campos em quadros (mesmo padrão dos morfológicos, ver CLAUDE.md):
+     nome à esquerda, caixa curta, unidade à direita. .bio-linha também é
+     .field: anula o empilhamento dela. */
+  .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+  .bio-col{flex:1 1 260px;display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .bio-col:only-child{flex:0 1 520px;}
+  .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
+  .bio-grupo.conditional.show{display:block;}
+  .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);margin:0;}
+  .bio-grupo h4 + .bio-linha, .bio-grupo h4 + div > .bio-linha:first-child{border-top:0;}
+  .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;margin:0;}
+  .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
+  .field.bio-linha .flag-note{margin-top:2px;}
+  .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  .field.bio-linha.bio-sel{grid-template-columns:1fr 170px;}
+  .field.bio-linha select{padding:8px 8px;font-size:13px;}
+  .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
+  .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
+  .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
+  .field.bio-linha.bio-texto.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 64px);justify-content:start;column-gap:10px;}
+  .field.bio-linha.bio-gpa label{font-weight:600;}
+  .field.bio-linha.bio-gpa label:not(:first-child){margin-left:14px;}
+  /* Quadro da paciente (2026-10-27, opção B escolhida pela médica): nome na linha de cima,
+     o resto em duas colunas dentro do mesmo quadro, com o G/P/A junto. */
+  .bio-grupo.bio-paciente{margin-bottom:14px;}
+  .bio-grade2{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;}
+  .bio-grade2 > .field.bio-linha{border-top:1px dashed var(--line-soft);}
+  .bio-grade2 .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 56px);justify-content:space-between;column-gap:8px;}
+  .bio-grade2 .field.bio-linha.bio-gpa label:not(:first-child){margin-left:0;}
+  .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(-n+2){border-top:0;}
+  @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} }
+  .ov-titulo{font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;}
+  @media (max-width:720px){ .bio-grupos{flex-direction:column;} .bio-col, .bio-col:only-child{flex:0 0 auto;} }
 </style>
 <script src="tema.js"></script>
 </head>
@@ -606,21 +642,15 @@
     <div class="card">
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>Data do exame (1ª visita)</label><input type="text" id="dataExame" placeholder="calculada automaticamente" readonly></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
-          <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
-          <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
-          <div class="field"><label>DUM</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+        <div class="bio-grupo bio-paciente"><h4>Paciente e exame</h4>
+          <div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+          <div class="bio-grade2">
+            <div class="field bio-linha bio-texto"><label for="cpfPaciente">CPF</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
+            <div class="field bio-linha bio-data"><label for="dataExame">Data do exame<small>1ª visita, calculada</small></label><input type="text" id="dataExame" placeholder="auto" readonly></div>
+            <div class="field bio-linha bio-texto"><label for="medicoSolicitante">Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
+            <div class="field bio-linha bio-gpa"><label for="gpaG">G</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"><label for="gpaP">P</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"><label for="gpaA">A</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+            <div class="field bio-linha bio-data"><label for="dum">DUM</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+          </div>
         </div>
         <div class="field"><label>Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" rows="2" placeholder="ex: Investigação de infertilidade.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
       </div>
@@ -648,13 +678,14 @@
             </select>
           </div>
         </div>
-        <div class="field-row">
-          <div class="field"><label>Útero — longitudinal (L)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder="cm"></div>
-          <div class="field"><label>Útero — anteroposterior (AP)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder="cm"></div>
-          <div class="field"><label>Útero — transverso (T)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder="cm"></div>
-          <div class="field"><label>Volume uterino</label>
-            <input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder="cm³">
-            <span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Medidas do útero</h4>
+              <div class="field bio-linha"><label for="uteroL">Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="uteroAP">Anteroposterior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="uteroT">Transverso</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="uteroVolume">Volume uterino<span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder=""><span class="bio-un">cm³</span></div>
+            </div>
           </div>
         </div>
         <div class="field-row">
@@ -739,18 +770,32 @@
       <div class="card-head"><h2>Ovários</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Contagem de folículos dominantes do primeiro exame do ciclo — o crescimento folicular ao longo das visitas é registrado no card "Acompanhamento" abaixo.</p>
-        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário direito</p>
-        <div class="field-row conditional show" id="wrap_ovD_medidas">
-          <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder="cm"></div>
-          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_AP" placeholder="cm"></div>
-          <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_T" placeholder="cm"></div>
-          <div class="field"><label>Volume</label>
-            <input type="text" inputmode="decimal" data-decimals="1" id="ovD_volume" placeholder="cm³">
-            <span class="flag-note" id="flag_ovD_volume">Fora do valor de referência</span>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Ovário direito</h4>
+              <div class="conditional show" id="wrap_ovD_medidas">
+              <div class="field bio-linha"><label for="ovD_L">Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovD_AP">Anteroposterior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_AP" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovD_T">Transverso</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_T" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovD_volume">Volume<span class="flag-note" id="flag_ovD_volume">Fora do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_volume" placeholder=""><span class="bio-un">cm³</span></div>
+              </div>
+              <div class="field bio-linha"><label for="ovD_foliculos">Folículos dominantes<small>1º exame</small></label><input type="text" inputmode="numeric" id="ovD_foliculos" placeholder=""><span class="bio-un">nº</span></div>
+            </div>
+          </div>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Ovário esquerdo</h4>
+              <div class="conditional show" id="wrap_ovE_medidas">
+              <div class="field bio-linha"><label for="ovE_L">Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_L" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovE_AP">Anteroposterior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_AP" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovE_T">Transverso</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_T" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovE_volume">Volume<span class="flag-note" id="flag_ovE_volume">Fora do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_volume" placeholder=""><span class="bio-un">cm³</span></div>
+              </div>
+              <div class="field bio-linha"><label for="ovE_foliculos">Folículos dominantes<small>1º exame</small></label><input type="text" inputmode="numeric" id="ovE_foliculos" placeholder=""><span class="bio-un">nº</span></div>
+            </div>
           </div>
         </div>
+        <p class="ov-titulo">Ovário direito</p>
         <div class="field-row">
-          <div class="field"><label>Folículos dominantes (1º exame)</label><input type="text" inputmode="numeric" id="ovD_foliculos" placeholder="nº"></div>
           <div class="field"><label>Aspecto</label>
             <select id="ovD_aspecto">
               <option value="normal">Normal (dimensões e ecotextura preservadas)</option>
@@ -833,18 +878,8 @@
         </div>
 
         <hr class="sep">
-        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário esquerdo</p>
-        <div class="field-row conditional show" id="wrap_ovE_medidas">
-          <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_L" placeholder="cm"></div>
-          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_AP" placeholder="cm"></div>
-          <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_T" placeholder="cm"></div>
-          <div class="field"><label>Volume</label>
-            <input type="text" inputmode="decimal" data-decimals="1" id="ovE_volume" placeholder="cm³">
-            <span class="flag-note" id="flag_ovE_volume">Fora do valor de referência</span>
-          </div>
-        </div>
+        <p class="ov-titulo">Ovário esquerdo</p>
         <div class="field-row">
-          <div class="field"><label>Folículos dominantes (1º exame)</label><input type="text" inputmode="numeric" id="ovE_foliculos" placeholder="nº"></div>
           <div class="field"><label>Aspecto</label>
             <select id="ovE_aspecto">
               <option value="normal">Normal (dimensões e ecotextura preservadas)</option>
