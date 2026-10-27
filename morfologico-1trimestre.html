@@ -169,6 +169,22 @@
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
+  /* Medidas do cartão do feto em quadros por região (bioGrupo()), como no
+     morfológico de 2º/3º trimestre. .bio-linha também é .field: anula o
+     empilhamento dela. Select ocupa a caixa e a coluna da unidade. */
+  .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+  .bio-col{flex:1 1 280px;display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
+  .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);}
+  .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
+  .bio-grupo h4 + .bio-linha{border-top:0;}
+  .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;}
+  .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
+  .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .field.bio-linha select{padding:8px 8px;font-size:13px;}
+  .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  @media (max-width:720px){ .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
 
   .combo-list{
     display:none;position:fixed;z-index:1000;
@@ -1784,6 +1800,28 @@ if(typeof criarMotorLaudo !== 'function'){
     {key:'Extremidades', slug:'extremidades', titulo:'Extremidades', phrase:'morfoExtremidades'},
   ];
 
+  // Um quadro de medidas do cartão do feto (mesmo molde do morfológico de
+  // 2º/3º trimestre). Cada item: [sufixo do id, nome, sigla/nota, unidade,
+  // opções]. Unidade ausente = 'mm'; '' = sem unidade. Opções: modo
+  // ('numeric' em vez de decimal), decimais (padrão 1), readonly, ou opcoes
+  // (HTML dos <option>: a linha vira um select, que ocupa caixa e unidade).
+  function bioGrupo(uid, titulo, itens){
+    return '<div class="bio-grupo"><h4>'+titulo+'</h4>'
+      + itens.map(([suf, nome, sigla, un, o])=>{
+        o = o || {};
+        const id = 'feto'+uid+suf;
+        const unidade = un === undefined ? 'mm' : un;
+        let ctl;
+        if(o.opcoes) ctl = '<select id="'+id+'">'+o.opcoes+'</select>';
+        else if(o.readonly) ctl = '<input type="text" id="'+id+'" readonly>';
+        else if(o.modo === 'numeric') ctl = '<input type="text" inputmode="numeric" id="'+id+'">';
+        else ctl = '<input type="text" inputmode="decimal" data-decimals="'+(o.decimais||1)+'" id="'+id+'">';
+        return '<div class="field bio-linha'+(o.opcoes?' bio-sel':'')+'">'
+          +'<label for="'+id+'">'+nome+(sigla?'<small>'+sigla+'</small>':'')+'</label>'
+          +ctl+(o.opcoes?'':'<span class="bio-un">'+unidade+'</span>')+'</div>';
+      }).join('')
+      + '</div>';
+  }
   function fetoCardHTML(uid){
     return ''
       +'<div class="card" id="wrap_feto'+uid+'">'
@@ -1791,17 +1829,29 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="card-body">'
 
       +'<p class="feto-sub">Parâmetros biométricos</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Compr. cabeça-nádega — CCN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CCN" placeholder="mm"></div>'
-      +'<div class="field"><label>Circunferência abdominal — CA (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CA" placeholder="mm"></div>'
+      // Quadros por região, como no morfológico de 2º/3º trimestre (2026-10-27,
+      // pedido da médica): nome à esquerda, caixa curta e igual para todas,
+      // unidade à direita. Os ids não mudaram (rascunho e Curva dependem deles),
+      // e cada linha continua .field para as marcas de valor alterado valerem.
+      // A fossa posterior veio para cá, da "Avaliação morfológica": são medidas.
+      +'<div class="bio-grupos">'
+      +'<div class="bio-col">'
+      +bioGrupo(uid, 'Biometria fetal', [
+        ['CCN','Comprimento cabeça-nádega','CCN'],
+        ['DBP','Diâmetro biparietal','DBP'],
+        ['CC','Circunferência cefálica','CC'],
+        ['CA','Circunferência abdominal','CA'],
+        ['CF','Comprimento do fêmur','CF']])
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Diâmetro biparietal — DBP (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DBP" placeholder="mm"></div>'
-      +'<div class="field"><label>Comprimento do fêmur — CF (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CF" placeholder="mm"></div>'
+      +'<div class="bio-col">'
+      +bioGrupo(uid, 'Fossa posterior', [
+        ['TIC','Translucência intracraniana','4º ventrículo'],
+        ['Ponte','Ponte'],
+        ['PonteOccipital','Distância ponte-occipital'],
+        ['PpoCalc','Relação ponte/ponte-occipital','calculada · VR 0,5 - 1,0','',{readonly:true}]])
+      +bioGrupo(uid, 'Vitalidade', [
+        ['FC','Frequência cardíaca','','bpm',{modo:'numeric'}]])
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Circunferência cefálica — CC (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CC" placeholder="mm"></div>'
-      +'<div class="field"><label>Frequência cardíaca (bpm)</label><input type="text" inputmode="numeric" id="feto'+uid+'FC" placeholder="bpm"></div>'
       +'</div>'
 
       +'<p class="feto-sub">Avaliação morfológica fetal</p>'
@@ -1838,32 +1888,25 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field-row">'
       +'<div class="field"><label>Cordão umbilical</label><select id="feto'+uid+'Cordao"><option value="duas artérias e uma veia">Duas artérias e uma veia</option><option value="artéria umbilical única">Artéria umbilical única</option></select></div>'
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Transl. intracraniana — 4º V (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'TIC" placeholder="mm"></div>'
-      +'<div class="field"><label>Ponte (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Ponte" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Distância ponte-occipital (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'PonteOccipital" placeholder="mm"></div>'
-      +'<div class="field"><label>Rel. ponte/ponte-occipital (calculada)</label><input type="text" id="feto'+uid+'PpoCalc" readonly placeholder="calculada automaticamente"><span class="vr">VR 0,5 - 1,0</span></div>'
-      +'</div>'
 
       +'<p class="feto-sub">Marcadores ultrassonográficos das trissomias</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Translucência nucal — TN (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'TN" placeholder="mm"></div>'
-      +'<div class="field"><label>TN — percentil</label><select id="feto'+uid+'TNClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
+      +'<div class="bio-grupos">'
+      +'<div class="bio-col">'
+      +bioGrupo(uid, 'Translucência nucal', [
+        ['TN','Translucência nucal','TN'],
+        ['TNClasse','Percentil','','',{opcoes:'<option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option>'}]])
+      +bioGrupo(uid, 'Ducto venoso', [
+        ['DuctoVenoso','Índice de pulsatilidade','IPV','',{decimais:2}],
+        ['DVClasse','Percentil','','',{opcoes:'<option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option>'}],
+        ['DVOndaA','Onda A','','',{opcoes:'<option value="Positiva">Positiva</option><option value="Ausente">Ausente</option><option value="Reversa">Reversa</option>'}]])
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Osso nasal</label><select id="feto'+uid+'OssoNasal"><option value="Presente">Presente</option><option value="Ausente">Ausente</option><option value="Hipoplásico">Hipoplásico</option></select></div>'
-      +'<div class="field"><label>Ducto venoso — IPV</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'DuctoVenoso" placeholder="ex: 0,95"></div>'
+      +'<div class="bio-col">'
+      +bioGrupo(uid, 'Outros marcadores', [
+        ['OssoNasal','Osso nasal','','',{opcoes:'<option value="Presente">Presente</option><option value="Ausente">Ausente</option><option value="Hipoplásico">Hipoplásico</option>'}],
+        ['Tricuspide','Válvula tricúspide','','',{opcoes:'<option value="Sem regurgitação">Sem regurgitação</option><option value="Com regurgitação">Com regurgitação</option>'}],
+        ['Pelves','Pelves renais','','',{opcoes:'<option value="Sem dilatação">Sem dilatação</option><option value="Com dilatação">Com dilatação</option>'}],
+        ['Bexiga','Bexiga fetal']])
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Ducto venoso — percentil</label><select id="feto'+uid+'DVClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
-      +'<div class="field"><label>Ducto venoso — onda A</label><select id="feto'+uid+'DVOndaA"><option value="Positiva">Onda A positiva</option><option value="Ausente">Onda A ausente</option><option value="Reversa">Onda A reversa</option></select></div>'
-      +'<div class="field"><label>Válvula tricúspide</label><select id="feto'+uid+'Tricuspide"><option value="Sem regurgitação">Sem regurgitação</option><option value="Com regurgitação">Com regurgitação</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Dilatação das pelves renais</label><select id="feto'+uid+'Pelves"><option value="Sem dilatação">Sem dilatação</option><option value="Com dilatação">Com dilatação</option></select></div>'
-      +'<div class="field"><label>Bexiga fetal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'Bexiga" placeholder="mm"></div>'
       +'</div>'
 
       +'<div class="conditional show" id="feto'+uid+'RiscoWrap">'
