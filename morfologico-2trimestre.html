@@ -359,7 +359,7 @@
   .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
   .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
   .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;font-weight:500;text-align:left;padding:8px 10px;}
-  .bio-col:only-child{flex:0 1 520px;}
+  .bio-col:only-child{flex:1 1 100%;}
   .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
   .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
   .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
@@ -1666,14 +1666,20 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="card-body">'
 
       +'<p class="feto-sub">Situação, apresentação e vitalidade</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Apresentação fetal</label><select id="feto'+uid+'Apresentacao"><option value="cefálica">Cefálica</option><option value="pélvica">Pélvica</option><option value="córmica">Córmica (situação transversa)</option></select></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'Dorso"><label>Dorso fetal</label><select id="feto'+uid+'Dorso"><option value="à direita">À direita</option><option value="à esquerda">À esquerda</option></select></div>'
+      +'<div class="bio-grupos">'
+      +'<div class="bio-col">'
+      +'<div class="bio-grupo"><h4>Situação fetal</h4>'
+      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'Apresentacao">Apresentação fetal</label><select id="feto'+uid+'Apresentacao"><option value="cefálica">Cefálica</option><option value="pélvica">Pélvica</option><option value="córmica">Córmica (situação transversa)</option></select></div>'
+      +'<div class="conditional" id="wrap_feto'+uid+'Dorso"><div class="field bio-linha bio-sel"><label for="feto'+uid+'Dorso">Dorso fetal</label><select id="feto'+uid+'Dorso"><option value="à direita">À direita</option><option value="à esquerda">À esquerda</option></select></div></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'FC">Frequência cardíaca fetal<small>FCF</small></label><input type="text" inputmode="numeric" id="feto'+uid+'FC"><span class="bio-un">bpm</span></div>'
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" id="feto'+uid+'FC" placeholder="bpm"></div>'
       +'</div>'
-      +'<div class="field"><label>Observações / alterações (texto livre)</label><textarea id="feto'+uid+'Observacoes" rows="2" placeholder="ex: um achado que não se encaixa nos campos abaixo"></textarea></div>'
+      +'<div class="bio-col">'
+      +'<div class="bio-grupo"><h4>Observações</h4>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'Observacoes">Observações / alterações<small>texto livre</small></label><textarea id="feto'+uid+'Observacoes" rows="2" placeholder="ex: um achado que não se encaixa nos campos abaixo"></textarea></div>'
+      +'</div>'
+      +'</div>'
+      +'</div>'
 
       +'<p class="feto-sub">Parâmetros biométricos</p>'
       // Quadros por região (2026-10-27, esquema da médica): nome à esquerda,
