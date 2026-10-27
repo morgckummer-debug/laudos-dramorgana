@@ -1646,3 +1646,14 @@ dentro do rótulo. Ids, laudo, Word e rascunho iguais aos da `main`.
 cenários (cada select numa opção, caixas variando), e compara laudo, todos os campos depois do `render()`
 (calculados inclusive), lista de ids, Word, rascunho e o formulário depois de recarregar. A ordem das chaves no
 rascunho muda com a ordem da tela e fica fora da comparação.
+
+## Quadro da paciente: nome em cima, o resto em duas colunas (2026-10-27)
+
+A médica não gostou do G/P/A num quadro sozinho ao lado de "Paciente e exame" e escolheu, entre duas
+opções, um quadro só (`.bio-grupo.bio-paciente`): o nome na linha de cima e, embaixo, `.bio-grade2`
+(grade de 2 colunas, 1 no celular) com CPF e data do exame, médico solicitante e G/P/A. Vale para
+`transvaginal`, `reserva-ovariana`, `perineal` (só data e médico: não tem CPF nem GPA) e os dois
+morfológicos. No morfológico de 1º trimestre, "Dados maternos" virou um segundo quadro largo, com a mesma
+grade (nascimento/idade, peso/altura, IMC/PAM). O quadro "Antecedentes obstétricos" deixou de existir.
+CSS copiado nos cinco `<style>`. Ids, laudo, Word e rascunho iguais aos da `main`
+(`ferramentas/conferir-por-id.mjs`, 5 cenários por laudo).
