@@ -1894,7 +1894,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="bio-col">'
       +bioGrupo(uid, 'Translucência nucal', [
         ['TN','Translucência nucal','TN'],
-        ['TNClasse','Percentil','','',{opcoes:'<option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option>'}]])
+        ['TNPercentil','Percentil','pelo CCN','',{readonly:true}]])
       +bioGrupo(uid, 'Ducto venoso', [
         ['DuctoVenoso','Índice de pulsatilidade','IPV','',{decimais:2}],
         ['DVClasse','Percentil','','',{opcoes:'<option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option>'}],
@@ -2314,6 +2314,23 @@ if(typeof criarMotorLaudo !== 'function'){
   const TN_P5_REG = linRegress(TN_TABLE.map(r=>[r[0],r[1]]));
   const TN_P50_REG = linRegress(TN_TABLE.map(r=>[r[0],r[2]]));
   const TN_P95_REG = linRegress(TN_TABLE.map(r=>[r[0],r[3]]));
+  // Percentil da TN pelo CCN do exame (2026-10-27, pedido da médica), lido
+  // direto da TN_TABLE — não da reta do gráfico. CCN entre duas linhas usa a
+  // linha de baixo (CCN arredondado para baixo): os três percentis crescem
+  // com o CCN, então é a leitura com o P95 menor, a mais conservadora. Entre
+  // P5 e P95 o número sai da mesma normal "dividida" dos marcadores do anexo
+  // (DP inferior = (P50−P5)/1,645, superior = (P95−P50)/1,645); fora disso,
+  // "< P5" / "> P95". CCN fora de 45–84 mm: sem referência, devolve null.
+  function tnPercentil(ccn, tn){
+    if(ccn==null || tn==null || isNaN(ccn) || isNaN(tn)) return null;
+    const linha = TN_TABLE.find(r=>r[0]===Math.floor(ccn));
+    if(!linha) return null;
+    const [, p5, p50, p95] = linha;
+    if(tn > p95) return {txt:'> P95', alerta:true};
+    if(tn < p5) return {txt:'< P5', alerta:false};
+    const z = tn>=p50 ? 1.645*(tn-p50)/(p95-p50) : -1.645*(p50-tn)/(p50-p5);
+    return {txt:'P'+Math.max(5, Math.min(95, Math.round(normalCDF(z)*100))), alerta:false};
+  }
   const DV_TABLE = [
     [44,0.78,1.00,1.22],[48,0.77,1.00,1.24],[52,0.77,1.01,1.26],[56,0.76,1.02,1.27],
     [60,0.76,1.02,1.28],[64,0.75,1.01,1.27],[68,0.74,1.00,1.26],[72,0.73,0.99,1.24],
@@ -2401,7 +2418,7 @@ if(typeof criarMotorLaudo !== 'function'){
     };
     const marcadores = (cfg.marcadores||[]).filter(m=>m.x!=null && m.valor!=null).map(m=>{
       const mMean=valorEm(cfg.mid,m.x), loV=valorEm(cfg.lo,m.x), hiV=valorEm(cfg.hi,m.x);
-      const isAlert = m.valor>hiV || m.valor<loV;
+      let isAlert = m.valor>hiV || m.valor<loV;
       // Uterinas têm fórmula com desvio-padrão de verdade (Gómez et al.,
       // já usada no campo calculado do formulário) — cfg.percentil reusa
       // ela em vez da aproximação genérica de baixo, que assume Gaussiana
@@ -2413,7 +2430,10 @@ if(typeof criarMotorLaudo !== 'function'){
         const z = m.valor>=mMean ? 1.645*(m.valor-mMean)/((hiV-mMean)||1) : -1.645*(mMean-m.valor)/((mMean-loV)||1);
         pctNum = normalCDF(z)*100;
       }
-      const pctText = m.valor>hiV ? '> P95' : m.valor<loV ? '< P5' : 'P'+Math.max(5,Math.min(95,Math.round(pctNum)));
+      let pctText = m.valor>hiV ? '> P95' : m.valor<loV ? '< P5' : 'P'+Math.max(5,Math.min(95,Math.round(pctNum)));
+      // TN: o mesmo percentil do laudo (tabela, não a reta), para os dois não discordarem.
+      const pctTab = cfg.pctTabela ? cfg.pctTabela(m.x, m.valor) : null;
+      if(pctTab){ pctText = pctTab.txt; isAlert = pctTab.alerta || pctTab.txt==='< P5'; }
       return {valor:m.valor, rotulo:m.rotulo, forma:m.forma, cor:m.cor,
         px:sx(m.x), py:sy(m.valor), pctText, isAlert};
     });
@@ -2537,7 +2557,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // não os pontos brutos da tabela.
     { const xsTN = range(45,84,1), lo=[], mid=[], hi=[];
       xsTN.forEach(x=>{ lo.push({x,y:TN_P5_REG.m*x+TN_P5_REG.b}); mid.push({x,y:TN_P50_REG.m*x+TN_P50_REG.b}); hi.push({x,y:TN_P95_REG.m*x+TN_P95_REG.b}); });
-      cfgs.push({titulo:'Transl. Nucal', ref:'Snijders et al., FMF (1998)', unit:'mm', dec:1, xLabel:'CCN (MM)', x:[45,84], y:[0,4], xt:[45,55,65,75,84],
+      cfgs.push({titulo:'Transl. Nucal', ref:'Snijders et al., FMF (1998)', unit:'mm', dec:1, xLabel:'CCN (MM)', x:[45,84], y:[0,4], xt:[45,55,65,75,84], pctTabela:tnPercentil,
         lo, mid, hi, marcadores: marcadoresFetos.map(f=>({x:f.ccn, valor:f.tn, cor:f.cor, forma:f.forma, rotulo:f.rotulo}))});
     }
     // IP ducto venoso × IG (semanas) — a tabela em si (DV_TABLE) é lida por
@@ -3209,7 +3229,14 @@ if(typeof criarMotorLaudo !== 'function'){
       const cordaoTxt = v(pre+'Cordao') || 'duas artérias e uma veia';
 
       const tn = blankOrValue(req(pre+'TN'));
-      const tnClasse = v(pre+'TNClasse') || '<P95';
+      const tnPct = tnPercentil(num(pre+'CCN'), num(pre+'TN'));
+      const tnPctEl = $(pre+'TNPercentil');
+      if(tnPctEl){
+        tnPctEl.value = tnPct ? tnPct.txt
+          : (num(pre+'CCN')!=null && num(pre+'TN')!=null ? 'sem referência (CCN fora de 45–84 mm)' : '');
+        tnPctEl.classList.toggle('flag-abnormal', !!(tnPct && tnPct.alerta));
+      }
+      const tnClasse = tnPct ? tnPct.txt : '';
       const ossoNasal = v(pre+'OssoNasal') || 'Presente';
       const dv = blankOrValue(req(pre+'DuctoVenoso'));
       const dvClasse = v(pre+'DVClasse') || '<P95';
@@ -3391,7 +3418,7 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'marcadores'+sfx, html:'<div>'
         +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Marcadores Ultrassonográficos de Trissomias:</strong></p>'
         +'<table class="biometria">'
-        +'<tr><td>Translucência Nucal (TN):</td><td style="white-space:nowrap;">'+span(f.tn)+' mm ('+escapeHtml(f.tnClasse)+')</td></tr>'
+        +'<tr><td>Translucência Nucal (TN):</td><td style="white-space:nowrap;">'+span(f.tn)+' mm'+(f.tnClasse ? ' ('+escapeHtml(f.tnClasse)+')' : '')+'</td></tr>'
         +'<tr><td>Osso Nasal (ON):</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
         +'<tr><td>Ducto Venoso (DV - IPV):</td><td style="white-space:nowrap;">'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+', onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>'
         +'<tr><td>Válvula Tricúspide (VT):</td><td>'+escapeHtml(f.tricuspide)+'</td></tr>'
