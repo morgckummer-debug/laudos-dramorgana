@@ -977,19 +977,23 @@
     <div class="card">
       <div class="card-head"><h2>Mobilidade (manobras bimanuais)</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Mobilidade uterina</label>
-            <select id="mobilidadeUterina"><option value="preservada">Preservada</option><option value="reduzida">Reduzida</option></select>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Útero</h4>
+              <div class="field bio-linha bio-texto bio-larga"><label for="mobilidadeUterina">Mobilidade uterina</label>
+                <select id="mobilidadeUterina"><option value="preservada">Preservada</option><option value="reduzida">Reduzida</option></select>
+              </div>
+              <div class="field bio-linha bio-texto bio-larga"><label for="slidingSign">Sinal do "sliding"</label>
+                <select id="slidingSign"><option value="">Não descrever (negativo se mobilidade reduzida)</option><option value="positivo">Positivo</option><option value="negativo">Negativo</option></select>
+              </div>
+            </div>
           </div>
-          <div class="field"><label>Sinal do "sliding"</label>
-            <select id="slidingSign"><option value="">Não descrever (negativo se mobilidade reduzida)</option><option value="positivo">Positivo</option><option value="negativo">Negativo</option></select>
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Mobilidade ovariana</label>
-            <div class="toggle-line" style="margin:6px 0 0;"><input type="checkbox" id="chkMobilidadeOvD"><label for="chkMobilidadeOvD">Ovário direito com mobilidade reduzida</label></div>
-            <div class="toggle-line" style="margin:0;"><input type="checkbox" id="chkMobilidadeOvE"><label for="chkMobilidadeOvE">Ovário esquerdo com mobilidade reduzida</label></div>
-            <div class="toggle-line" style="margin:0;"><input type="checkbox" id="chkKissingOvaries"><label for="chkKissingOvaries">Kissing ovaries (ovários em contato na linha média)</label></div>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Ovários</h4>
+              <div class="toggle-line" style="margin:6px 0 0;"><input type="checkbox" id="chkMobilidadeOvD"><label for="chkMobilidadeOvD">Ovário direito com mobilidade reduzida</label></div>
+              <div class="toggle-line" style="margin:0;"><input type="checkbox" id="chkMobilidadeOvE"><label for="chkMobilidadeOvE">Ovário esquerdo com mobilidade reduzida</label></div>
+              <div class="toggle-line" style="margin:0 0 6px;"><input type="checkbox" id="chkKissingOvaries"><label for="chkKissingOvaries">Kissing ovaries (ovários em contato na linha média)</label></div>
+            </div>
           </div>
         </div>
       </div>
@@ -999,26 +1003,36 @@
       <div class="card-head"><h2>Hiperestimulação ovariana (SHO)</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Só o critério visível ao ultrassom — sinalizado na impressão quando o volume de algum ovário passar de 60 cm³ junto com a ascite.</p>
-        <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkAscite"><label for="chkAscite">Ascite</label></div>
+        <div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Critério visível ao ultrassom</h4>
+          <div class="toggle-line" style="margin:6px 0 6px;"><input type="checkbox" id="chkAscite"><label for="chkAscite">Ascite</label></div>
+        </div></div></div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-head"><h2>Corpo lúteo e impressão</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Corpo lúteo</label>
-            <select id="corpoLuteoLado">
-              <option value="direito">Identificado no ovário direito</option>
-              <option value="esquerdo">Identificado no ovário esquerdo</option>
-              <option value="nao_identificado">Não identificado</option>
-            </select>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Corpo lúteo</h4>
+              <div class="field bio-linha bio-texto bio-larga"><label for="corpoLuteoLado">Localização</label>
+                <select id="corpoLuteoLado">
+                  <option value="direito">Identificado no ovário direito</option>
+                  <option value="esquerdo">Identificado no ovário esquerdo</option>
+                  <option value="nao_identificado">Não identificado</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <div class="field"><label>Endométrio</label>
-            <select id="endometrioConcordancia">
-              <option value="concordante">Concordante com a fase do ciclo</option>
-              <option value="discordante">Discordante</option>
-            </select>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Endométrio</h4>
+              <div class="field bio-linha bio-texto"><label for="endometrioConcordancia">Concordância<small>com a fase do ciclo</small></label>
+                <select id="endometrioConcordancia">
+                  <option value="concordante">Concordante com a fase do ciclo</option>
+                  <option value="discordante">Discordante</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
         <hr class="sep">
@@ -1992,16 +2006,14 @@ if(typeof criarMotorLaudo !== 'function'){
   let visitaNextUid = 1;
   function visitaSubgroupHTML(uid){
     return ''
-      +'<div class="subgroup" id="wrap_visita'+uid+'">'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Visita <span class="visita-index"></span> — Data</label><input type="text" inputmode="numeric" id="visita'+uid+'Data" placeholder="20.08.2026"></div>'
-      +'<div class="field"><label>Dia do ciclo</label><input type="text" inputmode="numeric" id="visita'+uid+'Ciclo" placeholder="ex: 12º"></div>'
-      +'<div class="field"><label>OD maior folículo</label><input type="text" id="visita'+uid+'FolD" placeholder="ex: 18 x 16"></div>'
-      +'<div class="field"><label>OE maior folículo</label><input type="text" id="visita'+uid+'FolE" placeholder="ex: 10 x 9"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Padrão endometrial</label><select id="visita'+uid+'EndoPadrao"><option value="trilaminar">Trilaminar</option><option value="ecogenico">Ecogênico</option></select></div>'
-      +'<div class="field"><label>Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="visita'+uid+'EndoEspessura" placeholder="mm"></div>'
+      +'<div class="bio-grupo" id="wrap_visita'+uid+'"><h4>Visita <span class="visita-index"></span></h4>'
+      +'<div class="bio-grade2">'
+      +'<div class="field bio-linha bio-data"><label for="visita'+uid+'Data">Data</label><input type="text" inputmode="numeric" id="visita'+uid+'Data" placeholder="20.08.2026"></div>'
+      +'<div class="field bio-linha"><label for="visita'+uid+'Ciclo">Dia do ciclo</label><input type="text" inputmode="numeric" id="visita'+uid+'Ciclo" placeholder="ex: 12º"></div>'
+      +'<div class="field bio-linha bio-texto"><label for="visita'+uid+'FolD">OD maior folículo<small>mm</small></label><input type="text" id="visita'+uid+'FolD" placeholder="ex: 18 x 16"></div>'
+      +'<div class="field bio-linha bio-texto"><label for="visita'+uid+'FolE">OE maior folículo<small>mm</small></label><input type="text" id="visita'+uid+'FolE" placeholder="ex: 10 x 9"></div>'
+      +'<div class="field bio-linha bio-sel"><label for="visita'+uid+'EndoPadrao">Padrão endometrial</label><select id="visita'+uid+'EndoPadrao"><option value="trilaminar">Trilaminar</option><option value="ecogenico">Ecogênico</option></select></div>'
+      +'<div class="field bio-linha"><label for="visita'+uid+'EndoEspessura">Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="visita'+uid+'EndoEspessura" placeholder="mm"><span class="bio-un">mm</span></div>'
       +'</div>'
       +'<button type="button" class="visita-remove" data-uid="'+uid+'">Remover visita</button>'
       +'</div>';

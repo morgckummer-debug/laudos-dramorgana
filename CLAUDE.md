@@ -1670,3 +1670,11 @@ virou `<div class="conditional show">`). `rastreamento-ovulacao.html` e `monitor
 do útero" (na FIV, ao lado de "Endométrio": padrão e espessura) e os ovários lado a lado com L/AP/T/volume (no
 rastreamento, também os folículos dominantes do 1º exame); aspecto, cistos e a lista de folículos da FIV continuam
 embaixo, com o título `.ov-titulo`. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`).
+
+## Rastreamento de ovulação: visitas, mobilidade e corpo lúteo em quadros (2026-10-27)
+
+Pedido da médica: os cards "Acompanhamento (visitas)", "Mobilidade", "Hiperestimulação" e "Corpo lúteo e
+impressão" ainda estavam no formato antigo. Cada visita agora é um quadro `.bio-grupo` com a grade de 2
+colunas (ids iguais; o `renumberVisitas()` continua achando `.visita-index` e `.visita-remove` dentro do
+quadro). Mobilidade e corpo lúteo/endométrio são dois quadros lado a lado. Sem mudança de cálculo, frase ou
+rascunho: conferido por id contra a `main` e laudo + checklist iguais preenchendo os mesmos valores.
