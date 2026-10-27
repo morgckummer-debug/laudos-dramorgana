@@ -358,6 +358,33 @@
        rodape-final row's usual margin-top would double that gap. */
     .paper .print-page .rodape-final{margin-top:0;}
   }
+  /* Campos em quadros (mesmo padrão dos morfológicos, ver CLAUDE.md):
+     nome à esquerda, caixa curta, unidade à direita. .bio-linha também é
+     .field: anula o empilhamento dela. */
+  .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+  .bio-col{flex:1 1 260px;display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .bio-col:only-child{flex:0 1 520px;}
+  .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
+  .bio-grupo.conditional.show{display:block;}
+  .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);margin:0;}
+  .bio-grupo h4 + .bio-linha, .bio-grupo h4 + div > .bio-linha:first-child{border-top:0;}
+  .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;margin:0;}
+  .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
+  .field.bio-linha .flag-note{margin-top:2px;}
+  .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  .field.bio-linha.bio-sel{grid-template-columns:1fr 170px;}
+  .field.bio-linha select{padding:8px 8px;font-size:13px;}
+  .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
+  .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
+  .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
+  .field.bio-linha.bio-texto.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 64px);justify-content:start;column-gap:10px;}
+  .field.bio-linha.bio-gpa label{font-weight:600;}
+  .field.bio-linha.bio-gpa label:not(:first-child){margin-left:14px;}
+  .ov-titulo{font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;}
+  @media (max-width:720px){ .bio-grupos{flex-direction:column;} .bio-col, .bio-col:only-child{flex:0 0 auto;} }
 </style>
 <script src="tema.js"></script>
 </head>
@@ -640,20 +667,20 @@
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkTransabdominal"><label for="chkTransabdominal">Exame Transabdominal</label></div>
         <div class="toggle-line"><input type="checkbox" id="chkExame3D"><label for="chkExame3D">Exame 3D (avaliação de malformação mülleriana)</label></div>
-        <div class="field-row">
-          <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
-          <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
-          <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Paciente e exame</h4>
+              <div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+              <div class="field bio-linha bio-texto"><label for="cpfPaciente">CPF</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
+              <div class="field bio-linha bio-data"><label for="dataExame">Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
+              <div class="field bio-linha bio-texto"><label for="medicoSolicitante">Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
+            </div>
+          </div>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Antecedentes obstétricos</h4>
+              <div class="field bio-linha bio-gpa"><label for="gpaG">G</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"><label for="gpaP">P</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"><label for="gpaA">A</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+            </div>
+          </div>
         </div>
         <div class="field"><label>Motivo do exame</label><textarea id="motivoExame" rows="3" placeholder="ex: Relato de dor pélvica.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
       </div>
@@ -739,13 +766,14 @@
           </div>
           <hr class="sep">
         </div>
-        <div class="field-row field-row-compact">
-          <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder="cm"></div>
-          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder="cm"></div>
-          <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder="cm"></div>
-          <div class="field"><label>Volume uterino</label>
-            <input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder="cm³">
-            <span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Medidas do útero</h4>
+              <div class="field bio-linha"><label for="uteroL">Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="uteroAP">Anteroposterior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="uteroT">Transverso</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="uteroVolume">Volume uterino<span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder=""><span class="bio-un">cm³</span></div>
+            </div>
           </div>
         </div>
         <hr class="sep">
@@ -810,19 +838,18 @@
         </div>
 
         <hr class="sep">
-        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Endométrio</p>
-        <div class="field-row">
-          <div class="field" id="wrap_endoEspessuraUnica"><label>Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessura" placeholder="mm"></div>
-          <div class="field conditional" id="wrap_endoEspessuraD"><label>Espessura — cavidade direita</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessuraD" placeholder="mm"></div>
-          <div class="field conditional" id="wrap_endoEspessuraE"><label>Espessura — cavidade esquerda</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessuraE" placeholder="mm"></div>
-          <div class="field"><label>Aspecto</label>
-            <select id="endometrioAspecto">
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Endométrio</h4>
+              <div id="wrap_endoEspessuraUnica"><div class="field bio-linha"><label for="endometrioEspessura">Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessura" placeholder=""><span class="bio-un">mm</span></div></div>
+              <div class="conditional" id="wrap_endoEspessuraD"><div class="field bio-linha"><label for="endometrioEspessuraD">Espessura<small>cavidade direita</small></label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessuraD" placeholder=""><span class="bio-un">mm</span></div></div>
+              <div class="conditional" id="wrap_endoEspessuraE"><div class="field bio-linha"><label for="endometrioEspessuraE">Espessura<small>cavidade esquerda</small></label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessuraE" placeholder=""><span class="bio-un">mm</span></div></div>
+              <div class="field bio-linha bio-sel"><label for="endometrioAspecto">Aspecto</label><select id="endometrioAspecto">
               <option value="normal">Normal</option>
               <option value="espessado">Espessado e heterogêneo (menopausa)</option>
-            </select>
-          </div>
-          <div class="field conditional" id="wrap_endometrioPadrao"><label>Padrão</label>
-            <select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option><option value="ecogenico">Ecogênico</option></select>
+            </select></div>
+              <div class="conditional" id="wrap_endometrioPadrao"><div class="field bio-linha bio-sel"><label for="endometrioPadrao">Padrão</label><select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option><option value="ecogenico">Ecogênico</option></select></div></div>
+            </div>
           </div>
         </div>
         <div class="toggle-line"><input type="checkbox" id="chkSinequias"><label for="chkSinequias">Falhas no eco endometrial, sugestivas de sinéquias</label></div>
@@ -851,18 +878,33 @@
             </select>
           </div>
         </div>
-
-        <hr class="sep">
-        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário direito</p>
-        <div class="field-row field-row-compact conditional show" id="wrap_ovD_medidas">
-          <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder="cm"></div>
-          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_AP" placeholder="cm"></div>
-          <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_T" placeholder="cm"></div>
-          <div class="field"><label>Volume</label>
-            <input type="text" inputmode="decimal" data-decimals="1" id="ovD_volume" placeholder="cm³">
-            <span class="flag-note" id="flag_ovD_volume">Fora do valor de referência</span>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Ovário direito</h4>
+              <div class="conditional show" id="wrap_ovD_medidas">
+              <div class="field bio-linha"><label for="ovD_L">Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_L" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovD_AP">Anteroposterior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_AP" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovD_T">Transverso</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovD_T" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovD_volume">Volume<span class="flag-note" id="flag_ovD_volume">Fora do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_volume" placeholder=""><span class="bio-un">cm³</span></div>
+              </div>
+              
+            </div>
+          </div>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Ovário esquerdo</h4>
+              <div class="conditional show" id="wrap_ovE_medidas">
+              <div class="field bio-linha"><label for="ovE_L">Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_L" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovE_AP">Anteroposterior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_AP" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovE_T">Transverso</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_T" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha"><label for="ovE_volume">Volume<span class="flag-note" id="flag_ovE_volume">Fora do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_volume" placeholder=""><span class="bio-un">cm³</span></div>
+              </div>
+              
+            </div>
           </div>
         </div>
+
+        <hr class="sep">
+        <p class="ov-titulo">Ovário direito</p>
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
             <select id="ovD_aspecto">
@@ -944,16 +986,7 @@
         </div>
 
         <hr class="sep">
-        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Ovário esquerdo</p>
-        <div class="field-row field-row-compact conditional show" id="wrap_ovE_medidas">
-          <div class="field"><label>L</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_L" placeholder="cm"></div>
-          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_AP" placeholder="cm"></div>
-          <div class="field"><label>T</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="ovE_T" placeholder="cm"></div>
-          <div class="field"><label>Volume</label>
-            <input type="text" inputmode="decimal" data-decimals="1" id="ovE_volume" placeholder="cm³">
-            <span class="flag-note" id="flag_ovE_volume">Fora do valor de referência</span>
-          </div>
-        </div>
+        <p class="ov-titulo">Ovário esquerdo</p>
         <div class="field-row">
           <div class="field"><label>Aspecto</label>
             <select id="ovE_aspecto">
