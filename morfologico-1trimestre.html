@@ -1897,7 +1897,7 @@ if(typeof criarMotorLaudo !== 'function'){
         ['TNClasse','Percentil','','',{opcoes:'<option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option>'}]])
       +bioGrupo(uid, 'Ducto venoso', [
         ['DuctoVenoso','Índice de pulsatilidade','IPV','',{decimais:2}],
-        ['DVClasse','Percentil','','',{opcoes:'<option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option>'}],
+        ['DVClasse','Percentil','calculado · 11 a 14 semanas','',{readonly:true}],
         ['DVOndaA','Onda A','','',{opcoes:'<option value="Positiva">Positiva</option><option value="Ausente">Ausente</option><option value="Reversa">Reversa</option>'}]])
       +'</div>'
       +'<div class="bio-col">'
@@ -2211,6 +2211,23 @@ if(typeof criarMotorLaudo !== 'function'){
     const t = 1/(1+p*az);
     const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-az*az);
     return 0.5*(1+sign*y);
+  }
+  // ---------- IPV do ducto venoso, 11 a 14 semanas (2026-10-27): referência
+  // enviada pela médica, só P5 = 0,69, mediana = 0,92 e P95 = 1,13, sem divisão
+  // por IG nem por CCN. O percentil entre P5 e P95 é aproximado pela normal
+  // "dividida" (DP inferior = (P50−P5)/1,645, superior = (P95−P50)/1,645), a
+  // mesma conta do selo dos gráficos de referência: exato nos três pontos da
+  // tabela, estimado entre eles. Fora da faixa sai "< P5" / "> P95"; fora de
+  // 11s0d–14s0d (ou sem IG) não sai percentil nenhum.
+  const DV_IPV_REF = {p5:0.69, p50:0.92, p95:1.13};
+  function dvPercentil(ipv, gaDays){
+    if(ipv==null || isNaN(ipv) || gaDays==null || isNaN(gaDays)) return null;
+    if(gaDays < 77 || gaDays > 98) return null;
+    const r = DV_IPV_REF;
+    if(ipv > r.p95) return {texto:'> P95', alterado:true};
+    if(ipv < r.p5) return {texto:'< P5', alterado:false};
+    const z = ipv >= r.p50 ? 1.645*(ipv-r.p50)/(r.p95-r.p50) : -1.645*(r.p50-ipv)/(r.p50-r.p5);
+    return {texto:'P'+Math.max(5, Math.min(95, Math.round(normalCDF(z)*100))), alterado:false};
   }
   function gomezPercentilUterina(gaDays, piMedio){
     if(gaDays==null || isNaN(gaDays) || piMedio==null || isNaN(piMedio)) return null;
@@ -3212,7 +3229,14 @@ if(typeof criarMotorLaudo !== 'function'){
       const tnClasse = v(pre+'TNClasse') || '<P95';
       const ossoNasal = v(pre+'OssoNasal') || 'Presente';
       const dv = blankOrValue(req(pre+'DuctoVenoso'));
-      const dvClasse = v(pre+'DVClasse') || '<P95';
+      const dvPct = dvPercentil(num(pre+'DuctoVenoso'), gaDays);
+      const dvClasseEl = $(pre+'DVClasse');
+      if(dvClasseEl){
+        dvClasseEl.value = dvPct ? dvPct.texto
+          : (num(pre+'DuctoVenoso')==null ? '' : (gaDays==null ? 'informe a IG' : 'fora de 11 a 14 semanas'));
+        dvClasseEl.classList.toggle('flag-abnormal', !!(dvPct && dvPct.alterado));
+      }
+      const dvClasse = dvPct ? dvPct.texto : '';
       const dvOndaA = v(pre+'DVOndaA') || 'Positiva';
       const tricuspide = v(pre+'Tricuspide') || 'Sem regurgitação';
       const pelves = v(pre+'Pelves') || 'Sem dilatação';
@@ -3393,7 +3417,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<table class="biometria">'
         +'<tr><td>Translucência Nucal (TN):</td><td style="white-space:nowrap;">'+span(f.tn)+' mm ('+escapeHtml(f.tnClasse)+')</td></tr>'
         +'<tr><td>Osso Nasal (ON):</td><td>'+escapeHtml(f.ossoNasal)+'</td></tr>'
-        +'<tr><td>Ducto Venoso (DV - IPV):</td><td style="white-space:nowrap;">'+span(f.dv)+' ('+escapeHtml(f.dvClasse)+', onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>'
+        +'<tr><td>Ducto Venoso (DV - IPV):</td><td style="white-space:nowrap;">'+span(f.dv)+' ('+(f.dvClasse ? escapeHtml(f.dvClasse)+', ' : '')+'onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>'
         +'<tr><td>Válvula Tricúspide (VT):</td><td>'+escapeHtml(f.tricuspide)+'</td></tr>'
         +'<tr><td>Dilatação das pelves renais:</td><td>'+escapeHtml(f.pelves)+'</td></tr>'
         +'<tr><td>Bexiga fetal:</td><td style="white-space:nowrap;">'+span(f.bexiga)+' mm</td></tr>'
