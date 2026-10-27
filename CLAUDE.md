@@ -1671,6 +1671,14 @@ do útero" (na FIV, ao lado de "Endométrio": padrão e espessura) e os ovários
 rastreamento, também os folículos dominantes do 1º exame); aspecto, cistos e a lista de folículos da FIV continuam
 embaixo, com o título `.ov-titulo`. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`).
 
+## Rastreamento de ovulação: visitas, mobilidade e corpo lúteo em quadros (2026-10-27)
+
+Pedido da médica: os cards "Acompanhamento (visitas)", "Mobilidade", "Hiperestimulação" e "Corpo lúteo e
+impressão" ainda estavam no formato antigo. Cada visita agora é um quadro `.bio-grupo` com a grade de 2
+colunas (ids iguais; o `renumberVisitas()` continua achando `.visita-index` e `.visita-remove` dentro do
+quadro). Mobilidade e corpo lúteo/endométrio são dois quadros lado a lado. Sem mudança de cálculo, frase ou
+rascunho: conferido por id contra a `main` e laudo + checklist iguais preenchendo os mesmos valores.
+
 ## Morfológicos: a conclusão leva só o "Resumo" do segmento alterado (2026-10-27)
 
 Pedido da médica. Nos dois morfológicos, um segmento em "Alterado (descrever)" tem a descrição (vai inteira para o corpo do laudo) e o "Resumo para a conclusão diagnóstica". Só o Resumo entra na impressão diagnóstica. Antes, com o Resumo vazio, a conclusão repetia a descrição inteira. Agora, sem Resumo, o achado fica fora da conclusão e aparece embaixo do campo o aviso `feto{uid}{Seg}ResumoAviso` ("Sem resumo, este achado não entra na conclusão diagnóstica."), que fica no formulário e não sai na impressão. A frase de ausência de anomalias continua não saindo (`f.morfoAlterado`, separado de `f.alteracoes`, que só tem os segmentos com resumo). Os outros laudos com "Alterado (descrever)" não têm campo de Resumo e não mudaram.
