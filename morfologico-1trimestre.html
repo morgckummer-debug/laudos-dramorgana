@@ -728,6 +728,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Conclusão com 2+ achados — osso nasal ausente</label><textarea id="ph_impAchadoONAusente" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Conclusão com 2+ achados — osso nasal hipoplásico</label><textarea id="ph_impAchadoONHipoplasico" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Conclusão com 2+ achados — TN acima do P95</label><textarea id="ph_impAchadoTN" rows="1"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Conclusão com 2+ achados — higroma cístico</label><textarea id="ph_impAchadoHigroma" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Conclusão com 2+ achados — IP do ducto venoso acima do P95</label><textarea id="ph_impAchadoDV" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Conclusão com 2+ achados — regurgitação tricúspide</label><textarea id="ph_impAchadoTricuspide" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Conclusão com 2+ achados — conduta da regurgitação tricúspide</label><textarea id="ph_impTricuspideConduta" rows="1"></textarea></div>
@@ -1692,6 +1693,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impAchadoONAusente: 'Osso nasal ausente',
     impAchadoONHipoplasico: 'Osso nasal hipoplásico',
     impAchadoTN: 'TN >P95',
+    impAchadoHigroma: 'Higroma cístico',
     impAchadoDV: 'IP DV >P95',
     impAchadoTricuspide: 'Regurgitação da válvula tricúspide',
     impTricuspideConduta: 'Sugere-se reavaliação com 16 semanas e ecocardiograma entre 24 e 28 semanas.',
@@ -1880,6 +1882,50 @@ if(typeof criarMotorLaudo !== 'function'){
     {key:'Extremidades', slug:'extremidades', titulo:'Extremidades', phrase:'morfoExtremidades'},
   ];
 
+
+  // Achados prontos por segmento (2026-10-28, pedido da médica): a lista dentro
+  // da caixa "Descreva o achado" preenche a descrição (corpo do laudo) e o
+  // resumo (conclusão). Os trechos [entre colchetes] são para completar à mão.
+  // Não são frases do painel: ficam aqui, editáveis só depois de inseridas.
+  const MORFO_PRONTOS = {
+    Cranio: [
+      {nome:'Acrania / exencefalia', corpo:'Ausência da calota craniana, com tecido encefálico exposto ao líquido amniótico, de contornos irregulares. Demais estruturas intracranianas não avaliáveis', resumo:'Acrania (sequência acrania–exencefalia–anencefalia)'},
+      {nome:'Holoprosencefalia alobar', corpo:'Calota craniana íntegra, com contornos regulares. Ausência da foice do cérebro e do sinal da "borboleta", com cavidade ventricular única e tálamos fundidos. Pedúnculo cerebral, cisterna magna e 4º ventrículo de aspectos usuais. "Crash-sign" ausente', resumo:'Achados compatíveis com holoprosencefalia alobar'},
+      {nome:'Encefalocele', corpo:'Falha óssea da calota craniana em região [occipital], com herniação de meninges e tecido encefálico, medindo [X] mm. Foice do cérebro de aspecto normal. Ventrículos laterais normais', resumo:'Encefalocele [occipital]'},
+      {nome:'Sinais de fossa posterior (defeito aberto do tubo neural)', corpo:'Calota craniana íntegra, com contornos regulares e conformação normal. Foice do cérebro de aspecto normal. Ventrículos laterais normais. Translucência intracraniana (4º ventrículo) não visualizada, com cisterna magna obliterada e deslocamento posterior do pedúnculo cerebral. "Crash-sign" presente', resumo:'Sinais indiretos de defeito aberto do tubo neural na fossa posterior'}
+    ],
+    Face: [
+      {nome:'Fenda labiopalatina', corpo:'Perfil usual. Ausência de retromicrognatia. Triângulo retronasal com descontinuidade do palato primário à [direita/esquerda/bilateral]. Presença do Gap Mandibular', resumo:'Suspeita de fenda labiopalatina [à direita/à esquerda/bilateral]'},
+      {nome:'Retromicrognatia', corpo:'Perfil com retração da mandíbula (retromicrognatia). Triângulo facial de aspecto usual e ausência do Gap Mandibular', resumo:'Retromicrognatia'},
+      {nome:'Hipotelorismo / probóscide', corpo:'Perfil alterado, com [hipotelorismo] [e estrutura de partes moles acima das órbitas, sugestiva de probóscide]. Ausência de retromicrognatia', resumo:'[Hipotelorismo / probóscide]'}
+    ],
+    Torax: [
+      {nome:'Hérnia diafragmática', corpo:'Coração desviado para a [direita], com bolha gástrica identificada no tórax, ao nível do corte de quatro câmaras', resumo:'Suspeita de hérnia diafragmática congênita à [esquerda]'},
+      {nome:'Assimetria das câmaras cardíacas', corpo:'Coração em levocardia. Corte de quatro câmaras com assimetria ventricular, com ventrículo [esquerdo] reduzido ao Doppler colorido', resumo:'Assimetria das câmaras cardíacas. Sugere-se ecocardiografia fetal'},
+      {nome:'Defeito do septo atrioventricular', corpo:'Coração em levocardia. Corte de quatro câmaras com fluxo de enchimento ventricular único ao Doppler colorido, sem separação das vias de entrada direita e esquerda', resumo:'Suspeita de defeito do septo atrioventricular. Sugere-se ecocardiografia fetal'},
+      {nome:'Eixo cardíaco desviado', corpo:'Coração em levocardia, com eixo cardíaco desviado ([X] graus) e dimensões usuais', resumo:'Eixo cardíaco desviado. Sugere-se ecocardiografia fetal'},
+      {nome:'Ectopia cordis', corpo:'Coração localizado fora da cavidade torácica, através de defeito da parede torácica anterior', resumo:'Ectopia cordis'}
+    ],
+    Abdome: [
+      {nome:'Onfalocele', corpo:'A bexiga e a bolha gástrica foram identificadas e apresentam aspectos normais. Defeito da parede abdominal anterior na inserção do cordão umbilical, com herniação de [alças intestinais/fígado] recoberta por membrana, medindo [X] mm. Rins identificados bilateralmente', resumo:'Onfalocele [com conteúdo hepático]'},
+      {nome:'Gastrosquise', corpo:'A bexiga e a bolha gástrica foram identificadas. Defeito da parede abdominal à direita da inserção do cordão umbilical, que é normoinserido, com alças intestinais livres no líquido amniótico, sem membrana de revestimento. Rins identificados bilateralmente', resumo:'Gastrosquise'},
+      {nome:'Megabexiga', corpo:'Bexiga de dimensões aumentadas, com diâmetro longitudinal de [X] mm. Bolha gástrica identificada e de aspecto normal. Parede abdominal íntegra com cordão umbilical normoinserido. Rins identificados bilateralmente', resumo:'Megabexiga'},
+      {nome:'Bolha gástrica não visualizada', corpo:'A bexiga foi identificada e apresenta aspecto normal. Bolha gástrica não identificada no presente exame. Parede abdominal íntegra com cordão umbilical normoinserido. Rins identificados bilateralmente', resumo:'Bolha gástrica não visualizada. Sugere-se reavaliação'},
+      {nome:'Anomalia do pedículo embrionário (body stalk)', corpo:'Extenso defeito da parede abdominal, com órgãos abdominais em contato com o celoma extraembrionário, cordão umbilical curto e escoliose acentuada', resumo:'Achados compatíveis com anomalia do pedículo embrionário (body stalk)'}
+    ],
+    Coluna: [
+      {nome:'Espinha bífida aberta', corpo:'Descontinuidade dos elementos posteriores da coluna em região [lombossacra], [com/sem] formação cística associada', resumo:'Defeito aberto do tubo neural (espinha bífida) em região [lombossacra]'},
+      {nome:'Escoliose / cifoescoliose', corpo:'Alteração do alinhamento da coluna vertebral, com [escoliose/cifoescoliose] acentuada em região [torácica/lombar]', resumo:'[Escoliose/cifoescoliose] fetal'}
+    ],
+    Extremidades: [
+      {nome:'Redução de membro', corpo:'Ausência de [antebraço e mão] do membro [superior direito]. Demais membros de aspecto normal em seus diferentes segmentos. Ecogenicidade óssea normal', resumo:'Redução do membro [superior direito] ([ausência de antebraço e mão])'},
+      {nome:'Polidactilia', corpo:'Os membros superiores e inferiores apresentam aspecto normal em seus diferentes segmentos. Presença de dígito extranumerário na [mão/pé] [direita/esquerda], [pós-axial]. Ecogenicidade óssea normal', resumo:'Polidactilia [pós-axial] [mão direita]'},
+      {nome:'Mãos cerradas com sobreposição dos dedos', corpo:'Os membros superiores e inferiores apresentam aspecto normal em seus diferentes segmentos. Mãos persistentemente cerradas, com sobreposição dos dedos. Pés de conformação usual. Ecogenicidade óssea normal', resumo:'Mãos cerradas com sobreposição dos dedos'},
+      {nome:'Pé torto', corpo:'Os membros superiores e inferiores apresentam aspecto normal em seus diferentes segmentos. Pé [direito] em adução e inversão, com a planta visualizada no mesmo plano da tíbia e da fíbula. Ecogenicidade óssea normal', resumo:'Suspeita de pé torto [à direita]. Sugere-se reavaliação no morfológico do 2º trimestre'},
+      {nome:'Ossos longos curtos / displasia esquelética', corpo:'Ossos longos curtos [e encurvados] em relação à idade gestacional. Mãos e pés de conformação usual. Ecogenicidade óssea [reduzida]', resumo:'Suspeita de displasia esquelética'}
+    ]
+  };
+
   // Um quadro de medidas do cartão do feto (mesmo molde do morfológico de
   // 2º/3º trimestre). Cada item: [sufixo do id, nome, sigla/nota, unidade,
   // opções]. Unidade ausente = 'mm'; '' = sem unidade. Opções: modo
@@ -1905,10 +1951,16 @@ if(typeof criarMotorLaudo !== 'function'){
   // Avaliação morfológica em quadro, como os demais cards (2026-10-27): um select
   // por segmento e, abaixo dele, a descrição e o resumo quando "Alterado". Ids e
   // textos iguais aos de antes.
+  function prontoSelect(uid, k){
+    const lista = MORFO_PRONTOS[k] || [];
+    if(!lista.length) return '';
+    return '<select id="feto'+uid+k+'Pronto" class="pronto" style="margin-bottom:6px;"><option value="">Inserir achado pronto…</option>'
+      + lista.map((a, i)=>'<option value="'+i+'">'+escapeHtml(a.nome)+'</option>').join('')+'</select>';
+  }
   function morfoQuadro(uid){
     const seg = (k, nome)=>
       '<div class="field bio-linha bio-sel"><label for="feto'+uid+k+'">'+nome+'</label><select id="feto'+uid+k+'"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+k+'Descricao"><label>Descreva o achado — '+nome+'</label><textarea id="feto'+uid+k+'Descricao" rows="2"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+k+'Descricao"><label>Descreva o achado — '+nome+'</label>'+prontoSelect(uid,k)+'<textarea id="feto'+uid+k+'Descricao" rows="2"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+k+'Resumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+k+'Resumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+k+'ResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>';
     return '<p class="feto-sub">Avaliação morfológica fetal</p>'
       +'<div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Segmentos fetais</h4>'
@@ -1963,7 +2015,8 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="bio-col">'
       +bioGrupo(uid, 'Translucência nucal', [
         ['TN','Translucência nucal','TN'],
-        ['TNPercentil','Percentil','pelo CCN','',{readonly:true}]])
+        ['TNPercentil','Percentil','pelo CCN','',{readonly:true}],
+        ['Higroma','Higroma cístico','','',{opcoes:'<option value="Ausente">Ausente</option><option value="Presente">Presente</option>'}]])
       +bioGrupo(uid, 'Ducto venoso', [
         ['DuctoVenoso','Índice de pulsatilidade','IPV','',{decimais:2}],
         ['DVClasse','Percentil','calculado · 11 a 14 semanas','',{readonly:true}],
@@ -2065,6 +2118,26 @@ if(typeof criarMotorLaudo !== 'function'){
     MORFO_SEGMENTOS.forEach(seg=>{
       const sel = $('feto'+uid+seg.key);
       if(sel) sel.addEventListener('change', ()=>{ if(prefillSegmentoDescricao(uid, seg)) render(); });
+    });
+    // Achado pronto: preenche descrição e resumo e volta o seletor ao título,
+    // então o rascunho nunca guarda a escolha (e a restauração não reescreve
+    // o que a médica já editou).
+    MORFO_SEGMENTOS.forEach(seg=>{
+      const pr = $('feto'+uid+seg.key+'Pronto');
+      if(!pr) return;
+      pr.addEventListener('change', ()=>{
+        const a = (MORFO_PRONTOS[seg.key] || [])[parseInt(pr.value, 10)];
+        pr.value = '';
+        if(!a) return;
+        const box = $('feto'+uid+seg.key+'Descricao');
+        const res = $('feto'+uid+seg.key+'Resumo');
+        const atual = box.value.trim().replace(/\.+\s*$/, '');
+        const generica = phraseRaw(seg.phrase).replace(/\.+\s*$/, '');
+        if(atual && atual !== generica && atual !== a.corpo && !confirm('Substituir a descrição já escrita pelo achado pronto "'+a.nome+'"?')) return;
+        box.value = a.corpo;
+        res.value = a.resumo;
+        render();
+      });
     });
     updateFetoWraps(uid);
     el.querySelector('.feto-remove').addEventListener('click', ()=>{
@@ -2912,6 +2985,7 @@ if(typeof criarMotorLaudo !== 'function'){
       if(f.ossoNasal === 'Ausente') achados.push({key:'on-ausente', ...curto('impAchadoONAusente')});
       if(f.ossoNasal === 'Hipoplásico') achados.push({key:'on-hipoplasico', ...curto('impAchadoONHipoplasico')});
       if(f.tnAlterada) achados.push({key:'tn', ...curto('impAchadoTN')});
+      if(f.higroma) achados.push({key:'higroma', ...curto('impAchadoHigroma')});
       if(f.dvAlterado) achados.push({key:'dv', ...curto('impAchadoDV')});
       const tr = f.tricuspide === 'Com regurgitação';
       if(tr) achados.push({key:'tricuspide', curto:phraseRaw('impAchadoTricuspide'), unico:phraseRaw('impTricuspideAlterada'), italic:true});
@@ -3371,6 +3445,7 @@ if(typeof criarMotorLaudo !== 'function'){
         tnPctEl.classList.toggle('flag-abnormal', !!(tnPct && tnPct.alerta));
       }
       const tnClasse = tnPct ? tnPct.txt : '';
+      const higroma = v(pre+'Higroma') === 'Presente';
       const ossoNasal = v(pre+'OssoNasal') || 'Presente';
       const dv = blankOrValue(req(pre+'DuctoVenoso'));
       const dvPct = dvPercentil(num(pre+'DuctoVenoso'), gaDays);
@@ -3396,7 +3471,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       return {uid, label, ccn, dbp, cc, ca, cf, fc, segmentos, alteracoes, morfoAlterado,
         tic, ponte, ponteOcc, ppoTxt, cordaoTxt,
-        tn, tnClasse, ossoNasal, dv, dvClasse, dvOndaA, tricuspide, pelves, bexiga,
+        tn, tnClasse, higroma, ossoNasal, dv, dvClasse, dvOndaA, tricuspide, pelves, bexiga,
         auu: cordaoTxt === 'artéria umbilical única', tnAlterada: !!(tnPct && tnPct.alerta), dvAlterado: !!(dvPct && dvPct.alterado),
         riscoT21, riscoT18, riscoT13, riscoAlto};
     });
@@ -3572,6 +3647,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Marcadores Ultrassonográficos de Trissomias:</strong></p>'
         +'<table class="biometria">'
         +'<tr><td>Translucência Nucal (TN):</td><td style="white-space:nowrap;">'+emSe(f.tnAlterada, span(f.tn)+' mm')+(f.tnClasse ? ' ('+emSe(f.tnAlterada, escapeHtml(f.tnClasse))+')' : '')+'</td></tr>'
+        +(f.higroma ? '<tr><td>Higroma cístico:</td><td><i>Presente</i></td></tr>' : '')
         +'<tr><td>Osso Nasal (ON):</td><td>'+emSe(f.ossoNasal !== 'Presente', escapeHtml(f.ossoNasal))+'</td></tr>'
         +'<tr><td>Ducto Venoso (DV - IPV):</td><td style="white-space:nowrap;">'+emSe(f.dvAlterado, span(f.dv))+' ('+(f.dvClasse ? emSe(f.dvAlterado, escapeHtml(f.dvClasse))+', ' : '')+'onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>'
         +'<tr><td>Válvula Tricúspide (VT):</td><td>'+emSe(f.tricuspide === 'Com regurgitação', escapeHtml(f.tricuspide))+'</td></tr>'
