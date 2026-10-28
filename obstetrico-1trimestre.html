@@ -712,6 +712,23 @@
               </div>
             </div>
           </div>
+          <div class="bio-grupo conditional" id="wrap_molaCampos"><h4>Mola hidatiforme</h4>
+            <div class="field bio-linha bio-texto bio-larga"><label for="molaMedida">Medida (cm)</label><input type="text" id="molaMedida" placeholder="ex: 6,5 x 5,8 x 4,2"></div>
+            <div class="field bio-linha"><label for="molaVolume">Volume estimado</label><input type="text" inputmode="decimal" data-decimals="1" id="molaVolume" placeholder=""><span class="bio-un">cm³</span></div>
+            <div class="toggle-line"><input type="checkbox" id="molaFetoPresente"><label for="molaFetoPresente">Feto/embrião presente</label></div>
+            <div class="toggle-line"><input type="checkbox" id="molaFetoAusente"><label for="molaFetoAusente">Feto/embrião ausente</label></div>
+            <div class="conditional" id="wrap_molaFetoCampos">
+              <div class="field bio-linha"><label for="molaCcn">Comprimento cabeça-nádega (CCN)</label><input type="text" inputmode="decimal" data-decimals="1" id="molaCcn" placeholder=""><span class="bio-un">mm</span></div>
+              <div class="field bio-linha bio-sel bio-sel-larga"><label for="molaVitalidade">Vitalidade</label><select id="molaVitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>
+            </div>
+            <div class="conditional" id="wrap_molaFc">
+              <div class="field bio-linha"><label for="molaFc">Frequência cardíaca fetal</label><input type="text" inputmode="numeric" maxlength="3" id="molaFc" placeholder=""><span class="bio-un">bpm</span></div>
+            </div>
+            <div class="conditional" id="wrap_molaIgCampos">
+              <div class="field bio-linha bio-ig"><label for="molaIgSemanas">IG pelo CCN</label><input type="text" inputmode="numeric" id="molaIgSemanas" placeholder="8"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="molaIgDias" placeholder="3" aria-label="IG pelo CCN — dias"><span class="bio-un">dias</span></div>
+            </div>
+          </div>
+        </div><div class="bio-col">
       <div class="bio-grupo conditional show" id="wrap_sacoPresenteBloco"><h4>Saco gestacional</h4>
         <div class="field bio-linha bio-sel"><label for="sacoPresente">Saco gestacional</label>
           <select id="sacoPresente"><option value="sim">Presente</option><option value="nao">Ausente</option></select>
@@ -729,22 +746,6 @@
           <div class="field bio-linha bio-larga"><label for="perdaSemSacoDescricao">Observações adicionais (opcional)</label><textarea id="perdaSemSacoDescricao" rows="2" placeholder="ex: conteúdo heterogêneo com áreas anecoicas de permeio..."></textarea></div>
         </div>
       </div>
-          <div class="bio-grupo conditional" id="wrap_molaCampos"><h4>Mola hidatiforme</h4>
-            <div class="field bio-linha bio-texto bio-larga"><label for="molaMedida">Medida (cm)</label><input type="text" id="molaMedida" placeholder="ex: 6,5 x 5,8 x 4,2"></div>
-            <div class="field bio-linha"><label for="molaVolume">Volume estimado</label><input type="text" inputmode="decimal" data-decimals="1" id="molaVolume" placeholder=""><span class="bio-un">cm³</span></div>
-            <div class="toggle-line"><input type="checkbox" id="molaFetoPresente"><label for="molaFetoPresente">Feto/embrião presente</label></div>
-            <div class="toggle-line"><input type="checkbox" id="molaFetoAusente"><label for="molaFetoAusente">Feto/embrião ausente</label></div>
-            <div class="conditional" id="wrap_molaFetoCampos">
-              <div class="field bio-linha"><label for="molaCcn">Comprimento cabeça-nádega (CCN)</label><input type="text" inputmode="decimal" data-decimals="1" id="molaCcn" placeholder=""><span class="bio-un">mm</span></div>
-              <div class="field bio-linha bio-sel bio-sel-larga"><label for="molaVitalidade">Vitalidade</label><select id="molaVitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>
-            </div>
-            <div class="conditional" id="wrap_molaFc">
-              <div class="field bio-linha"><label for="molaFc">Frequência cardíaca fetal</label><input type="text" inputmode="numeric" maxlength="3" id="molaFc" placeholder=""><span class="bio-un">bpm</span></div>
-            </div>
-            <div class="conditional" id="wrap_molaIgCampos">
-              <div class="field bio-linha bio-ig"><label for="molaIgSemanas">IG pelo CCN</label><input type="text" inputmode="numeric" id="molaIgSemanas" placeholder="8"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="molaIgDias" placeholder="3" aria-label="IG pelo CCN — dias"><span class="bio-un">dias</span></div>
-            </div>
-          </div>
         </div></div>
       </div>
     </div>
