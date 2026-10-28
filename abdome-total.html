@@ -164,6 +164,7 @@
   .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);margin:0;}
   .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
   .field.bio-linha.bio-sel.bio-sel-larga{grid-template-columns:1fr 240px;}
+  .field.bio-linha.conditional{display:none;}
   .field.bio-linha.conditional.show{display:grid;}
   .bio-grupo .field.conditional.show{margin:4px 0 8px;}
   .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
@@ -533,7 +534,7 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 </div>
 <div class="card">
 <div class="card-head"><h2>Fígado</h2></div>
-<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Aspecto</h4>
 <div><div class="field bio-linha bio-larga"><label for="figadoAspecto">Aspecto</label><select id="figadoAspecto">
 <option value="normal">Normal (dimensões, forma, parênquima e veia porta usuais)</option>
 <option value="esteatose">Esteatose hepática (aumento difuso da ecogenicidade)</option>
@@ -550,9 +551,9 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 <div class="conditional" id="wrap_figadoCistoCampos"><div id="figadoCistoContainer"></div><button class="btn-clear" id="btnAddFigadoCisto" style="margin:2px 0 10px;" type="button">+ Adicionar cisto</button></div>
 <div class="toggle-line" style="margin-bottom:6px;"><input id="chkFigadoHemangioma" type="checkbox"/><label for="chkFigadoHemangioma">Hemangioma(s)</label></div>
 <div class="conditional" id="wrap_figadoHemangiomaCampos"><div id="figadoHemangiomaContainer"></div><button class="btn-clear" id="btnAddFigadoHemangioma" style="margin:2px 0 10px;" type="button">+ Adicionar hemangioma</button></div>
-<hr class="sep"/>
+</div></div><div class="bio-col"><div class="bio-grupo"><h4>Medidas</h4>
 <div><div class="field bio-linha"><label for="figadoLoboDireito">Lobo direito (eixo longitudinal)<span class="vr">VR até 15,5 cm</span><span class="flag-note" id="flag_figadoLoboDireito">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="figadoLoboDireito" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="figadoLoboEsquerdo">Lobo esquerdo (eixo longitudinal)<span class="vr">VR até 11,0 cm</span><span class="flag-note" id="flag_figadoLoboEsquerdo">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="figadoLoboEsquerdo" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div>
-<hr class="sep"/>
+</div><div class="bio-grupo"><h4>Esteatose (QUS)</h4>
 <div class="toggle-line" style="margin-bottom:8px;"><input id="chkEsteatose" type="checkbox"/><label for="chkEsteatose">Incluir quantificação de esteatose hepática pelo método QUS</label></div>
 <div class="conditional" id="wrap_esteatose"><div class="field bio-linha"><label for="pctGordura">Gordura estimada (QUS)<span class="grau-live" id="grauEsteatoseLabel"></span></label><input data-decimals="1" data-maxint="3" id="pctGordura" inputmode="decimal" type="text"/><span class="bio-un">%</span></div><div>
 <table class="ref-table">
@@ -569,7 +570,7 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 </div>
 <div class="card">
 <div class="card-head"><h2>Vesícula e vias biliares</h2></div>
-<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Vesícula biliar</h4>
 <div><div class="field bio-linha bio-larga"><label for="vesiculaAspecto">Aspecto</label><select id="vesiculaAspecto">
 <option value="normal">Normal (volume, paredes e conteúdo usuais, sem cálculos nem dilatação das vias biliares)</option>
 <option value="calculo">Cálculo(s)</option>
@@ -582,7 +583,7 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 <div class="conditional" id="wrap_vesiculaPolipoCampos"><div class="field bio-linha bio-sel"><label for="vesiculaPolipoParede">Parede</label><select id="vesiculaPolipoParede"><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="infundibular">Infundibular</option></select></div><div class="field bio-linha"><label for="vesiculaPolipoTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="vesiculaPolipoTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
 <div class="conditional" id="wrap_vesiculaColecistiteCampos"><div class="field bio-linha"><label for="vesiculaColecistiteEspessura">Espessura da parede<span class="vr">VR até 3,0 mm</span><span class="flag-note" id="flag_vesiculaColecistiteEspessura">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="1" id="vesiculaColecistiteEspessura" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
 <div class="field bio-linha bio-larga conditional" id="wrap_vesiculaDescricao"><label for="vesiculaDescricao">Descreva o achado</label><textarea id="vesiculaDescricao" placeholder="descrição completa do achado..." rows="2"></textarea></div>
-<hr class="sep"/>
+</div></div><div class="bio-col"><div class="bio-grupo"><h4>Hepatocolédoco</h4>
 <div><div class="field bio-linha"><label for="hepatocoledoco">Hepatocolédoco (diâmetro)<span class="vr" id="vr_hepatocoledoco">VR até 6 mm</span><span class="flag-note" id="flag_hepatocoledoco">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="hepatocoledoco" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
 </div></div></div></div>
 </div>
@@ -602,8 +603,8 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 </div>
 <div class="card" id="cardRins">
 <div class="card-head"><h2>Rins</h2></div>
-<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Rins</h4>
-<div><div class="field bio-linha"><label for="rimDireitoMedida">Rim direito</label><input data-decimals="1" data-maxint="2" id="rimDireitoMedida" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="rimEsquerdoMedida">Rim esquerdo</label><input data-decimals="1" data-maxint="2" id="rimEsquerdoMedida" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div></div><div class="bio-grupo"><h4>Achados — rim direito (marque quantos se aplicarem)</h4>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Rim direito</h4>
+<div class="field bio-linha"><label for="rimDireitoMedida">Medida</label><input data-decimals="1" data-maxint="2" id="rimDireitoMedida" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div>
 <div class="achado-grid">
 <div class="toggle-line"><input checked="" id="rinsDNormal" type="checkbox"/><label for="rinsDNormal">Normal (cortical, diferenciação córtico-medular e sistema coletor usuais, sem cálculos)</label></div>
 <div class="toggle-line"><input id="rinsDCalculo" type="checkbox"/><label for="rinsDCalculo">Cálculo(s) renal(is)</label></div>
@@ -644,7 +645,8 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 </select></div></div>
 <div class="conditional" id="wrap_rinsDHidroCortical"><div class="field bio-linha"><label for="rinsDHidroCortical">Espessura cortical (facultativo)</label><input data-decimals="1" data-maxint="2" id="rinsDHidroCortical" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
 <div class="conditional" id="wrap_rinsDUreter"><div class="field bio-linha bio-sel"><label for="rinsDUreterTerco">Terço do ureter</label><select id="rinsDUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select></div><div class="field bio-linha"><label for="rinsDUreterTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="rinsDUreterTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div><div class="field bio-linha bio-sel"><label for="rinsDUreterHidro">Hidronefrose a montante</label><select id="rinsDUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select></div></div>
-<div class="field bio-linha bio-larga conditional" id="wrap_rinsDDescricao"><label for="rinsDDescricao">Descreva o achado</label><textarea id="rinsDDescricao" placeholder="ex: cálculo no rim direito medindo...; dilatação pielocalicinal..." rows="2"></textarea></div></div><div class="bio-grupo"><h4>Achados — rim esquerdo (marque quantos se aplicarem)</h4>
+<div class="field bio-linha bio-larga conditional" id="wrap_rinsDDescricao"><label for="rinsDDescricao">Descreva o achado</label><textarea id="rinsDDescricao" placeholder="ex: cálculo no rim direito medindo...; dilatação pielocalicinal..." rows="2"></textarea></div></div></div><div class="bio-col"><div class="bio-grupo"><h4>Rim esquerdo</h4>
+<div class="field bio-linha"><label for="rimEsquerdoMedida">Medida</label><input data-decimals="1" data-maxint="2" id="rimEsquerdoMedida" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div>
 <div class="achado-grid">
 <div class="toggle-line"><input checked="" id="rinsENormal" type="checkbox"/><label for="rinsENormal">Normal (cortical, diferenciação córtico-medular e sistema coletor usuais, sem cálculos)</label></div>
 <div class="toggle-line"><input id="rinsECalculo" type="checkbox"/><label for="rinsECalculo">Cálculo(s) renal(is)</label></div>
