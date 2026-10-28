@@ -361,6 +361,13 @@
     .paper .continua{font-style:italic;font-size:10pt;text-align:right;margin:0;}
     .paper .print-page .rodape-final{margin-top:0;}
   }
+  /* Nome e data do exame na mesma linha (2026-10-28) */
+  .bio-nome-data{display:grid;grid-template-columns:1fr 150px;column-gap:16px;align-items:end;}
+  .bio-nome-data > .field.bio-linha{grid-template-columns:1fr;gap:4px;}
+  .bio-nome-data > .field.bio-linha input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
+  .bio-grupo h4 + .bio-nome-data > .field.bio-linha{border-top:0;}
+  .bio-grade2 > .field:only-child{grid-column:1/-1;}
+  @media (max-width:360px){ .bio-nome-data{grid-template-columns:1fr;} }
 </style>
 <script src="tema.js"></script>
 </head>
@@ -475,7 +482,7 @@
 <div class="card">
 <div class="card-head"><h2>Dados do exame</h2></div>
 <div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
-<div><div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome do(a) paciente</label><input id="nomePaciente" placeholder="Nome completo" type="text"/></div><div class="field bio-linha bio-texto bio-larga"><label for="dataExame">Data do exame</label><input id="dataExame" placeholder="dd/mm/aaaa" type="text"/></div></div>
+<div class="bio-nome-data"><div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome do(a) paciente</label><input id="nomePaciente" placeholder="Nome completo" type="text"/></div><div class="field bio-linha bio-texto bio-larga"><label for="dataExame">Data do exame</label><input id="dataExame" placeholder="dd/mm/aaaa" type="text"/></div></div>
 <div><div class="field bio-linha bio-texto bio-larga"><label for="medicoSolicitante">Médico solicitante</label><input autocomplete="off" id="medicoSolicitante" placeholder="Dr(a). ..." type="text"/><div class="combo-list" id="medicosComboList"></div></div></div>
 <div class="field bio-linha bio-larga"><label for="motivoExame">Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" placeholder="ex: Nódulo palpável em lobo direito.
 Pode usar 2 ou 3 linhas." rows="2"></textarea></div>

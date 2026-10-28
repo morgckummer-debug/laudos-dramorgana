@@ -362,6 +362,13 @@
   @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} }
   .ov-titulo{font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;}
   @media (max-width:720px){ .bio-grupos{flex-direction:column;} .bio-col, .bio-col:only-child{flex:0 0 auto;} }
+  /* Nome e data do exame na mesma linha (2026-10-28) */
+  .bio-nome-data{display:grid;grid-template-columns:1fr 150px;column-gap:16px;align-items:end;}
+  .bio-nome-data > .field.bio-linha{grid-template-columns:1fr;gap:4px;}
+  .bio-nome-data > .field.bio-linha input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
+  .bio-grupo h4 + .bio-nome-data > .field.bio-linha{border-top:0;}
+  .bio-grade2 > .field:only-child{grid-column:1/-1;}
+  @media (max-width:360px){ .bio-nome-data{grid-template-columns:1fr;} }
 </style>
 <script src="tema.js"></script>
 </head>
@@ -446,10 +453,12 @@
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
         <div class="bio-grupo bio-paciente"><h4>Paciente e exame</h4>
-          <div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+          <div class="bio-nome-data">
+            <div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+            <div class="field bio-linha bio-data"><label for="dataExame">Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
+          </div>
           <div class="bio-grade2">
             <div class="field bio-linha bio-texto"><label for="cpfPaciente">CPF</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
-            <div class="field bio-linha bio-data"><label for="dataExame">Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
             <div class="field bio-linha bio-texto"><label for="medicoSolicitante">Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
             <div class="field bio-linha"><label for="idadeAnos">Idade</label><input type="text" inputmode="numeric" id="idadeAnos" placeholder=""><span class="bio-un">anos</span></div>
           </div>
