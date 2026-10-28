@@ -768,15 +768,6 @@
     <div class="card">
       <div class="card-head"><h2>Compartimento médio — hiato e descenso uterino</h2></div>
       <div class="card-body">
-        <div class="bio-grupos">
-          <div class="bio-col">
-            <div class="bio-grupo"><h4>Hiato genital</h4>
-              <div class="field bio-linha"><label for="hiatoGenital">Área do hiato genital</label><input type="text" inputmode="decimal" data-decimals="1" id="hiatoGenital" placeholder=""><span class="bio-un">cm²</span></div>
-              <div class="field bio-linha bio-data"><label for="hiatoClassif">Classificação<small>automática</small></label><input type="text" id="hiatoClassif" placeholder="—" disabled></div>
-            </div>
-          </div>
-        </div>
-        <hr class="sep">
         <div class="field-row">
           <div class="field"><label>Descenso uterino à Valsalva (em relação à borda inferior da sínfise púbica)</label>
             <select id="descensoUterino">
@@ -823,6 +814,13 @@
               <div class="field bio-linha bio-sel"><label for="coloUterinoAspecto">Aspecto</label><select id="coloUterinoAspecto"><option value="normal">Normal</option><option value="hipertrofico">Hipertrófico</option></select></div>
             </div>
           </div>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Endométrio</h4>
+              <div class="field bio-linha"><label for="endometrio">Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrio" placeholder=""><span class="bio-un">mm</span></div>
+              <div class="field bio-linha bio-sel"><label for="endometrioTextura">Textura</label><select id="endometrioTextura"><option value="homogenea">Homogênea</option><option value="heterogenea">Heterogênea</option></select></div>
+              <div class="field bio-linha bio-sel"><label for="endometrioPadrao">Padrão</label><select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option></select></div>
+            </div>
+          </div>
         </div>
 
         <div class="field-row">
@@ -865,24 +863,7 @@
         <div class="field-row conditional" id="wrap_polipoEndocervicalCampos">
           <div class="field"><label>Medida (mm)</label><input type="text" id="polipoEndocervicalMedida" placeholder="ex: 15 x 12,2"></div>
         </div>
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="card-head"><h2>Endométrio</h2></div>
-      <div class="card-body">
-        <div class="bio-grupos">
-          <div class="bio-col">
-            <div class="bio-grupo"><h4>Endométrio</h4>
-              <div class="field bio-linha"><label for="endometrio">Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrio" placeholder=""><span class="bio-un">mm</span></div>
-              <div class="field bio-linha bio-sel"><label for="endometrioTextura">Textura</label><select id="endometrioTextura"><option value="homogenea">Homogênea</option><option value="heterogenea">Heterogênea</option></select></div>
-              <div class="field bio-linha bio-sel"><label for="endometrioPadrao">Padrão</label><select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option></select></div>
-            </div>
-          </div>
-        </div>
-
-        <hr class="sep">
-        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Alterações adicionais</p>
         <div class="toggle-line"><input type="checkbox" id="chkPolipoEndometrial"><label for="chkPolipoEndometrial">Pólipo endometrial</label></div>
         <div class="field-row conditional" id="wrap_polipoEndometrialCampos">
           <div class="field"><label>Localização</label>
@@ -1170,14 +1151,18 @@
     <div class="card">
       <div class="card-head"><h2>Períneo</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Gap uretral direito <span class="vr">VR: &lt; <span class="vr-gap">25</span> mm</span></label>
-            <input type="text" inputmode="decimal" data-decimals="1" id="gapDireito" placeholder="mm">
-            <span class="flag-note" id="flag_gapDireito">Acima do valor de referência</span>
+        <div class="bio-grupos">
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Hiato genital</h4>
+              <div class="field bio-linha"><label for="hiatoGenital">Área do hiato genital</label><input type="text" inputmode="decimal" data-decimals="1" id="hiatoGenital" placeholder=""><span class="bio-un">cm²</span></div>
+              <div class="field bio-linha bio-data"><label for="hiatoClassif">Classificação<small>automática</small></label><input type="text" id="hiatoClassif" placeholder="—" disabled></div>
+            </div>
           </div>
-          <div class="field"><label>Gap uretral esquerdo <span class="vr">VR: &lt; <span class="vr-gap">25</span> mm</span></label>
-            <input type="text" inputmode="decimal" data-decimals="1" id="gapEsquerdo" placeholder="mm">
-            <span class="flag-note" id="flag_gapEsquerdo">Acima do valor de referência</span>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Gap uretral</h4>
+              <div class="field bio-linha"><label for="gapDireito">Direito<small>VR: &lt; <span class="vr-gap">25</span> mm</small><span class="flag-note" id="flag_gapDireito">Acima do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="gapDireito" placeholder=""><span class="bio-un">mm</span></div>
+              <div class="field bio-linha"><label for="gapEsquerdo">Esquerdo<small>VR: &lt; <span class="vr-gap">25</span> mm</small><span class="flag-note" id="flag_gapEsquerdo">Acima do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="gapEsquerdo" placeholder=""><span class="bio-un">mm</span></div>
+            </div>
           </div>
         </div>
         <hr class="sep">
