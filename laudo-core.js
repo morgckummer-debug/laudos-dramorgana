@@ -164,6 +164,22 @@ function livresAtualizarVisiveis(){
   }
   const add = document.getElementById('livreAdd');
   if(add) add.style.display = n >= LIVRES_MAX ? 'none' : '';
+  livresAtualizarSetas();
+}
+// A 1ª linha não sobe e a última visível não desce.
+function livresAtualizarSetas(){
+  let n = 0;
+  for(let i=1;i<=LIVRES_MAX;i++){
+    const r = document.getElementById('livreRow'+i);
+    if(r && r.style.display !== 'none') n = i;
+  }
+  document.querySelectorAll('.livre-mover').forEach(b=>{
+    const i = +b.dataset.livre, d = +b.dataset.dir;
+    const off = (d < 0 && i <= 1) || (d > 0 && i >= n);
+    b.disabled = off;
+    b.style.opacity = off ? '0.3' : '';
+    b.style.cursor = off ? 'default' : 'pointer';
+  });
 }
 function linhasLivresNaLista(listaHtml){
   livresAtualizarVisiveis();
@@ -1816,6 +1832,8 @@ function criarMotorLaudo(cfg){
       h += '<div id="livreRow'+i+'" style="display:'+(i<=LIVRES_MIN_VISIVEIS?'flex':'none')+';align-items:center;gap:8px;margin-bottom:6px;">'
         + '<input type="checkbox" id="livre'+i+'On" style="margin:0;flex:0 0 auto;accent-color:var(--rose-dark);" aria-label="Incluir linha livre '+i+'">'
         + '<input type="text" id="livre'+i+'Txt" placeholder="Linha livre '+i+'" autocomplete="off" style="flex:1 1 auto;min-width:0;">'
+        + '<button type="button" class="livre-mover" data-livre="'+i+'" data-dir="-1" title="Subir esta linha na conclusão" aria-label="Subir linha livre '+i+'" style="flex:0 0 auto;padding:2px 7px;font-size:12px;line-height:1.4;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--rose-dark);cursor:pointer;">&#9650;</button>'
+        + '<button type="button" class="livre-mover" data-livre="'+i+'" data-dir="1" title="Descer esta linha na conclusão" aria-label="Descer linha livre '+i+'" style="flex:0 0 auto;padding:2px 7px;font-size:12px;line-height:1.4;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--rose-dark);cursor:pointer;">&#9660;</button>'
         + '</div>';
     }
     h += '<button type="button" class="btn-clear" id="livreAdd" style="margin:2px 0 0;">+ Adicionar linha livre</button></div>';
@@ -1832,6 +1850,26 @@ function criarMotorLaudo(cfg){
         cfg.render();
       });
     }
+    // Setas ↑↓ (2026-10-28): a ordem na conclusão é a da numeração, então mover
+    // é trocar texto e marcação com a linha vizinha. Os ids não mudam, e o
+    // rascunho guarda a nova ordem como guarda qualquer campo.
+    $('linhasLivres').addEventListener('click', e=>{
+      const b = e.target.closest('.livre-mover');
+      if(!b) return;
+      const i = +b.dataset.livre, j = i + (+b.dataset.dir);
+      if(j < 1 || j > LIVRES_MAX) return;
+      const ti = $('livre'+i+'Txt'), tj = $('livre'+j+'Txt');
+      const oi = $('livre'+i+'On'), oj = $('livre'+j+'On');
+      const tv = ti.value; ti.value = tj.value; tj.value = tv;
+      const ov = oi.checked; oi.checked = oj.checked; oj.checked = ov;
+      ti.dataset.antes = ti.value; tj.dataset.antes = tj.value;
+      if(j > livresMostradas) livresMostradas = j;
+      cfg.render();
+      livresAtualizarSetas();
+      draftSchedule();
+      const alvo = document.querySelector('.livre-mover[data-livre="'+j+'"][data-dir="'+b.dataset.dir+'"]');
+      if(alvo && !alvo.disabled) alvo.focus();
+    });
     $('livreAdd').addEventListener('click', ()=>{
       livresMostradas = Math.min(LIVRES_MAX, livresMostradas+1);
       livresAtualizarVisiveis();
