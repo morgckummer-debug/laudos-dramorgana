@@ -1749,3 +1749,7 @@ Pedido da médica. O card "Endométrio" do `perineal.html` deixou de existir: o 
 ## Rastreamento de ovulação: Aspecto do útero ao lado das medidas (2026-10-28)
 
 Pedido da médica: no `rastreamento-ovulacao.html` o quadro "Aspecto" (select, nódulos de mioma, adenomiose e a descrição do achado) fica ao lado de "Medidas do útero", no mesmo `.bio-grupos`. Ids, laudo e rascunho iguais aos da `main` (Chromium, 2 cenários).
+
+## Pélvico infantil: Endométrio dentro do Útero (2026-10-28)
+
+Pedido da médica, como já feito no perineal. O card "Endométrio" do `pelvico-infantil.html` deixou de existir: o quadro (espessura máxima, aspecto) é um terceiro `.bio-col` do card Útero, e a descrição do achado e o checkbox "Cavidade uterina virtual" vêm logo depois de "Textura e contornos". Ids, laudo e rascunho iguais aos da `main` (Chromium: `#paper` idêntico preenchendo útero e endométrio; lista de ids igual).
