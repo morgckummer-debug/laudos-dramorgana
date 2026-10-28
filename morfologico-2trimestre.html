@@ -2491,14 +2491,22 @@ if(typeof criarMotorLaudo !== 'function'){
       // alerta por silêncio. Percentil 3 ou menos é CIUR — pede o estágio
       // (campo condicional feto{uid}CiurEstagio, mostrado por updateFetoWraps)
       // em vez da tag "Feto PIG" genérica.
+      // Regra da Dra. Morgana (2026-10-28), igual à do obstetrico.html: CIUR
+      // só com peso no P3 ou abaixo, ou com diástole zero/reversa na
+      // umbilical (peso acima do P3).
+      const fluxoAu = dopplerFetal ? v(pre+'AuFluxo') : '';
+      const diastoleZero = fluxoAu === 'ausente' || fluxoAu === 'reversa' || fluxoAu === 'intermitente';
       let pesoKey;
       if(percentilNum !== null && percentilNum <= 3) pesoKey = 'impPesoCIUR';
+      else if(diastoleZero) pesoKey = 'impPesoCIUR';
       else if(percentilNum !== null && percentilNum < 10) pesoKey = 'impPesoPIG';
       else if(percentilNum !== null && percentilNum >= 90) pesoKey = 'impPesoGIG';
       else if(gaDays !== null && gaDays < PESO_PERCENTIL_IG_DIAS) pesoKey = 'impPesoNormalidade';
       else pesoKey = 'impPesoAdequado';
       const ciurEstagio = v(pre+'CiurEstagio') || 'I';
       const pesoLabel = phraseRaw(pesoKey, {PERCENTIL: faixaPercentilPeso(percentilNum), PESO: peso.text, CIUR: ciurEstagio});
+      // O estágio aparece também quando o CIUR vem da diástole zero (updateFetoWraps só olha o percentil).
+      toggle('wrap_'+pre+'CiurEstagio', pesoKey === 'impPesoCIUR');
 
       const placentaInsercao = v(pre+'PlacentaInsercao');
       const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
