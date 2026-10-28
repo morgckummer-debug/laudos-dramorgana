@@ -1690,3 +1690,7 @@ Pedido da médica. Na conclusão, cada feto junta numa linha só os achados alte
 ## CIUR na conclusão: só peso ≤ P3 ou diástole zero (2026-10-28)
 
 Regra da Dra. Morgana, que **substitui** as seções "PIG vs CIUR: critérios menores" e "Fluxo diastólico da umbilical" acima: no `obstetrico.html` e no `morfologico-2trimestre.html`, a linha de peso da impressão só diz CIUR (`impPesoCIUR`) com percentil de peso ≤ 3 **ou** com diástole zero/reversa/intermitente na umbilical (`feto{uid}AuFluxo`, Doppler fetal marcado), com qualquer percentil, em qualquer IG e também em gemelar. Entre P3 e P10 é sempre PIG, mesmo com uterinas, IP umbilical, ACM ou RCP alterados: os critérios menores do Delphi saíram (com eles `calcAuPercentil`/`calcAcmPercentil`). O campo de estágio aparece pelo resultado do `render()` nos dois laudos. **O `curva-fetal` continua com os critérios menores** (`calcDiagnosticoFGR`): o relatório evolutivo pode dizer CIUR onde o laudo diz PIG, até ela decidir alinhar lá.
+
+## Tireoide: LD, LE e istmo em três quadros (2026-10-28)
+
+Pedido da médica. No card "Tireóide — Dimensões" de `tireoide-doppler.html`, lobo direito, lobo esquerdo e istmo são três `.bio-grupo` lado a lado (`.tir-lobos`, grade de 3 colunas, uma só abaixo de 720px), cada um com longitudinal, AP, transversal e volume; o volume total fica num quadro largo embaixo (`.tir-total`). Ids, laudo, Word, rascunho e o volume total iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários, mais um teste em branco, preenchido e recarregado).

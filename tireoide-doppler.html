@@ -183,6 +183,15 @@
   .field.bio-linha select{padding:8px 8px;font-size:13px;}
   .bio-un{font-size:12.5px;color:var(--ink-soft);}
   @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
+  /* Tireoide: LD, LE e istmo em tres quadros lado a lado, volume total embaixo. */
+  .tir-lobos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px;}
+  .tir-lobos .bio-grupo{padding:10px 12px 4px;}
+  .tir-lobos .field.bio-linha{grid-template-columns:minmax(0,1fr) 62px 26px;gap:6px;}
+  .tir-lobos .field.bio-linha label{font-size:12.5px;}
+  .tir-lobos .field.bio-linha input[type=text]{font-size:14px;padding:7px 4px;}
+  .tir-total{margin-bottom:4px;}
+  .tir-total .field.bio-linha{border-top:0;}
+  @media (max-width:720px){ .tir-lobos{grid-template-columns:1fr;} }
   .field.bio-linha label .vr{display:block;}
   .field.bio-linha label .flag-note{display:none;}
   .field.bio-linha label .flag-note.show{display:block;}
@@ -474,19 +483,15 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 </div>
 <div class="card">
 <div class="card-head"><h2>Tireóide — Dimensões</h2></div>
-<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div class="card-body">
 <p class="bio-nota">O volume do lobo direito, do lobo esquerdo e do istmo é digitado direto da tela do aparelho — não é recalculado aqui, para sair idêntico às fotos do exame. O volume total soma os três já digitados.</p>
-<p class="bio-nota">Lobo direito</p>
-<div><div class="field bio-linha"><label for="loboDLong">Longitudinal</label><input data-decimals="1" data-maxint="1" id="loboDLong" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboDAP">AP</label><input data-decimals="1" data-maxint="1" id="loboDAP" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboDTransv">Transversal</label><input data-decimals="1" data-maxint="1" id="loboDTransv" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboDVolume">Volume</label><input data-decimals="2" data-maxint="2" id="loboDVolume" inputmode="decimal" type="text"/><span class="bio-un">cm³</span></div></div>
-<hr class="sep"/>
-<p class="bio-nota">Lobo esquerdo</p>
-<div><div class="field bio-linha"><label for="loboELong">Longitudinal</label><input data-decimals="1" data-maxint="1" id="loboELong" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboEAP">AP</label><input data-decimals="1" data-maxint="1" id="loboEAP" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboETransv">Transversal</label><input data-decimals="1" data-maxint="1" id="loboETransv" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboEVolume">Volume</label><input data-decimals="2" data-maxint="2" id="loboEVolume" inputmode="decimal" type="text"/><span class="bio-un">cm³</span></div></div>
-<hr class="sep"/>
-<p class="bio-nota">Istmo</p>
-<div><div class="field bio-linha"><label for="istmoLong">Longitudinal</label><input data-decimals="1" data-maxint="1" id="istmoLong" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="istmoAP">AP</label><input data-decimals="1" data-maxint="1" id="istmoAP" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="istmoTransv">Transversal</label><input data-decimals="1" data-maxint="1" id="istmoTransv" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="istmoVolume">Volume</label><input data-decimals="2" data-maxint="2" id="istmoVolume" inputmode="decimal" type="text"/><span class="bio-un">cm³</span></div></div>
-<hr class="sep"/>
-<div><div class="field bio-linha"><label for="volumeTotal">Volume total da glândula (automático: lobo direito + lobo esquerdo + istmo)<span class="vr">VR 6,0 a 15,0 cm³</span><span class="flag-note" id="flag_volumeTotal">Fora do valor de referência</span></label><input id="volumeTotal" readonly="" type="text"/><span class="bio-un">cm³</span></div></div>
-</div></div></div></div>
+<div class="tir-lobos">
+<div class="bio-grupo"><h4>Lobo direito</h4><div class="field bio-linha"><label for="loboDLong">Longitudinal</label><input data-decimals="1" data-maxint="1" id="loboDLong" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboDAP">AP</label><input data-decimals="1" data-maxint="1" id="loboDAP" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboDTransv">Transversal</label><input data-decimals="1" data-maxint="1" id="loboDTransv" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboDVolume">Volume</label><input data-decimals="2" data-maxint="2" id="loboDVolume" inputmode="decimal" type="text"/><span class="bio-un">cm³</span></div></div>
+<div class="bio-grupo"><h4>Lobo esquerdo</h4><div class="field bio-linha"><label for="loboELong">Longitudinal</label><input data-decimals="1" data-maxint="1" id="loboELong" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboEAP">AP</label><input data-decimals="1" data-maxint="1" id="loboEAP" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboETransv">Transversal</label><input data-decimals="1" data-maxint="1" id="loboETransv" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboEVolume">Volume</label><input data-decimals="2" data-maxint="2" id="loboEVolume" inputmode="decimal" type="text"/><span class="bio-un">cm³</span></div></div>
+<div class="bio-grupo"><h4>Istmo</h4><div class="field bio-linha"><label for="istmoLong">Longitudinal</label><input data-decimals="1" data-maxint="1" id="istmoLong" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="istmoAP">AP</label><input data-decimals="1" data-maxint="1" id="istmoAP" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="istmoTransv">Transversal</label><input data-decimals="1" data-maxint="1" id="istmoTransv" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="istmoVolume">Volume</label><input data-decimals="2" data-maxint="2" id="istmoVolume" inputmode="decimal" type="text"/><span class="bio-un">cm³</span></div></div>
+</div>
+<div class="bio-grupo tir-total"><div class="field bio-linha"><label for="volumeTotal">Volume total da glândula (automático: lobo direito + lobo esquerdo + istmo)<span class="vr">VR 6,0 a 15,0 cm³</span><span class="flag-note" id="flag_volumeTotal">Fora do valor de referência</span></label><input id="volumeTotal" readonly="" type="text"/><span class="bio-un">cm³</span></div></div>
+</div>
 </div>
 <div class="card">
 <div class="card-head"><h2>Tireóide — Aspecto geral</h2></div>
