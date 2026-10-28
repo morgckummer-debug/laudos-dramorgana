@@ -166,36 +166,109 @@ function livresAtualizarVisiveis(){
   if(add) add.style.display = n >= LIVRES_MAX ? 'none' : '';
   livresAtualizarSetas();
 }
-// A 1ª linha não sobe e a última visível não desce.
+// Posição de cada linha livre na conclusão (2026-10-28). #livre{n}Pos guarda a
+// chave (data-key) da frase gerada logo antes da linha: '^' = antes de todas,
+// vazio = no fim (o padrão, e o que vale também quando a frase de referência sai
+// da conclusão). Linhas com a mesma posição seguem a numeração. As setas andam
+// pela sequência inteira (frases geradas + linhas livres marcadas) e, depois de
+// mover, renumeram as linhas na ordem em que saem no laudo.
+let livresGerados = [];
+function livreEl(i, suf){ return document.getElementById('livre'+i+suf); }
+function livreAtiva(i){
+  const on = livreEl(i,'On'), t = livreEl(i,'Txt');
+  return !!(on && t && on.checked && t.value.replace(/^\s*\*\s*/, '').trim());
+}
+function livrePos(i){ const p = livreEl(i,'Pos'); return p ? p.value : ''; }
+// Sequência da conclusão: [{g:chave}] para frase gerada, [{l:n}] para linha livre.
+function livresSequencia(){
+  const ativas = [];
+  for(let i=1;i<=LIVRES_MAX;i++) if(livreAtiva(i)) ativas.push(i);
+  const seq = [], usadas = {};
+  const poe = pos => ativas.forEach(i=>{ if(!usadas[i] && livrePos(i) === pos){ usadas[i] = 1; seq.push({l:i}); } });
+  poe('^');
+  livresGerados.forEach(k=>{ seq.push({g:k}); poe(k); });
+  ativas.forEach(i=>{ if(!usadas[i]) seq.push({l:i}); });
+  return seq;
+}
 function livresAtualizarSetas(){
-  let n = 0;
-  for(let i=1;i<=LIVRES_MAX;i++){
-    const r = document.getElementById('livreRow'+i);
-    if(r && r.style.display !== 'none') n = i;
-  }
+  const seq = livresSequencia();
+  const idx = {};
+  seq.forEach((t,j)=>{ if(t.l) idx[t.l] = j; });
   document.querySelectorAll('.livre-mover').forEach(b=>{
     const i = +b.dataset.livre, d = +b.dataset.dir;
-    const off = (d < 0 && i <= 1) || (d > 0 && i >= n);
+    const j = idx[i];
+    const off = j === undefined || (d < 0 && j <= 0) || (d > 0 && j >= seq.length-1);
     b.disabled = off;
     b.style.opacity = off ? '0.3' : '';
     b.style.cursor = off ? 'default' : 'pointer';
   });
 }
+// Move a linha livre i uma posição na conclusão. Devolve o novo número dela.
+function livreMover(i, dir){
+  const seq = livresSequencia();
+  const j = seq.findIndex(t=> t.l === i);
+  const k = j + dir;
+  if(j < 0 || k < 0 || k >= seq.length) return i;
+  const tmp = seq[j]; seq[j] = seq[k]; seq[k] = tmp;
+  // Nova posição de cada linha marcada: a frase gerada logo antes dela.
+  const pos = {};
+  let ant = '^';
+  const ultimaG = seq.map(t=>!!t.g).lastIndexOf(true);
+  seq.forEach((t,n)=>{
+    if(t.g){ ant = t.g; return; }
+    pos[t.l] = n > ultimaG ? '' : ant;
+  });
+  // Renumera: as marcadas na ordem do laudo, depois as outras na ordem de antes.
+  const ordem = seq.filter(t=>t.l).map(t=>t.l);
+  for(let n=1;n<=LIVRES_MAX;n++) if(ordem.indexOf(n) === -1) ordem.push(n);
+  const dados = ordem.map(n=>({
+    txt: livreEl(n,'Txt').value, on: livreEl(n,'On').checked,
+    pos: pos[n] !== undefined ? pos[n] : livrePos(n)
+  }));
+  dados.forEach((d,n)=>{
+    const t = livreEl(n+1,'Txt');
+    t.value = d.txt; t.dataset.antes = d.txt;
+    livreEl(n+1,'On').checked = d.on;
+    livreEl(n+1,'Pos').value = d.pos;
+  });
+  return ordem.indexOf(i) + 1;
+}
 function linhasLivresNaLista(listaHtml){
+  // Frases geradas, na ordem em que saíram (o aviso "Selecione..." não tem data-key).
+  const reLi = /<li\b[^>]*>[\s\S]*?<\/li>/g;
+  livresGerados = [];
+  (listaHtml.match(reLi) || []).forEach(li=>{
+    const m = li.match(/^<li\b[^>]*\bdata-key="([^"]*)"/);
+    if(m && m[1].indexOf('livre-') !== 0) livresGerados.push(m[1]);
+  });
   livresAtualizarVisiveis();
-  let lis = '';
-  for(let i=1;i<=LIVRES_MAX;i++){
-    const on = document.getElementById('livre'+i+'On');
-    const t = document.getElementById('livre'+i+'Txt');
-    if(!on || !t || !on.checked) continue;
-    const txt = t.value.replace(/^\s*\*\s*/, '').trim();
-    if(!txt) continue;
+  const liDe = i=>{
+    const txt = livreEl(i,'Txt').value.replace(/^\s*\*\s*/, '').trim();
     const esc = txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    lis += '<li data-key="livre-'+i+'">* '+esc+'</li>';
-  }
-  if(!lis) return listaHtml;
+    return '<li data-key="livre-'+i+'">* '+esc+'</li>';
+  };
+  const seq = livresSequencia();
+  if(!seq.some(t=>t.l)) return listaHtml;
   // Com uma linha livre marcada, o aviso "Selecione os achados..." sai.
-  return listaHtml.replace(/<li style="font-weight:400;color:var\(--ink-soft\);">Selecione os achados[^<]*<\/li>/, '') + lis;
+  listaHtml = listaHtml.replace(/<li style="font-weight:400;color:var\(--ink-soft\);">Selecione os achados[^<]*<\/li>/, '');
+  // Linhas livres agrupadas pela frase gerada que vem antes delas.
+  const depois = {'^':''}; let ant = '^', fim = '';
+  const ultimaG = seq.map(t=>!!t.g).lastIndexOf(true);
+  seq.forEach((t,n)=>{
+    if(t.g){ ant = t.g; depois[ant] = ''; return; }
+    if(n > ultimaG) fim += liDe(t.l); else depois[ant] += liDe(t.l);
+  });
+  let primeira = true;
+  listaHtml = listaHtml.replace(reLi, li=>{
+    let out = '';
+    if(primeira){ out += depois['^']; primeira = false; }
+    const m = li.match(/^<li\b[^>]*\bdata-key="([^"]*)"/);
+    out += li;
+    if(m && depois[m[1]] !== undefined && m[1].indexOf('livre-') !== 0){ out += depois[m[1]]; depois[m[1]] = ''; }
+    return out;
+  });
+  if(primeira) fim = depois['^'] + fim;
+  return listaHtml + fim;
 }
 
 function criarMotorLaudo(cfg){
@@ -1832,6 +1905,7 @@ function criarMotorLaudo(cfg){
       h += '<div id="livreRow'+i+'" style="display:'+(i<=LIVRES_MIN_VISIVEIS?'flex':'none')+';align-items:center;gap:8px;margin-bottom:6px;">'
         + '<input type="checkbox" id="livre'+i+'On" style="margin:0;flex:0 0 auto;accent-color:var(--rose-dark);" aria-label="Incluir linha livre '+i+'">'
         + '<input type="text" id="livre'+i+'Txt" placeholder="Linha livre '+i+'" autocomplete="off" style="flex:1 1 auto;min-width:0;">'
+        + '<input type="hidden" id="livre'+i+'Pos" value="">'
         + '<button type="button" class="livre-mover" data-livre="'+i+'" data-dir="-1" title="Subir esta linha na conclusão" aria-label="Subir linha livre '+i+'" style="flex:0 0 auto;padding:2px 7px;font-size:12px;line-height:1.4;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--rose-dark);cursor:pointer;">&#9650;</button>'
         + '<button type="button" class="livre-mover" data-livre="'+i+'" data-dir="1" title="Descer esta linha na conclusão" aria-label="Descer linha livre '+i+'" style="flex:0 0 auto;padding:2px 7px;font-size:12px;line-height:1.4;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--rose-dark);cursor:pointer;">&#9660;</button>'
         + '</div>';
@@ -1850,24 +1924,16 @@ function criarMotorLaudo(cfg){
         cfg.render();
       });
     }
-    // Setas ↑↓ (2026-10-28): a ordem na conclusão é a da numeração, então mover
-    // é trocar texto e marcação com a linha vizinha. Os ids não mudam, e o
-    // rascunho guarda a nova ordem como guarda qualquer campo.
+    // Setas ▲▼: movem a linha pela conclusão inteira (ver livreMover, acima).
     $('linhasLivres').addEventListener('click', e=>{
       const b = e.target.closest('.livre-mover');
-      if(!b) return;
-      const i = +b.dataset.livre, j = i + (+b.dataset.dir);
-      if(j < 1 || j > LIVRES_MAX) return;
-      const ti = $('livre'+i+'Txt'), tj = $('livre'+j+'Txt');
-      const oi = $('livre'+i+'On'), oj = $('livre'+j+'On');
-      const tv = ti.value; ti.value = tj.value; tj.value = tv;
-      const ov = oi.checked; oi.checked = oj.checked; oj.checked = ov;
-      ti.dataset.antes = ti.value; tj.dataset.antes = tj.value;
-      if(j > livresMostradas) livresMostradas = j;
+      if(!b || b.disabled) return;
+      const novo = livreMover(+b.dataset.livre, +b.dataset.dir);
+      if(novo > livresMostradas) livresMostradas = novo;
       cfg.render();
       livresAtualizarSetas();
       draftSchedule();
-      const alvo = document.querySelector('.livre-mover[data-livre="'+j+'"][data-dir="'+b.dataset.dir+'"]');
+      const alvo = document.querySelector('.livre-mover[data-livre="'+novo+'"][data-dir="'+b.dataset.dir+'"]');
       if(alvo && !alvo.disabled) alvo.focus();
     });
     $('livreAdd').addEventListener('click', ()=>{
