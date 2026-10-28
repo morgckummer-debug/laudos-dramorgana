@@ -1727,3 +1727,5 @@ O Presente/Ausente do saco saiu do próprio card e entrou no card "Gestação", 
 ## Obstétrico de 1º trimestre: anexos e colo uterino no mesmo card (2026-10-28)
 
 "Regiões anexiais" e "Colo uterino" são um card só, com dois quadros lado a lado (`.bio-grupos` > `.bio-col`), como a Impressão diagnóstica. O checkbox `chkColo` e `coloFields` ficaram dentro do quadro do colo, com os mesmos ids. Laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`). Em tela estreita o layout empilha, mas a página já tinha rolagem horizontal ali antes desta mudança (conteúdo de 456px em 390px), que não foi tratada aqui.
+
+"Morfológico do 1º trimestre" (período recomendado) saiu do quadro próprio e ficou como checkbox simples dentro do card de Impressões diagnósticas, com os dois campos de período logo abaixo (ids iguais). Laudo, Word e rascunho iguais aos da `main`.
