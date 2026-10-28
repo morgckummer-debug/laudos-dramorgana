@@ -669,6 +669,25 @@
             <div class="conditional" id="wrap_dumEstimada">
               <div class="field bio-linha bio-data"><label for="dumEstimada">DUM estimada<small>para lançar na máquina de ultrassom</small></label><input type="text" id="dumEstimada" readonly placeholder="automática"></div>
             </div>
+            <div class="conditional" id="wrap_dppInformada">
+              <div class="field bio-linha bio-data"><label for="dpp">DPP<small>data provável do parto</small></label><input type="text" id="dpp" placeholder="automática" readonly></div>
+            </div>
+          </div>
+          <div class="bio-grupo" id="grpMorfoRec"><h4>Morfológico — recomendação</h4>
+            <!-- Qual dos dois cabe ainda depende da IG ATUAL do exame (ver render():
+                 mostrarRecomendacao1/2) — abaixo de 12 semanas só o 1º Trimestre faz
+                 sentido, a partir de 14 só o 2º; entre os dois, nenhum aparece, de
+                 propósito (ver a discussão que motivou isto, 2026-09-26). -->
+            <div class="toggle-line conditional" id="wrap_chkRecomendacao1"><input type="checkbox" id="chkRecomendacao1"><label for="chkRecomendacao1">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
+            <div class="conditional" id="wrap_recomendacao1">
+              <div class="field bio-linha bio-data"><label for="dataInicioMorfo1">Período recomendado<small>início</small></label><input type="text" id="dataInicioMorfo1" placeholder="automática" readonly></div>
+              <div class="field bio-linha bio-data"><label for="dataFimMorfo1">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo1" placeholder="automática" readonly></div>
+            </div>
+            <div class="toggle-line conditional" id="wrap_chkRecomendacao2"><input type="checkbox" id="chkRecomendacao2"><label for="chkRecomendacao2">Incluir recomendação de Morfológico do 2º Trimestre</label></div>
+            <div class="conditional" id="wrap_recomendacao2">
+              <div class="field bio-linha bio-data"><label for="dataInicioMorfo2">Período recomendado<small>início</small></label><input type="text" id="dataInicioMorfo2" placeholder="automática" readonly></div>
+              <div class="field bio-linha bio-data"><label for="dataFimMorfo2">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo2" placeholder="automática" readonly></div>
+            </div>
           </div>
         </div></div>
       </div>
@@ -752,34 +771,15 @@
     <div class="card">
       <div class="card-head"><h2>Impressões diagnósticas</h2></div>
       <div class="card-body">
-        <div class="bio-grupos"><div class="bio-col">
-          <div class="bio-grupo"><h4>Idade gestacional e DPP</h4>
-            <div class="field bio-linha bio-ig conditional" id="wrap_impSemanas"><label for="impSemanas">IG neste exame</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="28"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="impDias" placeholder="4" aria-label="IG neste exame — dias"><span class="bio-un">dias</span></div>
-            <div class="field bio-linha bio-sel conditional" id="wrap_dumConcordancia"><label for="dumConcordancia">DUM</label>
-              <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
-            </div>
-            <div class="conditional" id="wrap_dppInformada">
-              <div class="field bio-linha bio-data"><label for="dpp">DPP<small>data provável do parto</small></label><input type="text" id="dpp" placeholder="automática" readonly></div>
-            </div>
+        <div class="field-row conditional" id="wrap_dumConcordancia">
+          <div class="field"><label for="dumConcordancia">DUM</label>
+            <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
           </div>
-          <div class="bio-grupo" id="grpMorfoRec"><h4>Morfológico — recomendação</h4>
-            <!-- Qual dos dois cabe ainda depende da IG ATUAL do exame (ver render():
-                 mostrarRecomendacao1/2) — abaixo de 12 semanas só o 1º Trimestre faz
-                 sentido, a partir de 14 só o 2º; entre os dois, nenhum aparece, de
-                 propósito (ver a discussão que motivou isto, 2026-09-26). -->
-            <div class="toggle-line conditional" id="wrap_chkRecomendacao1"><input type="checkbox" id="chkRecomendacao1"><label for="chkRecomendacao1">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
-            <div class="conditional" id="wrap_recomendacao1">
-              <div class="field bio-linha bio-data"><label for="dataInicioMorfo1">Período recomendado<small>início</small></label><input type="text" id="dataInicioMorfo1" placeholder="automática" readonly></div>
-              <div class="field bio-linha bio-data"><label for="dataFimMorfo1">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo1" placeholder="automática" readonly></div>
-            </div>
-            <div class="toggle-line conditional" id="wrap_chkRecomendacao2"><input type="checkbox" id="chkRecomendacao2"><label for="chkRecomendacao2">Incluir recomendação de Morfológico do 2º Trimestre</label></div>
-            <div class="conditional" id="wrap_recomendacao2">
-              <div class="field bio-linha bio-data"><label for="dataInicioMorfo2">Período recomendado<small>início</small></label><input type="text" id="dataInicioMorfo2" placeholder="automática" readonly></div>
-              <div class="field bio-linha bio-data"><label for="dataFimMorfo2">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo2" placeholder="automática" readonly></div>
-            </div>
-          </div>
-        </div></div>
-        <hr class="sep">
+        </div>
+        <div class="field-row conditional" id="wrap_impSemanas">
+          <div class="field"><label for="impSemanas">IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 28"></div>
+          <div class="field"><label for="impDias">IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
+        </div>
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima e os blocos ativados. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
       </div>
