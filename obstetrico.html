@@ -169,6 +169,45 @@
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
+  /* Quadros por região, como nos morfológicos (cópia do CSS de lá). */
+  .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+  .bio-col{flex:1 1 280px;display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .bio-col:only-child{flex:1 1 100%;}
+  .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
+  .bio-grupo.conditional.show{display:block;}
+  .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);margin:0;}
+  .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
+  .field.bio-linha.bio-sel.bio-sel-larga{grid-template-columns:1fr 240px;}
+  .field.bio-linha.conditional.show{display:grid;}
+  .bio-grupo .field.conditional.show{margin:4px 0 8px;}
+  .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;font-weight:500;text-align:left;padding:8px 10px;}
+  .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
+  .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
+  .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
+  .field.bio-linha.bio-texto input[readonly]{font-size:13px;}
+  .field.bio-linha.bio-texto.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-ig{grid-template-columns:1fr 52px auto 52px auto;}
+  .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 64px);justify-content:start;column-gap:10px;}
+  .field.bio-linha.bio-gpa label{font-weight:600;}
+  .field.bio-linha.bio-gpa label:not(:first-child){margin-left:14px;}
+  .bio-grupo.bio-paciente{margin-bottom:14px;}
+  .bio-grade2{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;}
+  .bio-grade2 > .field.bio-linha{border-top:1px dashed var(--line-soft);}
+  .bio-grade2 .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 56px);justify-content:space-between;column-gap:8px;}
+  .bio-grade2 .field.bio-linha.bio-gpa label:not(:first-child){margin-left:0;}
+  .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(-n+2){border-top:0;}
+  .bio-nota{margin:-2px 0 6px;font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
+  .bio-nota.conditional.show{display:block;}
+  .bio-grupo h4 + .bio-linha{border-top:0;}
+  .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;margin:0;}
+  .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
+  .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .field.bio-linha select{padding:8px 8px;font-size:13px;}
+  .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  #grpMorfoRec:not(:has(.show)){display:none;}
+  @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
 
   .combo-list{
     display:none;position:fixed;z-index:1000;
@@ -576,19 +615,14 @@
     <div class="card">
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;"></p>
-        <div class="field-row">
-          <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>CPF da paciente</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
-          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>G (gestações)</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"></div>
-          <div class="field"><label>P (partos)</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"></div>
-          <div class="field"><label>A (abortos)</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+        <div class="bio-grupo bio-paciente"><h4>Paciente e exame</h4>
+          <div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+          <div class="bio-grade2">
+            <div class="field bio-linha bio-texto"><label for="cpfPaciente">CPF</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
+            <div class="field bio-linha bio-data"><label for="dataExame">Data do exame</label><input type="text" id="dataExame" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+            <div class="field bio-linha bio-texto"><label for="medicoSolicitante">Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
+            <div class="field bio-linha bio-gpa"><label for="gpaG">G</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"><label for="gpaP">P</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"><label for="gpaA">A</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
+          </div>
         </div>
         <div class="toggle-line"><input type="checkbox" id="pptEspontaneoPrevio" autocomplete="off"><label for="pptEspontaneoPrevio">Antecedente de parto prematuro espontâneo</label></div>
         <div class="toggle-line"><input type="checkbox" id="progesteronaVaginalEmUso" autocomplete="off"><label for="progesteronaVaginalEmUso">Em uso de progesterona vaginal</label></div>
@@ -603,43 +637,44 @@
     <div class="card">
       <div class="card-head"><h2>Idade gestacional</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>DUM (data da última menstruação)</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>IG atual</label><input type="text" id="igAtual" placeholder="calculada automaticamente" readonly></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Idade gestacional calculada com base em</label>
-            <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="fiv">FIV (transferência embrionária)</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
+        <div class="bio-grupos"><div class="bio-col">
+          <div class="bio-grupo"><h4>Datação</h4>
+            <div class="field bio-linha bio-sel bio-sel-larga"><label for="cronologiaMetodo">Idade baseada em:</label>
+              <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="fiv">FIV (transferência embrionária)</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
+            </div>
+            <div class="field bio-linha bio-data"><label for="dum">DUM<small>data da última menstruação</small></label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+            <div class="field bio-linha bio-texto"><label for="igAtual">IG atual</label><input type="text" id="igAtual" placeholder="calculada automaticamente" readonly></div>
+            <div class="conditional" id="wrap_usgDatacao">
+              <div class="field bio-linha bio-data"><label for="usgDataDatacao">Data do 1º ultrassom</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+              <div class="field bio-linha bio-ig"><label for="usgSemanasDatacao">IG no 1º ultrassom</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="12"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="3" aria-label="IG no 1º ultrassom — dias"><span class="bio-un">dias</span></div>
+            </div>
+            <div class="conditional" id="wrap_fivTransferencia">
+              <div class="field bio-linha bio-data"><label for="fivDataTransf">Data da transferência embrionária</label><input type="text" id="fivDataTransf" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+              <div class="field bio-linha bio-sel"><label for="fivEstagio">Estágio do embrião na transferência</label>
+                <select id="fivEstagio"><option value="d3">D3 (clivagem)</option><option value="d5">D5 (blastocisto)</option></select>
+              </div>
+            </div>
+            <div class="conditional" id="wrap_dumEstimada">
+              <div class="field bio-linha bio-data"><label for="dumEstimada">DUM estimada<small>para lançar na máquina de ultrassom</small></label><input type="text" id="dumEstimada" readonly placeholder="automática"></div>
+            </div>
           </div>
-        </div>
-        <div class="field-row conditional" id="wrap_usgDatacao">
-          <div class="field"><label>Data do 1º ultrassom</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>IG no 1º ultrassom — semanas</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="ex: 12"></div>
-          <div class="field"><label>IG no 1º ultrassom — dias</label><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="ex: 3"></div>
-        </div>
-        <div class="field-row conditional" id="wrap_fivTransferencia">
-          <div class="field"><label>Data da transferência embrionária</label><input type="text" id="fivDataTransf" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-          <div class="field"><label>Estágio do embrião na transferência</label>
-            <select id="fivEstagio"><option value="d3">D3 (clivagem)</option><option value="d5">D5 (blastocisto)</option></select>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_dumEstimada">
-          <div class="field"><label>DUM estimada (para lançar na máquina de ultrassom)</label><input type="text" id="dumEstimada" readonly placeholder="calculada automaticamente"></div>
-        </div>
+        </div></div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-head"><h2>Gestação</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Número de fetos</label>
-            <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
+        <div class="bio-grupos"><div class="bio-col">
+          <div class="bio-grupo"><h4>Tipo de gestação</h4>
+            <div class="field bio-linha bio-sel"><label for="numeroFetos">Número de fetos</label>
+              <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
+            </div>
+            <div class="field bio-linha bio-sel bio-sel-larga conditional" id="wrap_corionicidade"><label for="corionicidade">Corionicidade / amnionicidade</label>
+              <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option><option value="monocorionica_triamniotica" data-fetos="3">Monocoriônica e triamniótica</option></select>
+            </div>
           </div>
-          <div class="field conditional" id="wrap_corionicidade"><label>Corionicidade / amnionicidade</label>
-            <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option><option value="monocorionica_triamniotica" data-fetos="3">Monocoriônica e triamniótica</option></select>
-          </div>
-        </div>
+        </div></div>
       </div>
     </div>
 
@@ -649,10 +684,12 @@
     <div class="card conditional" id="wrap_discordancia">
       <div class="card-head"><h2>Discordância de peso</h2></div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Calculada a partir dos pesos fetais estimados acima: (maior − menor) ÷ maior. A partir de 20% entra o alerta de acompanhamento especializado.</p>
-        <div class="field-row">
-          <div class="field"><label>Discordância entre os fetos</label><input type="text" id="discordanciaCalc" readonly placeholder="calculada automaticamente"></div>
-        </div>
+        <p class="bio-nota">Calculada a partir dos pesos fetais estimados acima: (maior − menor) ÷ maior. A partir de 20% entra o alerta de acompanhamento especializado.</p>
+        <div class="bio-grupos"><div class="bio-col">
+          <div class="bio-grupo"><h4>Discordância</h4>
+            <div class="field bio-linha bio-texto"><label for="discordanciaCalc">Entre os fetos</label><input type="text" id="discordanciaCalc" readonly placeholder="calculada automaticamente"></div>
+          </div>
+        </div></div>
       </div>
     </div>
 
@@ -661,14 +698,14 @@
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno"><label for="chkDopplerMaterno">Doppler materno (artérias uterinas)</label></div>
         <div id="dopplerMaternoFields" class="conditional">
-          <div class="field-row">
-            <div class="field"><label>IP artéria uterina direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder="ex: 0,85"></div>
-            <div class="field"><label>IP artéria uterina esquerda</label><input type="text" inputmode="decimal" data-decimals="2" id="utEsquerda" placeholder="ex: 0,90"></div>
-          </div>
-          <div class="field-row">
-            <div class="field"><label>IP médio (calculado)</label><input type="text" id="utMedioCalc" readonly placeholder="calculado automaticamente"></div>
-            <div class="field"><label>Percentil calculado (Gómez et al., 2008)</label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
-          </div>
+          <div class="bio-grupos"><div class="bio-col">
+            <div class="bio-grupo"><h4>Artérias uterinas</h4>
+              <div class="field bio-linha"><label for="utDireita">IP artéria uterina direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder=""><span class="bio-un"></span></div>
+              <div class="field bio-linha"><label for="utEsquerda">IP artéria uterina esquerda</label><input type="text" inputmode="decimal" data-decimals="2" id="utEsquerda" placeholder=""><span class="bio-un"></span></div>
+              <div class="field bio-linha"><label for="utMedioCalc">IP médio<small>calculado</small></label><input type="text" id="utMedioCalc" readonly placeholder="auto"><span class="bio-un"></span></div>
+              <div class="field bio-linha bio-larga"><label for="utP95Calc">Percentil<small>Gómez et al., 2008</small></label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
+            </div>
+          </div></div>
         </div>
         <hr class="sep">
         <div class="toggle-line"><input type="checkbox" id="chkDopplerFetal"><label for="chkDopplerFetal">Doppler fetal (umbilical, cerebral média e relação cérebro-placentária)</label></div>
@@ -690,9 +727,11 @@
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
         <div id="coloFields" class="conditional">
-          <div class="field-row">
-            <div class="field"><label>Comprimento do colo — via transvaginal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
-          </div>
+          <div class="bio-grupos"><div class="bio-col">
+            <div class="bio-grupo"><h4>Colo uterino</h4>
+              <div class="field bio-linha bio-larga"><label for="coloComprimento">Comprimento do colo<small>via transvaginal, mm</small></label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
+            </div>
+          </div></div>
         </div>
       </div>
     </div>
@@ -700,31 +739,33 @@
     <div class="card">
       <div class="card-head"><h2>Impressões diagnósticas</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field conditional" id="wrap_impSemanas"><label>IG neste exame — semanas</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="ex: 28"></div>
-          <div class="field conditional" id="wrap_impDias"><label>IG neste exame — dias</label><input type="text" inputmode="numeric" id="impDias" placeholder="ex: 4"></div>
-          <div class="field conditional" id="wrap_dumConcordancia"><label>DUM</label>
-            <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
+        <div class="bio-grupos"><div class="bio-col">
+          <div class="bio-grupo"><h4>Idade gestacional e DPP</h4>
+            <div class="field bio-linha bio-ig conditional" id="wrap_impSemanas"><label for="impSemanas">IG neste exame</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="28"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="impDias" placeholder="4" aria-label="IG neste exame — dias"><span class="bio-un">dias</span></div>
+            <div class="field bio-linha bio-sel conditional" id="wrap_dumConcordancia"><label for="dumConcordancia">DUM</label>
+              <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
+            </div>
+            <div class="conditional" id="wrap_dppInformada">
+              <div class="field bio-linha bio-data"><label for="dpp">DPP<small>data provável do parto</small></label><input type="text" id="dpp" placeholder="automática" readonly></div>
+            </div>
           </div>
-        </div>
-        <div class="field-row conditional" id="wrap_dppInformada">
-          <div class="field"><label>DPP (data provável do parto)</label><input type="text" id="dpp" placeholder="calculada automaticamente" readonly></div>
-        </div>
-        <hr class="sep">
-        <!-- Qual dos dois cabe ainda depende da IG ATUAL do exame (ver render():
-             mostrarRecomendacao1/2) — abaixo de 12 semanas só o 1º Trimestre faz
-             sentido, a partir de 14 só o 2º; entre os dois, nenhum aparece, de
-             propósito (ver a discussão que motivou isto, 2026-09-26). -->
-        <div class="toggle-line conditional" id="wrap_chkRecomendacao1"><input type="checkbox" id="chkRecomendacao1"><label for="chkRecomendacao1">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
-        <div class="field-row conditional" id="wrap_recomendacao1">
-          <div class="field"><label>Período recomendado — início</label><input type="text" id="dataInicioMorfo1" placeholder="calculada automaticamente" readonly></div>
-          <div class="field"><label>Período recomendado — fim</label><input type="text" id="dataFimMorfo1" placeholder="calculada automaticamente" readonly></div>
-        </div>
-        <div class="toggle-line conditional" id="wrap_chkRecomendacao2"><input type="checkbox" id="chkRecomendacao2"><label for="chkRecomendacao2">Incluir recomendação de Morfológico do 2º Trimestre</label></div>
-        <div class="field-row conditional" id="wrap_recomendacao2">
-          <div class="field"><label>Período recomendado — início</label><input type="text" id="dataInicioMorfo2" placeholder="calculada automaticamente" readonly></div>
-          <div class="field"><label>Período recomendado — fim</label><input type="text" id="dataFimMorfo2" placeholder="calculada automaticamente" readonly></div>
-        </div>
+          <div class="bio-grupo" id="grpMorfoRec"><h4>Morfológico — recomendação</h4>
+            <!-- Qual dos dois cabe ainda depende da IG ATUAL do exame (ver render():
+                 mostrarRecomendacao1/2) — abaixo de 12 semanas só o 1º Trimestre faz
+                 sentido, a partir de 14 só o 2º; entre os dois, nenhum aparece, de
+                 propósito (ver a discussão que motivou isto, 2026-09-26). -->
+            <div class="toggle-line conditional" id="wrap_chkRecomendacao1"><input type="checkbox" id="chkRecomendacao1"><label for="chkRecomendacao1">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
+            <div class="conditional" id="wrap_recomendacao1">
+              <div class="field bio-linha bio-data"><label for="dataInicioMorfo1">Período recomendado<small>início</small></label><input type="text" id="dataInicioMorfo1" placeholder="automática" readonly></div>
+              <div class="field bio-linha bio-data"><label for="dataFimMorfo1">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo1" placeholder="automática" readonly></div>
+            </div>
+            <div class="toggle-line conditional" id="wrap_chkRecomendacao2"><input type="checkbox" id="chkRecomendacao2"><label for="chkRecomendacao2">Incluir recomendação de Morfológico do 2º Trimestre</label></div>
+            <div class="conditional" id="wrap_recomendacao2">
+              <div class="field bio-linha bio-data"><label for="dataInicioMorfo2">Período recomendado<small>início</small></label><input type="text" id="dataInicioMorfo2" placeholder="automática" readonly></div>
+              <div class="field bio-linha bio-data"><label for="dataFimMorfo2">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo2" placeholder="automática" readonly></div>
+            </div>
+          </div>
+        </div></div>
         <hr class="sep">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima e os blocos ativados. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
@@ -1541,92 +1582,78 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="card" id="wrap_feto'+uid+'">'
       +'<div class="card-head"><h2><span class="feto-label"></span></h2></div>'
       +'<div class="card-body">'
+      +'<div class="bio-grupos">'
 
-      +'<p class="feto-sub">Situação, apresentação e vitalidade</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Apresentação fetal</label><select id="feto'+uid+'Apresentacao"><option value="cefálica">Cefálica</option><option value="pélvica">Pélvica</option><option value="córmica">Córmica (situação transversa)</option></select></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'Dorso"><label>Dorso fetal</label><select id="feto'+uid+'Dorso"><option value="à direita">À direita</option><option value="à esquerda">À esquerda</option></select></div>'
+      +'<div class="bio-col">'
+      +'<div class="bio-grupo"><h4>Situação e vitalidade</h4>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="feto'+uid+'Apresentacao">Apresentação fetal</label><select id="feto'+uid+'Apresentacao"><option value="cefálica">Cefálica</option><option value="pélvica">Pélvica</option><option value="córmica">Córmica (situação transversa)</option></select></div>'
+      +'<div class="field bio-linha bio-sel conditional" id="wrap_feto'+uid+'Dorso"><label for="feto'+uid+'Dorso">Dorso fetal</label><select id="feto'+uid+'Dorso"><option value="à direita">À direita</option><option value="à esquerda">À esquerda</option></select></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'FC">Frequência cardíaca fetal</label><input type="text" inputmode="numeric" id="feto'+uid+'FC" placeholder=""><span class="bio-un">bpm</span></div>'
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Frequência cardíaca fetal (bpm)</label><input type="text" inputmode="numeric" id="feto'+uid+'FC" placeholder="bpm"></div>'
+      +'<div class="bio-grupo"><h4>Biometria fetal</h4>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'DBP">Diâmetro biparietal (DBP)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DBP" placeholder=""><span class="bio-un">mm</span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'CC">Circunferência cefálica (CC)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CC" placeholder=""><span class="bio-un">mm</span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'CA">Circunferência abdominal (CA)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CA" placeholder=""><span class="bio-un">mm</span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'CF">Comprimento femoral (CF)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CF" placeholder=""><span class="bio-un">mm</span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'Peso">Peso fetal estimado</label><input type="text" inputmode="numeric" id="feto'+uid+'Peso" placeholder=""><span class="bio-un">g</span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'Percentil">Percentil de peso<small>Hadlock</small></label><input type="text" inputmode="numeric" id="feto'+uid+'Percentil" placeholder="ex: 45"><span class="bio-un"></span></div>'
+      +'<div class="field bio-linha bio-sel conditional" id="wrap_feto'+uid+'CiurEstagio"><label for="feto'+uid+'CiurEstagio">CIUR — estágio</label><select id="feto'+uid+'CiurEstagio"><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>'
       +'</div>'
-      +'<p class="feto-sub">Parâmetros biométricos</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Diâmetro biparietal — DBP (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'DBP" placeholder="mm"></div>'
-      +'<div class="field"><label>Comprimento femoral — CF (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CF" placeholder="mm"></div>'
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Circunferência cefálica — CC (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CC" placeholder="mm"></div>'
-      +'<div class="field"><label>Circunferência abdominal — CA (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CA" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Peso fetal estimado (g)</label><input type="text" inputmode="numeric" id="feto'+uid+'Peso" placeholder="g"></div>'
-      +'<div class="field"><label>Percentil de peso (Hadlock)</label><input type="text" inputmode="numeric" id="feto'+uid+'Percentil" placeholder="ex: 45"></div>'
-      +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'CiurEstagio"><label>CIUR — estágio</label><select id="feto'+uid+'CiurEstagio"><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>'
 
-      +'<p class="feto-sub">Placenta</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Posição / inserção</label><select id="feto'+uid+'PlacentaInsercao">'
+      +'<div class="bio-col">'
+      +'<div class="bio-grupo"><h4>Placenta</h4>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'PlacentaInsercao">Posição / inserção</label><select id="feto'+uid+'PlacentaInsercao">'
       +'<option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option>'
       +'<option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option>'
       +'<option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option>'
       +'<option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option>'
       +'</select></div>'
-      +'<div class="field"><label>Textura</label><select id="feto'+uid+'PlacentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div>'
+      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaTextura">Textura</label><select id="feto'+uid+'PlacentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div>'
+      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaGrau">Grau (Grannum)</label><select id="feto'+uid+'PlacentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div>'
+      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaEspessura">Espessura</label><select id="feto'+uid+'PlacentaEspessura"><option value="normal">Normal</option><option value="alterada">Alterada (descrever)</option></select></div>'
+      +'<div class="field bio-linha bio-larga conditional" id="wrap_feto'+uid+'PlacentaDescricao"><label for="feto'+uid+'PlacentaDescricao">Descreva o achado</label><textarea id="feto'+uid+'PlacentaDescricao" rows="2" placeholder="ex: espessura aumentada, medindo..."></textarea></div>'
       +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Grau (Grannum)</label><select id="feto'+uid+'PlacentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div>'
-      +'<div class="field"><label>Espessura</label><select id="feto'+uid+'PlacentaEspessura"><option value="normal">Normal</option><option value="alterada">Alterada (descrever)</option></select></div>'
+      +'<div class="bio-grupo"><h4>Líquido amniótico</h4>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'LaAspecto">Aspecto e volume</label><select id="feto'+uid+'LaAspecto"><option value="normal">Normal</option><option value="reduzido">Volume reduzido (oligoâmnio)</option><option value="aumentado">Volume aumentado (polidrâmnio)</option></select></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'LaBolsao">Maior bolsão</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaBolsao" placeholder=""><span class="bio-un">cm</span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'LaILA">ILA</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaILA" placeholder=""><span class="bio-un">cm</span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'LaILAPercentil">Percentil do ILA</label><input type="text" inputmode="numeric" id="feto'+uid+'LaILAPercentil" placeholder="ex: 50"><span class="bio-un"></span></div>'
       +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'PlacentaDescricao"><label>Descreva o achado</label><textarea id="feto'+uid+'PlacentaDescricao" rows="2" placeholder="ex: espessura aumentada, medindo..."></textarea></div>'
+      +'</div>'
 
-      +'<p class="feto-sub">Líquido amniótico</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Aspecto e volume</label><select id="feto'+uid+'LaAspecto"><option value="normal">Normal</option><option value="reduzido">Volume reduzido (oligoâmnio)</option><option value="aumentado">Volume aumentado (polidrâmnio)</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Maior bolsão (cm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaBolsao" placeholder="cm"></div>'
-      +'<div class="field"><label>ILA (cm)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaILA" placeholder="cm"></div>'
-      +'<div class="field"><label>Percentil do ILA</label><input type="text" inputmode="numeric" id="feto'+uid+'LaILAPercentil" placeholder="ex: 50"></div>'
       +'</div>'
 
       +'<div class="conditional" id="wrap_feto'+uid+'Doppler">'
-      +'<p class="feto-sub" id="feto'+uid+'DopplerLabel">Doppler fetal</p>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Art. Umbilical (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiUmbilical" placeholder="ex: 0,95"></div>'
-      +'<div class="field"><label>Art. Cerebral Média (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiACM" placeholder="ex: 1,60"></div>'
-      +'</div>'
-      +'<div class="field-row">'
+      +'<div class="bio-grupo"><h4 id="feto'+uid+'DopplerLabel">Doppler fetal</h4>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'PiUmbilical">Art. Umbilical (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiUmbilical" placeholder="ex: 0,95"><span class="bio-un"></span></div>'
       // Fluxo diastólico da umbilical — mesmas opções e mesmos valores do
       // app de curvas (e-au-fluxo em curva-fetal/index.html), pra a coluna
       // au_fluxo do Supabase chegar com o mesmo vocabulário dos dois lados.
       // AEDF/REDF fecham CIUR sozinhos antes de 32 semanas (ver bloco de
       // pesoKey, abaixo) — é por isso que existe, não só pra imprimir.
-      +'<div class="field"><label>Fluxo diastólico — Art. Umbilical</label><select id="feto'+uid+'AuFluxo">'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'AuFluxo">Fluxo diastólico — Art. Umbilical</label><select id="feto'+uid+'AuFluxo">'
         +'<option value="">—</option>'
         +'<option value="normal">Normal</option>'
         +'<option value="ausente">AEDF — diástole ausente</option>'
         +'<option value="reversa">REDF — diástole reversa</option>'
         +'<option value="intermitente">iAREDF — diástole intermitente (ausente/reversa)</option>'
       +'</select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Relação cérebro-placentária — RCP (calculada)</label><input type="text" id="feto'+uid+'CprCalc" readonly placeholder="calculado automaticamente"></div>'
-      +'<div class="field"><label>Percentil do RCP (calculado, editável)</label><input type="text" inputmode="numeric" id="feto'+uid+'CprPercentil" placeholder="calculado automaticamente"><button type="button" class="cpr-recalc" id="feto'+uid+'CprRecalc" data-uid="'+uid+'" style="margin-top:6px;background:none;border:none;padding:0;font-size:12px;color:var(--rose-dark);text-decoration:underline;cursor:pointer;">Recalcular percentil</button></div>'
-      +'</div>'
-      +'<div class="field-row">'
-      +'<div class="field"><label>Classificação (umbilical + ACM + relação cérebro-placentária)</label><select id="feto'+uid+'DopplerClassificacao"><option value="normal">Dentro da normalidade</option><option value="alterado">Alterado - Redistribuição de fluxo</option></select></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'PiACM">Art. Cerebral Média (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiACM" placeholder="ex: 1,60"><span class="bio-un"></span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'CprCalc">RCP<small>relação cérebro-placentária, calculada</small></label><input type="text" id="feto'+uid+'CprCalc" readonly placeholder="auto"><span class="bio-un"></span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'CprPercentil">Percentil do RCP<small>calculado, editável</small><button type="button" class="cpr-recalc" id="feto'+uid+'CprRecalc" data-uid="'+uid+'" style="display:block;background:none;border:none;padding:0;font-size:11.5px;color:var(--rose-dark);text-decoration:underline;cursor:pointer;">Recalcular percentil</button></label><input type="text" inputmode="numeric" id="feto'+uid+'CprPercentil" placeholder="auto"><span class="bio-un"></span></div>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'DopplerClassificacao">Classificação<small>umbilical + ACM + relação cérebro-placentária</small></label><select id="feto'+uid+'DopplerClassificacao"><option value="normal">Dentro da normalidade</option><option value="alterado">Alterado - Redistribuição de fluxo</option></select></div>'
       +'</div>'
       +'</div>'
 
       +'<div class="conditional" id="wrap_feto'+uid+'PBF">'
-      +'<p class="feto-sub">Perfil biofísico fetal</p>'
+      +'<div class="bio-grupo"><h4>Perfil biofísico fetal</h4>'
       +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'PbfResp" checked><label for="feto'+uid+'PbfResp">Movimentos respiratórios presentes</label></div>'
       +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'PbfCorpo" checked><label for="feto'+uid+'PbfCorpo">Movimentos corpóreos presentes</label></div>'
       +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'PbfTono" checked><label for="feto'+uid+'PbfTono">Tônus fetal presente</label></div>'
       +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'PbfLA" checked><label for="feto'+uid+'PbfLA">Volume de líquido amniótico normal</label></div>'
-      +'<p style="font-size:13px;font-weight:600;color:var(--rose-dark);margin:4px 0 0;">Escore: <span id="feto'+uid+'PbfScore">8</span>/8</p>'
+      +'<p style="font-size:13px;font-weight:600;color:var(--rose-dark);margin:4px 0 8px;">Escore: <span id="feto'+uid+'PbfScore">8</span>/8</p>'
+      +'</div>'
       +'</div>'
 
       +'<button type="button" class="feto-remove" data-uid="'+uid+'">Remover feto</button>'
