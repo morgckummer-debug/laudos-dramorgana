@@ -431,9 +431,14 @@
   <div class="field" style="margin-bottom:8px;"><label>Esteatose — QUS marcado, % em branco</label><textarea id="ph_impEsteatosePendente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Esteatose — alterada (QUS) — use {PCT} e {GRAU}</label><textarea id="ph_impEsteatoseAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Doença de depósito (grau informado manualmente) — use {GRAU}</label><textarea id="ph_impFigadoDeposito" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Cisto hepático</label><textarea id="ph_impFigadoCisto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cisto hepático (um)</label><textarea id="ph_impFigadoCisto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cistos hepáticos (dois ou mais)</label><textarea id="ph_impFigadoCistos" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hemangioma hepático (um)</label><textarea id="ph_impFigadoHemangiomaUm" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Hemangiomas hepáticos (dois ou mais)</label><textarea id="ph_impFigadoHemangiomas" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cirrose hepática</label><textarea id="ph_impFigadoCirrose" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Hemangioma hepático</label><textarea id="ph_impFigadoHemangioma" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cirrose hepática com hepatomegalia</label><textarea id="ph_impFigadoCirroseHepatomegalia" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Doença policística hepática</label><textarea id="ph_impFigadoPolicistica" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Doença policística hepática com hepatomegalia</label><textarea id="ph_impFigadoPolicisticaHepatomegalia" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hepatomegalia</label><textarea id="ph_impFigadoHepatomegalia" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hepatomegalia com esteatose — use {GRAU} (leve, moderada ou acentuada)</label><textarea id="ph_impFigadoHepatomegaliaEsteatose" rows="2"></textarea></div>
 
@@ -523,15 +528,19 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 <div><div class="field bio-linha bio-larga"><label for="figadoAspecto">Aspecto</label><select id="figadoAspecto">
 <option value="normal">Normal (dimensões, forma, parênquima e veia porta usuais)</option>
 <option value="esteatose">Esteatose hepática (aumento difuso da ecogenicidade)</option>
-<option value="cisto">Cisto hepático simples</option>
-<option value="hemangioma">Hemangioma</option>
 <option value="cirrose">Cirrose hepática</option>
+<option value="policistica">Doença policística hepática</option>
 <option value="alterado">Outro (descrever)</option>
 </select></div></div>
 <div class="conditional" id="wrap_figadoEsteatoseCampos"><div class="field bio-linha bio-sel"><label for="figadoVolume">Volume hepático</label><select id="figadoVolume"><option value="usuais">Dimensões usuais</option><option value="aumentadas">Dimensões aumentadas</option></select></div><div class="field bio-linha bio-sel"><label for="figadoAtenuacao">Atenuação dos feixes sonoros</label><select id="figadoAtenuacao"><option value="leve">Leve</option><option value="moderada">Moderada</option><option value="acentuada">Acentuada</option></select></div><div class="field bio-linha bio-sel conditional" id="wrap_figadoGrauManual"><label for="figadoGrauManual">Grau da doença de depósito<span class="vr">Some com a Impressão só quando o QUS abaixo estiver desligado</span></label><select id="figadoGrauManual"><option value="1">Grau 1</option><option value="2">Grau 2</option><option value="3">Grau 3</option></select></div></div>
-<div class="conditional" id="wrap_figadoCistoCampos"><div class="field bio-linha bio-texto bio-larga"><label for="figadoCistoSegmento">Segmento hepático</label><input id="figadoCistoSegmento" placeholder="ex: V" type="text"/></div><div class="field bio-linha"><label for="figadoCistoTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="figadoCistoTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
-<div class="conditional" id="wrap_figadoHemangiomaCampos"><div class="field bio-linha bio-texto bio-larga"><label for="figadoHemangiomaSegmento">Segmento hepático</label><input id="figadoHemangiomaSegmento" placeholder="ex: VII" type="text"/></div><div class="field bio-linha"><label for="figadoHemangiomaTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="figadoHemangiomaTamanho" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div>
+<div class="conditional" id="wrap_figadoCirroseCampos"><div class="field bio-linha bio-sel"><label for="figadoCirroseVolume">Volume hepático</label><select id="figadoCirroseVolume"><option value="normais">Dimensões normais</option><option value="aumentadas">Dimensões aumentadas</option></select></div></div>
+<div class="conditional" id="wrap_figadoPolicisticaCampos"><div class="field bio-linha bio-sel"><label for="figadoPolicisticaVolume">Volume hepático</label><select id="figadoPolicisticaVolume"><option value="normais">Dimensões normais</option><option value="aumentadas">Dimensões aumentadas</option></select></div><div class="field bio-linha bio-texto bio-larga"><label for="figadoPolicisticaSegmento">Maior cisto — segmento<span class="vr">Opcional</span></label><input id="figadoPolicisticaSegmento" placeholder="ex: VI" type="text"/></div><div class="field bio-linha"><label for="figadoPolicisticaTamanho">Maior cisto — tamanho<span class="vr">Opcional</span></label><input data-decimals="1" data-maxint="3" id="figadoPolicisticaTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
 <div class="field bio-linha bio-larga conditional" id="wrap_figadoDescricao"><label for="figadoDescricao">Descreva o achado</label><textarea id="figadoDescricao" placeholder="ex: parênquima heterogêneo, nódulo medindo..." rows="2"></textarea></div>
+<hr class="sep"/>
+<div class="conditional show" id="wrap_chkFigadoCisto"><div class="toggle-line" style="margin-bottom:6px;"><input id="chkFigadoCisto" type="checkbox"/><label for="chkFigadoCisto">Cisto(s) hepático(s) simples</label></div></div>
+<div class="conditional" id="wrap_figadoCistoCampos"><div id="figadoCistoContainer"></div><button class="btn-clear" id="btnAddFigadoCisto" style="margin:2px 0 10px;" type="button">+ Adicionar cisto</button></div>
+<div class="toggle-line" style="margin-bottom:6px;"><input id="chkFigadoHemangioma" type="checkbox"/><label for="chkFigadoHemangioma">Hemangioma(s)</label></div>
+<div class="conditional" id="wrap_figadoHemangiomaCampos"><div id="figadoHemangiomaContainer"></div><button class="btn-clear" id="btnAddFigadoHemangioma" style="margin:2px 0 10px;" type="button">+ Adicionar hemangioma</button></div>
 <hr class="sep"/>
 <div><div class="field bio-linha"><label for="figadoLoboDireito">Lobo direito (eixo longitudinal)<span class="vr">VR até 15,5 cm</span><span class="flag-note" id="flag_figadoLoboDireito">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="figadoLoboDireito" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="figadoLoboEsquerdo">Lobo esquerdo (eixo longitudinal)<span class="vr">VR até 11,0 cm</span><span class="flag-note" id="flag_figadoLoboEsquerdo">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="figadoLoboEsquerdo" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div>
 <hr class="sep"/>
@@ -1359,8 +1368,13 @@ if(typeof criarMotorLaudo !== 'function'){
     impEsteatoseAlterada: 'Esteatose hepática: Quantificação ultrassonográfica pelo método QUS estimou {PCT}% de gordura, valor que se enquadra no grau {GRAU} de esteatose hepática.',
     impFigadoDeposito: 'Aumento difuso da ecogenicidade hepática sugestivo de doença de depósito em grau {GRAU}.',
     impFigadoCisto: 'Cisto hepático simples.',
+    impFigadoCistos: 'Cistos hepáticos simples.',
+    impFigadoHemangiomaUm: 'Nódulo hepático sugestivo de hemangioma.',
+    impFigadoHemangiomas: 'Nódulos hepáticos sugestivos de hemangiomas.',
     impFigadoCirrose: 'Cirrose hepática.',
-    impFigadoHemangioma: 'Nódulo(s) hepático(s) sugestivo(s) de hemangioma(s).',
+    impFigadoCirroseHepatomegalia: 'Cirrose hepática com hepatomegalia.',
+    impFigadoPolicistica: 'Doença policística hepática.',
+    impFigadoPolicisticaHepatomegalia: 'Doença policística hepática com hepatomegalia.',
     impFigadoHepatomegalia: 'Hepatomegalia.',
     impFigadoHepatomegaliaEsteatose: 'Hepatomegalia associada a aumento difuso da ecogenicidade sugestiva de esteatose {GRAU}.',
     impVesiculaCalculo: 'Colecistolitíase.',
@@ -1502,12 +1516,69 @@ if(typeof criarMotorLaudo !== 'function'){
   $('figadoAspecto').addEventListener('change', e=>{
     const val = e.target.value;
     toggle('wrap_figadoEsteatoseCampos', val==='esteatose');
-    toggle('wrap_figadoCistoCampos', val==='cisto');
-    toggle('wrap_figadoHemangiomaCampos', val==='hemangioma');
+    toggle('wrap_figadoCirroseCampos', val==='cirrose');
+    toggle('wrap_figadoPolicisticaCampos', val==='policistica');
     toggle('wrap_figadoDescricao', val==='alterado');
     if(val==='alterado') prefillAlteradoIfEmpty('figadoDescricao', FIGADO_NORMAL);
     updateFigadoGrauManualVisibility();
   });
+  // ---------- Fígado: cistos e hemangiomas em lista ----------
+  // Lesões focais são caixas à parte do "Aspecto": somam-se à descrição do
+  // parênquima (normal, esteatose, cirrose...) em vez de substituí-la — antes
+  // eram opções do Aspecto e a frase-base do fígado sumia inteira. Cada item
+  // tem uid próprio, nunca reaproveitado (mesmo molde das listas dos rins).
+  const FIGADO_LESOES = ['Cisto','Hemangioma'];
+  const FIGADO_LESAO_LABEL = {Cisto:'Cisto', Hemangioma:'Hemangioma'};
+  const FIGADO_LESAO_UN = {Cisto:'mm', Hemangioma:'cm'};
+  const figadoNextUid = {Cisto:1, Hemangioma:1};
+  function figadoLesaoHTML(kind, uid){
+    const pre = 'figado'+kind+uid, label = FIGADO_LESAO_LABEL[kind];
+    return ''
+      +'<div class="subgroup" id="wrap_'+pre+'">'
+      +'<div class="field bio-linha bio-texto bio-larga"><label for="'+pre+'Segmento">'+label+' <span class="subitem-index"></span> — segmento hepático</label><input id="'+pre+'Segmento" placeholder="ex: '+(kind==='Cisto'?'V':'VII')+'" type="text"/></div>'
+      +'<div class="field bio-linha"><label for="'+pre+'Tamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="'+pre+'Tamanho" inputmode="decimal" type="text"/><span class="bio-un">'+FIGADO_LESAO_UN[kind]+'</span></div>'
+      +'<button type="button" class="subitem-remove">Remover '+label.toLowerCase()+'</button>'
+      +'</div>';
+  }
+  function figadoLesaoUids(kind){
+    return Array.from($('figado'+kind+'Container').children).map(el=> el.id.replace('wrap_figado'+kind,''));
+  }
+  function renumberFigadoLesao(kind){
+    const itens = Array.from($('figado'+kind+'Container').children);
+    itens.forEach((el, idx)=>{
+      el.querySelector('.subitem-index').textContent = idx+1;
+      el.querySelector('.subitem-remove').style.display = itens.length>1 ? 'block' : 'none';
+    });
+  }
+  function insertFigadoLesao(kind, uid){
+    figadoNextUid[kind] = Math.max(figadoNextUid[kind], parseInt(uid,10)+1);
+    $('figado'+kind+'Container').insertAdjacentHTML('beforeend', figadoLesaoHTML(kind, uid));
+    const el = $('wrap_figado'+kind+uid);
+    el.querySelectorAll('input').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
+    el.querySelector('.subitem-remove').addEventListener('click', ()=>{
+      el.remove();
+      renumberFigadoLesao(kind);
+      render();
+    });
+  }
+  function addFigadoLesao(kind){
+    insertFigadoLesao(kind, figadoNextUid[kind]);
+    renumberFigadoLesao(kind);
+    render();
+  }
+  FIGADO_LESOES.forEach(kind=>{
+    $('chkFigado'+kind).addEventListener('change', e=>{
+      toggle('wrap_figado'+kind+'Campos', e.target.checked);
+      // O primeiro item nasce aqui, não no render(): o draftRestore() repõe a
+      // lista antes de disparar este 'change', e aí ela já não está vazia.
+      if(e.target.checked && !figadoLesaoUids(kind).length) addFigadoLesao(kind);
+    });
+    $('btnAddFigado'+kind).addEventListener('click', ()=> addFigadoLesao(kind));
+  });
+
   function updateVesiculaCalculoLabel(){
     $('lbl_vesiculaCalculoTamanho').textContent = v('vesiculaCalculoQtd')==='varios' ? 'Tamanho do maior' : 'Tamanho';
   }
@@ -1739,18 +1810,10 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.figadoImpressaoDeposito){
       items.push({key:'figado-deposito', label: state.figadoImpressaoDeposito, auto:true});
     }
-    if(state.figadoAspecto==='cirrose'){
-      items.push({key:'figado-cirrose', label:phrase('impFigadoCirrose'), auto:true});
-    }
-    if(state.figadoAspecto==='cisto'){
-      items.push({key:'figado-cisto', label:phrase('impFigadoCisto'), auto:true});
-    }
-    if(state.figadoAspecto==='hemangioma'){
-      items.push({key:'figado-hemangioma', label:phrase('impFigadoHemangioma'), auto:true});
-    }
+    state.figadoImpressoes.forEach(it=> items.push({key:it.key, label:it.label, auto:true}));
     if(state.figadoHepatomegaliaEsteatose){
       items.push({key:'figado-hepatomegalia-esteatose', label:state.figadoHepatomegaliaEsteatose, auto:true});
-    } else if(state.figadoHepatomegalia){
+    } else if(state.figadoHepatomegalia && !state.figadoHepatomegaliaNaFrase){
       items.push({key:'figado-hepatomegalia', label:phrase('impFigadoHepatomegalia'), auto:true});
     }
     if(state.vesiculaImpressaoHD){
@@ -1887,15 +1950,50 @@ if(typeof criarMotorLaudo !== 'function'){
     const figadoVolume = v('figadoVolume') || 'usuais';
     const figadoAtenuacao = v('figadoAtenuacao') || 'leve';
     const figadoGrauManual = v('figadoGrauManual') || '1';
-    const figadoCistoSegmentoTexto = blankOrValue(reqIf('figadoCistoSegmento', figadoAspecto==='cisto'));
-    const figadoCistoTamanhoTexto = blankOrValue(reqIf('figadoCistoTamanho', figadoAspecto==='cisto'));
-    const figadoHemangiomaSegmentoTexto = blankOrValue(reqIf('figadoHemangiomaSegmento', figadoAspecto==='hemangioma'));
-    const figadoHemangiomaTamanhoTexto = blankOrValue(reqIf('figadoHemangiomaTamanho', figadoAspecto==='hemangioma'));
+    // Cisto(s) e hemangioma(s): somam-se à descrição do parênquima. Na doença
+    // policística os cistos já são a própria frase-base, e a caixa some.
+    toggle('wrap_chkFigadoCisto', figadoAspecto!=='policistica');
+    const figadoLesao = kind=>{
+      const ativo = $('chkFigado'+kind).checked && !(kind==='Cisto' && figadoAspecto==='policistica');
+      return !ativo ? [] : figadoLesaoUids(kind).map(uid=>({
+        seg: blankOrValue(req('figado'+kind+uid+'Segmento')),
+        tam: blankOrValue(req('figado'+kind+uid+'Tamanho'))
+      }));
+    };
+    const figadoCistos = figadoLesao('Cisto');
+    const figadoHemangiomas = figadoLesao('Hemangioma');
+    // 1 item: frase única; 2: frase no plural com "respectivamente"; 3 ou
+    // mais: frase de abertura e a lista "- Cisto 1: ..." num bloco logo
+    // depois do parágrafo do fígado (mesmo formato das listas dos rins).
+    const figadoLesaoFrase = (itens, d)=>{
+      if(!itens.length) return {frase:'', lista:null};
+      if(itens.length===1){
+        return {frase:'Observa-se '+d.um+', localizada no segmento '+span(itens[0].seg)+', medindo '+span(itens[0].tam)+' '+d.un+'.', lista:null};
+      }
+      if(itens.length===2){
+        const a = itens[0], b = itens[1];
+        const local = (a.seg.filled && a.seg.text===b.seg.text) ? 'no segmento '+span(a.seg) : 'nos segmentos '+span(a.seg)+' e '+span(b.seg);
+        return {frase:'Observam-se duas '+d.varios+', localizadas '+local+', medindo '+span(a.tam)+' '+d.un+' e '+span(b.tam)+' '+d.un+', respectivamente.', lista:null};
+      }
+      return {
+        frase:'Observam-se ao menos '+numeroExtenso(itens.length)+' '+d.varios+', descritas abaixo.',
+        lista: itens.map((it,i)=> d.item+' '+(i+1)+': no segmento '+span(it.seg)+', medindo '+span(it.tam)+' '+d.un)
+      };
+    };
+    const figadoCistoTxt = figadoLesaoFrase(figadoCistos, {
+      um:'imagem anecoica de paredes finas e regulares', varios:'imagens anecoicas de paredes finas e regulares', item:'Cisto', un:'mm'});
+    const figadoHemangiomaTxt = figadoLesaoFrase(figadoHemangiomas, {
+      um:'imagem nodular sólida, ecogênica e pouco heterogênea, de contornos regulares',
+      varios:'imagens nodulares sólidas, ecogênicas e pouco heterogêneas, de contornos regulares', item:'Nódulo', un:'cm'});
+    const figadoLesoesTexto = [figadoCistoTxt.frase, figadoHemangiomaTxt.frase].filter(Boolean).join(' ');
+    const FIGADO_VEIAS = 'Veia porta, seus ramos e veias hepáticas sem alterações.';
+    const figadoImpressoes = [];
+    let figadoHepatomegaliaNaFrase = false;
     let figadoImpressaoDeposito = null;
     let figadoHepatomegaliaEsteatose = null;
     let figadoTextoBase;
     if(figadoAspecto==='esteatose'){
-      figadoTextoBase = 'Dimensões '+(figadoVolume==='aumentadas'?'aumentadas':'usuais')+', forma globosa, contornos arredondados e regulares. Parênquima hepático apresentando aumento difuso da ecogenicidade, condicionando '+figadoAtenuacao+' atenuação dos feixes sonoros nos planos posteriores, dificultando a avaliação de lesões intraparenquimatosas ao método. Veia porta, seus ramos e veias hepáticas sem alterações.';
+      figadoTextoBase = 'Dimensões '+(figadoVolume==='aumentadas'?'aumentadas':'usuais')+', forma globosa, contornos arredondados e regulares. Parênquima hepático apresentando aumento difuso da ecogenicidade, condicionando '+figadoAtenuacao+' atenuação dos feixes sonoros nos planos posteriores, dificultando a avaliação de lesões intraparenquimatosas ao método.'+(figadoLesoesTexto ? ' '+figadoLesoesTexto : '')+' '+FIGADO_VEIAS;
       // Fígado aumentado (lobos acima do limite ou "Dimensões aumentadas") com
       // esteatose: uma frase só, no lugar de "Hepatomegalia." + doença de
       // depósito. O grau segue o QUS quando ele está preenchido e alterado (S1/S2/S3);
@@ -1908,17 +2006,41 @@ if(typeof criarMotorLaudo !== 'function'){
         // marcado e o % em branco.
         figadoImpressaoDeposito = phrase('impFigadoDeposito', {GRAU:figadoGrauManual});
       }
-    } else if(figadoAspecto==='cisto'){
-      figadoTextoBase = 'Observa-se imagem anecóica de paredes finas e regulares, localizada no segmento '+span(figadoCistoSegmentoTexto)+', medindo '+span(figadoCistoTamanhoTexto)+' mm.';
-    } else if(figadoAspecto==='hemangioma'){
-      figadoTextoBase = 'Observa-se imagem nodular sólida, ecogênica e pouco heterogênea, de contornos regulares, localizada em segmento '+span(figadoHemangiomaSegmentoTexto)+', medindo '+span(figadoHemangiomaTamanhoTexto)+' cm.';
     } else if(figadoAspecto==='cirrose'){
-      figadoTextoBase = 'Dimensões normais, forma anatômica e contornos serrilhados e bordas arredondadas. Parênquima fina e difusamente heterogêneo, sem identificação de lesões intraparenquimatosas. Veia porta, seus ramos e veias hepáticas sem alterações.';
+      const aumentado = v('figadoCirroseVolume')==='aumentadas';
+      figadoTextoBase = 'Dimensões '+(aumentado?'aumentadas':'normais')+', forma anatômica, contornos serrilhados e bordas arredondadas. Parênquima com ecotextura fina e difusamente heterogênea'
+        +(figadoLesoesTexto ? '. '+figadoLesoesTexto : ', sem identificação de lesões intraparenquimatosas.')+' '+FIGADO_VEIAS;
+      // Fígado aumentado (no seletor ou pelos lobos): uma linha só na conclusão.
+      figadoHepatomegaliaNaFrase = aumentado || figadoHepatomegalia;
+      figadoImpressoes.push(figadoHepatomegaliaNaFrase
+        ? {key:'figado-cirrose-hepatomegalia', label:phrase('impFigadoCirroseHepatomegalia')}
+        : {key:'figado-cirrose', label:phrase('impFigadoCirrose')});
+    } else if(figadoAspecto==='policistica'){
+      const aumentado = v('figadoPolicisticaVolume')==='aumentadas';
+      const seg = v('figadoPolicisticaSegmento'), tam = v('figadoPolicisticaTamanho');
+      const maior = (seg || tam)
+        ? ', a maior'+(seg ? ' localizada no segmento '+span(blankOrValue(seg)) : '')+(tam ? ', medindo '+span(blankOrValue(tam))+' mm' : '')
+        : '';
+      figadoTextoBase = 'Dimensões '+(aumentado?'aumentadas':'normais')+', contornos lobulados. Parênquima com múltiplas imagens anecoicas de paredes finas e regulares, esparsas por ambos os lobos'+maior+'.'
+        +(figadoLesoesTexto ? ' '+figadoLesoesTexto : '')+' '+FIGADO_VEIAS;
+      figadoHepatomegaliaNaFrase = aumentado || figadoHepatomegalia;
+      figadoImpressoes.push(figadoHepatomegaliaNaFrase
+        ? {key:'figado-policistica-hepatomegalia', label:phrase('impFigadoPolicisticaHepatomegalia')}
+        : {key:'figado-policistica', label:phrase('impFigadoPolicistica')});
     } else if(figadoAspecto==='alterado' && figadoDescricao){
-      figadoTextoBase = escapeHtml(figadoDescricao)+'.';
+      figadoTextoBase = escapeHtml(figadoDescricao)+'.'+(figadoLesoesTexto ? ' '+figadoLesoesTexto : '');
+    } else if(figadoLesoesTexto){
+      // Normal com lesão focal: a frase-base fica, só troca o "sem lesões".
+      figadoTextoBase = 'Dimensões normais, forma anatômica e contornos lisos e regulares. Parênquima com ecogenicidade usual e textura homogênea. '+figadoLesoesTexto+' '+FIGADO_VEIAS;
     } else {
       figadoTextoBase = FIGADO_NORMAL;
     }
+    if(figadoCistos.length) figadoImpressoes.push(figadoCistos.length===1
+      ? {key:'figado-cisto', label:phrase('impFigadoCisto')}
+      : {key:'figado-cistos', label:phrase('impFigadoCistos')});
+    if(figadoHemangiomas.length) figadoImpressoes.push(figadoHemangiomas.length===1
+      ? {key:'figado-hemangioma-1', label:phrase('impFigadoHemangiomaUm')}
+      : {key:'figado-hemangiomas', label:phrase('impFigadoHemangiomas')});
 
     // ----- Vesícula e vias biliares -----
     const vesiculaAspecto = v('vesiculaAspecto');
@@ -2260,7 +2382,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // ----- Impressão -----
     const state = {
       chkEsteatose, pctGorduraNum, pctGorduraTexto, grauInfo,
-      figadoAspecto, figadoImpressaoDeposito, figadoHepatomegaliaEsteatose, figadoHepatomegalia, vesiculaImpressaoHD, pancreasImpressaoHD, rinsImpressaoHDs, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
+      figadoAspecto, figadoImpressaoDeposito, figadoHepatomegaliaEsteatose, figadoHepatomegalia, figadoImpressoes, figadoHepatomegaliaNaFrase, vesiculaImpressaoHD, pancreasImpressaoHD, rinsImpressaoHDs, bexigaImpressaoHD, bacoImpressaoHD, vasosImpressaoHD,
       apendiceImpressaoHD, adeniteImpressaoHD, asciteImpressaoHD
     };
     const impressaoItems = buildImpressao(state);
@@ -2296,6 +2418,8 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     blocks.push({id:'figado', html:'<p class="linha"><strong>Fígado:</strong> '+figadoTextoBase+' O lobo direito mede '+span(loboDTexto)+' cm (VR até 15,5 cm) e o lobo esquerdo mede '+span(loboETexto)+' cm (VR até 11,0 cm).</p>'});
+    pushListaBlock(blocks, 'figadoCistosLista', figadoCistoTxt.lista);
+    pushListaBlock(blocks, 'figadoHemangiomasLista', figadoHemangiomaTxt.lista);
 
     let vesiculaTextoBase;
     if(vesiculaAspecto==='calculo'){
@@ -2593,6 +2717,7 @@ if(typeof criarMotorLaudo !== 'function'){
     $('rinsDNormal').checked = true;
     $('rinsENormal').checked = true;
     ['rinsD','rinsE'].forEach(p=> Object.keys(LISTA_ACHADO_NOME).forEach(kind=> $(p+kind+'NodulosContainer').innerHTML = ''));
+    FIGADO_LESOES.forEach(kind=> $('figado'+kind+'Container').innerHTML = '');
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
@@ -2631,6 +2756,7 @@ if(typeof criarMotorLaudo !== 'function'){
       ts: Date.now(),
       fields: fields,
       listaUids: listaUidsSnapshot,
+      figadoUids: {Cisto: figadoLesaoUids('Cisto'), Hemangioma: figadoLesaoUids('Hemangioma')},
       checked: checkedState,
       overrides: impressaoOverrides,
       titleFontSize: titleFontSize,
@@ -2664,6 +2790,24 @@ if(typeof criarMotorLaudo !== 'function'){
         });
       });
 
+      // Fígado: cistos e hemangiomas voltam com os mesmos uids. Rascunho de
+      // antes da lista tinha "cisto"/"hemangioma" como Aspecto e um par fixo
+      // de campos: vira Aspecto normal + caixa marcada + o item 1.
+      const figadoUids = (d.figadoUids && typeof d.figadoUids === 'object') ? d.figadoUids : {};
+      FIGADO_LESOES.forEach(kind=>{
+        $('figado'+kind+'Container').innerHTML = '';
+        let uids = (Array.isArray(figadoUids[kind]) ? figadoUids[kind] : []).filter(u=> /^[0-9]+$/.test(String(u)));
+        if(d.fields && d.fields.figadoAspecto === kind.toLowerCase()){
+          d.fields.figadoAspecto = 'normal';
+          d.fields['chkFigado'+kind] = true;
+          d.fields['figado'+kind+'1Segmento'] = d.fields['figado'+kind+'Segmento'] || '';
+          d.fields['figado'+kind+'1Tamanho'] = d.fields['figado'+kind+'Tamanho'] || '';
+          uids = ['1'];
+        }
+        uids.forEach(uid=> insertFigadoLesao(kind, uid));
+        if(uids.length) renumberFigadoLesao(kind);
+      });
+
       Object.keys(d.fields).forEach(id=>{
         const el = $(id);
         if(!el || !el.closest('#formCol')) return;
@@ -2683,6 +2827,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }catch(e){
       st.draftRestoring = false;
       ['rinsD','rinsE'].forEach(p=> Object.keys(LISTA_ACHADO_NOME).forEach(kind=> $(p+kind+'NodulosContainer').innerHTML = ''));
+      FIGADO_LESOES.forEach(kind=> $('figado'+kind+'Container').innerHTML = '');
       checkedState = {};
       impressaoOverrides = {};
       st.lastBlockHtml = {};
