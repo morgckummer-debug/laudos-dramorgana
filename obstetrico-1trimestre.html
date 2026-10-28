@@ -712,6 +712,23 @@
               </div>
             </div>
           </div>
+      <div class="bio-grupo conditional show" id="wrap_sacoPresenteBloco"><h4>Saco gestacional</h4>
+        <div class="field bio-linha bio-sel"><label for="sacoPresente">Saco gestacional</label>
+          <select id="sacoPresente"><option value="sim">Presente</option><option value="nao">Ausente</option></select>
+        </div>
+        <div class="conditional" id="wrap_perdaSemSacoCampos">
+          <div class="field bio-linha bio-larga"><label for="perdaSemSacoTipo">Tipo</label>
+            <select id="perdaSemSacoTipo"><option value="incompleto">Incompleto (conteúdo residual/coágulos na cavidade)</option><option value="completo">Completo (cavidade uterina vazia)</option></select>
+          </div>
+          <div class="field bio-linha"><label for="espessuraEndometrial">Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" id="espessuraEndometrial" placeholder=""><span class="bio-un">mm</span></div>
+          <div class="toggle-line conditional show" id="wrap_chkFluxoResidual"><input type="checkbox" id="chkFluxoResidual"><label for="chkFluxoResidual">Captação de fluxo ao Doppler no conteúdo residual</label></div>
+          <div class="conditional" id="wrap_fluxoResidualCampos">
+            <div class="field bio-linha bio-sel"><label for="fluxoResidualLocal">Localização</label><select id="fluxoResidualLocal"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option></select></div>
+            <div class="field bio-linha bio-sel"><label for="fluxoResidualFace">Face</label><select id="fluxoResidualFace"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select></div>
+          </div>
+          <div class="field bio-linha bio-larga"><label for="perdaSemSacoDescricao">Observações adicionais (opcional)</label><textarea id="perdaSemSacoDescricao" rows="2" placeholder="ex: conteúdo heterogêneo com áreas anecoicas de permeio..."></textarea></div>
+        </div>
+      </div>
           <div class="bio-grupo conditional" id="wrap_molaCampos"><h4>Mola hidatiforme</h4>
             <div class="field bio-linha bio-texto bio-larga"><label for="molaMedida">Medida (cm)</label><input type="text" id="molaMedida" placeholder="ex: 6,5 x 5,8 x 4,2"></div>
             <div class="field bio-linha"><label for="molaVolume">Volume estimado</label><input type="text" inputmode="decimal" data-decimals="1" id="molaVolume" placeholder=""><span class="bio-un">cm³</span></div>
@@ -731,26 +748,6 @@
         </div></div>
       </div>
     </div>
-
-    <div class="bio-grupos conditional show" id="wrap_sacoPresenteBloco"><div class="bio-col">
-          <div class="bio-grupo"><h4>Saco gestacional</h4>
-            <div class="field bio-linha bio-sel"><label for="sacoPresente">Saco gestacional</label>
-              <select id="sacoPresente"><option value="sim">Presente</option><option value="nao">Ausente</option></select>
-            </div>
-            <div class="conditional" id="wrap_perdaSemSacoCampos">
-              <div class="field bio-linha bio-larga"><label for="perdaSemSacoTipo">Tipo</label>
-                <select id="perdaSemSacoTipo"><option value="incompleto">Incompleto (conteúdo residual/coágulos na cavidade)</option><option value="completo">Completo (cavidade uterina vazia)</option></select>
-              </div>
-              <div class="field bio-linha"><label for="espessuraEndometrial">Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" id="espessuraEndometrial" placeholder=""><span class="bio-un">mm</span></div>
-              <div class="toggle-line conditional show" id="wrap_chkFluxoResidual"><input type="checkbox" id="chkFluxoResidual"><label for="chkFluxoResidual">Captação de fluxo ao Doppler no conteúdo residual</label></div>
-              <div class="conditional" id="wrap_fluxoResidualCampos">
-                <div class="field bio-linha bio-sel"><label for="fluxoResidualLocal">Localização</label><select id="fluxoResidualLocal"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option></select></div>
-                <div class="field bio-linha bio-sel"><label for="fluxoResidualFace">Face</label><select id="fluxoResidualFace"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select></div>
-              </div>
-              <div class="field bio-linha bio-larga"><label for="perdaSemSacoDescricao">Observações adicionais (opcional)</label><textarea id="perdaSemSacoDescricao" rows="2" placeholder="ex: conteúdo heterogêneo com áreas anecoicas de permeio..."></textarea></div>
-            </div>
-          </div>
-        </div></div>
 
     <div class="conditional show" id="wrap_sacosSection">
       <div id="sacosContainer"></div>
@@ -2044,7 +2041,7 @@ if(typeof criarMotorLaudo !== 'function'){
     cards.forEach((el, idx)=>{
       const label = el.querySelector('.saco-label');
       const uid = el.id.replace('wrap_saco','');
-      if(label) label.textContent = sacoLabel(idx, cards.length, embriaoIdxs(uid).length);
+      if(label) label.textContent = 'Saco '+(idx+1);
       const removeBtn = el.querySelector('.saco-remove');
       if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
     });
