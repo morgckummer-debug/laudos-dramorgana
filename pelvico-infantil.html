@@ -510,6 +510,12 @@
               <div class="field bio-linha"><label for="uteroProporcaoCorpoColo">Proporção corpo:colo<small>calculada · <span class="vr">VR &lt; 1,0</span></small><span class="flag-note" id="flag_uteroProporcaoCorpoColo">Acima do valor de referência</span></label><input type="text" id="uteroProporcaoCorpoColo" readonly placeholder=""><span class="bio-un"></span></div>
             </div>
           </div>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Endométrio</h4>
+              <div class="conditional show" id="wrap_endometrioEspessura"><div class="field bio-linha"><label for="endometrioEspessura">Espessura máxima</label><input type="text" inputmode="decimal" data-decimals="1" id="endometrioEspessura" placeholder=""><span class="bio-un">mm</span></div></div>
+              <div class="field bio-linha bio-sel"><label for="endometrioAspecto">Aspecto</label><select id="endometrioAspecto"><option value="normal">Regular, ecogênico</option><option value="alterado">Alterado (descrever)</option><option value="nao_delimitado">Não delimitado</option></select></div>
+            </div>
+          </div>
         </div>
         <div class="field-row">
           <div class="field"><label>Textura e contornos</label>
@@ -519,20 +525,6 @@
         <div class="field conditional" id="wrap_uteroTexturaContornosDescricao">
           <label>Descreva a textura/contornos</label>
           <textarea id="uteroTexturaContornosDescricao" rows="2" placeholder="ex: irregulares, heterogêneos..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Endométrio</h2></div>
-      <div class="card-body">
-        <div class="bio-grupos">
-          <div class="bio-col">
-            <div class="bio-grupo"><h4>Endométrio</h4>
-              <div class="conditional show" id="wrap_endometrioEspessura"><div class="field bio-linha"><label for="endometrioEspessura">Espessura máxima</label><input type="text" inputmode="decimal" data-decimals="1" id="endometrioEspessura" placeholder=""><span class="bio-un">mm</span></div></div>
-              <div class="field bio-linha bio-sel"><label for="endometrioAspecto">Aspecto</label><select id="endometrioAspecto"><option value="normal">Regular, ecogênico</option><option value="alterado">Alterado (descrever)</option><option value="nao_delimitado">Não delimitado</option></select></div>
-            </div>
-          </div>
         </div>
         <div class="field conditional" id="wrap_endometrioDescricao">
           <label>Descreva o achado</label>
