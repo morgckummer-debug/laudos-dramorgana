@@ -1709,3 +1709,7 @@ Pedido da médica: ao escolher cisto ou hemangioma no "Aspecto" do fígado, a fr
 - **Cirrose** ganhou `figadoCirroseVolume` (normais/aumentadas); aumentado (ou lobo acima do VR) sai `impFigadoCirroseHepatomegalia` numa linha só, sem o "Hepatomegalia." à parte. A frase foi revisada: "forma anatômica, contornos serrilhados e bordas arredondadas. Parênquima com ecotextura fina e difusamente heterogênea".
 - **Rascunho:** guarda `figadoUids`; rascunho antigo com Aspecto "cisto"/"hemangioma" volta como Aspecto normal + caixa marcada + item 1 com os valores de antes.
 - Normal, esteatose (todas as variações) e "Outro" sem lesão saem byte a byte iguais aos da `main` (conferido no Chromium); só a cirrose mudou de texto.
+
+## Rins: achados numa janela, como o Aspecto do fígado (2026-10-28)
+
+Pedido da médica: os checkboxes de cada rim (normal, cálculo, cisto, leite de cálcio, nódulo, hidronefrose...) ocupavam o cartão. Agora cada rim tem um botão "Achados do rim direito: N marcados ▸" que abre uma janela (`#modal_rinsD` / `#modal_rinsE`, montada em `atualizaBotaoRins()` e no bloco "Rins: achados numa janela" do script). A janela é só mover o DOM: ids, listeners, rascunho e conclusão são os mesmos. Fecha por "Concluir", clique fora ou Esc. O botão conta os achados marcados (sem o "Normal") e atualiza no `render()`.
