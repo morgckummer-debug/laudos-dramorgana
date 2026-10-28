@@ -392,6 +392,10 @@
   .bio-grade2 .field.bio-linha.bio-gpa label:not(:first-child){margin-left:0;}
   .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(-n+2){border-top:0;}
   @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} }
+  /* Card Útero em quadros (2026-10-28, opção A): as três medidas num campo só. */
+  .field.bio-linha.bio-medidas{grid-template-columns:1fr 150px 30px;}
+  .bio-utero .bio-grupo .field-row{margin-bottom:10px;}
+  .bio-utero .bio-grupo .toggle-line{margin:6px 0 10px;}
   .ov-titulo{font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;}
   @media (max-width:720px){ .bio-grupos{flex-direction:column;} .bio-col, .bio-col:only-child{flex:0 0 auto;} }
 </style>
@@ -723,125 +727,90 @@
         </div>
 
         <div class="conditional show" id="wrap_uteroPresente">
-        <div class="field-row">
-          <div class="field"><label>Posição uterina</label>
-            <select id="uteroPosicao">
-              <option value="AVF">Anteversoflexão (AVF)</option>
-              <option value="RVF">Retroversoflexão (RVF)</option>
-              <option value="MVF">Posição intermediária / medioversão (MVF)</option>
-            </select>
-          </div>
-          <div class="field"><label>Valor de referência — volume uterino</label>
-            <select id="vrUteroCategoria">
-              <option value="nenhum">Nenhum filho (VR até <span class="vr-uteroNenhum">90</span> cm³)</option>
-              <option value="1a2">1 ou 2 filhos (VR até <span class="vr-utero1a2">140</span> cm³)</option>
-              <option value="3">3 filhos (VR até <span class="vr-utero3">160</span> cm³)</option>
-              <option value="4mais">4 ou mais filhos (VR até <span class="vr-utero4mais">180</span> cm³)</option>
-              <option value="menopausa">Menopausa (VR até <span class="vr-uteroMenopausa">70</span> cm³)</option>
-              <option value="adolescencia">Adolescência (VR até <span class="vr-uteroAdolescencia">40</span> cm³)</option>
-            </select>
-          </div>
-        </div>
-        <div class="conditional" id="wrap_morf3D">
-          <div class="field-row">
-            <div class="field"><label>Morfologia uterina (3D)</label>
-              <select id="morfUterina">
-                <option value="normal">Normal (sem malformação mülleriana)</option>
-                <option value="arqueado">Útero arqueado</option>
-                <option value="septado_parcial">Útero septado parcial</option>
-                <option value="septado_completo">Útero septado completo</option>
-                <option value="bicorno">Útero bicorno</option>
-                <option value="didelfo">Útero didelfo</option>
-              </select>
-            </div>
-          </div>
-          <div class="field-row conditional" id="wrap_morfIndentacao">
-            <div class="field"><label>Profundidade da indentação do fundo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfIndentacao" placeholder="mm"></div>
-          </div>
-          <div class="field-row conditional" id="wrap_morfSepto">
-            <div class="field"><label>Comprimento do septo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfSepto" placeholder="mm"></div>
-          </div>
-          <div class="field-row conditional" id="wrap_morfFenda">
-            <div class="field"><label>Profundidade da fenda fúndica (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfFenda" placeholder="mm"></div>
-          </div>
-          <div class="field-row conditional" id="wrap_morfIntercornual">
-            <div class="field"><label>Distância intercornual (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfIntercornual" placeholder="mm"></div>
-          </div>
-          <hr class="sep">
-        </div>
-        <div class="bio-grupos">
+        <div class="bio-grupos bio-utero">
           <div class="bio-col">
-            <div class="bio-grupo"><h4>Medidas do útero</h4>
-              <div class="field bio-linha"><label for="uteroL">Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder=""><span class="bio-un">cm</span></div>
-              <div class="field bio-linha"><label for="uteroAP">Anteroposterior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder=""><span class="bio-un">cm</span></div>
-              <div class="field bio-linha"><label for="uteroT">Transverso</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder=""><span class="bio-un">cm</span></div>
-              <div class="field bio-linha"><label for="uteroVolume">Volume uterino<span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder=""><span class="bio-un">cm³</span></div>
+            <div class="bio-grupo"><h4>Útero</h4>
+            <div class="field-row">
+              <div class="field"><label>Posição uterina</label>
+                <select id="uteroPosicao">
+                  <option value="AVF">Anteversoflexão (AVF)</option>
+                  <option value="RVF">Retroversoflexão (RVF)</option>
+                  <option value="MVF">Posição intermediária / medioversão (MVF)</option>
+                </select>
+              </div>
+              <div class="field"><label>Valor de referência — volume uterino</label>
+                <select id="vrUteroCategoria">
+                  <option value="nenhum">Nenhum filho (VR até <span class="vr-uteroNenhum">90</span> cm³)</option>
+                  <option value="1a2">1 ou 2 filhos (VR até <span class="vr-utero1a2">140</span> cm³)</option>
+                  <option value="3">3 filhos (VR até <span class="vr-utero3">160</span> cm³)</option>
+                  <option value="4mais">4 ou mais filhos (VR até <span class="vr-utero4mais">180</span> cm³)</option>
+                  <option value="menopausa">Menopausa (VR até <span class="vr-uteroMenopausa">70</span> cm³)</option>
+                  <option value="adolescencia">Adolescência (VR até <span class="vr-uteroAdolescencia">40</span> cm³)</option>
+                </select>
+              </div>
+            </div>
+            <div class="conditional" id="wrap_morf3D">
+              <div class="field-row">
+                <div class="field"><label>Morfologia uterina (3D)</label>
+                  <select id="morfUterina">
+                    <option value="normal">Normal (sem malformação mülleriana)</option>
+                    <option value="arqueado">Útero arqueado</option>
+                    <option value="septado_parcial">Útero septado parcial</option>
+                    <option value="septado_completo">Útero septado completo</option>
+                    <option value="bicorno">Útero bicorno</option>
+                    <option value="didelfo">Útero didelfo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field-row conditional" id="wrap_morfIndentacao">
+                <div class="field"><label>Profundidade da indentação do fundo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfIndentacao" placeholder="mm"></div>
+              </div>
+              <div class="field-row conditional" id="wrap_morfSepto">
+                <div class="field"><label>Comprimento do septo (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfSepto" placeholder="mm"></div>
+              </div>
+              <div class="field-row conditional" id="wrap_morfFenda">
+                <div class="field"><label>Profundidade da fenda fúndica (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfFenda" placeholder="mm"></div>
+              </div>
+              <div class="field-row conditional" id="wrap_morfIntercornual">
+                <div class="field"><label>Distância intercornual (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="morfIntercornual" placeholder="mm"></div>
+              </div>
+            </div>
+            <div class="field bio-linha bio-medidas"><label for="uteroMedidas">Medidas<small>L x AP x T</small></label><input type="text" id="uteroMedidas" placeholder="ex: 6,8 x 2,6 x 5,2"><span class="bio-un">cm</span></div>
+            <div class="field bio-linha"><label for="uteroVolume">Volume uterino<span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder=""><span class="bio-un">cm³</span></div>
+            </div>
+            <div class="bio-grupo"><h4>Miométrio</h4>
+            <div class="field-row">
+              <div class="field"><label>Miométrio</label>
+                <select id="miometrioAspecto">
+                  <option value="homogeneo">Textura homogênea (sem nódulos)</option>
+                  <option value="mioma">Heterogêneo — nódulo(s) sólido(s) (mioma)</option>
+                  <option value="calcificacao">Calcificações das artérias arqueadas</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="conditional" id="wrap_miomaDetalhes">
+              <div class="field-row">
+                <div class="field"><label>Número de nódulos</label>
+                  <select id="miomaCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
+                </div>
+              </div>
+              <div id="miomaNodulosContainer"></div>
+              <button type="button" class="btn-clear" id="btnAddMioma" style="margin:2px 0 12px;">+ Adicionar nódulo</button>
+              <div class="field" style="margin-top:4px;">
+                <label>Observações adicionais (opcional)</label>
+                <textarea id="miometrioDescricao" rows="2" placeholder="qualquer detalhe extra sobre os nódulos, ou demais nódulos além dos listados acima..."></textarea>
+              </div>
+            </div>
+
+            <div class="toggle-line"><input type="checkbox" id="chkAdenomiose"><label for="chkAdenomiose">Adenomiose (pode coexistir com mioma)</label></div>
+            <div class="field-row conditional" id="wrap_adenomioseSimetria">
+              <div class="field"><label>Paredes miometriais</label>
+                <select id="adenomioseSimetria"><option value="simetricas">Simétricas</option><option value="assimetricas">Assimétricas</option></select>
+              </div>
+            </div>
             </div>
           </div>
-        </div>
-        <hr class="sep">
-        <div class="field-row">
-          <div class="field"><label>Miométrio</label>
-            <select id="miometrioAspecto">
-              <option value="homogeneo">Textura homogênea (sem nódulos)</option>
-              <option value="mioma">Heterogêneo — nódulo(s) sólido(s) (mioma)</option>
-              <option value="calcificacao">Calcificações das artérias arqueadas</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="conditional" id="wrap_miomaDetalhes">
-          <div class="field-row">
-            <div class="field"><label>Número de nódulos</label>
-              <select id="miomaCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
-            </div>
-          </div>
-          <div id="miomaNodulosContainer"></div>
-          <button type="button" class="btn-clear" id="btnAddMioma" style="margin:2px 0 12px;">+ Adicionar nódulo</button>
-          <div class="field" style="margin-top:4px;">
-            <label>Observações adicionais (opcional)</label>
-            <textarea id="miometrioDescricao" rows="2" placeholder="qualquer detalhe extra sobre os nódulos, ou demais nódulos além dos listados acima..."></textarea>
-          </div>
-        </div>
-
-        <div class="toggle-line"><input type="checkbox" id="chkAdenomiose"><label for="chkAdenomiose">Adenomiose (pode coexistir com mioma)</label></div>
-        <div class="field-row conditional" id="wrap_adenomioseSimetria">
-          <div class="field"><label>Paredes miometriais</label>
-            <select id="adenomioseSimetria"><option value="simetricas">Simétricas</option><option value="assimetricas">Assimétricas</option></select>
-          </div>
-        </div>
-
-        <hr class="sep">
-        <div class="toggle-line"><input type="checkbox" id="chkIstmocele"><label for="chkIstmocele">Istmocele (em topografia de cesárea)</label></div>
-        <div class="field-row conditional" id="wrap_istmoceleCampos">
-          <div class="field"><label>Medida da istmocele (mm)</label><input type="text" id="istmoceleMedida" placeholder="ex: 9 x 5 x 8"></div>
-          <div class="field"><label>Espessura do miométrio adjacente — EMA</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="istmoceleAnterior" placeholder="mm"></div>
-          <div class="field"><label>Espessura do miométrio residual — EMR</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="istmoceleResidual" placeholder="mm"></div>
-        </div>
-
-        <div class="toggle-line"><input type="checkbox" id="chkPolipoEndocervical"><label for="chkPolipoEndocervical">Pólipo endocervical</label></div>
-        <div class="field-row conditional" id="wrap_polipoEndocervicalCampos">
-          <div class="field"><label>Medida (mm)</label><input type="text" id="polipoEndocervicalMedida" placeholder="ex: 15 x 12,2"></div>
-        </div>
-
-        <div class="toggle-line"><input type="checkbox" id="chkDIU"><label for="chkDIU">Paciente com DIU</label></div>
-        <div class="field-row conditional" id="wrap_diuCampos">
-          <div class="field"><label>Posicionamento</label>
-            <select id="diuPosicao"><option value="normo">Normoposicionado</option><option value="baixa">De baixa implantação</option></select>
-          </div>
-          <div class="field"><label>Distância da haste ao fundo da serosa</label><input type="text" inputmode="decimal" data-decimals="1" id="diuDistancia" placeholder="mm"></div>
-        </div>
-
-        <div class="toggle-line"><input type="checkbox" id="chkHematometrio"><label for="chkHematometrio">Hematométrio</label></div>
-        <div class="field-row conditional" id="wrap_hematometrioCampos">
-          <div class="field"><label>Longitudinal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM1" placeholder="mm"></div>
-          <div class="field"><label>Anteroposterior (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM2" placeholder="mm"></div>
-          <div class="field"><label>Transversal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM3" placeholder="mm"></div>
-          <div class="field"><label>Volume informado</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioVolume" placeholder="cm³"></div>
-        </div>
-
-        <hr class="sep">
-        <div class="bio-grupos">
           <div class="bio-col">
             <div class="bio-grupo"><h4>Endométrio</h4>
               <div id="wrap_endoEspessuraUnica"><div class="field bio-linha"><label for="endometrioEspessura">Espessura endometrial</label><input type="text" inputmode="decimal" data-decimals="1" data-max="25" id="endometrioEspessura" placeholder=""><span class="bio-un">mm</span></div></div>
@@ -852,19 +821,48 @@
               <option value="espessado">Espessado e heterogêneo (menopausa)</option>
             </select></div>
               <div class="conditional" id="wrap_endometrioPadrao"><div class="field bio-linha bio-sel"><label for="endometrioPadrao">Padrão</label><select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option><option value="ecogenico">Ecogênico</option></select></div></div>
+            <div class="toggle-line"><input type="checkbox" id="chkSinequias"><label for="chkSinequias">Falhas no eco endometrial, sugestivas de sinéquias</label></div>
+            <div class="toggle-line" id="wrap_chkPolipoEndometrial"><input type="checkbox" id="chkPolipoEndometrial"><label for="chkPolipoEndometrial">Pólipo endometrial</label></div>
+            <div class="field-row conditional" id="wrap_polipoCampos">
+              <div class="field"><label>Localização</label>
+                <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
+              </div>
+              <div class="field"><label>Pedículo no folheto</label>
+                <select id="polipoPediculo"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select>
+              </div>
+              <div class="field"><label>Medida (mm)</label><input type="text" id="polipoMedida" placeholder="ex: 15 x 12,2"></div>
+            </div>
+            </div>
+            <div class="bio-grupo"><h4>Outros achados</h4>
+            <div class="toggle-line"><input type="checkbox" id="chkIstmocele"><label for="chkIstmocele">Istmocele (em topografia de cesárea)</label></div>
+            <div class="field-row conditional" id="wrap_istmoceleCampos">
+              <div class="field"><label>Medida da istmocele (mm)</label><input type="text" id="istmoceleMedida" placeholder="ex: 9 x 5 x 8"></div>
+              <div class="field"><label>Espessura do miométrio adjacente — EMA</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="istmoceleAnterior" placeholder="mm"></div>
+              <div class="field"><label>Espessura do miométrio residual — EMR</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="istmoceleResidual" placeholder="mm"></div>
+            </div>
+
+            <div class="toggle-line"><input type="checkbox" id="chkPolipoEndocervical"><label for="chkPolipoEndocervical">Pólipo endocervical</label></div>
+            <div class="field-row conditional" id="wrap_polipoEndocervicalCampos">
+              <div class="field"><label>Medida (mm)</label><input type="text" id="polipoEndocervicalMedida" placeholder="ex: 15 x 12,2"></div>
+            </div>
+
+            <div class="toggle-line"><input type="checkbox" id="chkDIU"><label for="chkDIU">Paciente com DIU</label></div>
+            <div class="field-row conditional" id="wrap_diuCampos">
+              <div class="field"><label>Posicionamento</label>
+                <select id="diuPosicao"><option value="normo">Normoposicionado</option><option value="baixa">De baixa implantação</option></select>
+              </div>
+              <div class="field"><label>Distância da haste ao fundo da serosa</label><input type="text" inputmode="decimal" data-decimals="1" id="diuDistancia" placeholder="mm"></div>
+            </div>
+
+            <div class="toggle-line"><input type="checkbox" id="chkHematometrio"><label for="chkHematometrio">Hematométrio</label></div>
+            <div class="field-row conditional" id="wrap_hematometrioCampos">
+              <div class="field"><label>Longitudinal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM1" placeholder="mm"></div>
+              <div class="field"><label>Anteroposterior (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM2" placeholder="mm"></div>
+              <div class="field"><label>Transversal (mm)</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioM3" placeholder="mm"></div>
+              <div class="field"><label>Volume informado</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioVolume" placeholder="cm³"></div>
+            </div>
             </div>
           </div>
-        </div>
-        <div class="toggle-line"><input type="checkbox" id="chkSinequias"><label for="chkSinequias">Falhas no eco endometrial, sugestivas de sinéquias</label></div>
-        <div class="toggle-line" id="wrap_chkPolipoEndometrial"><input type="checkbox" id="chkPolipoEndometrial"><label for="chkPolipoEndometrial">Pólipo endometrial</label></div>
-        <div class="field-row conditional" id="wrap_polipoCampos">
-          <div class="field"><label>Localização</label>
-            <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
-          </div>
-          <div class="field"><label>Pedículo no folheto</label>
-            <select id="polipoPediculo"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select>
-          </div>
-          <div class="field"><label>Medida (mm)</label><input type="text" id="polipoMedida" placeholder="ex: 15 x 12,2"></div>
         </div>
         </div>
       </div>
@@ -2832,9 +2830,16 @@ if(typeof criarMotorLaudo !== 'function'){
     const vrUteroCategoria = v('vrUteroCategoria');
     const vrUteroLimite = UTERO_VR_LIMIT[vrUteroCategoria](VR);
     const vrUteroTexto = 'até '+vrUteroLimite.toString().replace('.',',')+' cm³';
-    const uteroL = blankOrValue(reqIf('uteroL', uteroPresente));
-    const uteroAP = blankOrValue(reqIf('uteroAP', uteroPresente));
-    const uteroT = blankOrValue(reqIf('uteroT', uteroPresente));
+    // As três medidas do útero vêm de um campo só ("6,8 x 2,6 x 5,2", 2026-10-28).
+    // Faltando alguma, o campo conta como pendente.
+    const uteroMedPartes = uteroMedidasPartes(reqIf('uteroMedidas', uteroPresente));
+    if(uteroPresente && v('uteroMedidas')!=='' && uteroMedPartes.length<3){
+      $('uteroMedidas').classList.toggle('field-missing', printAttempted);
+      pendingCount++;
+    }
+    const uteroL = blankOrValue(uteroMedPartes[0] || '');
+    const uteroAP = blankOrValue(uteroMedPartes[1] || '');
+    const uteroT = blankOrValue(uteroMedPartes.slice(2).join(' x '));
     const uteroVolumeNum = num('uteroVolume'); reqIf('uteroVolume', uteroPresente);
     const uteroVolume = blankOrValue(v('uteroVolume'));
     const uteroVolumeAumentado = uteroPresente && uteroVolumeNum!==null && uteroVolumeNum > vrUteroLimite;
@@ -3553,6 +3558,10 @@ if(typeof criarMotorLaudo !== 'function'){
   const DRAFT_SKIP_CHANGE = ['miomaCount'];    // não grava nada antes de a carga inicial terminar  // assinatura do formulário em branco (nada a salvar)
 
 
+  // "6,8 x 2,6 x 5,2" (também aceita ×, *, ponto decimal ou só espaços) -> ['6,8','2,6','5,2'].
+  function uteroMedidasPartes(txt){
+    return String(txt||'').split(/\s*[xX×*]\s*|\s+/).map(p=> p.trim().replace(/\./g, ',')).filter(Boolean);
+  }
   function draftSnapshot(){
     const fields = {};
     document.querySelectorAll('#formCol input, #formCol select, #formCol textarea').forEach(el=>{
@@ -3629,6 +3638,11 @@ if(typeof criarMotorLaudo !== 'function'){
     st.draftRestoring = true;
     try{
       draftMigrarCistos(d);
+      // Rascunho de antes de 2026-10-28: as medidas do útero eram três campos.
+      if(d.fields && d.fields.uteroMedidas===undefined && ('uteroL' in d.fields)){
+        const ps = [d.fields.uteroL, d.fields.uteroAP, d.fields.uteroT].map(x=> String(x||'').trim());
+        d.fields.uteroMedidas = ps.some(Boolean) ? ps.join(' x ') : '';
+      }
       // Rascunho de antes de 2026-10-24: o pólipo era uma opção do "Aspecto".
       if(d.fields && d.fields.endometrioAspecto==='polipo'){
         d.fields.endometrioAspecto = 'normal';
