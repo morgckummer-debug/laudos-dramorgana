@@ -1757,3 +1757,7 @@ Pedido da médica, como já feito no perineal. O card "Endométrio" do `pelvico-
 ## Perineal: Alterações adicionais em quadro ao lado do Endométrio (2026-10-28)
 
 Pedido da médica. No card Útero do `perineal.html`, as "Alterações adicionais" (adenomiose, istmocele, pólipo endocervical, pólipo endometrial) saíram do fim do card e viraram o quarto quadro do `.bio-grupos`, depois do Endométrio (na linha de baixo, ao lado dele, quando a largura permite; em tela estreita empilha). "Textura miometrial" e os miomas continuam abaixo. Ids, laudo e rascunho iguais aos da `main` (Chromium: `#paper` idêntico com os quatro achados marcados; lista de ids igual).
+
+## Morfológico do 1º trimestre: Idade gestacional ao lado de Gestação (2026-10-28)
+
+Pedido da médica. Os cards "Idade gestacional" e "Gestação" ficaram lado a lado, dentro de um `div.cards-par` (flex com quebra; abaixo de cerca de 720px empilham). São dois cards independentes, não um só: cada um mantém o próprio cabeçalho. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários).
