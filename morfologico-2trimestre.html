@@ -1674,13 +1674,75 @@ if(typeof criarMotorLaudo !== 'function'){
       }).join('')
       + '</div>';
   }
+  // Achados prontos por segmento (2026-10-28, pedido da médica; mesmo recurso do
+  // morfológico de 1º trimestre, com a lista do 2º): a lista dentro da caixa
+  // "Descreva o achado" preenche a descrição (corpo do laudo) e o resumo
+  // (conclusão). Os trechos [entre colchetes] são para completar à mão.
+  // Não são frases do painel: ficam aqui, editáveis só depois de inseridas.
+  const MORFO_PRONTOS = {
+    Cranio: [
+      {nome:'Ventriculomegalia', corpo:'Integridade, formato e calcificação habituais. Foice mediana e cavum do septo pelúcido presentes. Átrio do ventrículo lateral [direito/esquerdo/bilateral] medindo [X] mm. Cerebelo e cisterna magna dentro da normalidade', resumo:'Ventriculomegalia [leve/moderada/grave] [à direita/à esquerda/bilateral] (átrio de [X] mm)'},
+      {nome:'Cisterna magna aumentada', corpo:'Integridade, formato e calcificação habituais. Foice mediana, cavum do septo pelúcido e cerebelo de aspecto normal. Cisterna magna aumentada, medindo [X] mm. Vermis cerebelar de aspecto normal ao exame', resumo:'Cisterna magna aumentada ([X] mm)'},
+      {nome:'Malformação de Dandy-Walker / hipoplasia do vermis', corpo:'Integridade, formato e calcificação habituais. Foice mediana e cavum do septo pelúcido presentes. Vermis cerebelar [ausente/hipoplásico], com comunicação do 4º ventrículo com a cisterna magna, que se encontra aumentada, medindo [X] mm', resumo:'Achados sugestivos de [malformação de Dandy-Walker/hipoplasia do vermis cerebelar]'},
+      {nome:'Agenesia do corpo caloso', corpo:'Integridade, formato e calcificação habituais. Foice mediana presente. Cavum do septo pelúcido não visualizado. Ventrículos laterais com aspecto em "lágrima" (colpocefalia). Cerebelo e cisterna magna dentro da normalidade', resumo:'Achados sugestivos de agenesia do corpo caloso'},
+      {nome:'Sinais de Arnold-Chiari II (limão e banana)', corpo:'Calota craniana com recuo dos ossos frontais (sinal do "limão"). Cerebelo com formato em "banana" e cisterna magna obliterada. Átrio dos ventrículos laterais medindo [X] mm', resumo:'Sinais cranianos de malformação de Arnold-Chiari tipo II (sinais do limão e da banana)'},
+      {nome:'Holoprosencefalia', corpo:'Integridade da calota craniana. Ausência da foice mediana e do cavum do septo pelúcido, com cavidade ventricular única e tálamos fundidos. Cerebelo e cisterna magna de aspecto normal', resumo:'Achados compatíveis com holoprosencefalia [alobar/semilobar]'},
+      {nome:'Encefalocele', corpo:'Falha óssea da calota craniana em região [occipital], com herniação de meninges e tecido encefálico, medindo [X] mm. Foice mediana presente', resumo:'Encefalocele [occipital]'},
+      {nome:'Cisto de plexo coroide', corpo:'Integridade, formato e calcificação habituais. Foice mediana, cavum do septo pelúcido, cerebelo e cisterna magna dentro da normalidade. Cisto em plexo coroide [direito/esquerdo/bilateral], medindo [X] mm', resumo:'Cisto de plexo coroide [à direita/à esquerda/bilateral]'}
+    ],
+    Face: [
+      {nome:'Fenda labial', corpo:'Boca de aspecto normal em corte frontal, sem protrusão da língua. Descontinuidade do lábio superior à [direita/esquerda/bilateral], [sem/com] extensão ao rebordo alveolar. Perfil da face, narinas e órbitas sem anormalidades', resumo:'Fenda labial [à direita/à esquerda/bilateral]'},
+      {nome:'Fenda labiopalatina', corpo:'Descontinuidade do lábio superior e do rebordo alveolar à [direita/esquerda/bilateral], com extensão ao palato. Perfil da face e órbitas sem anormalidades', resumo:'Fenda labiopalatina [à direita/à esquerda/bilateral]'},
+      {nome:'Retromicrognatia', corpo:'Boca de aspecto normal em corte frontal. Lábio superior íntegro. Perfil com retração e redução da mandíbula (retromicrognatia). Narinas e órbitas sem anormalidades', resumo:'Retromicrognatia'},
+      {nome:'Hipotelorismo / hipertelorismo', corpo:'Boca de aspecto normal em corte frontal. Lábio superior íntegro. Perfil da face e narinas sem anormalidades. Distância interorbitária [reduzida/aumentada], medindo [X] mm', resumo:'[Hipotelorismo/Hipertelorismo]'},
+      {nome:'Osso nasal hipoplásico / ausente', corpo:'Boca de aspecto normal em corte frontal, sem protrusão da língua. Lábio superior íntegro. Osso nasal [hipoplásico, medindo X mm/não visualizado]. Lábios, narinas e órbitas sem anormalidades', resumo:'Osso nasal [hipoplásico/ausente]'}
+    ],
+    Coluna: [
+      {nome:'Espinha bífida aberta', corpo:'Descontinuidade dos elementos posteriores da coluna em região [lombossacra], de [L_] a [S_], [com/sem] formação cística (meningocele/mielomeningocele) associada', resumo:'Defeito aberto do tubo neural (espinha bífida) em região [lombossacra]'},
+      {nome:'Hemivértebra / escoliose', corpo:'Alteração do alinhamento da coluna vertebral, com [escoliose/cifoescoliose] em região [torácica/lombar], [associada a hemivértebra]', resumo:'[Escoliose/cifoescoliose] fetal [por hemivértebra]'}
+    ],
+    Torax: [
+      {nome:'Hérnia diafragmática', corpo:'Descontinuidade do diafragma à [esquerda], com [estômago/alças intestinais/fígado] no tórax. Coração desviado para a [direita]. Relação pulmão-cabeça (LHR) [X]', resumo:'Hérnia diafragmática congênita à [esquerda] [com fígado no tórax]'},
+      {nome:'Malformação pulmonar (MPVAC / sequestro)', corpo:'Conformação usual. Diafragma visibilizado, íntegro. Imagem [hiperecogênica/cística] em pulmão [direito/esquerdo], medindo [X] x [X] mm, [com/sem] vaso nutridor sistêmico ao Doppler colorido. Coração [normoposicionado/desviado para a direita/esquerda]', resumo:'Achados sugestivos de [malformação pulmonar das vias aéreas (MPVAC)/sequestro pulmonar] à [direita/esquerda]'},
+      {nome:'Derrame pleural', corpo:'Conformação usual. Diafragma visibilizado, íntegro. Derrame pleural [direito/esquerdo/bilateral], [pequeno/moderado/volumoso]. Coração normoposicionado', resumo:'Derrame pleural [à direita/à esquerda/bilateral]'},
+      {nome:'Assimetria das câmaras cardíacas', corpo:'Situs solitus. Coração normoposicionado. Corte de quatro câmaras com assimetria ventricular, com ventrículo [esquerdo] reduzido [e fluxo reduzido ao Doppler colorido]', resumo:'Assimetria das câmaras cardíacas. Sugere-se ecocardiografia fetal'},
+      {nome:'Defeito do septo atrioventricular', corpo:'Situs solitus. Coração normoposicionado. Corte de quatro câmaras com defeito na região da crux cordis, com valva atrioventricular única', resumo:'Suspeita de defeito do septo atrioventricular. Sugere-se ecocardiografia fetal'},
+      {nome:'Comunicação interventricular', corpo:'Situs solitus. Coração normoposicionado com eixo em torno de 45º, com quatro cavidades proporcionais. Descontinuidade do septo interventricular em sua porção [muscular/perimembranosa], medindo [X] mm, com fluxo através do defeito ao Doppler colorido', resumo:'Comunicação interventricular [muscular/perimembranosa]. Sugere-se ecocardiografia fetal'},
+      {nome:'Alteração das vias de saída', corpo:'Situs solitus. Coração normoposicionado, com quatro cavidades proporcionais. Vias de saída [paralelas/com cavalgamento da aorta] e corte de 3VT alterado', resumo:'Alteração das vias de saída cardíacas. Sugere-se ecocardiografia fetal'},
+      {nome:'Foco ecogênico intracardíaco', corpo:'Conformação usual. Diafragma visibilizado, íntegro. Situs solitus. Coração normoposicionado com eixo em torno de 45º, com quatro cavidades proporcionais. Foco ecogênico em ventrículo [esquerdo]. Saída dos grandes vasos, quatro câmaras e 3VT usuais', resumo:'Foco ecogênico intracardíaco'}
+    ],
+    Abdome: [
+      {nome:'Onfalocele', corpo:'Defeito da parede abdominal anterior na inserção do cordão umbilical, com herniação de [alças intestinais/fígado] recoberta por membrana, medindo [X] mm. Estômago e bexiga repletos. Rins de aspecto normal', resumo:'Onfalocele [com conteúdo hepático]'},
+      {nome:'Gastrosquise', corpo:'Defeito da parede abdominal à direita da inserção do cordão umbilical, que é normoinserido, com alças intestinais livres no líquido amniótico, sem membrana de revestimento. Estômago e bexiga repletos. Rins de aspecto normal', resumo:'Gastrosquise'},
+      {nome:'Dilatação da pelve renal', corpo:'Contornos regulares sem edemas. Estômago e bexiga repletos. Pelve renal [direita/esquerda/bilateral] dilatada, com diâmetro anteroposterior de [X] mm. Inserção normal do cordão umbilical', resumo:'Dilatação da pelve renal [à direita/à esquerda/bilateral] ([X] mm)'},
+      {nome:'Rim multicístico displásico', corpo:'Contornos regulares sem edemas. Estômago e bexiga repletos. Rim [direito/esquerdo] substituído por múltiplos cistos de tamanhos variados, sem comunicação entre si. Rim contralateral de aspecto normal. Inserção normal do cordão umbilical', resumo:'Rim multicístico displásico à [direita/esquerda]'},
+      {nome:'Agenesia renal', corpo:'Contornos regulares sem edemas. Estômago repleto. Rim [direito/esquerdo/bilateral] não visualizado na loja renal, [com artéria renal ausente ao Doppler colorido]. Bexiga [repleta/não visualizada]. Inserção normal do cordão umbilical', resumo:'Agenesia renal [à direita/à esquerda/bilateral]'},
+      {nome:'Dupla bolha', corpo:'Contornos regulares sem edemas. Estômago e duodeno proximal dilatados (sinal da "dupla bolha"). Bexiga repleta. Rins de aspecto normal. Inserção normal do cordão umbilical', resumo:'Sinal da dupla bolha, sugestivo de atresia duodenal'},
+      {nome:'Intestino hiperecogênico', corpo:'Contornos regulares sem edemas. Estômago e bexiga repletos e rins de aspecto normal. Alças intestinais hiperecogênicas, com ecogenicidade semelhante à do osso. Inserção normal do cordão umbilical', resumo:'Intestino hiperecogênico'},
+      {nome:'Megabexiga', corpo:'Contornos regulares sem edemas. Estômago repleto. Bexiga de dimensões aumentadas, medindo [X] mm, [com dilatação da uretra proximal (sinal do "buraco de fechadura")]. Rins [de aspecto normal/com dilatação pielocalicinal]. Inserção normal do cordão umbilical', resumo:'Megabexiga [sugestiva de obstrução do trato urinário inferior]'},
+      {nome:'Estômago não visualizado', corpo:'Contornos regulares sem edemas. Estômago não visualizado no presente exame. Bexiga repleta e rins de aspecto normal. Inserção normal do cordão umbilical', resumo:'Estômago não visualizado. Sugere-se reavaliação'}
+    ],
+    Membros: [
+      {nome:'Pé torto', corpo:'Os membros superiores e inferiores são de aspecto normal em seus diferentes segmentos. Pé [direito/esquerdo/bilateral] em adução e inversão, com a planta visualizada no mesmo plano da tíbia e da fíbula', resumo:'Pé torto [à direita/à esquerda/bilateral]'},
+      {nome:'Redução de membro', corpo:'Ausência de [antebraço e mão] do membro [superior direito]. Demais membros de aspecto normal em seus diferentes segmentos', resumo:'Redução do membro [superior direito] ([ausência de antebraço e mão])'},
+      {nome:'Polidactilia', corpo:'Os membros superiores e inferiores são de aspecto normal em seus diferentes segmentos. Presença de dígito extranumerário na [mão/pé] [direita/esquerda], [pós-axial]', resumo:'Polidactilia [pós-axial] [mão direita]'},
+      {nome:'Mãos cerradas com sobreposição dos dedos', corpo:'Os membros superiores e inferiores são de aspecto normal em seus diferentes segmentos. Mãos persistentemente cerradas, com sobreposição dos dedos', resumo:'Mãos cerradas com sobreposição dos dedos'},
+      {nome:'Ossos longos curtos / displasia esquelética', corpo:'Ossos longos curtos [e encurvados] em relação à idade gestacional, [com fraturas/ecogenicidade óssea reduzida]. Mãos e pés de conformação usual', resumo:'Suspeita de displasia esquelética'}
+    ]
+  };
+  function prontoSelect(uid, k){
+    const lista = MORFO_PRONTOS[k] || [];
+    if(!lista.length) return '';
+    return '<select id="feto'+uid+k+'Pronto" class="pronto" style="margin-bottom:6px;"><option value="">Inserir achado pronto…</option>'
+      + lista.map((a, i)=>'<option value="'+i+'">'+escapeHtml(a.nome)+'</option>').join('')+'</select>';
+  }
   // Avaliação morfológica em quadro, como os demais cards (2026-10-27): um select
   // por segmento e, abaixo dele, a descrição e o resumo quando "Alterado". Ids,
   // textos e ordem iguais aos de antes.
   function morfoQuadro(uid){
     const seg = (k, nome)=>
       '<div class="field bio-linha bio-sel"><label for="feto'+uid+k+'">'+nome+'</label><select id="feto'+uid+k+'"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+k+'Descricao"><label>Descreva o achado — '+nome+'</label><textarea id="feto'+uid+k+'Descricao" rows="2"></textarea></div>'
+      +'<div class="field conditional" id="wrap_feto'+uid+k+'Descricao"><label>Descreva o achado — '+nome+'</label>'+prontoSelect(uid,k)+'<textarea id="feto'+uid+k+'Descricao" rows="2"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+k+'Resumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+k+'Resumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+k+'ResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>';
     return '<p class="feto-sub">Avaliação morfológica fetal</p>'
       +'<div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Segmentos fetais</h4>'
@@ -1900,6 +1962,26 @@ if(typeof criarMotorLaudo !== 'function'){
     MORFO_SEGMENTOS.forEach(seg=>{
       const sel = $('feto'+uid+seg.key);
       if(sel) sel.addEventListener('change', ()=>{ if(prefillSegmentoDescricao(uid, seg)) render(); });
+    });
+    // Achado pronto: preenche descrição e resumo e volta o seletor ao título,
+    // então o rascunho nunca guarda a escolha (e a restauração não reescreve
+    // o que a médica já editou).
+    MORFO_SEGMENTOS.forEach(seg=>{
+      const pr = $('feto'+uid+seg.key+'Pronto');
+      if(!pr) return;
+      pr.addEventListener('change', ()=>{
+        const a = (MORFO_PRONTOS[seg.key] || [])[parseInt(pr.value, 10)];
+        pr.value = '';
+        if(!a) return;
+        const box = $('feto'+uid+seg.key+'Descricao');
+        const res = $('feto'+uid+seg.key+'Resumo');
+        const atual = box.value.trim().replace(/\.+\s*$/, '');
+        const generica = phraseRaw(segFrase(seg)).replace(/\.+\s*$/, '');
+        if(atual && atual !== generica && atual !== a.corpo && !confirm('Substituir a descrição já escrita pelo achado pronto "'+a.nome+'"?')) return;
+        box.value = a.corpo;
+        res.value = a.resumo;
+        render();
+      });
     });
     updateFetoWraps(uid);
     // O bloco de Doppler fetal pertence ao card "Doppler" (não ao card do
