@@ -1745,3 +1745,7 @@ Continuação do card Útero do transvaginal (seção anterior), a pedido da mé
 ## Perineal: Endométrio dentro do Útero, Hiato genital ao lado do gap uretral (2026-10-28)
 
 Pedido da médica. O card "Endométrio" do `perineal.html` deixou de existir: o quadro (espessura, textura, padrão) é um terceiro quadro do card Útero (quebra para a linha de baixo em tela de largura normal) e o "Pólipo endometrial" entrou nas "Alterações adicionais" do Útero. O quadro "Hiato genital" saiu do card "Compartimento médio" e ficou lado a lado, no card "Períneo", com o novo quadro "Gap uretral" (direito e esquerdo, com VR e aviso de valor acima). Todos os ids, o laudo impresso e o rascunho são iguais aos da `main` (conferido no Chromium, 2 cenários, com recarga do rascunho).
+
+## Rastreamento de ovulação: Aspecto do útero ao lado das medidas (2026-10-28)
+
+Pedido da médica: no `rastreamento-ovulacao.html` o quadro "Aspecto" (select, nódulos de mioma, adenomiose e a descrição do achado) fica ao lado de "Medidas do útero", no mesmo `.bio-grupos`. Ids, laudo e rascunho iguais aos da `main` (Chromium, 2 cenários).

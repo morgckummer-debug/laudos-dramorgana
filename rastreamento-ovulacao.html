@@ -691,37 +691,48 @@
               <div class="field bio-linha"><label for="uteroVolume">Volume uterino<span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder=""><span class="bio-un">cm³</span></div>
             </div>
           </div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="uteroAspecto">
-              <option value="normal">Normal (configuração anatômica, sem nódulos)</option>
-              <option value="mioma">Heterogêneo — nódulo(s) sólido(s) (mioma)</option>
-              <option value="alterado">Alterado (outro achado, descrever)</option>
-            </select>
-          </div>
-        </div>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Aspecto</h4>
+                <div class="field-row" style="grid-template-columns:1fr;">
+                  <div class="field"><label>Aspecto</label>
+                    <select id="uteroAspecto">
+                      <option value="normal">Normal (configuração anatômica, sem nódulos)</option>
+                      <option value="mioma">Heterogêneo — nódulo(s) sólido(s) (mioma)</option>
+                      <option value="alterado">Alterado (outro achado, descrever)</option>
+                    </select>
+                  </div>
+                </div>
 
-        <div class="conditional" id="wrap_miomaDetalhes">
-          <div class="field-row">
-            <div class="field"><label>Número de nódulos</label>
-              <select id="miomaCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
+                <div class="conditional" id="wrap_miomaDetalhes">
+                  <div class="field-row">
+                    <div class="field"><label>Número de nódulos</label>
+                      <select id="miomaCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
+                    </div>
+                  </div>
+                  <div id="miomaNodulosContainer"></div>
+                  <button type="button" class="btn-clear" id="btnAddMioma" style="margin:2px 0 12px;">+ Adicionar nódulo</button>
+                  <div class="field" style="margin-top:4px;">
+                    <label>Observações adicionais (opcional)</label>
+                    <textarea id="miometrioDescricao" rows="2" placeholder="qualquer detalhe extra sobre os nódulos, ou demais nódulos além dos listados acima..."></textarea>
+                  </div>
+                </div>
+
+                <div class="toggle-line"><input type="checkbox" id="chkAdenomiose"><label for="chkAdenomiose">Adenomiose (pode coexistir com mioma)</label></div>
+                <div class="field-row conditional" id="wrap_adenomioseSimetria">
+                  <div class="field"><label>Paredes miometriais</label>
+                    <select id="adenomioseSimetria"><option value="simetricas">Simétricas</option><option value="assimetricas">Assimétricas</option></select>
+                  </div>
+                </div>
+
+                <div class="field conditional" id="wrap_uteroDescricao">
+                  <label>Descreva o achado</label>
+                  <textarea id="uteroDescricao" rows="2" placeholder="ex: septo uterino..."></textarea>
+                </div>
             </div>
           </div>
-          <div id="miomaNodulosContainer"></div>
-          <button type="button" class="btn-clear" id="btnAddMioma" style="margin:2px 0 12px;">+ Adicionar nódulo</button>
-          <div class="field" style="margin-top:4px;">
-            <label>Observações adicionais (opcional)</label>
-            <textarea id="miometrioDescricao" rows="2" placeholder="qualquer detalhe extra sobre os nódulos, ou demais nódulos além dos listados acima..."></textarea>
-          </div>
         </div>
 
-        <div class="toggle-line"><input type="checkbox" id="chkAdenomiose"><label for="chkAdenomiose">Adenomiose (pode coexistir com mioma)</label></div>
-        <div class="field-row conditional" id="wrap_adenomioseSimetria">
-          <div class="field"><label>Paredes miometriais</label>
-            <select id="adenomioseSimetria"><option value="simetricas">Simétricas</option><option value="assimetricas">Assimétricas</option></select>
-          </div>
-        </div>
+
 
         <hr class="sep">
         <div class="toggle-line"><input type="checkbox" id="chkIstmocele"><label for="chkIstmocele">Istmocele (em topografia de cesárea)</label></div>
@@ -763,10 +774,6 @@
           <div class="field"><label>Volume informado</label><input type="text" inputmode="decimal" data-decimals="1" id="hematometrioVolume" placeholder="cm³"></div>
         </div>
 
-        <div class="field conditional" id="wrap_uteroDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="uteroDescricao" rows="2" placeholder="ex: septo uterino..."></textarea>
-        </div>
       </div>
     </div>
 
