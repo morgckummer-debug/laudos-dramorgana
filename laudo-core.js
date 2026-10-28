@@ -738,6 +738,19 @@ function criarMotorLaudo(cfg){
     el.value = out;
     try{ el.setSelectionRange(out.length, out.length); }catch(e){ /* not focused/selectable */ }
   }
+  // Medidas "L x AP x T" num campo só (2026-10-28, útero e ovários dos laudos
+  // ginecológicos): "6,8 x 2,6 x 5,2" -> ['6,8','2,6','5,2']. Aceita ×, *, ponto
+  // decimal ou só espaços entre os números. Cada laudo monta a frase com as
+  // partes do jeito de sempre, então o laudo impresso não muda.
+  function medidasPartes(txt){
+    return String(txt||'').split(/\s*[xX×*]\s*|\s+/).map(p=> p.trim().replace(/\./g, ',')).filter(Boolean);
+  }
+  // Rascunho de antes do campo único: junta os três campos antigos no novo.
+  function juntarMedidasRascunho(fields, alvo, ids){
+    if(!fields || fields[alvo] !== undefined || !(ids[0] in fields)) return;
+    const ps = ids.map(id=> String(fields[id]==null ? '' : fields[id]).trim());
+    fields[alvo] = ps.some(Boolean) ? ps.join(' x ') : '';
+  }
   function blankOrValue(val, suffix){
     if(val === '' || val === null || val === undefined) return {text:'____', filled:false};
     return {text: val + (suffix||''), filled:true};
@@ -2556,6 +2569,8 @@ function criarMotorLaudo(cfg){
     comDigitadora: comDigitadora,
     autoFitPages: autoFitPages,
     blankOrValue: blankOrValue,
+    medidasPartes: medidasPartes,
+    juntarMedidasRascunho: juntarMedidasRascunho,
     buildIdCardTable: buildIdCardTable,
     checkDecimalFormat: checkDecimalFormat,
     colapsarMargensParaWord: colapsarMargensParaWord,

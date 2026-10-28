@@ -340,6 +340,7 @@
   .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
   .field.bio-linha .flag-note{margin-top:2px;}
   .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .field.bio-linha.bio-medidas{grid-template-columns:1fr 150px 30px;}
   .bio-un{font-size:12.5px;color:var(--ink-soft);}
   .field.bio-linha.bio-sel{grid-template-columns:1fr 170px;}
   .field.bio-linha select{padding:8px 8px;font-size:13px;}
@@ -498,9 +499,7 @@
         <div class="bio-grupos">
           <div class="bio-col">
             <div class="bio-grupo"><h4>Medidas do útero</h4>
-              <div class="field bio-linha"><label for="uteroL">Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroL" placeholder=""><span class="bio-un">cm</span></div>
-              <div class="field bio-linha"><label for="uteroAP">Anteroposterior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroAP" placeholder=""><span class="bio-un">cm</span></div>
-              <div class="field bio-linha"><label for="uteroT">Transverso</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="uteroT" placeholder=""><span class="bio-un">cm</span></div>
+              <div class="field bio-linha bio-medidas"><label for="uteroMedidas">Medidas<small>L x AP x T</small></label><input type="text" id="uteroMedidas" placeholder="ex: 6,8 x 2,6 x 5,2"><span class="bio-un">cm</span></div>
               <div class="field bio-linha"><label for="uteroVolume">Volume uterino<small><span class="vr" id="vrUteroTexto">VR até 2,6 cm³</span></small><span class="flag-note" id="flag_uteroVolume">Acima do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder=""><span class="bio-un">cm³</span></div>
             </div>
           </div>
@@ -766,7 +765,7 @@ if(typeof criarMotorLaudo !== 'function'){
   });
   const {
     $, st, kvStore, EXECUTANTES, MARGINS, DRAFT_KEY,
-    aplicarMascaraCPF, applyExecutante, blankOrValue, buildIdCardTable, colapsarMargensParaWord, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
+    aplicarMascaraCPF, applyExecutante, blankOrValue, medidasPartes, juntarMedidasRascunho, buildIdCardTable, colapsarMargensParaWord, comDigitadora, copyComputedToClone, draftDiscard, draftFingerprint,
     draftHora, draftPaperHtml, draftRead, draftSaveNow, draftSchedule, escapeHtml,
     nomeArquivoLaudo, num, paginateForPrint, pinAssinaturaWord, renderBlocks, schedulePagePreview, setDefaultDataExame,
     setDraftPill, span, toggle, unwrapPrintPages, updatePagePreview, v,
@@ -1434,9 +1433,13 @@ if(typeof criarMotorLaudo !== 'function'){
     const uteroTexturaContornosDescricao = vNoDot('uteroTexturaContornosDescricao');
     reqIf('uteroTexturaContornosDescricao', uteroTexturaContornos==='alterado');
 
-    const uteroL = blankOrValue(req('uteroL'));
-    const uteroAP = blankOrValue(req('uteroAP'));
-    const uteroT = blankOrValue(req('uteroT'));
+    // As três medidas do útero vêm de um campo só ("6,8 x 2,6 x 5,2", 2026-10-28).
+    // Faltando alguma, o campo conta como pendente.
+    const uteroMedPartes = medidasPartes(req('uteroMedidas'));
+    if(true && v('uteroMedidas')!=='' && uteroMedPartes.length<3){ $('uteroMedidas').classList.toggle('field-missing', printAttempted); pendingCount++; }
+    const uteroL = blankOrValue(uteroMedPartes[0] || '');
+    const uteroAP = blankOrValue(uteroMedPartes[1] || '');
+    const uteroT = blankOrValue(uteroMedPartes.slice(2).join(' x '));
     const uteroVolumeNum = num('uteroVolume'); req('uteroVolume');
     const uteroVolume = blankOrValue(v('uteroVolume'));
     flag('uteroVolume', uteroVolumeNum!==null && uteroVolumeNum > faixa.utero);
@@ -1844,6 +1847,8 @@ if(typeof criarMotorLaudo !== 'function'){
   function draftRestore(d){
     st.draftRestoring = true;
     try{
+      // Rascunho de antes de 2026-10-28: as medidas L, AP e T eram três campos.
+      juntarMedidasRascunho(d.fields, 'uteroMedidas', ['uteroL','uteroAP','uteroT']);
       Object.keys(d.fields).forEach(id=>{
         const el = $(id);
         if(!el || !el.closest('#formCol')) return;
