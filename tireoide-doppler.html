@@ -131,6 +131,7 @@
   .field .flag-note{font-size:11px;color:var(--amber);font-weight:600;display:none;}
   .field .flag-note.show{display:block;}
   .tirads-sugestao{font-size:15px;font-weight:700;color:#fff;margin-top:8px;padding:6px 14px;border-radius:8px;background:var(--rose);box-shadow:0 3px 10px rgba(174,91,160,0.4);display:inline-block;}
+  .field.bio-linha .tirads-sugestao{grid-column:1/-1;justify-self:start;}
   .tirads-sugestao:empty{display:none;padding:0;box-shadow:none;}
   .tirads-sugestao.mismatch{background:var(--amber);box-shadow:0 3px 10px rgba(192,90,52,0.4);}
   .medida-sugestao{font-size:11.5px;font-weight:700;color:var(--amber);margin-top:6px;display:none;}
@@ -144,6 +145,47 @@
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
+  /* Quadros por região, como nos morfológicos (cópia do CSS de lá). */
+  .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+  .bio-col{flex:1 1 280px;display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .bio-col:only-child{flex:1 1 100%;}
+  .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
+  .bio-grupo.conditional.show{display:block;}
+  .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);margin:0;}
+  .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
+  .field.bio-linha.bio-sel.bio-sel-larga{grid-template-columns:1fr 240px;}
+  .field.bio-linha.conditional.show{display:grid;}
+  .bio-grupo .field.conditional.show{margin:4px 0 8px;}
+  .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;font-weight:500;text-align:left;padding:8px 10px;}
+  .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
+  .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
+  .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
+  .field.bio-linha.bio-texto input[readonly]{font-size:13px;}
+  .field.bio-linha.bio-texto.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-ig{grid-template-columns:1fr 52px auto 52px auto;}
+  .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 64px);justify-content:start;column-gap:10px;}
+  .field.bio-linha.bio-gpa label{font-weight:600;}
+  .field.bio-linha.bio-gpa label:not(:first-child){margin-left:14px;}
+  .bio-grupo.bio-paciente{margin-bottom:14px;}
+  .bio-grade2{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;}
+  .bio-grade2 > .field.bio-linha{border-top:1px dashed var(--line-soft);}
+  .bio-grade2 .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 56px);justify-content:space-between;column-gap:8px;}
+  .bio-grade2 .field.bio-linha.bio-gpa label:not(:first-child){margin-left:0;}
+  .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(-n+2){border-top:0;}
+  .bio-nota{margin:-2px 0 6px;font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
+  .bio-nota.conditional.show{display:block;}
+  .bio-grupo h4 + .bio-linha{border-top:0;}
+  .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;margin:0;}
+  .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
+  .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .field.bio-linha select{padding:8px 8px;font-size:13px;}
+  .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
+  .field.bio-linha label .vr{display:block;}
+  .field.bio-linha label .flag-note{display:none;}
+  .field.bio-linha label .flag-note.show{display:block;}
 
   .combo-list{
     display:none;position:fixed;z-index:1000;
@@ -421,208 +463,135 @@
 <div class="layout">
   <!-- FORM COLUMN -->
   <div id="formCol">
-
-    <div class="card">
-      <div class="card-head"><h2>Dados do exame</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Nome do(a) paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
-        </div>
-        <div class="field"><label>Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" rows="2" placeholder="ex: Nódulo palpável em lobo direito.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Tireóide — Dimensões</h2></div>
-      <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">O volume do lobo direito, do lobo esquerdo e do istmo é digitado direto da tela do aparelho — não é recalculado aqui, para sair idêntico às fotos do exame. O volume total soma os três já digitados.</p>
-        <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Lobo direito</p>
-        <div class="field-row field-row-compact">
-          <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDLong" placeholder="cm"></div>
-          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDAP" placeholder="cm"></div>
-          <div class="field"><label>Transversal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboDTransv" placeholder="cm"></div>
-          <div class="field"><label>Volume</label><input type="text" inputmode="decimal" data-decimals="2" data-maxint="2" id="loboDVolume" placeholder="cm³"></div>
-        </div>
-        <hr class="sep">
-        <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Lobo esquerdo</p>
-        <div class="field-row field-row-compact">
-          <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboELong" placeholder="cm"></div>
-          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboEAP" placeholder="cm"></div>
-          <div class="field"><label>Transversal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="loboETransv" placeholder="cm"></div>
-          <div class="field"><label>Volume</label><input type="text" inputmode="decimal" data-decimals="2" data-maxint="2" id="loboEVolume" placeholder="cm³"></div>
-        </div>
-        <hr class="sep">
-        <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Istmo</p>
-        <div class="field-row field-row-compact">
-          <div class="field"><label>Longitudinal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="istmoLong" placeholder="cm"></div>
-          <div class="field"><label>AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="istmoAP" placeholder="cm"></div>
-          <div class="field"><label>Transversal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="istmoTransv" placeholder="cm"></div>
-          <div class="field"><label>Volume</label><input type="text" inputmode="decimal" data-decimals="2" data-maxint="2" id="istmoVolume" placeholder="cm³"></div>
-        </div>
-        <hr class="sep">
-        <div class="field-row field-row-compact">
-          <div class="field"><label>Volume total da glândula (automático: lobo direito + lobo esquerdo + istmo)</label>
-            <input type="text" id="volumeTotal" placeholder="cm³" readonly>
-            <span class="vr">VR 6,0 a 15,0 cm³</span>
-            <span class="flag-note" id="flag_volumeTotal">Fora do valor de referência</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Tireóide — Aspecto geral</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Topografia e contornos</label>
-            <select id="contornosAspecto">
-              <option value="normal">Normal (topografia usual, contornos regulares)</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_contornosDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="contornosDescricao" rows="2" placeholder="ex: aumentada de volume difusamente, contornos lobulados..."></textarea>
-        </div>
-        <hr class="sep">
-        <div class="field-row">
-          <div class="field"><label>Parênquima</label>
-            <select id="parenquimaAspecto">
-              <option value="normal">Normal (textura homogênea)</option>
-              <option value="hashimoto">Tireoidite de Hashimoto</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_hashimotoCampos">
-          <div class="field"><label>Volume e vascularização</label>
-            <select id="hashimotoVolVasc"><option value="normais">Normais</option><option value="aumentados">Aumentados</option></select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_parenquimaDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="parenquimaDescricao" rows="2" placeholder="para achados fora das opções acima — nódulo, cisto colóide (único ou múltiplo) e Hashimoto já têm campo próprio"></textarea>
-        </div>
-        <!-- Nódulo e cisto colóide são achados independentes um do outro — a
+<div class="card">
+<div class="card-head"><h2>Dados do exame</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome do(a) paciente</label><input id="nomePaciente" placeholder="Nome completo" type="text"/></div><div class="field bio-linha bio-texto bio-larga"><label for="dataExame">Data do exame</label><input id="dataExame" placeholder="dd/mm/aaaa" type="text"/></div></div>
+<div><div class="field bio-linha bio-texto bio-larga"><label for="medicoSolicitante">Médico solicitante</label><input autocomplete="off" id="medicoSolicitante" placeholder="Dr(a). ..." type="text"/><div class="combo-list" id="medicosComboList"></div></div></div>
+<div class="field bio-linha bio-larga"><label for="motivoExame">Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" placeholder="ex: Nódulo palpável em lobo direito.
+Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Tireóide — Dimensões</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<p class="bio-nota">O volume do lobo direito, do lobo esquerdo e do istmo é digitado direto da tela do aparelho — não é recalculado aqui, para sair idêntico às fotos do exame. O volume total soma os três já digitados.</p>
+<p class="bio-nota">Lobo direito</p>
+<div><div class="field bio-linha"><label for="loboDLong">Longitudinal</label><input data-decimals="1" data-maxint="1" id="loboDLong" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboDAP">AP</label><input data-decimals="1" data-maxint="1" id="loboDAP" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboDTransv">Transversal</label><input data-decimals="1" data-maxint="1" id="loboDTransv" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboDVolume">Volume</label><input data-decimals="2" data-maxint="2" id="loboDVolume" inputmode="decimal" type="text"/><span class="bio-un">cm³</span></div></div>
+<hr class="sep"/>
+<p class="bio-nota">Lobo esquerdo</p>
+<div><div class="field bio-linha"><label for="loboELong">Longitudinal</label><input data-decimals="1" data-maxint="1" id="loboELong" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboEAP">AP</label><input data-decimals="1" data-maxint="1" id="loboEAP" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboETransv">Transversal</label><input data-decimals="1" data-maxint="1" id="loboETransv" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="loboEVolume">Volume</label><input data-decimals="2" data-maxint="2" id="loboEVolume" inputmode="decimal" type="text"/><span class="bio-un">cm³</span></div></div>
+<hr class="sep"/>
+<p class="bio-nota">Istmo</p>
+<div><div class="field bio-linha"><label for="istmoLong">Longitudinal</label><input data-decimals="1" data-maxint="1" id="istmoLong" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="istmoAP">AP</label><input data-decimals="1" data-maxint="1" id="istmoAP" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="istmoTransv">Transversal</label><input data-decimals="1" data-maxint="1" id="istmoTransv" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="istmoVolume">Volume</label><input data-decimals="2" data-maxint="2" id="istmoVolume" inputmode="decimal" type="text"/><span class="bio-un">cm³</span></div></div>
+<hr class="sep"/>
+<div><div class="field bio-linha"><label for="volumeTotal">Volume total da glândula (automático: lobo direito + lobo esquerdo + istmo)<span class="vr">VR 6,0 a 15,0 cm³</span><span class="flag-note" id="flag_volumeTotal">Fora do valor de referência</span></label><input id="volumeTotal" readonly="" type="text"/><span class="bio-un">cm³</span></div></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Tireóide — Aspecto geral</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-larga"><label for="contornosAspecto">Topografia e contornos</label><select id="contornosAspecto">
+<option value="normal">Normal (topografia usual, contornos regulares)</option>
+<option value="alterado">Outro (descrever)</option>
+</select></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_contornosDescricao"><label for="contornosDescricao">Descreva o achado</label><textarea id="contornosDescricao" placeholder="ex: aumentada de volume difusamente, contornos lobulados..." rows="2"></textarea></div>
+<hr class="sep"/>
+<div><div class="field bio-linha bio-sel bio-sel-larga"><label for="parenquimaAspecto">Parênquima</label><select id="parenquimaAspecto">
+<option value="normal">Normal (textura homogênea)</option>
+<option value="hashimoto">Tireoidite de Hashimoto</option>
+<option value="alterado">Outro (descrever)</option>
+</select></div></div>
+<div class="conditional" id="wrap_hashimotoCampos"><div class="field bio-linha bio-sel"><label for="hashimotoVolVasc">Volume e vascularização</label><select id="hashimotoVolVasc"><option value="normais">Normais</option><option value="aumentados">Aumentados</option></select></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_parenquimaDescricao"><label for="parenquimaDescricao">Descreva o achado</label><textarea id="parenquimaDescricao" placeholder="para achados fora das opções acima — nódulo, cisto colóide (único ou múltiplo) e Hashimoto já têm campo próprio" rows="2"></textarea></div>
+<!-- Nódulo e cisto colóide são achados independentes um do outro — a
              médica pode ter só um, só o outro, ou os dois no mesmo exame
              (mesmo lobo ou lobo diferente), por isso são dois checkboxes
              próprios em vez de opções de um mesmo select exclusivo. -->
-        <div class="field-row">
-          <label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
-            <input type="checkbox" id="temNodulo" style="accent-color:var(--rose-dark);"> Há nódulo(s)
-          </label>
-        </div>
-        <div class="conditional" id="wrap_noduloCampos">
-          <div id="noduloNodulosContainer"></div>
-          <button type="button" class="btn-clear" id="btnAddNodulo" style="margin:2px 0 12px;">+ Adicionar nódulo</button>
-        </div>
-        <div class="field-row">
-          <label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
-            <input type="checkbox" id="temCisto" style="accent-color:var(--rose-dark);"> Há cisto colóide
-          </label>
-        </div>
-        <div class="conditional" id="wrap_cistoCampos">
-          <div id="cistoCistosContainer"></div>
-          <button type="button" class="btn-clear" id="btnAddCisto" style="margin:2px 0 12px;">+ Adicionar cisto</button>
-        </div>
-        <hr class="sep">
-        <div class="field-row">
-          <div class="field"><label>Demais estruturas cervicais</label>
-            <select id="cervicaisAspecto">
-              <option value="normal">Sem alterações (traqueia em posição anatômica)</option>
-              <option value="linfonodo">Linfonodo cervical</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="conditional" id="wrap_linfonodoCampos">
-          <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
-            <button type="button" class="btn-clear" id="btnVerMapaNiveis" style="font-size:11.5px;padding:6px 12px;">Ver mapa dos níveis</button>
-          </div>
-          <div class="field-row field-row-compact">
-            <div class="field"><label>Nível cervical</label><select id="linfonodoNivel">
-              <option value="I">I — submandibular/submentual</option>
-              <option value="IIA">IIA — jugular superior (anterior ao NAE)</option>
-              <option value="IIB">IIB — jugular superior (posterior ao NAE)</option>
-              <option value="III">III — jugular médio</option>
-              <option value="IV">IV — jugular inferior</option>
-              <option value="V">V — triângulo posterior</option>
-              <option value="VI">VI — compartimento central</option>
-              <option value="VII">VII — mediastinal superior</option>
-            </select></div>
-            <div class="field"><label>Forma</label><select id="linfonodoForma">
-              <option value="oval">Oval/fusiforme (preservada)</option><option value="arredondado">Arredondada/globosa (suspeita)</option>
-            </select></div>
-          </div>
-          <div class="field-row field-row-compact">
-            <div class="field"><label>Ecogenicidade</label><select id="linfonodoEco">
-              <option value="normal">Hipoecoico com hilo ecogênico (padrão normal)</option>
-              <option value="calcificacoes">Calcificações</option>
-              <option value="microcalcificacoes">Microcalcificações</option>
-              <option value="cisticas">Alterações císticas</option>
-              <option value="ecoAumentada">Ecogenicidade aumentada</option>
-              <option value="perdaHilo">Perda do hilo ecogênico</option>
-            </select></div>
-            <div class="field"><label>Doppler</label><select id="linfonodoDoppler">
-              <option value="normal">Normal (pouca vascularização central, ramos do hilo)</option>
-              <option value="periferica">Predominantemente periférica</option>
-              <option value="mista">Mista (central e periférica)</option>
-              <option value="aumentada">Aumentada em relação ao padrão habitual</option>
-            </select></div>
-          </div>
-          <div class="field-row field-row-compact">
-            <div class="field"><label>Menor eixo</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="linfonodoTamanho" placeholder="mm">
-              <span class="medida-sugestao" id="linfonodoSugestao"></span></div>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_cervicaisDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="cervicaisDescricao" rows="2" placeholder="ex: linfonodomegalia cervical..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Estudo Doppler</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Padrão de vascularização</label>
-            <select id="vascularizacaoAspecto">
-              <option value="normal">Normal (padrão normal ao mapeamento colorido)</option>
-              <option value="aumentado">Aumentado (padrão aumentado ao mapeamento colorido)</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_vascularizacaoDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="vascularizacaoDescricao" rows="2" placeholder="ex: aumento difuso da vascularização ao mapeamento colorido, sugestivo de tireoidite..."></textarea>
-        </div>
-        <hr class="sep">
-        <div class="field-row field-row-compact">
-          <div class="field"><label>Artéria Tireoidea Inferior — velocidade</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="velocidadeATI" placeholder="cm/s">
-            <span class="vr">VR até 30,0 cm/s</span>
-            <span class="flag-note" id="flag_velocidadeATI">Acima do valor de referência</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Impressão diagnóstica</h2></div>
-      <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base no exame normal. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
-        <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
-      </div>
-    </div>
-
-  </div>
+<div><label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
+<input id="temNodulo" style="accent-color:var(--rose-dark);" type="checkbox"/> Há nódulo(s)
+          </label></div>
+<div class="conditional" id="wrap_noduloCampos">
+<div id="noduloNodulosContainer"></div>
+<button class="btn-clear" id="btnAddNodulo" style="margin:2px 0 12px;" type="button">+ Adicionar nódulo</button>
+</div>
+<div><label style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;cursor:pointer;">
+<input id="temCisto" style="accent-color:var(--rose-dark);" type="checkbox"/> Há cisto colóide
+          </label></div>
+<div class="conditional" id="wrap_cistoCampos">
+<div id="cistoCistosContainer"></div>
+<button class="btn-clear" id="btnAddCisto" style="margin:2px 0 12px;" type="button">+ Adicionar cisto</button>
+</div>
+<hr class="sep"/>
+<div><div class="field bio-linha bio-larga"><label for="cervicaisAspecto">Demais estruturas cervicais</label><select id="cervicaisAspecto">
+<option value="normal">Sem alterações (traqueia em posição anatômica)</option>
+<option value="linfonodo">Linfonodo cervical</option>
+<option value="alterado">Outro (descrever)</option>
+</select></div></div>
+<div class="conditional" id="wrap_linfonodoCampos">
+<div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+<button class="btn-clear" id="btnVerMapaNiveis" style="font-size:11.5px;padding:6px 12px;" type="button">Ver mapa dos níveis</button>
+</div>
+<div class="field-row field-row-compact">
+<div class="field"><label>Nível cervical</label><select id="linfonodoNivel">
+<option value="I">I — submandibular/submentual</option>
+<option value="IIA">IIA — jugular superior (anterior ao NAE)</option>
+<option value="IIB">IIB — jugular superior (posterior ao NAE)</option>
+<option value="III">III — jugular médio</option>
+<option value="IV">IV — jugular inferior</option>
+<option value="V">V — triângulo posterior</option>
+<option value="VI">VI — compartimento central</option>
+<option value="VII">VII — mediastinal superior</option>
+</select></div>
+<div class="field"><label>Forma</label><select id="linfonodoForma">
+<option value="oval">Oval/fusiforme (preservada)</option><option value="arredondado">Arredondada/globosa (suspeita)</option>
+</select></div>
+</div>
+<div class="field-row field-row-compact">
+<div class="field"><label>Ecogenicidade</label><select id="linfonodoEco">
+<option value="normal">Hipoecoico com hilo ecogênico (padrão normal)</option>
+<option value="calcificacoes">Calcificações</option>
+<option value="microcalcificacoes">Microcalcificações</option>
+<option value="cisticas">Alterações císticas</option>
+<option value="ecoAumentada">Ecogenicidade aumentada</option>
+<option value="perdaHilo">Perda do hilo ecogênico</option>
+</select></div>
+<div class="field"><label>Doppler</label><select id="linfonodoDoppler">
+<option value="normal">Normal (pouca vascularização central, ramos do hilo)</option>
+<option value="periferica">Predominantemente periférica</option>
+<option value="mista">Mista (central e periférica)</option>
+<option value="aumentada">Aumentada em relação ao padrão habitual</option>
+</select></div>
+</div>
+<div class="field-row field-row-compact">
+<div class="field"><label>Menor eixo</label><input data-decimals="1" data-maxint="2" id="linfonodoTamanho" inputmode="decimal" placeholder="mm" type="text"/>
+<span class="medida-sugestao" id="linfonodoSugestao"></span></div>
+</div>
+</div>
+<div class="field bio-linha bio-larga conditional" id="wrap_cervicaisDescricao"><label for="cervicaisDescricao">Descreva o achado</label><textarea id="cervicaisDescricao" placeholder="ex: linfonodomegalia cervical..." rows="2"></textarea></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Estudo Doppler</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-larga"><label for="vascularizacaoAspecto">Padrão de vascularização</label><select id="vascularizacaoAspecto">
+<option value="normal">Normal (padrão normal ao mapeamento colorido)</option>
+<option value="aumentado">Aumentado (padrão aumentado ao mapeamento colorido)</option>
+<option value="alterado">Outro (descrever)</option>
+</select></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_vascularizacaoDescricao"><label for="vascularizacaoDescricao">Descreva o achado</label><textarea id="vascularizacaoDescricao" placeholder="ex: aumento difuso da vascularização ao mapeamento colorido, sugestivo de tireoidite..." rows="2"></textarea></div>
+<hr class="sep"/>
+<div><div class="field bio-linha"><label for="velocidadeATI">Artéria Tireoidea Inferior — velocidade<span class="vr">VR até 30,0 cm/s</span><span class="flag-note" id="flag_velocidadeATI">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="velocidadeATI" inputmode="decimal" placeholder="cm/s" type="text"/><span class="bio-un"></span></div></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Impressão diagnóstica</h2></div>
+<div class="card-body">
+<p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base no exame normal. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
+<div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+</div>
+</div>
+</div>
 
   <!-- PREVIEW COLUMN -->
   <div class="preview-wrap">
@@ -1431,36 +1400,30 @@ if(typeof criarMotorLaudo !== 'function'){
     return ''
       +'<div class="subgroup" id="wrap_nodulo'+uid+'">'
       +'<p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Nódulo <span class="nodulo-index"></span></p>'
-      +'<div class="field-row field-row-compact">'
-      +'<div class="field"><label>Lobo</label><select id="nodulo'+uid+'Lobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option><option value="istmo">Istmo</option></select></div>'
-      +'<div class="field"><label>Composição</label><select id="nodulo'+uid+'Composicao">'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="nodulo'+uid+'Lobo">Lobo</label><select id="nodulo'+uid+'Lobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option><option value="istmo">Istmo</option></select></div>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="nodulo'+uid+'Composicao">Composição</label><select id="nodulo'+uid+'Composicao">'
       +'<option value="solido">Sólido (2 pts)</option><option value="misto">Misto cístico-sólido (1 pt)</option><option value="espongiforme">Espongiforme (0 pts)</option>'
       +'</select></div>'
-      +'<div class="field"><label>Ecogenicidade</label><select id="nodulo'+uid+'Ecogenicidade">'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="nodulo'+uid+'Ecogenicidade">Ecogenicidade</label><select id="nodulo'+uid+'Ecogenicidade">'
       +'<option value="hiperecogênico">Hiperecogênico (1 pt)</option><option value="isoecogênico">Isoecogênico (1 pt)</option><option value="hipoecogênico">Hipoecogênico (2 pts)</option><option value="acentuadamente hipoecogênico">Acentuadamente hipoecogênico (3 pts)</option>'
       +'</select></div>'
-      +'<div class="field"><label>Terço</label><select id="nodulo'+uid+'Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select></div>'
-      +'</div>'
-      +'<div class="field-row field-row-compact">'
-      +'<div class="field"><label>Forma</label><select id="nodulo'+uid+'Forma">'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="nodulo'+uid+'Terco">Terço</label><select id="nodulo'+uid+'Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select></div>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="nodulo'+uid+'Forma">Forma</label><select id="nodulo'+uid+'Forma">'
       +'<option value="paralelo">Paralelo à pele (0 pts)</option><option value="naoParalelo">Não paralelo — mais alto que largo (3 pts)</option>'
       +'</select></div>'
-      +'<div class="field"><label>Margem</label><select id="nodulo'+uid+'Margem">'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="nodulo'+uid+'Margem">Margem</label><select id="nodulo'+uid+'Margem">'
       +'<option value="regular">Regular (0 pts)</option><option value="malDefinida">Mal definida (0 pts)</option><option value="lobulada">Lobulada (2 pts)</option><option value="irregular">Irregular (2 pts)</option><option value="extratireoidiana">Extensão extratireoidiana (3 pts)</option>'
       +'</select></div>'
-      +'<div class="field"><label>Focos ecogênicos</label><select id="nodulo'+uid+'Focos">'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="nodulo'+uid+'Focos">Focos ecogênicos</label><select id="nodulo'+uid+'Focos">'
       +'<option value="nenhum">Nenhum (0 pts)</option><option value="macro">Macrocalcificações (1 pt)</option><option value="margemCalcificada">Margem calcificada periférica interrompida (2 pts)</option><option value="micro">Puntiformes / microcalcificações (3 pts)</option>'
       +'</select></div>'
-      +'<div class="field"><label>Halo periférico</label><select id="nodulo'+uid+'Halo"><option value="ausente">Ausente</option><option value="presente">Presente</option></select></div>'
-      +'</div>'
-      +'<div class="field-row field-row-compact">'
-      +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" id="nodulo'+uid+'Tamanho" placeholder="ex: 22,1 x 23,4 x 25,3"></div>'
-      +'<div class="field"><label>Doppler (Chammas)</label><select id="nodulo'+uid+'Chammas">'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="nodulo'+uid+'Halo">Halo periférico</label><select id="nodulo'+uid+'Halo"><option value="ausente">Ausente</option><option value="presente">Presente</option></select></div>'
+      +'<div class="field bio-linha bio-texto"><label for="nodulo'+uid+'Tamanho">Tamanho (mm)</label><input type="text" inputmode="decimal" id="nodulo'+uid+'Tamanho" placeholder="ex: 22,1 x 23,4 x 25,3"></div>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="nodulo'+uid+'Chammas">Doppler (Chammas)</label><select id="nodulo'+uid+'Chammas">'
       +'<option value="1">Chammas I — sem vascularização</option><option value="2">Chammas II — periférica</option><option value="3">Chammas III — periférica maior que central</option><option value="4">Chammas IV — central maior que periférica</option><option value="5">Chammas V — exclusivamente central</option>'
       +'</select></div>'
-      +'<div class="field"><label>TI-RADS</label><select id="nodulo'+uid+'Tirads"><option value="2">Categoria 2</option><option value="3">Categoria 3</option><option value="4">Categoria 4</option><option value="5">Categoria 5</option></select>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="nodulo'+uid+'Tirads">TI-RADS</label><select id="nodulo'+uid+'Tirads"><option value="2">Categoria 2</option><option value="3">Categoria 3</option><option value="4">Categoria 4</option><option value="5">Categoria 5</option></select>'
       +'<span class="tirads-sugestao" id="nodulo'+uid+'TiradsSugestao"></span></div>'
-      +'</div>'
       +'<button type="button" class="nodulo-remove" data-uid="'+uid+'">Remover nódulo</button>'
       +'</div>';
   }
@@ -1517,17 +1480,15 @@ if(typeof criarMotorLaudo !== 'function'){
     return ''
       +'<div class="subgroup" id="wrap_cisto'+uid+'">'
       +'<p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Cisto <span class="cisto-index"></span></p>'
-      +'<div class="field-row field-row-compact">'
-      +'<div class="field"><label>Cisto colóide</label><select id="cisto'+uid+'Tipo"><option value="1">Único (1)</option><option value="varios">Vários (ao menos 3)</option></select></div>'
-      +'<div class="field"><label>Lobo</label><select id="cisto'+uid+'Lobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select></div>'
-      +'<div class="field"><label id="cisto'+uid+'TercoLabel">Terço</label><select id="cisto'+uid+'Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select></div>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="cisto'+uid+'Tipo">Cisto colóide</label><select id="cisto'+uid+'Tipo"><option value="1">Único (1)</option><option value="varios">Vários (ao menos 3)</option></select></div>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="cisto'+uid+'Lobo">Lobo</label><select id="cisto'+uid+'Lobo"><option value="direito">Direito</option><option value="esquerdo">Esquerdo</option></select></div>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label id="cisto'+uid+'TercoLabel" for="cisto'+uid+'Terco">Terço</label><select id="cisto'+uid+'Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select></div>'
+      +'<div class="conditional" id="wrap_cisto'+uid+'Unico">'
+      +'<div class="field bio-linha"><label for="cisto'+uid+'Tamanho">Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cisto'+uid+'Tamanho" placeholder=""><span class="bio-un">mm</span></div>'
       +'</div>'
-      +'<div class="field-row field-row-compact conditional" id="wrap_cisto'+uid+'Unico">'
-      +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cisto'+uid+'Tamanho" placeholder="mm"></div>'
-      +'</div>'
-      +'<div class="field-row field-row-compact conditional" id="wrap_cisto'+uid+'Varios">'
-      +'<div class="field"><label>Menor</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cisto'+uid+'Min" placeholder="mm"></div>'
-      +'<div class="field"><label>Maior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cisto'+uid+'Max" placeholder="mm"></div>'
+      +'<div class="conditional" id="wrap_cisto'+uid+'Varios">'
+      +'<div class="field bio-linha"><label for="cisto'+uid+'Min">Menor</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cisto'+uid+'Min" placeholder=""><span class="bio-un">mm</span></div>'
+      +'<div class="field bio-linha"><label for="cisto'+uid+'Max">Maior</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="cisto'+uid+'Max" placeholder=""><span class="bio-un">mm</span></div>'
       +'</div>'
       +'<button type="button" class="nodulo-remove cisto-remove" data-uid="'+uid+'">Remover cisto</button>'
       +'</div>';
