@@ -233,6 +233,46 @@ function livreMover(i, dir){
   });
   return ordem.indexOf(i) + 1;
 }
+// Setas ▲▼ de uma linha livre (no quadro "Linhas livres" e no espelho da checklist).
+function livreSetasHtml(i){
+  const st = 'flex:0 0 auto;padding:2px 7px;font-size:12px;line-height:1.4;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--rose-dark);cursor:pointer;';
+  return '<button type="button" class="livre-mover" data-livre="'+i+'" data-dir="-1" title="Subir esta linha na conclusão" aria-label="Subir linha livre '+i+'" style="'+st+'">&#9650;</button>'
+    + '<button type="button" class="livre-mover" data-livre="'+i+'" data-dir="1" title="Descer esta linha na conclusão" aria-label="Descer linha livre '+i+'" style="'+st+'">&#9660;</button>';
+}
+// Espelho na checklist (2026-10-28): cada linha livre marcada aparece entre as
+// frases da checklist, no lugar em que sai na conclusão, com as mesmas setas.
+// Só mostra; o texto continua sendo editado no quadro "Linhas livres". Roda
+// depois do render() (microtask), quando a checklist já foi redesenhada.
+function livresEspelhar(){
+  const box = document.getElementById('impressaoChecklist');
+  if(!box) return;
+  box.querySelectorAll('.livre-espelho').forEach(e=> e.remove());
+  const linhaDe = el=>{ while(el && el.parentElement !== box) el = el.parentElement; return el; };
+  const rowDe = k=>{
+    const inp = Array.from(box.querySelectorAll('input[data-key]')).find(x=> x.dataset.key === k);
+    return inp ? linhaDe(inp) : null;
+  };
+  const esc = t=> t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const espelho = i=>{
+    const d = document.createElement('div');
+    d.className = 'livre-espelho';
+    d.style.cssText = 'display:flex;align-items:center;gap:8px;margin:2px 0;padding:3px 6px;border:1px dashed var(--rose-dark);border-radius:6px;background:var(--rose-light);';
+    const txt = livreEl(i,'Txt').value.replace(/^\s*\*\s*/, '').trim();
+    d.innerHTML = '<span style="flex:1 1 auto;min-width:0;"><small style="color:var(--rose-dark);font-weight:600;">Linha livre '+i+':</small> '+esc(txt)+'</span>' + livreSetasHtml(i);
+    return d;
+  };
+  const seq = livresSequencia();
+  let ultimo = null, inicio = true;
+  seq.forEach(t=>{
+    if(t.g){ const r = rowDe(t.g); if(r){ ultimo = r; inicio = false; } return; }
+    const d = espelho(t.l);
+    if(ultimo) ultimo.after(d);
+    else if(inicio) box.insertBefore(d, box.firstChild);
+    else box.appendChild(d);
+    ultimo = d; inicio = false;
+  });
+  livresAtualizarSetas();
+}
 function linhasLivresNaLista(listaHtml){
   // Frases geradas, na ordem em que saíram (o aviso "Selecione..." não tem data-key).
   const reLi = /<li\b[^>]*>[\s\S]*?<\/li>/g;
@@ -242,6 +282,7 @@ function linhasLivresNaLista(listaHtml){
     if(m && m[1].indexOf('livre-') !== 0) livresGerados.push(m[1]);
   });
   livresAtualizarVisiveis();
+  Promise.resolve().then(livresEspelhar);
   const liDe = i=>{
     const txt = livreEl(i,'Txt').value.replace(/^\s*\*\s*/, '').trim();
     const esc = txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1906,8 +1947,7 @@ function criarMotorLaudo(cfg){
         + '<input type="checkbox" id="livre'+i+'On" style="margin:0;flex:0 0 auto;accent-color:var(--rose-dark);" aria-label="Incluir linha livre '+i+'">'
         + '<input type="text" id="livre'+i+'Txt" placeholder="Linha livre '+i+'" autocomplete="off" style="flex:1 1 auto;min-width:0;">'
         + '<input type="hidden" id="livre'+i+'Pos" value="">'
-        + '<button type="button" class="livre-mover" data-livre="'+i+'" data-dir="-1" title="Subir esta linha na conclusão" aria-label="Subir linha livre '+i+'" style="flex:0 0 auto;padding:2px 7px;font-size:12px;line-height:1.4;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--rose-dark);cursor:pointer;">&#9650;</button>'
-        + '<button type="button" class="livre-mover" data-livre="'+i+'" data-dir="1" title="Descer esta linha na conclusão" aria-label="Descer linha livre '+i+'" style="flex:0 0 auto;padding:2px 7px;font-size:12px;line-height:1.4;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--rose-dark);cursor:pointer;">&#9660;</button>'
+        + livreSetasHtml(i)
         + '</div>';
     }
     h += '<button type="button" class="btn-clear" id="livreAdd" style="margin:2px 0 0;">+ Adicionar linha livre</button></div>';
@@ -1925,7 +1965,7 @@ function criarMotorLaudo(cfg){
       });
     }
     // Setas ▲▼: movem a linha pela conclusão inteira (ver livreMover, acima).
-    $('linhasLivres').addEventListener('click', e=>{
+    const livreClique = e=>{
       const b = e.target.closest('.livre-mover');
       if(!b || b.disabled) return;
       const novo = livreMover(+b.dataset.livre, +b.dataset.dir);
@@ -1933,9 +1973,16 @@ function criarMotorLaudo(cfg){
       cfg.render();
       livresAtualizarSetas();
       draftSchedule();
-      const alvo = document.querySelector('.livre-mover[data-livre="'+novo+'"][data-dir="'+b.dataset.dir+'"]');
-      if(alvo && !alvo.disabled) alvo.focus();
-    });
+      // O foco segue a linha, no mesmo quadro do clique (o espelho é refeito no
+      // fim do render(), por isso espera a microtask dele).
+      const noEspelho = !!b.closest('#impressaoChecklist');
+      Promise.resolve().then(()=>{
+        const alvo = document.querySelector((noEspelho ? '#impressaoChecklist' : '#linhasLivres')+' .livre-mover[data-livre="'+novo+'"][data-dir="'+b.dataset.dir+'"]');
+        if(alvo && !alvo.disabled) alvo.focus();
+      });
+    };
+    $('linhasLivres').addEventListener('click', livreClique);
+    checklist0.addEventListener('click', livreClique);
     $('livreAdd').addEventListener('click', ()=>{
       livresMostradas = Math.min(LIVRES_MAX, livresMostradas+1);
       livresAtualizarVisiveis();
