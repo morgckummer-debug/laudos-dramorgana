@@ -512,27 +512,6 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Estudo Doppler</h2></div>
-      <div class="card-body">
-        <div class="bio-grupo"><h4>Vascularização dos linfonodos</h4>
-          <div class="field bio-linha bio-larga"><label for="vascularizacaoAspecto">Padrão de vascularização</label>
-            <select id="vascularizacaoAspecto">
-              <option value="normal">Normal (pouca vascularização central, ramos partindo do hilo)</option>
-              <option value="aumentada">Aumentada em relação ao padrão habitual</option>
-              <option value="periferica">Predominantemente periférica</option>
-              <option value="mista">Mista (central e periférica)</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-          <div class="field bio-linha bio-larga conditional" id="wrap_vascularizacaoDescricao">
-            <label for="vascularizacaoDescricao">Descreva o achado</label>
-            <textarea id="vascularizacaoDescricao" rows="2"></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
       <div class="card-head"><h2>Impressão diagnóstica</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base no exame normal. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
@@ -1080,6 +1059,11 @@ if(typeof criarMotorLaudo !== 'function'){
     oval: 'de contorno oval/fusiforme, com hilo preservado',
     arredondado: 'de contorno arredondado (globoso), com perda da relação eixo longo/eixo curto'
   };
+  // Doppler: característica de cada linfonodo, não um achado à parte.
+  const DOPPLER_LINFO_TEXTO = {
+    normal: 'com vascularização normal ao Doppler, com vasos partindo do hilo',
+    caotica: 'com vascularização caótica ao Doppler'
+  };
   const ECO_TEXTO = {
     normal: 'hipoecoico, com hilo ecogênico central preservado',
     calcificacoes: 'com calcificações grosseiras de permeio',
@@ -1227,11 +1211,6 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_planosDescricao', e.target.value==='alterado');
     if(e.target.value==='alterado') prefillAspectoDescricao('planosDescricao', 'Planos musculares e tecido subcutâneo preservados');
   });
-  $('vascularizacaoAspecto').addEventListener('change', e=>{
-    toggle('wrap_vascularizacaoDescricao', e.target.value==='alterado');
-    if(e.target.value==='alterado') prefillAspectoDescricao('vascularizacaoDescricao', 'Sem alterações significativas ao estudo Doppler');
-  });
-
   // ---------- Linfonodos: duas listas dinâmicas (direita/esquerda), mesmo
   // padrão dos nódulos no tireoide-doppler.html. O uid é único entre os dois
   // lados (contador compartilhado, nunca reaproveitado), então o lado de cada
@@ -1257,6 +1236,10 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<option value="cisticas">Alterações císticas</option>'
       +'<option value="ecoAumentada">Ecogenicidade aumentada</option>'
       +'<option value="perdaHilo">Perda do hilo ecogênico</option>'
+      +'</select></div>'
+      +'<div class="field bio-linha bio-sel"><label for="linfo'+uid+'Doppler">Doppler</label><select id="linfo'+uid+'Doppler">'
+      +'<option value="normal">Normal (vasos partindo do hilo)</option>'
+      +'<option value="caotica">Caótica</option>'
       +'</select></div>'
       +'</div>';
   }
@@ -1326,9 +1309,11 @@ if(typeof criarMotorLaudo !== 'function'){
   // achado for outro que não a normalidade.
   function buildImpressao(state){
     const items = [
-      {key:'normal', label: phrase('impNormal'), auto: !state.temLinfonodo},
-      {key:'dopplerNormal', label: phrase('impDopplerNormal'), auto: state.vascularizacaoAspecto==='normal'}
+      {key:'normal', label: phrase('impNormal'), auto: !state.temLinfonodo}
     ];
+    // Com algum linfonodo de vascularização caótica, "Doppler dentro da
+    // normalidade" sai da lista: o achado entra como linfonodo suspeito.
+    if(!state.dopplerCaotico) items.push({key:'dopplerNormal', label: phrase('impDopplerNormal'), auto:true});
     if(state.linfonodoImpressaoHD){
       items.push({key:'linfonodo-achado', label: state.linfonodoImpressaoHD, auto:true});
     }
@@ -1405,16 +1390,18 @@ if(typeof criarMotorLaudo !== 'function'){
     const temLinfonodo = $('temLinfonodo').checked;
     let linfonodosTexto = 'Ausência de sinais de linfonodomegalia.';
     let linfonodoImpressaoHD = null;
+    let dopplerCaotico = false;
     if(temLinfonodo){
       const construirLado = (lado, rotulo)=>{
         const uids = linfonodoUids(lado);
-        if(!uids.length) return {linhas: [], suspeito: false, reacional: false};
+        if(!uids.length) return {linhas: [], suspeito: false, reacional: false, caotico: false};
         const linhasLado = ['<span style="display:block;margin-top:3mm;"><strong>À '+rotulo+':</strong></span>'];
-        let suspeito = false, reacional = false;
+        let suspeito = false, reacional = false, caotico = false;
         uids.forEach(uid=>{
           const nivel = v('linfo'+uid+'Nivel') || 'I';
           const forma = v('linfo'+uid+'Forma') || 'oval';
           const eco = v('linfo'+uid+'Eco') || 'normal';
+          const doppler = v('linfo'+uid+'Doppler') || 'normal';
           const medida = blankOrValue(req('linfo'+uid+'Medida'));
           const medidaNum = num('linfo'+uid+'Medida');
           const limite = NIVEL_LIMITE[nivel] || 9;
@@ -1423,18 +1410,21 @@ if(typeof criarMotorLaudo !== 'function'){
           // alterada. Reacional não é suspeito (só quem a médica marcou como
           // "Reacional" entra como reacional); oval/fusiforme com hilo
           // preservado não entra em nenhuma das duas.
+          // Vascularização caótica ao Doppler também torna o linfonodo suspeito.
           const ecoSuspeita = eco!=='normal' && eco!=='reacional';
-          if(aumentado || forma==='arredondado' || ecoSuspeita) suspeito = true;
+          if(doppler==='caotica') caotico = true;
+          if(aumentado || forma==='arredondado' || ecoSuspeita || doppler==='caotica') suspeito = true;
           else if(eco==='reacional') reacional = true;
           const formaTxt = FORMA_TEXTO[forma] || FORMA_TEXTO.oval;
           const ecoTxt = ECO_TEXTO[eco] || ECO_TEXTO.normal;
           const sufixo = aumentado ? ' (acima do valor de referência para o nível)' : '';
-          linhasLado.push('<span style="display:block;">- Nível '+nivel+': linfonodo '+formaTxt+', '+ecoTxt+', medindo '+span(medida)+' mm no menor eixo'+sufixo+'.</span>');
+          linhasLado.push('<span style="display:block;">- Nível '+nivel+': linfonodo '+formaTxt+', '+ecoTxt+', medindo '+span(medida)+' mm no menor eixo'+sufixo+', '+(DOPPLER_LINFO_TEXTO[doppler] || DOPPLER_LINFO_TEXTO.normal)+'.</span>');
         });
-        return {linhas: linhasLado, suspeito, reacional};
+        return {linhas: linhasLado, suspeito, reacional, caotico};
       };
       const direita = construirLado('D', 'direita');
       const esquerda = construirLado('E', 'esquerda');
+      dopplerCaotico = direita.caotico || esquerda.caotico;
       const todasLinhas = direita.linhas.concat(esquerda.linhas);
       if(todasLinhas.length){
         linfonodosTexto = 'Observam-se linfonodos, com as seguintes características:'+todasLinhas.join('');
@@ -1449,22 +1439,8 @@ if(typeof criarMotorLaudo !== 'function'){
       }
     }
 
-    // ----- Doppler -----
-    const vascularizacaoAspecto = v('vascularizacaoAspecto') || 'normal';
-    const vascularizacaoDescricao = vNoDot('vascularizacaoDescricao');
-    reqIf('vascularizacaoDescricao', vascularizacaoAspecto==='alterado');
-    const VASCULARIZACAO_TEXTO = {
-      normal: 'Ao mapeamento Doppler colorido, observa-se padrão de vascularização preservado, com discreta vascularização central e ramos partindo do hilo — sem alterações significativas.',
-      aumentada: 'Ao mapeamento Doppler colorido, observa-se aumento da vascularização em relação ao padrão habitual.',
-      periferica: 'Ao mapeamento Doppler colorido, observa-se padrão de vascularização predominantemente periférico.',
-      mista: 'Ao mapeamento Doppler colorido, observa-se padrão de vascularização mista (central e periférica).'
-    };
-    const vascularizacaoTexto = (vascularizacaoAspecto==='alterado' && vascularizacaoDescricao)
-      ? escapeHtml(vascularizacaoDescricao)+'.'
-      : (VASCULARIZACAO_TEXTO[vascularizacaoAspecto] || VASCULARIZACAO_TEXTO.normal);
-
     // ----- Impressão -----
-    const impressaoItems = buildImpressao({temLinfonodo, vascularizacaoAspecto, linfonodoImpressaoHD});
+    const impressaoItems = buildImpressao({temLinfonodo, dopplerCaotico, linfonodoImpressaoHD});
     renderChecklist(impressaoItems);
     const checkedItems = impressaoItems.filter(it => checkedState[it.key]);
 
@@ -1492,8 +1468,6 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'planos', html:'<p class="linha">'+planosTexto+'</p>'});
     blocks.push({id:'linfonodos', html:'<p class="linha">'+linfonodosTexto+'</p>'});
 
-    blocks.push({id:'dopplerHeader', html:'<h4 class="sec">ESTUDO DOPPLER:</h4>'});
-    blocks.push({id:'vascularizacao', html:'<p class="linha">'+vascularizacaoTexto+'</p>'});
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO:</h4>'});
     let impressaoListHtml = '<ul class="impressao">';
