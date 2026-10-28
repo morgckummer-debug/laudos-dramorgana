@@ -628,7 +628,6 @@
   <div class="field" style="margin-bottom:8px;"><label>Doppler fetal — umbilical/ACM/relação cérebro-placentária alterados</label><textarea id="ph_impDopplerFetalAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Doppler fetal normal em todos os fetos (gemelar/trigemelar) — use {TERMO}</label><textarea id="ph_impDopplerFetalNormalTodos" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>RCP abaixo do percentil 5</label><textarea id="ph_impRcpBaixoP5" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Doppler fetal não solicitado — linha no corpo do laudo (sai quando o Doppler fetal não está marcado)</label><textarea id="ph_dopplerFetalNaoSolicitado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo uterino — texto no corpo do laudo — use {MEDIDA}</label><textarea id="ph_coloTexto" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo uterino não solicitado — linha no corpo do laudo (sai quando o colo não está marcado)</label><textarea id="ph_coloNaoSolicitado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Doppler das uterinas não solicitado — linha no corpo do laudo (sai quando o Doppler materno não está marcado)</label><textarea id="ph_dopplerUterinasNaoSolicitado" rows="2"></textarea></div>
@@ -1421,7 +1420,6 @@ if(typeof criarMotorLaudo !== 'function'){
     // {FLUXO} vem de AU_FLUXO_TXT (AEDF/REDF/iAREDF) — achado mais grave que
     // o RCP baixo, por isso tem prioridade sobre ele em dopplerFetalLabelFor.
     impAuFluxoAlterado: '{FLUXO} — sugere-se avaliação e acompanhamento especializado.',
-    dopplerFetalNaoSolicitado: 'Doppler fetal (umbilical/cerebral média): não solicitado.',
     coloTexto: 'Colo uterino: de textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm (VR ≥ 25,0 mm). "Sludge" não identificado.',
     // Exame "simples": sem as duas seções opcionais, o laudo registra por que
     // elas não estão lá — não foram pedidas. Sem essa linha, quem lê depois
@@ -2780,7 +2778,6 @@ if(typeof criarMotorLaudo !== 'function'){
     const naoSolicitadas = [];
     if(!colo) naoSolicitadas.push({id:'coloNaoSolicitado', key:'coloNaoSolicitado'});
     if(!dopplerMaterno) naoSolicitadas.push({id:'dopplerNaoSolicitado', key:'dopplerUterinasNaoSolicitado'});
-    if(!dopplerFetal) naoSolicitadas.push({id:'dopplerFetalNaoSolicitadoLinha', key:'dopplerFetalNaoSolicitado'});
     naoSolicitadas.forEach((item, i)=>{
       const tight = i < naoSolicitadas.length - 1;
       blocks.push({id:item.id, html:'<p class="linha'+(tight ? ' tight' : '')+'">'+linhaNaoSolicitada(item.key)+'</p>'});
