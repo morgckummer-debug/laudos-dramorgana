@@ -1789,3 +1789,7 @@ Pedido da médica: o mesmo seletor "Inserir achado pronto…" do 1º trimestre, 
 Pedido da médica: o mesmo `div.cards-par` do 1º trimestre (#347), com o CSS copiado no `<style>`. Os cards "Idade gestacional" (Datação) e "Gestação" (Tipo de gestação) ficam lado a lado e empilham em tela estreita. O 2º trimestre nunca tinha recebido esse wrapper: o #347 mexeu só no 1º. Ids, laudo e rascunho não mudaram (só HTML de layout).
 
 **TN e obstétrico de 2º/3º trimestre, no mesmo dia (pedido da médica):** `obstetrico-tn-doppler-colo.html` e `obstetrico.html` ganharam o mesmo `div.cards-par` em volta de "Idade gestacional" e "Gestação", com o CSS copiado no `<style>`. Ids, laudo e rascunho inalterados.
+
+## Obstétrico: Doppler materno e fetal lado a lado (2026-10-28)
+
+Pedido da médica. No card "Doppler" do `obstetrico.html`, as duas caixas (`chkDopplerMaterno`, `chkDopplerFetal`) e seus campos ficam em duas `.bio-col` de um `.bio-grupos.doppler-lado`: materno (Artérias uterinas) à esquerda, fetal (um quadro por feto em `#dopplerFetalFields`) à direita; empilham abaixo de 720px. Saiu o `<hr>` entre eles. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários).
