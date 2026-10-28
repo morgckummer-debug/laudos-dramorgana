@@ -134,7 +134,8 @@
   .medida-sugestao{font-size:11.5px;font-weight:700;color:var(--amber);margin-top:6px;display:none;}
   .medida-sugestao.show{display:block;}
   .subgroup{border-left:3px solid var(--rose-light);padding-left:12px;margin-top:6px;margin-bottom:6px;}
-  .linfonodo-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
+  .linfonodo-remove{float:right;background:#fff;border:1px solid #E2B8AE;border-radius:999px;color:#B4432F;font-size:11px;font-weight:600;letter-spacing:0;text-transform:none;padding:2px 10px;margin-top:-3px;cursor:pointer;}
+  .linfonodo-remove:hover{background:#FBEAE6;}
 
   .toggle-line{display:flex;align-items:center;gap:8px;margin:4px 0 14px;font-size:13px;color:var(--ink-soft);}
   .toggle-line input{width:16px;height:16px;accent-color:var(--sage);}
@@ -174,7 +175,6 @@
   .linfo-lista:empty{display:none;}
   .linfo-item .field.bio-linha.bio-sel{grid-template-columns:96px minmax(0,1fr);}
   .linfo-item .field.bio-linha .medida-sugestao{grid-column:1/-1;margin-top:0;}
-  .linfo-item .linfonodo-remove{margin:4px 0 8px;}
   .linfo-lado .btn-clear{align-self:flex-start;}
   @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col, .bio-col:only-child{flex:0 0 auto;} }
 
@@ -1233,7 +1233,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const options = NIVEL_ORDEM.map(n=> '<option value="'+n+'">'+NIVEL_ROTULO[n]+'</option>').join('');
     return ''
       +'<div class="bio-grupo linfo-item" id="wrap_linfo'+uid+'">'
-      +'<h4>Linfonodo <span class="linfo-index"></span></h4>'
+      +'<h4>Linfonodo <span class="linfo-index"></span><button type="button" class="linfonodo-remove" data-uid="'+uid+'" title="Remover este linfonodo">✕ Remover</button></h4>'
       +'<div class="field bio-linha"><label for="linfo'+uid+'Medida">Menor eixo</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="linfo'+uid+'Medida"><span class="bio-un">mm</span>'
       +'<span class="medida-sugestao" id="linfo'+uid+'Sugestao"></span></div>'
       +'<div class="field bio-linha bio-sel"><label for="linfo'+uid+'Nivel">Nível</label><select id="linfo'+uid+'Nivel">'+options+'</select></div>'
@@ -1249,7 +1249,6 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<option value="ecoAumentada">Ecogenicidade aumentada</option>'
       +'<option value="perdaHilo">Perda do hilo ecogênico</option>'
       +'</select></div>'
-      +'<button type="button" class="linfonodo-remove" data-uid="'+uid+'">Remover linfonodo</button>'
       +'</div>';
   }
   function renumberLinfonodos(lado){
@@ -1258,8 +1257,6 @@ if(typeof criarMotorLaudo !== 'function'){
     itens.forEach((el, idx)=>{
       const label = el.querySelector('.linfo-index');
       if(label) label.textContent = idx+1;
-      const removeBtn = el.querySelector('.linfonodo-remove');
-      if(removeBtn) removeBtn.style.display = itens.length>1 ? 'inline' : 'none';
     });
   }
   function updateLinfonodoSugestao(uid){
@@ -1281,6 +1278,12 @@ if(typeof criarMotorLaudo !== 'function'){
     el.querySelector('.linfonodo-remove').addEventListener('click', ()=>{
       el.remove();
       renumberLinfonodos(lado);
+      // Sem nenhum linfonodo dos dois lados, a caixa "Há linfonodo(s)" desmarca
+      // e o laudo volta a "Ausência de sinais de linfonodomegalia."
+      if(linfonodoUids('D').length===0 && linfonodoUids('E').length===0){
+        $('temLinfonodo').checked = false;
+        toggle('wrap_linfonodoCampos', false);
+      }
       render();
     });
     updateLinfonodoSugestao(uid);
