@@ -732,10 +732,7 @@
       </div>
     </div>
 
-    <div class="card conditional show" id="wrap_sacoGestacionalCard">
-      <div class="card-head"><h2>Saco gestacional</h2></div>
-      <div class="card-body">
-        <div class="bio-grupos"><div class="bio-col">
+    <div class="bio-grupos conditional show" id="wrap_sacoPresenteBloco"><div class="bio-col">
           <div class="bio-grupo"><h4>Saco gestacional</h4>
             <div class="field bio-linha bio-sel"><label for="sacoPresente">Saco gestacional</label>
               <select id="sacoPresente"><option value="sim">Presente</option><option value="nao">Ausente</option></select>
@@ -754,8 +751,6 @@
             </div>
           </div>
         </div></div>
-      </div>
-    </div>
 
     <div class="conditional show" id="wrap_sacosSection">
       <div id="sacosContainer"></div>
@@ -1809,7 +1804,7 @@ if(typeof criarMotorLaudo !== 'function'){
   function updateGestacaoModo(){
     const {mola, perda} = gestacaoFlags();
     toggle('wrap_gestacaoNormal', !mola && !perda);
-    toggle('wrap_sacoGestacionalCard', !mola);
+    toggle('wrap_sacoPresenteBloco', !mola);
     toggle('wrap_sacosSection', !mola && !perda);
     toggle('wrap_molaCampos', mola);
     updatePerdaSemSacoWraps();
