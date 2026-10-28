@@ -1717,3 +1717,7 @@ Pedido da médica: os checkboxes de cada rim (normal, cálculo, cisto, leite de 
 ## Obstétrico de 1º trimestre: saco, VV e embrião lado a lado (2026-10-28)
 
 Pedido da médica. No card de cada saco (`sacoCardHTML()`), "Saco gestacional", "Vesícula vitelínica" e "Embrião" são três quadros numa grade de 3 colunas (`.saco-linha`, id `saco{uid}Linha`, CSS compacto como o dos lobos da tireoide; uma coluna abaixo de 720px). O quadro "Vesícula vitelínica e embrião" virou dois. Com um embrião, `.saco-embrioes` e `.emb-bloco` ficam `display:contents` e os dois quadros dele são a 2ª e a 3ª coluna; com mais de um, `renumberEmbrioes()` põe `.saco-multi`: o saco fica em cima e cada embrião é uma coluna com VV e embrião empilhados. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`: só a lista de ids mudou, pelo `saco{uid}Linha`).
+
+## Obstétrico de 1º trimestre: um card "Gestação" (2026-10-28)
+
+O Presente/Ausente do saco saiu do próprio card e entrou no card "Gestação", depois do tipo de gestação e antes do quadro de mola (`wrap_sacoPresenteBloco`, que some em mola). Os cards dos sacos ganharam título na tela só como "Saco 1", "Saco 2"... — o rótulo impresso ("Saco gestacional / embrião") não mudou, porque `sacoLabel()` alimenta o laudo.
