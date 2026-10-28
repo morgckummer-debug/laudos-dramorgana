@@ -174,6 +174,23 @@
      devolve tudo para uma coluna só quando a tela é estreita, e o .field-row de
      dentro (grid auto-fit de 170px) se empilha sozinho na largura menor. */
   .emb-colunas{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;align-items:start;}
+  /* Saco gestacional, vesícula vitelínica e embrião em três quadros lado a lado
+     (como os lobos da tireoide). Com um embrião só, o container dos embriões e o
+     bloco do embrião somem do layout (display:contents) e os dois quadros dele
+     viram a 2ª e a 3ª coluna. Com mais de um (.saco-multi), o quadro do saco
+     fica em cima e cada embrião vira uma coluna com VV e embrião empilhados. */
+  .saco-linha{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;margin-bottom:14px;}
+  .saco-linha:not(.saco-multi) > .saco-embrioes,
+  .saco-linha:not(.saco-multi) .emb-bloco{display:contents;}
+  .saco-linha .bio-grupo{padding:10px 12px 4px;}
+  .saco-linha .field.bio-linha{grid-template-columns:minmax(0,1fr) 62px 26px;gap:6px;}
+  .saco-linha .field.bio-linha.bio-sel{grid-template-columns:1fr;gap:4px;}
+  .saco-linha .field.bio-linha label{font-size:12.5px;}
+  .saco-linha .field.bio-linha input[type=text]{font-size:14px;padding:7px 4px;}
+  .saco-linha.saco-multi{display:block;}
+  .saco-linha.saco-multi > .bio-grupo{margin-bottom:14px;}
+  .saco-linha.saco-multi .emb-bloco .bio-grupo + .bio-grupo{margin-top:12px;}
+  @media (max-width:720px){ .saco-linha{grid-template-columns:1fr;} }
   .saco-remove, .mioma-remove{display:block;background:none;border:none;color:#B4432F;font-size:11.5px;font-weight:600;padding:0;margin-top:8px;cursor:pointer;text-decoration:underline;}
   .conditional{display:none;}
   .conditional.show{display:block;}
@@ -1915,9 +1932,11 @@ if(typeof criarMotorLaudo !== 'function'){
     return ''
       +'<div class="emb-bloco" id="wrap_'+p+'Bloco">'
       +'<div class="emb-label"></div>'
-      +'<div class="bio-grupo"><h4>Vesícula vitelínica e embrião</h4>'
+      +'<div class="bio-grupo"><h4>Vesícula vitelínica</h4>'
       +'<div class="field bio-linha bio-sel"><label for="'+p+'VVStatus">Vesícula vitelínica</label><select id="'+p+'VVStatus"><option value="visivel">Presente</option><option value="nao_visivel">Não visualizada</option></select></div>'
       +'<div class="field bio-linha conditional show" id="wrap_'+p+'VV"><label for="'+p+'VV">Tamanho — VV<span class="flag-note" id="flag_'+p+'VV">Acima do valor de referência (VR até 6,0 mm)</span></label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'VV" placeholder=""><span class="bio-un">mm</span></div>'
+      +'</div>'
+      +'<div class="bio-grupo"><h4>Embrião</h4>'
       +'<div class="field bio-linha bio-sel"><label for="'+p+'Embriao">Embrião</label><select id="'+p+'Embriao"><option value="presente">Presente</option><option value="nao_identificado">Não identificado</option></select></div>'
       +'<div class="conditional show" id="wrap_'+p+'EmbriaoCampos">'
       +'<div class="field bio-linha"><label for="'+p+'CCN">Comprimento cabeça-nádega (CCN)<span class="flag-note" id="flag_'+p+'CCN">Índice do saco gestacional (ISG) reduzido (VR &gt; 5 mm)</span></label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CCN" placeholder=""><span class="bio-un">mm</span></div>'
@@ -1934,15 +1953,15 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="card" id="wrap_saco'+uid+'">'
       +'<div class="card-head"><h2><span class="saco-label"></span></h2></div>'
       +'<div class="card-body">'
-      +'<div class="bio-grupos"><div class="bio-col">'
+      +'<div class="saco-linha" id="saco'+uid+'Linha">'
       +'<div class="bio-grupo"><h4>Saco gestacional</h4>'
       +'<div class="field bio-linha bio-sel"><label for="saco'+uid+'Insercao">Onde está o saco gestacional</label><select id="saco'+uid+'Insercao"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option><option value="ístmica">Ístmica</option></select></div>'
       +'<div class="field bio-linha bio-sel"><label for="saco'+uid+'Contorno">Contornos</label><select id="saco'+uid+'Contorno"><option value="regular">Regulares</option><option value="irregular">Irregulares</option></select></div>'
       +'<div class="field bio-linha"><label for="saco'+uid+'DMSG">Tamanho do saco gestacional<small>DMSG</small></label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'DMSG" placeholder=""><span class="bio-un">mm</span></div>'
       +'<div class="field bio-linha bio-sel"><label for="saco'+uid+'NumEmbrioes">Embriões neste saco</label><select id="saco'+uid+'NumEmbrioes"><option value="1">1</option><option value="2">2 (monocoriônica)</option><option value="3">3</option></select></div>'
       +'</div>'
-      +'</div></div>'
-      +'<div id="saco'+uid+'Embrioes"></div>'
+      +'<div class="saco-embrioes" id="saco'+uid+'Embrioes"></div>'
+      +'</div>'
       +'<div class="bio-grupos"><div class="bio-col">'
       +'<div class="bio-grupo"><h4>Hematoma subcoriônico</h4>'
       +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'Hematoma"><label for="saco'+uid+'Hematoma">Hematoma subcoriônico</label></div>'
@@ -1993,6 +2012,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const container = embrioesContainer(uid);
     const blocos = Array.from(container.children);
     container.classList.toggle('emb-colunas', blocos.length>1);
+    const linha = $('saco'+uid+'Linha');
+    if(linha) linha.classList.toggle('saco-multi', blocos.length>1);
     blocos.forEach((el, i)=>{
       el.classList.toggle('subgroup', blocos.length>1);
       const lab = el.querySelector('.emb-label');

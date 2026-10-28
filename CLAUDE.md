@@ -1713,3 +1713,7 @@ Pedido da médica: ao escolher cisto ou hemangioma no "Aspecto" do fígado, a fr
 ## Rins: achados numa janela, como o Aspecto do fígado (2026-10-28)
 
 Pedido da médica: os checkboxes de cada rim (normal, cálculo, cisto, leite de cálcio, nódulo, hidronefrose...) ocupavam o cartão. Agora cada rim tem um botão "Achados do rim direito: N marcados ▸" que abre uma janela (`#modal_rinsD` / `#modal_rinsE`, montada em `atualizaBotaoRins()` e no bloco "Rins: achados numa janela" do script). A janela é só mover o DOM: ids, listeners, rascunho e conclusão são os mesmos. Fecha por "Concluir", clique fora ou Esc. O botão conta os achados marcados (sem o "Normal") e atualiza no `render()`.
+
+## Obstétrico de 1º trimestre: saco, VV e embrião lado a lado (2026-10-28)
+
+Pedido da médica. No card de cada saco (`sacoCardHTML()`), "Saco gestacional", "Vesícula vitelínica" e "Embrião" são três quadros numa grade de 3 colunas (`.saco-linha`, id `saco{uid}Linha`, CSS compacto como o dos lobos da tireoide; uma coluna abaixo de 720px). O quadro "Vesícula vitelínica e embrião" virou dois. Com um embrião, `.saco-embrioes` e `.emb-bloco` ficam `display:contents` e os dois quadros dele são a 2ª e a 3ª coluna; com mais de um, `renumberEmbrioes()` põe `.saco-multi`: o saco fica em cima e cada embrião é uma coluna com VV e embrião empilhados. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`: só a lista de ids mudou, pelo `saco{uid}Linha`).
