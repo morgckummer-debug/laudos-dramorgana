@@ -1694,3 +1694,7 @@ Regra da Dra. Morgana, que **substitui** as seções "PIG vs CIUR: critérios me
 ## Tireoide: LD, LE e istmo em três quadros (2026-10-28)
 
 Pedido da médica. No card "Tireóide — Dimensões" de `tireoide-doppler.html`, lobo direito, lobo esquerdo e istmo são três `.bio-grupo` lado a lado (`.tir-lobos`, grade de 3 colunas, uma só abaixo de 720px), cada um com longitudinal, AP, transversal e volume; o volume total fica num quadro largo embaixo (`.tir-total`). Ids, laudo, Word, rascunho e o volume total iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários, mais um teste em branco, preenchido e recarregado).
+
+## TN: Doppler em três quadros lado a lado (2026-10-28)
+
+Pedido da médica. No card Doppler do `obstetrico-tn-doppler-colo.html`, "Artérias uterinas", "Válvula tricúspide" e "Ducto venoso" ficam em três colunas (`.bio-grupos.bio-tres`, CSS compacto só ali). A tricúspide saiu de dentro do quadro do ducto venoso: virou um quadro por feto (`fetoTricuspideHTML()`, mesmo id `feto{uid}TricuspideWrap`) na coluna `#tricuspideFields`, que só aparece com `chkTricuspide`; remover feto, "Limpar" e o rascunho limpam as duas colunas. O checkbox da tricúspide subiu para antes dos quadros. Laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`: só a lista de ids mudou, pelo `#tricuspideFields` novo).
