@@ -1793,3 +1793,7 @@ Pedido da médica: o mesmo `div.cards-par` do 1º trimestre (#347), com o CSS co
 ## Obstétrico: Doppler materno e fetal lado a lado (2026-10-28)
 
 Pedido da médica. No card "Doppler" do `obstetrico.html`, as duas caixas (`chkDopplerMaterno`, `chkDopplerFetal`) e seus campos ficam em duas `.bio-col` de um `.bio-grupos.doppler-lado`: materno (Artérias uterinas) à esquerda, fetal (um quadro por feto em `#dopplerFetalFields`) à direita; empilham abaixo de 720px. Saiu o `<hr>` entre eles. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários).
+
+## Cervical: Doppler dentro de cada linfonodo (2026-10-28)
+
+Pedido da médica: no `cervical-doppler.html` o Doppler é característica de cada linfonodo, não um card à parte. Cada quadro de linfonodo tem o select `linfo{uid}Doppler` ("Normal (vasos partindo do hilo)" / "Caótica"), e a frase do linfonodo termina com "com vascularização normal ao Doppler, com vasos partindo do hilo" ou "com vascularização caótica ao Doppler". Caótica torna o linfonodo suspeito (entra em `impLinfonodoSuspeito`) e tira "Estudo Doppler dentro da normalidade" da conclusão. O card "Estudo Doppler" (`vascularizacaoAspecto`/`vascularizacaoDescricao`) e o bloco "ESTUDO DOPPLER:" do laudo saíram. Rascunho antigo volta com Doppler normal em cada linfonodo.
