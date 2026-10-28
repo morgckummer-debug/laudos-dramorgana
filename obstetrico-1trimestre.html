@@ -690,9 +690,16 @@
                 <select id="fivEstagio"><option value="d3">D3 (clivagem)</option><option value="d5">D5 (blastocisto)</option></select>
               </div>
             </div>
-            <p class="bio-nota conditional" id="wrap_incertaInfo">DUM incerta/ignorada: sem cronologia no cabeçalho (sem DUM/IG atual ali, sem "DUM estimada"). A DPP e o período do Morfológico do 1º Trimestre são calculados a partir da idade gestacional informada em <strong>"Idade gestacional pela USG"</strong>, mais abaixo, aplicada sobre a data deste exame.</p>
+            <p class="bio-nota conditional" id="wrap_incertaInfo">DUM incerta/ignorada: sem cronologia no cabeçalho (sem DUM/IG atual ali, sem "DUM estimada"). A DPP e o período do Morfológico do 1º Trimestre são calculados a partir da idade gestacional informada em <strong>"Idade gestacional pela USG"</strong>, logo abaixo, aplicada sobre a data deste exame.</p>
             <div class="conditional" id="wrap_dumEstimada">
               <div class="field bio-linha bio-data"><label for="dumEstimada">DUM estimada<small>para lançar na máquina de ultrassom</small></label><input type="text" id="dumEstimada" readonly placeholder="automática"></div>
+            </div>
+            <div class="field bio-linha bio-ig"><label for="impSemanas">Idade gestacional pela USG</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="7"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="impDias" placeholder="2" aria-label="Idade gestacional pela USG — dias"><span class="bio-un">dias</span></div>
+            <div class="field bio-linha bio-data"><label for="dpp">DPP<small>data provável do parto</small></label><input type="text" id="dpp" placeholder="automática" readonly></div>
+            <div class="toggle-line"><input type="checkbox" id="chkRecomendacao" checked><label for="chkRecomendacao">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
+            <div class="conditional" id="wrap_recomendacao">
+              <div class="field bio-linha bio-data"><label for="dataInicioMorfo">Período recomendado<small>início</small></label><input type="text" id="dataInicioMorfo" placeholder="automática" readonly></div>
+              <div class="field bio-linha bio-data"><label for="dataFimMorfo">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo" placeholder="automática" readonly></div>
             </div>
           </div>
         </div></div>
@@ -866,21 +873,11 @@
     <div class="card">
       <div class="card-head"><h2>Impressões diagnósticas</h2></div>
       <div class="card-body">
-        <div class="bio-grupos"><div class="bio-col">
-          <div class="bio-grupo"><h4>Idade gestacional e DPP</h4>
-            <div class="field bio-linha bio-ig"><label for="impSemanas">Idade gestacional pela USG</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="7"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="impDias" placeholder="2" aria-label="Idade gestacional pela USG — dias"><span class="bio-un">dias</span></div>
-            <div class="field bio-linha bio-sel conditional" id="wrap_dumConcordancia"><label for="dumConcordancia">DUM</label>
-              <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
-            </div>
-            <div class="field bio-linha bio-data"><label for="dpp">DPP<small>data provável do parto</small></label><input type="text" id="dpp" placeholder="automática" readonly></div>
+        <div class="field-row conditional" id="wrap_dumConcordancia">
+          <div class="field"><label for="dumConcordancia">DUM</label>
+            <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
           </div>
-          <div class="toggle-line"><input type="checkbox" id="chkRecomendacao" checked><label for="chkRecomendacao">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
-          <div class="conditional" id="wrap_recomendacao">
-            <div class="field bio-linha bio-data"><label for="dataInicioMorfo">Período recomendado<small>início</small></label><input type="text" id="dataInicioMorfo" placeholder="automática" readonly></div>
-            <div class="field bio-linha bio-data"><label for="dataFimMorfo">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo" placeholder="automática" readonly></div>
-          </div>
-        </div></div>
-        <hr class="sep">
+        </div>
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
       </div>
