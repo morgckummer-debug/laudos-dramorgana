@@ -1765,3 +1765,5 @@ Pedido da médica. Os cards "Idade gestacional" e "Gestação" ficaram lado a la
 ## Cervical em quadros (2026-10-28)
 
 Pedido da médica. No `cervical-doppler.html`, "Dados do exame" usa o quadro da paciente (nome em cima; data e médico em duas colunas), "Ao exame" e "Estudo Doppler" viraram um quadro cada, e os linfonodos ficam em duas colunas (direita/esquerda), um quadro por linfonodo, com o menor eixo na primeira linha. CSS `bio-*` copiado no `<style>` (mais `.linfo-*`). Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários).
+
+**Remover linfonodo (2026-10-28, pedido da médica):** cada quadro de linfonodo tem "✕ Remover" no título, sempre visível (antes o botão sumia quando o lado tinha um linfonodo só, e não havia como apagá-lo). Removido o último dos dois lados, `temLinfonodo` desmarca e o laudo volta a "Ausência de sinais de linfonodomegalia.".
