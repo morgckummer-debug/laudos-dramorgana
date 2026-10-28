@@ -1723,3 +1723,7 @@ Pedido da médica. No card de cada saco (`sacoCardHTML()`), "Saco gestacional", 
 O Presente/Ausente do saco saiu do próprio card e entrou no card "Gestação", depois do tipo de gestação e antes do quadro de mola (`wrap_sacoPresenteBloco`, que some em mola). Os cards dos sacos ganharam título na tela só como "Saco 1", "Saco 2"... — o rótulo impresso ("Saco gestacional / embrião") não mudou, porque `sacoLabel()` alimenta o laudo.
 
 "Tipo de gestação" e "Saco gestacional" (Presente/Ausente) ficam lado a lado no card Gestação, em duas colunas de `.bio-grupos`, como a Impressão diagnóstica. Em telas estreitas empilham sozinhos.
+
+## Obstétrico de 1º trimestre: anexos e colo uterino no mesmo card (2026-10-28)
+
+"Regiões anexiais" e "Colo uterino" são um card só, com dois quadros lado a lado (`.bio-grupos` > `.bio-col`), como a Impressão diagnóstica. O checkbox `chkColo` e `coloFields` ficaram dentro do quadro do colo, com os mesmos ids. Laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`). Em tela estreita o layout empilha, mas a página já tinha rolagem horizontal ali antes desta mudança (conteúdo de 456px em 390px), que não foi tratada aqui.
