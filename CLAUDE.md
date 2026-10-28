@@ -1761,3 +1761,7 @@ Pedido da médica. No card Útero do `perineal.html`, as "Alterações adicionai
 ## Morfológico do 1º trimestre: Idade gestacional ao lado de Gestação (2026-10-28)
 
 Pedido da médica. Os cards "Idade gestacional" e "Gestação" ficaram lado a lado, dentro de um `div.cards-par` (flex com quebra; abaixo de cerca de 720px empilham). São dois cards independentes, não um só: cada um mantém o próprio cabeçalho. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários).
+
+## Cervical em quadros (2026-10-28)
+
+Pedido da médica. No `cervical-doppler.html`, "Dados do exame" usa o quadro da paciente (nome em cima; data e médico em duas colunas), "Ao exame" e "Estudo Doppler" viraram um quadro cada, e os linfonodos ficam em duas colunas (direita/esquerda), um quadro por linfonodo, com o menor eixo na primeira linha. CSS `bio-*` copiado no `<style>` (mais `.linfo-*`). Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários).

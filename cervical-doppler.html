@@ -143,6 +143,41 @@
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
 
+  /* Quadros (mesmo padrão dos outros laudos): um quadro por tema, nome à
+     esquerda e caixa à direita. */
+  .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+  .bio-col{flex:1 1 260px;display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .bio-col:only-child{flex:1 1 100%;}
+  .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
+  .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);margin:0;}
+  .field.bio-linha.conditional{display:none;}
+  .field.bio-linha.conditional.show{display:grid;}
+  .bio-grupo h4 + .bio-linha{border-top:0;}
+  .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;margin:0;}
+  .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .field.bio-linha select{padding:8px 8px;font-size:13px;}
+  .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  .field.bio-linha.bio-sel{grid-template-columns:1fr 170px;}
+  .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
+  .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
+  .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
+  .field.bio-linha.bio-texto.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .bio-grupo.bio-paciente{margin-bottom:14px;}
+  .bio-grade2{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;}
+  .bio-grade2 > .field.bio-linha{border-top:1px dashed var(--line-soft);}
+  .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(-n+2){border-top:0;}
+  /* Linfonodos: uma coluna por lado, um quadro por linfonodo. */
+  .linfo-lado-titulo{margin:0;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--rose-dark);font-weight:700;}
+  .linfo-lista{display:flex;flex-direction:column;gap:10px;}
+  .linfo-lista:empty{display:none;}
+  .linfo-item .field.bio-linha.bio-sel{grid-template-columns:96px minmax(0,1fr);}
+  .linfo-item .field.bio-linha .medida-sugestao{grid-column:1/-1;margin-top:0;}
+  .linfo-item .linfonodo-remove{margin:4px 0 8px;}
+  .linfo-lado .btn-clear{align-self:flex-start;}
+  @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col, .bio-col:only-child{flex:0 0 auto;} }
+
   .combo-list{
     display:none;position:fixed;z-index:1000;
     background:var(--panel);border:1.5px solid var(--line);border-radius:var(--radius-sm);
@@ -409,12 +444,12 @@
     <div class="card">
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Nome do(a) paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
+        <div class="bio-grupo bio-paciente"><h4>Paciente e exame</h4>
+          <div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+          <div class="bio-grade2">
+            <div class="field bio-linha bio-data"><label for="dataExame">Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
+            <div class="field bio-linha bio-texto"><label for="medicoSolicitante">Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
+          </div>
         </div>
         <div class="field"><label>Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" rows="2" placeholder="ex: Linfonodomegalia cervical palpável.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
       </div>
@@ -423,17 +458,17 @@
     <div class="card">
       <div class="card-head"><h2>Ao exame</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Planos musculares e tecido subcutâneo</label>
+        <div class="bio-grupo"><h4>Planos musculares e tecido subcutâneo</h4>
+          <div class="field bio-linha bio-sel"><label for="planosAspecto">Aspecto</label>
             <select id="planosAspecto">
               <option value="normal">Preservados</option>
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
-        </div>
-        <div class="field conditional" id="wrap_planosDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="planosDescricao" rows="2"></textarea>
+          <div class="field bio-linha bio-larga conditional" id="wrap_planosDescricao">
+            <label for="planosDescricao">Descreva o achado</label>
+            <textarea id="planosDescricao" rows="2"></textarea>
+          </div>
         </div>
       </div>
     </div>
@@ -451,14 +486,18 @@
           </label>
         </div>
         <div class="conditional" id="wrap_linfonodoCampos">
-          <hr class="sep">
-          <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">À direita</p>
-          <div id="linfoDContainer"></div>
-          <button type="button" class="btn-clear" id="btnAddLinfoD" style="margin:2px 0 12px;">+ Adicionar linfonodo à direita</button>
-          <hr class="sep">
-          <p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">À esquerda</p>
-          <div id="linfoEContainer"></div>
-          <button type="button" class="btn-clear" id="btnAddLinfoE" style="margin:2px 0 12px;">+ Adicionar linfonodo à esquerda</button>
+          <div class="bio-grupos">
+            <div class="bio-col linfo-lado">
+              <p class="linfo-lado-titulo">À direita</p>
+              <div id="linfoDContainer" class="linfo-lista"></div>
+              <button type="button" class="btn-clear" id="btnAddLinfoD">+ Adicionar linfonodo à direita</button>
+            </div>
+            <div class="bio-col linfo-lado">
+              <p class="linfo-lado-titulo">À esquerda</p>
+              <div id="linfoEContainer" class="linfo-lista"></div>
+              <button type="button" class="btn-clear" id="btnAddLinfoE">+ Adicionar linfonodo à esquerda</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -466,8 +505,8 @@
     <div class="card">
       <div class="card-head"><h2>Estudo Doppler</h2></div>
       <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Padrão de vascularização</label>
+        <div class="bio-grupo"><h4>Vascularização dos linfonodos</h4>
+          <div class="field bio-linha bio-larga"><label for="vascularizacaoAspecto">Padrão de vascularização</label>
             <select id="vascularizacaoAspecto">
               <option value="normal">Normal (pouca vascularização central, ramos partindo do hilo)</option>
               <option value="aumentada">Aumentada em relação ao padrão habitual</option>
@@ -476,10 +515,10 @@
               <option value="alterado">Outro (descrever)</option>
             </select>
           </div>
-        </div>
-        <div class="field conditional" id="wrap_vascularizacaoDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="vascularizacaoDescricao" rows="2"></textarea>
+          <div class="field bio-linha bio-larga conditional" id="wrap_vascularizacaoDescricao">
+            <label for="vascularizacaoDescricao">Descreva o achado</label>
+            <textarea id="vascularizacaoDescricao" rows="2"></textarea>
+          </div>
         </div>
       </div>
     </div>
@@ -1193,16 +1232,15 @@ if(typeof criarMotorLaudo !== 'function'){
   function linfonodoSubgroupHTML(uid){
     const options = NIVEL_ORDEM.map(n=> '<option value="'+n+'">'+NIVEL_ROTULO[n]+'</option>').join('');
     return ''
-      +'<div class="subgroup" id="wrap_linfo'+uid+'">'
-      +'<p style="font-size:12px;color:var(--ink-soft);font-weight:600;margin:0 0 6px;">Linfonodo <span class="linfo-index"></span></p>'
-      +'<div class="field-row field-row-compact">'
-      +'<div class="field"><label>Nível</label><select id="linfo'+uid+'Nivel">'+options+'</select></div>'
-      +'<div class="field"><label>Forma</label><select id="linfo'+uid+'Forma">'
+      +'<div class="bio-grupo linfo-item" id="wrap_linfo'+uid+'">'
+      +'<h4>Linfonodo <span class="linfo-index"></span></h4>'
+      +'<div class="field bio-linha"><label for="linfo'+uid+'Medida">Menor eixo</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="linfo'+uid+'Medida"><span class="bio-un">mm</span>'
+      +'<span class="medida-sugestao" id="linfo'+uid+'Sugestao"></span></div>'
+      +'<div class="field bio-linha bio-sel"><label for="linfo'+uid+'Nivel">Nível</label><select id="linfo'+uid+'Nivel">'+options+'</select></div>'
+      +'<div class="field bio-linha bio-sel"><label for="linfo'+uid+'Forma">Forma</label><select id="linfo'+uid+'Forma">'
       +'<option value="oval">Oval/fusiforme (preservada)</option><option value="arredondado">Arredondada/globosa (suspeita)</option>'
       +'</select></div>'
-      +'</div>'
-      +'<div class="field-row field-row-compact">'
-      +'<div class="field"><label>Ecogenicidade</label><select id="linfo'+uid+'Eco">'
+      +'<div class="field bio-linha bio-sel"><label for="linfo'+uid+'Eco">Ecogenicidade</label><select id="linfo'+uid+'Eco">'
       +'<option value="normal">Hipoecoico com hilo ecogênico (padrão normal)</option>'
       +'<option value="reacional">Reacional</option>'
       +'<option value="calcificacoes">Calcificações</option>'
@@ -1211,9 +1249,6 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<option value="ecoAumentada">Ecogenicidade aumentada</option>'
       +'<option value="perdaHilo">Perda do hilo ecogênico</option>'
       +'</select></div>'
-      +'<div class="field"><label>Menor eixo</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="linfo'+uid+'Medida" placeholder="mm">'
-      +'<span class="medida-sugestao" id="linfo'+uid+'Sugestao"></span></div>'
-      +'</div>'
       +'<button type="button" class="linfonodo-remove" data-uid="'+uid+'">Remover linfonodo</button>'
       +'</div>';
   }
