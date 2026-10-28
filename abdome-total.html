@@ -145,6 +145,47 @@
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
+  /* Quadros por região, como nos morfológicos (cópia do CSS de lá). */
+  .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+  .bio-col{flex:1 1 280px;display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .bio-col:only-child{flex:1 1 100%;}
+  .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
+  .bio-grupo.conditional.show{display:block;}
+  .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);margin:0;}
+  .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
+  .field.bio-linha.bio-sel.bio-sel-larga{grid-template-columns:1fr 240px;}
+  .field.bio-linha.conditional.show{display:grid;}
+  .bio-grupo .field.conditional.show{margin:4px 0 8px;}
+  .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;font-weight:500;text-align:left;padding:8px 10px;}
+  .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
+  .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
+  .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
+  .field.bio-linha.bio-texto input[readonly]{font-size:13px;}
+  .field.bio-linha.bio-texto.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-ig{grid-template-columns:1fr 52px auto 52px auto;}
+  .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 64px);justify-content:start;column-gap:10px;}
+  .field.bio-linha.bio-gpa label{font-weight:600;}
+  .field.bio-linha.bio-gpa label:not(:first-child){margin-left:14px;}
+  .bio-grupo.bio-paciente{margin-bottom:14px;}
+  .bio-grade2{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;}
+  .bio-grade2 > .field.bio-linha{border-top:1px dashed var(--line-soft);}
+  .bio-grade2 .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 56px);justify-content:space-between;column-gap:8px;}
+  .bio-grade2 .field.bio-linha.bio-gpa label:not(:first-child){margin-left:0;}
+  .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(-n+2){border-top:0;}
+  .bio-nota{margin:-2px 0 6px;font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
+  .bio-nota.conditional.show{display:block;}
+  .bio-grupo h4 + .bio-linha{border-top:0;}
+  .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;margin:0;}
+  .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
+  .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .field.bio-linha select{padding:8px 8px;font-size:13px;}
+  .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
+  .field.bio-linha label .vr{display:block;}
+  .field.bio-linha label .flag-note{display:none;}
+  .field.bio-linha label .flag-note.show{display:block;}
 
   .combo-list{
     display:none;position:fixed;z-index:1000;
@@ -458,530 +499,253 @@
 <div class="layout">
   <!-- FORM COLUMN -->
   <div id="formCol">
-
-    <div class="card">
-      <div class="card-head"><h2>Dados do exame</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Nome do(a) paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Sexo — define o valor de referência do baço</label>
-            <select id="sexoPaciente">
-              <option value="feminino">Feminino</option>
-              <option value="masculino">Masculino</option>
-            </select>
-          </div>
-          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
-        </div>
-        <div class="field"><label>Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" rows="2" placeholder="ex: Dor abdominal.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
-        <hr class="sep">
-        <p style="font-size:12px;color:var(--ink-soft);margin:0 0 8px;">Deixe as duas desmarcadas para o Abdome Total completo. Marcando uma delas, o laudo passa a trazer só os órgãos daquele pedido e o título muda sozinho.</p>
-        <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkHipocondrioDireito"><label for="chkHipocondrioDireito">Hipocôndrio Direito</label></div>
-        <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkAbdomeSuperior"><label for="chkAbdomeSuperior">Abdome Superior</label></div>
-        <hr class="sep">
-        <div class="toggle-line" style="margin-bottom:0;"><input type="checkbox" id="chkGasesIntestinais"><label for="chkGasesIntestinais">Exame com visualização prejudicada por gases intestinais</label></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Fígado</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="figadoAspecto">
-              <option value="normal">Normal (dimensões, forma, parênquima e veia porta usuais)</option>
-              <option value="esteatose">Esteatose hepática (aumento difuso da ecogenicidade)</option>
-              <option value="cisto">Cisto hepático simples</option>
-              <option value="hemangioma">Hemangioma</option>
-              <option value="cirrose">Cirrose hepática</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_figadoEsteatoseCampos">
-          <div class="field"><label>Volume hepático</label>
-            <select id="figadoVolume"><option value="usuais">Dimensões usuais</option><option value="aumentadas">Dimensões aumentadas</option></select>
-          </div>
-          <div class="field"><label>Atenuação dos feixes sonoros</label>
-            <select id="figadoAtenuacao"><option value="leve">Leve</option><option value="moderada">Moderada</option><option value="acentuada">Acentuada</option></select>
-          </div>
-          <div class="field conditional" id="wrap_figadoGrauManual">
-            <label>Grau da doença de depósito</label>
-            <select id="figadoGrauManual"><option value="1">Grau 1</option><option value="2">Grau 2</option><option value="3">Grau 3</option></select>
-            <span class="vr">Some com a Impressão só quando o QUS abaixo estiver desligado</span>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_figadoCistoCampos">
-          <div class="field"><label>Segmento hepático</label><input type="text" id="figadoCistoSegmento" placeholder="ex: V"></div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="figadoCistoTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row conditional" id="wrap_figadoHemangiomaCampos">
-          <div class="field"><label>Segmento hepático</label><input type="text" id="figadoHemangiomaSegmento" placeholder="ex: VII"></div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="figadoHemangiomaTamanho" placeholder="cm"></div>
-        </div>
-        <div class="field conditional" id="wrap_figadoDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="figadoDescricao" rows="2" placeholder="ex: parênquima heterogêneo, nódulo medindo..."></textarea>
-        </div>
-        <hr class="sep">
-        <div class="field-row field-row-compact">
-          <div class="field"><label>Lobo direito (eixo longitudinal)</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="figadoLoboDireito" placeholder="cm">
-            <span class="vr">VR até 15,5 cm</span>
-            <span class="flag-note" id="flag_figadoLoboDireito">Acima do valor de referência</span>
-          </div>
-          <div class="field"><label>Lobo esquerdo (eixo longitudinal)</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="figadoLoboEsquerdo" placeholder="cm">
-            <span class="vr">VR até 11,0 cm</span>
-            <span class="flag-note" id="flag_figadoLoboEsquerdo">Acima do valor de referência</span>
-          </div>
-        </div>
-        <hr class="sep">
-        <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkEsteatose"><label for="chkEsteatose">Incluir quantificação de esteatose hepática pelo método QUS</label></div>
-        <div class="field-row conditional" id="wrap_esteatose">
-          <div class="field">
-            <label>Gordura estimada (QUS)</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="3" id="pctGordura" placeholder="%">
-            <span class="grau-live" id="grauEsteatoseLabel"></span>
-          </div>
-          <div class="field" style="grid-column:1/-1;">
-            <table class="ref-table">
-              <thead><tr><th>Cut-Off %</th><th>Nível de esteatose</th></tr></thead>
-              <tbody>
-                <tr><td>&lt; 8,7</td><td>S0 (Saudável)</td></tr>
-                <tr><td>8,7 a 14,8</td><td>S1 (Leve)</td></tr>
-                <tr><td>14,9 a 16</td><td>S2 (Moderada)</td></tr>
-                <tr><td>&gt; 16</td><td>S3 (Severa)</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Vesícula e vias biliares</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="vesiculaAspecto">
-              <option value="normal">Normal (volume, paredes e conteúdo usuais, sem cálculos nem dilatação das vias biliares)</option>
-              <option value="calculo">Cálculo(s)</option>
-              <option value="polipo">Pólipo vesicular</option>
-              <option value="colecistite">Parede espessada (colecistite)</option>
-              <option value="colecistectomia">Colecistectomia (vesícula ausente)</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_vesiculaCalculoCampos">
-          <div class="field"><label>Quantidade</label>
-            <select id="vesiculaCalculoQtd"><option value="1">1 cálculo</option><option value="varios">Vários cálculos</option></select>
-          </div>
-          <div class="field"><label id="lbl_vesiculaCalculoTamanho">Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vesiculaCalculoTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_vesiculaPolipoCampos">
-          <div class="field"><label>Parede</label>
-            <select id="vesiculaPolipoParede"><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="infundibular">Infundibular</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vesiculaPolipoTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_vesiculaColecistiteCampos">
-          <div class="field"><label>Espessura da parede</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="vesiculaColecistiteEspessura" placeholder="mm">
-            <span class="vr">VR até 3,0 mm</span>
-            <span class="flag-note" id="flag_vesiculaColecistiteEspessura">Acima do valor de referência</span>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_vesiculaDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="vesiculaDescricao" rows="2" placeholder="descrição completa do achado..."></textarea>
-        </div>
-        <hr class="sep">
-        <div class="field-row field-row-compact">
-          <div class="field"><label>Hepatocolédoco (diâmetro)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="hepatocoledoco" placeholder="mm">
-            <span class="vr" id="vr_hepatocoledoco">VR até 6 mm</span>
-            <span class="flag-note" id="flag_hepatocoledoco">Acima do valor de referência</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" id="cardPancreas">
-      <div class="card-head"><h2>Pâncreas</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="pancreasAspecto">
-              <option value="normal">Normal (topografia, dimensões e ecogenicidade usuais, sem dilatação do ducto principal)</option>
-              <option value="cisto">Cisto pancreático</option>
-              <option value="nodulo">Nódulo pancreático</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_pancreasCistoCampos">
-          <div class="field"><label>Localização</label>
-            <select id="pancreasCistoPosicao"><option value="cabeça">Cabeça</option><option value="corpo">Corpo</option><option value="cauda">Cauda</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="pancreasCistoTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_pancreasNoduloCampos">
-          <div class="field"><label>Localização</label>
-            <select id="pancreasNoduloPosicao"><option value="cabeça">Cabeça</option><option value="corpo">Corpo</option><option value="cauda">Cauda</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="pancreasNoduloTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field conditional" id="wrap_pancreasDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="pancreasDescricao" rows="2" placeholder="descrição completa do achado pancreático..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" id="cardRins">
-      <div class="card-head"><h2>Rins</h2></div>
-      <div class="card-body">
-        <div class="field-row field-row-compact">
-          <div class="field"><label>Rim direito</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimDireitoMedida" placeholder="cm"></div>
-          <div class="field"><label>Rim esquerdo</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rimEsquerdoMedida" placeholder="cm"></div>
-        </div>
-        <hr class="sep">
-        <div class="field-row"><div class="field"><label style="font-size:13px;font-weight:600;color:var(--sage);">Achados — rim direito (marque quantos se aplicarem)</label></div></div>
-        <div class="achado-grid">
-          <div class="toggle-line"><input type="checkbox" id="rinsDNormal" checked><label for="rinsDNormal">Normal (cortical, diferenciação córtico-medular e sistema coletor usuais, sem cálculos)</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsDCalculo"><label for="rinsDCalculo">Cálculo(s) renal(is)</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsDCisto"><label for="rinsDCisto">Cisto(s) renal(is) simples</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsDLeiteCalcio"><label for="rinsDLeiteCalcio">Cisto de leite de cálcio</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsDNodulo"><label for="rinsDNodulo">Nódulo renal (angiomiolipoma)</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsDHidronefrose"><label for="rinsDHidronefrose">Hidronefrose</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsDNefrocalcinose"><label for="rinsDNefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsDFerradura"><label for="rinsDFerradura">Rins em ferradura</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsDUreterolitiase"><label for="rinsDUreterolitiase">Ureterolitíase</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsDAlterado"><label for="rinsDAlterado">Outro (descrever)</label></div>
-        </div>
-        <div class="field-row conditional" id="wrap_rinsDCalculoCampos">
-          <div class="field"><label>Número de cálculos</label>
-            <select id="rinsDCalcCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
-          </div>
-          <div class="field" style="align-self:flex-end;">
-            <div id="rinsDCalcNodulosContainer"></div>
-            <button type="button" class="btn-clear" id="btnAddCalcRinsD" style="margin:2px 0 4px;">+ Adicionar cálculo</button>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_rinsDCistoCampos">
-          <div class="field"><label>Número de cistos</label>
-            <select id="rinsDCistoCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
-          </div>
-          <div class="field" style="align-self:flex-end;">
-            <div id="rinsDCistoNodulosContainer"></div>
-            <button type="button" class="btn-clear" id="btnAddCistoRinsD" style="margin:2px 0 4px;">+ Adicionar cisto</button>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_rinsDLeiteCalcioCampos">
-          <div class="field"><label>Número</label>
-            <select id="rinsDLeiteCalcioCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
-          </div>
-          <div class="field" style="align-self:flex-end;">
-            <div id="rinsDLeiteCalcioNodulosContainer"></div>
-            <button type="button" class="btn-clear" id="btnAddLeiteCalcioRinsD" style="margin:2px 0 4px;">+ Adicionar</button>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_rinsDNoduloCampos">
-          <div class="field"><label>Número de nódulos</label>
-            <select id="rinsDNoduloCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
-          </div>
-          <div class="field" style="align-self:flex-end;">
-            <div id="rinsDNoduloNodulosContainer"></div>
-            <button type="button" class="btn-clear" id="btnAddNoduloRinsD" style="margin:2px 0 4px;">+ Adicionar nódulo</button>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rinsDHidro">
-          <div class="field"><label>Medida da pelve renal</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsDHidroMedida" placeholder="mm">
-            <span class="vr">VR até 10,0 mm</span>
-            <span class="flag-note" id="flag_rinsDHidroMedida">Acima do valor de referência</span>
-          </div>
-          <div class="field"><label>Dilatação calicinal</label>
-            <select id="rinsDHidroCalices">
-              <option value="nenhuma">Sem dilatação dos cálices</option>
-              <option value="maiores">Cálices maiores</option>
-              <option value="menores">Cálices menores</option>
-              <option value="ambos">Cálices maiores e menores</option>
-            </select>
-          </div>
-          <div class="field"><label>Grau da hidronefrose</label>
-            <select id="rinsDHidroGrau">
-              <option value="leve">Leve</option>
-              <option value="moderada">Moderada</option>
-              <option value="acentuada">Acentuada</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rinsDHidroCortical">
-          <div class="field"><label>Espessura cortical (facultativo)</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsDHidroCortical" placeholder="mm">
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rinsDUreter">
-          <div class="field"><label>Terço do ureter</label>
-            <select id="rinsDUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsDUreterTamanho" placeholder="mm"></div>
-          <div class="field"><label>Hidronefrose a montante</label>
-            <select id="rinsDUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_rinsDDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="rinsDDescricao" rows="2" placeholder="ex: cálculo no rim direito medindo...; dilatação pielocalicinal..."></textarea>
-        </div>
-        <hr class="sep">
-        <div class="field-row"><div class="field"><label style="font-size:13px;font-weight:600;color:var(--sage);">Achados — rim esquerdo (marque quantos se aplicarem)</label></div></div>
-        <div class="achado-grid">
-          <div class="toggle-line"><input type="checkbox" id="rinsENormal" checked><label for="rinsENormal">Normal (cortical, diferenciação córtico-medular e sistema coletor usuais, sem cálculos)</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsECalculo"><label for="rinsECalculo">Cálculo(s) renal(is)</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsECisto"><label for="rinsECisto">Cisto(s) renal(is) simples</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsELeiteCalcio"><label for="rinsELeiteCalcio">Cisto de leite de cálcio</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsENodulo"><label for="rinsENodulo">Nódulo renal (angiomiolipoma)</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsEHidronefrose"><label for="rinsEHidronefrose">Hidronefrose</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsENefrocalcinose"><label for="rinsENefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsEFerradura"><label for="rinsEFerradura">Rins em ferradura</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsEUreterolitiase"><label for="rinsEUreterolitiase">Ureterolitíase</label></div>
-          <div class="toggle-line"><input type="checkbox" id="rinsEAlterado"><label for="rinsEAlterado">Outro (descrever)</label></div>
-        </div>
-        <div class="field-row conditional" id="wrap_rinsECalculoCampos">
-          <div class="field"><label>Número de cálculos</label>
-            <select id="rinsECalcCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
-          </div>
-          <div class="field" style="align-self:flex-end;">
-            <div id="rinsECalcNodulosContainer"></div>
-            <button type="button" class="btn-clear" id="btnAddCalcRinsE" style="margin:2px 0 4px;">+ Adicionar cálculo</button>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_rinsECistoCampos">
-          <div class="field"><label>Número de cistos</label>
-            <select id="rinsECistoCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
-          </div>
-          <div class="field" style="align-self:flex-end;">
-            <div id="rinsECistoNodulosContainer"></div>
-            <button type="button" class="btn-clear" id="btnAddCistoRinsE" style="margin:2px 0 4px;">+ Adicionar cisto</button>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_rinsELeiteCalcioCampos">
-          <div class="field"><label>Número</label>
-            <select id="rinsELeiteCalcioCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
-          </div>
-          <div class="field" style="align-self:flex-end;">
-            <div id="rinsELeiteCalcioNodulosContainer"></div>
-            <button type="button" class="btn-clear" id="btnAddLeiteCalcioRinsE" style="margin:2px 0 4px;">+ Adicionar</button>
-          </div>
-        </div>
-        <div class="field-row conditional" id="wrap_rinsENoduloCampos">
-          <div class="field"><label>Número de nódulos</label>
-            <select id="rinsENoduloCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select>
-          </div>
-          <div class="field" style="align-self:flex-end;">
-            <div id="rinsENoduloNodulosContainer"></div>
-            <button type="button" class="btn-clear" id="btnAddNoduloRinsE" style="margin:2px 0 4px;">+ Adicionar nódulo</button>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rinsEHidro">
-          <div class="field"><label>Medida da pelve renal</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsEHidroMedida" placeholder="mm">
-            <span class="vr">VR até 10,0 mm</span>
-            <span class="flag-note" id="flag_rinsEHidroMedida">Acima do valor de referência</span>
-          </div>
-          <div class="field"><label>Dilatação calicinal</label>
-            <select id="rinsEHidroCalices">
-              <option value="nenhuma">Sem dilatação dos cálices</option>
-              <option value="maiores">Cálices maiores</option>
-              <option value="menores">Cálices menores</option>
-              <option value="ambos">Cálices maiores e menores</option>
-            </select>
-          </div>
-          <div class="field"><label>Grau da hidronefrose</label>
-            <select id="rinsEHidroGrau">
-              <option value="leve">Leve</option>
-              <option value="moderada">Moderada</option>
-              <option value="acentuada">Acentuada</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rinsEHidroCortical">
-          <div class="field"><label>Espessura cortical (facultativo)</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsEHidroCortical" placeholder="mm">
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_rinsEUreter">
-          <div class="field"><label>Terço do ureter</label>
-            <select id="rinsEUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="rinsEUreterTamanho" placeholder="mm"></div>
-          <div class="field"><label>Hidronefrose a montante</label>
-            <select id="rinsEUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_rinsEDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="rinsEDescricao" rows="2" placeholder="ex: cálculo no rim esquerdo medindo...; dilatação pielocalicinal..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" id="cardBexiga">
-      <div class="card-head"><h2>Bexiga</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="bexigaAspecto">
-              <option value="normal">Normal (topografia e repleção normais)</option>
-              <option value="esforco">Bexiga de esforço (paredes espessadas e trabeculadas)</option>
-              <option value="cistite">Cistite (paredes espessadas, sem trabeculações)</option>
-              <option value="calculo">Cálculo vesical</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_bexigaEsforco">
-          <div class="field"><label>Espessura da parede</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="bexigaEsforcoEspessura" placeholder="mm">
-            <span class="vr">VR até 5,0 mm</span>
-            <span class="flag-note" id="flag_bexigaEsforcoEspessura">Acima do valor de referência</span>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_bexigaCistite">
-          <div class="field"><label>Espessura da parede</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="bexigaCistiteEspessura" placeholder="mm">
-            <span class="vr">VR até 5,0 mm</span>
-            <span class="flag-note" id="flag_bexigaCistiteEspessura">Acima do valor de referência</span>
-          </div>
-        </div>
-        <div class="toggle-line conditional" id="wrap_bexigaCistiteDebris"><input type="checkbox" id="chkBexigaCistiteDebris"><label for="chkBexigaCistiteDebris">Conteúdo com debris/ecos em suspensão</label></div>
-        <div class="field-row field-row-compact conditional" id="wrap_bexigaCalculoCampos">
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="bexigaCalculoTamanho" placeholder="mm"></div>
-        </div>
-        <div class="field conditional" id="wrap_bexigaDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="bexigaDescricao" rows="2" placeholder="ex: espessamento parietal; conteúdo ecogênico em suspensão..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" id="cardVasos">
-      <div class="card-head"><h2>Grandes vasos abdominais</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="vasosAspecto">
-              <option value="normal">Normal (aorta, veia cava inferior e artérias ilíacas de trajeto e calibre usuais, sem linfonodomegalia)</option>
-              <option value="ateromatose">Ateromatose da aorta abdominal</option>
-              <option value="aneurisma">Aneurisma de aorta abdominal</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_vasosAneurismaCampos">
-          <div class="field"><label>Posição do aneurisma</label>
-            <select id="vasosAneurismaPosicao"><option value="abaixo">Abaixo da emergência das artérias renais</option><option value="acima">Acima da emergência das artérias renais</option></select>
-          </div>
-          <div class="field"><label>Maior diâmetro AP</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vasosAneurismaDiametro" placeholder="mm"></div>
-          <div class="field"><label>Diâmetro da porção proximal</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vasosAneurismaProximal" placeholder="mm"></div>
-          <div class="field"><label>Distância até a bifurcação</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="vasosAneurismaDistal" placeholder="cm"></div>
-        </div>
-        <div class="field conditional" id="wrap_vasosDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="vasosDescricao" rows="2" placeholder="descrição completa do achado vascular/linfonodal..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" id="cardBaco">
-      <div class="card-head"><h2>Baço</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="bacoAspecto">
-              <option value="normal">Normal (forma, dimensões, contornos e parênquima usuais)</option>
-              <option value="esplenectomia">Esplenectomia (baço não visibilizado)</option>
-              <option value="acessorio">Baço acessório</option>
-              <option value="esplenomegaliaLeve">Esplenomegalia leve</option>
-              <option value="esplenomegaliaVolumosa">Esplenomegalia volumosa</option>
-              <option value="hemangioma">Hemangioma esplênico</option>
-              <option value="alterado">Outro (descrever)</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_bacoAcessorioCampos">
-          <div class="field"><label>Tamanho do nódulo acessório</label><input type="text" id="bacoAcessorioTamanho" placeholder="ex: 1,2 x 0,8 cm"></div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_bacoHemangiomaCampos">
-          <div class="field"><label>Terço</label>
-            <select id="bacoHemangiomaTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select>
-          </div>
-          <div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="bacoHemangiomaTamanho" placeholder="cm"></div>
-        </div>
-        <div class="field conditional" id="wrap_bacoDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="bacoDescricao" rows="2" placeholder="descrição completa do achado esplênico..."></textarea>
-        </div>
-        <hr class="sep">
-        <div class="field-row field-row-compact conditional show" id="wrap_bacoDiametro">
-          <div class="field"><label>Diâmetro bipolar</label>
-            <input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="bacoDiametro" placeholder="cm">
-            <span class="vr" id="vrBacoTexto">VR até 12,0 cm</span>
-            <span class="flag-note" id="flag_bacoDiametro">Acima do valor de referência</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" id="cardAchadosAdicionais">
-      <div class="card-head"><h2>Achados adicionais (avaliação direcionada)</h2></div>
-      <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Não fazem parte da rotina do abdome total — só entram no laudo quando marcados.</p>
-        <div class="toggle-line"><input type="checkbox" id="chkApendice"><label for="chkApendice">Avaliar apêndice cecal</label></div>
-        <div class="field-row conditional" id="wrap_apendiceAspecto">
-          <div class="field"><label>Aspecto</label>
-            <select id="apendiceAspecto">
-              <option value="normal">Não dilatado, sem espessamento parietal, na topografia habitual</option>
-              <option value="alterado">Achados sugestivos de apendicite aguda</option>
-            </select>
-          </div>
-        </div>
-        <div class="field-row field-row-compact conditional" id="wrap_apendiceEspessura">
-          <div class="field"><label>Espessura da parede</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="1" id="apendiceEspessuraValor" placeholder="mm"></div>
-        </div>
-        <hr class="sep">
-        <div class="toggle-line"><input type="checkbox" id="chkAdenite"><label for="chkAdenite">Linfonodos mesentéricos aumentados (sugestivo de adenite mesentérica)</label></div>
-        <div class="field conditional" id="wrap_adeniteDescricao">
-          <label>Descrição no laudo</label>
-          <textarea id="adeniteDescricao" rows="2" placeholder="descrição completa do achado..."></textarea>
-        </div>
-        <hr class="sep">
-        <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkAscite"><label for="chkAscite">Líquido livre intracavitário (ascite)</label></div>
-        <div class="field-row conditional" id="wrap_asciteGrau">
-          <div class="field"><label>Quantidade</label>
-            <select id="asciteGrau"><option value="leve">Discreta</option><option value="moderada">Moderada</option><option value="acentuada">Acentuada</option></select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_asciteDescricao">
-          <label>Descrição no laudo</label>
-          <textarea id="asciteDescricao" rows="2" placeholder="descrição completa do achado..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Impressão diagnóstica</h2></div>
-      <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base no exame normal. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
-        <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
-      </div>
-    </div>
-
-  </div>
+<div class="card">
+<div class="card-head"><h2>Dados do exame</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome do(a) paciente</label><input id="nomePaciente" placeholder="Nome completo" type="text"/></div><div class="field bio-linha bio-texto bio-larga"><label for="dataExame">Data do exame</label><input id="dataExame" placeholder="dd/mm/aaaa" type="text"/></div></div>
+<div><div class="field bio-linha bio-sel"><label for="sexoPaciente">Sexo — define o valor de referência do baço</label><select id="sexoPaciente">
+<option value="feminino">Feminino</option>
+<option value="masculino">Masculino</option>
+</select></div><div class="field bio-linha bio-texto bio-larga"><label for="medicoSolicitante">Médico solicitante</label><input autocomplete="off" id="medicoSolicitante" placeholder="Dr(a). ..." type="text"/><div class="combo-list" id="medicosComboList"></div></div></div>
+<div class="field bio-linha bio-larga"><label for="motivoExame">Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" placeholder="ex: Dor abdominal.
+Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
+<hr class="sep"/>
+<p class="bio-nota">Deixe as duas desmarcadas para o Abdome Total completo. Marcando uma delas, o laudo passa a trazer só os órgãos daquele pedido e o título muda sozinho.</p>
+<div class="toggle-line" style="margin-bottom:8px;"><input id="chkHipocondrioDireito" type="checkbox"/><label for="chkHipocondrioDireito">Hipocôndrio Direito</label></div>
+<div class="toggle-line" style="margin-bottom:8px;"><input id="chkAbdomeSuperior" type="checkbox"/><label for="chkAbdomeSuperior">Abdome Superior</label></div>
+<hr class="sep"/>
+<div class="toggle-line" style="margin-bottom:0;"><input id="chkGasesIntestinais" type="checkbox"/><label for="chkGasesIntestinais">Exame com visualização prejudicada por gases intestinais</label></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Fígado</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-larga"><label for="figadoAspecto">Aspecto</label><select id="figadoAspecto">
+<option value="normal">Normal (dimensões, forma, parênquima e veia porta usuais)</option>
+<option value="esteatose">Esteatose hepática (aumento difuso da ecogenicidade)</option>
+<option value="cisto">Cisto hepático simples</option>
+<option value="hemangioma">Hemangioma</option>
+<option value="cirrose">Cirrose hepática</option>
+<option value="alterado">Outro (descrever)</option>
+</select></div></div>
+<div class="conditional" id="wrap_figadoEsteatoseCampos"><div class="field bio-linha bio-sel"><label for="figadoVolume">Volume hepático</label><select id="figadoVolume"><option value="usuais">Dimensões usuais</option><option value="aumentadas">Dimensões aumentadas</option></select></div><div class="field bio-linha bio-sel"><label for="figadoAtenuacao">Atenuação dos feixes sonoros</label><select id="figadoAtenuacao"><option value="leve">Leve</option><option value="moderada">Moderada</option><option value="acentuada">Acentuada</option></select></div><div class="field bio-linha bio-sel conditional" id="wrap_figadoGrauManual"><label for="figadoGrauManual">Grau da doença de depósito<span class="vr">Some com a Impressão só quando o QUS abaixo estiver desligado</span></label><select id="figadoGrauManual"><option value="1">Grau 1</option><option value="2">Grau 2</option><option value="3">Grau 3</option></select></div></div>
+<div class="conditional" id="wrap_figadoCistoCampos"><div class="field bio-linha bio-texto bio-larga"><label for="figadoCistoSegmento">Segmento hepático</label><input id="figadoCistoSegmento" placeholder="ex: V" type="text"/></div><div class="field bio-linha"><label for="figadoCistoTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="figadoCistoTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="conditional" id="wrap_figadoHemangiomaCampos"><div class="field bio-linha bio-texto bio-larga"><label for="figadoHemangiomaSegmento">Segmento hepático</label><input id="figadoHemangiomaSegmento" placeholder="ex: VII" type="text"/></div><div class="field bio-linha"><label for="figadoHemangiomaTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="figadoHemangiomaTamanho" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_figadoDescricao"><label for="figadoDescricao">Descreva o achado</label><textarea id="figadoDescricao" placeholder="ex: parênquima heterogêneo, nódulo medindo..." rows="2"></textarea></div>
+<hr class="sep"/>
+<div><div class="field bio-linha"><label for="figadoLoboDireito">Lobo direito (eixo longitudinal)<span class="vr">VR até 15,5 cm</span><span class="flag-note" id="flag_figadoLoboDireito">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="figadoLoboDireito" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="figadoLoboEsquerdo">Lobo esquerdo (eixo longitudinal)<span class="vr">VR até 11,0 cm</span><span class="flag-note" id="flag_figadoLoboEsquerdo">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="figadoLoboEsquerdo" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div>
+<hr class="sep"/>
+<div class="toggle-line" style="margin-bottom:8px;"><input id="chkEsteatose" type="checkbox"/><label for="chkEsteatose">Incluir quantificação de esteatose hepática pelo método QUS</label></div>
+<div class="conditional" id="wrap_esteatose"><div class="field bio-linha"><label for="pctGordura">Gordura estimada (QUS)<span class="grau-live" id="grauEsteatoseLabel"></span></label><input data-decimals="1" data-maxint="3" id="pctGordura" inputmode="decimal" type="text"/><span class="bio-un">%</span></div><div>
+<table class="ref-table">
+<thead><tr><th>Cut-Off %</th><th>Nível de esteatose</th></tr></thead>
+<tbody>
+<tr><td>&lt; 8,7</td><td>S0 (Saudável)</td></tr>
+<tr><td>8,7 a 14,8</td><td>S1 (Leve)</td></tr>
+<tr><td>14,9 a 16</td><td>S2 (Moderada)</td></tr>
+<tr><td>&gt; 16</td><td>S3 (Severa)</td></tr>
+</tbody>
+</table>
+</div></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Vesícula e vias biliares</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-larga"><label for="vesiculaAspecto">Aspecto</label><select id="vesiculaAspecto">
+<option value="normal">Normal (volume, paredes e conteúdo usuais, sem cálculos nem dilatação das vias biliares)</option>
+<option value="calculo">Cálculo(s)</option>
+<option value="polipo">Pólipo vesicular</option>
+<option value="colecistite">Parede espessada (colecistite)</option>
+<option value="colecistectomia">Colecistectomia (vesícula ausente)</option>
+<option value="alterado">Outro (descrever)</option>
+</select></div></div>
+<div class="conditional" id="wrap_vesiculaCalculoCampos"><div class="field bio-linha bio-sel"><label for="vesiculaCalculoQtd">Quantidade</label><select id="vesiculaCalculoQtd"><option value="1">1 cálculo</option><option value="varios">Vários cálculos</option></select></div><div class="field bio-linha"><label for="vesiculaCalculoTamanho" id="lbl_vesiculaCalculoTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="vesiculaCalculoTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="conditional" id="wrap_vesiculaPolipoCampos"><div class="field bio-linha bio-sel"><label for="vesiculaPolipoParede">Parede</label><select id="vesiculaPolipoParede"><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="infundibular">Infundibular</option></select></div><div class="field bio-linha"><label for="vesiculaPolipoTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="vesiculaPolipoTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="conditional" id="wrap_vesiculaColecistiteCampos"><div class="field bio-linha"><label for="vesiculaColecistiteEspessura">Espessura da parede<span class="vr">VR até 3,0 mm</span><span class="flag-note" id="flag_vesiculaColecistiteEspessura">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="1" id="vesiculaColecistiteEspessura" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_vesiculaDescricao"><label for="vesiculaDescricao">Descreva o achado</label><textarea id="vesiculaDescricao" placeholder="descrição completa do achado..." rows="2"></textarea></div>
+<hr class="sep"/>
+<div><div class="field bio-linha"><label for="hepatocoledoco">Hepatocolédoco (diâmetro)<span class="vr" id="vr_hepatocoledoco">VR até 6 mm</span><span class="flag-note" id="flag_hepatocoledoco">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="hepatocoledoco" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+</div></div></div></div>
+</div>
+<div class="card" id="cardPancreas">
+<div class="card-head"><h2>Pâncreas</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-larga"><label for="pancreasAspecto">Aspecto</label><select id="pancreasAspecto">
+<option value="normal">Normal (topografia, dimensões e ecogenicidade usuais, sem dilatação do ducto principal)</option>
+<option value="cisto">Cisto pancreático</option>
+<option value="nodulo">Nódulo pancreático</option>
+<option value="alterado">Outro (descrever)</option>
+</select></div></div>
+<div class="conditional" id="wrap_pancreasCistoCampos"><div class="field bio-linha bio-sel"><label for="pancreasCistoPosicao">Localização</label><select id="pancreasCistoPosicao"><option value="cabeça">Cabeça</option><option value="corpo">Corpo</option><option value="cauda">Cauda</option></select></div><div class="field bio-linha"><label for="pancreasCistoTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="pancreasCistoTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="conditional" id="wrap_pancreasNoduloCampos"><div class="field bio-linha bio-sel"><label for="pancreasNoduloPosicao">Localização</label><select id="pancreasNoduloPosicao"><option value="cabeça">Cabeça</option><option value="corpo">Corpo</option><option value="cauda">Cauda</option></select></div><div class="field bio-linha"><label for="pancreasNoduloTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="pancreasNoduloTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_pancreasDescricao"><label for="pancreasDescricao">Descreva o achado</label><textarea id="pancreasDescricao" placeholder="descrição completa do achado pancreático..." rows="2"></textarea></div>
+</div></div></div></div>
+</div>
+<div class="card" id="cardRins">
+<div class="card-head"><h2>Rins</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Rins</h4>
+<div><div class="field bio-linha"><label for="rimDireitoMedida">Rim direito</label><input data-decimals="1" data-maxint="2" id="rimDireitoMedida" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div><div class="field bio-linha"><label for="rimEsquerdoMedida">Rim esquerdo</label><input data-decimals="1" data-maxint="2" id="rimEsquerdoMedida" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div></div><div class="bio-grupo"><h4>Achados — rim direito (marque quantos se aplicarem)</h4>
+<div class="achado-grid">
+<div class="toggle-line"><input checked="" id="rinsDNormal" type="checkbox"/><label for="rinsDNormal">Normal (cortical, diferenciação córtico-medular e sistema coletor usuais, sem cálculos)</label></div>
+<div class="toggle-line"><input id="rinsDCalculo" type="checkbox"/><label for="rinsDCalculo">Cálculo(s) renal(is)</label></div>
+<div class="toggle-line"><input id="rinsDCisto" type="checkbox"/><label for="rinsDCisto">Cisto(s) renal(is) simples</label></div>
+<div class="toggle-line"><input id="rinsDLeiteCalcio" type="checkbox"/><label for="rinsDLeiteCalcio">Cisto de leite de cálcio</label></div>
+<div class="toggle-line"><input id="rinsDNodulo" type="checkbox"/><label for="rinsDNodulo">Nódulo renal (angiomiolipoma)</label></div>
+<div class="toggle-line"><input id="rinsDHidronefrose" type="checkbox"/><label for="rinsDHidronefrose">Hidronefrose</label></div>
+<div class="toggle-line"><input id="rinsDNefrocalcinose" type="checkbox"/><label for="rinsDNefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</label></div>
+<div class="toggle-line"><input id="rinsDFerradura" type="checkbox"/><label for="rinsDFerradura">Rins em ferradura</label></div>
+<div class="toggle-line"><input id="rinsDUreterolitiase" type="checkbox"/><label for="rinsDUreterolitiase">Ureterolitíase</label></div>
+<div class="toggle-line"><input id="rinsDAlterado" type="checkbox"/><label for="rinsDAlterado">Outro (descrever)</label></div>
+</div>
+<div class="conditional" id="wrap_rinsDCalculoCampos"><div class="field bio-linha bio-sel"><label for="rinsDCalcCount">Número de cálculos</label><select id="rinsDCalcCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select></div><div>
+<div id="rinsDCalcNodulosContainer"></div>
+<button class="btn-clear" id="btnAddCalcRinsD" style="margin:2px 0 4px;" type="button">+ Adicionar cálculo</button>
+</div></div>
+<div class="conditional" id="wrap_rinsDCistoCampos"><div class="field bio-linha bio-sel"><label for="rinsDCistoCount">Número de cistos</label><select id="rinsDCistoCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select></div><div>
+<div id="rinsDCistoNodulosContainer"></div>
+<button class="btn-clear" id="btnAddCistoRinsD" style="margin:2px 0 4px;" type="button">+ Adicionar cisto</button>
+</div></div>
+<div class="conditional" id="wrap_rinsDLeiteCalcioCampos"><div class="field bio-linha bio-sel"><label for="rinsDLeiteCalcioCount">Número</label><select id="rinsDLeiteCalcioCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select></div><div>
+<div id="rinsDLeiteCalcioNodulosContainer"></div>
+<button class="btn-clear" id="btnAddLeiteCalcioRinsD" style="margin:2px 0 4px;" type="button">+ Adicionar</button>
+</div></div>
+<div class="conditional" id="wrap_rinsDNoduloCampos"><div class="field bio-linha bio-sel"><label for="rinsDNoduloCount">Número de nódulos</label><select id="rinsDNoduloCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select></div><div>
+<div id="rinsDNoduloNodulosContainer"></div>
+<button class="btn-clear" id="btnAddNoduloRinsD" style="margin:2px 0 4px;" type="button">+ Adicionar nódulo</button>
+</div></div>
+<div class="conditional" id="wrap_rinsDHidro"><div class="field bio-linha"><label for="rinsDHidroMedida">Medida da pelve renal<span class="vr">VR até 10,0 mm</span><span class="flag-note" id="flag_rinsDHidroMedida">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="rinsDHidroMedida" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div><div class="field bio-linha bio-sel bio-sel-larga"><label for="rinsDHidroCalices">Dilatação calicinal</label><select id="rinsDHidroCalices">
+<option value="nenhuma">Sem dilatação dos cálices</option>
+<option value="maiores">Cálices maiores</option>
+<option value="menores">Cálices menores</option>
+<option value="ambos">Cálices maiores e menores</option>
+</select></div><div class="field bio-linha bio-sel"><label for="rinsDHidroGrau">Grau da hidronefrose</label><select id="rinsDHidroGrau">
+<option value="leve">Leve</option>
+<option value="moderada">Moderada</option>
+<option value="acentuada">Acentuada</option>
+</select></div></div>
+<div class="conditional" id="wrap_rinsDHidroCortical"><div class="field bio-linha"><label for="rinsDHidroCortical">Espessura cortical (facultativo)</label><input data-decimals="1" data-maxint="2" id="rinsDHidroCortical" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="conditional" id="wrap_rinsDUreter"><div class="field bio-linha bio-sel"><label for="rinsDUreterTerco">Terço do ureter</label><select id="rinsDUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select></div><div class="field bio-linha"><label for="rinsDUreterTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="rinsDUreterTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div><div class="field bio-linha bio-sel"><label for="rinsDUreterHidro">Hidronefrose a montante</label><select id="rinsDUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_rinsDDescricao"><label for="rinsDDescricao">Descreva o achado</label><textarea id="rinsDDescricao" placeholder="ex: cálculo no rim direito medindo...; dilatação pielocalicinal..." rows="2"></textarea></div></div><div class="bio-grupo"><h4>Achados — rim esquerdo (marque quantos se aplicarem)</h4>
+<div class="achado-grid">
+<div class="toggle-line"><input checked="" id="rinsENormal" type="checkbox"/><label for="rinsENormal">Normal (cortical, diferenciação córtico-medular e sistema coletor usuais, sem cálculos)</label></div>
+<div class="toggle-line"><input id="rinsECalculo" type="checkbox"/><label for="rinsECalculo">Cálculo(s) renal(is)</label></div>
+<div class="toggle-line"><input id="rinsECisto" type="checkbox"/><label for="rinsECisto">Cisto(s) renal(is) simples</label></div>
+<div class="toggle-line"><input id="rinsELeiteCalcio" type="checkbox"/><label for="rinsELeiteCalcio">Cisto de leite de cálcio</label></div>
+<div class="toggle-line"><input id="rinsENodulo" type="checkbox"/><label for="rinsENodulo">Nódulo renal (angiomiolipoma)</label></div>
+<div class="toggle-line"><input id="rinsEHidronefrose" type="checkbox"/><label for="rinsEHidronefrose">Hidronefrose</label></div>
+<div class="toggle-line"><input id="rinsENefrocalcinose" type="checkbox"/><label for="rinsENefrocalcinose">Nefrocalcinose medular (rim esponjo-medular)</label></div>
+<div class="toggle-line"><input id="rinsEFerradura" type="checkbox"/><label for="rinsEFerradura">Rins em ferradura</label></div>
+<div class="toggle-line"><input id="rinsEUreterolitiase" type="checkbox"/><label for="rinsEUreterolitiase">Ureterolitíase</label></div>
+<div class="toggle-line"><input id="rinsEAlterado" type="checkbox"/><label for="rinsEAlterado">Outro (descrever)</label></div>
+</div>
+<div class="conditional" id="wrap_rinsECalculoCampos"><div class="field bio-linha bio-sel"><label for="rinsECalcCount">Número de cálculos</label><select id="rinsECalcCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select></div><div>
+<div id="rinsECalcNodulosContainer"></div>
+<button class="btn-clear" id="btnAddCalcRinsE" style="margin:2px 0 4px;" type="button">+ Adicionar cálculo</button>
+</div></div>
+<div class="conditional" id="wrap_rinsECistoCampos"><div class="field bio-linha bio-sel"><label for="rinsECistoCount">Número de cistos</label><select id="rinsECistoCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select></div><div>
+<div id="rinsECistoNodulosContainer"></div>
+<button class="btn-clear" id="btnAddCistoRinsE" style="margin:2px 0 4px;" type="button">+ Adicionar cisto</button>
+</div></div>
+<div class="conditional" id="wrap_rinsELeiteCalcioCampos"><div class="field bio-linha bio-sel"><label for="rinsELeiteCalcioCount">Número</label><select id="rinsELeiteCalcioCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select></div><div>
+<div id="rinsELeiteCalcioNodulosContainer"></div>
+<button class="btn-clear" id="btnAddLeiteCalcioRinsE" style="margin:2px 0 4px;" type="button">+ Adicionar</button>
+</div></div>
+<div class="conditional" id="wrap_rinsENoduloCampos"><div class="field bio-linha bio-sel"><label for="rinsENoduloCount">Número de nódulos</label><select id="rinsENoduloCount"><option value="1">1</option><option value="2">2</option><option value="3">3 ou mais</option></select></div><div>
+<div id="rinsENoduloNodulosContainer"></div>
+<button class="btn-clear" id="btnAddNoduloRinsE" style="margin:2px 0 4px;" type="button">+ Adicionar nódulo</button>
+</div></div>
+<div class="conditional" id="wrap_rinsEHidro"><div class="field bio-linha"><label for="rinsEHidroMedida">Medida da pelve renal<span class="vr">VR até 10,0 mm</span><span class="flag-note" id="flag_rinsEHidroMedida">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="rinsEHidroMedida" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div><div class="field bio-linha bio-sel bio-sel-larga"><label for="rinsEHidroCalices">Dilatação calicinal</label><select id="rinsEHidroCalices">
+<option value="nenhuma">Sem dilatação dos cálices</option>
+<option value="maiores">Cálices maiores</option>
+<option value="menores">Cálices menores</option>
+<option value="ambos">Cálices maiores e menores</option>
+</select></div><div class="field bio-linha bio-sel"><label for="rinsEHidroGrau">Grau da hidronefrose</label><select id="rinsEHidroGrau">
+<option value="leve">Leve</option>
+<option value="moderada">Moderada</option>
+<option value="acentuada">Acentuada</option>
+</select></div></div>
+<div class="conditional" id="wrap_rinsEHidroCortical"><div class="field bio-linha"><label for="rinsEHidroCortical">Espessura cortical (facultativo)</label><input data-decimals="1" data-maxint="2" id="rinsEHidroCortical" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="conditional" id="wrap_rinsEUreter"><div class="field bio-linha bio-sel"><label for="rinsEUreterTerco">Terço do ureter</label><select id="rinsEUreterTerco"><option value="proximal">Proximal</option><option value="médio">Médio</option><option value="distal">Distal</option></select></div><div class="field bio-linha"><label for="rinsEUreterTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="rinsEUreterTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div><div class="field bio-linha bio-sel"><label for="rinsEUreterHidro">Hidronefrose a montante</label><select id="rinsEUreterHidro"><option value="sem">Sem condicionar</option><option value="com">Condicionando</option></select></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_rinsEDescricao"><label for="rinsEDescricao">Descreva o achado</label><textarea id="rinsEDescricao" placeholder="ex: cálculo no rim esquerdo medindo...; dilatação pielocalicinal..." rows="2"></textarea></div>
+</div></div></div></div>
+</div>
+<div class="card" id="cardBexiga">
+<div class="card-head"><h2>Bexiga</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-larga"><label for="bexigaAspecto">Aspecto</label><select id="bexigaAspecto">
+<option value="normal">Normal (topografia e repleção normais)</option>
+<option value="esforco">Bexiga de esforço (paredes espessadas e trabeculadas)</option>
+<option value="cistite">Cistite (paredes espessadas, sem trabeculações)</option>
+<option value="calculo">Cálculo vesical</option>
+<option value="alterado">Outro (descrever)</option>
+</select></div></div>
+<div class="conditional" id="wrap_bexigaEsforco"><div class="field bio-linha"><label for="bexigaEsforcoEspessura">Espessura da parede<span class="vr">VR até 5,0 mm</span><span class="flag-note" id="flag_bexigaEsforcoEspessura">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="1" id="bexigaEsforcoEspessura" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="conditional" id="wrap_bexigaCistite"><div class="field bio-linha"><label for="bexigaCistiteEspessura">Espessura da parede<span class="vr">VR até 5,0 mm</span><span class="flag-note" id="flag_bexigaCistiteEspessura">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="1" id="bexigaCistiteEspessura" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="toggle-line conditional" id="wrap_bexigaCistiteDebris"><input id="chkBexigaCistiteDebris" type="checkbox"/><label for="chkBexigaCistiteDebris">Conteúdo com debris/ecos em suspensão</label></div>
+<div class="conditional" id="wrap_bexigaCalculoCampos"><div class="field bio-linha"><label for="bexigaCalculoTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="bexigaCalculoTamanho" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_bexigaDescricao"><label for="bexigaDescricao">Descreva o achado</label><textarea id="bexigaDescricao" placeholder="ex: espessamento parietal; conteúdo ecogênico em suspensão..." rows="2"></textarea></div>
+</div></div></div></div>
+</div>
+<div class="card" id="cardVasos">
+<div class="card-head"><h2>Grandes vasos abdominais</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-larga"><label for="vasosAspecto">Aspecto</label><select id="vasosAspecto">
+<option value="normal">Normal (aorta, veia cava inferior e artérias ilíacas de trajeto e calibre usuais, sem linfonodomegalia)</option>
+<option value="ateromatose">Ateromatose da aorta abdominal</option>
+<option value="aneurisma">Aneurisma de aorta abdominal</option>
+<option value="alterado">Outro (descrever)</option>
+</select></div></div>
+<div class="conditional" id="wrap_vasosAneurismaCampos"><div class="field bio-linha bio-larga"><label for="vasosAneurismaPosicao">Posição do aneurisma</label><select id="vasosAneurismaPosicao"><option value="abaixo">Abaixo da emergência das artérias renais</option><option value="acima">Acima da emergência das artérias renais</option></select></div><div class="field bio-linha"><label for="vasosAneurismaDiametro">Maior diâmetro AP</label><input data-decimals="1" data-maxint="2" id="vasosAneurismaDiametro" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div><div class="field bio-linha"><label for="vasosAneurismaProximal">Diâmetro da porção proximal</label><input data-decimals="1" data-maxint="2" id="vasosAneurismaProximal" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div><div class="field bio-linha"><label for="vasosAneurismaDistal">Distância até a bifurcação</label><input data-decimals="1" data-maxint="2" id="vasosAneurismaDistal" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_vasosDescricao"><label for="vasosDescricao">Descreva o achado</label><textarea id="vasosDescricao" placeholder="descrição completa do achado vascular/linfonodal..." rows="2"></textarea></div>
+</div></div></div></div>
+</div>
+<div class="card" id="cardBaco">
+<div class="card-head"><h2>Baço</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-larga"><label for="bacoAspecto">Aspecto</label><select id="bacoAspecto">
+<option value="normal">Normal (forma, dimensões, contornos e parênquima usuais)</option>
+<option value="esplenectomia">Esplenectomia (baço não visibilizado)</option>
+<option value="acessorio">Baço acessório</option>
+<option value="esplenomegaliaLeve">Esplenomegalia leve</option>
+<option value="esplenomegaliaVolumosa">Esplenomegalia volumosa</option>
+<option value="hemangioma">Hemangioma esplênico</option>
+<option value="alterado">Outro (descrever)</option>
+</select></div></div>
+<div class="conditional" id="wrap_bacoAcessorioCampos"><div class="field bio-linha bio-texto bio-larga"><label for="bacoAcessorioTamanho">Tamanho do nódulo acessório</label><input id="bacoAcessorioTamanho" placeholder="ex: 1,2 x 0,8 cm" type="text"/></div></div>
+<div class="conditional" id="wrap_bacoHemangiomaCampos"><div class="field bio-linha bio-sel"><label for="bacoHemangiomaTerco">Terço</label><select id="bacoHemangiomaTerco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select></div><div class="field bio-linha"><label for="bacoHemangiomaTamanho">Tamanho</label><input data-decimals="1" data-maxint="2" id="bacoHemangiomaTamanho" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_bacoDescricao"><label for="bacoDescricao">Descreva o achado</label><textarea id="bacoDescricao" placeholder="descrição completa do achado esplênico..." rows="2"></textarea></div>
+<hr class="sep"/>
+<div class="conditional show" id="wrap_bacoDiametro"><div class="field bio-linha"><label for="bacoDiametro">Diâmetro bipolar<span class="vr" id="vrBacoTexto">VR até 12,0 cm</span><span class="flag-note" id="flag_bacoDiametro">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="bacoDiametro" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div>
+</div></div></div></div>
+</div>
+<div class="card" id="cardAchadosAdicionais">
+<div class="card-head"><h2>Achados adicionais (avaliação direcionada)</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<p class="bio-nota">Não fazem parte da rotina do abdome total — só entram no laudo quando marcados.</p>
+<div class="toggle-line"><input id="chkApendice" type="checkbox"/><label for="chkApendice">Avaliar apêndice cecal</label></div>
+<div class="conditional" id="wrap_apendiceAspecto"><div class="field bio-linha bio-larga"><label for="apendiceAspecto">Aspecto</label><select id="apendiceAspecto">
+<option value="normal">Não dilatado, sem espessamento parietal, na topografia habitual</option>
+<option value="alterado">Achados sugestivos de apendicite aguda</option>
+</select></div></div>
+<div class="conditional" id="wrap_apendiceEspessura"><div class="field bio-linha"><label for="apendiceEspessuraValor">Espessura da parede</label><input data-decimals="1" data-maxint="1" id="apendiceEspessuraValor" inputmode="decimal" type="text"/><span class="bio-un">mm</span></div></div>
+<hr class="sep"/>
+<div class="toggle-line"><input id="chkAdenite" type="checkbox"/><label for="chkAdenite">Linfonodos mesentéricos aumentados (sugestivo de adenite mesentérica)</label></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_adeniteDescricao"><label for="adeniteDescricao">Descrição no laudo</label><textarea id="adeniteDescricao" placeholder="descrição completa do achado..." rows="2"></textarea></div>
+<hr class="sep"/>
+<div class="toggle-line" style="margin-bottom:8px;"><input id="chkAscite" type="checkbox"/><label for="chkAscite">Líquido livre intracavitário (ascite)</label></div>
+<div class="conditional" id="wrap_asciteGrau"><div class="field bio-linha bio-sel"><label for="asciteGrau">Quantidade</label><select id="asciteGrau"><option value="leve">Discreta</option><option value="moderada">Moderada</option><option value="acentuada">Acentuada</option></select></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_asciteDescricao"><label for="asciteDescricao">Descrição no laudo</label><textarea id="asciteDescricao" placeholder="descrição completa do achado..." rows="2"></textarea></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Impressão diagnóstica</h2></div>
+<div class="card-body">
+<p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base no exame normal. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
+<div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+</div>
+</div>
+</div>
 
   <!-- PREVIEW COLUMN -->
   <div class="preview-wrap">
@@ -1781,11 +1545,9 @@ if(typeof criarMotorLaudo !== 'function'){
     const label = LISTA_ACHADO_LABEL[kind];
     return ''
       +'<div class="subgroup" id="wrap_'+p+kind+uid+'">'
-      +'<div class="field-row field-row-compact">'
-      +'<div class="field"><label>'+label+' <span class="subitem-index"></span> — terço</label>'
+      +'<div class="field bio-linha bio-sel"><label for="'+p+kind+uid+'Terco">'+label+' <span class="subitem-index"></span> — terço</label>'
       +'<select id="'+p+kind+uid+'Terco"><option value="superior">Superior</option><option value="médio">Médio</option><option value="inferior">Inferior</option></select></div>'
-      +'<div class="field"><label>Tamanho (mm)</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="'+p+kind+uid+'Tamanho" placeholder="mm"></div>'
-      +'</div>'
+      +'<div class="field bio-linha"><label for="'+p+kind+uid+'Tamanho">Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" data-maxint="2" id="'+p+kind+uid+'Tamanho" placeholder=""><span class="bio-un">mm</span></div>'
       +'<button type="button" class="subitem-remove" data-uid="'+uid+'">Remover '+label.toLowerCase()+'</button>'
       +'</div>';
   }
