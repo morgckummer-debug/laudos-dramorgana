@@ -564,12 +564,16 @@
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial — use {PADRAO}, {ESPESSURA}, {LOCAL}, {PEDICULO} e {MEDIDA}</label><textarea id="ph_endometrioPolipo" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Espessado e heterogêneo (menopausa) — use {ESPESSURA}</label><textarea id="ph_endometrioEspessado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Falhas no eco endometrial, sugestivas de sinéquias</label><textarea id="ph_sinequias" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Doppler (exame com Doppler) — vascularização ausente</label><textarea id="ph_endoDopplerAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Doppler (exame com Doppler) — vascularização presente — use {GRAU}, {ESCORE} e {PADRAO}</label><textarea id="ph_endoDopplerPresente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hematométrio — use {MEDIDAS} e {VOLUME}</label><textarea id="ph_hematometrio" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Ovários</h3>
   <div class="field" style="margin-bottom:8px;"><label>Normal — use {LADO}, {L}, {AP}, {T}, {VOLUME} e {VR}</label><textarea id="ph_ovarioNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ausente (ooforectomia prévia)</label><textarea id="ph_ovarioAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Doppler (exame com Doppler) — use {FLUXO} e {INDICES} (IR/IP, quando preenchidos)</label><textarea id="ph_ovarioDoppler" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Doppler (exame com Doppler) — fluxo ausente</label><textarea id="ph_ovarioDopplerAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Não identificado — use {LADO}</label><textarea id="ph_ovarioNaoIdentificado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Policístico — frase-base (substitui "Normal" quando policístico) — use {L}, {AP}, {T}, {VOLUME} e {VR}</label><textarea id="ph_ovarioPolicisticoBase" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Ovário policístico — complemento (achado, após a frase-base) — use {LADO}</label><textarea id="ph_ovarioPolicistico" rows="2"></textarea></div>
@@ -692,6 +696,7 @@
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkTransabdominal"><label for="chkTransabdominal">Exame Transabdominal</label></div>
         <div class="toggle-line"><input type="checkbox" id="chkExame3D"><label for="chkExame3D">Exame 3D (avaliação de malformação mülleriana)</label></div>
+        <div class="toggle-line"><input type="checkbox" id="chkDoppler"><label for="chkDoppler">Exame com Doppler (ovários e endométrio)</label></div>
         <div class="bio-grupo bio-paciente"><h4>Paciente e exame</h4>
           <div class="bio-nome-data">
             <div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
@@ -835,6 +840,10 @@
               <option value="espessado">Espessado e heterogêneo (menopausa)</option>
             </select></div>
               <div class="conditional" id="wrap_endometrioPadrao"><div class="field bio-linha bio-sel"><label for="endometrioPadrao">Padrão</label><select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option><option value="ecogenico">Ecogênico</option></select></div></div>
+              <div class="conditional" id="wrap_endoDoppler">
+                <div class="field bio-linha bio-sel"><label for="endoDopplerVasc">Doppler<small>vascularização (IETA)</small></label><select id="endoDopplerVasc"><option value="1">Ausente (escore 1)</option><option value="2">Mínima (escore 2)</option><option value="3">Moderada (escore 3)</option><option value="4">Acentuada (escore 4)</option></select></div>
+                <div class="conditional" id="wrap_endoDopplerPadrao"><div class="field bio-linha bio-sel"><label for="endoDopplerPadrao">Padrão vascular</label><select id="endoDopplerPadrao"><option value="">Não descrever</option><option value="pedicular">Vaso dominante único (pedicular)</option><option value="focal">Múltiplos vasos de origem focal</option><option value="multifocal">Múltiplos vasos de origem multifocal</option><option value="disperso">Vasos dispersos</option></select></div></div>
+              </div>
             <div class="toggle-line"><input type="checkbox" id="chkSinequias"><label for="chkSinequias">Falhas no eco endometrial, sugestivas de sinéquias</label></div>
             <div class="toggle-line" id="wrap_chkPolipoEndometrial"><input type="checkbox" id="chkPolipoEndometrial"><label for="chkPolipoEndometrial">Pólipo endometrial</label></div>
             <div class="field-row conditional" id="wrap_polipoCampos">
@@ -899,6 +908,11 @@
               <div class="conditional show" id="wrap_ovD_medidas">
               <div class="field bio-linha bio-medidas"><label for="ovD_medidas">Medidas<small>L x AP x T</small></label><input type="text" id="ovD_medidas" placeholder="ex: 3,1 x 1,8 x 2,4"><span class="bio-un">cm</span></div>
               <div class="field bio-linha"><label for="ovD_volume">Volume<span class="flag-note" id="flag_ovD_volume">Fora do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="ovD_volume" placeholder=""><span class="bio-un">cm³</span></div>
+              </div>
+              <div class="conditional" id="wrap_ovD_doppler">
+                <div class="field bio-linha bio-sel"><label for="ovD_dopplerFluxo">Doppler<small>fluxo do parênquima</small></label><select id="ovD_dopplerFluxo"><option value="habitual">Habitual</option><option value="aumentado">Aumentado</option><option value="reduzido">Reduzido</option><option value="ausente">Ausente</option></select></div>
+                <div class="field bio-linha"><label for="ovD_dopplerIR">IR<small>opcional</small></label><input type="text" inputmode="decimal" data-decimals="2" id="ovD_dopplerIR" placeholder=""></div>
+                <div class="field bio-linha"><label for="ovD_dopplerIP">IP<small>opcional</small></label><input type="text" inputmode="decimal" data-decimals="2" id="ovD_dopplerIP" placeholder=""></div>
               </div>
               
               <div class="ov-aspecto">
@@ -989,6 +1003,11 @@
               <div class="conditional show" id="wrap_ovE_medidas">
               <div class="field bio-linha bio-medidas"><label for="ovE_medidas">Medidas<small>L x AP x T</small></label><input type="text" id="ovE_medidas" placeholder="ex: 3,1 x 1,8 x 2,4"><span class="bio-un">cm</span></div>
               <div class="field bio-linha"><label for="ovE_volume">Volume<span class="flag-note" id="flag_ovE_volume">Fora do valor de referência</span></label><input type="text" inputmode="decimal" data-decimals="1" id="ovE_volume" placeholder=""><span class="bio-un">cm³</span></div>
+              </div>
+              <div class="conditional" id="wrap_ovE_doppler">
+                <div class="field bio-linha bio-sel"><label for="ovE_dopplerFluxo">Doppler<small>fluxo do parênquima</small></label><select id="ovE_dopplerFluxo"><option value="habitual">Habitual</option><option value="aumentado">Aumentado</option><option value="reduzido">Reduzido</option><option value="ausente">Ausente</option></select></div>
+                <div class="field bio-linha"><label for="ovE_dopplerIR">IR<small>opcional</small></label><input type="text" inputmode="decimal" data-decimals="2" id="ovE_dopplerIR" placeholder=""></div>
+                <div class="field bio-linha"><label for="ovE_dopplerIP">IP<small>opcional</small></label><input type="text" inputmode="decimal" data-decimals="2" id="ovE_dopplerIP" placeholder=""></div>
               </div>
               
               <div class="ov-aspecto">
@@ -1884,11 +1903,15 @@ if(typeof criarMotorLaudo !== 'function'){
     endometrioEspessadoDuplo: 'ecogênico e heterogêneo, contendo diminutas áreas císticas de permeio, com pedículo vascular identificado ao mapeamento colorido, medindo {ESPESSURAD} mm à direita e {ESPESSURAE} mm à esquerda em seu diâmetro ântero-posterior.',
     endometrioEspessado: 'centrado, regular, ecogênico e heterogêneo, contendo diminutas áreas císticas de permeio, com pedículo vascular identificado ao mapeamento colorido, medindo {ESPESSURA} mm em seu diâmetro ântero-posterior.',
     sinequias: 'Notam-se falhas no eco endometrial, sugestivas de sinéquias.',
+    endoDopplerAusente: 'Ao estudo Doppler colorido, não se observa fluxo vascular endometrial (escore de cor 1).',
+    endoDopplerPresente: 'Ao estudo Doppler colorido, observa-se vascularização endometrial {GRAU} (escore de cor {ESCORE}){PADRAO}.',
     hematometrio: 'Observa-se conteúdo hemático na cavidade uterina, medindo {MEDIDAS} mm, com volume de {VOLUME} cm³, compatível com hematométrio.',
 
     ovarioNormal: 'de topografia e forma usuais, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ ({VR}).',
     ovarioNaoIdentificado: 'não identificado no presente estudo. Não são identificadas massas císticas ou sólidas em sua topografia.',
     ovarioAusente: 'ausente, compatível com ooforectomia prévia.',
+    ovarioDoppler: 'Ao estudo Doppler colorido, parênquima ovariano com fluxo vascular {FLUXO}{INDICES}.',
+    ovarioDopplerAusente: 'Ao estudo Doppler colorido, não se observa fluxo vascular no parênquima ovariano.',
     ovarioPolicisticoBase: 'de topografia usual, forma globosa e textura micropolicística, medindo {L} x {AP} x {T} cm, com volume de {VOLUME} cm³ ({VR}).',
     ovarioPolicistico: 'Ovário {LADO} apresentando folículos antrais de distribuição predominantemente periférica, com diâmetro médio de 5 mm, associado a aumento da ecogenicidade do estroma.',
     ovarioCisto1: 'Ovário {LADO}, em seu interior observa-se imagem cística anecoica, uniloculada, de paredes finas e regulares, medindo {MEDIDA} mm, com volume de {VOLUME} cm³.',
@@ -2814,6 +2837,13 @@ if(typeof criarMotorLaudo !== 'function'){
     const dataExame = v('dataExame');
     const medicoSolicitante = v('medicoSolicitante');
     const chkTransabdominal = $('chkTransabdominal').checked;
+    // Doppler: a visibilidade dos campos é decidida aqui, a cada desenho, e
+    // não num 'change' — "Limpar" e o rascunho mexem na caixa sem evento.
+    const chkDoppler = $('chkDoppler').checked;
+    toggle('wrap_endoDoppler', chkDoppler);
+    toggle('wrap_endoDopplerPadrao', chkDoppler && v('endoDopplerVasc')!=='1' && v('endoDopplerVasc')!=='');
+    toggle('wrap_ovD_doppler', chkDoppler && v('ovD_aspecto')!=='ausente' && v('ovD_aspecto')!=='nao_identificado');
+    toggle('wrap_ovE_doppler', chkDoppler && v('ovE_aspecto')!=='ausente' && v('ovE_aspecto')!=='nao_identificado');
     const gpaG = v('gpaG');
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
@@ -2923,6 +2953,9 @@ if(typeof criarMotorLaudo !== 'function'){
     // as espessuras digitadas (D/E) estão abaixo disso.
     const espAtrofia = (endoDuplo ? [num('endometrioEspessuraD'), num('endometrioEspessuraE')] : [num('endometrioEspessura')]).filter(x=> x!==null);
     const endometrioAtrofico = uteroPresente && espAtrofia.length > 0 && espAtrofia.every(x=> x < 2.0);
+    // Doppler do endométrio (exame com Doppler): escore de cor e padrão vascular do IETA.
+    const ENDO_DOPPLER_GRAU = {'2':'mínima', '3':'moderada', '4':'acentuada'};
+    const ENDO_DOPPLER_PADRAO = {pedicular:'com vaso dominante único (pedicular)', focal:'com múltiplos vasos de origem focal', multifocal:'com múltiplos vasos de origem multifocal', disperso:'com vasos dispersos'};
     const ENDOMETRIO_PADRAO_TEXTO = {trilaminar:'trilaminar', secretor:'secretor', laminar:'laminar', ecogenico:'ecogênico'};
     const endometrioPadrao = ENDOMETRIO_PADRAO_TEXTO[v('endometrioPadrao')] || 'trilaminar';
     const polipoLocalizacao = v('polipoLocalizacao');
@@ -2970,7 +3003,10 @@ if(typeof criarMotorLaudo !== 'function'){
       const foliculoMedida2 = reqIf(prefix+'_foliculoMedida2', aspecto2==='foliculo');
       const dermoideMedida2 = reqIf(prefix+'_dermoideMedida2', aspecto2==='dermoide');
       const endometriomaMedida2 = reqIf(prefix+'_endometriomaMedida2', aspecto2==='endometrioma');
-      return {L, AP, T, volume, volNum, aspecto, descricao, cistos, cistoMostrarVolume, policisticoVolume, corpoLuteoMedida, foliculoMedida, dermoideMedida, endometriomaMedida,
+      const dopplerFluxo = v(prefix+'_dopplerFluxo');
+      const dopplerIR = v(prefix+'_dopplerIR');
+      const dopplerIP = v(prefix+'_dopplerIP');
+      return {dopplerFluxo, dopplerIR, dopplerIP, L, AP, T, volume, volNum, aspecto, descricao, cistos, cistoMostrarVolume, policisticoVolume, corpoLuteoMedida, foliculoMedida, dermoideMedida, endometriomaMedida,
         aspecto2, descricao2, cistos2, cistoMostrarVolume2, corpoLuteoMedida2, foliculoMedida2, dermoideMedida2, endometriomaMedida2};
     }
     const ovD = readOvario('ovD');
@@ -3039,7 +3075,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +(vrUteroCategoria!=='menopausa' ? '<div class="id-card-row"><span>'+(gpaG==='0' ? '<strong>G:</strong> 0' : '<strong>G:</strong> '+span(blankOrValue(gpaG))+' &nbsp; <strong>P:</strong> '+span(blankOrValue(gpaP))+' &nbsp; <strong>A:</strong> '+span(blankOrValue(gpaA)))+'</span></div>' : '')
       +'</div>'});
 
-    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+(chkTransabdominal ? 'ULTRASSOM PÉLVICO' : 'ULTRASSOM TRANSVAGINAL')+($('chkExame3D').checked ? ' 3D' : '')+'</h3>'});
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+(chkTransabdominal ? 'ULTRASSOM PÉLVICO' : 'ULTRASSOM TRANSVAGINAL')+($('chkExame3D').checked ? ' 3D' : '')+(chkDoppler ? ' COM DOPPLER' : '')+'</h3>'});
 
     if(motivoExame){
       const relatoLinhas = motivoExame.split('\n').map(l=>l.trim()).filter(Boolean);
@@ -3140,6 +3176,14 @@ if(typeof criarMotorLaudo !== 'function'){
       }
       if(endoMenopausa) endometrioTexto = endometrioTexto.replace(new RegExp(ENDO_MK+'([ \\u00a0]|&nbsp;)mm', 'g'), '$1mm (VR até '+ENDO_VR_MENOPAUSA.toFixed(1).replace('.',',')+' mm)').split(ENDO_MK).join('');
       if(chkSinequias) endometrioTexto += ' '+phrase('sinequias');
+      if(chkDoppler){
+        const esc = v('endoDopplerVasc') || '1';
+        if(esc==='1') endometrioTexto += ' '+phrase('endoDopplerAusente');
+        else {
+          const padrao = ENDO_DOPPLER_PADRAO[v('endoDopplerPadrao')];
+          endometrioTexto += ' '+phrase('endoDopplerPresente', {GRAU: ENDO_DOPPLER_GRAU[esc], ESCORE: esc, PADRAO: padrao ? ', '+padrao : ''});
+        }
+      }
       blocks.push({id:'endometrio', html:'<p class="linha"><strong>Endométrio:</strong> '+endometrioTexto+'</p>'});
     }
 
@@ -3198,7 +3242,15 @@ if(typeof criarMotorLaudo !== 'function'){
       // the achado immediately override the shape was the bug being fixed.
       const baseKey = ov.aspecto==='policistico' ? 'ovarioPolicisticoBase' : 'ovarioNormal';
       const base = phraseRaw(baseKey, {L: span(ov.L), AP: span(ov.AP), T: span(ov.T), VOLUME: span(ov.volume), VR: escapeHtml(vrOvarioTexto)});
-      return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+base+extra+extra2+'</p>';
+      let doppler = '';
+      if(chkDoppler){
+        if(ov.dopplerFluxo==='ausente') doppler = ' '+phrase('ovarioDopplerAusente');
+        else {
+          const ind = [ov.dopplerIR && 'IR de '+ov.dopplerIR, ov.dopplerIP && 'IP de '+ov.dopplerIP].filter(Boolean);
+          doppler = ' '+phrase('ovarioDoppler', {FLUXO: ov.dopplerFluxo || 'habitual', INDICES: ind.length ? ', com '+ind.join(' e ') : ''});
+        }
+      }
+      return '<p class="linha"><strong>Ovário '+ladoM+':</strong> '+base+extra+extra2+doppler+'</p>';
     }
     blocks.push({id:'ovarioD', html:ovarioParagraph(ovD, 'direito', 'direita')});
     blocks.push({id:'ovarioE', html:ovarioParagraph(ovE, 'esquerdo', 'esquerda')});
@@ -3468,7 +3520,8 @@ if(typeof criarMotorLaudo !== 'function'){
   // dos Santos - Transvaginal com DIU"), para o arquivo já sair identificado
   // e ir direto para a pasta da paciente sem renomear.
   function tituloExame(){
-    return ($('chkTransabdominal').checked ? 'Pélvico' : 'Transvaginal') + ($('chkExame3D').checked ? ' 3D' : '') + ($('chkDIU').checked ? ' com DIU' : '');
+    const com = [$('chkDoppler').checked && 'Doppler', $('chkDIU').checked && 'DIU'].filter(Boolean);
+    return ($('chkTransabdominal').checked ? 'Pélvico' : 'Transvaginal') + ($('chkExame3D').checked ? ' 3D' : '') + (com.length ? ' com '+com.join(' e ') : '');
   }
   // Chrome/Edge can prompt a native "save as" dialog (File System Access
   // API) instead of always dropping the file in Downloads — only available
