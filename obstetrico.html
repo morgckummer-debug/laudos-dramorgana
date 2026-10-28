@@ -206,6 +206,8 @@
   .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
   .field.bio-linha select{padding:8px 8px;font-size:13px;}
   .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  .cards-par{display:flex;flex-wrap:wrap;gap:0 14px;align-items:flex-start;}
+  .cards-par>.card{flex:1 1 320px;min-width:0;}
   #grpMorfoRec:not(:has(.show)){display:none;}
   @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
 
@@ -643,6 +645,7 @@
       </div>
     </div>
 
+    <div class="cards-par">
     <div class="card">
       <div class="card-head"><h2>Idade gestacional</h2></div>
       <div class="card-body">
@@ -685,6 +688,7 @@
           </div>
         </div></div>
       </div>
+    </div>
     </div>
 
     <div id="fetosContainer"></div>
