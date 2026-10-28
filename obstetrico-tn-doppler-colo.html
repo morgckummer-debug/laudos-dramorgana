@@ -146,6 +146,13 @@
   .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
   .bio-col{flex:1 1 280px;display:flex;flex-direction:column;gap:14px;min-width:0;}
   .bio-col:only-child{flex:1 1 100%;}
+  .bio-col.conditional{display:none;}
+  .bio-col.conditional.show{display:flex;}
+  .bio-grupos.bio-tres > .bio-col{flex-basis:190px;}
+  .bio-tres .bio-grupo{padding:12px 12px 6px;}
+  .bio-tres .field.bio-linha{grid-template-columns:1fr 76px;gap:8px;}
+  .bio-tres .field.bio-linha > .bio-un{display:none;}
+  .bio-tres .field.bio-linha.bio-sel,.bio-tres .field.bio-linha.bio-sel.bio-sel-larga,.bio-tres .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
   .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
   .bio-grupo.conditional.show{display:block;}
   .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
@@ -179,7 +186,7 @@
   .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
   .field.bio-linha select{padding:8px 8px;font-size:13px;}
   .bio-un{font-size:12.5px;color:var(--ink-soft);}
-  @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
+  @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} .bio-col.conditional.show{flex:0 0 auto;} }
 
   .combo-list{
     display:none;position:fixed;z-index:1000;
@@ -628,16 +635,18 @@
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno"><label for="chkDopplerMaterno">Incluir Doppler</label></div>
         <div id="dopplerMaternoFields" class="conditional">
-          <div class="bio-grupos"><div class="bio-col">
+          <div class="toggle-line"><input type="checkbox" id="chkTricuspide"><label for="chkTricuspide">Incluir avaliação da válvula tricúspide (opcional)</label></div>
+          <div class="bio-grupos bio-tres"><div class="bio-col">
             <div class="bio-grupo"><h4>Artérias uterinas</h4>
-              <div class="field bio-linha"><label for="utDireita">IP artéria uterina direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder=""><span class="bio-un"></span></div>
-              <div class="field bio-linha"><label for="utEsquerda">IP artéria uterina esquerda</label><input type="text" inputmode="decimal" data-decimals="2" id="utEsquerda" placeholder=""><span class="bio-un"></span></div>
+              <div class="field bio-linha"><label for="utDireita">IP direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder=""><span class="bio-un"></span></div>
+              <div class="field bio-linha"><label for="utEsquerda">IP esquerda</label><input type="text" inputmode="decimal" data-decimals="2" id="utEsquerda" placeholder=""><span class="bio-un"></span></div>
               <div class="field bio-linha"><label for="utMedioCalc">IP médio<small>calculado</small></label><input type="text" id="utMedioCalc" readonly placeholder="auto"><span class="bio-un"></span></div>
               <div class="field bio-linha bio-larga"><label for="utP95Calc">Percentil<small>Gómez et al., 2008</small></label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
             </div>
-          </div></div>
-          <div class="toggle-line"><input type="checkbox" id="chkTricuspide"><label for="chkTricuspide">Incluir avaliação da válvula tricúspide (opcional)</label></div>
-          <div id="dopplerFetalFields"></div>
+          </div>
+          <div class="bio-col conditional" id="tricuspideFields"></div>
+          <div class="bio-col" id="dopplerFetalFields"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1450,6 +1459,7 @@ if(typeof criarMotorLaudo !== 'function'){
     render();
   });
   $('chkTricuspide').addEventListener('change', e=>{
+    toggle('tricuspideFields', e.target.checked);
     fetoUids().forEach(uid=> toggle('feto'+uid+'TricuspideWrap', e.target.checked));
     updateRiscoLabels();
     render();
@@ -1511,18 +1521,24 @@ if(typeof criarMotorLaudo !== 'function'){
     return ''
       +'<div class="feto-doppler" id="wrap_feto'+uid+'Doppler">'
       +'<div class="bio-grupo"><h4>Ducto venoso <span class="feto-doppler-label"></span></h4>'
-      +'<div class="field bio-linha"><label for="feto'+uid+'DuctoVenoso">Ducto venoso — IPV</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'DuctoVenoso" placeholder="ex: 0,95"><span class="bio-un"></span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'DuctoVenoso">IPV</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'DuctoVenoso" placeholder="ex: 0,95"><span class="bio-un"></span></div>'
       +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'DVClasse">Percentil</label><select id="feto'+uid+'DVClasse"><option value="&lt;P95">&lt;P95</option><option value="&gt;P95">&gt;P95</option></select></div>'
       +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="feto'+uid+'DVOndaA">Onda A</label><select id="feto'+uid+'DVOndaA"><option value="Positiva">Onda A positiva</option><option value="Negativa">Onda A negativa</option></select></div>'
-      +'<div id="feto'+uid+'TricuspideWrap" class="conditional'+(($('chkTricuspide') && $('chkTricuspide').checked) ? ' show' : '')+'">'
-      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="feto'+uid+'Tricuspide">Válvula tricúspide</label><select id="feto'+uid+'Tricuspide"><option value="Normal">Fluxo normal</option><option value="Regurgitacao">Regurgitação presente</option></select></div>'
       +'</div>'
-      +'</div>'
+      +'</div>';
+  }
+  // Válvula tricúspide: um quadro por feto, na coluna do meio do card Doppler
+  // (entre as uterinas e o ducto venoso). Os ids são os de antes.
+  function fetoTricuspideHTML(uid){
+    return ''
+      +'<div class="bio-grupo conditional'+(($('chkTricuspide') && $('chkTricuspide').checked) ? ' show' : '')+'" id="feto'+uid+'TricuspideWrap"><h4>Válvula tricúspide <span class="feto-doppler-label"></span></h4>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="feto'+uid+'Tricuspide">Fluxo</label><select id="feto'+uid+'Tricuspide"><option value="Normal">Fluxo normal</option><option value="Regurgitacao">Regurgitação presente</option></select></div>'
       +'</div>';
   }
   function wireFetoDoppler(uid){
     const el = $('wrap_feto'+uid+'Doppler');
-    el.querySelectorAll('input, select').forEach(field=>{
+    const tri = $('feto'+uid+'TricuspideWrap');
+    [...el.querySelectorAll('input, select'), ...(tri ? tri.querySelectorAll('select') : [])].forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
     });
@@ -1530,6 +1546,7 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   function addFetoDoppler(uid){
     $('dopplerFetalFields').insertAdjacentHTML('beforeend', fetoDopplerHTML(uid));
+    $('tricuspideFields').insertAdjacentHTML('beforeend', fetoTricuspideHTML(uid));
     wireFetoDoppler(uid);
   }
   function renumberFetos(){
@@ -1540,10 +1557,10 @@ if(typeof criarMotorLaudo !== 'function'){
       const removeBtn = el.querySelector('.feto-remove');
       if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
     });
-    Array.from($('dopplerFetalFields').children).forEach((el, idx)=>{
+    [$('dopplerFetalFields'), $('tricuspideFields')].forEach(box=> Array.from(box.children).forEach((el, idx)=>{
       const label = el.querySelector('.feto-doppler-label');
       if(label) label.textContent = cards.length>1 ? '— '+fetoLabel(idx, cards.length) : '';
-    });
+    }));
     $('numeroFetos').value = String(Math.min(Math.max(cards.length, 1), MAX_FETOS));
     updateGestacaoWrap();
     $('btnAddFeto').style.display = cards.length >= MAX_FETOS ? 'none' : 'inline-block';
@@ -1562,6 +1579,8 @@ if(typeof criarMotorLaudo !== 'function'){
       el.remove();
       const db = $('wrap_feto'+uid+'Doppler');
       if(db) db.remove();
+      const tw = $('feto'+uid+'TricuspideWrap');
+      if(tw) tw.remove();
       renumberFetos();
       render();
     });
@@ -1587,6 +1606,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const uid = last.id.replace('wrap_feto','');
       const db = $('wrap_feto'+uid+'Doppler');
       if(db) db.remove();
+      const tw = $('feto'+uid+'TricuspideWrap');
+      if(tw) tw.remove();
       last.remove();
     }
     renumberFetos();
@@ -2640,6 +2661,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // reapareceria na hora em que ela escolhesse "mioma" para a nova paciente.
     $('miomaNodulosContainer').innerHTML = '';
     const _dffReset = $('dopplerFetalFields'); if(_dffReset) _dffReset.innerHTML = '';
+    $('tricuspideFields').innerHTML = '';
     addFeto();
     render();
     // Formulário em branco de novo: o rascunho da paciente anterior sai junto.
@@ -2693,6 +2715,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
       $('fetosContainer').innerHTML = '';
       const _dffRestore = $('dopplerFetalFields'); if(_dffRestore) _dffRestore.innerHTML = '';
+      $('tricuspideFields').innerHTML = '';
       if(uids.length){
         uids.forEach(uid=>{
           fetoNextUid = Math.max(fetoNextUid, parseInt(uid, 10) + 1);
