@@ -150,6 +150,48 @@
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
+  /* Quadros por região, como nos morfológicos (cópia do CSS de lá). */
+  .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+  .bio-col{flex:1 1 280px;display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .bio-col:only-child{flex:1 1 100%;}
+  .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
+  .bio-grupo.conditional.show{display:block;}
+  .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
+  .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);margin:0;}
+  .field.bio-linha .vr{grid-column:1/-1;}
+  .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
+  .field.bio-linha.bio-sel.bio-sel-larga{grid-template-columns:1fr 240px;}
+  .field.bio-linha.conditional.show{display:grid;}
+  .bio-grupo .field.conditional.show{margin:4px 0 8px;}
+  .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;font-weight:500;text-align:left;padding:8px 10px;}
+  .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
+  .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
+  .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
+  .field.bio-linha.bio-texto input[readonly]{font-size:13px;}
+  .field.bio-linha.bio-texto.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .field.bio-linha.bio-ig{grid-template-columns:1fr 52px auto 52px auto;}
+  .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 64px);justify-content:start;column-gap:10px;}
+  .field.bio-linha.bio-gpa label{font-weight:600;}
+  .field.bio-linha.bio-gpa label:not(:first-child){margin-left:14px;}
+  .bio-grupo.bio-paciente{margin-bottom:14px;}
+  .bio-grade2{display:grid;grid-template-columns:1fr 1fr;column-gap:24px;}
+  .bio-grade2 > .field.bio-linha{border-top:1px dashed var(--line-soft);}
+  .bio-grade2 .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 56px);justify-content:space-between;column-gap:8px;}
+  .bio-grade2 .field.bio-linha.bio-gpa label:not(:first-child){margin-left:0;}
+  .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(-n+2){border-top:0;}
+  .bio-nota{margin:-2px 0 6px;font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
+  .bio-nota.conditional.show{display:block;}
+  .bio-grupo h4 + .bio-linha{border-top:0;}
+  .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;margin:0;}
+  .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
+  .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .field.bio-linha select{padding:8px 8px;font-size:13px;}
+  .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
+  .field.bio-linha label .vr{display:block;}
+  .field.bio-linha label .flag-note{display:none;}
+  .field.bio-linha label .flag-note.show{display:block;}
 
   .combo-list{
     display:none;position:fixed;z-index:1000;
@@ -415,120 +457,79 @@
 <div class="layout">
   <!-- FORM COLUMN -->
   <div id="formCol">
-
-    <div class="card">
-      <div class="card-head"><h2>Dados do exame</h2></div>
-      <div class="card-body">
-        <div class="toggle-line" style="margin-top:0;"><input type="checkbox" id="chkMamasMasculinas"><label for="chkMamasMasculinas">Exame de mamas masculinas — troca o título do laudo automaticamente</label></div>
-        <hr class="sep">
-        <div class="field-row">
-          <div class="field"><label>Nome da paciente</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
-          <div class="field"><label>Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Indicação clínica e mamografia prévia</h2></div>
-      <div class="card-body">
-        <div class="field"><label>Relato / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de nodularidade em mama direita.&#10;Pode usar 2 ou 3 linhas."></textarea></div>
-        <hr class="sep">
-        <div class="toggle-line" style="margin-bottom:8px;"><input type="checkbox" id="chkMamografia"><label for="chkMamografia">Incluir referência a mamografia prévia</label></div>
-        <div class="field-row conditional" id="wrap_mamografiaCampos">
-          <div class="field"><label>Data da realização</label><input type="text" id="mamografiaData" placeholder="dd.mm.aaaa"></div>
-          <div class="field"><label>Categoria BI-RADS (mamografia)</label>
-            <select id="mamografiaCategoria">
-              <option value="0">Cat 0</option><option value="1" selected>Cat 1</option><option value="2">Cat 2</option>
-              <option value="3">Cat 3</option><option value="4A">Cat 4A</option><option value="4B">Cat 4B</option>
-              <option value="4C">Cat 4C</option><option value="5">Cat 5</option><option value="6">Cat 6</option>
-            </select>
-          </div>
-          <div class="field" style="flex:2 1 260px;"><label>O que foi encontrado (opcional)</label><input type="text" id="mamografiaAchado" placeholder="ex: nódulo irregular em mama esquerda"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Aspecto geral das mamas</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Mamas</label>
-            <select id="mamasAspecto"><option value="normal">Normal</option><option value="alterado">Alterado (descrever)</option></select>
-          </div>
-          <div class="field conditional show" id="wrap_ecotextura"><label>Ecotextura do parênquima</label>
-            <select id="ecotextura">
-              <option value="gordurosa">Homogênea gordurosa</option>
-              <option value="fibroglandular">Homogênea fibroglandular</option>
-              <option value="heterogenea">Heterogênea</option>
-            </select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_mamasDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="mamasDescricao" rows="2" placeholder="ex: assimetria de volume, mama direita maior que a esquerda..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Achados (mamas e axilas)</h2></div>
-      <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Sem nenhum achado adicionado, mama direita e esquerda saem com o texto normal do modelo. Cada achado gera seu parágrafo no corpo do laudo e sua linha na Impressão Diagnóstica — os de linfonodo axilar entram na seção Axilas, não na mama.</p>
-        <div id="achadosContainer"></div>
-        <button type="button" class="btn-clear" id="btnAddAchado">+ Adicionar achado</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Pele e tecido subcutâneo</h2></div>
-      <div class="card-body">
-        <div class="field-row">
-          <div class="field"><label>Aspecto</label>
-            <select id="peleAspecto"><option value="normal">De espessura usual, sem alterações</option><option value="alterado">Alterado (descrever)</option></select>
-          </div>
-        </div>
-        <div class="field conditional" id="wrap_peleDescricao">
-          <label>Descreva o achado</label>
-          <textarea id="peleDescricao" rows="2" placeholder="ex: espessamento cutâneo em quadrante..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Finalização</h2></div>
-      <div class="card-body">
-        <div class="toggle-line"><input type="checkbox" id="chkProtese"><label for="chkProtese">Prótese mamária — incluir observação padrão no fim do laudo, antes da Impressão</label></div>
-        <div class="field conditional" id="wrap_proteseAspecto">
-          <label>Aspecto da prótese</label>
-          <select id="proteseAspecto"><option value="normal">Contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro</option><option value="alterado">Alterado (descrever)</option></select>
-        </div>
-        <div class="field conditional" id="wrap_proteseDescricao">
-          <label>Descreva a alteração</label>
-          <textarea id="proteseDescricao" rows="2" placeholder="ex: coleção periprotética, dobras do invólucro, sinais de ruptura..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Impressão diagnóstica</h2></div>
-      <div class="card-body">
-        <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base nos achados. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
-        <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
-        <hr class="sep">
-        <div class="field conditional show" id="wrap_biradsCategoria"><label>Categoria BI-RADS-US® (exame atual)</label>
-          <select id="biradsCategoria">
-            <option value="0">Cat 0</option><option value="1" selected>Cat 1</option><option value="2">Cat 2</option>
-            <option value="3">Cat 3</option><option value="4A">Cat 4A</option><option value="4B">Cat 4B</option>
-            <option value="4C">Cat 4C</option><option value="5">Cat 5</option><option value="6">Cat 6</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-  </div>
+<div class="card">
+<div class="card-head"><h2>Dados do exame</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div class="toggle-line" style="margin-top:0;"><input id="chkMamasMasculinas" type="checkbox"/><label for="chkMamasMasculinas">Exame de mamas masculinas — troca o título do laudo automaticamente</label></div>
+<hr class="sep"/>
+<div><div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome da paciente</label><input id="nomePaciente" placeholder="Nome completo" type="text"/></div><div class="field bio-linha bio-texto bio-larga"><label for="dataExame">Data do exame</label><input id="dataExame" placeholder="dd/mm/aaaa" type="text"/></div></div>
+<div><div class="field bio-linha bio-texto bio-larga"><label for="medicoSolicitante">Médico solicitante</label><input autocomplete="off" id="medicoSolicitante" placeholder="Dr(a). ..." type="text"/><div class="combo-list" id="medicosComboList"></div></div></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Indicação clínica e mamografia prévia</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div class="field bio-linha bio-larga"><label for="motivoExame">Relato / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" placeholder="ex: Relato de nodularidade em mama direita.
+Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
+<hr class="sep"/>
+<div class="toggle-line" style="margin-bottom:8px;"><input id="chkMamografia" type="checkbox"/><label for="chkMamografia">Incluir referência a mamografia prévia</label></div>
+<div class="conditional" id="wrap_mamografiaCampos"><div class="field bio-linha bio-texto bio-larga"><label for="mamografiaData">Data da realização</label><input id="mamografiaData" placeholder="dd.mm.aaaa" type="text"/></div><div class="field bio-linha bio-sel"><label for="mamografiaCategoria">Categoria BI-RADS (mamografia)</label><select id="mamografiaCategoria">
+<option value="0">Cat 0</option><option selected="" value="1">Cat 1</option><option value="2">Cat 2</option>
+<option value="3">Cat 3</option><option value="4A">Cat 4A</option><option value="4B">Cat 4B</option>
+<option value="4C">Cat 4C</option><option value="5">Cat 5</option><option value="6">Cat 6</option>
+</select></div><div class="field bio-linha bio-texto bio-larga"><label for="mamografiaAchado">O que foi encontrado (opcional)</label><input id="mamografiaAchado" placeholder="ex: nódulo irregular em mama esquerda" type="text"/></div></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Aspecto geral das mamas</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-sel"><label for="mamasAspecto">Mamas</label><select id="mamasAspecto"><option value="normal">Normal</option><option value="alterado">Alterado (descrever)</option></select></div><div class="field bio-linha bio-sel bio-sel-larga conditional show" id="wrap_ecotextura"><label for="ecotextura">Ecotextura do parênquima</label><select id="ecotextura">
+<option value="gordurosa">Homogênea gordurosa</option>
+<option value="fibroglandular">Homogênea fibroglandular</option>
+<option value="heterogenea">Heterogênea</option>
+</select></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_mamasDescricao"><label for="mamasDescricao">Descreva o achado</label><textarea id="mamasDescricao" placeholder="ex: assimetria de volume, mama direita maior que a esquerda..." rows="2"></textarea></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Achados (mamas e axilas)</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<p class="bio-nota">Sem nenhum achado adicionado, mama direita e esquerda saem com o texto normal do modelo. Cada achado gera seu parágrafo no corpo do laudo e sua linha na Impressão Diagnóstica — os de linfonodo axilar entram na seção Axilas, não na mama.</p>
+<div id="achadosContainer"></div>
+<button class="btn-clear" id="btnAddAchado" type="button">+ Adicionar achado</button>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Pele e tecido subcutâneo</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div><div class="field bio-linha bio-sel bio-sel-larga"><label for="peleAspecto">Aspecto</label><select id="peleAspecto"><option value="normal">De espessura usual, sem alterações</option><option value="alterado">Alterado (descrever)</option></select></div></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_peleDescricao"><label for="peleDescricao">Descreva o achado</label><textarea id="peleDescricao" placeholder="ex: espessamento cutâneo em quadrante..." rows="2"></textarea></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Finalização</h2></div>
+<div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
+<div class="toggle-line"><input id="chkProtese" type="checkbox"/><label for="chkProtese">Prótese mamária — incluir observação padrão no fim do laudo, antes da Impressão</label></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_proteseAspecto"><label for="proteseAspecto">Aspecto da prótese</label><select id="proteseAspecto"><option value="normal">Contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro</option><option value="alterado">Alterado (descrever)</option></select></div>
+<div class="field bio-linha bio-larga conditional" id="wrap_proteseDescricao"><label for="proteseDescricao">Descreva a alteração</label><textarea id="proteseDescricao" placeholder="ex: coleção periprotética, dobras do invólucro, sinais de ruptura..." rows="2"></textarea></div>
+</div></div></div></div>
+</div>
+<div class="card">
+<div class="card-head"><h2>Impressão diagnóstica</h2></div>
+<div class="card-body">
+<p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente com base nos achados. Desmarque, ajuste ou reescreva conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
+<div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+<hr class="sep"/>
+<div class="field conditional show" id="wrap_biradsCategoria"><label>Categoria BI-RADS-US® (exame atual)</label>
+<select id="biradsCategoria">
+<option value="0">Cat 0</option><option selected="" value="1">Cat 1</option><option value="2">Cat 2</option>
+<option value="3">Cat 3</option><option value="4A">Cat 4A</option><option value="4B">Cat 4B</option>
+<option value="4C">Cat 4C</option><option value="5">Cat 5</option><option value="6">Cat 6</option>
+</select>
+</div>
+</div>
+</div>
+</div>
 
   <!-- PREVIEW COLUMN -->
   <div class="preview-wrap">
@@ -1281,21 +1282,20 @@ if(typeof criarMotorLaudo !== 'function'){
     const suf = opts.suf || '';
     const labelTam = opts.labelTam || 'Tamanho (até 3 medidas)';
     const campoTam = medidasLivres
-      ? '<div class="field"><label>'+labelTam+'</label><input type="text" id="'+idPrefix+'Tam'+suf+'" placeholder="ex: 22,2 x 23,3 x 15 mm"></div>'
-      : '<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Tam'+suf+'" placeholder="mm"></div>';
+      ? '<div class="field bio-linha bio-texto"><label for="'+idPrefix+'Tam'+suf+'">'+labelTam+'</label><input type="text" id="'+idPrefix+'Tam'+suf+'" placeholder="ex: 22,2 x 23,3 x 15 mm"></div>'
+      : '<div class="field bio-linha"><label for="'+idPrefix+'Tam'+suf+'">Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Tam'+suf+'" placeholder=""><span class="bio-un">mm</span></div>';
     const wrapId = 'wrap_'+idPrefix+'_horario'+suf;
     const wrapDist = 'wrap_'+idPrefix+'_dist'+suf;
     // A linha da hora aparece em "horário", "na borda areolar" e "retroareolar"; a distância só em "horário".
-    return '<div class="field-row">'
-        +'<div class="field"><label>'+(opts.labelLocal || 'Localização')+'</label><select id="'+idPrefix+'Local'+suf+'" class="local-toggle" data-wrap="'+wrapDist+'" data-wrap-hora="'+wrapId+'">'
+    return ''
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+idPrefix+'Local'+suf+'">'+(opts.labelLocal || 'Localização')+'</label><select id="'+idPrefix+'Local'+suf+'" class="local-toggle" data-wrap="'+wrapDist+'" data-wrap-hora="'+wrapId+'">'
           + LOCAL_OPCOES.map(([val,label])=>'<option value="'+val+'">'+label+'</option>').join('')
         +'</select></div>'
+      +'<div class="conditional show" id="'+wrapId+'">'
+        +'<div class="field bio-linha"><label for="'+idPrefix+'Hora'+suf+'">'+labelHora+'</label><input type="text" id="'+idPrefix+'Hora'+suf+'" placeholder=""><span class="bio-un">h</span></div>'
+        +'<div class="field bio-linha conditional show" id="'+wrapDist+'"><label for="'+idPrefix+'Dist'+suf+'">Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Dist'+suf+'" placeholder=""><span class="bio-un">cm</span></div>'
       +'</div>'
-      +'<div class="field-row conditional show" id="'+wrapId+'">'
-        +'<div class="field"><label>'+labelHora+'</label><input type="text" id="'+idPrefix+'Hora'+suf+'" placeholder="ex: 2"></div>'
-        +'<div class="field conditional show" id="'+wrapDist+'"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+idPrefix+'Dist'+suf+'" placeholder="cm"></div>'
-      +'</div>'
-      +'<div class="field-row">'+campoTam+'</div>';
+      +campoTam;
   }
 
   // Liga o seletor de localização: só o modo "horário" mostra hora + distância.
@@ -1359,10 +1359,10 @@ if(typeof criarMotorLaudo !== 'function'){
     let html = '';
     html += '<div class="subgroup" id="wrap_'+p+'">';
     html += '<p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Achado <span class="achado-index"></span></p>';
-    html += '<div class="field-row">'
-      +'<div class="field"><label>Mama</label><select id="'+p+'Lado"><option value="direita">Direita</option><option value="esquerda">Esquerda</option></select></div>'
-      +'<div class="field"><label>Tipo de achado</label><select id="'+p+'Tipo">'+achadoTipoOptions()+'</select></div>'
-      +'</div>';
+    html += ''
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+p+'Lado">Mama</label><select id="'+p+'Lado"><option value="direita">Direita</option><option value="esquerda">Esquerda</option></select></div>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+p+'Tipo">Tipo de achado</label><select id="'+p+'Tipo">'+achadoTipoOptions()+'</select></div>'
+      +'';
 
     // Cisto simples: quantos cistos forem (um card por cisto, como os nódulos de
     // mioma do transvaginal). Um ou dois saem numa frase só; de três em diante,
@@ -1374,10 +1374,8 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // Vários cistos dispersos
     html += '<div class="conditional" id="wrap_'+p+'_cistosVarios">'
-      +'<div class="field-row field-row-compact">'
-        +'<div class="field"><label>Tamanho mínimo</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CistosVariosTamMin" placeholder="mm"></div>'
-        +'<div class="field"><label>Tamanho máximo</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CistosVariosTamMax" placeholder="mm"></div>'
-      +'</div>'
+        +'<div class="field bio-linha"><label for="'+p+'CistosVariosTamMin">Tamanho mínimo</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CistosVariosTamMin" placeholder=""><span class="bio-un">mm</span></div>'
+        +'<div class="field bio-linha"><label for="'+p+'CistosVariosTamMax">Tamanho máximo</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'CistosVariosTamMax" placeholder=""><span class="bio-un">mm</span></div>'
       + campoHoraDistTam(p+'CistosVarios','Maior cisto — hora', true, true, {labelLocal:'Localização do maior cisto'})
     +'</div>';
 
@@ -1395,37 +1393,27 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // Linfonodo axilar atípico
     html += '<div class="conditional" id="wrap_'+p+'_linfonodoAxilar">'
-      +'<div class="field-row field-row-compact">'
-        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'LnaxTam" placeholder="ex: 22,2 x 23,3 x 15 mm"><span class="vr">VR do maior diâmetro até 20,0 mm</span></div>'
-        +'<div class="field"><label>Forma</label><select id="'+p+'LnaxForma"><option value="oval">Oval</option><option value="arredondada">Arredondada</option><option value="irregular">Irregular</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Espessamento cortical</label><select id="'+p+'LnaxEspessamento"><option value="focal">Focal</option><option value="uniforme">Uniforme</option></select></div>'
-        +'<div class="field"><label>Margens</label><select id="'+p+'LnaxMargens"><option value="circunscritas">Circunscritas</option><option value="não circunscritas">Não circunscritas</option></select></div>'
-        +'<div class="field"><label>Hilo</label><select id="'+p+'LnaxHilo"><option value="central">Central</option><option value="deslocado">Deslocado</option></select></div>'
-      +'</div>'
+        +'<div class="field bio-linha bio-texto"><label for="'+p+'LnaxTam">Tamanho (até 3 medidas)</label><input type="text" id="'+p+'LnaxTam" placeholder="ex: 22,2 x 23,3 x 15 mm"><span class="vr">VR do maior diâmetro até 20,0 mm</span></div>'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+p+'LnaxForma">Forma</label><select id="'+p+'LnaxForma"><option value="oval">Oval</option><option value="arredondada">Arredondada</option><option value="irregular">Irregular</option></select></div>'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+p+'LnaxEspessamento">Espessamento cortical</label><select id="'+p+'LnaxEspessamento"><option value="focal">Focal</option><option value="uniforme">Uniforme</option></select></div>'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+p+'LnaxMargens">Margens</label><select id="'+p+'LnaxMargens"><option value="circunscritas">Circunscritas</option><option value="não circunscritas">Não circunscritas</option></select></div>'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+p+'LnaxHilo">Hilo</label><select id="'+p+'LnaxHilo"><option value="central">Central</option><option value="deslocado">Deslocado</option></select></div>'
     +'</div>';
 
     // Linfonodo intramamário
     html += '<div class="conditional" id="wrap_'+p+'_linfonodoIntramamario">'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Hora</label><input type="text" id="'+p+'LnimHora" placeholder="ex: 10"></div>'
-        +'<div class="field"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'LnimDist" placeholder="cm"></div>'
-      +'</div>'
-      +'<div class="field-row field-row-compact">'
-        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+p+'LnimTam1" placeholder="ex: 22,2 x 23,3 x 15 mm"></div>'
+        +'<div class="field bio-linha bio-texto"><label for="'+p+'LnimHora">Hora</label><input type="text" id="'+p+'LnimHora" placeholder="ex: 10"></div>'
+        +'<div class="field bio-linha"><label for="'+p+'LnimDist">Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'LnimDist" placeholder=""><span class="bio-un">cm</span></div>'
+        +'<div class="field bio-linha bio-texto"><label for="'+p+'LnimTam1">Tamanho (até 3 medidas)</label><input type="text" id="'+p+'LnimTam1" placeholder="ex: 22,2 x 23,3 x 15 mm"></div>'
         // Antigo "eixo 2": escondido, só para rascunho antigo voltar com a 2ª medida.
         +'<input type="hidden" id="'+p+'LnimTam2">'
-      +'</div>'
     +'</div>';
 
     // Seroma
     html += '<div class="conditional" id="wrap_'+p+'_seroma">'
-      +'<div class="field"><label>Localização (com a preposição — ex: nos quadrantes inferiores)</label><input type="text" id="'+p+'SeromaLocal" placeholder="ex: nos quadrantes inferiores"></div>'
-      +'<div class="field-row field-row-compact">'
-        +'<div class="field"><label>Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'SeromaTam" placeholder="cm"></div>'
-        +'<div class="field"><label>Volume</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'SeromaVol" placeholder="ml"></div>'
-      +'</div>'
+      +'<div class="field bio-linha bio-texto bio-larga"><label for="'+p+'SeromaLocal">Localização (com a preposição — ex: nos quadrantes inferiores)</label><input type="text" id="'+p+'SeromaLocal" placeholder="ex: nos quadrantes inferiores"></div>'
+        +'<div class="field bio-linha"><label for="'+p+'SeromaTam">Tamanho</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'SeromaTam" placeholder=""><span class="bio-un">cm</span></div>'
+        +'<div class="field bio-linha"><label for="'+p+'SeromaVol">Volume</label><input type="text" inputmode="decimal" data-decimals="1" id="'+p+'SeromaVol" placeholder=""><span class="bio-un">ml</span></div>'
     +'</div>';
 
     // Abscesso: localização (horário/retroareolar), tamanho em até 3 medidas e
@@ -1454,16 +1442,14 @@ if(typeof criarMotorLaudo !== 'function'){
     // "horário"; septações e tamanho ficam sempre.
     return '<div class="cisto-item" data-cuid="'+cuid+'">'
       +'<p style="font-size:12px;color:var(--rose-dark);font-weight:600;margin:6px 0 6px;">Cisto <span class="cisto-index"></span></p>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Localização</label><select id="'+pref+'Local" class="local-toggle" data-wrap="'+wDist+'" data-wrap-hora="'+wHora+'">'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+pref+'Local">Localização</label><select id="'+pref+'Local" class="local-toggle" data-wrap="'+wDist+'" data-wrap-hora="'+wHora+'">'
           + LOCAL_OPCOES.map(([val,label])=>'<option value="'+val+'">'+label+'</option>').join('')
         +'</select></div>'
-      +'</div>'
-      +'<div class="cisto-linha">'
-        +'<div class="field"><label>Septações internas</label><select id="'+pref+'Sept"><option value="nao">Não</option><option value="sim">Sim</option></select></div>'
-        +'<div class="field conditional show" id="'+wHora+'"><label>Hora</label><input type="text" id="'+pref+'Hora" placeholder="ex: 2"></div>'
-        +'<div class="field conditional show" id="'+wDist+'"><label>Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+pref+'Dist" placeholder="cm"></div>'
-        +'<div class="field"><label>Tamanho (até 3 medidas)</label><input type="text" id="'+pref+'Tam" placeholder="ex: 22,2 x 23,3 x 15 mm"></div>'
+      +'<div class="cisto-linha-q">'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+pref+'Sept">Septações internas</label><select id="'+pref+'Sept"><option value="nao">Não</option><option value="sim">Sim</option></select></div>'
+        +'<div class="field bio-linha conditional show" id="'+wHora+'"><label for="'+pref+'Hora">Hora</label><input type="text" id="'+pref+'Hora" placeholder=""><span class="bio-un">h</span></div>'
+        +'<div class="field bio-linha conditional show" id="'+wDist+'"><label for="'+pref+'Dist">Distância da borda areolar</label><input type="text" inputmode="decimal" data-decimals="1" id="'+pref+'Dist" placeholder=""><span class="bio-un">cm</span></div>'
+        +'<div class="field bio-linha bio-texto"><label for="'+pref+'Tam">Tamanho (até 3 medidas)</label><input type="text" id="'+pref+'Tam" placeholder="ex: 22,2 x 23,3 x 15 mm"></div>'
       +'</div>'
       +'<button type="button" class="cisto-remove">Remover cisto</button>'
     +'</div>';
@@ -1514,27 +1500,21 @@ if(typeof criarMotorLaudo !== 'function'){
     const pref = 'achado'+uid+'NodS'+nuid;
     return '<div class="nod-card" data-nuid="'+nuid+'">'
       +'<p style="font-size:12px;color:var(--rose-dark);font-weight:600;margin:6px 0 6px;">Nódulo <span class="nod-index"></span></p>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Forma</label><select id="'+pref+'Forma"><option value="oval">Oval</option><option value="irregular">Irregular</option></select></div>'
-        +'<div class="field"><label>Orientação</label><select id="'+pref+'Orientacao"><option value="paralela à pele">Paralela à pele</option><option value="não paralela à pele">Não paralela à pele</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Margens</label><select id="'+pref+'Margens">'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+pref+'Forma">Forma</label><select id="'+pref+'Forma"><option value="oval">Oval</option><option value="irregular">Irregular</option></select></div>'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+pref+'Orientacao">Orientação</label><select id="'+pref+'Orientacao"><option value="paralela à pele">Paralela à pele</option><option value="não paralela à pele">Não paralela à pele</option></select></div>'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+pref+'Margens">Margens</label><select id="'+pref+'Margens">'
           +'<option value="circunscritas">Circunscritas</option>'
           +'<option value="não circunscritas (indistintas)">Não circunscritas — indistintas</option>'
           +'<option value="não circunscritas (anguladas)">Não circunscritas — anguladas</option>'
           +'<option value="não circunscritas (espiculadas)">Não circunscritas — espiculadas</option>'
           +'<option value="não circunscritas (microlobuladas)">Não circunscritas — microlobuladas</option>'
         +'</select></div>'
-        +'<div class="field"><label>Ecogenicidade</label><select id="'+pref+'Ecogenicidade"><option value="hipoecóica">Hipoecóica</option><option value="isoecóica">Isoecóica</option><option value="ecogênica">Ecogênica</option></select></div>'
-      +'</div>'
-      +'<div class="field-row">'
-        +'<div class="field"><label>Fenômeno acústico posterior</label><select id="'+pref+'Fenomeno">'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+pref+'Ecogenicidade">Ecogenicidade</label><select id="'+pref+'Ecogenicidade"><option value="hipoecóica">Hipoecóica</option><option value="isoecóica">Isoecóica</option><option value="ecogênica">Ecogênica</option></select></div>'
+        +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="'+pref+'Fenomeno">Fenômeno acústico posterior</label><select id="'+pref+'Fenomeno">'
           +'<option value="com reforço acústico posterior">Reforço acústico</option>'
           +'<option value="com sombra acústica posterior">Sombra acústica</option>'
           +'<option value="sem condicionar fenômenos acústicos posteriores" selected>Sem condicionar fenômenos acústicos</option>'
         +'</select></div>'
-      +'</div>'
       + campoHoraDistTam(pref,'Hora', true, true)
       +'<button type="button" class="nod-remove">Remover nódulo</button>'
     +'</div>';
