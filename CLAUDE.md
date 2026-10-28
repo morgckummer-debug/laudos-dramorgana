@@ -1753,3 +1753,7 @@ Pedido da médica: no `rastreamento-ovulacao.html` o quadro "Aspecto" (select, n
 ## Pélvico infantil: Endométrio dentro do Útero (2026-10-28)
 
 Pedido da médica, como já feito no perineal. O card "Endométrio" do `pelvico-infantil.html` deixou de existir: o quadro (espessura máxima, aspecto) é um terceiro `.bio-col` do card Útero, e a descrição do achado e o checkbox "Cavidade uterina virtual" vêm logo depois de "Textura e contornos". Ids, laudo e rascunho iguais aos da `main` (Chromium: `#paper` idêntico preenchendo útero e endométrio; lista de ids igual).
+
+## Perineal: Alterações adicionais em quadro ao lado do Endométrio (2026-10-28)
+
+Pedido da médica. No card Útero do `perineal.html`, as "Alterações adicionais" (adenomiose, istmocele, pólipo endocervical, pólipo endometrial) saíram do fim do card e viraram o quarto quadro do `.bio-grupos`, depois do Endométrio (na linha de baixo, ao lado dele, quando a largura permite; em tela estreita empilha). "Textura miometrial" e os miomas continuam abaixo. Ids, laudo e rascunho iguais aos da `main` (Chromium: `#paper` idêntico com os quatro achados marcados; lista de ids igual).

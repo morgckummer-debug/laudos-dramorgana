@@ -821,6 +821,39 @@
               <div class="field bio-linha bio-sel"><label for="endometrioPadrao">Padrão</label><select id="endometrioPadrao"><option value="trilaminar">Trilaminar</option><option value="secretor">Secretor</option><option value="laminar">Laminar</option></select></div>
             </div>
           </div>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Alterações adicionais</h4>
+            <div class="toggle-line"><input type="checkbox" id="chkAdenomiose"><label for="chkAdenomiose">Adenomiose (pode coexistir com mioma)</label></div>
+            <div class="field-row conditional" id="wrap_adenomioseSimetria">
+              <div class="field"><label>Paredes miometriais</label>
+                <select id="adenomioseSimetria"><option value="simetricas">Simétricas</option><option value="assimetricas">Assimétricas</option></select>
+              </div>
+            </div>
+
+            <div class="toggle-line"><input type="checkbox" id="chkIstmocele"><label for="chkIstmocele">Istmocele (em topografia de cesárea)</label></div>
+            <div class="field-row conditional" id="wrap_istmoceleCampos">
+              <div class="field"><label>Medida da istmocele (mm)</label><input type="text" id="istmoceleMedida" placeholder="ex: 9 x 5 x 8"></div>
+              <div class="field"><label>Espessura do miométrio adjacente — EMA</label><input type="text" inputmode="decimal" data-decimals="1" id="istmoceleAnterior" placeholder="mm"></div>
+              <div class="field"><label>Espessura do miométrio residual — EMR</label><input type="text" inputmode="decimal" data-decimals="1" id="istmoceleResidual" placeholder="mm"></div>
+            </div>
+
+            <div class="toggle-line"><input type="checkbox" id="chkPolipoEndocervical"><label for="chkPolipoEndocervical">Pólipo endocervical</label></div>
+            <div class="field-row conditional" id="wrap_polipoEndocervicalCampos">
+              <div class="field"><label>Medida (mm)</label><input type="text" id="polipoEndocervicalMedida" placeholder="ex: 15 x 12,2"></div>
+            </div>
+
+            <div class="toggle-line"><input type="checkbox" id="chkPolipoEndometrial"><label for="chkPolipoEndometrial">Pólipo endometrial</label></div>
+            <div class="field-row conditional" id="wrap_polipoEndometrialCampos">
+              <div class="field"><label>Localização</label>
+                <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
+              </div>
+              <div class="field"><label>Pedículo no folheto</label>
+                <select id="polipoPediculo"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select>
+              </div>
+              <div class="field"><label>Medida (mm)</label><input type="text" id="polipoMedida" placeholder="ex: 15 x 12,2"></div>
+            </div>
+            </div>
+          </div>
         </div>
 
         <div class="field-row">
@@ -841,38 +874,6 @@
             <label>Observações adicionais (opcional)</label>
             <textarea id="miometrioDescricao" rows="2" placeholder="qualquer detalhe extra sobre os nódulos, ou demais nódulos além dos listados acima..."></textarea>
           </div>
-        </div>
-
-        <hr class="sep">
-        <p style="font-size:12.5px;color:var(--rose-dark);font-weight:600;margin:0 0 8px;">Alterações adicionais</p>
-        <div class="toggle-line"><input type="checkbox" id="chkAdenomiose"><label for="chkAdenomiose">Adenomiose (pode coexistir com mioma)</label></div>
-        <div class="field-row conditional" id="wrap_adenomioseSimetria">
-          <div class="field"><label>Paredes miometriais</label>
-            <select id="adenomioseSimetria"><option value="simetricas">Simétricas</option><option value="assimetricas">Assimétricas</option></select>
-          </div>
-        </div>
-
-        <div class="toggle-line"><input type="checkbox" id="chkIstmocele"><label for="chkIstmocele">Istmocele (em topografia de cesárea)</label></div>
-        <div class="field-row conditional" id="wrap_istmoceleCampos">
-          <div class="field"><label>Medida da istmocele (mm)</label><input type="text" id="istmoceleMedida" placeholder="ex: 9 x 5 x 8"></div>
-          <div class="field"><label>Espessura do miométrio adjacente — EMA</label><input type="text" inputmode="decimal" data-decimals="1" id="istmoceleAnterior" placeholder="mm"></div>
-          <div class="field"><label>Espessura do miométrio residual — EMR</label><input type="text" inputmode="decimal" data-decimals="1" id="istmoceleResidual" placeholder="mm"></div>
-        </div>
-
-        <div class="toggle-line"><input type="checkbox" id="chkPolipoEndocervical"><label for="chkPolipoEndocervical">Pólipo endocervical</label></div>
-        <div class="field-row conditional" id="wrap_polipoEndocervicalCampos">
-          <div class="field"><label>Medida (mm)</label><input type="text" id="polipoEndocervicalMedida" placeholder="ex: 15 x 12,2"></div>
-        </div>
-
-        <div class="toggle-line"><input type="checkbox" id="chkPolipoEndometrial"><label for="chkPolipoEndometrial">Pólipo endometrial</label></div>
-        <div class="field-row conditional" id="wrap_polipoEndometrialCampos">
-          <div class="field"><label>Localização</label>
-            <select id="polipoLocalizacao"><option value="corporal">Corporal</option><option value="fúndica">Fúndica</option></select>
-          </div>
-          <div class="field"><label>Pedículo no folheto</label>
-            <select id="polipoPediculo"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select>
-          </div>
-          <div class="field"><label>Medida (mm)</label><input type="text" id="polipoMedida" placeholder="ex: 15 x 12,2"></div>
         </div>
       </div>
     </div>
