@@ -1797,3 +1797,7 @@ Pedido da médica. No card "Doppler" do `obstetrico.html`, as duas caixas (`chkD
 ## Cervical: Doppler dentro de cada linfonodo (2026-10-28)
 
 Pedido da médica: no `cervical-doppler.html` o Doppler é característica de cada linfonodo, não um card à parte. Cada quadro de linfonodo tem o select `linfo{uid}Doppler` ("Normal (vasos partindo do hilo)" / "Caótica"), e a frase do linfonodo termina com "com vascularização normal ao Doppler, com vasos partindo do hilo" ou "com vascularização caótica ao Doppler". Caótica torna o linfonodo suspeito (entra em `impLinfonodoSuspeito`) e tira "Estudo Doppler dentro da normalidade" da conclusão. O card "Estudo Doppler" (`vascularizacaoAspecto`/`vascularizacaoDescricao`) e o bloco "ESTUDO DOPPLER:" do laudo saíram. Rascunho antigo volta com Doppler normal em cada linfonodo.
+
+## Nome, CPF e data do exame na mesma linha; pélvico infantil sem CPF (2026-10-29)
+
+Pedido da médica. Nos laudos que têm CPF (`transvaginal`, `reserva-ovariana`, `rastreamento-ovulacao`, `monitorizacao-folicular-fiv`, `obstetrico`, `obstetrico-1trimestre` e os dois morfológicos), `cpfPaciente` saiu de `.bio-grade2` e entrou em `.bio-nome-data.com-cpf`, entre o nome e a data (grade `1fr 150px 150px`; abaixo de 560px o nome ocupa a linha de cima e CPF e data dividem a de baixo). Ids iguais. `perineal` e `obstetrico-tn-doppler-colo` não têm campo de CPF e continuam com nome e data. No `pelvico-infantil.html` o campo de CPF foi retirado (não ia para o laudo nem para o Supabase; saiu também o listener da máscara).

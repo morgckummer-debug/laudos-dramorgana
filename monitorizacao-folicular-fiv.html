@@ -380,6 +380,8 @@
   .bio-grupo h4 + .bio-nome-data > .field.bio-linha{border-top:0;}
   .bio-grade2 > .field:only-child{grid-column:1/-1;}
   @media (max-width:360px){ .bio-nome-data{grid-template-columns:1fr;} }
+  .bio-nome-data.com-cpf{grid-template-columns:1fr 150px 150px;}
+  @media (max-width:560px){ .bio-nome-data.com-cpf{grid-template-columns:1fr 1fr;} .bio-nome-data.com-cpf > .bio-larga{grid-column:1 / -1;} }
 </style>
 <script src="tema.js"></script>
 </head>
@@ -584,12 +586,12 @@
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
         <div class="bio-grupo bio-paciente"><h4>Paciente e exame</h4>
-          <div class="bio-nome-data">
+          <div class="bio-nome-data com-cpf">
             <div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome</label><input type="text" id="nomePaciente" placeholder="Nome completo"></div>
+            <div class="field bio-linha bio-texto"><label for="cpfPaciente">CPF</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
             <div class="field bio-linha bio-data"><label for="dataExame">Data do exame</label><input type="text" id="dataExame" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
           </div>
           <div class="bio-grade2">
-            <div class="field bio-linha bio-texto"><label for="cpfPaciente">CPF</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
             <div class="field bio-linha bio-texto"><label for="medicoSolicitante">Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
             <div class="field bio-linha bio-gpa"><label for="gpaG">G</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"><label for="gpaP">P</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"><label for="gpaA">A</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
             <div class="field bio-linha bio-data"><label for="dum">DUM</label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>

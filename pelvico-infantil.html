@@ -458,7 +458,6 @@
             <div class="field bio-linha bio-data"><label for="dataExame">Data do exame</label><input type="text" id="dataExame" placeholder="dd/mm/aaaa"></div>
           </div>
           <div class="bio-grade2">
-            <div class="field bio-linha bio-texto"><label for="cpfPaciente">CPF</label><input type="text" id="cpfPaciente" placeholder="000.000.000-00" inputmode="numeric" maxlength="14"></div>
             <div class="field bio-linha bio-texto"><label for="medicoSolicitante">Médico solicitante</label><input type="text" id="medicoSolicitante" placeholder="Dr(a). ..." autocomplete="off"><div class="combo-list" id="medicosComboList"></div></div>
             <div class="field bio-linha"><label for="idadeAnos">Idade</label><input type="text" inputmode="numeric" id="idadeAnos" placeholder=""><span class="bio-un">anos</span></div>
           </div>
@@ -1918,7 +1917,6 @@ if(typeof criarMotorLaudo !== 'function'){
 
   loadVR().then(()=> loadExecutanteSelecionado().then(()=> draftInit()));
 
-  if($('cpfPaciente')) $('cpfPaciente').addEventListener('input', aplicarMascaraCPF);
 })();
 </script>
 </body>
