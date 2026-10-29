@@ -1801,3 +1801,7 @@ Pedido da médica: no `cervical-doppler.html` o Doppler é característica de ca
 ## Nome, CPF e data do exame na mesma linha; pélvico infantil sem CPF (2026-10-29)
 
 Pedido da médica. Nos laudos que têm CPF (`transvaginal`, `reserva-ovariana`, `rastreamento-ovulacao`, `monitorizacao-folicular-fiv`, `obstetrico`, `obstetrico-1trimestre` e os dois morfológicos), `cpfPaciente` saiu de `.bio-grade2` e entrou em `.bio-nome-data.com-cpf`, entre o nome e a data (grade `1fr 150px 150px`; abaixo de 560px o nome ocupa a linha de cima e CPF e data dividem a de baixo). Ids iguais. `perineal` e `obstetrico-tn-doppler-colo` não têm campo de CPF e continuam com nome e data. No `pelvico-infantil.html` o campo de CPF foi retirado (não ia para o laudo nem para o Supabase; saiu também o listener da máscara).
+
+## Abdome: bexiga, grandes vasos e baço lado a lado (2026-10-29)
+
+Pedido da médica. Os três cards (`cardBexiga`, `cardVasos`, `cardBaco`) ficam numa linha, dentro de `div.cards-tres` (flex, cada card com base de 200px, CSS compacto só ali; uma coluna abaixo de 720px). Continuam três cards separados, de propósito: `setCardVisible()` esconde bexiga e vasos fora do abdome total e o baço no modo `hd`, e com um card só visível ele ocupa a linha inteira. Os selects ficam com o rótulo em cima e a opção longa aparece cortada quando fechada (inteira ao abrir). Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários).

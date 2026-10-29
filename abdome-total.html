@@ -192,6 +192,18 @@
   .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
   .field.bio-linha select{padding:8px 8px;font-size:13px;}
   .bio-un{font-size:12.5px;color:var(--ink-soft);}
+  /* Bexiga, grandes vasos e baço lado a lado (cards separados: a visibilidade de cada um depende do modo do exame). */
+  .cards-tres{display:flex;flex-wrap:wrap;gap:0 12px;align-items:flex-start;}
+  .cards-tres>.card{flex:1 1 200px;min-width:0;}
+  .cards-tres .card-body{padding:12px 12px 14px;}
+  .cards-tres .bio-grupos{margin-bottom:0;}
+  .cards-tres .bio-grupo{padding:10px 10px 4px;}
+  .cards-tres .field.bio-linha{grid-template-columns:minmax(0,1fr) 62px 26px;gap:6px;}
+  .cards-tres .field.bio-linha.bio-sel, .cards-tres .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
+  .cards-tres .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;padding:8px 10px;}
+  .cards-tres .field.bio-linha label{font-size:12.5px;}
+  .cards-tres .field.bio-linha input[type=text]{font-size:14px;padding:7px 4px;}
+  @media (max-width:720px){ .cards-tres>.card{flex-basis:100%;} }
   @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
   .field.bio-linha label .vr{display:block;}
   .field.bio-linha label .flag-note{display:none;}
@@ -697,6 +709,7 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 <div class="field bio-linha bio-larga conditional" id="wrap_rinsEDescricao"><label for="rinsEDescricao">Descreva o achado</label><textarea id="rinsEDescricao" placeholder="ex: cálculo no rim esquerdo medindo...; dilatação pielocalicinal..." rows="2"></textarea></div>
 </div></div></div></div>
 </div>
+<div class="cards-tres">
 <div class="card" id="cardBexiga">
 <div class="card-head"><h2>Bexiga</h2></div>
 <div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
@@ -745,6 +758,7 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 <hr class="sep"/>
 <div class="conditional show" id="wrap_bacoDiametro"><div class="field bio-linha"><label for="bacoDiametro">Diâmetro bipolar<span class="vr" id="vrBacoTexto">VR até 12,0 cm</span><span class="flag-note" id="flag_bacoDiametro">Acima do valor de referência</span></label><input data-decimals="1" data-maxint="2" id="bacoDiametro" inputmode="decimal" type="text"/><span class="bio-un">cm</span></div></div>
 </div></div></div></div>
+</div>
 </div>
 <div class="card" id="cardAchadosAdicionais">
 <div class="card-head"><h2>Achados adicionais (avaliação direcionada)</h2></div>
