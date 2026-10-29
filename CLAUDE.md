@@ -1805,3 +1805,7 @@ Pedido da médica. Nos laudos que têm CPF (`transvaginal`, `reserva-ovariana`, 
 ## Abdome: bexiga, grandes vasos e baço lado a lado (2026-10-29)
 
 Pedido da médica. Os três cards (`cardBexiga`, `cardVasos`, `cardBaco`) ficam numa linha, dentro de `div.cards-tres` (flex, cada card com base de 200px, CSS compacto só ali; uma coluna abaixo de 720px). Continuam três cards separados, de propósito: `setCardVisible()` esconde bexiga e vasos fora do abdome total e o baço no modo `hd`, e com um card só visível ele ocupa a linha inteira. Os selects ficam com o rótulo em cima e a opção longa aparece cortada quando fechada (inteira ao abrir). Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários).
+
+## Istmocele: referência "VR > 50%" (2026-10-29)
+
+A frase da istmocele dizia "(VR < 50%)", ao contrário: a razão EMR ÷ EMA × 100 (arredondada) é normal acima de 50% e indica afilamento importante quando fica em 50% ou menos. Hoje sai "(VR > 50%)", e o percentual ≤ 50% vai em itálico no próprio `render()`. `italicizarAcimaVR()` ignora VR de limite inferior, e antes punha em itálico justamente o caso normal. A chave da frase mudou de `istmocele` para `istmoceleRelacao` (`ph_istmoceleRelacao`), porque o "Salvar frases" guarda a antiga no navegador e esconderia o conserto. Mudou em `transvaginal`, `reserva-ovariana`, `rastreamento-ovulacao` e `perineal`. A conclusão (`impIstmocele`, frase fixa) não mudou e não olha o percentual.

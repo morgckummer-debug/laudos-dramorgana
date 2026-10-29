@@ -553,7 +553,7 @@
 
   <hr class="sep">
   <h3>Istmocele / colo / DIU</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Istmocele — use {MEDIDA} e {PCT}</label><textarea id="ph_istmocele" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Istmocele — use {MEDIDA} e {PCT}</label><textarea id="ph_istmoceleRelacao" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical — use {MEDIDA}</label><textarea id="ph_polipoEndocervical" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endometrial — use {LOCAL}, {PEDICULO} e {MEDIDA}</label><textarea id="ph_polipoEndometrial" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DIU normoposicionado — use {MEDIDA}</label><textarea id="ph_diuNormo" rows="2"></textarea></div>
@@ -1620,7 +1620,9 @@ if(typeof criarMotorLaudo !== 'function'){
     figoF8: 'região cervical{DETALHE} (FIGO 8), medindo {MEDIDA} mm',
     adenomiose: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque", sem identificação de nódulos sólidos.',
     adenomioseComMioma: 'Miométrio com paredes {SIMETRIA}, difusamente heterogêneo, entremeado por diminutas áreas anecoicas de permeio e em região justaendometrial, condicionando sombra acústica posterior em "leque".',
-    istmocele: 'Presença de istmocele, medindo {MEDIDA} mm. Relação entre o miométrio residual e o adjacente: {PCT}% (VR < 50%).',
+    // Chave nova (era `istmocele`, com "VR < 50%", invertido; o normal é > 50%): o "Salvar frases" guarda a antiga no
+    // navegador e esconderia o conserto. A razão EMR/EMA ≤ 50% sai em itálico (alterada).
+    istmoceleRelacao: 'Presença de istmocele, medindo {MEDIDA} mm. Relação entre o miométrio residual e o adjacente: {PCT}% (VR > 50%).',
     polipoEndometrial: 'No interior da cavidade uterina, em região {LOCAL}, observa-se imagem elipsoide sólida, ecogênica e heterogênea, de limites pouco precisos, sem sombra acústica posterior, com pedículo vascular identificado ao mapeamento colorido no folheto endometrial {PEDICULO}, medindo {MEDIDA} mm.',
     polipoEndocervical: 'Em canal endocervical, nota-se imagem elipsoide sólida, ecogênica, com pedículo vascular identificado ao mapeamento colorido, medindo {MEDIDA} mm.',
     diuNormo: 'Presença de imagem linear ecogênica que condiciona sombra acústica posterior, compatível com DIU, localizada acima do orifício interno do colo uterino, cuja haste se encontra no fundo da cavidade endometrial e dista {MEDIDA} mm do fundo da serosa uterina.',
@@ -2601,7 +2603,7 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'uteroDimensoes', html:'<p class="linha">Dimensões: '+span(uteroL)+' x '+span(uteroAP)+' x '+span(uteroT)+' cm, com volume de '+span(uteroVolume)+' cm³ (VR '+escapeHtml(vrUteroTexto)+').</p>'});
     if(chkIstmocele){
       const pctObj = istmocelePct!==null ? {text: String(istmocelePct), filled:true} : {text:'____', filled:false};
-      blocks.push({id:'istmocele', html:'<p class="linha">'+phraseRaw('istmocele', {MEDIDA: span(istmoceleMedida), PCT: span(pctObj)})+'</p>'});
+      blocks.push({id:'istmocele', html:'<p class="linha">'+phraseRaw('istmoceleRelacao', {MEDIDA: span(istmoceleMedida), PCT: (istmocelePct!==null && istmocelePct<=50) ? '<i>'+span(pctObj)+'</i>' : span(pctObj)}).replace('</i>%', '%</i>')+'</p>'});
     }
     if(chkPolipoEndometrial){
       blocks.push({id:'polipoEndometrial', html:'<p class="linha">'+phraseRaw('polipoEndometrial', {LOCAL: polipoLocalizacao, PEDICULO: polipoPediculo, MEDIDA: span(polipoMedida)})+'</p>'});

@@ -638,7 +638,7 @@
 
   <hr class="sep">
   <h3>Istmocele / pólipos / hidrossalpinge / endometriose (nódulo)</h3>
-  <div class="field" style="margin-bottom:8px;"><label>Istmocele — use {MEDIDA} e {PCT}</label><textarea id="ph_istmocele" rows="3"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Istmocele — use {MEDIDA} e {PCT}</label><textarea id="ph_istmoceleRelacao" rows="3"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Istmocele — impressão (frase fixa, exibida sempre que a istmocele estiver marcada)</label><textarea id="ph_impIstmocele" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical — use {MEDIDA}</label><textarea id="ph_polipoEndocervical" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Pólipo endocervical — impressão</label><textarea id="ph_impPolipoEndocervical" rows="2"></textarea></div>
@@ -1971,7 +1971,9 @@ if(typeof criarMotorLaudo !== 'function'){
     esfExtDefeito: 'Observa-se defeito do esfíncter anal externo localizado às {HORAS} horas, comprometendo aproximadamente {PCT}% da circunferência, medindo {MEDIDA} mm.',
     slingBem: 'Sling bem posicionado.',
 
-    istmocele: 'Presença de istmocele, medindo {MEDIDA} mm. Relação entre o miométrio residual e o adjacente: {PCT}% (VR < 50%).',
+    // Chave nova (era `istmocele`, com "VR < 50%", invertido; o normal é > 50%): o "Salvar frases" guarda a antiga no
+    // navegador e esconderia o conserto. A razão EMR/EMA ≤ 50% sai em itálico (alterada).
+    istmoceleRelacao: 'Presença de istmocele, medindo {MEDIDA} mm. Relação entre o miométrio residual e o adjacente: {PCT}% (VR > 50%).',
     polipoEndocervical: 'Em canal endocervical, nota-se imagem elipsoide sólida, ecogênica, com pedículo vascular identificado ao mapeamento colorido, medindo {MEDIDA} mm.',
     polipoEndometrial: 'No interior da cavidade uterina, em região {LOCAL}, observa-se imagem elipsoide sólida, ecogênica e heterogênea, de limites pouco precisos, sem sombra acústica posterior, com pedículo vascular identificado ao mapeamento colorido no folheto endometrial {PEDICULO}, medindo {MEDIDA} mm.',
     hidrossalpingeLi: 'Nota-se imagem tubular anecoica, sem captação de fluxo ao Doppler, localizada em região anexial {LADO}, medindo {MEDIDA} cm.',
@@ -3127,7 +3129,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     if(chkIstmocele){
       const pctObj = istmocelePct!==null ? {text: String(istmocelePct), filled:true} : {text:'____', filled:false};
-      blocks.push(itemLista('med-istmocele', phraseRaw('istmocele', {MEDIDA: span(istmoceleMedida), PCT: span(pctObj)})));
+      blocks.push(itemLista('med-istmocele', phraseRaw('istmoceleRelacao', {MEDIDA: span(istmoceleMedida), PCT: (istmocelePct!==null && istmocelePct<=50) ? '<i>'+span(pctObj)+'</i>' : span(pctObj)}).replace('</i>%', '%</i>')));
     }
     // Pós-menopausa: a espessura sai com o VR (até 5,0 mm) logo depois do "mm".
     const endoMenopausa = vrUteroTipo==='op4';
