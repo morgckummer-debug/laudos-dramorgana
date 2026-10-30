@@ -492,7 +492,7 @@ Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 <div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
 <div><div class="field bio-linha bio-sel"><label for="mamasAspecto">Mamas</label><select id="mamasAspecto"><option value="normal">Normal</option><option value="alterado">Alterado (descrever)</option></select></div><div class="field bio-linha bio-sel bio-sel-larga conditional show" id="wrap_ecotextura"><label for="ecotextura">Ecotextura do parênquima</label><select id="ecotextura">
 <option value="gordurosa">Homogênea gordurosa</option>
-<option value="fibroglandular">Homogênea fibroglandular</option>
+<option value="fibroglandular" selected>Homogênea fibroglandular</option>
 <option value="heterogenea">Heterogênea</option>
 </select></div></div>
 <div class="field bio-linha bio-larga conditional" id="wrap_mamasDescricao"><label for="mamasDescricao">Descreva o achado</label><textarea id="mamasDescricao" placeholder="ex: assimetria de volume, mama direita maior que a esquerda..." rows="2"></textarea></div>
@@ -1321,6 +1321,14 @@ if(typeof criarMotorLaudo !== 'function'){
   // Texto de localização do achado dentro da frase: "às 2 horas, distando 1,5
   // cm da borda areolar" no padrão de sempre, ou a descrição fixa dos outros
   // três modos (sem hora/distância).
+  // Uma frase por linha (pedido da médica, 2026-10-30): dentro do mesmo
+  // parágrafo, cada frase depois da primeira começa numa linha nova (<br>, que
+  // o Word também respeita). Corta só em ponto + espaço + maiúscula: "02.08.2026"
+  // e números com vírgula não são tocados.
+  function frasesPorLinha(html){
+    return String(html).replace(/\.\s+(?=(?:<[^>]+>)*[A-ZÁÉÍÓÚÂÊÔÃÕÀÇ])/g, '.<br>');
+  }
+
   function localizacaoTexto(modo, hora, dist){
     if(modo === 'bordaAreolar') return 'na borda areolar' + (hora ? ', às '+span(hora)+' horas' : '');
     if(modo === 'retromamilar') return 'na região retromamilar';
@@ -1730,7 +1738,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const mamasAspecto = v('mamasAspecto');
     const mamasDescricao = vNoDot('mamasDescricao');
     reqIf('mamasDescricao', mamasAspecto==='alterado');
-    const ecotextura = v('ecotextura') || 'gordurosa';
+    const ecotextura = v('ecotextura') || 'fibroglandular';
 
     const peleAspecto = v('peleAspecto');
     const peleDescricao = vNoDot('peleDescricao');
@@ -1945,16 +1953,16 @@ if(typeof criarMotorLaudo !== 'function'){
       const semAchado = fraseSemAchado(lista);
       if(lista.length === 0){
         const texto = semAchado + (chkMamasMasculinas ? '' : ' Região retromamilar sem alterações.');
-        out.push({id:'mama-'+lado, html:'<p class="linha">'+texto+'</p>'});
+        out.push({id:'mama-'+lado, html:'<p class="linha">'+frasesPorLinha(texto)+'</p>'});
       } else {
         if(semAchado){
-          out.push({id:'mama-'+lado+'-semachado', html:'<p class="linha">'+semAchado+'</p>'});
+          out.push({id:'mama-'+lado+'-semachado', html:'<p class="linha">'+frasesPorLinha(semAchado)+'</p>'});
         }
         lista.forEach(a=>{
           const partes = a.partes || [{corpo: a.corpo, corpoLista: a.corpoLista}];
           partes.forEach((pt, k)=>{
             const suf = k ? '-p'+k : '';
-            out.push({id:'mama-'+lado+'-'+a.uid+suf, html:'<p class="linha">'+pt.corpo+'</p>'});
+            out.push({id:'mama-'+lado+'-'+a.uid+suf, html:'<p class="linha">'+frasesPorLinha(pt.corpo)+'</p>'});
             if(pt.corpoLista){
               out.push({id:'mama-'+lado+'-lista-'+a.uid+suf, html:'<div class="linha nodulos-lista">'+pt.corpoLista.map(t=>'<p class="nodulo-item">- '+t+'</p>').join('')+'</div>'});
             }
@@ -2016,25 +2024,25 @@ if(typeof criarMotorLaudo !== 'function'){
       heterogenea: 'Tecido mamário apresentando ecotextura heterogênea.'
     };
     const ecotexturaTexto = chkMamasMasculinas ? 'Tecido mamário com predominância de componente adiposo.' : ECOTEXTURA_TEXT[ecotextura];
-    blocks.push({id:'mamasGeral', html:'<p class="linha">'+mamasFraseBase+' '+ecotexturaTexto+'</p>'});
+    blocks.push({id:'mamasGeral', html:'<p class="linha">'+frasesPorLinha(mamasFraseBase+' '+ecotexturaTexto)+'</p>'});
 
     blocoMama('direita').forEach(b=> blocks.push(b));
     blocoMama('esquerda').forEach(b=> blocks.push(b));
 
     const peleTexto = peleAspecto==='alterado' && peleDescricao ? escapeHtml(peleDescricao)+'.' : 'Pele e tecido subcutâneo de espessura usual, sem alterações.';
-    blocks.push({id:'pele', html:'<p class="linha">'+peleTexto+'</p>'});
+    blocks.push({id:'pele', html:'<p class="linha">'+frasesPorLinha(peleTexto)+'</p>'});
 
     const temAchadoAxilar = achadosAxilar.direita.length>0 || achadosAxilar.esquerda.length>0;
     if(!chkMamasMasculinas || temAchadoAxilar){
       blocks.push({id:'axilas-label', html:'<p class="linha intro">Axilas:</p>'});
-      blocks.push({id:'axilas', html:'<p class="linha">'+blocoAxilasConteudo()+'</p>'});
+      blocks.push({id:'axilas', html:'<p class="linha">'+frasesPorLinha(blocoAxilasConteudo())+'</p>'});
     }
 
     if(chkProtese){
       const proteseTexto = proteseAspecto==='alterado' && proteseDescricao
         ? 'Próteses mamárias apresentando '+escapeHtml(proteseDescricao)+'.'
         : 'Próteses mamárias apresentando contornos regulares, conteúdo anecóico, sem sinais de ruptura de seu invólucro.';
-      blocks.push({id:'protese', html:'<p class="linha">'+proteseTexto+'</p>'});
+      blocks.push({id:'protese', html:'<p class="linha">'+frasesPorLinha(proteseTexto)+'</p>'});
     }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">'+(chkMamasMasculinas ? 'IMPRESSÃO:' : 'IMPRESSÃO DIAGNÓSTICA:')+'</h4>'});
@@ -2270,6 +2278,7 @@ if(typeof criarMotorLaudo !== 'function'){
     document.querySelectorAll('#formCol input[type=text], #formCol input[type=number], #formCol textarea').forEach(el=>el.value='');
     document.querySelectorAll('#formCol select').forEach(el=>el.selectedIndex=0);
     $('mamografiaCategoria').value = '1';
+    $('ecotextura').value = 'fibroglandular'; // padrão (selectedIndex=0 deixaria "gordurosa")
     $('biradsCategoria').value = '1'; // padrão Cat 1 (selectedIndex=0 deixaria Cat 0)
     document.querySelectorAll('#formCol input[type=checkbox]').forEach(el=>el.checked=false);
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
