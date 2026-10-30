@@ -2411,6 +2411,29 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   }
 
+  // Rascunho salvo antes de uma mudança de frase traz o laudo com o texto antigo
+  // (o #paper inteiro vai junto). Blocos que a médica não editou à mão são refeitos
+  // a partir dos campos; os editados são mantidos como estavam.
+  function refrescarBlocosRascunho(d){
+    const gerados = (d.blocks && typeof d.blocks === 'object') ? d.blocks : {};
+    const tmp = document.createElement('div');
+    const editados = {};
+    $('paper').querySelectorAll(':scope > [data-blk]').forEach(el=>{
+      const id = el.getAttribute('data-blk');
+      const atual = el.cloneNode(true);
+      atual.removeAttribute('data-blk');
+      if(typeof gerados[id] !== 'string'){ editados[id] = el.cloneNode(true); return; }
+      tmp.innerHTML = gerados[id];
+      const original = tmp.firstElementChild;
+      if(!original || original.outerHTML !== atual.outerHTML) editados[id] = el.cloneNode(true);
+    });
+    render();
+    Object.keys(editados).forEach(id=>{
+      const novo = $('paper').querySelector(':scope > [data-blk="'+id+'"]');
+      if(novo) novo.replaceWith(editados[id]);
+    });
+  }
+
   function draftRestore(d){
     st.draftRestoring = true;
     try{
@@ -2464,6 +2487,7 @@ if(typeof criarMotorLaudo !== 'function'){
       $('paper').innerHTML = d.paper;
       unwrapPrintPages($('paper'));
       st.lastBlockHtml = (d.blocks && typeof d.blocks === 'object') ? d.blocks : {};
+      refrescarBlocosRascunho(d);
       updatePagePreview();
     }
     const note = $('draftNote');
