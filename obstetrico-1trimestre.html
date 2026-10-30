@@ -197,6 +197,8 @@
   .field-row.conditional.show{display:grid;}
   /* Quadros por região, como nos morfológicos (cópia do CSS de lá). */
   .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
+  .cards-par{display:flex;flex-wrap:wrap;gap:0 14px;align-items:flex-start;}
+  .cards-par>.card{flex:1 1 320px;min-width:0;}
   .bio-col{flex:1 1 280px;display:flex;flex-direction:column;gap:14px;min-width:0;}
   .bio-col:only-child{flex:1 1 100%;}
   .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
@@ -688,6 +690,20 @@
             <div class="field bio-linha bio-gpa"><label for="gpaG">G</label><input type="text" inputmode="numeric" id="gpaG" placeholder="0"><label for="gpaP">P</label><input type="text" inputmode="numeric" id="gpaP" placeholder="0"><label for="gpaA">A</label><input type="text" inputmode="numeric" id="gpaA" placeholder="0"></div>
           </div>
         </div>
+        <div class="toggle-line"><input type="checkbox" id="pptEspontaneoPrevio" autocomplete="off"><label for="pptEspontaneoPrevio">Antecedente de parto prematuro espontâneo</label></div>
+        <div class="toggle-line"><input type="checkbox" id="progesteronaVaginalEmUso" autocomplete="off"><label for="progesteronaVaginalEmUso">Em uso de progesterona vaginal</label></div>
+        <div class="toggle-line"><input type="checkbox" id="cerclagemRealizada" autocomplete="off"><label for="cerclagemRealizada">Cerclagem realizada</label></div>
+        <div class="field-row conditional" id="wrap_cerclagemIG">
+          <div class="field"><label>IG da cerclagem (semanas)</label><input type="text" inputmode="numeric" id="cerclagemIgSemanas" placeholder="ex: 14"></div>
+        </div>
+        <div class="field"><label>Motivo do exame — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de sangramento vaginal."></textarea></div>
+      </div>
+    </div>
+
+    <div class="cards-par">
+    <div class="card">
+      <div class="card-head"><h2>Idade gestacional</h2></div>
+      <div class="card-body">
         <div class="bio-grupos"><div class="bio-col">
           <div class="bio-grupo"><h4>Datação</h4>
             <div class="field bio-linha bio-sel bio-sel-larga"><label for="cronologiaMetodo">Cronologia calculada com base em</label>
@@ -710,20 +726,8 @@
               <div class="field bio-linha bio-data"><label for="dumEstimada">DUM estimada<small>para lançar na máquina de ultrassom</small></label><input type="text" id="dumEstimada" readonly placeholder="automática"></div>
             </div>
             <div class="field bio-linha bio-data"><label for="dpp">DPP<small>data provável do parto</small></label><input type="text" id="dpp" placeholder="automática" readonly></div>
-            <div class="toggle-line"><input type="checkbox" id="chkRecomendacao" checked><label for="chkRecomendacao">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
-            <div class="conditional" id="wrap_recomendacao">
-              <div class="field bio-linha bio-data"><label for="dataInicioMorfo">Período recomendado<small>início</small></label><input type="text" id="dataInicioMorfo" placeholder="automática" readonly></div>
-              <div class="field bio-linha bio-data"><label for="dataFimMorfo">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo" placeholder="automática" readonly></div>
-            </div>
           </div>
         </div></div>
-        <div class="toggle-line"><input type="checkbox" id="pptEspontaneoPrevio" autocomplete="off"><label for="pptEspontaneoPrevio">Antecedente de parto prematuro espontâneo</label></div>
-        <div class="toggle-line"><input type="checkbox" id="progesteronaVaginalEmUso" autocomplete="off"><label for="progesteronaVaginalEmUso">Em uso de progesterona vaginal</label></div>
-        <div class="toggle-line"><input type="checkbox" id="cerclagemRealizada" autocomplete="off"><label for="cerclagemRealizada">Cerclagem realizada</label></div>
-        <div class="field-row conditional" id="wrap_cerclagemIG">
-          <div class="field"><label>IG da cerclagem (semanas)</label><input type="text" inputmode="numeric" id="cerclagemIgSemanas" placeholder="ex: 14"></div>
-        </div>
-        <div class="field"><label>Motivo do exame — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de sangramento vaginal."></textarea></div>
       </div>
     </div>
 
@@ -797,6 +801,7 @@
       </div>
     </div>
 
+    </div>
     <div class="conditional show" id="wrap_sacosSection">
       <div id="sacosContainer"></div>
       <button type="button" class="btn-clear" id="btnAddSaco" style="margin:-8px 0 22px;">+ Adicionar saco gestacional</button>
@@ -908,6 +913,11 @@
         </div>
         <div class="conditional" id="wrap_impIg">
           <div class="field bio-linha bio-ig"><label for="impSemanas">Idade gestacional pela USG</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="7"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="impDias" placeholder="2" aria-label="Idade gestacional pela USG — dias"><span class="bio-un">dias</span></div>
+        </div>
+        <div class="toggle-line"><input type="checkbox" id="chkRecomendacao" checked><label for="chkRecomendacao">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
+        <div class="conditional" id="wrap_recomendacao">
+          <div class="field bio-linha bio-data"><label for="dataInicioMorfo">Período recomendado<small>início</small></label><input type="text" id="dataInicioMorfo" placeholder="automática" readonly></div>
+          <div class="field bio-linha bio-data"><label for="dataFimMorfo">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo" placeholder="automática" readonly></div>
         </div>
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
