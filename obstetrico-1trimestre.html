@@ -609,6 +609,15 @@
   <div class="field" style="margin-bottom:8px;"><label>Abortamento sem saco — conteúdo residual (incompleto) — use {ESPESSURA}</label><textarea id="ph_achadoConteudoResidual" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Captação de fluxo ao Doppler no conteúdo residual (só no incompleto) — use {LOCAL} e {FACE}</label><textarea id="ph_fluxoResidual" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta com aspecto de mola hidatiforme — use {MEDIDA} e {VOLUME}</label><textarea id="ph_placentaMolar" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — cavidade uterina</label><textarea id="ph_ectopicaCavidade" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — use {LADO}, {MEDIDA} e {VOLUME}</label><textarea id="ph_ectopica" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica, sem volume — use {LADO} e {MEDIDA}</label><textarea id="ph_ectopicaSemVolume" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — embrião não identificado</label><textarea id="ph_ectopicaEmbriaoAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — embrião com batimentos cardíacos</label><textarea id="ph_ectopicaEmbriaoBcf" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — embrião sem batimentos cardíacos</label><textarea id="ph_ectopicaEmbriaoSemBcf" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — líquido livre ausente</label><textarea id="ph_ectopicaLiquidoAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — líquido livre presente</label><textarea id="ph_ectopicaLiquidoPresente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — líquido livre presente, com volume — use {VOLUME}</label><textarea id="ph_ectopicaLiquidoPresenteVolume" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mola hidatiforme — feto/embrião com batimentos presentes — use {TERMO}, {CCN} e {FC}</label><textarea id="ph_molaFcPresente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mola hidatiforme — feto/embrião sem batimentos — use {TERMO} e {CCN}</label><textarea id="ph_molaFcAusente" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Mola hidatiforme — feto/embrião ausente</label><textarea id="ph_molaFetoAusente" rows="2"></textarea></div>
@@ -631,6 +640,10 @@
   <div class="field" style="margin-bottom:8px;"><label>Gestação molar completa — impressão (feto/embrião ausente)</label><textarea id="ph_impGestacaoMolarCompleta" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação molar parcial — impressão (feto/embrião presente, sem batimentos)</label><textarea id="ph_impGestacaoMolarParcial" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Gestação molar parcial — impressão com IG (feto/embrião presente, com batimentos) — use {IG}</label><textarea id="ph_impGestacaoMolarParcialComIg" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — impressão — use {LADO}</label><textarea id="ph_impEctopica" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica com embrião com batimentos cardíacos — impressão — use {LADO}</label><textarea id="ph_impEctopicaEmbriaoBcf" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica com embrião sem batimentos cardíacos — impressão — use {LADO}</label><textarea id="ph_impEctopicaEmbriaoSemBcf" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — líquido livre — impressão</label><textarea id="ph_impEctopicaLiquidoLivre" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>DPP — use {DATA}</label><textarea id="ph_impDPP" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>ISG reduzido — impressão</label><textarea id="ph_impIsgReduzido" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Contorno irregular do saco gestacional — impressão</label><textarea id="ph_impContornoIrregular" rows="2"></textarea></div>
@@ -721,6 +734,7 @@
         <div class="bio-grupos"><div class="bio-col">
           <div class="bio-grupo"><h4>Tipo de gestação</h4>
             <div class="toggle-line"><input type="checkbox" id="chkMola"><label for="chkMola">Achados sugestivos de mola hidatiforme</label></div>
+            <div class="toggle-line"><input type="checkbox" id="chkEctopica"><label for="chkEctopica">Gestação ectópica</label></div>
             <div class="conditional show" id="wrap_gestacaoNormal">
               <div class="field bio-linha bio-sel"><label for="numeroEmbrioes">Número de sacos gestacionais / embriões</label>
                 <select id="numeroEmbrioes"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
@@ -744,6 +758,22 @@
             </div>
             <div class="conditional" id="wrap_molaIgCampos">
               <div class="field bio-linha bio-ig"><label for="molaIgSemanas">IG pelo CCN</label><input type="text" inputmode="numeric" id="molaIgSemanas" placeholder="8"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="molaIgDias" placeholder="3" aria-label="IG pelo CCN — dias"><span class="bio-un">dias</span></div>
+            </div>
+          </div>
+          <div class="bio-grupo conditional" id="wrap_ectopicaCampos"><h4>Gestação ectópica</h4>
+            <div class="field bio-linha bio-sel"><label for="ectopicaLado">Lado</label>
+              <select id="ectopicaLado"><option value="direita">Direito</option><option value="esquerda">Esquerdo</option></select>
+            </div>
+            <div class="field bio-linha bio-texto bio-larga"><label for="ectopicaMedida">Medida (cm)</label><input type="text" id="ectopicaMedida" placeholder="ex: 2,5 x 2,0 x 1,8"></div>
+            <div class="field bio-linha"><label for="ectopicaVolume">Volume estimado</label><input type="text" inputmode="decimal" data-decimals="1" id="ectopicaVolume" placeholder=""><span class="bio-un">cm³</span></div>
+            <div class="field bio-linha bio-sel bio-sel-larga"><label for="ectopicaEmbriao">Embrião</label>
+              <select id="ectopicaEmbriao"><option value="ausente">Não identificado</option><option value="bcf">Presente, com batimentos cardíacos</option><option value="sembcf">Presente, sem batimentos cardíacos</option></select>
+            </div>
+            <div class="field bio-linha bio-sel"><label for="ectopicaLiquido">Líquido livre</label>
+              <select id="ectopicaLiquido"><option value="ausente">Ausente</option><option value="presente">Presente</option></select>
+            </div>
+            <div class="conditional" id="wrap_ectopicaLiquidoVolume">
+              <div class="field bio-linha"><label for="ectopicaLiquidoVolume">Volume do líquido<small>opcional</small></label><input type="text" inputmode="decimal" data-decimals="1" id="ectopicaLiquidoVolume" placeholder=""><span class="bio-un">mL</span></div>
             </div>
           </div>
         </div><div class="bio-col">
@@ -1605,6 +1635,19 @@ if(typeof criarMotorLaudo !== 'function'){
     impGestacaoMolarParcial: 'Sinais ecográficos de gestação molar parcial. Sugere-se correlação com dosagem sérica de beta-hCG e acompanhamento com confirmação histopatológica após o esvaziamento uterino.',
     impGestacaoMolarParcialComIg: 'Sinais ecográficos de gestação molar parcial compatível com {IG}. Sugere-se correlação com dosagem sérica de beta-hCG e acompanhamento com confirmação histopatológica após o esvaziamento uterino.',
     impDPP: 'DPP: {DATA}.',
+    ectopicaCavidade: 'Cavidade uterina sem imagem de saco gestacional.',
+    ectopica: 'Em região anexial {LADO}, observa-se imagem sugestiva de gestação ectópica, medindo {MEDIDA} cm, com volume estimado de {VOLUME} cm³.',
+    ectopicaSemVolume: 'Em região anexial {LADO}, observa-se imagem sugestiva de gestação ectópica, medindo {MEDIDA} cm.',
+    ectopicaEmbriaoAusente: 'Não se identifica embrião em seu interior.',
+    ectopicaEmbriaoBcf: 'Identifica-se embrião em seu interior, com batimentos cardíacos presentes.',
+    ectopicaEmbriaoSemBcf: 'Identifica-se embrião em seu interior, sem batimentos cardíacos.',
+    ectopicaLiquidoAusente: 'Ausência de líquido livre em fundo de saco posterior.',
+    ectopicaLiquidoPresente: 'Presença de líquido livre em fundo de saco posterior.',
+    ectopicaLiquidoPresenteVolume: 'Presença de líquido livre em fundo de saco posterior, com volume estimado de {VOLUME} mL.',
+    impEctopica: 'Gestação ectópica em região anexial {LADO}.',
+    impEctopicaEmbriaoBcf: 'Gestação ectópica em região anexial {LADO}, com embrião com batimentos cardíacos presentes.',
+    impEctopicaEmbriaoSemBcf: 'Gestação ectópica em região anexial {LADO}, com embrião sem batimentos cardíacos.',
+    impEctopicaLiquidoLivre: 'Líquido livre em fundo de saco posterior.',
     impIsgReduzido: 'Saco gestacional de dimensões reduzidas.',
     impContornoIrregular: 'Saco gestacional de contornos irregulares — sugere-se acompanhamento.',
     impHematoma: 'Hematoma subcoriônico - acompanhar.',
@@ -1793,20 +1836,33 @@ if(typeof criarMotorLaudo !== 'function'){
   // completo) são mutuamente exclusivos com a gestação normal (com
   // saco/embrião) e entre si: mola desliga a pergunta "Saco gestacional"
   // inteira (não há saco a descrever); "ausente" só desliga a lista de sacos.
+  // Gestação ectópica é a terceira alternativa exclusiva: não há saco
+  // intrauterino a descrever, e ela manda sobre a mola e o "ausente".
   function gestacaoFlags(){
-    const mola = $('chkMola').checked;
-    const perda = !mola && $('sacoPresente').value === 'nao';
-    return {mola, perda};
+    const ectopica = $('chkEctopica').checked;
+    const mola = !ectopica && $('chkMola').checked;
+    const perda = !mola && !ectopica && $('sacoPresente').value === 'nao';
+    return {mola, perda, ectopica};
   }
   function updateGestacaoModo(){
-    const {mola, perda} = gestacaoFlags();
-    toggle('wrap_gestacaoNormal', !mola && !perda);
-    toggle('wrap_sacoPresenteBloco', !mola);
-    toggle('wrap_sacosSection', !mola && !perda);
+    const {mola, perda, ectopica} = gestacaoFlags();
+    toggle('wrap_gestacaoNormal', !mola && !perda && !ectopica);
+    toggle('wrap_sacoPresenteBloco', !mola && !ectopica);
+    toggle('wrap_sacosSection', !mola && !perda && !ectopica);
     toggle('wrap_molaCampos', mola);
+    toggle('wrap_ectopicaCampos', ectopica);
+    toggle('wrap_ectopicaLiquidoVolume', ectopica && v('ectopicaLiquido')==='presente');
     updatePerdaSemSacoWraps();
   }
-  $('chkMola').addEventListener('change', updateGestacaoModo);
+  $('chkMola').addEventListener('change', e=>{
+    if(e.target.checked) $('chkEctopica').checked = false;
+    updateGestacaoModo();
+  });
+  $('chkEctopica').addEventListener('change', e=>{
+    if(e.target.checked) $('chkMola').checked = false;
+    updateGestacaoModo();
+  });
+  $('ectopicaLiquido').addEventListener('change', updateGestacaoModo);
   $('sacoPresente').addEventListener('change', updateGestacaoModo);
   $('chkEmCurso').addEventListener('change', e=> toggle('wrap_emCursoDescricao', e.target.checked));
   // Reescrever a descrição do(s) saco(s): o campo nasce com o texto que o laudo
@@ -2324,7 +2380,16 @@ if(typeof criarMotorLaudo !== 'function'){
     // disso faz sentido sem uma gestação viável em curso; só a conclusão de
     // mola entra aqui, e os achados de bexiga/útero/anexos/miométrio abaixo
     // continuam valendo normalmente.
-    if(state.molaAtiva){
+    if(state.ectopicaAtiva){
+      // Sem gestação intrauterina não há IG, evolução nem DPP a concluir: só
+      // a ectópica (e o líquido livre, quando houver).
+      const ectKey = state.ectopicaEmbriao==='bcf' ? 'impEctopicaEmbriaoBcf'
+        : state.ectopicaEmbriao==='sembcf' ? 'impEctopicaEmbriaoSemBcf' : 'impEctopica';
+      items.push({key:'gestacao', label: phraseRaw(ectKey, {LADO: state.ectopicaLado}), auto:true});
+      if(state.ectopicaLiquidoPresente){
+        items.push({key:'ectopica-liquido', label: phraseRaw('impEctopicaLiquidoLivre'), auto:true});
+      }
+    } else if(state.molaAtiva){
       // Ausência de embrião/feto sugere mola completa; presença, parcial —
       // e só com batimentos cardíacos presentes a IG (digitada à mão) entra
       // na conclusão, porque só aí há uma datação de verdade para citar.
@@ -2421,8 +2486,8 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:'adenomiose', label:phraseRaw('impAdenomiose'), auto:true});
     }
 
-    // DPP sempre por último na conclusão — exceto na mola, que não tem DPP.
-    if(!state.molaAtiva){
+    // DPP sempre por último na conclusão — exceto na mola e na ectópica, que não têm DPP.
+    if(!state.molaAtiva && !state.ectopicaAtiva){
       items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:state.dpp||'____'}), auto:true});
     }
 
@@ -2549,7 +2614,17 @@ if(typeof criarMotorLaudo !== 'function'){
     };
     const corTxt = corTxtMap[corionicidade] || 'dicoriônica e diamniótica';
 
-    const molaAtiva = $('chkMola').checked;
+    // Gestação ectópica: alternativa exclusiva à gestação intrauterina, como a
+    // mola (ver gestacaoFlags()). Medida obrigatória; volume opcional.
+    const ectopicaAtiva = $('chkEctopica').checked;
+    const ectopicaLado = v('ectopicaLado')==='esquerda' ? 'esquerda' : 'direita';
+    const ectopicaMedida = blankOrValue(reqIf('ectopicaMedida', ectopicaAtiva));
+    const ectopicaVolume = v('ectopicaVolume');
+    const ectopicaEmbriao = v('ectopicaEmbriao') || 'ausente';
+    const ectopicaLiquidoPresente = v('ectopicaLiquido')==='presente';
+    const ectopicaLiquidoVolume = v('ectopicaLiquidoVolume');
+
+    const molaAtiva = !ectopicaAtiva && $('chkMola').checked;
     const molaMedida = blankOrValue(reqIf('molaMedida', molaAtiva));
     const molaVolume = blankOrValue(reqIf('molaVolume', molaAtiva));
     const molaFetoPresente = molaAtiva && $('molaFetoPresente').checked;
@@ -2574,7 +2649,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // outra alternativa exclusiva à gestação normal, igual à mola — ver
     // updateGestacaoModo(). Precisa estar definida antes de "uids" pelo mesmo
     // motivo que molaAtiva: quando ativa, não há saco nenhum para descrever.
-    const perdaSemSacoAtiva = !molaAtiva && v('sacoPresente') === 'nao';
+    const perdaSemSacoAtiva = !molaAtiva && !ectopicaAtiva && v('sacoPresente') === 'nao';
     const perdaSemSacoTipo = v('perdaSemSacoTipo')==='completo' ? 'completo' : 'incompleto';
     const espessuraEndometrial = blankOrValue(reqIf('espessuraEndometrial', perdaSemSacoAtiva));
     const perdaSemSacoDescricao = vNoDot('perdaSemSacoDescricao');
@@ -2588,7 +2663,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // gestacional(is) irrelevantes: os campos ficam escondidos no formulário
     // (ver updateGestacaoModo()) e aqui a lista de uids fica vazia de
     // propósito, para não cobrar como pendentes campos que nem aparecem na tela.
-    const uids = (molaAtiva || perdaSemSacoAtiva) ? [] : sacoUids();
+    const uids = (molaAtiva || perdaSemSacoAtiva || ectopicaAtiva) ? [] : sacoUids();
     const sacos = uids.map((uid, idx)=>{
       const insercao = v('saco'+uid+'Insercao');
       const contorno = v('saco'+uid+'Contorno')==='irregular' ? 'irregulares' : 'regulares';
@@ -2637,7 +2712,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // "Em curso" convive com a gestação normal (o saco pode continuar visível,
     // só baixo/irregular) — por isso mora dentro de wrap_sacosSection, não é
     // exclusivo com ela. É exclusivo, sim, com mola e com abortamento sem saco.
-    const emCursoAtiva = $('chkEmCurso').checked && !molaAtiva && !perdaSemSacoAtiva;
+    const emCursoAtiva = $('chkEmCurso').checked && !molaAtiva && !perdaSemSacoAtiva && !ectopicaAtiva;
     const emCursoDescricao = vNoDot('emCursoDescricao');
 
     const bexigaAspecto = v('bexigaAspecto');
@@ -2756,7 +2831,8 @@ if(typeof criarMotorLaudo !== 'function'){
       tempoPerda, tipoPerdaDesc, perdaSemSacoAtiva, perdaSemSacoTipo, emCursoAtiva,
       bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao, colo, coloAlterado,
       miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose,
-      molaAtiva, molaFetoPresente, molaFetoAusente, molaVitalidade, molaIgTexto
+      molaAtiva, molaFetoPresente, molaFetoAusente, molaVitalidade, molaIgTexto,
+      ectopicaAtiva, ectopicaLado, ectopicaEmbriao, ectopicaLiquidoPresente
     };
     const impressaoItems = buildImpressao(state);
     impressaoItems.forEach(it=>{ lastAutoLabel[it.key] = it.label; });
@@ -3039,7 +3115,28 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'perdaSemSaco', html:perdaHtml});
     }
 
-    blocks.push({id:'anexos', html:'<p class="linha">'+(anexosAspecto==='alterado' && anexosDescricao ? escapeHtml(anexosDescricao) : phrase('anexosNormais'))+'</p>'});
+    if(ectopicaAtiva){
+      const ectFrase = ectopicaVolume
+        ? phraseRaw('ectopica', {LADO: ectopicaLado, MEDIDA: span(ectopicaMedida), VOLUME: escapeHtml(ectopicaVolume)})
+        : phraseRaw('ectopicaSemVolume', {LADO: ectopicaLado, MEDIDA: span(ectopicaMedida)});
+      const embFrase = phrase(ectopicaEmbriao==='bcf' ? 'ectopicaEmbriaoBcf' : ectopicaEmbriao==='sembcf' ? 'ectopicaEmbriaoSemBcf' : 'ectopicaEmbriaoAusente');
+      blocks.push({id:'ectopica', html:'<div class="saco-bloco">'
+        + '<p class="linha">'+phrase('ectopicaCavidade')+'</p>'
+        + '<p class="linha">'+ectFrase+' '+embFrase+'</p>'
+        + '</div>'});
+    }
+
+    // Com ectópica, "regiões anexiais sem alterações" contradiria o achado:
+    // o bloco só sai se ela descreveu outro achado anexial.
+    if(!ectopicaAtiva || (anexosAspecto==='alterado' && anexosDescricao)){
+      blocks.push({id:'anexos', html:'<p class="linha">'+(anexosAspecto==='alterado' && anexosDescricao ? escapeHtml(anexosDescricao) : phrase('anexosNormais'))+'</p>'});
+    }
+
+    if(ectopicaAtiva){
+      blocks.push({id:'ectopicaLiquido', html:'<p class="linha">'+(ectopicaLiquidoPresente
+        ? (ectopicaLiquidoVolume ? phraseRaw('ectopicaLiquidoPresenteVolume', {VOLUME: escapeHtml(ectopicaLiquidoVolume)}) : phrase('ectopicaLiquidoPresente'))
+        : phrase('ectopicaLiquidoAusente'))+'</p>'});
+    }
 
     if(colo){
       blocks.push({id:'colo', html:'<p class="linha">'+phraseRaw('coloTexto', {MEDIDA: span(coloComprimentoVal)})+'</p>'});
@@ -3072,7 +3169,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
-    if(chkRecomendacao){
+    if(chkRecomendacao && !ectopicaAtiva){
       blocks.push({id:'recomendacao', html:'<p class="recomendacao">('+phraseRaw('recomendacaoMorfologico', {DATA_INICIO: span(dataInicioMorfo), DATA_FIM: span(dataFimMorfo)})+')</p>'});
     }
 
@@ -3657,6 +3754,7 @@ if(typeof criarMotorLaudo !== 'function'){
   cgCheckSession();
 
   $('btnSalvarCG').addEventListener('click', async ()=>{
+    if($('chkEctopica').checked){ cgToast('Gestação ectópica não é gravada no Acompanhamento Fetal MK — não é uma gestação intrauterina a acompanhar.', true); return; }
     if($('chkMola').checked){ cgToast('Achados de mola hidatiforme não são gravados no Acompanhamento Fetal MK — não é uma gestação viável a acompanhar.', true); return; }
     const session = await cgCheckSession();
     if(!session){ $('cgLoginOverlay').classList.remove('hide'); cgToast('Faça login para salvar.', true); return; }

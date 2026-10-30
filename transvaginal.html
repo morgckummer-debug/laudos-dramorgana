@@ -604,6 +604,11 @@
   <hr class="sep">
   <h3>Trompas / anexos / demais achados</h3>
   <div class="field" style="margin-bottom:8px;"><label>Regiões anexiais normais (nenhum achado marcado)</label><textarea id="ph_anexiaisNormais" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — use {LADO}, {MEDIDA} e {VOLUME}</label><textarea id="ph_ectopica" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica, sem volume — use {LADO} e {MEDIDA}</label><textarea id="ph_ectopicaSemVolume" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — embrião não identificado</label><textarea id="ph_ectopicaEmbriaoAusente" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — embrião com batimentos cardíacos</label><textarea id="ph_ectopicaEmbriaoBcf" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — embrião sem batimentos cardíacos</label><textarea id="ph_ectopicaEmbriaoSemBcf" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hidrossalpinge — use {LADO} e {MEDIDA}</label><textarea id="ph_hidrossalpinge" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Varizes pélvicas</label><textarea id="ph_varizes" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda intestinal — 1 nódulo — use {LOCAL}, {MEDIDA} e {REGIAO}</label><textarea id="ph_endometrioseIntestinal" rows="2"></textarea></div>
@@ -668,6 +673,10 @@
   <div class="field" style="margin-bottom:8px;"><label>Ovário com folículo dominante, volume não preenchido — use {LADO}</label><textarea id="ph_impOvarioFoliculoSemVolume" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cisto dermoide — use {LADO}</label><textarea id="ph_impOvarioDermoide" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometrioma — use {LADO}</label><textarea id="ph_impOvarioEndometrioma" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — use {LADO}</label><textarea id="ph_impEctopica" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica com embrião com batimentos cardíacos — use {LADO}</label><textarea id="ph_impEctopicaEmbriaoBcf" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica com embrião sem batimentos cardíacos — use {LADO}</label><textarea id="ph_impEctopicaEmbriaoSemBcf" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Gestação ectópica — líquido livre</label><textarea id="ph_impEctopicaLiquidoLivre" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Hidrossalpinge — use {LADO}</label><textarea id="ph_impHidrossalpinge" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Varizes pélvicas</label><textarea id="ph_impVarizes" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Endometriose profunda — 1 nódulo — use {REGIAO}</label><textarea id="ph_impEndometriose" rows="2"></textarea></div>
@@ -1102,6 +1111,26 @@
     <div class="card">
       <div class="card-head"><h2>Região Anexial</h2></div>
       <div class="card-body">
+        <div class="toggle-line"><input type="checkbox" id="chkEctopica"><label for="chkEctopica">Gestação ectópica</label></div>
+        <div class="conditional" id="wrap_ectopicaCampos">
+          <div class="field-row">
+            <div class="field"><label>Lado</label>
+              <select id="ectopicaLado"><option value="direita">Direito</option><option value="esquerda">Esquerdo</option></select>
+            </div>
+            <div class="field"><label>Medida (cm)</label><input type="text" id="ectopicaMedida" placeholder="ex: 2,5 x 2,0 x 1,8"></div>
+            <div class="field"><label>Volume (cm³, opcional)</label><input type="text" inputmode="decimal" data-decimals="1" id="ectopicaVolume" placeholder="cm³"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Embrião</label>
+              <select id="ectopicaEmbriao"><option value="ausente">Não identificado</option><option value="bcf">Presente, com batimentos cardíacos</option><option value="sembcf">Presente, sem batimentos cardíacos</option></select>
+            </div>
+            <div class="field"><label>Líquido livre</label>
+              <select id="ectopicaLiquido"><option value="ausente">Ausente</option><option value="presente">Presente</option></select>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--ink-soft);margin:-4px 0 12px;">O líquido livre é o mesmo campo "Líquido livre em fundo de saco posterior", mais abaixo: as medidas e o volume dele são preenchidos lá.</p>
+        </div>
+        <hr class="sep">
         <div class="toggle-line"><input type="checkbox" id="chkHidrossalpinge"><label for="chkHidrossalpinge">Hidrossalpinge</label></div>
         <div class="field-row conditional" id="wrap_hidrossalpingeCampos">
           <div class="field"><label>Lado</label>
@@ -1998,6 +2027,15 @@ if(typeof criarMotorLaudo !== 'function'){
     impOvarioDermoide: 'Nódulo ovariano à {LADO} sugestivo de teratoma.',
     impOvarioEndometrioma: 'Imagem sugestiva de endometrioma à {LADO}.',
     impHidrossalpinge: 'Hidrossalpinge à {LADO}.',
+    ectopica: 'Em região anexial {LADO}, observa-se imagem sugestiva de gestação ectópica, medindo {MEDIDA} cm, com volume estimado de {VOLUME} cm³.',
+    ectopicaSemVolume: 'Em região anexial {LADO}, observa-se imagem sugestiva de gestação ectópica, medindo {MEDIDA} cm.',
+    ectopicaEmbriaoAusente: 'Não se identifica embrião em seu interior.',
+    ectopicaEmbriaoBcf: 'Identifica-se embrião em seu interior, com batimentos cardíacos presentes.',
+    ectopicaEmbriaoSemBcf: 'Identifica-se embrião em seu interior, sem batimentos cardíacos.',
+    impEctopica: 'Gestação ectópica em região anexial {LADO}.',
+    impEctopicaEmbriaoBcf: 'Gestação ectópica em região anexial {LADO}, com embrião com batimentos cardíacos presentes.',
+    impEctopicaEmbriaoSemBcf: 'Gestação ectópica em região anexial {LADO}, com embrião sem batimentos cardíacos.',
+    impEctopicaLiquidoLivre: 'Líquido livre em fundo de saco posterior.',
     impVarizes: 'Sinais de congestão pélvica.',
     impEndometriose: 'Nódulo em região {REGIAO} sugestivo de implante endometriótico.',
     impEndometrioseVarios: 'Nódulos de endometriose profunda intestinal, em diferentes regiões, sugestivos de implantes endometrióticos.',
@@ -2508,7 +2546,18 @@ if(typeof criarMotorLaudo !== 'function'){
       addEndoNodule();
     }
   });
-  $('liquidoLivre').addEventListener('change', e=> toggle('wrap_liquidoLivreCampos', e.target.value==='presente'));
+  $('liquidoLivre').addEventListener('change', e=>{
+    toggle('wrap_liquidoLivreCampos', e.target.value==='presente');
+    $('ectopicaLiquido').value = e.target.value;
+  });
+  // Gestação ectópica: o "Líquido livre" do quadro dela é o mesmo campo do fim
+  // da Região Anexial (uma fonte só para a frase do laudo e a medida); os dois
+  // selects andam juntos.
+  $('chkEctopica').addEventListener('change', e=> toggle('wrap_ectopicaCampos', e.target.checked));
+  $('ectopicaLiquido').addEventListener('change', e=>{
+    $('liquidoLivre').value = e.target.value;
+    toggle('wrap_liquidoLivreCampos', e.target.value==='presente');
+  });
 
   function flag(id, isAbnormal){
     const el = $(id), note = $('flag_'+id);
@@ -2608,6 +2657,16 @@ if(typeof criarMotorLaudo !== 'function'){
   // ---------- Build impression checklist ----------
   function buildImpressao(state){
     const items = [];
+
+    // Gestação ectópica abre a conclusão: é o achado que decide a conduta.
+    if(state.chkEctopica){
+      const ectKey = state.ectopicaEmbriao==='bcf' ? 'impEctopicaEmbriaoBcf'
+        : state.ectopicaEmbriao==='sembcf' ? 'impEctopicaEmbriaoSemBcf' : 'impEctopica';
+      items.push({key:'ectopica-'+state.ectopicaEmbriao, label:phraseRaw(ectKey, {LADO:state.ectopicaLado}), auto:true});
+      if(state.liquidoLivrePresente){
+        items.push({key:'ectopica-liquido', label:phraseRaw('impEctopicaLiquidoLivre'), auto:true});
+      }
+    }
 
     if(state.bexigaAspecto==='alterado' && state.bexigaDescricao){
       items.push({key:'bexiga-alterada', label:phraseRaw('impBexigaAlterada', {DESCRICAO:state.bexigaDescricao}), auto:true});
@@ -3016,6 +3075,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const ovD = readOvario('ovD');
     const ovE = readOvario('ovE');
 
+    const chkEctopica = $('chkEctopica').checked;
+    const ectopicaLado = v('ectopicaLado')==='esquerda' ? 'esquerda' : 'direita';
+    const ectopicaMedida = blankOrValue(reqIf('ectopicaMedida', chkEctopica));
+    const ectopicaVolume = v('ectopicaVolume');
+    const ectopicaEmbriao = v('ectopicaEmbriao') || 'ausente';
     const chkHidrossalpinge = $('chkHidrossalpinge').checked;
     const hidrossalpingeLado = v('hidrossalpingeLado')==='esquerda' ? 'esquerda' : 'direita';
     const hidrossalpingeMedida = blankOrValue(reqIf('hidrossalpingeMedida', chkHidrossalpinge));
@@ -3056,6 +3120,7 @@ if(typeof criarMotorLaudo !== 'function'){
       ovE_aspecto2: ovE.aspecto2, ovE_descricao2: ovE.descricao2,
       vrOvarioTipo,
       chkHidrossalpinge, hidrossalpingeLado, chkVarizes,
+      chkEctopica, ectopicaLado, ectopicaEmbriao, liquidoLivrePresente,
       chkEndometriose, endometrioseFrags: endometrioseItens, endometrioseRegiao: endometrioseItens[0] && endometrioseItens[0].regiao,
       chkMobilidadeOvD, chkMobilidadeOvE, chkKissingOvaries, slidingEfetivo, chkTransabdominal, morfUterina
     };
@@ -3259,13 +3324,20 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'ovarioD', html:ovarioParagraph(ovD, 'direito', 'direita')});
     blocks.push({id:'ovarioE', html:ovarioParagraph(ovE, 'esquerdo', 'esquerda')});
 
+    if(chkEctopica){
+      const ectFrase = ectopicaVolume
+        ? phraseRaw('ectopica', {LADO: ectopicaLado, MEDIDA: span(ectopicaMedida), VOLUME: escapeHtml(ectopicaVolume)})
+        : phraseRaw('ectopicaSemVolume', {LADO: ectopicaLado, MEDIDA: span(ectopicaMedida)});
+      const embFrase = phrase(ectopicaEmbriao==='bcf' ? 'ectopicaEmbriaoBcf' : ectopicaEmbriao==='sembcf' ? 'ectopicaEmbriaoSemBcf' : 'ectopicaEmbriaoAusente');
+      blocks.push({id:'ectopica', html:'<p class="linha">'+ectFrase+' '+embFrase+'</p>'});
+    }
     if(chkHidrossalpinge){
       blocks.push({id:'hidrossalpinge', html:'<p class="linha">'+phraseRaw('hidrossalpinge', {LADO: hidrossalpingeLado, MEDIDA: span(hidrossalpingeMedida)})+'</p>'});
     }
     if(chkVarizes){
       blocks.push({id:'varizes', html:'<p class="linha">'+phrase('varizes')+'</p>'});
     }
-    if(!chkHidrossalpinge && !chkVarizes){
+    if(!chkHidrossalpinge && !chkVarizes && !chkEctopica){
       blocks.push({id:'anexiaisNormais', html:'<p class="linha">'+phrase('anexiaisNormais')+'</p>'});
     }
 
