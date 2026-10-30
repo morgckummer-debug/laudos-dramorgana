@@ -705,11 +705,10 @@
                 <select id="fivEstagio"><option value="d3">D3 (clivagem)</option><option value="d5">D5 (blastocisto)</option></select>
               </div>
             </div>
-            <p class="bio-nota conditional" id="wrap_incertaInfo">DUM incerta/ignorada: sem cronologia no cabeçalho (sem DUM/IG atual ali, sem "DUM estimada"). A DPP e o período do Morfológico do 1º Trimestre são calculados a partir da idade gestacional informada em <strong>"Idade gestacional pela USG"</strong>, logo abaixo, aplicada sobre a data deste exame.</p>
+            <p class="bio-nota conditional" id="wrap_incertaInfo">DUM incerta/ignorada: sem cronologia no cabeçalho (sem DUM/IG atual ali, sem "DUM estimada"). A DPP e o período do Morfológico do 1º Trimestre são calculados a partir da idade gestacional informada em <strong>"Idade gestacional pela USG"</strong>, no card Impressões diagnósticas, aplicada sobre a data deste exame.</p>
             <div class="conditional" id="wrap_dumEstimada">
               <div class="field bio-linha bio-data"><label for="dumEstimada">DUM estimada<small>para lançar na máquina de ultrassom</small></label><input type="text" id="dumEstimada" readonly placeholder="automática"></div>
             </div>
-            <div class="field bio-linha bio-ig"><label for="impSemanas">Idade gestacional pela USG</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="7"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="impDias" placeholder="2" aria-label="Idade gestacional pela USG — dias"><span class="bio-un">dias</span></div>
             <div class="field bio-linha bio-data"><label for="dpp">DPP<small>data provável do parto</small></label><input type="text" id="dpp" placeholder="automática" readonly></div>
             <div class="toggle-line"><input type="checkbox" id="chkRecomendacao" checked><label for="chkRecomendacao">Incluir recomendação de Morfológico do 1º Trimestre</label></div>
             <div class="conditional" id="wrap_recomendacao">
@@ -846,6 +845,10 @@
               </div>
               <div class="field bio-linha bio-texto"><label for="uteroMedida">Medida<small>cm</small></label><input type="text" id="uteroMedida" placeholder="ex: 9,4 x 6,7 x 7,2"></div>
               <div class="field bio-linha"><label for="uteroVolume">Volume estimado</label><input type="text" inputmode="decimal" data-decimals="1" id="uteroVolume" placeholder=""><span class="bio-un">cm³</span></div>
+              <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino no laudo</label></div>
+              <div id="coloFields" class="conditional">
+                <div class="field bio-linha bio-larga"><label for="coloComprimento">Comprimento do colo<small>via transvaginal</small></label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
+              </div>
             </div>
           </div>
           <div class="bio-col">
@@ -879,7 +882,7 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Regiões anexiais e colo uterino</h2></div>
+      <div class="card-head"><h2>Regiões anexiais</h2></div>
       <div class="card-body">
         <div class="bio-grupos"><div class="bio-col">
           <div class="bio-grupo"><h4>Anexos</h4>
@@ -889,13 +892,6 @@
             <div class="field bio-linha bio-larga conditional" id="wrap_anexosDescricao">
               <label for="anexosDescricao">Descreva o achado</label>
               <textarea id="anexosDescricao" rows="2" placeholder="ex: cisto simples em ovário direito..."></textarea>
-            </div>
-          </div>
-        </div><div class="bio-col">
-          <div class="bio-grupo"><h4>Colo uterino</h4>
-            <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino no laudo</label></div>
-            <div id="coloFields" class="conditional">
-              <div class="field bio-linha bio-larga"><label for="coloComprimento">Comprimento do colo<small>via transvaginal</small></label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
             </div>
           </div>
         </div></div>
@@ -909,6 +905,9 @@
           <div class="field"><label for="dumConcordancia">DUM</label>
             <select id="dumConcordancia"><option value="concordante">Concordante</option><option value="discordante">Discordante</option></select>
           </div>
+        </div>
+        <div class="conditional" id="wrap_impIg">
+          <div class="field bio-linha bio-ig"><label for="impSemanas">Idade gestacional pela USG</label><input type="text" inputmode="numeric" id="impSemanas" placeholder="7"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="impDias" placeholder="2" aria-label="Idade gestacional pela USG — dias"><span class="bio-un">dias</span></div>
         </div>
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;">Marcadas automaticamente conforme os achados acima. Desmarque ou ajuste conforme necessário — o texto final é editável diretamente no laudo ao lado.</p>
         <div id="impressaoChecklist" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
@@ -2758,9 +2757,20 @@ if(typeof criarMotorLaudo !== 'function'){
       coloAlterado = coloNum!=null && coloNum < 30;
     }
 
-    const impSemanas = req('impSemanas');
-    const impDias = req('impDias');
     const dumConcordancia = v('dumConcordancia')==='discordante' ? 'discordante' : 'concordante';
+    // "Idade gestacional pela USG" só existe (no card Impressões diagnósticas)
+    // quando a DUM foi julgada discordante, ou quando não há cronologia (DUM
+    // incerta/ignorada). Nos demais casos a IG da conclusão é a própria
+    // cronologia (DUM concordante, 1º ultrassom, FIV) — antes a conclusão lia
+    // sempre o campo digitado e saía "____ semanas" com a DUM concordante.
+    // Com o embrião ainda não identificado o seletor de DUM some (ver mais
+    // abaixo), então "discordante" não vale nesse caso.
+    const embrioNaoIdentPreImp = embrioes.some(e=> e.vitalidade==='nao_identificado' && !e.anembrionada);
+    const usaIgInformada = (cronologiaMetodo === 'dum' && dumConcordancia === 'discordante' && !embrioNaoIdentPreImp)
+      || ehDumSemCronologia(cronologiaMetodo);
+    toggle('wrap_impIg', usaIgInformada);
+    const impSemanas = reqIf('impSemanas', usaIgInformada);
+    const impDias = reqIf('impDias', usaIgInformada);
     // DUM discordante: a data base da DPP e do período do Morfológico do 1º
     // Trimestre deixa de ser a DUM (que a própria médica marcou como não
     // confiável) e passa a ser a IG digitada na conclusão do laudo, aplicada
@@ -2772,8 +2782,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // mesma IG informada, aplicada sobre a data deste exame.
     // Concordante (ou cronologia por USG/ecografia, onde não há o que
     // discordar) mantém dataBase como já era.
-    const usaIgInformadaParaDppMorfo = (cronologiaMetodo === 'dum' && dumConcordancia === 'discordante')
-      || ehDumSemCronologia(cronologiaMetodo);
+    const usaIgInformadaParaDppMorfo = usaIgInformada;
     const dataBaseDppMorfo = usaIgInformadaParaDppMorfo
       ? computeDataBaseFromIG(dataExame, impSemanas, impDias)
       : dataBase;
@@ -2800,12 +2809,15 @@ if(typeof criarMotorLaudo !== 'function'){
     // ou discordante. O seletor some (e a conclusão não fala em DUM) até o
     // embrião aparecer e a datação passar a ser pelo CCN.
     toggle('wrap_dumConcordancia', cronologiaMetodo==='dum' && !algumEmbrioNaoIdentificado);
-    const impSemanasNum = parseInt(impSemanas, 10);
-    const impDiasNum = parseInt(impDias, 10);
+    const igCronoDias = (dataBase && parseDateBR(dataExame)) ? Math.round((parseDateBR(dataExame) - dataBase)/MS_DIA) : null;
+    const igSemanasTxt = usaIgInformada ? impSemanas : (igCronoDias!=null && igCronoDias>=0 ? String(Math.floor(igCronoDias/7)) : '');
+    const igDiasTxt = usaIgInformada ? impDias : (igCronoDias!=null && igCronoDias>=0 ? String(igCronoDias%7) : '');
+    const impSemanasNum = parseInt(igSemanasTxt, 10);
+    const impDiasNum = parseInt(igDiasTxt, 10);
     // {IG}: "X semanas e Y dia(s)" já formatado (sem "e 0 dias", "1 dia" no
     // singular — igual ao IG atual do cabeçalho), para as frases de impressão
     // não montarem esse trecho na mão com {SEMANAS}/{DIAS} soltos.
-    const ig = (impSemanas!=='' && !isNaN(impSemanasNum))
+    const ig = (igSemanasTxt!=='' && !isNaN(impSemanasNum))
       ? formatIG(impSemanasNum*7 + (isNaN(impDiasNum) ? 0 : impDiasNum))
       : '____ semanas e ____ dias';
     // Precoce/tardia é derivado da própria IG por USG informada acima (corte
@@ -2826,7 +2838,7 @@ if(typeof criarMotorLaudo !== 'function'){
       tipoPerdaDesc = 'retida';
     }
     const state = {
-      isMultiple, isTrigemelar, corTxt, semanas: impSemanas||'____', dias: impDias||'____', ig, concordancia: dumConcordancia,
+      isMultiple, isTrigemelar, corTxt, semanas: igSemanasTxt||'____', dias: igDiasTxt||'____', ig, concordancia: dumConcordancia,
       algumObito, dpp, algumHematoma, algumIsgReduzido, algumContornoIrregular, algumEmbrioNaoIdentificado, algumAnembrionada, cronologiaMetodo,
       tempoPerda, tipoPerdaDesc, perdaSemSacoAtiva, perdaSemSacoTipo, emCursoAtiva,
       bexigaAspecto, bexigaDescricao, anexosAspecto, anexosDescricao, colo, coloAlterado,
