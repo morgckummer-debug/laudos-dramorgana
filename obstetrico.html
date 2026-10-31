@@ -213,8 +213,6 @@
   .doppler-lado .bio-col{gap:10px;}
   .doppler-lado .toggle-line{margin:0;}
   #dopplerFetalFields > .conditional.show ~ .conditional.show{margin-top:14px;}
-  .cards-par{display:flex;flex-wrap:wrap;gap:0 14px;align-items:flex-start;}
-  .cards-par>.card{flex:1 1 320px;min-width:0;}
   #grpMorfoRec:not(:has(.show)){display:none;}
   @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
 
@@ -654,9 +652,8 @@
       </div>
     </div>
 
-    <div class="cards-par">
     <div class="card">
-      <div class="card-head"><h2>Idade gestacional</h2></div>
+      <div class="card-head"><h2>Gestação</h2></div>
       <div class="card-body">
         <div class="bio-grupos"><div class="bio-col">
           <div class="bio-grupo"><h4>Datação</h4>
@@ -698,14 +695,7 @@
               <div class="field bio-linha bio-data"><label for="dataFimMorfo2">Período recomendado<small>fim</small></label><input type="text" id="dataFimMorfo2" placeholder="automática" readonly></div>
             </div>
           </div>
-        </div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Gestação</h2></div>
-      <div class="card-body">
-        <div class="bio-grupos"><div class="bio-col">
+        </div><div class="bio-col">
           <div class="bio-grupo"><h4>Tipo de gestação</h4>
             <div class="field bio-linha bio-sel"><label for="numeroFetos">Número de fetos</label>
               <select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
@@ -716,7 +706,6 @@
           </div>
         </div></div>
       </div>
-    </div>
     </div>
 
     <div id="fetosContainer"></div>
