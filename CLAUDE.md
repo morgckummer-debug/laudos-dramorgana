@@ -1832,3 +1832,7 @@ Pedido da médica. Os cards "Idade gestacional" e "Gestação" (que ficavam lado
 ## Obstétrico de 2º/3º trimestre: Datação e Tipo de gestação num card "Gestação" (2026-10-31)
 
 Pedido da médica, igual ao do 1º trimestre (#369). Os cards "Idade gestacional" e "Gestação" do `obstetrico.html`, que ficavam lado a lado num `div.cards-par`, viraram um card só, "Gestação", com dois `.bio-col`: à esquerda Datação e o quadro "Morfológico — recomendação"; à direita Tipo de gestação (número de fetos, corionicidade). O CSS `.cards-par` saiu deste arquivo (não era usado em mais nada). Rótulos dos campos, ids, laudo e rascunho iguais aos da `main`.
+
+## Óbito fetal na conclusão: "Decesso fetal compatível com {IG}" (2026-10-31)
+
+Pedido da médica, com a frase dela. No `obstetrico.html`, o feto com batimentos ausentes (PR #372) sai na conclusão como "Decesso fetal compatível com 20 semanas e 3 dias." (`impDecessoFetal`) e, na múltipla, "Decesso fetal (Feto 1) compatível com ..." (`impDecessoFetalFeto`). A IG é a da cronologia do laudo (`state.ig`). Chaves novas em vez de mudar `impObitoFetal`/`impObitoFetalFeto` (saíram), pelo motivo de sempre: "Salvar frases" guardaria a antiga. Só o `obstetrico.html` tem batimentos ausentes por feto; o óbito embrionário do 1º trimestre ("Perda gestacional...") não mudou. A linha "Gestação com boa evolução" ainda sai junto do decesso.
