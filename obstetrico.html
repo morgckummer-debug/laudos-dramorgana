@@ -2064,7 +2064,8 @@ if(typeof criarMotorLaudo !== 'function'){
       }
     });
 
-    if(!algumAchado){
+    // Óbito fetal (qualquer feto): sem "boa evolução" (pedido da médica, 2026-10-31).
+    if(!algumAchado && !state.fetos.some(f=>f.obito)){
       items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
     }
 
