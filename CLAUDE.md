@@ -1828,3 +1828,7 @@ Pedido da médica: com a DUM concordante a conclusão saía "____ semanas", porq
 ## Obstétrico de 1º trimestre: Datação e Tipo de gestação num card "Gestação" (2026-10-31)
 
 Pedido da médica. Os cards "Idade gestacional" e "Gestação" (que ficavam lado a lado num `div.cards-par`) viraram um card só, "Gestação", com dois `.bio-col`: Datação à esquerda; Tipo de gestação, mola, ectópica e o quadro "Saco gestacional" (presente/ausente) à direita. O título do card de cada saco na tela passou a "Saco gestacional, embrião e VV" (com " — Saco N" quando há mais de um); o rótulo impresso (`sacoLabel()`) não mudou. Ids, laudo e rascunho iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários). Nos cinco laudos obstétricos, as colunas fixas de `bio-sel`/`bio-sel-larga`/`bio-data` são `minmax(0,Npx)` e input/select de `.bio-linha` têm `min-width:0`, para nenhum campo passar da borda do quadro em card estreito (PR #368).
+
+## Obstétrico de 2º/3º trimestre: Datação e Tipo de gestação num card "Gestação" (2026-10-31)
+
+Pedido da médica, igual ao do 1º trimestre (#369). Os cards "Idade gestacional" e "Gestação" do `obstetrico.html`, que ficavam lado a lado num `div.cards-par`, viraram um card só, "Gestação", com dois `.bio-col`: à esquerda Datação e o quadro "Morfológico — recomendação"; à direita Tipo de gestação (número de fetos, corionicidade). O CSS `.cards-par` saiu deste arquivo (não era usado em mais nada). Rótulos dos campos, ids, laudo e rascunho iguais aos da `main`.
