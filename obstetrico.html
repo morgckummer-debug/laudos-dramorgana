@@ -562,6 +562,9 @@
   <div class="field" style="margin-bottom:8px;"><label>Apresentação cefálica/pélvica — gestação múltipla — use {APRESENTACAO} e {DORSO}</label><textarea id="ph_apresentacaoTextoLongitudinalMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Apresentação córmica — gestação múltipla</label><textarea id="ph_apresentacaoTextoTransversaMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade — use {FC}</label><textarea id="ph_vitalidadeTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Vitalidade com batimentos ausentes (óbito fetal)</label><textarea id="ph_vitalidadeAusenteTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (feto único)</label><textarea id="ph_impObitoFetal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (gestação múltipla) — use {FETO}</label><textarea id="ph_impObitoFetalFeto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta normal — use {INSERCAO}, {TEXTURA} e {GRAU}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {TEXTURA}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
@@ -1345,6 +1348,9 @@ if(typeof criarMotorLaudo !== 'function'){
     apresentacaoTextoLongitudinalMultiplo: 'Em situação longitudinal, apresentação {APRESENTACAO}, com dorso {DORSO} da linha mediana.',
     apresentacaoTextoTransversaMultiplo: 'Em situação transversa, apresentação córmica.',
     vitalidadeTexto: 'Movimentação ativa e batimentos cardíacos rítmicos com frequência de {FC} bpm.',
+    vitalidadeAusenteTexto: 'Ausência de batimentos cardíacos fetais.',
+    impObitoFetal: 'Óbito fetal.',
+    impObitoFetalFeto: 'Óbito fetal ({FETO}).',
     placentaTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
     laAspectoNormal: 'Aspecto e volume normais para idade gestacional.',
@@ -1600,6 +1606,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="bio-grupo"><h4>Situação e vitalidade</h4>'
       +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="feto'+uid+'Apresentacao">Apresentação fetal</label><select id="feto'+uid+'Apresentacao"><option value="cefálica">Cefálica</option><option value="pélvica">Pélvica</option><option value="córmica">Córmica (situação transversa)</option></select></div>'
       +'<div class="field bio-linha bio-sel conditional" id="wrap_feto'+uid+'Dorso"><label for="feto'+uid+'Dorso">Dorso fetal</label><select id="feto'+uid+'Dorso"><option value="à direita">À direita</option><option value="à esquerda">À esquerda</option></select></div>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="feto'+uid+'Vitalidade">Batimentos cardíacos<small>ausentes = óbito fetal</small></label><select id="feto'+uid+'Vitalidade"><option value="presente">Presentes</option><option value="ausente">Ausentes (óbito fetal)</option></select></div>'
       +'<div class="field bio-linha"><label for="feto'+uid+'FC">Frequência cardíaca fetal</label><input type="text" inputmode="numeric" id="feto'+uid+'FC" placeholder=""><span class="bio-un">bpm</span></div>'
       +'</div>'
       +'<div class="bio-grupo"><h4>Biometria fetal</h4>'
@@ -2100,6 +2107,14 @@ if(typeof criarMotorLaudo !== 'function'){
         : phraseRaw('impColoNormal'), auto:true});
     }
 
+    // Óbito fetal: uma linha por feto com batimentos ausentes, antes do PBF.
+    state.fetos.forEach(f=>{
+      if(!f.obito) return;
+      items.push({key:k('obito', f), label: state.isMultiple
+        ? phraseRaw('impObitoFetalFeto', {FETO: f.label})
+        : phraseRaw('impObitoFetal'), auto:true});
+    });
+
     // PBF sempre por último na conclusão (só cede lugar para a DPP abaixo,
     // que tem a mesma regra e é ainda mais rara de coexistir com o PBF).
     if(pbfTodosNormais){
@@ -2356,6 +2371,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const isTransversa = apresentacao === 'córmica';
       const dorso = v(pre+'Dorso');
       const fc = blankOrValue(req(pre+'FC'));
+      const obito = v(pre+'Vitalidade') === 'ausente';
       const apresentacaoHtml = isTransversa
         ? phraseRaw(isMultiple ? 'apresentacaoTextoTransversaMultiplo' : 'apresentacaoTextoTransversaUnico')
         : phraseRaw(isMultiple ? 'apresentacaoTextoLongitudinalMultiplo' : 'apresentacaoTextoLongitudinalUnico', {APRESENTACAO: apresentacao, DORSO: dorso});
@@ -2467,7 +2483,7 @@ if(typeof criarMotorLaudo !== 'function'){
         ].filter(Boolean).join(', ');
       }
 
-      return {uid, label, apresentacao, apresentacaoHtml, fc,
+      return {uid, label, apresentacao, apresentacaoHtml, fc, obito,
         dbp, cf, cc, ca, peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
@@ -2637,7 +2653,7 @@ if(typeof criarMotorLaudo !== 'function'){
         const sfx = '-f'+f.uid;
         blocks.push({id:'fetoHeader'+sfx, html:'<h4 class="sec">'+escapeHtml(f.label.toUpperCase())+'</h4>'});
         blocks.push({id:'apresentacao'+sfx, html:'<p class="linha tight">'+f.apresentacaoHtml+'</p>'});
-        blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+phraseRaw('vitalidadeTexto', {FC: f.fc.text})+'</p>'});
+        blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+(f.obito ? phraseRaw('vitalidadeAusenteTexto') : phraseRaw('vitalidadeTexto', {FC: f.fc.text}))+'</p>'});
         // Monocoriônica divide uma placenta só: uma frase (a do último feto), "Placenta única".
         if(!placentaUnica || f===fetos[fetos.length-1]){
           blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">'+(placentaUnica ? 'Placenta única' : 'Placenta')+'</strong></p><p class="linha">'+f.placentaHtml+'</p></div>'});
@@ -2689,7 +2705,7 @@ if(typeof criarMotorLaudo !== 'function'){
       fetos.forEach(f=>{
         const sfx = '-f'+f.uid;
         blocks.push({id:'apresentacao'+sfx, html:'<p class="linha tight">'+f.apresentacaoHtml+'</p>'});
-        blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+phraseRaw('vitalidadeTexto', {FC: f.fc.text})+'</p>'});
+        blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+(f.obito ? phraseRaw('vitalidadeAusenteTexto') : phraseRaw('vitalidadeTexto', {FC: f.fc.text}))+'</p>'});
 
         let biometriaHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Parâmetros Biométricos</strong></p>';
         biometriaHtml += '<table class="biometria">'
