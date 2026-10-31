@@ -702,9 +702,8 @@
       </div>
     </div>
 
-    <div class="cards-par">
     <div class="card">
-      <div class="card-head"><h2>Idade gestacional</h2></div>
+      <div class="card-head"><h2>Gestação</h2></div>
       <div class="card-body">
         <div class="bio-grupos"><div class="bio-col">
           <div class="bio-grupo"><h4>Datação</h4>
@@ -729,14 +728,7 @@
             </div>
             <input type="hidden" id="dpp"><!-- DPP calculada no render(); só sai na conclusão, não aparece na tela -->
           </div>
-        </div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Gestação</h2></div>
-      <div class="card-body">
-        <div class="bio-grupos"><div class="bio-col">
+        </div><div class="bio-col">
           <div class="bio-grupo"><h4>Tipo de gestação</h4>
             <div class="toggle-line"><input type="checkbox" id="chkMola"><label for="chkMola">Achados sugestivos de mola hidatiforme</label></div>
             <div class="toggle-line"><input type="checkbox" id="chkEctopica"><label for="chkEctopica">Gestação ectópica</label></div>
@@ -781,7 +773,6 @@
               <div class="field bio-linha"><label for="ectopicaLiquidoVolume">Volume do líquido<small>opcional</small></label><input type="text" inputmode="decimal" data-decimals="1" id="ectopicaLiquidoVolume" placeholder=""><span class="bio-un">mL</span></div>
             </div>
           </div>
-        </div><div class="bio-col">
       <div class="bio-grupo conditional show" id="wrap_sacoPresenteBloco"><h4>Saco gestacional</h4>
         <div class="field bio-linha bio-sel"><label for="sacoPresente">Saco gestacional</label>
           <select id="sacoPresente"><option value="sim">Presente</option><option value="nao">Ausente</option></select>
@@ -803,7 +794,6 @@
       </div>
     </div>
 
-    </div>
     <div class="conditional show" id="wrap_sacosSection">
       <div id="sacosContainer"></div>
       <button type="button" class="btn-clear" id="btnAddSaco" style="margin:-8px 0 22px;">+ Adicionar saco gestacional</button>
@@ -2108,7 +2098,7 @@ if(typeof criarMotorLaudo !== 'function'){
     cards.forEach((el, idx)=>{
       const label = el.querySelector('.saco-label');
       const uid = el.id.replace('wrap_saco','');
-      if(label) label.textContent = 'Saco '+(idx+1);
+      if(label) label.textContent = 'Saco gestacional, embrião e VV'+(cards.length>1 ? ' — Saco '+(idx+1) : '');
       const removeBtn = el.querySelector('.saco-remove');
       if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
     });
