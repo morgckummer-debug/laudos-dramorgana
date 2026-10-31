@@ -360,14 +360,14 @@
   .cards-par>.card{flex:1 1 320px;min-width:0;}
   /* Variações de linha dos cards fixos (dados do exame, datação, Doppler), as
      mesmas do morfologico-1trimestre.html. */
-  .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
+  .field.bio-linha.bio-sel{grid-template-columns:1fr minmax(0,156px);}
   .field.bio-linha.conditional.show{display:grid;}
   .bio-grupo .field.conditional.show{margin:4px 0 8px;}
   .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
   .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;font-weight:500;text-align:left;padding:8px 10px;}
   .bio-col:only-child{flex:1 1 100%;}
   .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
-  .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
+  .field.bio-linha.bio-data{grid-template-columns:1fr minmax(0,130px);}
   .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
   .field.bio-linha.bio-texto.bio-larga{grid-template-columns:1fr;gap:4px;}
   .field.bio-linha.bio-gpa{grid-template-columns:repeat(3,auto 64px);justify-content:start;column-gap:10px;}
@@ -382,10 +382,12 @@
   .bio-grade2 .field.bio-linha.bio-gpa label:not(:first-child){margin-left:0;}
   .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(-n+2){border-top:0;}
   @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} }
-  .field.bio-linha.bio-sel.bio-sel-larga{grid-template-columns:1fr 240px;}
+  .field.bio-linha.bio-sel.bio-sel-larga{grid-template-columns:1fr minmax(0,240px);}
   .field.bio-linha.bio-ig{grid-template-columns:1fr 52px auto 52px auto;}
   .field.bio-linha.bio-texto input[readonly]{font-size:13px;}
   .field.bio-linha select{padding:8px 8px;font-size:13px;}
+  /* Campo nunca passa da borda do quadro: em card estreito a caixa encolhe em vez de vazar. */
+  .field.bio-linha > input, .field.bio-linha > select{min-width:0;max-width:100%;box-sizing:border-box;}
   /* Uma coluna só: os membros (último quadro de cada coluna) descem para o fim. */
   @media (max-width:720px){
     .bio-grupos{flex-direction:column;}
