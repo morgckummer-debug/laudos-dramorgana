@@ -747,7 +747,8 @@
       <div class="card-head"><h2>Perfil biofísico fetal</h2></div>
       <div class="card-body">
         <div class="toggle-line"><input type="checkbox" id="chkPBF"><label for="chkPBF">Incluir Perfil Biofísico Fetal neste laudo</label></div>
-        <p class="hint-perfeto conditional" id="hintPBF">Sem cardiotocografia — cada critério vale 2 pontos, total até 8. Os critérios são marcados dentro de cada feto, acima.</p>
+        <p class="hint-perfeto conditional" id="hintPBF">Sem cardiotocografia — cada critério vale 2 pontos, total até 8. Os critérios são marcados abaixo, em cada feto.</p>
+        <div id="pbfFetosFields" class="conditional"></div>
       </div>
     </div>
 
@@ -1554,7 +1555,7 @@ if(typeof criarMotorLaudo !== 'function'){
   // Doppler fetal e PBF são escolhas únicas do laudo, mas seus campos moram
   // dentro de cada feto — ligar o bloco revela a seção correspondente em todos.
   $('chkDopplerFetal').addEventListener('change', e=>{ toggle('dopplerFetalFields', e.target.checked); updateAllFetoWraps(); render(); });
-  $('chkPBF').addEventListener('change', e=>{ toggle('hintPBF', e.target.checked); updateAllFetoWraps(); render(); });
+  $('chkPBF').addEventListener('change', e=>{ toggle('hintPBF', e.target.checked); toggle('pbfFetosFields', e.target.checked); updateAllFetoWraps(); render(); });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
   $('cerclagemRealizada').addEventListener('change', e=>{ toggle('wrap_cerclagemIG', e.target.checked); });
   $('chkRecomendacao1').addEventListener('change', e=> toggle('wrap_recomendacao1', e.target.checked));
@@ -1658,7 +1659,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
 
       +'<div class="conditional" id="wrap_feto'+uid+'PBF">'
-      +'<div class="bio-grupo"><h4>Perfil biofísico fetal</h4>'
+      +'<div class="bio-grupo"><h4 id="feto'+uid+'PbfTitulo">Perfil biofísico fetal</h4>'
       +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'PbfResp" checked><label for="feto'+uid+'PbfResp">Movimentos respiratórios presentes</label></div>'
       +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'PbfCorpo" checked><label for="feto'+uid+'PbfCorpo">Movimentos corpóreos presentes</label></div>'
       +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'PbfTono" checked><label for="feto'+uid+'PbfTono">Tônus fetal presente</label></div>'
@@ -1698,6 +1699,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const uid = el.id.replace('wrap_feto','');
       const dl = $('feto'+uid+'DopplerLabel');
       if(dl) dl.textContent = cards.length>1 ? 'Doppler fetal — '+fetoLabel(idx, cards.length) : 'Doppler fetal';
+      const pt = $('feto'+uid+'PbfTitulo');
+      if(pt) pt.textContent = cards.length>1 ? 'Perfil biofísico — '+fetoLabel(idx, cards.length) : 'Perfil biofísico fetal';
     });
     $('numeroFetos').value = String(Math.min(Math.max(cards.length, 1), MAX_FETOS));
     updateGestacaoWrap();
@@ -1739,10 +1742,15 @@ if(typeof criarMotorLaudo !== 'function'){
     // listeners já anexados acima acompanham o elemento — só muda o pai no DOM.
     const dopplerBlock = $('wrap_feto'+uid+'Doppler');
     if(dopplerBlock && $('dopplerFetalFields')) $('dopplerFetalFields').appendChild(dopplerBlock);
+    // Mesmo caso para o perfil biofísico: os critérios moram no card "Perfil biofísico fetal".
+    const pbfBlock = $('wrap_feto'+uid+'PBF');
+    if(pbfBlock && $('pbfFetosFields')) $('pbfFetosFields').appendChild(pbfBlock);
     el.querySelector('.feto-remove').addEventListener('click', ()=>{
       el.remove();
       const db = $('wrap_feto'+uid+'Doppler');
       if(db) db.remove();
+      const pb = $('wrap_feto'+uid+'PBF');
+      if(pb) pb.remove();
       renumberFetos();
       render();
     });
@@ -3003,6 +3011,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // digitados, e o select de nº de fetos acabou de voltar para "Único".
     $('fetosContainer').innerHTML = '';
     const _dffReset = $('dopplerFetalFields'); if(_dffReset) _dffReset.innerHTML = '';
+    const _pbfReset = $('pbfFetosFields'); if(_pbfReset) _pbfReset.innerHTML = '';
     // A limpeza acima tirou "show" de todo `.conditional`, inclusive os campos de
     // "IG neste exame" e "DUM concordante/discordante": o select de cronologia
     // volta para "DUM", mas sem refazer o toggle esses campos ficavam escondidos
@@ -3059,6 +3068,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
       $('fetosContainer').innerHTML = '';
       const _dffRestore = $('dopplerFetalFields'); if(_dffRestore) _dffRestore.innerHTML = '';
+      const _pbfRestore = $('pbfFetosFields'); if(_pbfRestore) _pbfRestore.innerHTML = '';
       if(uids.length){
         uids.forEach(uid=>{
           fetoNextUid = Math.max(fetoNextUid, parseInt(uid, 10) + 1);
@@ -3106,6 +3116,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // branco do que deixar a tela quebrada.
       st.draftRestoring = false;
       $('fetosContainer').innerHTML = '';
+      if($('pbfFetosFields')) $('pbfFetosFields').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
       st.lastBlockHtml = {};
