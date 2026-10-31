@@ -205,14 +205,14 @@
   .bio-grupo.conditional.show{display:block;}
   .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
   .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);margin:0;}
-  .field.bio-linha.bio-sel{grid-template-columns:1fr 156px;}
-  .field.bio-linha.bio-sel.bio-sel-larga{grid-template-columns:1fr 240px;}
+  .field.bio-linha.bio-sel{grid-template-columns:1fr minmax(0,156px);}
+  .field.bio-linha.bio-sel.bio-sel-larga{grid-template-columns:1fr minmax(0,240px);}
   .field.bio-linha.conditional.show{display:grid;}
   .bio-grupo .field.conditional.show{margin:4px 0 8px;}
   .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
   .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;font-weight:500;text-align:left;padding:8px 10px;}
   .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
-  .field.bio-linha.bio-data{grid-template-columns:1fr 130px;}
+  .field.bio-linha.bio-data{grid-template-columns:1fr minmax(0,130px);}
   .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
   .field.bio-linha.bio-texto input[readonly]{font-size:13px;}
   .field.bio-linha.bio-texto.bio-larga{grid-template-columns:1fr;gap:4px;}
@@ -233,6 +233,8 @@
   .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
   .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
   .field.bio-linha select{padding:8px 8px;font-size:13px;}
+  /* Campo nunca passa da borda do quadro: em card estreito a caixa encolhe em vez de vazar. */
+  .field.bio-linha > input, .field.bio-linha > select{min-width:0;max-width:100%;box-sizing:border-box;}
   .bio-un{font-size:12.5px;color:var(--ink-soft);}
   @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
 
