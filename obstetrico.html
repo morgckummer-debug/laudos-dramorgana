@@ -2607,9 +2607,9 @@ if(typeof criarMotorLaudo !== 'function'){
     const tabelaDopplerMaterno = ''
       +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Materno (IP)</strong></p>'
       +'<table class="biometria doppler-materno">'
-      +'<tr><td>Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
-      +'<tr><td>Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
-      +'<tr><td>IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
+      +'<tr><td style="white-space:nowrap;">Artéria Uterina Direita:</td><td>'+span(utDireitaVal)+'</td></tr>'
+      +'<tr><td style="white-space:nowrap;">Artéria Uterina Esquerda:</td><td>'+span(utEsquerdaVal)+'</td></tr>'
+      +'<tr><td style="white-space:nowrap;">IP médio:</td><td style="white-space:nowrap;">'+span(blankOrValue(utMedioTxt))+' (P'+span(blankOrValue(utPercentilTxt))+')</td></tr>'
       +'</table>';
     const tabelaDopplerFetal = f => ''
       +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Fetal (IP)</strong></p>'
