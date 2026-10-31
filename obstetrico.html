@@ -563,8 +563,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Apresentação córmica — gestação múltipla</label><textarea id="ph_apresentacaoTextoTransversaMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade — use {FC}</label><textarea id="ph_vitalidadeTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade com batimentos ausentes (óbito fetal)</label><textarea id="ph_vitalidadeAusenteTexto" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (feto único)</label><textarea id="ph_impObitoFetal" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (gestação múltipla) — use {FETO}</label><textarea id="ph_impObitoFetalFeto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (feto único) — use {IG}</label><textarea id="ph_impDecessoFetal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (gestação múltipla) — use {FETO} e {IG}</label><textarea id="ph_impDecessoFetalFeto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta normal — use {INSERCAO}, {TEXTURA} e {GRAU}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {TEXTURA}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
@@ -1349,8 +1349,8 @@ if(typeof criarMotorLaudo !== 'function'){
     apresentacaoTextoTransversaMultiplo: 'Em situação transversa, apresentação córmica.',
     vitalidadeTexto: 'Movimentação ativa e batimentos cardíacos rítmicos com frequência de {FC} bpm.',
     vitalidadeAusenteTexto: 'Ausência de batimentos cardíacos fetais.',
-    impObitoFetal: 'Óbito fetal.',
-    impObitoFetalFeto: 'Óbito fetal ({FETO}).',
+    impDecessoFetal: 'Decesso fetal compatível com {IG}.',
+    impDecessoFetalFeto: 'Decesso fetal ({FETO}) compatível com {IG}.',
     placentaTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
     laAspectoNormal: 'Aspecto e volume normais para idade gestacional.',
@@ -2111,8 +2111,8 @@ if(typeof criarMotorLaudo !== 'function'){
     state.fetos.forEach(f=>{
       if(!f.obito) return;
       items.push({key:k('obito', f), label: state.isMultiple
-        ? phraseRaw('impObitoFetalFeto', {FETO: f.label})
-        : phraseRaw('impObitoFetal'), auto:true});
+        ? phraseRaw('impDecessoFetalFeto', {FETO: f.label, IG: state.ig, SEMANAS: state.semanas, DIAS: state.dias})
+        : phraseRaw('impDecessoFetal', {IG: state.ig, SEMANAS: state.semanas, DIAS: state.dias}), auto:true});
     });
 
     // PBF sempre por último na conclusão (só cede lugar para a DPP abaixo,
