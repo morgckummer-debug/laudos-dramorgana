@@ -1456,6 +1456,9 @@ if(typeof criarMotorLaudo !== 'function'){
     // {FLUXO} vem de AU_FLUXO_TXT (AEDF/REDF/iAREDF) — achado mais grave que
     // o RCP baixo, por isso tem prioridade sobre ele em dopplerFetalLabelFor.
     impAuFluxoAlterado: '{FLUXO} — sugere-se avaliação e acompanhamento especializado.',
+    // iAREDF sai só como "Diástole Intermitente" (pedido da médica, 2026-11-01);
+    // chave nova para o "Salvar frases" não sobrescrever com a frase antiga.
+    impAuFluxoIntermitente: 'Diástole Intermitente',
     coloTexto: 'Textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm (VR ≥ 25,0 mm). "Sludge" não identificado.',
     // Exame "simples": sem as duas seções opcionais, o laudo registra por que
     // elas não estão lá — não foram pedidas. Sem essa linha, quem lê depois
@@ -2324,7 +2327,9 @@ if(typeof criarMotorLaudo !== 'function'){
     // primeiro: achado mais grave e mais específico que um RCP baixo
     // isolado. Mesmo padrão do obstetrico.html.
     const dopplerFetalLabelFor = f => f.auFluxoAlterado
-      ? phraseRaw('impAuFluxoAlterado', {FLUXO: AU_FLUXO_TXT[f.auFluxo]})
+      ? (f.auFluxo === 'intermitente'
+          ? phraseRaw('impAuFluxoIntermitente')
+          : phraseRaw('impAuFluxoAlterado', {FLUXO: AU_FLUXO_TXT[f.auFluxo]}))
       : (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
         ? phraseRaw('impRcpBaixoP5')
         : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));

@@ -1405,6 +1405,9 @@ if(typeof criarMotorLaudo !== 'function'){
     // {FLUXO} vem de AU_FLUXO_TXT (AEDF/REDF/iAREDF) — achado mais grave que
     // o RCP baixo, por isso tem prioridade sobre ele em dopplerFetalLabelFor.
     impAuFluxoAlterado: '{FLUXO} — sugere-se avaliação e acompanhamento especializado.',
+    // iAREDF sai só como "Diástole Intermitente" (pedido da médica, 2026-11-01);
+    // chave nova para o "Salvar frases" não sobrescrever com a frase antiga.
+    impAuFluxoIntermitente: 'Diástole Intermitente',
 
     impPbf: 'PBF: {SCORE}/8.',
     impPbfTodos: 'PBF de {TERMO} os fetos: {SCORE}/8.',
@@ -2068,7 +2071,9 @@ if(typeof criarMotorLaudo !== 'function'){
     // informação clínica se ficasse escondido atrás da frase genérica de
     // RCP ou da classificação manual normal/alterado.
     const dopplerFetalLabelFor = f => f.auFluxoAlterado
-      ? phraseRaw('impAuFluxoAlterado', {FLUXO: AU_FLUXO_TXT[f.auFluxo]})
+      ? (f.auFluxo === 'intermitente'
+          ? phraseRaw('impAuFluxoIntermitente')
+          : phraseRaw('impAuFluxoAlterado', {FLUXO: AU_FLUXO_TXT[f.auFluxo]}))
       : (f.cprPercentilNum!=null && f.cprPercentilNum < 5)
         ? phraseRaw('impRcpBaixoP5')
         : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
