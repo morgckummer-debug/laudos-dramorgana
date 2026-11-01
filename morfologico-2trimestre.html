@@ -178,6 +178,8 @@
   .card > .card-head:hover{background:var(--rose-darker);}
   .card-head::after{content:'▶';width:22px;height:22px;border-radius:50%;background:var(--rose-light);color:var(--rose-dark);display:flex;align-items:center;justify-content:center;font-size:12px;transition:transform .2s;flex:none;transform:rotate(90deg);}
   .card.fechado .card-head::after{transform:none;}
+  .card.card-fixo > .card-head{cursor:default;}
+  .card.card-fixo > .card-head::after{display:none;}
   .card.fechado .card-head{border-bottom:0;}
   .card.fechado .card-body{display:none;}
 
@@ -713,7 +715,7 @@
   <!-- FORM COLUMN -->
   <div id="formCol">
 
-    <div class="card">
+    <div class="card card-fixo">
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
         <p style="font-size:12px;color:var(--ink-soft);margin-top:0;"></p>
@@ -2018,11 +2020,11 @@ if(typeof criarMotorLaudo !== 'function'){
   // Começam fechados, menos "Dados do exame" e os cards de feto. A classe fica só
   // na tela (o laudo e o rascunho não dependem dela) e os campos continuam no DOM.
   function cardsBarras(){
-    document.querySelectorAll('.card > .card-head').forEach(h=>{
+    document.querySelectorAll('.card:not(.card-fixo) > .card-head').forEach(h=>{
       if(h.dataset.barra) return;
       h.dataset.barra = '1'; h.tabIndex = 0; h.setAttribute('role','button');
       const card = h.parentElement;
-      if(!card.id.startsWith('wrap_feto') && card !== document.querySelector('.card')) card.classList.add('fechado');
+      if(!card.id.startsWith('wrap_feto')) card.classList.add('fechado');
     });
   }
   function alternarCard(h){
@@ -2030,9 +2032,9 @@ if(typeof criarMotorLaudo !== 'function'){
     card.classList.toggle('fechado', fecha);
     h.setAttribute('aria-expanded', String(!fecha));
   }
-  document.addEventListener('click', e=>{ const h=e.target.closest('.card > .card-head'); if(h) alternarCard(h); });
+  document.addEventListener('click', e=>{ const h=e.target.closest('.card:not(.card-fixo) > .card-head'); if(h) alternarCard(h); });
   document.addEventListener('keydown', e=>{
-    if((e.key==='Enter'||e.key===' ') && e.target.matches && e.target.matches('.card > .card-head')){ e.preventDefault(); alternarCard(e.target); }
+    if((e.key==='Enter'||e.key===' ') && e.target.matches && e.target.matches('.card:not(.card-fixo) > .card-head')){ e.preventDefault(); alternarCard(e.target); }
   });
   // ----- Barras do card Feto -----
   function fsecResumo(uid, n){
