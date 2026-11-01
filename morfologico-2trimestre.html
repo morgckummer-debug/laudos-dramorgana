@@ -640,6 +640,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Sem anomalia estrutural — todos os segmentos normais</label><textarea id="ph_impSemAnomalias" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Achado morfológico alterado — use {SEGMENTO} e {DESCRICAO}</label><textarea id="ph_impMorfoAlterado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Artéria umbilical única (na conclusão)</label><textarea id="ph_impAchadoAUU" rows="1"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Osso nasal ausente/hipoplásico (na conclusão)</label><textarea id="ph_impAchadoONAusente" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — oligoâmnio (impressão)</label><textarea id="ph_impLaOligoamnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — polidrâmnio (impressão)</label><textarea id="ph_impLaPolidramnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Inserção velamentosa do cordão (na conclusão)</label><textarea id="ph_impCordaoVelamentoso" rows="1"></textarea></div>
@@ -793,6 +794,7 @@
               <div class="field bio-linha bio-larga"><label for="utP95Calc">Percentil<small>Gómez et al., 2008</small></label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
             </div>
           </div>
+          <div id="ciurFetosContainer"></div>
         </div><div class="bio-col">
           <div class="toggle-line"><input type="checkbox" id="chkDopplerFetal"><label for="chkDopplerFetal">Doppler fetal (umbilical, cerebral média e relação cérebro-placentária)</label></div>
           <div id="dopplerFetalFields" class="conditional"></div>
@@ -1432,6 +1434,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impSemAnomalias: 'Ao exame morfológico não evidenciamos nenhuma anomalia estrutural, passível de identificação para essa idade gestacional.',
     impMorfoAlterado: '{SEGMENTO}: {DESCRICAO}.',
     impAchadoAUU: 'Artéria umbilical única',
+    impAchadoONAusente: 'Osso nasal ausente/hipoplásico',
     impLaOligoamnio: 'Oligoâmnio — redução do volume de líquido amniótico para a idade gestacional.',
     impLaPolidramnio: 'Polidrâmnio — aumento do volume de líquido amniótico para a idade gestacional.',
     impPlacentaAlterada: 'Placenta com espessura alterada: {DESCRICAO}.',
@@ -1909,9 +1912,12 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field bio-linha"><label for="feto'+uid+'CprPercentil">Percentil do RCP<small>calculado, editável</small><button type="button" class="cpr-recalc" id="feto'+uid+'CprRecalc" data-uid="'+uid+'" style="display:block;background:none;border:none;padding:0;font-size:11.5px;color:var(--rose-dark);text-decoration:underline;cursor:pointer;">Recalcular percentil</button></label><input type="text" inputmode="numeric" id="feto'+uid+'CprPercentil" placeholder="auto"><span class="bio-un"></span></div>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'DopplerClassificacao">Classificação<small>umbilical + ACM + relação cérebro-placentária</small></label><select id="feto'+uid+'DopplerClassificacao"><option value="normal">Dentro da normalidade</option><option value="alterado">Alterado - Redistribuição de fluxo</option></select></div>'
       +'</div>'
-      +'<div class="bio-grupo conditional so-vivo" id="wrap_feto'+uid+'CiurEstagio"><h4>CIUR</h4>'
-      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'CiurEstagio">Estágio<small>quando o peso é ≤ P3</small></label><select id="feto'+uid+'CiurEstagio"><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>'
-      +'</div>'
+      +'<div class="bio-grupo conditional so-vivo" id="wrap_feto'+uid+'CiurEstagio"><h4 id="feto'+uid+'CiurLabel">CIUR</h4>'
+      +'<div class="field bio-linha bio-larga"><label>Estágio<small>quando o peso é ≤ P3</small></label>'
+      +'<div class="osso-btns" data-for="feto'+uid+'CiurEstagio" data-def="I">'
+      +['I','II','III','IV'].map(e=>'<button type="button" data-v="'+e+'">'+e+'</button>').join('')
+      +'</div><input type="hidden" id="feto'+uid+'CiurEstagio" value="I"></div>'
++'</div>'
       +'</div>'
 
       +morfoQuadro(uid)
@@ -1967,6 +1973,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const uid = el.id.replace('wrap_feto','');
       const dl = $('feto'+uid+'DopplerLabel');
       if(dl) dl.textContent = cards.length>1 ? 'Doppler fetal — '+fetoLabel(idx, cards.length) : 'Doppler fetal';
+      const cl = $('feto'+uid+'CiurLabel');
+      if(cl) cl.textContent = cards.length>1 ? 'CIUR — '+fetoLabel(idx, cards.length) : 'CIUR';
     });
     $('numeroFetos').value = String(Math.min(Math.max(cards.length, 1), MAX_FETOS));
     updateGestacaoWrap();
@@ -2033,6 +2041,10 @@ if(typeof criarMotorLaudo !== 'function'){
     // elemento — só muda o pai no DOM.
     const dopplerBlock = $('wrap_feto'+uid+'Doppler');
     if(dopplerBlock && $('dopplerFetalFields')) $('dopplerFetalFields').appendChild(dopplerBlock);
+    // O quadro CIUR fica abaixo do Doppler materno (coluna da esquerda), e não
+    // dentro do Doppler fetal. Visível pelo percentil, sem depender do Doppler.
+    const ciurBlock = $('wrap_feto'+uid+'CiurEstagio');
+    if(ciurBlock && $('ciurFetosContainer')) $('ciurFetosContainer').appendChild(ciurBlock);
     el.querySelector('.feto-remove').addEventListener('click', ()=>{
       el.remove();
       const db = $('wrap_feto'+uid+'Doppler');
@@ -2356,6 +2368,7 @@ if(typeof criarMotorLaudo !== 'function'){
     vivos.forEach(f=>{
       const achados = [];
       if(f.auu){ const t = phraseRaw('impAchadoAUU'); achados.push({key:'auu', curto:t, unico:t.replace(/\.*\s*$/, '')+'.'}); }
+      if(f.ossoNasalPres === 'Ausente/Hipoplásico'){ const t = phraseRaw('impAchadoONAusente'); achados.push({key:'on-ausente', curto:t, unico:t.replace(/\.*\s*$/, '')+'.'}); }
       f.alteracoes.forEach(a=> achados.push({key:'morfo-'+a.slug, curto:a.descricao,
         unico:phraseRaw('impMorfoAlterado', {SEGMENTO:a.titulo, DESCRICAO:a.descricao})}));
       const linha = linhaAchados(f, achados, '');
@@ -2480,7 +2493,7 @@ if(typeof criarMotorLaudo !== 'function'){
     pendingCount = 0;
     document.querySelectorAll('.osso-btns').forEach(g=>{
       const h = document.getElementById(g.dataset.for);
-      const atual = (h && h.value) || 'Presente';
+      const atual = (h && h.value) || g.dataset.def || 'Presente';
       g.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v === atual));
     });
     function req(id){
