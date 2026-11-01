@@ -344,6 +344,10 @@
 
   /* Morfológico de 3º trimestre: campos que só se medem no 2º */
   body.tri3 .t2only{display:none !important;}
+  /* Óbito fetal (batimentos ausentes): o card do feto mostra só o que vai para
+     o laudo de obstétrico simples; com todos os fetos em óbito some o Doppler. */
+  .feto-obito .so-vivo{display:none !important;}
+  body.obito-todos #cardDoppler{display:none !important;}
   /* Parâmetros biométricos do cartão do feto, em quadros por região
      (bioGrupo()). .bio-linha também é .field: anula o empilhamento dela. */
   .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
@@ -772,7 +776,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="cardDoppler">
       <div class="card-head"><h2>Doppler</h2></div>
       <div class="card-body">
         <div class="bio-grupos doppler-lado"><div class="bio-col">
@@ -1684,12 +1688,12 @@ if(typeof criarMotorLaudo !== 'function'){
   // '' = sem unidade (percentil). inputmode ausente = 'decimal', que ganha
   // data-decimals="1" como os campos de antes. soT2 esconde o quadro inteiro
   // no 3º trimestre (membros inferiores: só tíbia e fíbula).
-  function bioGrupo(uid, titulo, itens, soT2){
-    return '<div class="bio-grupo'+(soT2?' t2only':'')+'"><h4>'+titulo+'</h4>'
-      + itens.map(([suf, nome, sigla, un, modo, t2])=>{
+  function bioGrupo(uid, titulo, itens, soT2, soVivo){
+    return '<div class="bio-grupo'+(soT2?' t2only':'')+(soVivo?' so-vivo':'')+'"><h4>'+titulo+'</h4>'
+      + itens.map(([suf, nome, sigla, un, modo, t2, vivo])=>{
         const unidade = un === undefined ? 'mm' : un;
         const im = modo || 'decimal';
-        return '<div class="field bio-linha'+(t2?' t2only':'')+'">'
+        return '<div class="field bio-linha'+(t2?' t2only':'')+(vivo?' so-vivo':'')+'">'
           +'<label for="feto'+uid+suf+'">'+nome+(sigla?'<small>'+sigla+'</small>':'')+'</label>'
           +'<input type="text" inputmode="'+im+'"'+(im==='decimal'?' data-decimals="1"':'')+' id="feto'+uid+suf+'">'
           +'<span class="bio-un">'+unidade+'</span></div>';
@@ -1766,10 +1770,10 @@ if(typeof criarMotorLaudo !== 'function'){
       '<div class="field bio-linha bio-sel"><label for="feto'+uid+k+'">'+nome+'</label><select id="feto'+uid+k+'"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+k+'Descricao"><label>Descreva o achado — '+nome+'</label>'+prontoSelect(uid,k)+'<textarea id="feto'+uid+k+'Descricao" rows="2"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+k+'Resumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+k+'Resumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+k+'ResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>';
-    return '<p class="feto-sub">Avaliação morfológica fetal</p>'
+    return '<div class="so-vivo"><p class="feto-sub">Avaliação morfológica fetal</p>'
       +'<div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Segmentos fetais</h4>'
       +seg('Cranio','Crânio / cérebro')+seg('Face','Face')+seg('Coluna','Coluna vertebral')+seg('Torax','Tórax / coração')+seg('Abdome','Abdome')+seg('Membros','Membros fetais')
-      +'</div></div></div>';
+      +'</div></div></div></div>';
   }
   function fetoCardHTML(uid){
     return ''
@@ -1784,7 +1788,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'Apresentacao">Apresentação fetal</label><select id="feto'+uid+'Apresentacao"><option value="cefálica">Cefálica</option><option value="pélvica">Pélvica</option><option value="córmica">Córmica (situação transversa)</option></select></div>'
       +'<div class="conditional" id="wrap_feto'+uid+'Dorso"><div class="field bio-linha bio-sel"><label for="feto'+uid+'Dorso">Dorso fetal</label><select id="feto'+uid+'Dorso"><option value="à direita">À direita</option><option value="à esquerda">À esquerda</option></select></div></div>'
       +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="feto'+uid+'Vitalidade">Batimentos cardíacos<small>ausentes = óbito fetal</small></label><select id="feto'+uid+'Vitalidade"><option value="presente">Presentes</option><option value="ausente">Ausentes (óbito fetal)</option></select></div>'
-      +'<div class="field bio-linha"><label for="feto'+uid+'FC">Frequência cardíaca fetal<small>FCF</small></label><input type="text" inputmode="numeric" id="feto'+uid+'FC"><span class="bio-un">bpm</span></div>'
+      +'<div class="field bio-linha so-vivo"><label for="feto'+uid+'FC">Frequência cardíaca fetal<small>FCF</small></label><input type="text" inputmode="numeric" id="feto'+uid+'FC"><span class="bio-un">bpm</span></div>'
       +'</div>'
       +'</div>'
       +'<div class="bio-col">'
@@ -1804,34 +1808,34 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="bio-col">'
       +bioGrupo(uid, 'Biometria fetal', [
         ['DBP','Diâmetro biparietal','DBP'],
-        ['DOF','Diâmetro occipitofrontal','DOF'],
+        ['DOF','Diâmetro occipitofrontal','DOF',undefined,'',false,true],
         ['CC','Circunferência cefálica','CC'],
         ['CA','Circunferência abdominal','CA'],
         ['CF','Comprimento femoral','CF'],
         ['Peso','Peso fetal estimado','Hadlock','g','numeric'],
-        ['Percentil','Percentil de peso','Hadlock','','numeric']])
+        ['Percentil','Percentil de peso','Hadlock','','numeric',false,true]])
       +bioGrupo(uid, 'Membros superiores', [
         ['Umero','Úmero'],
         ['Radio','Rádio','',undefined,'',true],
-        ['Ulna','Ulna','',undefined,'',true]])
+        ['Ulna','Ulna','',undefined,'',true]], false, true)
       +'</div>'
       +'<div class="bio-col">'
       +bioGrupo(uid, 'Crânio e sistema nervoso', [
         ['DiamCerebelar','Diâmetro cerebelar'],
         ['CisternaMagna','Cisterna magna'],
         ['VentriculoPosterior','Ventrículo posterior'],
-        ['PregaNucal','Prega nucal']])
+        ['PregaNucal','Prega nucal']], false, true)
       +bioGrupo(uid, 'Face', [
         ['OssoNasal','Osso nasal'],
         ['DOE','Distância orbitária externa','DI externo'],
         ['DOI','Distância orbitária interna','DI interno'],
-        ['PregaPreNasal','Prega pré-nasal','',undefined,'',true]])
+        ['PregaPreNasal','Prega pré-nasal','',undefined,'',true]], false, true)
       +bioGrupo(uid, 'Membros inferiores', [
         ['Tibia','Tíbia','',undefined,'',true],
-        ['Fibula','Fíbula','',undefined,'',true]], true)
+        ['Fibula','Fíbula','',undefined,'',true]], true, true)
       +'</div>'
       +'</div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'CiurEstagio"><label>CIUR — estágio</label><select id="feto'+uid+'CiurEstagio"><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>'
+      +'<div class="field conditional so-vivo" id="wrap_feto'+uid+'CiurEstagio"><label>CIUR — estágio</label><select id="feto'+uid+'CiurEstagio"><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>'
 
       +'<p class="feto-sub">Placenta, cordão umbilical e líquido amniótico</p>'
       +'<div class="bio-grupos">'
@@ -1863,7 +1867,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'</div>'
 
-      +'<div class="conditional" id="wrap_feto'+uid+'Doppler">'
+      +'<div class="conditional so-vivo" id="wrap_feto'+uid+'Doppler">'
       // Um quadro só por feto, como no obstetrico.html (2026-11-01, pedido da
       // médica): umbilical, fluxo diastólico, ACM, RCP, percentil e
       // classificação, nessa ordem. Ids iguais aos de antes.
@@ -2267,7 +2271,8 @@ if(typeof criarMotorLaudo !== 'function'){
         ? phraseRaw('impRcpBaixoP5')
         : (f.dopplerFetalAlterado ? phraseRaw('impDopplerFetalAlterado') : phraseRaw('impDopplerFetalNormal'));
     const dopplerFetalTodosNormais = state.isMultiple && state.dopplerFetal
-      && state.fetos.every(f => dopplerFetalLabelFor(f) === phraseRaw('impDopplerFetalNormal'));
+      && state.fetos.every(f => f.obito || dopplerFetalLabelFor(f) === phraseRaw('impDopplerFetalNormal'))
+      && !state.fetos.some(f=> f.obito);
 
     // DUM discordante: a conclusão só avisa da discordância. Chaves próprias —
     // mudar o texto de `impGestacao` esconderia o conserto da médica.
@@ -2278,14 +2283,16 @@ if(typeof criarMotorLaudo !== 'function'){
     items.push({key:'gestacao', label: phraseRaw(gestacaoKey,
       {CORIONICIDADE:state.corTxt, IG:state.ig, SEMANAS:state.semanas, DIAS:state.dias}), auto:true});
 
-    const algumAchado = state.fetos.some(f=> f.laAlterado || f.placentaAlterada || f.placentaPrevia || f.morfoAlterado || f.pesoKey==='impPesoPIG' || f.pesoKey==='impPesoCIUR')
+    const algumAchado = state.fetos.some(f=> f.laAlterado || f.placentaAlterada || f.placentaPrevia || (!f.obito && (f.morfoAlterado || f.pesoKey==='impPesoPIG' || f.pesoKey==='impPesoCIUR')))
       || state.discordanciaAlterada;
 
     // O percentil de peso fetal vai sempre no 2º item da conclusão, logo após
     // a gestação — antes até da frase de boa evolução e dos achados morfológicos.
     state.fetos.forEach(f=>{
+      if(f.obito) return; // óbito: o peso fica só no corpo do laudo, sem percentil
       items.push({key:k('peso', f), label: pre(f) + f.pesoLabel, auto:true});
     });
+    const vivos = state.fetos.filter(f=> !f.obito);
 
     // Óbito fetal (batimentos ausentes): uma linha por feto, logo depois do
     // peso; com algum feto em óbito a "boa evolução" não sai.
@@ -2303,9 +2310,12 @@ if(typeof criarMotorLaudo !== 'function'){
     // Achados morfológicos: quando nenhum feto tem segmento alterado, a
     // impressão traz a frase única de normalidade; cada segmento marcado como
     // alterado (com descrição) sobe como item próprio, um por feto.
-    const algumAlterado = state.fetos.some(f=> f.morfoAlterado);
-    if(!algumAlterado){
-      items.push({key:'sem-anomalias', label: phraseRaw('impSemAnomalias'), auto:true});
+    // Só os fetos vivos têm morfologia. Gemelar com um feto em óbito: a frase
+    // de normalidade leva o nome do feto vivo.
+    const algumAlterado = vivos.some(f=> f.morfoAlterado);
+    if(vivos.length && !algumAlterado){
+      const preSem = (state.isMultiple && vivos.length < state.fetos.length && vivos.length === 1) ? pre(vivos[0]) : '';
+      items.push({key:'sem-anomalias', label: preSem + phraseRaw('impSemAnomalias'), auto:true});
     }
     // Achados fetais (marcadores e segmentos com resumo): um achado sozinho
     // sai com a frase de sempre; dois ou mais saem numa linha só, unidos por
@@ -2321,7 +2331,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const corpo = achados.map(a=> a.curto.replace(/\.+\s*$/, '')).join(' + ') + '.';
       return {key:k('achados-'+achados.map(a=>a.key).join('-'), f), label: pre(f) + corpo + (extra ? ' '+extra : ''), auto:true};
     }
-    state.fetos.forEach(f=>{
+    vivos.forEach(f=>{
       const achados = [];
       if(f.auu){ const t = phraseRaw('impAchadoAUU'); achados.push({key:'auu', curto:t, unico:t.replace(/\.*\s*$/, '')+'.'}); }
       f.alteracoes.forEach(a=> achados.push({key:'morfo-'+a.slug, curto:a.descricao,
@@ -2343,7 +2353,7 @@ if(typeof criarMotorLaudo !== 'function'){
       if(f.placentaPrevia){
         items.push({key:k('placenta-previa', f), label: pre(f) + phraseRaw('impPlacentaPrevia', {INSERCAO: f.placentaInsercaoTxt}), auto:true});
       }
-      if(state.dopplerFetal && !dopplerFetalTodosNormais){
+      if(state.dopplerFetal && !dopplerFetalTodosNormais && !f.obito){
         items.push({key:k('doppler-fetal', f), label: pre(f) + dopplerFetalLabelFor(f), auto:true});
       }
     });
@@ -2513,8 +2523,17 @@ if(typeof criarMotorLaudo !== 'function'){
     toggle('wrap_placentaUnica', !placentaPorFeto);
     uids.forEach(uid=> toggle('feto'+uid+'PlacentaWrap', placentaPorFeto));
 
+    // ----- Óbito fetal -----
+    // Feto com batimentos ausentes sai como obstétrico simples (pedido da
+    // médica, 2026-11-01): biometria básica com peso (sem percentil), placenta,
+    // líquido e colo; sem morfologia nem Doppler fetal. Todos os fetos em óbito:
+    // o laudo inteiro vira "ULTRASSOM OBSTÉTRICO", sem Doppler nenhum.
+    uids.forEach(uid=> $('wrap_feto'+uid) && $('wrap_feto'+uid).classList.toggle('feto-obito', v('feto'+uid+'Vitalidade') === 'ausente'));
+    const todosObito = uids.length > 0 && uids.every(uid=> v('feto'+uid+'Vitalidade') === 'ausente');
+    document.body.classList.toggle('obito-todos', todosObito);
+
     // ----- Doppler materno (artérias uterinas) -----
-    const dopplerMaterno = $('chkDopplerMaterno').checked;
+    const dopplerMaterno = $('chkDopplerMaterno').checked && !todosObito;
     let utMedioTxt = '', utPercentilTxt = '', utAlterado = false;
     let utDireitaVal = {text:'____',filled:false}, utEsquerdaVal = {text:'____',filled:false};
     if(dopplerMaterno){
@@ -2532,7 +2551,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     // ----- Doppler fetal (umbilical, cerebral média, relação cérebro-placentária) -----
-    const dopplerFetal = $('chkDopplerFetal').checked;
+    const dopplerFetal = $('chkDopplerFetal').checked && !todosObito;
 
     // ----- Um estado por feto -----
     const fetos = uids.map((uid, idx)=>{
@@ -2715,7 +2734,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // vermelho e o que entra no flag geral de anormalidade. Quem escolhe a
     // frase é `discordanciaSeveridade`.
     let discordanciaTxt = '', discordanciaNum = null, discordanciaAlterada = false, discordanciaSeveridade = 'ok';
-    const pesos = fetos.map(f=> f.pesoNum).filter(x=> x!=null && x>0);
+    const pesos = fetos.filter(f=> !f.obito).map(f=> f.pesoNum).filter(x=> x!=null && x>0);
     if(isMultiple && pesos.length >= 2){
       const maior = Math.max.apply(null, pesos);
       const menor = Math.min.apply(null, pesos);
@@ -2747,7 +2766,7 @@ if(typeof criarMotorLaudo !== 'function'){
       discordanciaTxt, discordanciaAlterada, discordanciaSeveridade, discordanciaNum,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       dopplerFetal,
-      colo, coloAlterado, cerclagem: $('cerclagemRealizada').checked
+      colo, coloAlterado, cerclagem: $('cerclagemRealizada').checked, todosObito
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
@@ -2786,7 +2805,10 @@ if(typeof criarMotorLaudo !== 'function'){
     if(dopplerAny && colo) tituloLinha2 += ' COM DOPPLER E MEDIDA DO COLO UTERINO';
     else if(dopplerAny) tituloLinha2 += ' COM DOPPLER';
     else if(colo) tituloLinha2 += ' COM MEDIDA DO COLO UTERINO';
-    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml('ULTRASSOM MORFOLÓGICO '+tituloLinha2)+'</h3>'});
+    if(todosObito){
+      tituloLinha2 = (isMultiple ? (fetos.length >= 3 ? 'TRIGEMELAR' : 'GEMELAR') : '') + (colo ? ' COM MEDIDA DO COLO UTERINO' : '');
+    }
+    blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml(((todosObito ? 'ULTRASSOM OBSTÉTRICO ' : 'ULTRASSOM MORFOLÓGICO ')+tituloLinha2).trim().replace(/\s+/g,' '))+'</h3>'});
     if(motivoExame){
       blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(motivoExame)+'.</p>'});
     }
@@ -2842,12 +2864,23 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Distância orbitária interna</td><td>'+span(f.doi)+' mm</td></tr>'
         +'<tr><td>Peso fetal estimado</td><td><strong>'+span(f.peso)+' gramas</strong></td></tr>'
         +'</table>';
+      if(f.obito){
+        // Óbito: só as medidas básicas e o peso, sem percentil.
+        blocks.push({id:'biometria'+sfx, html:'<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Biometria Fetal</strong></p>'
+          +'<table class="biometria biometria-fetal">'
+          +'<tr><td>Diâmetro biparietal (DBP)</td><td>'+span(f.dbp)+' mm</td></tr>'
+          +'<tr><td>Circunferência cefálica (CC)</td><td>'+span(f.cc)+' mm</td></tr>'
+          +'<tr><td>Circunferência abdominal (CA)</td><td>'+span(f.ca)+' mm</td></tr>'
+          +'<tr><td>Comprimento femoral</td><td>'+span(f.cf)+' mm</td></tr>'
+          +'<tr><td>Peso fetal estimado</td><td><strong>'+span(f.peso)+' gramas</strong></td></tr>'
+          +'</table></div>'});
+      }
       const biometriaHtml = '<div><p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Biometria Fetal</strong></p>'
         +'<table style="width:100%;border-collapse:collapse;"><tr>'
         +'<td style="vertical-align:top;padding:0 12px 0 0;width:50%;">'+tabelaBiometriaA+'</td>'
         +'<td style="vertical-align:top;padding:0 0 0 12px;width:50%;">'+tabelaBiometriaB+'</td>'
         +'</tr></table></div>';
-      blocks.push({id:'biometria'+sfx, html:biometriaHtml});
+      if(!f.obito) blocks.push({id:'biometria'+sfx, html:biometriaHtml});
 
       let morfoHtml = '<div data-split="rows"><p class="linha tight"><strong style="text-decoration:underline;">Morfologia Fetal</strong></p>';
       morfoHtml += '<table class="biometria tabela-simples morfologia" style="width:100%;">';
@@ -2856,7 +2889,7 @@ if(typeof criarMotorLaudo !== 'function'){
           +'<td style="white-space:normal;text-align:justify;">'+escapeHtml(seg.texto)+'</td></tr>';
       });
       morfoHtml += '</table></div>';
-      blocks.push({id:'morfologia'+sfx, html:morfoHtml});
+      if(!f.obito) blocks.push({id:'morfologia'+sfx, html:morfoHtml});
 
       const placentaDistalHtml = f.placentaDistalCheck ? ' '+phraseRaw('placentaDistalTexto', {MEDIDA: span(f.placentaDistalMedida)}) : '';
       // Monocoriônica divide uma placenta só: uma frase (a do último feto), "Placenta única".
@@ -2873,7 +2906,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'</p></div>';
       blocks.push({id:'la'+sfx, html:laHtml});
 
-      if(dopplerFetal){
+      if(dopplerFetal && !f.obito){
         const tabelaDopplerFetal = ''
           +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Fetal (IP)</strong></p>'
           +'<table class="biometria">'
@@ -2912,7 +2945,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // fica com a margem normal, o respiro antes de "IMPRESSÃO DIAGNÓSTICA:".
     const naoSolicitadas = [];
     if(!colo) naoSolicitadas.push({id:'coloNaoSolicitado', key:'coloNaoSolicitado'});
-    if(!dopplerMaterno) naoSolicitadas.push({id:'dopplerNaoSolicitado', key:'dopplerUterinasNaoSolicitado'});
+    if(!dopplerMaterno && !todosObito) naoSolicitadas.push({id:'dopplerNaoSolicitado', key:'dopplerUterinasNaoSolicitado'});
     naoSolicitadas.forEach((item, i)=>{
       const tight = i < naoSolicitadas.length - 1;
       blocks.push({id:item.id, html:'<p class="linha'+(tight ? ' tight' : '')+'">'+linhaNaoSolicitada(item.key)+'</p>'});
@@ -2932,7 +2965,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impressaoListHtml += '</ul>';
     blocks.push({id:'impressaoList', html:impressaoListHtml});
 
-    if(!tri3) blocks.push({id:'recomendacao', html:'<p class="recomendacao">'+phrase('recomendacaoTexto')+'</p>'});
+    if(!tri3 && !todosObito) blocks.push({id:'recomendacao', html:'<p class="recomendacao">'+phrase('recomendacaoTexto')+'</p>'});
 
     let rodapeHtml = '<div class="rodape-final">';
     rodapeHtml += '<p class="footnote">'+comDigitadora(phrase('footerImagens'))+'</p>';
@@ -3133,6 +3166,10 @@ if(typeof criarMotorLaudo !== 'function'){
   function tituloExame(){
     const n = fetoUids().length;
     const triTxt = $('chkTerceiroTrimestre').checked ? '3º' : '2º';
+    if(fetoUids().length && fetoUids().every(uid=> v('feto'+uid+'Vitalidade') === 'ausente')){
+      const tipo = n >= 3 ? 'Obstétrico Trigemelar' : n === 2 ? 'Obstétrico Gemelar' : 'Obstétrico';
+      return $('chkColo').checked ? tipo + ' + Colo' : tipo;
+    }
     const prefixo = n >= 3 ? 'Morfológico Trigemelar '+triTxt+' trimestre'
       : n === 2 ? 'Morfológico Gemelar '+triTxt+' trimestre'
       : 'Morfológico '+triTxt+' trimestre';
