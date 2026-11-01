@@ -600,8 +600,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade com batimentos ausentes (óbito fetal)</label><textarea id="ph_vitalidadeAusenteTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (feto único) — use {IG}</label><textarea id="ph_impDecessoFetal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (gestação múltipla) — use {FETO} e {IG}</label><textarea id="ph_impDecessoFetalFeto" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Placenta normal — use {INSERCAO} e {GRAU}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta — use {INSERCAO} e {GRAU}</label><textarea id="ph_placentaGrauTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta — distância da porção distal ao colo (opcional) — use {MEDIDA}</label><textarea id="ph_placentaDistalTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cordão umbilical — use {VASOS}</label><textarea id="ph_cordaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
@@ -746,7 +745,7 @@
       <div class="card-body">
         <div class="bio-grupos">
           <div class="bio-col">
-<div class="bio-grupo conditional show" id="wrap_placentaUnica"><h4>Placenta</h4><div class="field bio-linha bio-larga"><label for="placentaInsercao">Posição / inserção</label><select id="placentaInsercao"><option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option><option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option><option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option></select></div><div class="field bio-linha bio-sel"><label for="placentaTextura">Textura</label><select id="placentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div><div class="field bio-linha bio-sel"><label for="placentaGrau">Grau<small>Grannum</small></label><select id="placentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div><div class="field bio-linha bio-sel"><label for="placentaEspessura">Espessura</label><select id="placentaEspessura"><option value="normal">Normal</option><option value="alterada">Alterada (descrever)</option></select></div><div class="field conditional" id="wrap_placentaDescricao"><label>Descreva o achado</label><textarea id="placentaDescricao" rows="2" placeholder="ex: espessura aumentada, medindo..."></textarea></div><div class="toggle-line"><input type="checkbox" id="placentaDistalCheck"><label for="placentaDistalCheck">Incluir distância da porção distal da placenta ao orifício interno do colo</label></div><div class="field bio-linha conditional" id="wrap_placentaDistalMedida"><label for="placentaDistalMedida">Distância ao orifício interno do colo</label><input type="text" inputmode="decimal" data-decimals="1" id="placentaDistalMedida" placeholder="mm"><span class="bio-un">mm</span></div></div>
+<div class="bio-grupo conditional show" id="wrap_placentaUnica"><h4>Placenta</h4><div class="field bio-linha bio-larga"><label for="placentaInsercao">Posição / inserção</label><select id="placentaInsercao"><option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option><option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option><option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option></select></div><div class="field bio-linha bio-sel"><label for="placentaTextura">Textura</label><select id="placentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div><div class="field bio-linha bio-sel"><label for="placentaGrau">Grau<small>Grannum</small></label><select id="placentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div><div class="toggle-line"><input type="checkbox" id="placentaDistalCheck"><label for="placentaDistalCheck">Incluir distância da porção distal da placenta ao orifício interno do colo</label></div><div class="field bio-linha conditional" id="wrap_placentaDistalMedida"><label for="placentaDistalMedida">Distância ao orifício interno do colo</label><input type="text" inputmode="decimal" data-decimals="1" id="placentaDistalMedida" placeholder="mm"><span class="bio-un">mm</span></div></div>
           </div>
           <div class="bio-col">
 <div class="bio-grupo"><h4>Miométrio</h4>
@@ -1390,6 +1389,7 @@ if(typeof criarMotorLaudo !== 'function'){
     vitalidadeAusenteTexto: 'Ausência de batimentos cardíacos fetais.',
     impDecessoFetal: 'Decesso fetal compatível com {IG}.',
     impDecessoFetalFeto: 'Decesso fetal ({FETO}) compatível com {IG}.',
+    placentaGrauTexto: 'Placenta {INSERCAO}, grau {GRAU} de Grannum.',
     placentaTexto: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura alterada: {DESCRICAO}.',
     placentaDistalTexto: 'Sua porção distal se encontra a {MEDIDA} mm (VR > 20 mm) do orifício interno do colo uterino.',
@@ -1622,10 +1622,9 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkDopplerFetal').addEventListener('change', e=>{ toggle('dopplerFetalFields', e.target.checked); updateAllFetoWraps(); render(); });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
   function updatePlacentaUnica(){
-    toggle('wrap_placentaDescricao', v('placentaEspessura')==='alterada');
     toggle('wrap_placentaDistalMedida', $('placentaDistalCheck').checked);
   }
-  ['placentaEspessura','placentaDistalCheck'].forEach(id=> $(id).addEventListener('change', updatePlacentaUnica));
+  ['placentaDistalCheck'].forEach(id=> $(id).addEventListener('change', updatePlacentaUnica));
   updatePlacentaUnica();
   // Morfológico de 3º trimestre: mesmo laudo, sem rádio/ulna/tíbia/fíbula/prega
   // pré-nasal e com outra frase para os membros. Quem decide tudo isso é o
@@ -1846,8 +1845,6 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</select></div>'
       +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaTextura">Textura</label><select id="feto'+uid+'PlacentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div>'
       +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaGrau">Grau<small>Grannum</small></label><select id="feto'+uid+'PlacentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div>'
-      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaEspessura">Espessura</label><select id="feto'+uid+'PlacentaEspessura"><option value="normal">Normal</option><option value="alterada">Alterada (descrever)</option></select></div>'
-      +'<div class="field conditional" id="wrap_feto'+uid+'PlacentaDescricao"><label>Descreva o achado</label><textarea id="feto'+uid+'PlacentaDescricao" rows="2" placeholder="ex: espessura aumentada, medindo..."></textarea></div>'
       +'<div class="toggle-line"><input type="checkbox" id="feto'+uid+'PlacentaDistalCheck"><label for="feto'+uid+'PlacentaDistalCheck">Incluir distância da porção distal da placenta ao orifício interno do colo</label></div>'
       +'<div class="field bio-linha conditional" id="wrap_feto'+uid+'PlacentaDistalMedida"><label for="feto'+uid+'PlacentaDistalMedida">Distância ao orifício interno do colo</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'PlacentaDistalMedida" placeholder="mm"><span class="bio-un">mm</span></div>'
       +'</div>'
@@ -1919,7 +1916,6 @@ if(typeof criarMotorLaudo !== 'function'){
 
   function updateFetoWraps(uid){
     toggle('wrap_feto'+uid+'Dorso', v('feto'+uid+'Apresentacao')!=='córmica');
-    toggle('wrap_feto'+uid+'PlacentaDescricao', v('feto'+uid+'PlacentaEspessura')==='alterada');
     toggle('wrap_feto'+uid+'PlacentaDistalMedida', $('feto'+uid+'PlacentaDistalCheck').checked);
     toggle('wrap_feto'+uid+'Doppler', $('chkDopplerFetal').checked);
     MORFO_SEGMENTOS.forEach(seg=>{
@@ -1976,7 +1972,7 @@ if(typeof criarMotorLaudo !== 'function'){
       field.addEventListener('change', render);
     });
     wireDecimalInputs();
-    ['Apresentacao','PlacentaEspessura','PlacentaDistalCheck'].concat(MORFO_SEGMENTOS.map(seg=>seg.key)).forEach(sufixo=>{
+    ['Apresentacao','PlacentaDistalCheck'].concat(MORFO_SEGMENTOS.map(seg=>seg.key)).forEach(sufixo=>{
       $('feto'+uid+sufixo).addEventListener('change', ()=> updateFetoWraps(uid));
     });
     $('feto'+uid+'Percentil').addEventListener('input', ()=> updateFetoWraps(uid));
@@ -2661,12 +2657,10 @@ if(typeof criarMotorLaudo !== 'function'){
       const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
       const placentaTextura = v(plPre+'Textura');
       const placentaGrau = v(plPre+'Grau');
-      const placentaDescricao = vNoDot(plPre+'Descricao');
-      const placentaAlterada = ehDonoPlacenta && v(plPre+'Espessura')==='alterada' && !!placentaDescricao;
+      const placentaDescricao = '';
+      const placentaAlterada = false; // campo Espessura retirado do card (2026-11-01)
       const placentaPrevia = ehDonoPlacenta && PLACENTA_PREVIA_VALORES.includes(placentaInsercao);
-      const placentaHtml = placentaAlterada
-        ? phraseRaw('placentaTextoEspessuraAlterada', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau, DESCRICAO:placentaDescricao})
-        : phraseRaw('placentaTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau});
+      const placentaHtml = phraseRaw('placentaGrauTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau});
       const placentaDistalCheck = $(plPre+'DistalCheck').checked;
       const placentaDistalMedida = blankOrValue(placentaDistalCheck ? req(plPre+'DistalMedida') : v(plPre+'DistalMedida'));
 
