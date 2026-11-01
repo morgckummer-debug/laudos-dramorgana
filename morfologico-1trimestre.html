@@ -216,8 +216,6 @@
   .field.bio-linha > input, .field.bio-linha > select{min-width:0;max-width:100%;box-sizing:border-box;}
   .bio-un{font-size:12.5px;color:var(--ink-soft);}
   @media (max-width:720px){ .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
-  .cards-par{display:flex;flex-wrap:wrap;gap:0 14px;align-items:flex-start;}
-  .cards-par>.card{flex:1 1 320px;min-width:0;}
 
   .combo-list{
     display:none;position:fixed;z-index:1000;
@@ -799,9 +797,8 @@
       </div>
     </div>
 
-    <div class="cards-par">
     <div class="card">
-      <div class="card-head"><h2>Idade gestacional</h2></div>
+      <div class="card-head"><h2>Gestação</h2></div>
       <div class="card-body">
         <div class="bio-grupos">
           <div class="bio-col">
@@ -826,23 +823,15 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Gestação</h2></div>
-      <div class="card-body">
-        <div class="bio-grupos"><div class="bio-col">
+          <div class="bio-col">
           <div class="bio-grupo"><h4>Tipo de gestação</h4>
             <div class="field bio-linha bio-sel"><label for="numeroFetos">Número de fetos</label><select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select></div>
             <div class="field bio-linha bio-sel bio-sel-larga conditional" id="wrap_corionicidade"><label for="corionicidade">Corionicidade / amnionicidade</label>
               <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option><option value="monocorionica_triamniotica" data-fetos="3">Monocoriônica e triamniótica</option></select>
             </div>
           </div>
-        </div></div>
+        </div>
       </div>
-    </div>
     </div>
 
     <div class="card">
@@ -856,7 +845,10 @@
               </div>
             </div>
             <div class="bio-grupo"><h4>Colo uterino</h4>
+              <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
+              <div id="coloFields" class="conditional">
               <div class="field bio-linha"><label for="coloComprimento">Comprimento do colo</label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"><span class="bio-un">mm</span></div>
+              </div>
             </div>
           </div>
           <div class="bio-col">
@@ -1864,6 +1856,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
   $('chkPreEclampsia').addEventListener('change', e=>{ toggle('preEclampsiaFields', e.target.checked); render(); });
+  $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
   $('cerclagemRealizada').addEventListener('change', e=>{ toggle('wrap_cerclagemIG', e.target.checked); });
 
   // ---------- Feto(s): lista dinâmica, mesmo padrão dos sacos gestacionais do
@@ -3014,7 +3007,7 @@ if(typeof criarMotorLaudo !== 'function'){
     if(state.preEclampsia){
       items.push({key:'pre-eclampsia', label: phraseRaw('impPreEclampsia'+state.preEclampsiaOpcao, {RISCO: state.preEclampsiaRiscoTxt || '__'}), auto:true});
     }
-    items.push({key:'colo', label: state.coloAlterado ? phraseRaw('impColoAlterado') : phraseRaw('impColoNormal'), auto:true});
+    if(state.temColo) items.push({key:'colo', label: state.coloAlterado ? phraseRaw('impColoAlterado') : phraseRaw('impColoNormal'), auto:true});
     if(state.miometrioAspecto==='mioma' && state.miomaTemDados){
       if(state.miomaFrags.length>=3){
         items.push({key:'miomatose', label:phraseRaw('impMiomaVarios'), auto:true});
@@ -3336,8 +3329,9 @@ if(typeof criarMotorLaudo !== 'function'){
 
     // ----- Ao exame: útero, placenta e colo (medidas da mãe, uma vez só) -----
     const placentaInsercao = v('placentaInsercao');
-    const coloComprimentoVal = blankOrValue(req('coloComprimento'));
-    const coloNum = num('coloComprimento');
+    const temColo = $('chkColo').checked;
+    const coloComprimentoVal = temColo ? blankOrValue(req('coloComprimento')) : null;
+    const coloNum = temColo ? num('coloComprimento') : null;
     const coloAlterado = coloNum!=null && coloNum < 30;
 
     const miometrioAspecto = v('miometrioAspecto');
@@ -3520,7 +3514,7 @@ if(typeof criarMotorLaudo !== 'function'){
       isMultiple, corTxt, fetos, isMonocorionica, rotuloRiscoMono,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       preEclampsia, preEclampsiaOpcao, preEclampsiaRiscoTxt,
-      coloAlterado,
+      coloAlterado, temColo,
       miometrioAspecto, miomaTemDados: miomaFrags.length>0, miomaFrags, chkAdenomiose
     };
     const impressaoItems = buildImpressao(state);
@@ -3613,7 +3607,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +(placentaPorFeto
         ? fetos.map(f=>'<p class="linha tight">'+phrase('placentaTextoFeto', {FETO: f.label, INSERCAO: PLACENTA_FETO_TXT[v('feto'+f.uid+'Placenta')] || ''})+'</p>').join('')
         : '<p class="linha tight">'+phrase('placentaTexto', {INSERCAO: placentaInsercao})+'</p>')
-      +'<p class="linha">'+phraseRaw('coloTexto', {MEDIDA: span(coloComprimentoVal)})+'</p>'
+      +(temColo ? '<p class="linha">'+phraseRaw('coloTexto', {MEDIDA: span(coloComprimentoVal)})+'</p>' : '')
       +'</div>'});
 
     fetos.forEach(f=>{
@@ -4694,6 +4688,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
     setar('utEsquerda', dec(primeiro.aut_e)); setar('utDireita', dec(primeiro.aut_d));
     setar('coloComprimento', dec(primeiro.colo));
+    $('chkColo').checked = primeiro.colo!=null; toggle('coloFields', $('chkColo').checked);
     setar('preEclampsiaRisco', risco(primeiro.risco_pre_eclampsia));
     setar('anexoPtbRisco', risco(primeiro.risco_parto_prematuro));
     setar('anexoDiabetesRisco', risco(primeiro.risco_diabetes_gestacional));
@@ -4937,7 +4932,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const impSemanasVal = num('impSemanas');
       const impDiasVal = num('impDias');
       const igDias = (impSemanasVal!=null && impDiasVal!=null) ? (impSemanasVal*7 + impDiasVal) : null;
-      const coloVal = num('coloComprimento');
+      const coloVal = $('chkColo').checked ? num('coloComprimento') : null;
 
       // Riscos da FMF chegam aqui como só o denominador ("1200"), no mesmo
       // formato "1 em X" que o app de curvas já usa (placeholder "1 em X" no
