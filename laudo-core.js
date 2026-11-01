@@ -1849,7 +1849,7 @@ function criarMotorLaudo(cfg){
       + '.grau-btn.on{background:linear-gradient(var(--rose,#ae5ba0),var(--rose-dark,#6d3263));color:#fff;'
       + 'border-color:var(--rose-dark,#6d3263);box-shadow:0 1px 0 var(--rose-darker,#4d2346),inset 0 2px 4px rgba(0,0,0,.25);transform:translateY(2px);}'
       + '.grau-btns.largo{justify-self:stretch;}'
-      + '.grau-btns.largo .grau-btn{flex:1;font:700 13px Georgia,serif;padding:0 12px;}';
+      + '.grau-btns.largo .grau-btn{flex:1 1 0;min-width:0;padding:0 2px;white-space:nowrap;text-align:center;font:700 12.5px Georgia,serif;}';
     document.head.appendChild(css);
     const desc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
     const ligar = (sel, cfg)=>{
