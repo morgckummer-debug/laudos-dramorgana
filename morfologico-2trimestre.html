@@ -603,6 +603,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Placenta (espessura normal) — use {INSERCAO} e {GRAU}</label><textarea id="ph_placentaGrauTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta — distância da porção distal ao colo (opcional) — use {MEDIDA}</label><textarea id="ph_placentaDistalTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cordão umbilical — use {VASOS}</label><textarea id="ph_cordaoTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Inserção do cordão — use {INSERCAO} (central, marginal ou velamentosa)</label><textarea id="ph_cordaoInsercaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — volume reduzido (oligoâmnio)</label><textarea id="ph_laAspectoOligoamnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — volume aumentado (polidrâmnio)</label><textarea id="ph_laAspectoPolidramnio" rows="2"></textarea></div>
@@ -1394,6 +1395,7 @@ if(typeof criarMotorLaudo !== 'function'){
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura alterada: {DESCRICAO}.',
     placentaDistalTexto: 'Sua porção distal se encontra a {MEDIDA} mm (VR > 20 mm) do orifício interno do colo uterino.',
     cordaoTexto: 'Cordão umbilical apresentando {VASOS}.',
+    cordaoInsercaoTexto: 'Inserção {INSERCAO} do cordão umbilical.',
     laAspectoNormal: 'Volume normal para a idade gestacional.',
     laAspectoOligoamnio: 'Volume de líquido amniótico reduzido para a idade gestacional (oligoâmnio).',
     laAspectoPolidramnio: 'Volume de líquido amniótico aumentado para a idade gestacional (polidrâmnio).',
@@ -1852,6 +1854,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="bio-col">'
       +'<div class="bio-grupo"><h4>Cordão umbilical</h4>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'Cordao">Vasos do cordão</label><select id="feto'+uid+'Cordao"><option value="2 artérias e 1 veia">2 artérias e 1 veia</option><option value="artéria umbilical única">Artéria umbilical única</option></select></div>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'CordaoInsercao">Inserção do cordão</label><select id="feto'+uid+'CordaoInsercao"><option value="central">Central</option><option value="marginal">Marginal</option><option value="velamentosa">Velamentosa</option></select></div>'
       +'</div>'
       +'</div>'
       +'<div class="bio-col">'
@@ -2623,6 +2626,7 @@ if(typeof criarMotorLaudo !== 'function'){
       });
 
       const cordaoTxt = v(pre+'Cordao') || '2 artérias e 1 veia';
+      const cordaoInsercao = v(pre+'CordaoInsercao') || 'central';
 
       // A impressão nunca traz o peso estimado em gramas — ele já está na
       // biometria. Antes de 21 semanas o percentil de Hadlock não é confiável,
@@ -2704,7 +2708,7 @@ if(typeof criarMotorLaudo !== 'function'){
         dbp, diamCerebelar, dof, cisternaMagna, cc, pregaNucal, ca, ventriculoPosterior,
         cf, ossoNasal, umero, pregaPreNasal, radio, doe, ulna, doi, tibia, fibula,
         peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
-        segmentos, alteracoes, morfoAlterado, cordaoTxt, auu: cordaoTxt === 'artéria umbilical única',
+        segmentos, alteracoes, morfoAlterado, cordaoTxt, cordaoInsercao, auu: cordaoTxt === 'artéria umbilical única',
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
         placentaDistalCheck, placentaDistalMedida,
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
@@ -2888,7 +2892,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const placentaDistalHtml = f.placentaDistalCheck ? ' '+phraseRaw('placentaDistalTexto', {MEDIDA: span(f.placentaDistalMedida)}) : '';
       // Monocoriônica divide uma placenta só: uma frase (a do último feto), "Placenta única".
       if(!placentaUnica || f===fetos[fetos.length-1]){
-        blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">'+(placentaUnica ? 'Placenta única' : 'Placenta')+'</strong></p><p class="linha">'+f.placentaHtml+placentaDistalHtml+' '+phraseRaw('cordaoTexto', {VASOS: emSe(f.auu, f.cordaoTxt)})+'</p></div>'});
+        blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">'+(placentaUnica ? 'Placenta única' : 'Placenta')+'</strong></p><p class="linha">'+f.placentaHtml+placentaDistalHtml+' '+phraseRaw('cordaoTexto', {VASOS: emSe(f.auu, f.cordaoTxt)})+' '+phraseRaw('cordaoInsercaoTexto', {INSERCAO: emSe(f.cordaoInsercao!=='central', f.cordaoInsercao)})+'</p></div>'});
       }
 
       let laHtml = '<div><p class="linha tight"><strong style="text-decoration:underline;">Líquido amniótico</strong></p>';

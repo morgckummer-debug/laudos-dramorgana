@@ -1835,7 +1835,9 @@ function criarMotorLaudo(cfg){
     {sel:'select[id$="PlacentaGrau"],select#placentaGrau', aria:'Grau da placenta (Grannum)',
      botoes:[['0','0'],['I','I'],['II','II'],['III','III']]},
     {sel:'select[id$="LaAspecto"]', aria:'Aspecto e volume do líquido amniótico', largo:true,
-     botoes:[['normal','Normal'],['reduzido','Reduzido'],['aumentado','Aumentado']]}
+     botoes:[['normal','Normal'],['reduzido','Reduzido'],['aumentado','Aumentado']]},
+    {sel:'select[id$="CordaoInsercao"]', aria:'Inserção do cordão umbilical', largo:true,
+     botoes:[['central','Central'],['marginal','Marginal'],['velamentosa','Velamentosa']]}
   ];
   function wireGrauPlacenta(){
     const css = document.createElement('style');
