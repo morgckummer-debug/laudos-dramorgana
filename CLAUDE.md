@@ -1840,3 +1840,17 @@ Pedido da médica, com a frase dela. No `obstetrico.html`, o feto com batimentos
 ## Rins: saiu o select "Indicação clínica" (2026-11-01)
 
 Pedido da médica. O select `lateralidadeDor` (Sem dor / Dor à direita / à esquerda / bilateral) do card "Dados do exame" do `rins-vias-urinarias.html` saiu, com o bloco `indicacao` que imprimia "Dor à esquerda." antes de "Ao exame:". O motivo vai no campo `motivoExame`. Rascunho antigo com a chave volta normal (o campo é ignorado). Os outros laudos não mudaram.
+
+## Morfológico 2º/3º: cerclagem na conclusão do colo (2026-11-01)
+
+Pedido da médica. No `morfologico-2trimestre.html`, com "Cerclagem realizada" (`cerclagemRealizada`) marcada e o colo não curto (≥ 25 mm), a linha do colo na impressão diagnóstica sai `impColoCerclagem` ("Cerclagem tópica sem sinal do afunilamento.") no lugar de `impColoNormal`, com chave de linha própria (`colo-cerclagem`). Colo curto continua `impColoAlterado`, com ou sem cerclagem; sem cerclagem nada muda. O corpo do laudo não mudou (a frase `coloTexto` já afirma a ausência do afunilamento). O 1º trimestre, o TN e o obstétrico não foram mexidos.
+
+## Morfológico 2º/3º: um campo só de motivo do exame (2026-11-01)
+
+Pedido da médica. Em "Dados do exame" do `morfologico-2trimestre.html` ficou só "Motivo do exame" (`motivoExame`, bloco `relato` do laudo). O campo "Observações" (`medicacoes`, bloco `medicacoes`) saiu. `draftMigrarObservacoes()` passa o texto de um rascunho antigo para o motivo e remonta o laudo dos campos. O 1º trimestre e o obstétrico não mudaram.
+
+## Morfológico 2º/3º: batimentos cardíacos ausentes (2026-11-01)
+
+A médica sentiu falta da opção no morfológico 2T. Não foi regressão: o select existia só no `obstetrico.html` (#372). Portado igual: `feto{uid}Vitalidade` (Presentes/Ausentes) no quadro "Situação fetal", frases `vitalidadeAusenteTexto`, `impDecessoFetal`/`impDecessoFetalFeto` (mesmas chaves do obstétrico). Com ausentes, o corpo diz "Ausência de batimentos cardíacos fetais." e não sai a movimentação; a conclusão ganha "Decesso fetal compatível com {IG}." logo depois do peso e perde "boa evolução". Com Presentes o laudo sai igual ao de antes.
+
+**Óbito no morfológico vira obstétrico simples (2026-11-01, pedido da médica).** Feto com batimentos ausentes: no corpo, só apresentação, ausência de BCF, biometria básica (DBP, CC, CA, CF e peso, sem percentil), placenta e líquido; sem movimentação, morfologia nem Doppler fetal. Na conclusão não tem linha de peso/percentil nem entra em morfologia, achados, Doppler ou discordância. No formulário, os campos que não vão para o laudo levam `.so-vivo` e somem com `.feto-obito` no card (os valores ficam). Todos os fetos em óbito (`todosObito`): título "ULTRASSOM OBSTÉTRICO" (+ GEMELAR/TRIGEMELAR, + colo), sem Doppler materno (card `#cardDoppler` escondido por `body.obito-todos`, sem a linha "não solicitado") e sem a recomendação final; nome do arquivo "Obstétrico...". Gemelar com um feto morto continua morfológico para o vivo, com "Feto N:" na frase de normalidade. Com batimentos presentes o laudo é byte a byte igual ao da `main`. O "Salvar na Curva" grava normalmente.

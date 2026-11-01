@@ -1825,6 +1825,82 @@ function criarMotorLaudo(cfg){
   // Listas (marcadores/numeração) ficaram de fora de propósito: insertUnorderedList
   // troca o <p data-blk> por <ul><li>, e o bloco perderia o data-blk.
   const COR_TEXTO = [['#000000','Preto'],['#c62828','Vermelho'],['#1565c0','Azul'],['#2e7d32','Verde'],['#6d6d6d','Cinza']];
+  // Selects trocados por botões em relevo: grau da placenta (Grannum) e aspecto/volume
+  // do líquido amniótico. O <select> continua no DOM, escondido, e é ele a fonte do
+  // valor (leitura, rascunho, "Limpar" e render() não mudam). Ao lado entram os botões;
+  // clicar escreve no select e dispara 'change'. O setter de .value do select é
+  // interceptado para os botões acompanharem o rascunho e o reset.
+  // Lista: seletor CSS do select -> [valor, rótulo] de cada botão.
+  const SELECTS_EM_BOTOES = [
+    {sel:'select[id$="PlacentaGrau"],select#placentaGrau', aria:'Grau da placenta (Grannum)',
+     botoes:[['0','0'],['I','I'],['II','II'],['III','III']]},
+    {sel:'select[id$="LaAspecto"]', aria:'Aspecto e volume do líquido amniótico', largo:true,
+     botoes:[['normal','Normal'],['reduzido','Reduzido'],['aumentado','Aumentado']]},
+    {sel:'select[id$="CordaoInsercao"]', aria:'Inserção do cordão umbilical', largo:true,
+     botoes:[['central','Central'],['marginal','Marginal'],['velamentosa','Velamentosa']]}
+  ];
+  function wireGrauPlacenta(){
+    const css = document.createElement('style');
+    css.textContent = '.grau-btns{display:flex;gap:6px;justify-self:end;}'
+      + '.grau-btn{min-width:38px;height:34px;padding:0 8px;border-radius:9px;border:1px solid #d9c3d4;'
+      + 'background:linear-gradient(#fff,#f1e6ef);color:var(--rose-dark,#6d3263);font:700 15px Georgia,serif;cursor:pointer;'
+      + 'box-shadow:0 3px 0 #c9adc3,0 4px 6px rgba(77,35,70,.18);transition:all .08s;}'
+      + '.grau-btn:hover{background:linear-gradient(#fff,#ead9e6);}'
+      + '.grau-btn.on{background:linear-gradient(var(--rose,#ae5ba0),var(--rose-dark,#6d3263));color:#fff;'
+      + 'border-color:var(--rose-dark,#6d3263);box-shadow:0 1px 0 var(--rose-darker,#4d2346),inset 0 2px 4px rgba(0,0,0,.25);transform:translateY(2px);}'
+      + '.grau-btns.largo{justify-self:stretch;}'
+      + '.grau-btns.largo .grau-btn{flex:1 1 0;min-width:0;padding:0 2px;white-space:nowrap;text-align:center;font:700 12.5px Georgia,serif;}';
+    document.head.appendChild(css);
+    const desc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+    const ligar = (sel, cfg)=>{
+      if(sel.dataset.grauBtns) return;
+      sel.dataset.grauBtns = '1';
+      const box = document.createElement('div');
+      box.className = 'grau-btns' + (cfg.largo ? ' largo' : '');
+      box.setAttribute('role', 'group');
+      box.setAttribute('aria-label', cfg.aria);
+      const sync = ()=>{
+        const val = desc.get.call(sel);
+        box.querySelectorAll('.grau-btn').forEach(b=>{
+          const on = b.dataset.v === val;
+          b.classList.toggle('on', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      };
+      cfg.botoes.forEach(([k, rotulo])=>{
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'grau-btn'; b.textContent = rotulo; b.dataset.v = k;
+        b.addEventListener('click', ()=>{
+          if(desc.get.call(sel) === k) return;
+          desc.set.call(sel, k); sync();
+          sel.dispatchEvent(new Event('input', {bubbles:true}));
+          sel.dispatchEvent(new Event('change', {bubbles:true}));
+        });
+        box.appendChild(b);
+      });
+      Object.defineProperty(sel, 'value', {
+        configurable: true,
+        get(){ return desc.get.call(this); },
+        set(x){ desc.set.call(this, x); sync(); }
+      });
+      sel.style.display = 'none';
+      sel.insertAdjacentElement('afterend', box);
+      sync();
+    };
+    const varrer = (raiz)=>{
+      if(raiz.nodeType !== 1) return;
+      SELECTS_EM_BOTOES.forEach(cfg=>{
+        if(raiz.matches && raiz.matches(cfg.sel)) ligar(raiz, cfg);
+        if(raiz.querySelectorAll) raiz.querySelectorAll(cfg.sel).forEach(x=> ligar(x, cfg));
+      });
+    };
+    varrer(document.body);
+    if(typeof MutationObserver !== 'undefined'){
+      new MutationObserver(ms=> ms.forEach(m=> m.addedNodes.forEach(varrer)))
+        .observe(document.body, {childList:true, subtree:true});
+    }
+  }
+
   function wireMaisFormatacao(){
     const paperEl = $('paper');
     const bold = $('fmtBold'), under = $('fmtUnderline');
@@ -2646,6 +2722,7 @@ function criarMotorLaudo(cfg){
     wireBlockBoundaryGuard(paperEl0);
     wireRefazerLaudo();
     wireMaisFormatacao();
+    wireGrauPlacenta();
     wireBarraFlutuante();
     // Espaçamento entre linhas, margens e fonte moram no style do #paper (e mudam
     // a altura do laudo sem passar por render()): refaz a contagem de páginas e a
