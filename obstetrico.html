@@ -213,6 +213,9 @@
   .doppler-lado .bio-col{gap:10px;}
   .doppler-lado .toggle-line{margin:0;}
   #dopplerFetalFields > .conditional.show ~ .conditional.show{margin-top:14px;}
+  .osso-btns{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;}
+  .osso-btns button{font:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer;}
+  .osso-btns button.on{background:var(--rose-dark);border-color:var(--rose-dark);color:#fff;font-weight:600;}
   #grpMorfoRec:not(:has(.show)){display:none;}
   @media (max-width:720px){ .bio-grade2{grid-template-columns:1fr;} .bio-grupo h4 + .bio-grade2 > .field.bio-linha:nth-child(2){border-top:1px dashed var(--line-soft);} .bio-grupos{flex-direction:column;} .bio-col{display:contents;} }
 
@@ -742,6 +745,7 @@
               <div class="field bio-linha bio-larga"><label for="utP95Calc">Percentil<small>Gómez et al., 2008</small></label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
             </div>
           </div>
+          <div id="ciurFetosContainer"></div>
         </div><div class="bio-col">
           <div class="toggle-line"><input type="checkbox" id="chkDopplerFetal"><label for="chkDopplerFetal">Doppler fetal (umbilical, cerebral média e relação cérebro-placentária)</label></div>
           <div id="dopplerFetalFields" class="conditional"></div>
@@ -1631,7 +1635,11 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field bio-linha"><label for="feto'+uid+'CF">Comprimento femoral (CF)</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'CF" placeholder=""><span class="bio-un">mm</span></div>'
       +'<div class="field bio-linha"><label for="feto'+uid+'Peso">Peso fetal estimado</label><input type="text" inputmode="numeric" id="feto'+uid+'Peso" placeholder=""><span class="bio-un">g</span></div>'
       +'<div class="field bio-linha"><label for="feto'+uid+'Percentil">Percentil de peso<small>Hadlock</small></label><input type="text" inputmode="numeric" id="feto'+uid+'Percentil" placeholder="ex: 45"><span class="bio-un"></span></div>'
-      +'<div class="field bio-linha bio-sel conditional" id="wrap_feto'+uid+'CiurEstagio"><label for="feto'+uid+'CiurEstagio">CIUR — estágio</label><select id="feto'+uid+'CiurEstagio"><option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>'
+      +'<div class="bio-grupo conditional" id="wrap_feto'+uid+'CiurEstagio"><h4 id="feto'+uid+'CiurLabel">CIUR</h4>'
+      +'<div class="field bio-linha bio-larga"><label>Estágio<small>quando o peso é ≤ P3</small></label>'
+      +'<div class="osso-btns" data-for="feto'+uid+'CiurEstagio" data-def="I">'
+      +['I','II','III','IV'].map(e=>'<button type="button" data-v="'+e+'">'+e+'</button>').join('')
+      +'</div><input type="hidden" id="feto'+uid+'CiurEstagio" value="I"></div></div>'
       +'</div>'
       +'</div>'
 
@@ -1697,6 +1705,15 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>';
   }
 
+  // Botões de escolha (estágio do CIUR): o valor fica num <input type=hidden>.
+  document.addEventListener('click', e=>{
+    const b = e.target.closest && e.target.closest('.osso-btns button');
+    if(!b) return;
+    const h = document.getElementById(b.parentElement.dataset.for);
+    if(!h) return;
+    h.value = b.dataset.v;
+    render();
+  });
   function updateFetoWraps(uid){
     toggle('wrap_feto'+uid+'Dorso', v('feto'+uid+'Apresentacao')!=='córmica');
     toggle('wrap_feto'+uid+'Doppler', $('chkDopplerFetal').checked);
@@ -1722,6 +1739,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const uid = el.id.replace('wrap_feto','');
       const dl = $('feto'+uid+'DopplerLabel');
       if(dl) dl.textContent = cards.length>1 ? 'Doppler fetal — '+fetoLabel(idx, cards.length) : 'Doppler fetal';
+      const cl = $('feto'+uid+'CiurLabel');
+      if(cl) cl.textContent = cards.length>1 ? 'CIUR — '+fetoLabel(idx, cards.length) : 'CIUR';
       const pt = $('feto'+uid+'PbfTitulo');
       if(pt) pt.textContent = cards.length>1 ? 'Perfil biofísico — '+fetoLabel(idx, cards.length) : 'Perfil biofísico fetal';
     });
@@ -1765,6 +1784,10 @@ if(typeof criarMotorLaudo !== 'function'){
     // listeners já anexados acima acompanham o elemento — só muda o pai no DOM.
     const dopplerBlock = $('wrap_feto'+uid+'Doppler');
     if(dopplerBlock && $('dopplerFetalFields')) $('dopplerFetalFields').appendChild(dopplerBlock);
+    // O quadro CIUR fica abaixo do Doppler materno (coluna da esquerda), e não
+    // dentro do Doppler fetal. Visível pelo percentil, sem depender do Doppler.
+    const ciurBlock = $('wrap_feto'+uid+'CiurEstagio');
+    if(ciurBlock && $('ciurFetosContainer')) $('ciurFetosContainer').appendChild(ciurBlock);
     // Mesmo caso para o perfil biofísico: os critérios moram no card "Perfil biofísico fetal".
     const pbfBlock = $('wrap_feto'+uid+'PBF');
     if(pbfBlock && $('pbfFetosFields')) $('pbfFetosFields').appendChild(pbfBlock);
@@ -2217,6 +2240,11 @@ if(typeof criarMotorLaudo !== 'function'){
     // fora ali. Fica anotado e roda assim que a impressão termina.
     if(st.printPaginated){ st.renderPendingAfterPrint = true; return; }
     pendingCount = 0;
+    document.querySelectorAll('.osso-btns').forEach(g=>{
+      const h = document.getElementById(g.dataset.for);
+      const atual = (h && h.value) || g.dataset.def || 'Presente';
+      g.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v === atual));
+    });
     function req(id){
       const val = v(id);
       const empty = val === '';
