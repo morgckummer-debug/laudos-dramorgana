@@ -1909,8 +1909,8 @@ if(typeof criarMotorLaudo !== 'function'){
   function updateCronologiaWraps(){
     const metodo = $('cronologiaMetodo').value;
     toggle('wrap_usgDatacao', metodo==='usg');
-    const igRow = $('wrap_igAtual'); if(igRow) igRow.style.display = metodo==='usg' ? 'none' : '';
-    const dumRow = $('wrap_dumField'); if(dumRow) dumRow.style.display = metodo==='usg' ? 'none' : '';
+    const igRow = $('wrap_igAtual'); if(igRow) igRow.style.display = (metodo==='usg' || ehDumSemCronologia(metodo)) ? 'none' : '';
+    const dumRow = $('wrap_dumField'); if(dumRow) dumRow.style.display = (metodo==='usg' || ehDumSemCronologia(metodo)) ? 'none' : '';
     toggle('wrap_fivTransferencia', metodo==='fiv');
     toggle('wrap_incertaInfo', ehDumSemCronologia(metodo));
     toggle('wrap_dumConcordancia', metodo==='dum');

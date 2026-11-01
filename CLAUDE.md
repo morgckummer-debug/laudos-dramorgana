@@ -1858,3 +1858,7 @@ A médica sentiu falta da opção no morfológico 2T. Não foi regressão: o sel
 ## 1º ultrassom: IG calculada e DPP abaixo dos campos (2026-11-01)
 
 Pedido da médica, nos cinco laudos com datação (`obstetrico`, `obstetrico-1trimestre`, `obstetrico-tn-doppler-colo` e os dois morfológicos). Com "1º Ultrassom" na base da IG, o quadro Datação mostra, nesta ordem, a data do 1º ultrassom, as semanas e dias daquele exame, a **IG calculada** na data deste exame (`usgIgCalc`) e a **DPP estimada** (`usgDppCalc`, base + 280 dias), os dois só de leitura, preenchidos por `atualizarUsgCalculos()` no começo de `render()` (mesma conta de `computeDataBase('usg')`). Nesse método a linha "IG atual"/"Cronologia" do topo (`wrap_igAtual`) some, para não repetir a IG. Laudo impresso não mudou.
+
+## DUM incerta/ignorada: sem campos DUM e IG, DPP sempre na conclusão (2026-11-01)
+
+Pedido da médica, nos cinco laudos com datação. Com "DUM incerta" ou "DUM ignorada" somem do quadro Datação o campo DUM e a "IG atual" (`wrap_dumField`, `wrap_igAtual`, escondidos em `updateCronologiaWraps()` junto com o caso "1º Ultrassom"). A conclusão sempre termina com "DPP: dd.mm.aaaa." (`impDPP`), calculada pela IG informada em "IG neste exame" sobre a data do exame (280 dias menos a IG). `obstetrico` e `obstetrico-1trimestre` já tinham a linha; os dois morfológicos e o TN ganharam (`dppPelaIgInformada()`, chave `dpp` ao fim de `buildImpressao()`). Sem a IG informada sai "DPP: ____.".
