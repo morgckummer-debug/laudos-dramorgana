@@ -717,7 +717,7 @@
               <div class="field bio-linha bio-sel bio-sel-larga"><label for="cronologiaMetodo">Idade baseada em:</label>
                 <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="fiv">FIV (transferência embrionária)</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
               </div>
-              <div class="field bio-linha bio-data"><label for="dum">DUM<small>data da última menstruação</small></label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
+              <div class="field bio-linha bio-data" id="wrap_dumField"><label for="dum">DUM<small>data da última menstruação</small></label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
               <div class="field bio-linha bio-texto" id="wrap_igAtual"><label for="igAtual">IG atual</label><input type="text" id="igAtual" placeholder="calculada automaticamente" readonly></div>
               <div class="conditional" id="wrap_usgDatacao">
                 <div class="field bio-linha bio-data"><label for="usgDataDatacao">Data do ultrassom de datação</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
@@ -1622,10 +1622,11 @@ if(typeof criarMotorLaudo !== 'function'){
     const dumDiscordante = metodo==='dum' && $('dumConcordancia').value==='discordante';
     toggle('wrap_usgDatacao', metodo==='usg');
     const igRow = $('wrap_igAtual'); if(igRow) igRow.style.display = metodo==='usg' ? 'none' : '';
+    const dumRow = $('wrap_dumField'); if(dumRow) dumRow.style.display = metodo==='usg' ? 'none' : '';
     toggle('wrap_fivTransferencia', metodo==='fiv');
     toggle('wrap_dumConcordancia', metodo==='dum');
     toggle('wrap_igInformadaCampos', ehDumSemCronologia(metodo) || dumDiscordante);
-    toggle('wrap_dumEstimada', metodo==='usg' || metodo==='fiv');
+    toggle('wrap_dumEstimada', metodo==='fiv');
   }
   $('cronologiaMetodo').addEventListener('change', updateCronologiaWraps);
   $('dumConcordancia').addEventListener('change', updateCronologiaWraps);
