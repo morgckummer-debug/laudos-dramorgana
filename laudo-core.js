@@ -1966,7 +1966,7 @@ function criarMotorLaudo(cfg){
   }
   // Barra flutuante (2026-11-01, pedido da médica): ao selecionar um trecho no
   // preview, surge logo acima dele uma caixinha com negrito, itálico, sublinhado,
-  // cor e alinhamento — "nada mais". Os botões só clicam nos da barra fixa
+  // cor, tamanho da fonte (setas ▲▼) e alinhamento. Os botões só clicam nos da barra fixa
   // (mesmo comando, mesmo estado ativo, nenhum código de formatação duplicado);
   // a cor usa a mesma paleta COR_TEXTO. Mora no <body>, FORA do #paper (um filho
   // sem data-blk no #paper já causou estrago, ver wireBlockBoundaryGuard), e some
@@ -1982,6 +1982,7 @@ function criarMotorLaudo(cfg){
       + 'display:inline-flex;align-items:center;justify-content:center;color:#2b2b2e;font-size:14px;padding:0;flex-direction:column;gap:1px;}'
       + '#fmtFlutuante button:hover{background:#eee;}'
       + '#fmtFlutuante button.active{background:#e3e3ea;}'
+      + '#fmtFlutuante button:disabled{opacity:.35;cursor:default;background:transparent;}'
       + '#fmtFlutuante .ff-sep{width:1px;height:20px;background:#ddd;margin:0 3px;}'
       + '#fmtFlutuante .ff-cor{position:relative;display:inline-flex;}'
       + '#fmtFlutuante .ff-barra{display:block;width:14px;height:3px;border-radius:2px;}'
@@ -2035,6 +2036,64 @@ function criarMotorLaudo(cfg){
     corBtn.addEventListener('click', ()=>paleta.classList.toggle('aberta'));
     corWrap.append(corBtn, paleta);
     bar.append(corWrap, sep());
+    // Tamanho da fonte (2026-11-01, pedido da médica): só uma seta para cima e
+    // uma para baixo. Cada toque passa o <select id="fmtFontSize"> da barra fixa
+    // para a opção vizinha e dispara o 'change' dele: o código de tamanho é o do
+    // laudo (trecho selecionado, título ou laudo inteiro), nada duplicado aqui.
+    // O 'mousedown' sintético guarda a seleção atual antes do 'change' — sem
+    // ele, dois toques rápidos podiam chegar antes do 'selectionchange' e o
+    // segundo cairia no ramo "laudo inteiro".
+    const tamSel = $('fmtFontSize');
+    const tamBtns = [];
+    let alvo = ()=>null;
+    if(tamSel){
+      // O tamanho de partida é o do próprio texto selecionado, não o valor que
+      // o <select> mostra: depois de aplicar, o 'selectionchange' do laudo
+      // relê o <select> a partir da ponta da seleção (que pode cair no <p> em
+      // volta do <span> novo) e ele volta a dizer 12 — a segunda seta repetiria
+      // o mesmo tamanho.
+      const tamanhoAtual = ()=>{
+        const sel = window.getSelection();
+        if(!sel || !sel.rangeCount) return null;
+        const range = sel.getRangeAt(0);
+        const raiz = range.commonAncestorContainer.nodeType === 3 ? range.commonAncestorContainer.parentNode : range.commonAncestorContainer;
+        const w = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
+        let t, el = null;
+        while((t = w.nextNode())){
+          if(t.textContent.trim() && range.intersectsNode(t)){ el = t.parentElement; break; }
+        }
+        if(!el) el = raiz.nodeType === 1 ? raiz : raiz.parentElement;
+        const px = el ? parseFloat(getComputedStyle(el).fontSize) : NaN;
+        return isNaN(px) ? null : px * 72 / 96;
+      };
+      alvo = dir=>{
+        const cur = tamanhoAtual();
+        const vals = Array.from(tamSel.options).map(o=>o.value).sort((a, b)=>parseFloat(a) - parseFloat(b));
+        if(cur == null) return null;
+        return dir > 0 ? (vals.find(v=>parseFloat(v) > cur + 0.05) || null)
+                       : (vals.filter(v=>parseFloat(v) < cur - 0.05).pop() || null);
+      };
+      const passo = dir=>{
+        const v = alvo(dir);
+        if(v == null) return;
+        tamSel.dispatchEvent(new MouseEvent('mousedown'));
+        tamSel.value = v;
+        tamSel.dispatchEvent(new Event('change', {bubbles:true}));
+        sincronizar();
+      };
+      const tam = (dir, titulo, d)=>{
+        const b = document.createElement('button');
+        b.type = 'button'; b.title = titulo; b.innerHTML = svg(d);
+        b.addEventListener('click', ()=>passo(dir));
+        tamBtns.push([b, dir]);
+        return b;
+      };
+      bar.append(
+        tam(1, 'Aumentar a fonte', '<polyline points="3,10.5 8,5.5 13,10.5"/>'),
+        tam(-1, 'Diminuir a fonte', '<polyline points="3,5.5 8,10.5 13,5.5"/>'),
+        sep()
+      );
+    }
     if($('fmtAlignLeft')){
       bar.append(
         espelho('fmtAlignLeft', 'Alinhar à esquerda', svg('<line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="10" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="10" y2="13.5"/>')),
@@ -2046,6 +2105,7 @@ function criarMotorLaudo(cfg){
     document.body.appendChild(bar);
     function sincronizar(){
       espelhos.forEach(([b, idFixo])=>{ const f = $(idFixo); b.classList.toggle('active', !!(f && f.classList.contains('active'))); });
+      if(tamSel) tamBtns.forEach(([b, dir])=>{ b.disabled = alvo(dir) == null; });
     }
     function esconder(){ bar.classList.remove('aberta'); paleta.classList.remove('aberta'); }
     function posicionar(){

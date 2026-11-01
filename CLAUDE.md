@@ -1866,3 +1866,7 @@ Pedido da médica, nos cinco laudos com datação. Com "DUM incerta" ou "DUM ign
 ## FIV: só transferência, idade do blastocisto, IG calculada e DPP; DUM incerta sem nota (2026-11-01)
 
 Pedido da médica, nos cinco laudos com datação. Com "FIV" o quadro Datação mostra apenas data da transferência, "Idade do blastocisto" (`fivEstagio`: D3, D5 ou D6; D6 soma 6 dias na conta), IG calculada (`fivIgCalc`) e DPP estimada (`fivDppCalc`), preenchidos por `atualizarFivCalculos()` no começo de `render()`. DUM, IG atual e "DUM estimada" ficam escondidos (o `#dumEstimada` continua no HTML, sempre oculto). A nota pequena `wrap_incertaInfo` da DUM incerta/ignorada saiu.
+
+## Barra flutuante: tamanho da fonte com duas setas (2026-11-01)
+
+Pedido da médica. A barra que aparece sobre o trecho selecionado no preview (`wireBarraFlutuante()`, `laudo-core.js`) ganhou ▲ e ▼ depois da cor. Cada toque põe o `<select id="fmtFontSize">` da barra fixa na opção vizinha e dispara o `change` dele, então quem aplica é o código de tamanho de cada laudo (trecho, título ou laudo inteiro). O tamanho de partida é lido do próprio texto selecionado, não do `<select>`: depois de aplicar, o `selectionchange` do laudo relê o `<select>` pela ponta da seleção, que cai no `<p>` em volta do `<span>` novo, e ele volta a mostrar 12. Antes de cada `change` vai um `mousedown` sintético no `<select>` para guardar a seleção atual (sem isso, dois toques rápidos podiam aplicar no laudo inteiro). A seta fica apagada quando não há tamanho maior/menor na lista (9 a 18 pt).
