@@ -1274,6 +1274,7 @@ if(typeof criarMotorLaudo !== 'function'){
     placentaLiquidoTexto: 'Placenta {INSERCAO}, homogênea, (grau 0 de Grannum) e espessura normal. Líquido amniótico com volume normal para a idade gestacional.',
     coloTexto: 'Colo uterino: de textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm. "Sludge" não identificado.',
 
+    impDPP: 'DPP: {DATA}.',
     impGestacao: 'Gestação única, compatível com {IG} de acordo com {METODO}.',
     impGestacaoDumIncerta: 'Gestação única, de {IG} pelo CCN.',
     impGestacaoDumDiscordante: 'Gestação eutópica, compatível com {IG} (DUM discordante).',
@@ -1437,8 +1438,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const metodo = $('cronologiaMetodo').value;
     const dumDiscordante = metodo==='dum' && $('dumConcordancia').value==='discordante';
     toggle('wrap_usgDatacao', metodo==='usg');
-    const igRow = $('wrap_igAtual'); if(igRow) igRow.style.display = metodo==='usg' ? 'none' : '';
-    const dumRow = $('wrap_dumField'); if(dumRow) dumRow.style.display = metodo==='usg' ? 'none' : '';
+    const igRow = $('wrap_igAtual'); if(igRow) igRow.style.display = (metodo==='usg' || ehDumSemCronologia(metodo)) ? 'none' : '';
+    const dumRow = $('wrap_dumField'); if(dumRow) dumRow.style.display = (metodo==='usg' || ehDumSemCronologia(metodo)) ? 'none' : '';
     toggle('wrap_fivTransferencia', metodo==='fiv');
     toggle('wrap_dumConcordancia', metodo==='dum');
     toggle('wrap_exameInfo', ehDumSemCronologia(metodo) || dumDiscordante);
@@ -1830,6 +1831,17 @@ if(typeof criarMotorLaudo !== 'function'){
   const PLACENTA_PREVIA_VALORES = ['baixa', 'marginal', 'previa'];
 
   // ---------- Build impression checklist ----------
+  // DUM incerta/ignorada: a conclusão sempre traz a DPP, calculada pela IG
+  // informada neste exame, aplicada sobre a data do exame (280 dias - IG).
+  function dppPelaIgInformada(){
+    const exame = parseDateBR(v('dataExame'));
+    const sem = parseInt(v('impSemanas'), 10);
+    const dia = parseInt(v('impDias'), 10);
+    if(!exame || isNaN(sem)) return '';
+    const p = addDays(exame, 280 - (sem*7 + (isNaN(dia) ? 0 : dia)));
+    const pad = n => String(n).padStart(2,'0');
+    return pad(p.getDate())+'.'+pad(p.getMonth()+1)+'.'+p.getFullYear();
+  }
   function buildImpressao(state){
     const items = [];
     const pre = f => state.isMultiple ? (f.label+': ') : '';
@@ -1915,6 +1927,10 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:'adenomiose', label:phraseRaw('impAdenomiose'), auto:true});
     }
     items.push({key:'morfologico2t', label: phraseRaw('impMorfologico2T'), auto:true});
+
+    if(ehDumSemCronologia(v('cronologiaMetodo'))){
+      items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:dppPelaIgInformada()||'____'}), auto:true});
+    }
 
     return items;
   }

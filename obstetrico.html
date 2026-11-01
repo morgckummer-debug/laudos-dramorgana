@@ -1567,8 +1567,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const metodo = $('cronologiaMetodo').value;
     const dumDiscordante = metodo==='dum' && $('dumConcordancia').value==='discordante';
     toggle('wrap_usgDatacao', metodo==='usg');
-    const igRow = $('wrap_igAtual'); if(igRow) igRow.style.display = metodo==='usg' ? 'none' : '';
-    const dumRow = $('wrap_dumField'); if(dumRow) dumRow.style.display = metodo==='usg' ? 'none' : '';
+    const igRow = $('wrap_igAtual'); if(igRow) igRow.style.display = (metodo==='usg' || ehDumSemCronologia(metodo)) ? 'none' : '';
+    const dumRow = $('wrap_dumField'); if(dumRow) dumRow.style.display = (metodo==='usg' || ehDumSemCronologia(metodo)) ? 'none' : '';
     toggle('wrap_fivTransferencia', metodo==='fiv');
     toggle('wrap_dumConcordancia', metodo==='dum');
     toggle('wrap_impSemanas', ehDumSemCronologia(metodo) || dumDiscordante);

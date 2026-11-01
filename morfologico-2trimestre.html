@@ -1424,6 +1424,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impGestacaoDumDiscordante: 'Gestação eutópica, compatível com {IG} (DUM discordante).',
     impGestacaoMultiplaDumDiscordante: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG} (DUM discordante).',
     impGestacaoTrigemelarDumDiscordante: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {IG} (DUM discordante).',
+    impDPP: 'DPP: {DATA}.',
     impGestacao: 'Gestação eutópica, compatível com {IG}.',
     impGestacaoMultipla: 'Gestação gemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
     impGestacaoTrigemelar: 'Gestação trigemelar, eutópica, {CORIONICIDADE}, compatível com {IG}.',
@@ -1621,8 +1622,8 @@ if(typeof criarMotorLaudo !== 'function'){
     const metodo = $('cronologiaMetodo').value;
     const dumDiscordante = metodo==='dum' && $('dumConcordancia').value==='discordante';
     toggle('wrap_usgDatacao', metodo==='usg');
-    const igRow = $('wrap_igAtual'); if(igRow) igRow.style.display = metodo==='usg' ? 'none' : '';
-    const dumRow = $('wrap_dumField'); if(dumRow) dumRow.style.display = metodo==='usg' ? 'none' : '';
+    const igRow = $('wrap_igAtual'); if(igRow) igRow.style.display = (metodo==='usg' || ehDumSemCronologia(metodo)) ? 'none' : '';
+    const dumRow = $('wrap_dumField'); if(dumRow) dumRow.style.display = (metodo==='usg' || ehDumSemCronologia(metodo)) ? 'none' : '';
     toggle('wrap_fivTransferencia', metodo==='fiv');
     toggle('wrap_dumConcordancia', metodo==='dum');
     toggle('wrap_igInformadaCampos', ehDumSemCronologia(metodo) || dumDiscordante);
@@ -2287,6 +2288,17 @@ if(typeof criarMotorLaudo !== 'function'){
   function sublinharRiscoAumentado(html){
     return html.replace(/(risco aumentado(?: \(1:[^)]*\))? para (?:cromossomopatias|pré-eclâmpsia(?: pré-termo)?))/gi, '<u>$1</u>');
   }
+  // DUM incerta/ignorada: a conclusão sempre traz a DPP, calculada pela IG
+  // informada neste exame, aplicada sobre a data do exame (280 dias - IG).
+  function dppPelaIgInformada(){
+    const exame = parseDateBR(v('dataExame'));
+    const sem = parseInt(v('impSemanas'), 10);
+    const dia = parseInt(v('impDias'), 10);
+    if(!exame || isNaN(sem)) return '';
+    const p = addDays(exame, 280 - (sem*7 + (isNaN(dia) ? 0 : dia)));
+    const pad = n => String(n).padStart(2,'0');
+    return pad(p.getDate())+'.'+pad(p.getMonth()+1)+'.'+p.getFullYear();
+  }
   function buildImpressao(state){
     const items = [];
     // Com mais de um feto, cada achado fetal vira uma chave própria ('peso-f2')
@@ -2429,6 +2441,10 @@ if(typeof criarMotorLaudo !== 'function'){
       } else {
         items.push({key:'colo', label: phraseRaw('impColoNormal', {RISCO: state.isMultiple ? '' : ' Baixo risco de parto prematuro.'}), auto:true});
       }
+    }
+
+    if(ehDumSemCronologia(v('cronologiaMetodo'))){
+      items.push({key:'dpp', label:phraseRaw('impDPP', {DATA:dppPelaIgInformada()||'____'}), auto:true});
     }
 
     return items;
