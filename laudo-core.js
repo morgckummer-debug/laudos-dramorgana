@@ -1888,6 +1888,116 @@ function criarMotorLaudo(cfg){
       if(!e.target.closest('.fmt-cor')) paleta.classList.remove('aberta');
     });
   }
+  // Barra flutuante (2026-11-01, pedido da médica): ao selecionar um trecho no
+  // preview, surge logo acima dele uma caixinha com negrito, itálico, sublinhado,
+  // cor e alinhamento — "nada mais". Os botões só clicam nos da barra fixa
+  // (mesmo comando, mesmo estado ativo, nenhum código de formatação duplicado);
+  // a cor usa a mesma paleta COR_TEXTO. Mora no <body>, FORA do #paper (um filho
+  // sem data-blk no #paper já causou estrago, ver wireBlockBoundaryGuard), e some
+  // na impressão.
+  function wireBarraFlutuante(){
+    const paperEl = $('paper');
+    if(!paperEl || !$('fmtBold') || $('fmtFlutuante')) return;
+    const css = document.createElement('style');
+    css.textContent = '#fmtFlutuante{position:fixed;z-index:1000;display:none;align-items:center;gap:2px;padding:4px;'
+      + 'background:#fff;border:1px solid #cfcfd4;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.18);font-family:system-ui,sans-serif;}'
+      + '#fmtFlutuante.aberta{display:flex;}'
+      + '#fmtFlutuante button{width:28px;height:28px;border:0;background:transparent;border-radius:5px;cursor:pointer;'
+      + 'display:inline-flex;align-items:center;justify-content:center;color:#2b2b2e;font-size:14px;padding:0;flex-direction:column;gap:1px;}'
+      + '#fmtFlutuante button:hover{background:#eee;}'
+      + '#fmtFlutuante button.active{background:#e3e3ea;}'
+      + '#fmtFlutuante .ff-sep{width:1px;height:20px;background:#ddd;margin:0 3px;}'
+      + '#fmtFlutuante .ff-cor{position:relative;display:inline-flex;}'
+      + '#fmtFlutuante .ff-barra{display:block;width:14px;height:3px;border-radius:2px;}'
+      + '#fmtFlutuante .ff-paleta{position:absolute;top:32px;left:0;display:none;gap:5px;padding:6px;background:#fff;'
+      + 'border:1px solid #cfcfd4;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.18);}'
+      + '#fmtFlutuante .ff-paleta.aberta{display:flex;}'
+      + '#fmtFlutuante .ff-paleta button{width:20px;height:20px;border-radius:50%;border:1px solid #ccc;}'
+      + '@media print{#fmtFlutuante{display:none !important;}}';
+    document.head.appendChild(css);
+    const bar = document.createElement('div');
+    bar.id = 'fmtFlutuante';
+    bar.setAttribute('contenteditable', 'false');
+    // Clicar na caixinha nunca pode tirar a seleção do #paper.
+    bar.addEventListener('mousedown', e=>e.preventDefault());
+    const espelhos = [];
+    function espelho(idFixo, titulo, html){
+      const b = document.createElement('button');
+      b.type = 'button'; b.title = titulo; b.innerHTML = html;
+      b.addEventListener('click', ()=>{ const f = $(idFixo); if(f) f.click(); sincronizar(); });
+      espelhos.push([b, idFixo]);
+      return b;
+    }
+    const svg = d => '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">'+d+'</svg>';
+    const sep = ()=>{ const s = document.createElement('span'); s.className = 'ff-sep'; return s; };
+    bar.append(
+      espelho('fmtBold', 'Negrito', '<b>N</b>'),
+      espelho('fmtItalic', 'Itálico', '<i style="font-family:serif">I</i>'),
+      espelho('fmtUnderline', 'Sublinhado', '<u>S</u>')
+    );
+    // Cor
+    const corWrap = document.createElement('span');
+    corWrap.className = 'ff-cor';
+    const corBtn = document.createElement('button');
+    corBtn.type = 'button'; corBtn.title = 'Cor do texto';
+    corBtn.innerHTML = '<b style="font-size:13px">A</b><span class="ff-barra" style="background:#c62828"></span>';
+    const paleta = document.createElement('span');
+    paleta.className = 'ff-paleta';
+    COR_TEXTO.forEach(([cor, nome])=>{
+      const c = document.createElement('button');
+      c.type = 'button'; c.title = nome; c.style.background = cor;
+      c.addEventListener('click', ()=>{
+        paleta.classList.remove('aberta');
+        corBtn.querySelector('.ff-barra').style.background = cor;
+        paperEl.focus();
+        try{ document.execCommand('styleWithCSS', false, true); }catch(e){}
+        document.execCommand('foreColor', false, cor);
+        try{ document.execCommand('styleWithCSS', false, false); }catch(e){}
+      });
+      paleta.appendChild(c);
+    });
+    corBtn.addEventListener('click', ()=>paleta.classList.toggle('aberta'));
+    corWrap.append(corBtn, paleta);
+    bar.append(corWrap, sep());
+    if($('fmtAlignLeft')){
+      bar.append(
+        espelho('fmtAlignLeft', 'Alinhar à esquerda', svg('<line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="10" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="10" y2="13.5"/>')),
+        espelho('fmtAlignCenter', 'Centralizar', svg('<line x1="1" y1="3" x2="15" y2="3"/><line x1="3.5" y1="6.5" x2="12.5" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="3.5" y1="13.5" x2="12.5" y2="13.5"/>')),
+        espelho('fmtAlignRight', 'Alinhar à direita', svg('<line x1="1" y1="3" x2="15" y2="3"/><line x1="6" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="6" y1="13.5" x2="15" y2="13.5"/>')),
+        espelho('fmtAlignJustify', 'Justificar', svg('<line x1="1" y1="3" x2="15" y2="3"/><line x1="1" y1="6.5" x2="15" y2="6.5"/><line x1="1" y1="10" x2="15" y2="10"/><line x1="1" y1="13.5" x2="15" y2="13.5"/>'))
+      );
+    }
+    document.body.appendChild(bar);
+    function sincronizar(){
+      espelhos.forEach(([b, idFixo])=>{ const f = $(idFixo); b.classList.toggle('active', !!(f && f.classList.contains('active'))); });
+    }
+    function esconder(){ bar.classList.remove('aberta'); paleta.classList.remove('aberta'); }
+    function posicionar(){
+      if(st.printPaginated){ esconder(); return; }
+      const sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0 || sel.isCollapsed){ esconder(); return; }
+      const range = sel.getRangeAt(0);
+      if(!paperEl.contains(range.commonAncestorContainer)){ esconder(); return; }
+      const r = range.getBoundingClientRect();
+      if(!r || (r.width === 0 && r.height === 0)){ esconder(); return; }
+      bar.classList.add('aberta');
+      const w = bar.offsetWidth, h = bar.offsetHeight;
+      let top = r.top - h - 8;
+      if(top < 6) top = r.bottom + 8;
+      let left = r.left + r.width/2 - w/2;
+      left = Math.max(6, Math.min(left, window.innerWidth - w - 6));
+      bar.style.top = top + 'px';
+      bar.style.left = left + 'px';
+      sincronizar();
+    }
+    let timer = null;
+    const agendar = ()=>{ clearTimeout(timer); timer = setTimeout(posicionar, 120); };
+    document.addEventListener('selectionchange', agendar);
+    window.addEventListener('scroll', ()=>{ if(bar.classList.contains('aberta')) posicionar(); }, true);
+    window.addEventListener('resize', ()=>{ if(bar.classList.contains('aberta')) posicionar(); });
+    window.addEventListener('beforeprint', esconder);
+    document.addEventListener('keydown', e=>{ if(e.key === 'Escape') esconder(); });
+  }
   function refazerLaudo(){
     const paperEl = $('paper');
     if(!paperEl) return;
@@ -2536,6 +2646,7 @@ function criarMotorLaudo(cfg){
     wireBlockBoundaryGuard(paperEl0);
     wireRefazerLaudo();
     wireMaisFormatacao();
+    wireBarraFlutuante();
     // Espaçamento entre linhas, margens e fonte moram no style do #paper (e mudam
     // a altura do laudo sem passar por render()): refaz a contagem de páginas e a
     // linha "Fim da página" quando o style muda — senão o preview fica com a
