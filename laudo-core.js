@@ -1825,10 +1825,18 @@ function criarMotorLaudo(cfg){
   // Listas (marcadores/numeração) ficaram de fora de propósito: insertUnorderedList
   // troca o <p data-blk> por <ul><li>, e o bloco perderia o data-blk.
   const COR_TEXTO = [['#000000','Preto'],['#c62828','Vermelho'],['#1565c0','Azul'],['#2e7d32','Verde'],['#6d6d6d','Cinza']];
-  // Grau da placenta (Grannum): o <select> continua no DOM, escondido, e é ele a fonte
-  // do valor (leitura, rascunho, "Limpar" e render() não mudam). Ao lado entram os
-  // botões 0 / I / II / III; clicar escreve no select e dispara 'change'. O setter de
-  // .value do select é interceptado para os botões acompanharem o rascunho e o reset.
+  // Selects trocados por botões em relevo: grau da placenta (Grannum) e aspecto/volume
+  // do líquido amniótico. O <select> continua no DOM, escondido, e é ele a fonte do
+  // valor (leitura, rascunho, "Limpar" e render() não mudam). Ao lado entram os botões;
+  // clicar escreve no select e dispara 'change'. O setter de .value do select é
+  // interceptado para os botões acompanharem o rascunho e o reset.
+  // Lista: seletor CSS do select -> [valor, rótulo] de cada botão.
+  const SELECTS_EM_BOTOES = [
+    {sel:'select[id$="PlacentaGrau"],select#placentaGrau', aria:'Grau da placenta (Grannum)',
+     botoes:[['0','0'],['I','I'],['II','II'],['III','III']]},
+    {sel:'select[id$="LaAspecto"]', aria:'Aspecto e volume do líquido amniótico', largo:true,
+     botoes:[['normal','Normal'],['reduzido','Reduzido'],['aumentado','Aumentado']]}
+  ];
   function wireGrauPlacenta(){
     const css = document.createElement('style');
     css.textContent = '.grau-btns{display:flex;gap:6px;justify-self:end;}'
@@ -1837,17 +1845,18 @@ function criarMotorLaudo(cfg){
       + 'box-shadow:0 3px 0 #c9adc3,0 4px 6px rgba(77,35,70,.18);transition:all .08s;}'
       + '.grau-btn:hover{background:linear-gradient(#fff,#ead9e6);}'
       + '.grau-btn.on{background:linear-gradient(var(--rose,#ae5ba0),var(--rose-dark,#6d3263));color:#fff;'
-      + 'border-color:var(--rose-dark,#6d3263);box-shadow:0 1px 0 var(--rose-darker,#4d2346),inset 0 2px 4px rgba(0,0,0,.25);transform:translateY(2px);}';
+      + 'border-color:var(--rose-dark,#6d3263);box-shadow:0 1px 0 var(--rose-darker,#4d2346),inset 0 2px 4px rgba(0,0,0,.25);transform:translateY(2px);}'
+      + '.grau-btns.largo{justify-self:stretch;}'
+      + '.grau-btns.largo .grau-btn{flex:1;font:700 13px Georgia,serif;padding:0 12px;}';
     document.head.appendChild(css);
-    const SEL = 'select[id$="PlacentaGrau"],select#placentaGrau';
     const desc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
-    const ligar = (sel)=>{
+    const ligar = (sel, cfg)=>{
       if(sel.dataset.grauBtns) return;
       sel.dataset.grauBtns = '1';
       const box = document.createElement('div');
-      box.className = 'grau-btns';
+      box.className = 'grau-btns' + (cfg.largo ? ' largo' : '');
       box.setAttribute('role', 'group');
-      box.setAttribute('aria-label', 'Grau da placenta (Grannum)');
+      box.setAttribute('aria-label', cfg.aria);
       const sync = ()=>{
         const val = desc.get.call(sel);
         box.querySelectorAll('.grau-btn').forEach(b=>{
@@ -1856,9 +1865,9 @@ function criarMotorLaudo(cfg){
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
       };
-      ['0','I','II','III'].forEach(k=>{
+      cfg.botoes.forEach(([k, rotulo])=>{
         const b = document.createElement('button');
-        b.type = 'button'; b.className = 'grau-btn'; b.textContent = k; b.dataset.v = k;
+        b.type = 'button'; b.className = 'grau-btn'; b.textContent = rotulo; b.dataset.v = k;
         b.addEventListener('click', ()=>{
           if(desc.get.call(sel) === k) return;
           desc.set.call(sel, k); sync();
@@ -1878,8 +1887,10 @@ function criarMotorLaudo(cfg){
     };
     const varrer = (raiz)=>{
       if(raiz.nodeType !== 1) return;
-      if(raiz.matches && raiz.matches(SEL)) ligar(raiz);
-      if(raiz.querySelectorAll) raiz.querySelectorAll(SEL).forEach(ligar);
+      SELECTS_EM_BOTOES.forEach(cfg=>{
+        if(raiz.matches && raiz.matches(cfg.sel)) ligar(raiz, cfg);
+        if(raiz.querySelectorAll) raiz.querySelectorAll(cfg.sel).forEach(x=> ligar(x, cfg));
+      });
     };
     varrer(document.body);
     if(typeof MutationObserver !== 'undefined'){

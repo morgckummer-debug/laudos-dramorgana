@@ -600,7 +600,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade com batimentos ausentes (óbito fetal)</label><textarea id="ph_vitalidadeAusenteTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (feto único) — use {IG}</label><textarea id="ph_impDecessoFetal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (gestação múltipla) — use {FETO} e {IG}</label><textarea id="ph_impDecessoFetalFeto" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Placenta — use {INSERCAO} e {GRAU}</label><textarea id="ph_placentaGrauTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta (espessura normal) — use {INSERCAO} e {GRAU}</label><textarea id="ph_placentaGrauTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta — distância da porção distal ao colo (opcional) — use {MEDIDA}</label><textarea id="ph_placentaDistalTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cordão umbilical — use {VASOS}</label><textarea id="ph_cordaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
@@ -1389,7 +1389,7 @@ if(typeof criarMotorLaudo !== 'function'){
     vitalidadeAusenteTexto: 'Ausência de batimentos cardíacos fetais.',
     impDecessoFetal: 'Decesso fetal compatível com {IG}.',
     impDecessoFetalFeto: 'Decesso fetal ({FETO}) compatível com {IG}.',
-    placentaGrauTexto: 'Placenta {INSERCAO}, grau {GRAU} de Grannum.',
+    placentaGrauTexto: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura normal.',
     placentaTexto: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura alterada: {DESCRICAO}.',
     placentaDistalTexto: 'Sua porção distal se encontra a {MEDIDA} mm (VR > 20 mm) do orifício interno do colo uterino.',
