@@ -567,6 +567,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (gestação múltipla) — use {FETO} e {IG}</label><textarea id="ph_impDecessoFetalFeto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta (espessura normal) — use {INSERCAO}, {TEXTURA} e {GRAU}</label><textarea id="ph_placentaGrauTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Cordão umbilical — use {VASOS}</label><textarea id="ph_cordaoTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Artéria umbilical única (na conclusão)</label><textarea id="ph_impCordaoAUU" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Inserção velamentosa do cordão (na conclusão)</label><textarea id="ph_impCordaoVelamentoso" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Inserção do cordão — use {INSERCAO} (central, marginal ou velamentosa)</label><textarea id="ph_cordaoInsercaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
@@ -1355,6 +1356,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impDecessoFetalFeto: 'Decesso fetal ({FETO}) compatível com {IG}.',
     cordaoTexto: 'Cordão umbilical apresentando {VASOS}.',
     cordaoInsercaoTexto: 'Inserção {INSERCAO} do cordão umbilical.',
+    impCordaoAUU: 'Artéria umbilical única.',
     impCordaoVelamentoso: 'Inserção velamentosa do cordão umbilical.',
     placentaGrauTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
     placentaTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
@@ -2093,6 +2095,9 @@ if(typeof criarMotorLaudo !== 'function'){
       if(f.placentaAlterada){
         items.push({key:k('placenta-alterada', f), label: pre(f) + phraseRaw('impPlacentaAlterada', {DESCRICAO: f.placentaDescricao}), auto:true});
       }
+      if(f.auu){
+        items.push({key:k('cordao-auu', f), label: pre(f) + phraseRaw('impCordaoAUU'), auto:true});
+      }
       if(f.cordaoInsercao === 'velamentosa'){
         items.push({key:k('cordao-velamentoso', f), label: pre(f) + phraseRaw('impCordaoVelamentoso'), auto:true});
       }
@@ -2503,7 +2508,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       return {uid, label, apresentacao, apresentacaoHtml, fc, obito,
         dbp, cf, cc, ca, peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
-        placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt, cordaoInsercao: v(pre+'CordaoInsercao') || 'central',
+        placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt, cordaoInsercao: v(pre+'CordaoInsercao') || 'central', auu: v(pre+'Cordao') === 'artéria umbilical única',
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
         piUmbilicalVal, piACMVal, cprTxt, cprPercentilVal, cprPercentilNum, dopplerFetalAlterado,
         auFluxo, auFluxoAlterado,
