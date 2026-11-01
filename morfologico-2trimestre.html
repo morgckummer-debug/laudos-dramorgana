@@ -364,6 +364,8 @@
   .field.bio-linha.bio-larga{grid-template-columns:1fr;gap:4px;}
   .field.bio-linha.bio-larga input[type=text]{font-size:12.5px;font-weight:500;text-align:left;padding:8px 10px;}
   .bio-col:only-child{flex:1 1 100%;}
+  .bio-col.conditional{display:none;}
+  .bio-col.conditional.show{display:flex;}
   .field.bio-linha.bio-texto{grid-template-columns:130px 1fr;}
   .field.bio-linha.bio-data{grid-template-columns:1fr minmax(0,130px);}
   .field.bio-linha.bio-texto input[type=text]{text-align:left;font-weight:500;font-size:14px;padding:8px 12px;}
@@ -727,18 +729,23 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Útero e colo uterino</h2></div>
+      <div class="card-head"><h2>Ao exame — útero, placenta e colo</h2></div>
       <div class="card-body">
         <div class="bio-grupos">
-          <div class="bio-col"><div class="bio-grupo"><h4>Miométrio</h4>
-          <div class="field bio-linha bio-larga"><label for="miometrioObservacoes">Miomas / achados miometriais<small>opcional · texto livre</small></label><textarea id="miometrioObservacoes" rows="2" placeholder="ex: nódulo sólido hipoecoico em parede anterior do útero, medindo 22 x 20 mm, compatível com mioma."></textarea></div>
-        </div></div>
-          <div class="bio-col"><div class="bio-grupo"><h4>Colo uterino</h4>
+          <div class="bio-col">
+            <div class="bio-grupo conditional show" id="wrap_placentaUnica"><h4>Placenta</h4><div class="field bio-linha bio-larga"><label for="placentaInsercao">Posição / inserção</label><select id="placentaInsercao"><option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option><option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option><option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option></select></div><div class="field bio-linha bio-sel"><label for="placentaTextura">Textura</label><select id="placentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div><div class="field bio-linha bio-sel"><label for="placentaGrau">Grau<small>Grannum</small></label><select id="placentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div><div class="field bio-linha bio-sel"><label for="placentaEspessura">Espessura</label><select id="placentaEspessura"><option value="normal">Normal</option><option value="alterada">Alterada (descrever)</option></select></div><div class="field conditional" id="wrap_placentaDescricao"><label>Descreva o achado</label><textarea id="placentaDescricao" rows="2" placeholder="ex: espessura aumentada, medindo..."></textarea></div><div class="toggle-line"><input type="checkbox" id="placentaDistalCheck"><label for="placentaDistalCheck">Incluir distância da porção distal da placenta ao orifício interno do colo</label></div><div class="field bio-linha conditional" id="wrap_placentaDistalMedida"><label for="placentaDistalMedida">Distância ao orifício interno do colo</label><input type="text" inputmode="decimal" data-decimals="1" id="placentaDistalMedida" placeholder="mm"><span class="bio-un">mm</span></div></div>
+            <div class="bio-grupo"><h4>Colo uterino</h4>
           <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
           <div id="coloFields" class="conditional">
             <div class="field bio-linha"><label for="coloComprimento">Comprimento do colo<small>via transvaginal</small></label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"><span class="bio-un">mm</span></div>
           </div>
-        </div></div>
+        </div>
+          </div>
+          <div class="bio-col">
+            <div class="bio-grupo"><h4>Miométrio</h4>
+          <div class="field bio-linha bio-larga"><label for="miometrioObservacoes">Miomas / achados miometriais<small>opcional · texto livre</small></label><textarea id="miometrioObservacoes" rows="2" placeholder="ex: nódulo sólido hipoecoico em parede anterior do útero, medindo 22 x 20 mm, compatível com mioma."></textarea></div>
+        </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1596,6 +1603,12 @@ if(typeof criarMotorLaudo !== 'function'){
   $('chkDopplerMaterno').addEventListener('change', e=>{ toggle('dopplerMaternoFields', e.target.checked); render(); });
   $('chkDopplerFetal').addEventListener('change', e=>{ toggle('dopplerFetalFields', e.target.checked); updateAllFetoWraps(); render(); });
   $('chkColo').addEventListener('change', e=>{ toggle('coloFields', e.target.checked); render(); });
+  function updatePlacentaUnica(){
+    toggle('wrap_placentaDescricao', v('placentaEspessura')==='alterada');
+    toggle('wrap_placentaDistalMedida', $('placentaDistalCheck').checked);
+  }
+  ['placentaEspessura','placentaDistalCheck'].forEach(id=> $(id).addEventListener('change', updatePlacentaUnica));
+  updatePlacentaUnica();
   // Morfológico de 3º trimestre: mesmo laudo, sem rádio/ulna/tíbia/fíbula/prega
   // pré-nasal e com outra frase para os membros. Quem decide tudo isso é o
   // render() (lê o checkbox a cada desenho); aqui só troca a frase padrão que
@@ -1807,7 +1820,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       +'<p class="feto-sub">Placenta, cordão umbilical e líquido amniótico</p>'
       +'<div class="bio-grupos">'
-      +'<div class="bio-col">'
+      +'<div class="bio-col conditional" id="feto'+uid+'PlacentaWrap">'
       +'<div class="bio-grupo"><h4>Placenta</h4>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'PlacentaInsercao">Posição / inserção</label><select id="feto'+uid+'PlacentaInsercao">'
       +'<option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option><option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option><option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option>'
@@ -2471,6 +2484,10 @@ if(typeof criarMotorLaudo !== 'function'){
     };
     const corTxt = corTxtMap[v('corionicidade')] || 'dicoriônica e diamniótica';
     const placentaUnica = isMultiple && (v('corionicidade')||'').indexOf('monocorionica')===0;
+    // Placenta única (feto único ou monocoriônica) fica no card Ao exame; por feto, no card de cada feto.
+    const placentaPorFeto = isMultiple && !placentaUnica;
+    toggle('wrap_placentaUnica', !placentaPorFeto);
+    uids.forEach(uid=> toggle('feto'+uid+'PlacentaWrap', placentaPorFeto));
 
     // ----- Doppler materno (artérias uterinas) -----
     const dopplerMaterno = $('chkDopplerMaterno').checked;
@@ -2594,18 +2611,20 @@ if(typeof criarMotorLaudo !== 'function'){
       // O estágio aparece também quando o CIUR vem da diástole zero (updateFetoWraps só olha o percentil).
       toggle('wrap_'+pre+'CiurEstagio', pesoKey === 'impPesoCIUR');
 
-      const placentaInsercao = v(pre+'PlacentaInsercao');
+      const plPre = placentaPorFeto ? pre+'Placenta' : 'placenta';
+      const ehDonoPlacenta = placentaPorFeto || idx === uids.length-1;
+      const placentaInsercao = v(plPre+'Insercao');
       const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
-      const placentaTextura = v(pre+'PlacentaTextura');
-      const placentaGrau = v(pre+'PlacentaGrau');
-      const placentaDescricao = vNoDot(pre+'PlacentaDescricao');
-      const placentaAlterada = v(pre+'PlacentaEspessura')==='alterada' && !!placentaDescricao;
-      const placentaPrevia = PLACENTA_PREVIA_VALORES.includes(placentaInsercao);
+      const placentaTextura = v(plPre+'Textura');
+      const placentaGrau = v(plPre+'Grau');
+      const placentaDescricao = vNoDot(plPre+'Descricao');
+      const placentaAlterada = ehDonoPlacenta && v(plPre+'Espessura')==='alterada' && !!placentaDescricao;
+      const placentaPrevia = ehDonoPlacenta && PLACENTA_PREVIA_VALORES.includes(placentaInsercao);
       const placentaHtml = placentaAlterada
         ? phraseRaw('placentaTextoEspessuraAlterada', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau, DESCRICAO:placentaDescricao})
         : phraseRaw('placentaTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau});
-      const placentaDistalCheck = $(pre+'PlacentaDistalCheck').checked;
-      const placentaDistalMedida = blankOrValue(placentaDistalCheck ? req(pre+'PlacentaDistalMedida') : v(pre+'PlacentaDistalMedida'));
+      const placentaDistalCheck = $(plPre+'DistalCheck').checked;
+      const placentaDistalMedida = blankOrValue(placentaDistalCheck ? req(plPre+'DistalMedida') : v(plPre+'DistalMedida'));
 
       const laAspecto = v(pre+'LaAspecto');
       const laOligoamnio = laAspecto === 'reduzido';
@@ -3196,9 +3215,23 @@ if(typeof criarMotorLaudo !== 'function'){
 
 
 
+  // Rascunho antigo guardava a placenta em cada feto. Agora, com placenta única
+  // (feto único ou monocoriônica), ela vem do último feto, que é quem a imprime.
+  function draftMigrarPlacenta(d){
+    const f = d && d.fields;
+    const uids = Array.isArray(d && d.uids) ? d.uids.map(String) : [];
+    if(!f || !uids.length || ('placentaInsercao' in f)) return;
+    const owner = uids[uids.length-1];
+    ['Insercao','Textura','Grau','Espessura','Descricao','DistalCheck','DistalMedida'].forEach(c=>{
+      const k = 'feto'+owner+'Placenta'+c;
+      if(k in f) f['placenta'+c] = f[k];
+    });
+  }
+
   function draftRestore(d){
     st.draftRestoring = true;
     try{
+      draftMigrarPlacenta(d);
       // Os cards repetidos voltam com os mesmos uids de antes: os ids dos campos,
       // as chaves da checklist de impressões e os ids dos blocos do laudo derivam
       // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.
