@@ -2026,6 +2026,13 @@ if(typeof criarMotorLaudo !== 'function'){
     reversa: 'REDF — diástole reversa na artéria umbilical',
     intermitente: 'iAREDF — diástole intermitentemente ausente/reversa na artéria umbilical',
   };
+  // Rótulos curtos só da tabela de Doppler fetal (pedido da médica, 2026-11-01);
+  // a frase de conclusão (impAuFluxoAlterado) continua usando AU_FLUXO_TXT.
+  const AU_FLUXO_TABELA = {
+    ausente: 'Diástole ZERO',
+    reversa: 'Diástole reversa',
+    intermitente: AU_FLUXO_TXT.intermitente,
+  };
 
   const PLACENTA_INSERCAO_TXT = {
     'fúndica': 'de inserção fúndica',
@@ -2705,7 +2712,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const tabelaDopplerFetal = f => ''
       +'<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Fetal (IP)</strong></p>'
       +'<table class="biometria doppler-fetal">'
-      +'<tr><td>Art. Umbilical:</td><td>'+span(f.piUmbilicalVal)+(f.auFluxoAlterado ? ' — '+escapeHtml(AU_FLUXO_TXT[f.auFluxo]) : '')+'</td></tr>'
+      +'<tr><td>Art. Umbilical:</td><td>'+span(f.piUmbilicalVal)+(f.auFluxoAlterado ? ' — '+escapeHtml(AU_FLUXO_TABELA[f.auFluxo]) : '')+'</td></tr>'
       +'<tr><td>Art. Cerebral Média:</td><td>'+span(f.piACMVal)+'</td></tr>'
       +'<tr><td>Rel. Cér-placentária:</td><td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td></tr>'
       +'</table>';
@@ -2786,7 +2793,7 @@ if(typeof criarMotorLaudo !== 'function'){
         const tabelaDopplerFetalMulti = '<p class="linha tight quadro-titulo"><strong style="text-decoration:underline;">Doppler Fetal (IP)</strong></p>'
           +'<table class="biometria biometria-multi doppler-fetal">'
           +'<tr><td></td>'+fetos.map(f=>'<td>'+escapeHtml(f.label)+'</td>').join('')+'</tr>'
-          +'<tr><td>Art. Umbilical</td>'+fetos.map(f=>'<td>'+span(f.piUmbilicalVal)+(f.auFluxoAlterado ? ' — '+escapeHtml(AU_FLUXO_TXT[f.auFluxo]) : '')+'</td>').join('')+'</tr>'
+          +'<tr><td>Art. Umbilical</td>'+fetos.map(f=>'<td>'+span(f.piUmbilicalVal)+(f.auFluxoAlterado ? ' — '+escapeHtml(AU_FLUXO_TABELA[f.auFluxo]) : '')+'</td>').join('')+'</tr>'
           +'<tr><td>Art. Cerebral Média</td>'+fetos.map(f=>'<td>'+span(f.piACMVal)+'</td>').join('')+'</tr>'
           +'<tr><td>Rel. Cér-placentária</td>'+fetos.map(f=>'<td style="white-space:nowrap;">'+span(blankOrValue(f.cprTxt))+' (P'+span(f.cprPercentilVal)+')</td>').join('')+'</tr>'
           +'</table>';
