@@ -211,6 +211,9 @@
   .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;}
   .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
   .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .osso-btns{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;}
+  .osso-btns button{font:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer;}
+  .osso-btns button.on{background:var(--rose-dark);border-color:var(--rose-dark);color:#fff;font-weight:600;}
   .field.bio-linha select{padding:8px 8px;font-size:13px;}
   /* Campo nunca passa da borda do quadro: em card estreito a caixa encolhe em vez de vazar. */
   .field.bio-linha > input, .field.bio-linha > select{min-width:0;max-width:100%;box-sizing:border-box;}
@@ -1687,7 +1690,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impCromossomopatiasBaixo: 'Os sinais ultrassonográficos indicam baixo risco para cromossomopatias (vide gráficos) — não podemos excluir essa possibilidade somente através da ultrassonografia.',
     impCromossomopatiasAlto: 'Os sinais ultrassonográficos indicam risco aumentado para cromossomopatias (vide gráficos) — sugere-se avaliação especializada e aconselhamento genético.',
     impAchadoAUU: 'Artéria umbilical única',
-    impAchadoONAusente: 'Osso nasal ausente',
+    impAchadoONAusente: 'Osso nasal ausente/hipoplásico',
     impAchadoONHipoplasico: 'Osso nasal hipoplásico',
     impAchadoTN: 'TN >P95',
     impAchadoHigroma: 'Higroma cístico',
@@ -1936,16 +1939,29 @@ if(typeof criarMotorLaudo !== 'function'){
         const id = 'feto'+uid+suf;
         const unidade = un === undefined ? 'mm' : un;
         let ctl;
-        if(o.opcoes) ctl = '<select id="'+id+'">'+o.opcoes+'</select>';
+        if(o.botoes) ctl = '<div class="osso-btns" data-for="'+id+'">'
+          + o.botoes.map(b=>'<button type="button" data-v="'+b+'">'+b+'</button>').join('')
+          + '</div><input type="hidden" id="'+id+'" value="'+o.botoes[0]+'">';
+        else if(o.opcoes) ctl = '<select id="'+id+'">'+o.opcoes+'</select>';
         else if(o.readonly) ctl = '<input type="text" id="'+id+'" readonly>';
         else if(o.modo === 'numeric') ctl = '<input type="text" inputmode="numeric" id="'+id+'">';
         else ctl = '<input type="text" inputmode="decimal" data-decimals="'+(o.decimais||1)+'" id="'+id+'">';
-        return '<div class="field bio-linha'+(o.opcoes?' bio-sel':'')+'">'
+        return '<div class="field bio-linha'+(o.opcoes||o.botoes?' bio-sel':'')+'">'
           +'<label for="'+id+'">'+nome+(sigla?'<small>'+sigla+'</small>':'')+'</label>'
-          +ctl+(o.opcoes?'':'<span class="bio-un">'+unidade+'</span>')+'</div>';
+          +ctl+((o.opcoes||o.botoes)?'':'<span class="bio-un">'+unidade+'</span>')+'</div>';
       }).join('')
       + '</div>';
   }
+  // Botões de escolha (osso nasal): o valor fica num <input type=hidden> com o
+  // id de sempre, então rascunho, v() e o laudo leem igual a um select.
+  document.addEventListener('click', e=>{
+    const b = e.target.closest && e.target.closest('.osso-btns button');
+    if(!b) return;
+    const h = document.getElementById(b.parentElement.dataset.for);
+    if(!h) return;
+    h.value = b.dataset.v;
+    render();
+  });
   // Avaliação morfológica em quadro, como os demais cards (2026-10-27): um select
   // por segmento e, abaixo dele, a descrição e o resumo quando "Alterado". Ids e
   // textos iguais aos de antes.
@@ -2022,7 +2038,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="bio-col">'
       +bioGrupo(uid, 'Outros marcadores', [
-        ['OssoNasal','Osso nasal','','',{opcoes:'<option value="Presente">Presente</option><option value="Ausente">Ausente</option><option value="Hipoplásico">Hipoplásico</option>'}],
+        ['OssoNasal','Osso nasal','','',{botoes:['Presente','Ausente/Hipoplásico']}],
         ['Tricuspide','Válvula tricúspide','','',{opcoes:'<option value="Sem regurgitação">Sem regurgitação</option><option value="Com regurgitação">Com regurgitação</option>'}],
         ['Pelves','Pelves renais','','',{opcoes:'<option value="Sem dilatação">Sem dilatação</option><option value="Com dilatação">Com dilatação</option>'}],
         ['Bexiga','Bexiga fetal']])
@@ -2980,8 +2996,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const achados = [];
       const curto = key=>{ const t = phraseRaw(key); return {curto:t, unico:t.replace(/\.*\s*$/, '')+'.'}; };
       if(f.auu) achados.push({key:'auu', ...curto('impAchadoAUU')});
-      if(f.ossoNasal === 'Ausente') achados.push({key:'on-ausente', ...curto('impAchadoONAusente')});
-      if(f.ossoNasal === 'Hipoplásico') achados.push({key:'on-hipoplasico', ...curto('impAchadoONHipoplasico')});
+      if(f.ossoNasal === 'Ausente/Hipoplásico') achados.push({key:'on-ausente', ...curto('impAchadoONAusente')});
       if(f.tnAlterada) achados.push({key:'tn', ...curto('impAchadoTN')});
       if(f.higroma) achados.push({key:'higroma', ...curto('impAchadoHigroma')});
       if(f.dvAlterado) achados.push({key:'dv', ...curto('impAchadoDV')});
@@ -3209,6 +3224,11 @@ if(typeof criarMotorLaudo !== 'function'){
     // fora ali. Fica anotado e roda assim que a impressão termina.
     if(st.printPaginated){ st.renderPendingAfterPrint = true; return; }
     pendingCount = 0;
+    document.querySelectorAll('.osso-btns').forEach(g=>{
+      const h = document.getElementById(g.dataset.for);
+      const atual = (h && h.value) || 'Presente';
+      g.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v === atual));
+    });
     function req(id){
       const val = v(id);
       const empty = val === '';
@@ -3637,8 +3657,6 @@ if(typeof criarMotorLaudo !== 'function'){
             +'<tr><td style="white-space:nowrap;"></td><td style="white-space:normal;">Rel. Ponte/Ponte-Occipital: '+span(blankOrValue(f.ppoTxt))+' (VR 0,5 - 1,0)</td></tr>';
         }
       });
-      morfoHtml += '<tr><td style="white-space:nowrap;vertical-align:top;"><strong>Cordão umbilical</strong></td>'
-        +'<td style="white-space:normal;text-align:justify;">'+emSe(f.auu, phrase('morfoCordao', {VASOS: f.cordaoTxt}))+'</td></tr>';
       morfoHtml += '</table></div>';
       blocks.push({id:'morfologia'+sfx, html:morfoHtml});
 
@@ -3650,6 +3668,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Osso Nasal (ON):</td><td>'+emSe(f.ossoNasal !== 'Presente', escapeHtml(f.ossoNasal))+'</td></tr>'
         +'<tr><td>Ducto Venoso (DV - IPV):</td><td style="white-space:nowrap;">'+emSe(f.dvAlterado, span(f.dv))+' ('+(f.dvClasse ? emSe(f.dvAlterado, escapeHtml(f.dvClasse))+', ' : '')+'onda A '+escapeHtml(f.dvOndaA.toLowerCase())+')</td></tr>'
         +'<tr><td>Válvula Tricúspide (VT):</td><td>'+emSe(f.tricuspide === 'Com regurgitação', escapeHtml(f.tricuspide))+'</td></tr>'
+        +'<tr><td>Cordão umbilical:</td><td>'+emSe(f.auu, escapeHtml(f.cordaoTxt))+'</td></tr>'
         +'<tr><td>Dilatação das pelves renais:</td><td>'+escapeHtml(f.pelves)+'</td></tr>'
         +'<tr><td>Bexiga fetal:</td><td style="white-space:nowrap;">'+span(f.bexiga)+' mm</td></tr>'
         +'</table></div>'});
