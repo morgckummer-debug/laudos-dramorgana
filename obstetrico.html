@@ -566,6 +566,8 @@
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (feto único) — use {IG}</label><textarea id="ph_impDecessoFetal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (gestação múltipla) — use {FETO} e {IG}</label><textarea id="ph_impDecessoFetalFeto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta (espessura normal) — use {INSERCAO}, {TEXTURA} e {GRAU}</label><textarea id="ph_placentaGrauTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Cordão umbilical — use {VASOS}</label><textarea id="ph_cordaoTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Inserção velamentosa do cordão (na conclusão)</label><textarea id="ph_impCordaoVelamentoso" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Inserção do cordão — use {INSERCAO} (central, marginal ou velamentosa)</label><textarea id="ph_cordaoInsercaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal (feto único, no parágrafo junto da placenta)</label><textarea id="ph_laAspectoNormalUnico" rows="2"></textarea></div>
@@ -1351,7 +1353,9 @@ if(typeof criarMotorLaudo !== 'function'){
     vitalidadeAusenteTexto: 'Ausência de batimentos cardíacos fetais.',
     impDecessoFetal: 'Decesso fetal compatível com {IG}.',
     impDecessoFetalFeto: 'Decesso fetal ({FETO}) compatível com {IG}.',
+    cordaoTexto: 'Cordão umbilical apresentando {VASOS}.',
     cordaoInsercaoTexto: 'Inserção {INSERCAO} do cordão umbilical.',
+    impCordaoVelamentoso: 'Inserção velamentosa do cordão umbilical.',
     placentaGrauTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
     placentaTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
@@ -1641,6 +1645,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaGrau">Grau (Grannum)</label><select id="feto'+uid+'PlacentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div>'
       +'</div>'
       +'<div class="bio-grupo"><h4>Cordão umbilical</h4>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'Cordao">Vasos do cordão</label><select id="feto'+uid+'Cordao"><option value="2 artérias e 1 veia">2 artérias e 1 veia</option><option value="artéria umbilical única">Artéria umbilical única</option></select></div>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'CordaoInsercao">Inserção do cordão</label><select id="feto'+uid+'CordaoInsercao"><option value="central">Central</option><option value="marginal">Marginal</option><option value="velamentosa">Velamentosa</option></select></div>'
       +'</div>'
       +'<div class="bio-grupo"><h4>Líquido amniótico</h4>'
@@ -2088,6 +2093,9 @@ if(typeof criarMotorLaudo !== 'function'){
       if(f.placentaAlterada){
         items.push({key:k('placenta-alterada', f), label: pre(f) + phraseRaw('impPlacentaAlterada', {DESCRICAO: f.placentaDescricao}), auto:true});
       }
+      if(f.cordaoInsercao === 'velamentosa'){
+        items.push({key:k('cordao-velamentoso', f), label: pre(f) + phraseRaw('impCordaoVelamentoso'), auto:true});
+      }
       if(f.placentaPrevia){
         items.push({key:k('placenta-previa', f), label: pre(f) + phraseRaw('impPlacentaPrevia', {INSERCAO: f.placentaInsercaoTxt}), auto:true});
       }
@@ -2403,6 +2411,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const placentaAlterada = false; // campo Espessura retirado do card (2026-11-01)
       const placentaPrevia = PLACENTA_PREVIA_VALORES.includes(placentaInsercao);
       const placentaHtml = phraseRaw('placentaGrauTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau})
+        + ' ' + phraseRaw('cordaoTexto', {VASOS: v(pre+'Cordao') || '2 artérias e 1 veia'})
         + ' ' + phraseRaw('cordaoInsercaoTexto', {INSERCAO: v(pre+'CordaoInsercao') || 'central'});
 
       const laAspecto = v(pre+'LaAspecto');
@@ -2494,7 +2503,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       return {uid, label, apresentacao, apresentacaoHtml, fc, obito,
         dbp, cf, cc, ca, peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
-        placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
+        placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt, cordaoInsercao: v(pre+'CordaoInsercao') || 'central',
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
         piUmbilicalVal, piACMVal, cprTxt, cprPercentilVal, cprPercentilNum, dopplerFetalAlterado,
         auFluxo, auFluxoAlterado,

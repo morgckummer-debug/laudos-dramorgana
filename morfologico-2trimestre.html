@@ -639,6 +639,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Artéria umbilical única (na conclusão)</label><textarea id="ph_impAchadoAUU" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — oligoâmnio (impressão)</label><textarea id="ph_impLaOligoamnio" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — polidrâmnio (impressão)</label><textarea id="ph_impLaPolidramnio" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Inserção velamentosa do cordão (na conclusão)</label><textarea id="ph_impCordaoVelamentoso" rows="1"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta alterada — use {DESCRICAO}</label><textarea id="ph_impPlacentaAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta baixa/marginal/prévia — use {INSERCAO}</label><textarea id="ph_impPlacentaPrevia" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Discordância de peso dentro da normalidade — use {DISCORDANCIA}</label><textarea id="ph_impDiscordanciaNormal" rows="2"></textarea></div>
@@ -1396,6 +1397,7 @@ if(typeof criarMotorLaudo !== 'function'){
     placentaDistalTexto: 'Sua porção distal se encontra a {MEDIDA} mm (VR > 20 mm) do orifício interno do colo uterino.',
     cordaoTexto: 'Cordão umbilical apresentando {VASOS}.',
     cordaoInsercaoTexto: 'Inserção {INSERCAO} do cordão umbilical.',
+    impCordaoVelamentoso: 'Inserção velamentosa do cordão umbilical.',
     laAspectoNormal: 'Volume normal para a idade gestacional.',
     laAspectoOligoamnio: 'Volume de líquido amniótico reduzido para a idade gestacional (oligoâmnio).',
     laAspectoPolidramnio: 'Volume de líquido amniótico aumentado para a idade gestacional (polidrâmnio).',
@@ -2348,6 +2350,9 @@ if(typeof criarMotorLaudo !== 'function'){
       }
       if(f.placentaAlterada){
         items.push({key:k('placenta-alterada', f), label: pre(f) + phraseRaw('impPlacentaAlterada', {DESCRICAO: f.placentaDescricao}), auto:true});
+      }
+      if(f.cordaoInsercao === 'velamentosa'){
+        items.push({key:k('cordao-velamentoso', f), label: pre(f) + phraseRaw('impCordaoVelamentoso'), auto:true});
       }
       if(f.placentaPrevia){
         items.push({key:k('placenta-previa', f), label: pre(f) + phraseRaw('impPlacentaPrevia', {INSERCAO: f.placentaInsercaoTxt}), auto:true});
