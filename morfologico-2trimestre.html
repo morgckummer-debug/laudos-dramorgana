@@ -593,6 +593,9 @@
   <div class="field" style="margin-bottom:8px;"><label>Apresentação córmica — gestação múltipla</label><textarea id="ph_apresentacaoTextoTransversaMultiplo" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Movimentação</label><textarea id="ph_movimentacaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade — use {FC}</label><textarea id="ph_vitalidadeTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Vitalidade com batimentos ausentes (óbito fetal)</label><textarea id="ph_vitalidadeAusenteTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (feto único) — use {IG}</label><textarea id="ph_impDecessoFetal" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (gestação múltipla) — use {FETO} e {IG}</label><textarea id="ph_impDecessoFetalFeto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta normal — use {INSERCAO} e {GRAU}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta — distância da porção distal ao colo (opcional) — use {MEDIDA}</label><textarea id="ph_placentaDistalTexto" rows="2"></textarea></div>
@@ -1380,6 +1383,9 @@ if(typeof criarMotorLaudo !== 'function'){
     apresentacaoTextoTransversaMultiplo: 'Em situação transversa, apresentação córmica.',
     movimentacaoTexto: 'Observa-se movimentação corporal e respiratória.',
     vitalidadeTexto: 'Batimentos cardíacos rítmicos com frequência de {FC} bpm.',
+    vitalidadeAusenteTexto: 'Ausência de batimentos cardíacos fetais.',
+    impDecessoFetal: 'Decesso fetal compatível com {IG}.',
+    impDecessoFetalFeto: 'Decesso fetal ({FETO}) compatível com {IG}.',
     placentaTexto: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, grau {GRAU} de Grannum e espessura alterada: {DESCRICAO}.',
     placentaDistalTexto: 'Sua porção distal se encontra a {MEDIDA} mm (VR > 20 mm) do orifício interno do colo uterino.',
@@ -1777,6 +1783,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="bio-grupo"><h4>Situação fetal</h4>'
       +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'Apresentacao">Apresentação fetal</label><select id="feto'+uid+'Apresentacao"><option value="cefálica">Cefálica</option><option value="pélvica">Pélvica</option><option value="córmica">Córmica (situação transversa)</option></select></div>'
       +'<div class="conditional" id="wrap_feto'+uid+'Dorso"><div class="field bio-linha bio-sel"><label for="feto'+uid+'Dorso">Dorso fetal</label><select id="feto'+uid+'Dorso"><option value="à direita">À direita</option><option value="à esquerda">À esquerda</option></select></div></div>'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="feto'+uid+'Vitalidade">Batimentos cardíacos<small>ausentes = óbito fetal</small></label><select id="feto'+uid+'Vitalidade"><option value="presente">Presentes</option><option value="ausente">Ausentes (óbito fetal)</option></select></div>'
       +'<div class="field bio-linha"><label for="feto'+uid+'FC">Frequência cardíaca fetal<small>FCF</small></label><input type="text" inputmode="numeric" id="feto'+uid+'FC"><span class="bio-un">bpm</span></div>'
       +'</div>'
       +'</div>'
@@ -2280,7 +2287,16 @@ if(typeof criarMotorLaudo !== 'function'){
       items.push({key:k('peso', f), label: pre(f) + f.pesoLabel, auto:true});
     });
 
-    if(!algumAchado){
+    // Óbito fetal (batimentos ausentes): uma linha por feto, logo depois do
+    // peso; com algum feto em óbito a "boa evolução" não sai.
+    state.fetos.forEach(f=>{
+      if(!f.obito) return;
+      items.push({key:k('obito', f), label: state.isMultiple
+        ? phraseRaw('impDecessoFetalFeto', {FETO: f.label, IG: state.ig, SEMANAS: state.semanas, DIAS: state.dias})
+        : phraseRaw('impDecessoFetal', {IG: state.ig, SEMANAS: state.semanas, DIAS: state.dias}), auto:true});
+    });
+
+    if(!algumAchado && !state.fetos.some(f=>f.obito)){
       items.push({key:'evolucao', label:phraseRaw('impBoaEvolucao'), auto:true});
     }
 
@@ -2526,7 +2542,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const apresentacao = v(pre+'Apresentacao');
       const isTransversa = apresentacao === 'córmica';
       const dorso = v(pre+'Dorso');
-      const fc = blankOrValue(req(pre+'FC'));
+      const obito = v(pre+'Vitalidade') === 'ausente';
+      const fc = obito ? blankOrValue('') : blankOrValue(req(pre+'FC'));
       const observacoes = vNoDot(pre+'Observacoes');
       const apresentacaoHtml = isTransversa
         ? phraseRaw(isMultiple ? 'apresentacaoTextoTransversaMultiplo' : 'apresentacaoTextoTransversa')
@@ -2670,7 +2687,7 @@ if(typeof criarMotorLaudo !== 'function'){
         auFluxoAlterado = auFluxo === 'ausente' || auFluxo === 'reversa' || auFluxo === 'intermitente';
       }
 
-      return {uid, label, apresentacaoHtml, fc, observacoes,
+      return {uid, label, apresentacaoHtml, fc, obito, observacoes,
         dbp, diamCerebelar, dof, cisternaMagna, cc, pregaNucal, ca, ventriculoPosterior,
         cf, ossoNasal, umero, pregaPreNasal, radio, doe, ulna, doi, tibia, fibula,
         peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
@@ -2786,8 +2803,8 @@ if(typeof criarMotorLaudo !== 'function'){
       }
 
       blocks.push({id:'apresentacao'+sfx, html:'<p class="linha">'+f.apresentacaoHtml+'</p>'});
-      blocks.push({id:'movimentacao'+sfx, html:'<p class="linha">'+phrase('movimentacaoTexto')+'</p>'});
-      blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+phraseRaw('vitalidadeTexto', {FC: f.fc.text})+'</p>'});
+      if(!f.obito) blocks.push({id:'movimentacao'+sfx, html:'<p class="linha">'+phrase('movimentacaoTexto')+'</p>'});
+      blocks.push({id:'vitalidade'+sfx, html:'<p class="linha">'+(f.obito ? phraseRaw('vitalidadeAusenteTexto') : phraseRaw('vitalidadeTexto', {FC: f.fc.text}))+'</p>'});
       // Texto livre da médica — só entra no corpo do laudo, nunca na impressão
       // diagnóstica (buildImpressao não lê f.observacoes).
       if(f.observacoes){

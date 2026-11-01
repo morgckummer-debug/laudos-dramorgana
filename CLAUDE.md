@@ -1848,3 +1848,7 @@ Pedido da médica. No `morfologico-2trimestre.html`, com "Cerclagem realizada" (
 ## Morfológico 2º/3º: um campo só de motivo do exame (2026-11-01)
 
 Pedido da médica. Em "Dados do exame" do `morfologico-2trimestre.html` ficou só "Motivo do exame" (`motivoExame`, bloco `relato` do laudo). O campo "Observações" (`medicacoes`, bloco `medicacoes`) saiu. `draftMigrarObservacoes()` passa o texto de um rascunho antigo para o motivo e remonta o laudo dos campos. O 1º trimestre e o obstétrico não mudaram.
+
+## Morfológico 2º/3º: batimentos cardíacos ausentes (2026-11-01)
+
+A médica sentiu falta da opção no morfológico 2T. Não foi regressão: o select existia só no `obstetrico.html` (#372). Portado igual: `feto{uid}Vitalidade` (Presentes/Ausentes) no quadro "Situação fetal", frases `vitalidadeAusenteTexto`, `impDecessoFetal`/`impDecessoFetalFeto` (mesmas chaves do obstétrico). Com ausentes, o corpo diz "Ausência de batimentos cardíacos fetais." e não sai a movimentação; a conclusão ganha "Decesso fetal compatível com {IG}." logo depois do peso e perde "boa evolução". Com Presentes o laudo sai igual ao de antes.
