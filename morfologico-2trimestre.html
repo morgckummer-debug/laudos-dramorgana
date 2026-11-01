@@ -651,6 +651,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Doppler das uterinas não solicitado — linha no corpo do laudo (sai quando o Doppler materno não está marcado)</label><textarea id="ph_dopplerUterinasNaoSolicitado" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo normal — impressão — use {RISCO} (some em gestação múltipla)</label><textarea id="ph_impColoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Colo curto — impressão</label><textarea id="ph_impColoAlterado" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Colo com cerclagem (não curto) — impressão</label><textarea id="ph_impColoCerclagem" rows="2"></textarea></div>
 
   <hr class="sep">
   <h3>Rodapé</h3>
@@ -1439,6 +1440,7 @@ if(typeof criarMotorLaudo !== 'function'){
     dopplerUterinasNaoSolicitado: 'Doppler das artérias uterinas: não solicitado.',
     impColoNormal: 'Colo uterino longo e fechado.{RISCO}',
     impColoAlterado: 'Colo curto. Aumento do risco de parto prematuro.',
+    impColoCerclagem: 'Cerclagem tópica sem sinal do afunilamento.',
 
     recomendacaoTexto: 'O exame realizado entre 22 e 24 semanas identifica até 90% dos defeitos congênitos. Achados negativos não significam ausência de malformações, pois existem algumas delas que só serão diagnosticadas no 3º trimestre, como por exemplo, malformações do sistema digestivo e músculo-esquelético. Este exame não exclui a necessidade de realização do ECOCARDIOGRAMA entre 24 e 28 semanas.',
     footerImagens: 'Imagens em anexo.'
@@ -2350,9 +2352,16 @@ if(typeof criarMotorLaudo !== 'function'){
       // "Baixo risco de parto prematuro" não cabe numa gestação múltipla — o
       // fato de ser gemelar/trigemelar já aumenta o risco por si só, mesmo
       // com o colo longo e fechado.
-      items.push({key:'colo', label: state.coloAlterado
-        ? phraseRaw('impColoAlterado')
-        : phraseRaw('impColoNormal', {RISCO: state.isMultiple ? '' : ' Baixo risco de parto prematuro.'}), auto:true});
+      // Com cerclagem e colo não curto, a linha do colo normal dá lugar a
+      // impColoCerclagem (pedido da médica, 2026-11-01). Chave própria, com
+      // sufixo na key, para uma redação feita à mão não ficar presa ao outro caso.
+      if(state.coloAlterado){
+        items.push({key:'colo', label: phraseRaw('impColoAlterado'), auto:true});
+      } else if(state.cerclagem){
+        items.push({key:'colo-cerclagem', label: phraseRaw('impColoCerclagem'), auto:true});
+      } else {
+        items.push({key:'colo', label: phraseRaw('impColoNormal', {RISCO: state.isMultiple ? '' : ' Baixo risco de parto prematuro.'}), auto:true});
+      }
     }
 
     return items;
@@ -2723,7 +2732,7 @@ if(typeof criarMotorLaudo !== 'function'){
       discordanciaTxt, discordanciaAlterada, discordanciaSeveridade, discordanciaNum,
       dopplerMaterno, utAlterado, utMedioTxt, utPercentilTxt,
       dopplerFetal,
-      colo, coloAlterado
+      colo, coloAlterado, cerclagem: $('cerclagemRealizada').checked
     };
     const impressaoItems = buildImpressao(state);
     renderChecklist(impressaoItems);
