@@ -359,6 +359,9 @@
   .field.bio-linha label{font-size:13.5px;color:var(--ink);font-weight:500;}
   .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
   .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
+  .osso-btns{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;}
+  .osso-btns button{font:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer;}
+  .osso-btns button.on{background:var(--rose-dark);border-color:var(--rose-dark);color:#fff;font-weight:600;}
   .bio-un{font-size:12.5px;color:var(--ink-soft);}
   /* Variações de linha dos cards fixos (dados do exame, datação, Doppler), as
      mesmas do morfologico-1trimestre.html. */
@@ -1696,6 +1699,12 @@ if(typeof criarMotorLaudo !== 'function'){
       + itens.map(([suf, nome, sigla, un, modo, t2, vivo])=>{
         const unidade = un === undefined ? 'mm' : un;
         const im = modo || 'decimal';
+        // Botões de escolha (osso nasal presente/ausente): valor num campo oculto.
+        if(modo === 'botoes') return '<div class="field bio-linha bio-larga">'
+          +'<label>'+nome+'</label>'
+          +'<div class="osso-btns" data-for="feto'+uid+suf+'">'
+          +'<button type="button" data-v="Presente">Presente</button><button type="button" data-v="Ausente/Hipoplásico">Ausente/Hipoplásico</button></div>'
+          +'<input type="hidden" id="feto'+uid+suf+'" value="Presente"></div>';
         return '<div class="field bio-linha'+(t2?' t2only':'')+(vivo?' so-vivo':'')+'">'
           +'<label for="feto'+uid+suf+'">'+nome+(sigla?'<small>'+sigla+'</small>':'')+'</label>'
           +'<input type="text" inputmode="'+im+'"'+(im==='decimal'?' data-decimals="1"':'')+' id="feto'+uid+suf+'">'
@@ -1759,6 +1768,15 @@ if(typeof criarMotorLaudo !== 'function'){
       {nome:'Ossos longos curtos / displasia esquelética', corpo:'Ossos longos curtos [e encurvados] em relação à idade gestacional, [com fraturas/ecogenicidade óssea reduzida]. Mãos e pés de conformação usual', resumo:'Suspeita de displasia esquelética'}
     ]
   };
+  // Botões de escolha (osso nasal): o valor fica num <input type=hidden>.
+  document.addEventListener('click', e=>{
+    const b = e.target.closest && e.target.closest('.osso-btns button');
+    if(!b) return;
+    const h = document.getElementById(b.parentElement.dataset.for);
+    if(!h) return;
+    h.value = b.dataset.v;
+    render();
+  });
   function prontoSelect(uid, k){
     const lista = MORFO_PRONTOS[k] || [];
     if(!lista.length) return '';
@@ -1829,7 +1847,8 @@ if(typeof criarMotorLaudo !== 'function'){
         ['VentriculoPosterior','Ventrículo posterior'],
         ['PregaNucal','Prega nucal']], false, true)
       +bioGrupo(uid, 'Face', [
-        ['OssoNasal','Osso nasal'],
+        ['OssoNasalPresenca','Osso nasal — presença','','',"botoes"],
+        ['OssoNasal','Osso nasal (medida)'],
         ['DOE','Distância orbitária externa','DI externo'],
         ['DOI','Distância orbitária interna','DI interno'],
         ['PregaPreNasal','Prega pré-nasal','',undefined,'',true]], false, true)
@@ -2459,6 +2478,11 @@ if(typeof criarMotorLaudo !== 'function'){
     // fora ali. Fica anotado e roda assim que a impressão termina.
     if(st.printPaginated){ st.renderPendingAfterPrint = true; return; }
     pendingCount = 0;
+    document.querySelectorAll('.osso-btns').forEach(g=>{
+      const h = document.getElementById(g.dataset.for);
+      const atual = (h && h.value) || 'Presente';
+      g.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v === atual));
+    });
     function req(id){
       const val = v(id);
       const empty = val === '';
@@ -2584,6 +2608,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const ventriculoPosterior = blankOrValue(v(pre+'VentriculoPosterior'));
       const cf = blankOrValue(req(pre+'CF'));
       const ossoNasal = blankOrValue(v(pre+'OssoNasal'));
+      const ossoNasalPres = v(pre+'OssoNasalPresenca') || 'Presente';
       const umero = blankOrValue(v(pre+'Umero'));
       // No 3º trimestre estas medidas não são feitas: ficam fora do laudo mesmo
       // que ainda haja valor digitado (o checkbox pode ser desmarcado depois).
@@ -2713,7 +2738,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       return {uid, label, apresentacaoHtml, fc, obito, observacoes,
         dbp, diamCerebelar, dof, cisternaMagna, cc, pregaNucal, ca, ventriculoPosterior,
-        cf, ossoNasal, umero, pregaPreNasal, radio, doe, ulna, doi, tibia, fibula,
+        cf, ossoNasal, ossoNasalPres, umero, pregaPreNasal, radio, doe, ulna, doi, tibia, fibula,
         peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
         segmentos, alteracoes, morfoAlterado, cordaoTxt, cordaoInsercao, auu: cordaoTxt === 'artéria umbilical única',
         placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
@@ -2863,7 +2888,7 @@ if(typeof criarMotorLaudo !== 'function'){
         +'<tr><td>Cisterna magna</td><td>'+span(f.cisternaMagna)+' mm</td></tr>'
         +'<tr><td>Prega nucal</td><td>'+span(f.pregaNucal)+' mm</td></tr>'
         +'<tr><td>Ventrículo posterior</td><td>'+span(f.ventriculoPosterior)+' mm</td></tr>'
-        +'<tr><td>Osso nasal</td><td>'+span(f.ossoNasal)+' mm</td></tr>'
+        +'<tr><td>Osso nasal</td><td>'+span(f.ossoNasal)+' mm'+(f.ossoNasalPres !== 'Presente' ? ' <i>('+escapeHtml(f.ossoNasalPres)+')</i>' : '')+'</td></tr>'
         +(tri3 ? '' : '<tr><td>Prega pré-nasal</td><td>'+span(f.pregaPreNasal)+' mm</td></tr>')
         +'<tr><td>Distância orbitária externa</td><td>'+span(f.doe)+' mm</td></tr>'
         +'<tr><td>Distância orbitária interna</td><td>'+span(f.doi)+' mm</td></tr>'
