@@ -168,6 +168,25 @@
   .hint-perfeto{font-size:12px;color:var(--ink-soft);margin:2px 0 0;}
   .feto-sub{font-size:12.5px;font-weight:700;color:var(--rose-dark);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.3px;}
   .feto-sub:first-of-type{margin-top:4px;}
+
+  /* Card Feto em barras clicáveis, uma aberta por vez (2026-11-01, pedido da médica; só neste laudo por enquanto) */
+  .fsec{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;background:#fff;overflow:hidden;}
+  .fsec-bar{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;background:#fff;border:0;cursor:pointer;text-align:left;font:inherit;color:inherit;}
+  .fsec-bar .num{width:24px;height:24px;border-radius:50%;background:var(--rose-dark);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
+  .fsec.feita .num{background:#3c8a5a;}
+  .fsec-bar .tit{font-size:12.5px;font-weight:700;color:var(--rose-dark);text-transform:uppercase;letter-spacing:.3px;text-align:left;}
+  .fsec-bar .res{margin-left:auto;font-size:12px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:50%;}
+  .fsec-bar .chev{width:22px;height:22px;border-radius:50%;background:var(--rose-light);color:var(--rose-dark);display:flex;align-items:center;justify-content:center;font-size:12px;transition:transform .2s;flex:none;}
+  .fsec.open{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);}
+  .fsec.open .fsec-bar{background:var(--rose-light);}
+  .fsec.open .fsec-bar .chev{transform:rotate(90deg);}
+  .fsec-body{display:none;padding:12px 14px 14px;border-top:1px solid var(--line);}
+  .fsec.open .fsec-body{display:block;}
+  .fsec-prox{display:flex;justify-content:flex-end;margin-top:10px;}
+  .fsec-prox button{background:var(--rose-dark);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;font:inherit;font-weight:600;}
+  .fsec-top{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px;font-size:12px;color:var(--ink-soft);}
+  .fsec-top button{background:none;border:0;color:var(--rose-dark);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;}
+  @media (max-width:560px){.fsec-bar .res{display:none;}}
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
@@ -1795,6 +1814,15 @@ if(typeof criarMotorLaudo !== 'function'){
     return '<select id="feto'+uid+k+'Pronto" class="pronto" style="margin-bottom:6px;"><option value="">Inserir achado pronto…</option>'
       + lista.map((a, i)=>'<option value="'+i+'">'+escapeHtml(a.nome)+'</option>').join('')+'</select>';
   }
+  const FSEC_TITULOS = {1:'Situação, apresentação e vitalidade', 2:'Parâmetros biométricos', 3:'Cordão e Líquido Amniótico', 4:'Avaliação morfológica fetal'};
+  function fsecAbre(n, extra){
+    return '<div class="fsec'+(n===1?' open':'')+(extra?' '+extra:'')+'" data-fsec="'+n+'">'
+      +'<button type="button" class="fsec-bar"><span class="num">'+n+'</span><span class="tit">'+FSEC_TITULOS[n]+'</span><span class="res"></span><span class="chev">▶</span></button>'
+      +'<div class="fsec-body">';
+  }
+  function fsecFecha(n){
+    return (n<4 ? '<div class="fsec-prox"><button type="button" data-fsec-prox="'+(n+1)+'">Próxima: '+FSEC_TITULOS[n+1]+' ›</button></div>' : '')+'</div></div>';
+  }
   // Avaliação morfológica em quadro, como os demais cards (2026-10-27): um select
   // por segmento e, abaixo dele, a descrição e o resumo quando "Alterado". Ids,
   // textos e ordem iguais aos de antes.
@@ -1803,18 +1831,18 @@ if(typeof criarMotorLaudo !== 'function'){
       '<div class="field bio-linha bio-sel"><label for="feto'+uid+k+'">'+nome+'</label><select id="feto'+uid+k+'"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+k+'Descricao"><label>Descreva o achado — '+nome+'</label>'+prontoSelect(uid,k)+'<textarea id="feto'+uid+k+'Descricao" rows="2"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+k+'Resumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+k+'Resumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+k+'ResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>';
-    return '<div class="so-vivo"><p class="feto-sub">Avaliação morfológica fetal</p>'
+    return fsecAbre(4,'so-vivo')
       +'<div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Segmentos fetais</h4>'
       +seg('Cranio','Crânio / cérebro')+seg('Face','Face')+seg('Coluna','Coluna vertebral')+seg('Torax','Tórax / coração')+seg('Abdome','Abdome')+seg('Membros','Membros fetais')
-      +'</div></div></div></div>';
+      +'</div></div></div>'+fsecFecha(4);
   }
   function fetoCardHTML(uid){
     return ''
       +'<div class="card" id="wrap_feto'+uid+'">'
       +'<div class="card-head"><h2><span class="feto-label"></span></h2></div>'
       +'<div class="card-body">'
-
-      +'<p class="feto-sub">Situação, apresentação e vitalidade</p>'
+      +'<div class="fsec-top"><span class="fsec-modo">Uma seção aberta por vez</span><button type="button" class="fsec-todas">Abrir todas</button></div>'
+      +fsecAbre(1)
       +'<div class="bio-grupos">'
       +'<div class="bio-col">'
       +'<div class="bio-grupo"><h4>Situação fetal</h4>'
@@ -1830,8 +1858,9 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'</div>'
       +'</div>'
+      +fsecFecha(1)
 
-      +'<p class="feto-sub">Parâmetros biométricos</p>'
+      +fsecAbre(2)
       // Quadros por região (2026-10-27, esquema da médica): nome à esquerda,
       // caixa curta e igual para todas, unidade à direita. Duas colunas que
       // viram uma em tela estreita. Os ids não mudaram (rascunho, Curva e
@@ -1869,8 +1898,9 @@ if(typeof criarMotorLaudo !== 'function'){
         ['Fibula','Fíbula','',undefined,'',true]], true, true)
       +'</div>'
       +'</div>'
+      +fsecFecha(2)
 
-      +'<p class="feto-sub">Cordão e Líquido Amniótico</p>'
+      +fsecAbre(3)
       +'<div class="bio-grupos">'
       +'<div class="bio-col conditional" id="feto'+uid+'PlacentaWrap">'
       +'<div class="bio-grupo"><h4>Placenta</h4>'
@@ -1898,6 +1928,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'</div>'
       +'</div>'
+      +fsecFecha(3)
 
       +'<div class="conditional so-vivo" id="wrap_feto'+uid+'Doppler">'
       // Um quadro só por feto, como no obstetrico.html (2026-11-01, pedido da
@@ -1971,6 +2002,75 @@ if(typeof criarMotorLaudo !== 'function'){
   function fetoLabel(idx, total){
     return total<=1 ? 'Feto' : 'Feto '+(idx+1);
   }
+  // ----- Barras do card Feto -----
+  function fsecResumo(uid, n){
+    const val = k=>{ const e=$('feto'+uid+k); return e ? (e.value||'').trim() : ''; };
+    const txt = k=>{ const e=$('feto'+uid+k); return e && e.selectedIndex>=0 ? e.options[e.selectedIndex].text : ''; };
+    const p = [];
+    if(n===1){
+      p.push(txt('Apresentacao'));
+      const dw=$('wrap_feto'+uid+'Dorso'); if(dw && dw.classList.contains('show')) p.push('dorso '+txt('Dorso').toLowerCase());
+      p.push(val('Vitalidade')==='ausente' ? 'BCF ausentes' : (val('FC') ? 'BCF '+val('FC')+' bpm' : 'BCF presentes'));
+    } else if(n===2){
+      ['DBP','CC','CA','CF'].forEach(k=>{ if(val(k)) p.push(k+' '+val(k)); });
+      if(val('Peso')) p.push(val('Peso')+' g'+(val('Percentil')?' (P'+val('Percentil')+')':''));
+    } else if(n===3){
+      const pw=$('feto'+uid+'PlacentaWrap');
+      if(pw && pw.classList.contains('show')) p.push('Placenta '+txt('PlacentaInsercao').toLowerCase()+' grau '+val('PlacentaGrau'));
+      p.push(val('Cordao').indexOf('única')>=0 ? 'artéria umbilical única' : '2A1V');
+      p.push('LA '+txt('LaAspecto').toLowerCase());
+    } else {
+      const alt=['Cranio','Face','Coluna','Torax','Abdome','Membros'].filter(k=>val(k)==='alterado').length;
+      p.push(alt ? alt+(alt>1?' segmentos alterados':' segmento alterado') : '6 segmentos com aspecto normal');
+    }
+    return p.filter(Boolean).join(' · ');
+  }
+  function fsecAtualizar(){
+    Array.from($('fetosContainer').children).forEach(card=>{
+      const uid = card.id.replace('wrap_feto','');
+      card.querySelectorAll('.fsec').forEach(sec=>{
+        const n = +sec.dataset.fsec;
+        const preenchido = Array.from(sec.querySelectorAll('input[type=text],textarea')).some(e=>e.value && e.value.trim());
+        const feita = !!sec.dataset.visto || preenchido;
+        sec.classList.toggle('feita', feita);
+        sec.querySelector('.num').textContent = feita ? '✓' : String(n);
+        sec.querySelector('.res').textContent = feita ? fsecResumo(uid, n) : 'a preencher';
+      });
+    });
+  }
+  function fsecAbrir(sec, unica){
+    if(unica) sec.closest('.card').querySelectorAll('.fsec.open').forEach(o=>{ if(o!==sec) o.classList.remove('open'); });
+    sec.classList.add('open');
+    sec.dataset.visto = '1';
+  }
+  $('fetosContainer').addEventListener('click', e=>{
+    const card = e.target.closest('.card'); if(!card) return;
+    const todas = e.target.closest('.fsec-todas');
+    if(todas){
+      const tudo = card.dataset.todas !== '1';
+      card.dataset.todas = tudo ? '1' : '';
+      card.querySelectorAll('.fsec').forEach(s=>{ s.classList.toggle('open', tudo); if(tudo) s.dataset.visto='1'; });
+      if(!tudo) card.querySelector('.fsec').classList.add('open');
+      card.querySelector('.fsec-modo').textContent = tudo ? 'Todas as seções abertas' : 'Uma seção aberta por vez';
+      todas.textContent = tudo ? 'Uma por vez' : 'Abrir todas';
+      fsecAtualizar(); return;
+    }
+    const prox = e.target.closest('[data-fsec-prox]');
+    if(prox){
+      const atual = prox.closest('.fsec'); const dest = card.querySelector('.fsec[data-fsec="'+prox.dataset.fsecProx+'"]');
+      atual.dataset.visto = '1';
+      fsecAbrir(dest, card.dataset.todas !== '1');
+      fsecAtualizar();
+      dest.scrollIntoView({block:'nearest', behavior:'smooth'}); return;
+    }
+    const bar = e.target.closest('.fsec-bar');
+    if(bar){
+      const sec = bar.parentElement;
+      if(sec.classList.contains('open')){ sec.classList.remove('open'); sec.dataset.visto='1'; }
+      else fsecAbrir(sec, card.dataset.todas !== '1');
+      fsecAtualizar();
+    }
+  });
   function renumberFetos(){
     const cards = Array.from($('fetosContainer').children);
     cards.forEach((el, idx)=>{
@@ -2639,6 +2739,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // líquido e colo; sem morfologia nem Doppler fetal. Todos os fetos em óbito:
     // o laudo inteiro vira "ULTRASSOM OBSTÉTRICO", sem Doppler nenhum.
     uids.forEach(uid=> $('wrap_feto'+uid) && $('wrap_feto'+uid).classList.toggle('feto-obito', v('feto'+uid+'Vitalidade') === 'ausente'));
+    fsecAtualizar();
     const todosObito = uids.length > 0 && uids.every(uid=> v('feto'+uid+'Vitalidade') === 'ausente');
     document.body.classList.toggle('obito-todos', todosObito);
 
