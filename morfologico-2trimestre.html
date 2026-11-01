@@ -1890,10 +1890,12 @@ if(typeof criarMotorLaudo !== 'function'){
         ['CF','Comprimento femoral','CF'],
         ['Peso','Peso fetal estimado','Hadlock','g','numeric'],
         ['Percentil','Percentil de peso','Hadlock','','numeric',false,true]])
-      +bioGrupo(uid, 'Membros superiores', [
+      +bioGrupo(uid, 'Ossos longos', [
         ['Umero','Úmero'],
         ['Radio','Rádio','',undefined,'',true],
-        ['Ulna','Ulna','',undefined,'',true]], false, true)
+        ['Ulna','Ulna','',undefined,'',true],
+        ['Tibia','Tíbia','',undefined,'',true],
+        ['Fibula','Fíbula','',undefined,'',true]], false, true)
       +'</div>'
       +'<div class="bio-col">'
       +bioGrupo(uid, 'Crânio e sistema nervoso', [
@@ -1907,9 +1909,6 @@ if(typeof criarMotorLaudo !== 'function'){
         ['DOE','Distância orbitária externa','DI externo'],
         ['DOI','Distância orbitária interna','DI interno'],
         ['PregaPreNasal','Prega pré-nasal','',undefined,'',true]], false, true)
-      +bioGrupo(uid, 'Membros inferiores', [
-        ['Tibia','Tíbia','',undefined,'',true],
-        ['Fibula','Fíbula','',undefined,'',true]], true, true)
       +'</div>'
       +'</div>'
       +fsecFecha(2)
