@@ -1862,3 +1862,7 @@ Pedido da médica, nos cinco laudos com datação (`obstetrico`, `obstetrico-1tr
 ## DUM incerta/ignorada: sem campos DUM e IG, DPP sempre na conclusão (2026-11-01)
 
 Pedido da médica, nos cinco laudos com datação. Com "DUM incerta" ou "DUM ignorada" somem do quadro Datação o campo DUM e a "IG atual" (`wrap_dumField`, `wrap_igAtual`, escondidos em `updateCronologiaWraps()` junto com o caso "1º Ultrassom"). A conclusão sempre termina com "DPP: dd.mm.aaaa." (`impDPP`), calculada pela IG informada em "IG neste exame" sobre a data do exame (280 dias menos a IG). `obstetrico` e `obstetrico-1trimestre` já tinham a linha; os dois morfológicos e o TN ganharam (`dppPelaIgInformada()`, chave `dpp` ao fim de `buildImpressao()`). Sem a IG informada sai "DPP: ____.".
+
+## FIV: só transferência, idade do blastocisto, IG calculada e DPP; DUM incerta sem nota (2026-11-01)
+
+Pedido da médica, nos cinco laudos com datação. Com "FIV" o quadro Datação mostra apenas data da transferência, "Idade do blastocisto" (`fivEstagio`: D3, D5 ou D6; D6 soma 6 dias na conta), IG calculada (`fivIgCalc`) e DPP estimada (`fivDppCalc`), preenchidos por `atualizarFivCalculos()` no começo de `render()`. DUM, IG atual e "DUM estimada" ficam escondidos (o `#dumEstimada` continua no HTML, sempre oculto). A nota pequena `wrap_incertaInfo` da DUM incerta/ignorada saiu.
