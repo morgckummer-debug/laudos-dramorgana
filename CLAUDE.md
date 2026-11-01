@@ -1836,3 +1836,7 @@ Pedido da médica, igual ao do 1º trimestre (#369). Os cards "Idade gestacional
 ## Óbito fetal na conclusão: "Decesso fetal compatível com {IG}" (2026-10-31)
 
 Pedido da médica, com a frase dela. No `obstetrico.html`, o feto com batimentos ausentes (PR #372) sai na conclusão como "Decesso fetal compatível com 20 semanas e 3 dias." (`impDecessoFetal`) e, na múltipla, "Decesso fetal (Feto 1) compatível com ..." (`impDecessoFetalFeto`). A IG é a da cronologia do laudo (`state.ig`). Chaves novas em vez de mudar `impObitoFetal`/`impObitoFetalFeto` (saíram), pelo motivo de sempre: "Salvar frases" guardaria a antiga. Só o `obstetrico.html` tem batimentos ausentes por feto; o óbito embrionário do 1º trimestre ("Perda gestacional...") não mudou. Com algum feto em óbito, "Gestação com boa evolução." não sai da conclusão (pedido da médica, mesmo dia), inclusive na gemelar com um feto vivo.
+
+## Rins: saiu o select "Indicação clínica" (2026-11-01)
+
+Pedido da médica. O select `lateralidadeDor` (Sem dor / Dor à direita / à esquerda / bilateral) do card "Dados do exame" do `rins-vias-urinarias.html` saiu, com o bloco `indicacao` que imprimia "Dor à esquerda." antes de "Ao exame:". O motivo vai no campo `motivoExame`. Rascunho antigo com a chave volta normal (o campo é ignorado). Os outros laudos não mudaram.
