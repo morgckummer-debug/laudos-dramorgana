@@ -693,7 +693,6 @@
           <div class="field"><label>IG da cerclagem (semanas)</label><input type="text" inputmode="numeric" id="cerclagemIgSemanas" placeholder="ex: 14"></div>
         </div>
         <div class="field"><label>Motivo do exame — opcional</label><textarea id="motivoExame" rows="2" placeholder="ex: Relato de avaliação morfológica fetal de rotina."></textarea></div>
-        <div class="field"><label>Observações — opcional</label><textarea id="medicacoes" rows="3" style="line-height:1;" placeholder="texto livre — até 3 linhas"></textarea></div>
       </div>
     </div>
 
@@ -2445,7 +2444,6 @@ if(typeof criarMotorLaudo !== 'function'){
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
     const motivoExame = vNoDot('motivoExame');
-    const medicacoes = v('medicacoes');
     const miometrioObservacoes = vNoDot('miometrioObservacoes');
 
     const cronologiaMetodoRaw = v('cronologiaMetodo');
@@ -2774,9 +2772,6 @@ if(typeof criarMotorLaudo !== 'function'){
     blocks.push({id:'doctitle', html:'<h3 class="doctitle">'+escapeHtml('ULTRASSOM MORFOLÓGICO '+tituloLinha2)+'</h3>'});
     if(motivoExame){
       blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(motivoExame)+'.</p>'});
-    }
-    if(medicacoes){
-      blocks.push({id:'medicacoes', html:'<p class="linha" style="line-height:1;">'+escapeHtml(medicacoes).replace(/\n/g, '<br>')+'</p>'});
     }
     blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
     if(miometrioObservacoes){
@@ -3238,10 +3233,27 @@ if(typeof criarMotorLaudo !== 'function'){
     });
   }
 
+  // O campo "Observações" (medicacoes) saiu: fica um campo só, "Motivo do
+  // exame". Rascunho antigo com texto nele não perde nada: o texto vai para o
+  // motivo, e o laudo é remontado dos campos (o #paper salvo ainda tinha o
+  // bloco de observações, que nenhum render() tiraria mais).
+  function draftMigrarObservacoes(d){
+    const f = d && d.fields;
+    if(!f || !('medicacoes' in f)) return;
+    const obs = String(f.medicacoes || '').trim();
+    delete f.medicacoes;
+    if(!obs) return;
+    const m = String(f.motivoExame || '').trim().replace(/\.+$/,'');
+    f.motivoExame = m ? (m + '. ' + obs) : obs;
+    d.paper = null;
+    d.blocks = null;
+  }
+
   function draftRestore(d){
     st.draftRestoring = true;
     try{
       draftMigrarPlacenta(d);
+      draftMigrarObservacoes(d);
       // Os cards repetidos voltam com os mesmos uids de antes: os ids dos campos,
       // as chaves da checklist de impressões e os ids dos blocos do laudo derivam
       // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.

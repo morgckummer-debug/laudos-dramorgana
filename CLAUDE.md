@@ -1844,3 +1844,7 @@ Pedido da médica. O select `lateralidadeDor` (Sem dor / Dor à direita / à esq
 ## Morfológico 2º/3º: cerclagem na conclusão do colo (2026-11-01)
 
 Pedido da médica. No `morfologico-2trimestre.html`, com "Cerclagem realizada" (`cerclagemRealizada`) marcada e o colo não curto (≥ 25 mm), a linha do colo na impressão diagnóstica sai `impColoCerclagem` ("Cerclagem tópica sem sinal do afunilamento.") no lugar de `impColoNormal`, com chave de linha própria (`colo-cerclagem`). Colo curto continua `impColoAlterado`, com ou sem cerclagem; sem cerclagem nada muda. O corpo do laudo não mudou (a frase `coloTexto` já afirma a ausência do afunilamento). O 1º trimestre, o TN e o obstétrico não foram mexidos.
+
+## Morfológico 2º/3º: um campo só de motivo do exame (2026-11-01)
+
+Pedido da médica. Em "Dados do exame" do `morfologico-2trimestre.html` ficou só "Motivo do exame" (`motivoExame`, bloco `relato` do laudo). O campo "Observações" (`medicacoes`, bloco `medicacoes`) saiu. `draftMigrarObservacoes()` passa o texto de um rascunho antigo para o motivo e remonta o laudo dos campos. O 1º trimestre e o obstétrico não mudaram.
