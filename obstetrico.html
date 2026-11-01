@@ -1393,7 +1393,7 @@ if(typeof criarMotorLaudo !== 'function'){
     impPbf: 'PBF: {SCORE}/8.',
     impPbfTodos: 'PBF de {TERMO} os fetos: {SCORE}/8.',
 
-    coloTexto: 'Colo uterino: de textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm (VR ≥ 25,0 mm). "Sludge" não identificado.',
+    coloTexto: 'Textura sólida, orifícios interno e externo fechados, ausência do sinal do afunilamento e comprimento longitudinal de {MEDIDA} mm (VR ≥ 25,0 mm). "Sludge" não identificado.',
     impColoNormal: 'Colo uterino longo e fechado. Baixo risco de parto prematuro.',
     impColoAlterado: 'Colo curto. Aumento do risco de parto prematuro.',
 
@@ -1441,6 +1441,13 @@ if(typeof criarMotorLaudo !== 'function'){
     let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
     t = aplicarPlaceholders(t, repl);
     return escapeHtml(t).replace(/\n/g, '<br>');
+  }
+  // O bloco do colo já tem o título "Colo uterino"; a frase não o repete.
+  // Também corta o prefixo de frase salva antes ("Colo uterino: de textura..."),
+  // que o "Salvar frases" guarda no navegador por cima do padrão.
+  function semPrefixoColo(t){
+    t = String(t||'').replace(/^\s*colo uterino\s*:\s*(de\s+)?/i, '');
+    return t.charAt(0).toUpperCase() + t.slice(1);
   }
   function phraseRaw(key, repl){
     let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
@@ -2759,7 +2766,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(colo){
-      blocks.push({id:'colo', html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Colo uterino</strong></p><p class="linha">'+phraseRaw('coloTexto', {MEDIDA: coloComprimentoVal.text})+'</p></div>'});
+      blocks.push({id:'colo', html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Colo uterino</strong></p><p class="linha">'+semPrefixoColo(phraseRaw('coloTexto', {MEDIDA: coloComprimentoVal.text}))+'</p></div>'});
     }
 
     blocks.push({id:'impressaoHeader', html:'<h4 class="sec">IMPRESSÃO DIAGNÓSTICA:</h4>'});
