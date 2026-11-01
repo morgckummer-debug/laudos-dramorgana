@@ -566,6 +566,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (feto único) — use {IG}</label><textarea id="ph_impDecessoFetal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (gestação múltipla) — use {FETO} e {IG}</label><textarea id="ph_impDecessoFetalFeto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Placenta (espessura normal) — use {INSERCAO}, {TEXTURA} e {GRAU}</label><textarea id="ph_placentaGrauTexto" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Inserção do cordão — use {INSERCAO} (central, marginal ou velamentosa)</label><textarea id="ph_cordaoInsercaoTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal (feto único, no parágrafo junto da placenta)</label><textarea id="ph_laAspectoNormalUnico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — volume reduzido (oligoâmnio)</label><textarea id="ph_laAspectoOligoamnio" rows="2"></textarea></div>
@@ -1350,6 +1351,7 @@ if(typeof criarMotorLaudo !== 'function'){
     vitalidadeAusenteTexto: 'Ausência de batimentos cardíacos fetais.',
     impDecessoFetal: 'Decesso fetal compatível com {IG}.',
     impDecessoFetalFeto: 'Decesso fetal ({FETO}) compatível com {IG}.',
+    cordaoInsercaoTexto: 'Inserção {INSERCAO} do cordão umbilical.',
     placentaGrauTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
     placentaTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
@@ -1637,6 +1639,9 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</select></div>'
       +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaTextura">Textura</label><select id="feto'+uid+'PlacentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div>'
       +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaGrau">Grau (Grannum)</label><select id="feto'+uid+'PlacentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div>'
+      +'</div>'
+      +'<div class="bio-grupo"><h4>Cordão umbilical</h4>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'CordaoInsercao">Inserção do cordão</label><select id="feto'+uid+'CordaoInsercao"><option value="central">Central</option><option value="marginal">Marginal</option><option value="velamentosa">Velamentosa</option></select></div>'
       +'</div>'
       +'<div class="bio-grupo"><h4>Líquido amniótico</h4>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'LaAspecto">Aspecto e volume</label><select id="feto'+uid+'LaAspecto"><option value="normal">Normal</option><option value="reduzido">Volume reduzido (oligoâmnio)</option><option value="aumentado">Volume aumentado (polidrâmnio)</option></select></div>'
@@ -2397,7 +2402,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const placentaDescricao = '';
       const placentaAlterada = false; // campo Espessura retirado do card (2026-11-01)
       const placentaPrevia = PLACENTA_PREVIA_VALORES.includes(placentaInsercao);
-      const placentaHtml = phraseRaw('placentaGrauTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau});
+      const placentaHtml = phraseRaw('placentaGrauTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau})
+        + ' ' + phraseRaw('cordaoInsercaoTexto', {INSERCAO: v(pre+'CordaoInsercao') || 'central'});
 
       const laAspecto = v(pre+'LaAspecto');
       const laOligoamnio = laAspecto === 'reduzido';
