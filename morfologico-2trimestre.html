@@ -802,6 +802,7 @@
         </div>
           </div>
         </div>
+        <div class="bio-grupos" id="placentasFetos"></div>
       </div>
     </div>
 
@@ -1915,6 +1916,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       +fsecAbre(3)
       +'<div class="bio-grupos">'
+      +'<span hidden id="feto'+uid+'PlacentaHome"></span>'
       +'<div class="bio-col conditional" id="feto'+uid+'PlacentaWrap">'
       +'<div class="bio-grupo"><h4>Placenta</h4>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'PlacentaInsercao">Posição / inserção</label><select id="feto'+uid+'PlacentaInsercao">'
@@ -2765,6 +2767,22 @@ if(typeof criarMotorLaudo !== 'function'){
     const placentaPorFeto = isMultiple && !placentaUnica;
     toggle('wrap_placentaUnica', !placentaPorFeto);
     uids.forEach(uid=> toggle('feto'+uid+'PlacentaWrap', placentaPorFeto));
+    // Gemelar dicoriônica: a placenta de cada feto aparece no card "Útero, Placenta e Colo"
+    // (pedido da médica, 2026-11-01). Só muda o lugar do bloco na tela: os ids e os
+    // campos são os mesmos, então laudo e rascunho não mudam. Fora dessa situação o
+    // bloco volta para a seção do feto, onde nasceu.
+    const caixaPlacentas = $('placentasFetos');
+    uids.forEach((uid, idx)=>{
+      const col = $('feto'+uid+'PlacentaWrap'), casa = $('feto'+uid+'PlacentaHome');
+      if(!col || !casa) return;
+      if(placentaPorFeto){ if(col.parentElement !== caixaPlacentas) caixaPlacentas.appendChild(col); }
+      else if(col.parentElement === caixaPlacentas) casa.after(col);
+      const h4 = col.querySelector('h4'); if(h4) h4.textContent = placentaPorFeto ? 'Placenta — '+fetoLabel(idx, uids.length) : 'Placenta';
+    });
+    Array.from(caixaPlacentas.children).forEach(col=>{
+      const uid = col.id.replace(/^feto(.*)PlacentaWrap$/, '$1');
+      if(!uids.includes(uid)) col.remove();
+    });
 
     // ----- Óbito fetal -----
     // Feto com batimentos ausentes sai como obstétrico simples (pedido da
