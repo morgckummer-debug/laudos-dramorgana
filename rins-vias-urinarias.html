@@ -462,12 +462,7 @@
 <div class="card-head"><h2>Dados do exame</h2></div>
 <div class="card-body"><div class="bio-grupos"><div class="bio-col"><div class="bio-grupo">
 <div class="bio-nome-data"><div class="field bio-linha bio-texto bio-larga"><label for="nomePaciente">Nome do(a) paciente</label><input id="nomePaciente" placeholder="Nome completo" type="text"/></div><div class="field bio-linha bio-texto bio-larga"><label for="dataExame">Data do exame</label><input id="dataExame" placeholder="dd/mm/aaaa" type="text"/></div></div>
-<div><div class="field bio-linha bio-texto bio-larga"><label for="medicoSolicitante">Médico solicitante</label><input autocomplete="off" id="medicoSolicitante" placeholder="Dr(a). ..." type="text"/><div class="combo-list" id="medicosComboList"></div></div><div class="field bio-linha bio-sel bio-sel-larga"><label for="lateralidadeDor">Indicação clínica</label><select id="lateralidadeDor">
-<option value="nenhuma">Sem dor referida (não imprime linha)</option>
-<option value="direita">Dor à direita</option>
-<option value="esquerda">Dor à esquerda</option>
-<option value="bilateral">Dor bilateral</option>
-</select></div></div>
+<div><div class="field bio-linha bio-texto bio-larga"><label for="medicoSolicitante">Médico solicitante</label><input autocomplete="off" id="medicoSolicitante" placeholder="Dr(a). ..." type="text"/><div class="combo-list" id="medicosComboList"></div></div></div>
 <div class="field bio-linha bio-larga"><label for="motivoExame">Motivo do exame / indicação clínica (opcional — uma ou mais linhas)</label><textarea id="motivoExame" placeholder="ex: Dor lombar.
 Pode usar 2 ou 3 linhas." rows="2"></textarea></div>
 </div></div></div></div>
@@ -1524,7 +1519,6 @@ if(typeof criarMotorLaudo !== 'function'){
     req('nomePaciente'); req('dataExame');
     const motivoExame = vNoDot('motivoExame');
 
-    const lateralidadeDor = v('lateralidadeDor') || 'nenhuma';
 
     // Achados renais estruturados (cálculo/cisto/leite de cálcio/nódulo/hidronefrose)
     // são os mesmos nos dois rins, então ficam numa função só, parametrizada pelo
@@ -1736,10 +1730,6 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'relato', html:'<p class="relato">'+relatoHtml+'</p>'});
     }
 
-    if(lateralidadeDor !== 'nenhuma'){
-      const dorTexto = {direita:'Dor à direita.', esquerda:'Dor à esquerda.', bilateral:'Dor bilateral.'}[lateralidadeDor];
-      blocks.push({id:'indicacao', html:'<p class="linha intro">'+dorTexto+'</p>'});
-    }
     blocks.push({id:'aoExameLabel', html:'<p class="linha intro intro-last">Ao exame:</p>'});
 
     const rimFerradura = $('rimDFerradura').checked || $('rimEFerradura').checked;
