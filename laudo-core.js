@@ -2037,8 +2037,8 @@ function criarMotorLaudo(cfg){
     corWrap.append(corBtn, paleta);
     bar.append(corWrap, sep());
     // Tamanho da fonte (2026-11-01, pedido da médica): só uma seta para cima e
-    // uma para baixo. Cada toque passa o <select id="fmtFontSize"> da barra fixa
-    // para a opção vizinha e dispara o 'change' dele: o código de tamanho é o do
+    // uma para baixo. Cada toque muda 1 pt, põe esse valor no <select
+    // id="fmtFontSize"> da barra fixa e dispara o 'change' dele: o código de tamanho é o do
     // laudo (trecho selecionado, título ou laudo inteiro), nada duplicado aqui.
     // O 'mousedown' sintético guarda a seleção atual antes do 'change' — sem
     // ele, dois toques rápidos podiam chegar antes do 'selectionchange' e o
@@ -2066,16 +2066,26 @@ function criarMotorLaudo(cfg){
         const px = el ? parseFloat(getComputedStyle(el).fontSize) : NaN;
         return isNaN(px) ? null : px * 72 / 96;
       };
+      // Passos de 1 pt, de TAM_MIN a TAM_MAX (pedido da médica: "um clique para
+      // cada tamanho", até 8). De um tamanho quebrado (11,5) vai para o inteiro
+      // vizinho.
+      const TAM_MIN = 8, TAM_MAX = 24;
       alvo = dir=>{
         const cur = tamanhoAtual();
-        const vals = Array.from(tamSel.options).map(o=>o.value).sort((a, b)=>parseFloat(a) - parseFloat(b));
         if(cur == null) return null;
-        return dir > 0 ? (vals.find(v=>parseFloat(v) > cur + 0.05) || null)
-                       : (vals.filter(v=>parseFloat(v) < cur - 0.05).pop() || null);
+        const v = dir > 0 ? Math.ceil(cur + 0.05) : Math.floor(cur - 0.05);
+        return (v < TAM_MIN || v > TAM_MAX) ? null : String(v);
       };
       const passo = dir=>{
         const v = alvo(dir);
         if(v == null) return;
+        // Tamanho que não está na lista do <select> (8, 13, 15...) entra como
+        // opção escondida: o 'change' do laudo lê tamSel.value.
+        if(!Array.from(tamSel.options).some(o=>o.value === v)){
+          const o = document.createElement('option');
+          o.value = v; o.textContent = v + ' pt'; o.hidden = true;
+          tamSel.appendChild(o);
+        }
         tamSel.dispatchEvent(new MouseEvent('mousedown'));
         tamSel.value = v;
         tamSel.dispatchEvent(new Event('change', {bubbles:true}));
