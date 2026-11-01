@@ -169,6 +169,18 @@
   .feto-sub{font-size:12.5px;font-weight:700;color:var(--rose-dark);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.3px;}
   .feto-sub:first-of-type{margin-top:4px;}
 
+  /* Títulos dos cards viram barras clicáveis (2026-11-01, pedido da médica; só neste laudo por enquanto) */
+  .card-head{cursor:pointer;user-select:none;gap:10px;}
+  .card-head:focus-visible{outline:2px solid var(--rose);outline-offset:-2px;}
+  .card > .card-head{background:var(--rose-dark);border-bottom-color:var(--rose-darker);}
+  .card > .card-head h2{color:#fff;}
+  .card > .card-head::after{background:rgba(255,255,255,.18);color:#fff;}
+  .card > .card-head:hover{background:var(--rose-darker);}
+  .card-head::after{content:'▶';width:22px;height:22px;border-radius:50%;background:var(--rose-light);color:var(--rose-dark);display:flex;align-items:center;justify-content:center;font-size:12px;transition:transform .2s;flex:none;transform:rotate(90deg);}
+  .card.fechado .card-head::after{transform:none;}
+  .card.fechado .card-head{border-bottom:0;}
+  .card.fechado .card-body{display:none;}
+
   /* Card Feto em barras clicáveis, uma aberta por vez (2026-11-01, pedido da médica; só neste laudo por enquanto) */
   .fsec{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;background:#fff;overflow:hidden;}
   .fsec-bar{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;background:#fff;border:0;cursor:pointer;text-align:left;font:inherit;color:inherit;}
@@ -770,7 +782,7 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Ao exame — útero, placenta e colo</h2></div>
+      <div class="card-head"><h2>Útero, Placenta e Colo</h2></div>
       <div class="card-body">
         <div class="bio-grupos">
           <div class="bio-col">
@@ -2002,6 +2014,26 @@ if(typeof criarMotorLaudo !== 'function'){
   function fetoLabel(idx, total){
     return total<=1 ? 'Feto' : 'Feto '+(idx+1);
   }
+  // ----- Cards recolhíveis: o título é a barra -----
+  // Começam fechados, menos "Dados do exame" e os cards de feto. A classe fica só
+  // na tela (o laudo e o rascunho não dependem dela) e os campos continuam no DOM.
+  function cardsBarras(){
+    document.querySelectorAll('.card > .card-head').forEach(h=>{
+      if(h.dataset.barra) return;
+      h.dataset.barra = '1'; h.tabIndex = 0; h.setAttribute('role','button');
+      const card = h.parentElement;
+      if(!card.id.startsWith('wrap_feto') && card !== document.querySelector('.card')) card.classList.add('fechado');
+    });
+  }
+  function alternarCard(h){
+    const card = h.parentElement, fecha = !card.classList.contains('fechado');
+    card.classList.toggle('fechado', fecha);
+    h.setAttribute('aria-expanded', String(!fecha));
+  }
+  document.addEventListener('click', e=>{ const h=e.target.closest('.card > .card-head'); if(h) alternarCard(h); });
+  document.addEventListener('keydown', e=>{
+    if((e.key==='Enter'||e.key===' ') && e.target.matches && e.target.matches('.card > .card-head')){ e.preventDefault(); alternarCard(e.target); }
+  });
   // ----- Barras do card Feto -----
   function fsecResumo(uid, n){
     const val = k=>{ const e=$('feto'+uid+k); return e ? (e.value||'').trim() : ''; };
@@ -2739,6 +2771,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // líquido e colo; sem morfologia nem Doppler fetal. Todos os fetos em óbito:
     // o laudo inteiro vira "ULTRASSOM OBSTÉTRICO", sem Doppler nenhum.
     uids.forEach(uid=> $('wrap_feto'+uid) && $('wrap_feto'+uid).classList.toggle('feto-obito', v('feto'+uid+'Vitalidade') === 'ausente'));
+    cardsBarras();
     fsecAtualizar();
     const todosObito = uids.length > 0 && uids.every(uid=> v('feto'+uid+'Vitalidade') === 'ausente');
     document.body.classList.toggle('obito-todos', todosObito);
