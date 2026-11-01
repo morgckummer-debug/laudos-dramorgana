@@ -1840,3 +1840,7 @@ Pedido da médica, com a frase dela. No `obstetrico.html`, o feto com batimentos
 ## Rins: saiu o select "Indicação clínica" (2026-11-01)
 
 Pedido da médica. O select `lateralidadeDor` (Sem dor / Dor à direita / à esquerda / bilateral) do card "Dados do exame" do `rins-vias-urinarias.html` saiu, com o bloco `indicacao` que imprimia "Dor à esquerda." antes de "Ao exame:". O motivo vai no campo `motivoExame`. Rascunho antigo com a chave volta normal (o campo é ignorado). Os outros laudos não mudaram.
+
+## Morfológico 2º/3º: cerclagem na conclusão do colo (2026-11-01)
+
+Pedido da médica. No `morfologico-2trimestre.html`, com "Cerclagem realizada" (`cerclagemRealizada`) marcada e o colo não curto (≥ 25 mm), a linha do colo na impressão diagnóstica sai `impColoCerclagem` ("Cerclagem tópica sem sinal do afunilamento.") no lugar de `impColoNormal`, com chave de linha própria (`colo-cerclagem`). Colo curto continua `impColoAlterado`, com ou sem cerclagem; sem cerclagem nada muda. O corpo do laudo não mudou (a frase `coloTexto` já afirma a ausência do afunilamento). O 1º trimestre, o TN e o obstétrico não foram mexidos.
