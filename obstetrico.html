@@ -1694,7 +1694,6 @@ if(typeof criarMotorLaudo !== 'function'){
       +'<div class="field bio-linha"><label for="feto'+uid+'PiACM">Art. Cerebral Média (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiACM" placeholder="ex: 1,60"><span class="bio-un"></span></div>'
       +'<div class="field bio-linha"><label for="feto'+uid+'CprCalc">RCP<small>relação cérebro-placentária, calculada</small></label><input type="text" id="feto'+uid+'CprCalc" readonly placeholder="auto"><span class="bio-un"></span></div>'
       +'<div class="field bio-linha"><label for="feto'+uid+'CprPercentil">Percentil do RCP<small>calculado, editável</small><button type="button" class="cpr-recalc" id="feto'+uid+'CprRecalc" data-uid="'+uid+'" style="display:block;background:none;border:none;padding:0;font-size:11.5px;color:var(--rose-dark);text-decoration:underline;cursor:pointer;">Recalcular percentil</button></label><input type="text" inputmode="numeric" id="feto'+uid+'CprPercentil" placeholder="auto"><span class="bio-un"></span></div>'
-      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'DopplerClassificacao">Classificação<small>umbilical + ACM + relação cérebro-placentária</small></label><select id="feto'+uid+'DopplerClassificacao"><option value="normal">Dentro da normalidade</option><option value="alterado">Alterado - Redistribuição de fluxo</option></select></div>'
       +'</div>'
       +'</div>'
 
@@ -2527,7 +2526,9 @@ if(typeof criarMotorLaudo !== 'function'){
         cprPercentilVal = blankOrValue(cprPctRaw);
         const cprPctParsed = parseFloat(String(cprPctRaw).replace(',', '.'));
         cprPercentilNum = !isNaN(cprPctParsed) ? cprPctParsed : null;
-        dopplerFetalAlterado = v(pre+'DopplerClassificacao')==='alterado';
+        // Classificação manual saiu do formulário (2026-11-01): o achado de
+        // redistribuição sai só dos critérios calculados (RCP < P5 e fluxo AU).
+        dopplerFetalAlterado = false;
         // Fluxo diastólico da umbilical — mesmos valores do app de curvas
         // (au_fluxo). 'ausente'/'reversa'/'intermitente' (AEDF/REDF/iAREDF)
         // fecham CIUR sozinhos, com qualquer percentil de peso (ver bloco de
