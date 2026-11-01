@@ -810,10 +810,12 @@
                 <select id="cronologiaMetodo"><option value="dum">DUM</option><option value="usg">1º Ultrassom</option><option value="fiv">FIV (transferência embrionária)</option><option value="incerta">DUM incerta</option><option value="ignorada">DUM ignorada</option></select>
               </div>
               <div class="field bio-linha bio-data"><label for="dum">DUM<small>data da última menstruação</small></label><input type="text" id="dum" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
-              <div class="field bio-linha bio-texto"><label for="igAtual">IG atual</label><input type="text" id="igAtual" placeholder="calculada automaticamente" readonly></div>
+              <div class="field bio-linha bio-texto" id="wrap_igAtual"><label for="igAtual">IG atual</label><input type="text" id="igAtual" placeholder="calculada automaticamente" readonly></div>
               <div class="conditional" id="wrap_usgDatacao">
                 <div class="field bio-linha bio-data"><label for="usgDataDatacao">Data do ultrassom de datação</label><input type="text" id="usgDataDatacao" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
                 <div class="field bio-linha bio-ig"><label for="usgSemanasDatacao">IG no ultrassom de datação</label><input type="text" inputmode="numeric" id="usgSemanasDatacao" placeholder="8"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="usgDiasDatacao" placeholder="3" aria-label="IG no ultrassom de datação — dias"><span class="bio-un">dias</span></div>
+                <div class="field bio-linha bio-texto"><label for="usgIgCalc">IG calculada<small>pelo 1º ultrassom, na data deste exame</small></label><input type="text" id="usgIgCalc" placeholder="automática" readonly></div>
+                <div class="field bio-linha bio-data"><label for="usgDppCalc">DPP estimada<small>pelo 1º ultrassom</small></label><input type="text" id="usgDppCalc" placeholder="automática" readonly></div>
               </div>
               <div class="conditional" id="wrap_fivTransferencia">
                 <div class="field bio-linha bio-data"><label for="fivDataTransf">Data da transferência embrionária</label><input type="text" id="fivDataTransf" placeholder="dd.mm.aaaa" inputmode="numeric"></div>
@@ -1849,6 +1851,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const metodo = $('cronologiaMetodo').value;
     const dumDiscordante = metodo==='dum' && $('dumConcordancia').value==='discordante';
     toggle('wrap_usgDatacao', metodo==='usg');
+    const igRow = $('wrap_igAtual'); if(igRow) igRow.style.display = metodo==='usg' ? 'none' : '';
     toggle('wrap_fivTransferencia', metodo==='fiv');
     toggle('wrap_dumConcordancia', metodo==='dum');
     toggle('wrap_igInformadaCampos', ehDumSemCronologia(metodo) || dumDiscordante);
@@ -3217,7 +3220,26 @@ if(typeof criarMotorLaudo !== 'function'){
     return html;
   }
 
+  // 1º ultrassom: abaixo da data e da IG daquele exame, a IG de hoje e a DPP
+  // calculadas a partir dele (pedido da médica, 2026-11-01). Só tela: o laudo
+  // continua usando computeDataBase('usg'), a mesma conta.
+  function atualizarUsgCalculos(){
+    const igEl = $('usgIgCalc'), dppEl = $('usgDppCalc');
+    if(!igEl || !dppEl) return;
+    const base = $('cronologiaMetodo').value==='usg' ? computeDataBase('usg') : null;
+    const exame = parseDateBR(v('dataExame'));
+    const pad = n => String(n).padStart(2,'0');
+    let ig = '';
+    if(base && exame){
+      const d = Math.round((exame - base)/MS_DIA);
+      if(d >= 0) ig = formatIG(d);
+    }
+    igEl.value = ig;
+    if(base){ const p = addDays(base, 280); dppEl.value = pad(p.getDate())+'.'+pad(p.getMonth()+1)+'.'+p.getFullYear(); }
+    else dppEl.value = '';
+  }
   function render(){
+    atualizarUsgCalculos();
     if(st.draftRestoring) return;
     // Durante a impressão o #paper está remontado em folhas e será reposto
     // inteiro pelo 'afterprint': o que fosse renderizado agora seria jogado
