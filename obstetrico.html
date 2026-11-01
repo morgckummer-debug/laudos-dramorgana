@@ -565,8 +565,7 @@
   <div class="field" style="margin-bottom:8px;"><label>Vitalidade com batimentos ausentes (óbito fetal)</label><textarea id="ph_vitalidadeAusenteTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (feto único) — use {IG}</label><textarea id="ph_impDecessoFetal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Óbito fetal — conclusão (gestação múltipla) — use {FETO} e {IG}</label><textarea id="ph_impDecessoFetalFeto" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Placenta normal — use {INSERCAO}, {TEXTURA} e {GRAU}</label><textarea id="ph_placentaTexto" rows="2"></textarea></div>
-  <div class="field" style="margin-bottom:8px;"><label>Placenta com espessura alterada — use {INSERCAO}, {TEXTURA}, {GRAU} e {DESCRICAO}</label><textarea id="ph_placentaTextoEspessuraAlterada" rows="2"></textarea></div>
+  <div class="field" style="margin-bottom:8px;"><label>Placenta — use {INSERCAO}, {TEXTURA} e {GRAU}</label><textarea id="ph_placentaGrauTexto" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal</label><textarea id="ph_laAspectoNormal" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — aspecto normal (feto único, no parágrafo junto da placenta)</label><textarea id="ph_laAspectoNormalUnico" rows="2"></textarea></div>
   <div class="field" style="margin-bottom:8px;"><label>Líquido amniótico — volume reduzido (oligoâmnio)</label><textarea id="ph_laAspectoOligoamnio" rows="2"></textarea></div>
@@ -1351,6 +1350,7 @@ if(typeof criarMotorLaudo !== 'function'){
     vitalidadeAusenteTexto: 'Ausência de batimentos cardíacos fetais.',
     impDecessoFetal: 'Decesso fetal compatível com {IG}.',
     impDecessoFetalFeto: 'Decesso fetal ({FETO}) compatível com {IG}.',
+    placentaGrauTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum).',
     placentaTexto: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura normal.',
     placentaTextoEspessuraAlterada: 'Placenta {INSERCAO}, textura {TEXTURA} (grau {GRAU} de Grannum) e espessura alterada: {DESCRICAO}.',
     laAspectoNormal: 'Aspecto e volume normais para idade gestacional.',
@@ -1637,8 +1637,6 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</select></div>'
       +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaTextura">Textura</label><select id="feto'+uid+'PlacentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div>'
       +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaGrau">Grau (Grannum)</label><select id="feto'+uid+'PlacentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div>'
-      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaEspessura">Espessura</label><select id="feto'+uid+'PlacentaEspessura"><option value="normal">Normal</option><option value="alterada">Alterada (descrever)</option></select></div>'
-      +'<div class="field bio-linha bio-larga conditional" id="wrap_feto'+uid+'PlacentaDescricao"><label for="feto'+uid+'PlacentaDescricao">Descreva o achado</label><textarea id="feto'+uid+'PlacentaDescricao" rows="2" placeholder="ex: espessura aumentada, medindo..."></textarea></div>'
       +'</div>'
       +'<div class="bio-grupo"><h4>Líquido amniótico</h4>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'LaAspecto">Aspecto e volume</label><select id="feto'+uid+'LaAspecto"><option value="normal">Normal</option><option value="reduzido">Volume reduzido (oligoâmnio)</option><option value="aumentado">Volume aumentado (polidrâmnio)</option></select></div>'
@@ -1689,7 +1687,6 @@ if(typeof criarMotorLaudo !== 'function'){
 
   function updateFetoWraps(uid){
     toggle('wrap_feto'+uid+'Dorso', v('feto'+uid+'Apresentacao')!=='córmica');
-    toggle('wrap_feto'+uid+'PlacentaDescricao', v('feto'+uid+'PlacentaEspessura')==='alterada');
     toggle('wrap_feto'+uid+'Doppler', $('chkDopplerFetal').checked);
     toggle('wrap_feto'+uid+'PBF', $('chkPBF').checked);
     const percentilNum = num('feto'+uid+'Percentil');
@@ -1746,7 +1743,7 @@ if(typeof criarMotorLaudo !== 'function'){
       field.addEventListener('change', render);
     });
     wireDecimalInputs();
-    ['Apresentacao','PlacentaEspessura'].forEach(sufixo=>{
+    ['Apresentacao'].forEach(sufixo=>{
       $('feto'+uid+sufixo).addEventListener('change', ()=> updateFetoWraps(uid));
     });
     $('feto'+uid+'Percentil').addEventListener('input', ()=> updateFetoWraps(uid));
@@ -2397,12 +2394,10 @@ if(typeof criarMotorLaudo !== 'function'){
       const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
       const placentaTextura = v(pre+'PlacentaTextura');
       const placentaGrau = v(pre+'PlacentaGrau');
-      const placentaDescricao = vNoDot(pre+'PlacentaDescricao');
-      const placentaAlterada = v(pre+'PlacentaEspessura')==='alterada' && !!placentaDescricao;
+      const placentaDescricao = '';
+      const placentaAlterada = false; // campo Espessura retirado do card (2026-11-01)
       const placentaPrevia = PLACENTA_PREVIA_VALORES.includes(placentaInsercao);
-      const placentaHtml = placentaAlterada
-        ? phraseRaw('placentaTextoEspessuraAlterada', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau, DESCRICAO:placentaDescricao})
-        : phraseRaw('placentaTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau});
+      const placentaHtml = phraseRaw('placentaGrauTexto', {INSERCAO:placentaInsercaoTxt, TEXTURA:placentaTextura, GRAU:placentaGrau});
 
       const laAspecto = v(pre+'LaAspecto');
       const laOligoamnio = laAspecto === 'reduzido';
