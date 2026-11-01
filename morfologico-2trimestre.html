@@ -1481,6 +1481,13 @@ if(typeof criarMotorLaudo !== 'function'){
     t = aplicarPlaceholders(t, repl);
     return escapeHtml(t).replace(/\n/g, '<br>');
   }
+  // O bloco do colo já tem o título "Colo uterino"; a frase não o repete.
+  // Também corta o prefixo de frase salva antes ("Colo uterino: de textura..."),
+  // que o "Salvar frases" guarda no navegador por cima do padrão.
+  function semPrefixoColo(t){
+    t = String(t||'').replace(/^\s*colo uterino\s*:\s*(de\s+)?/i, '');
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
   function phraseRaw(key, repl){
     let t = PHRASES[key] != null ? PHRASES[key] : PHRASE_DEFAULTS[key];
     t = aplicarPlaceholders(t, repl);
@@ -2873,7 +2880,7 @@ if(typeof criarMotorLaudo !== 'function'){
     }
 
     if(colo){
-      blocks.push({id:'colo', html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Colo uterino</strong></p><p class="linha" style="text-align:justify;">'+phraseRaw('coloTexto', {MEDIDA: coloComprimentoVal.text})+'</p></div>'});
+      blocks.push({id:'colo', html:'<div><p class="linha tight"><strong style="text-decoration:underline;">Colo uterino</strong></p><p class="linha" style="text-align:justify;">'+semPrefixoColo(phraseRaw('coloTexto', {MEDIDA: coloComprimentoVal.text}))+'</p></div>'});
     }
 
     // Laudo simples (sem colo e/ou sem Doppler materno/fetal): em vez de a
