@@ -356,8 +356,6 @@
   .field.bio-linha label small{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;}
   .field.bio-linha input[type=text]{text-align:center;font-size:15px;font-weight:600;padding:8px 6px;}
   .bio-un{font-size:12.5px;color:var(--ink-soft);}
-  .cards-par{display:flex;flex-wrap:wrap;gap:0 14px;align-items:flex-start;}
-  .cards-par>.card{flex:1 1 320px;min-width:0;}
   /* Variações de linha dos cards fixos (dados do exame, datação, Doppler), as
      mesmas do morfologico-1trimestre.html. */
   .field.bio-linha.bio-sel{grid-template-columns:1fr minmax(0,156px);}
@@ -691,9 +689,8 @@
       </div>
     </div>
 
-    <div class="cards-par">
     <div class="card">
-      <div class="card-head"><h2>Idade gestacional</h2></div>
+      <div class="card-head"><h2>Gestação</h2></div>
       <div class="card-body">
         <div class="bio-grupos">
           <div class="bio-col">
@@ -718,23 +715,32 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><h2>Gestação</h2></div>
-      <div class="card-body">
-        <div class="bio-grupos"><div class="bio-col">
+          <div class="bio-col">
           <div class="bio-grupo"><h4>Tipo de gestação</h4>
             <div class="field bio-linha bio-sel"><label for="numeroFetos">Número de fetos</label><select id="numeroFetos"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select></div>
             <div class="field bio-linha bio-sel bio-sel-larga conditional" id="wrap_corionicidade"><label for="corionicidade">Corionicidade / amnionicidade</label>
               <select id="corionicidade"><option value="dicorionica_diamniotica" data-fetos="2">Dicoriônica e diamniótica</option><option value="monocorionica_diamniotica" data-fetos="2">Monocoriônica e diamniótica</option><option value="monocorionica_monoamniotica" data-fetos="2">Monocoriônica e monoamniótica</option><option value="tricorionica_triamniotica" data-fetos="3">Tricoriônica e triamniótica</option><option value="dicorionica_triamniotica" data-fetos="3">Dicoriônica e triamniótica</option><option value="monocorionica_triamniotica" data-fetos="3">Monocoriônica e triamniótica</option></select>
             </div>
           </div>
-        </div></div>
+        </div>
       </div>
     </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Útero e colo uterino</h2></div>
+      <div class="card-body">
+        <div class="bio-grupos">
+          <div class="bio-col"><div class="bio-grupo"><h4>Miométrio</h4>
+          <div class="field bio-linha bio-larga"><label for="miometrioObservacoes">Miomas / achados miometriais<small>opcional · texto livre</small></label><textarea id="miometrioObservacoes" rows="2" placeholder="ex: nódulo sólido hipoecoico em parede anterior do útero, medindo 22 x 20 mm, compatível com mioma."></textarea></div>
+        </div></div>
+          <div class="bio-col"><div class="bio-grupo"><h4>Colo uterino</h4>
+          <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
+          <div id="coloFields" class="conditional">
+            <div class="field bio-linha"><label for="coloComprimento">Comprimento do colo<small>via transvaginal</small></label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"><span class="bio-un">mm</span></div>
+          </div>
+        </div></div>
+        </div>
+      </div>
     </div>
 
     <div id="fetosContainer"></div>
@@ -776,26 +782,7 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-head"><h2>Miométrio</h2></div>
-      <div class="card-body">
-        <div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Miométrio</h4>
-          <div class="field bio-linha bio-larga"><label for="miometrioObservacoes">Miomas / achados miometriais<small>opcional · texto livre</small></label><textarea id="miometrioObservacoes" rows="2" placeholder="ex: nódulo sólido hipoecoico em parede anterior do útero, medindo 22 x 20 mm, compatível com mioma."></textarea></div>
-        </div></div></div>
-      </div>
-    </div>
 
-    <div class="card">
-      <div class="card-head"><h2>Medida do colo uterino</h2></div>
-      <div class="card-body">
-        <div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Colo uterino</h4>
-          <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
-          <div id="coloFields" class="conditional">
-            <div class="field bio-linha"><label for="coloComprimento">Comprimento do colo<small>via transvaginal</small></label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"><span class="bio-un">mm</span></div>
-          </div>
-        </div></div></div>
-      </div>
-    </div>
 
     <div class="card">
       <div class="card-head"><h2>Impressões diagnósticas</h2></div>
