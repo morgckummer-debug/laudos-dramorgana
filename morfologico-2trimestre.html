@@ -388,6 +388,11 @@
   .field.bio-linha select{padding:8px 8px;font-size:13px;}
   /* Campo nunca passa da borda do quadro: em card estreito a caixa encolhe em vez de vazar. */
   .field.bio-linha > input, .field.bio-linha > select{min-width:0;max-width:100%;box-sizing:border-box;}
+  /* Card Doppler: materno e fetal lado a lado (cada um numa .bio-col), como no obstetrico.html. */
+  .bio-grupos.doppler-lado{margin-bottom:0;}
+  .doppler-lado .bio-col{gap:10px;}
+  .doppler-lado .toggle-line{margin:0;}
+  #dopplerFetalFields > .conditional.show ~ .conditional.show{margin-top:14px;}
   /* Uma coluna só: os membros (último quadro de cada coluna) descem para o fim. */
   @media (max-width:720px){
     .bio-grupos{flex-direction:column;}
@@ -767,26 +772,20 @@
     <div class="card">
       <div class="card-head"><h2>Doppler</h2></div>
       <div class="card-body">
-        <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno"><label for="chkDopplerMaterno">Doppler materno (artérias uterinas)</label></div>
-        <div id="dopplerMaternoFields" class="conditional">
-          <div class="bio-grupos">
-            <div class="bio-col">
-              <div class="bio-grupo"><h4>Artérias uterinas</h4>
-                <div class="field bio-linha"><label for="utDireita">Artéria uterina direita<small>IP</small></label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder="ex: 0,85"><span class="bio-un"></span></div>
-                <div class="field bio-linha"><label for="utEsquerda">Artéria uterina esquerda<small>IP</small></label><input type="text" inputmode="decimal" data-decimals="2" id="utEsquerda" placeholder="ex: 0,90"><span class="bio-un"></span></div>
-              </div>
-            </div>
-            <div class="bio-col">
-              <div class="bio-grupo"><h4>Resultado</h4>
-                <div class="field bio-linha"><label for="utMedioCalc">IP médio<small>calculado</small></label><input type="text" id="utMedioCalc" readonly placeholder="auto"><span class="bio-un"></span></div>
-                <div class="field bio-linha bio-larga"><label for="utP95Calc">Percentil<small>Gómez et al., 2008</small></label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
-              </div>
+        <div class="bio-grupos doppler-lado"><div class="bio-col">
+          <div class="toggle-line"><input type="checkbox" id="chkDopplerMaterno"><label for="chkDopplerMaterno">Doppler materno (artérias uterinas)</label></div>
+          <div id="dopplerMaternoFields" class="conditional">
+            <div class="bio-grupo"><h4>Artérias uterinas</h4>
+              <div class="field bio-linha"><label for="utDireita">IP artéria uterina direita</label><input type="text" inputmode="decimal" data-decimals="2" id="utDireita" placeholder="ex: 0,85"><span class="bio-un"></span></div>
+              <div class="field bio-linha"><label for="utEsquerda">IP artéria uterina esquerda</label><input type="text" inputmode="decimal" data-decimals="2" id="utEsquerda" placeholder="ex: 0,90"><span class="bio-un"></span></div>
+              <div class="field bio-linha"><label for="utMedioCalc">IP médio<small>calculado</small></label><input type="text" id="utMedioCalc" readonly placeholder="auto"><span class="bio-un"></span></div>
+              <div class="field bio-linha bio-larga"><label for="utP95Calc">Percentil<small>Gómez et al., 2008</small></label><input type="text" id="utP95Calc" readonly placeholder="calculado automaticamente"></div>
             </div>
           </div>
-        </div>
-        <hr class="sep">
-        <div class="toggle-line"><input type="checkbox" id="chkDopplerFetal"><label for="chkDopplerFetal">Doppler fetal (umbilical, cerebral média e relação cérebro-placentária)</label></div>
-        <div id="dopplerFetalFields" class="conditional"></div>
+        </div><div class="bio-col">
+          <div class="toggle-line"><input type="checkbox" id="chkDopplerFetal"><label for="chkDopplerFetal">Doppler fetal (umbilical, cerebral média e relação cérebro-placentária)</label></div>
+          <div id="dopplerFetalFields" class="conditional"></div>
+        </div></div>
       </div>
     </div>
 
@@ -1850,34 +1849,26 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
 
       +'<div class="conditional" id="wrap_feto'+uid+'Doppler">'
-      +'<p class="feto-sub" id="feto'+uid+'DopplerLabel">Doppler fetal</p>'
-      // Quadros como os do Doppler materno (2026-10-27): medidas à esquerda,
-      // calculados e classificação à direita. Ids iguais aos de antes.
-      +'<div class="bio-grupos">'
-      +'<div class="bio-col">'
-      +'<div class="bio-grupo"><h4>Artérias fetais</h4>'
-      +'<div class="field bio-linha"><label for="feto'+uid+'PiUmbilical">Artéria umbilical<small>IP</small></label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiUmbilical" placeholder="ex: 0,95"><span class="bio-un"></span></div>'
-      +'<div class="field bio-linha"><label for="feto'+uid+'PiACM">Artéria cerebral média<small>IP</small></label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiACM" placeholder="ex: 1,60"><span class="bio-un"></span></div>'
+      // Um quadro só por feto, como no obstetrico.html (2026-11-01, pedido da
+      // médica): umbilical, fluxo diastólico, ACM, RCP, percentil e
+      // classificação, nessa ordem. Ids iguais aos de antes.
+      +'<div class="bio-grupo"><h4 id="feto'+uid+'DopplerLabel">Doppler fetal</h4>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'PiUmbilical">Art. Umbilical (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiUmbilical" placeholder="ex: 0,95"><span class="bio-un"></span></div>'
       // Fluxo diastólico da umbilical — mesmo vocabulário do obstetrico.html
       // (feto{uid}AuFluxo): AEDF/REDF/iAREDF é o achado mais grave dos três
       // campos de Doppler fetal, por isso tem prioridade na frase de
       // conclusão (dopplerFetalLabelFor, abaixo).
-      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'AuFluxo">Fluxo diastólico<small>artéria umbilical</small></label><select id="feto'+uid+'AuFluxo">'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'AuFluxo">Fluxo diastólico — Art. Umbilical</label><select id="feto'+uid+'AuFluxo">'
         +'<option value="">—</option>'
         +'<option value="normal">Normal</option>'
         +'<option value="ausente">AEDF — diástole ausente</option>'
         +'<option value="reversa">REDF — diástole reversa</option>'
         +'<option value="intermitente">iAREDF — diástole intermitente (ausente/reversa)</option>'
       +'</select></div>'
-      +'</div>'
-      +'</div>'
-      +'<div class="bio-col">'
-      +'<div class="bio-grupo"><h4>Resultado</h4>'
-      +'<div class="field bio-linha"><label for="feto'+uid+'CprCalc">Relação cérebro-placentária<small>RCP calculada</small></label><input type="text" id="feto'+uid+'CprCalc" readonly placeholder="auto"><span class="bio-un"></span></div>'
-      +'<div class="field bio-linha"><label for="feto'+uid+'CprPercentil">Percentil da RCP<small>calculado, editável · <button type="button" class="cpr-recalc" id="feto'+uid+'CprRecalc" data-uid="'+uid+'" style="background:none;border:none;padding:0;font-size:11px;color:var(--rose-dark);text-decoration:underline;cursor:pointer;">Recalcular percentil</button></small></label><input type="text" inputmode="numeric" id="feto'+uid+'CprPercentil" placeholder="auto"><span class="bio-un"></span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'PiACM">Art. Cerebral Média (IP)</label><input type="text" inputmode="decimal" data-decimals="2" id="feto'+uid+'PiACM" placeholder="ex: 1,60"><span class="bio-un"></span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'CprCalc">RCP<small>relação cérebro-placentária, calculada</small></label><input type="text" id="feto'+uid+'CprCalc" readonly placeholder="auto"><span class="bio-un"></span></div>'
+      +'<div class="field bio-linha"><label for="feto'+uid+'CprPercentil">Percentil do RCP<small>calculado, editável</small><button type="button" class="cpr-recalc" id="feto'+uid+'CprRecalc" data-uid="'+uid+'" style="display:block;background:none;border:none;padding:0;font-size:11.5px;color:var(--rose-dark);text-decoration:underline;cursor:pointer;">Recalcular percentil</button></label><input type="text" inputmode="numeric" id="feto'+uid+'CprPercentil" placeholder="auto"><span class="bio-un"></span></div>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'DopplerClassificacao">Classificação<small>umbilical + ACM + relação cérebro-placentária</small></label><select id="feto'+uid+'DopplerClassificacao"><option value="normal">Dentro da normalidade</option><option value="alterado">Alterado - Redistribuição de fluxo</option></select></div>'
-      +'</div>'
-      +'</div>'
       +'</div>'
       +'</div>'
 
