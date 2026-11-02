@@ -803,7 +803,6 @@
     </div>
 
     <div id="fetosContainer"></div>
-    <button type="button" class="btn-clear" id="btnAddFeto" style="margin:-8px 0 22px;">+ Adicionar feto</button>
 
     <div class="card conditional" id="wrap_discordancia">
       <div class="card-head"><h2>Discordância de peso</h2></div>
@@ -2117,7 +2116,6 @@ if(typeof criarMotorLaudo !== 'function'){
     });
     $('numeroFetos').value = String(Math.min(Math.max(cards.length, 1), MAX_FETOS));
     updateGestacaoWrap();
-    $('btnAddFeto').style.display = cards.length >= MAX_FETOS ? 'none' : 'inline-block';
   }
   function wireFetoCard(uid){
     const el = $('wrap_feto'+uid);
@@ -2200,7 +2198,6 @@ if(typeof criarMotorLaudo !== 'function'){
     renumberFetos();
     render();
   }
-  $('btnAddFeto').addEventListener('click', addFeto);
   function fetoUids(){
     return Array.from($('fetosContainer').children).map(el=> el.id.replace('wrap_feto',''));
   }
