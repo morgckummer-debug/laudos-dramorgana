@@ -194,12 +194,12 @@
   .card.fechado .card-body{display:none;}
 
   /* Card Alterações: hematoma, ectópica e mola lado a lado (2026-11-02, pedido da médica) */
-  .alt-tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;}
+  .bio-grupos.alt-tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;}
   .alt-tres > .bio-grupo{margin:0;}
   .hematoma-rotulo:empty{display:none;}
   .hematoma-rotulo{font-size:12px;font-weight:700;color:var(--rose-dark);margin:6px 0 2px;}
   .hematoma-saco + .hematoma-saco{border-top:1px dashed var(--line);margin-top:8px;padding-top:4px;}
-  @media (max-width:900px){ .alt-tres{grid-template-columns:1fr;} }
+  @media (max-width:900px){ .bio-grupos.alt-tres{grid-template-columns:1fr;} }
   /* Saco gestacional ausente: o 1º card mostra só a presença e os campos da perda */
   .saco-presente-slot:not(:empty){margin-bottom:6px;}
   .sem-saco #sacosContainer > .card:not(:first-child),
@@ -812,8 +812,9 @@
       <div class="card-head"><h2>Alterações</h2></div>
       <div class="card-body">
         <div class="bio-grupos alt-tres">
-          <div class="bio-grupo conditional show" id="wrap_hematomas"><h4>Hematoma subcoriônico</h4>
-            <div id="hematomasContainer"></div>
+          <div class="bio-grupo" id="wrap_hematomas"><h4>Hematoma subcoriônico</h4>
+            <div class="conditional show" id="wrap_hematomasCampos"><div id="hematomasContainer"></div></div>
+            <p class="conditional hint" id="wrap_hematomasNaoAplica" style="margin:0;font-size:12px;color:var(--ink-soft);">Não se aplica sem saco gestacional na cavidade (mola, ectópica ou saco ausente).</p>
           </div>
           <div class="bio-grupo"><h4>Gestação ectópica</h4>
             <div class="toggle-line"><input type="checkbox" id="chkEctopica"><label for="chkEctopica">Gestação ectópica</label></div>
@@ -1873,10 +1874,13 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   function updateGestacaoModo(){
     const {mola, perda, ectopica} = gestacaoFlags();
-    toggle('wrap_gestacaoNormal', !mola && !perda && !ectopica);
+    // Número de sacos e corionicidade ficam sempre visíveis (pedido da médica, 2026-11-02).
+    toggle('wrap_gestacaoNormal', true);
     toggle('wrap_sacosSection', !mola && !ectopica);
     $('wrap_sacosSection').classList.toggle('sem-saco', perda);
-    toggle('wrap_hematomas', !mola && !ectopica && !perda);
+    // O quadro fica sempre visível (o card não pode perder uma coluna); só os campos somem.
+    toggle('wrap_hematomasCampos', !mola && !ectopica && !perda);
+    toggle('wrap_hematomasNaoAplica', mola || ectopica || perda);
     toggle('wrap_molaCampos', mola);
     toggle('wrap_ectopicaCampos', ectopica);
     toggle('wrap_ectopicaLiquidoVolume', ectopica && v('ectopicaLiquido')==='presente');
