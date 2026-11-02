@@ -193,21 +193,22 @@
   .card.fechado .card-head{border-bottom:0;}
   .card.fechado .card-body{display:none;}
 
-  /* Card do saco em barras numeradas, uma aberta por vez (2026-11-02, pedido da médica) */
-  .fsec{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;background:#fff;overflow:hidden;}
-  .fsec-bar{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;background:#fff;border:0;cursor:pointer;text-align:left;font:inherit;color:inherit;}
-  .fsec-bar .num{width:24px;height:24px;border-radius:50%;background:var(--rose-dark);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
-  .fsec.feita .num{background:#3c8a5a;}
-  .fsec-bar .tit{font-size:12.5px;font-weight:700;color:var(--rose-dark);text-transform:uppercase;letter-spacing:.3px;text-align:left;}
-  .fsec-bar .res{margin-left:auto;font-size:12px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:50%;}
-  .fsec-bar .chev{width:22px;height:22px;border-radius:50%;background:var(--rose-light);color:var(--rose-dark);display:flex;align-items:center;justify-content:center;font-size:12px;transition:transform .2s;flex:none;}
-  .fsec.open{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);}
-  .fsec.open .fsec-bar{background:var(--rose-light);}
-  .fsec.open .fsec-bar .chev{transform:rotate(90deg);}
-  .fsec-body{display:none;padding:12px 14px 14px;border-top:1px solid var(--line);}
-  .fsec.open .fsec-body{display:block;}
-  .fsec-body > .saco-linha{margin-bottom:0;}
-  @media (max-width:560px){.fsec-bar .res{display:none;}}
+  /* Card Alterações: hematoma, ectópica e mola lado a lado (2026-11-02, pedido da médica) */
+  .alt-tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;}
+  .alt-tres > .bio-grupo{margin:0;}
+  .hematoma-rotulo:empty{display:none;}
+  .hematoma-rotulo{font-size:12px;font-weight:700;color:var(--rose-dark);margin:6px 0 2px;}
+  .hematoma-saco + .hematoma-saco{border-top:1px dashed var(--line);margin-top:8px;padding-top:4px;}
+  @media (max-width:900px){ .alt-tres{grid-template-columns:1fr;} }
+  /* Saco gestacional ausente: o 1º card mostra só a presença e os campos da perda */
+  .saco-presente-slot:not(:empty){margin-bottom:6px;}
+  .sem-saco #sacosContainer > .card:not(:first-child),
+  .sem-saco .saco-linha > .bio-grupo:first-child > .field,
+  .sem-saco .saco-embrioes,
+  .sem-saco .saco-emcurso-slot,
+  .sem-saco .saco-remove{display:none !important;}
+  .sem-saco .saco-linha{display:block;}
+  .saco-emcurso-slot:not(:empty){margin-top:4px;}
   .saco-linha{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;margin-bottom:14px;}
   .saco-linha:not(.saco-multi) > .saco-embrioes,
   .saco-linha:not(.saco-multi) .emb-bloco{display:contents;}
@@ -762,8 +763,6 @@
           </div>
         </div><div class="bio-col">
           <div class="bio-grupo"><h4>Tipo de gestação</h4>
-            <div class="toggle-line"><input type="checkbox" id="chkMola"><label for="chkMola">Achados sugestivos de mola hidatiforme</label></div>
-            <div class="toggle-line"><input type="checkbox" id="chkEctopica"><label for="chkEctopica">Gestação ectópica</label></div>
             <div class="conditional show" id="wrap_gestacaoNormal">
               <div class="field bio-linha bio-sel"><label for="numeroEmbrioes">Número de sacos gestacionais / embriões</label>
                 <select id="numeroEmbrioes"><option value="1">Único</option><option value="2">Gemelar (2)</option><option value="3">Trigemelar (3)</option></select>
@@ -773,39 +772,16 @@
               </div>
             </div>
           </div>
-          <div class="bio-grupo conditional" id="wrap_molaCampos"><h4>Mola hidatiforme</h4>
-            <div class="field bio-linha bio-texto bio-larga"><label for="molaMedida">Medida (cm)</label><input type="text" id="molaMedida" placeholder="ex: 6,5 x 5,8 x 4,2"></div>
-            <div class="field bio-linha"><label for="molaVolume">Volume estimado</label><input type="text" inputmode="decimal" data-decimals="1" id="molaVolume" placeholder=""><span class="bio-un">cm³</span></div>
-            <div class="toggle-line"><input type="checkbox" id="molaFetoPresente"><label for="molaFetoPresente">Feto/embrião presente</label></div>
-            <div class="toggle-line"><input type="checkbox" id="molaFetoAusente"><label for="molaFetoAusente">Feto/embrião ausente</label></div>
-            <div class="conditional" id="wrap_molaFetoCampos">
-              <div class="field bio-linha"><label for="molaCcn">Comprimento cabeça-nádega (CCN)</label><input type="text" inputmode="decimal" data-decimals="1" id="molaCcn" placeholder=""><span class="bio-un">mm</span></div>
-              <div class="field bio-linha bio-sel bio-sel-larga"><label for="molaVitalidade">Vitalidade</label><select id="molaVitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>
-            </div>
-            <div class="conditional" id="wrap_molaFc">
-              <div class="field bio-linha"><label for="molaFc">Frequência cardíaca fetal</label><input type="text" inputmode="numeric" maxlength="3" id="molaFc" placeholder=""><span class="bio-un">bpm</span></div>
-            </div>
-            <div class="conditional" id="wrap_molaIgCampos">
-              <div class="field bio-linha bio-ig"><label for="molaIgSemanas">IG pelo CCN</label><input type="text" inputmode="numeric" id="molaIgSemanas" placeholder="8"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="molaIgDias" placeholder="3" aria-label="IG pelo CCN — dias"><span class="bio-un">dias</span></div>
-            </div>
-          </div>
-          <div class="bio-grupo conditional" id="wrap_ectopicaCampos"><h4>Gestação ectópica</h4>
-            <div class="field bio-linha bio-sel"><label for="ectopicaLado">Lado</label>
-              <select id="ectopicaLado"><option value="direita">Direito</option><option value="esquerda">Esquerdo</option></select>
-            </div>
-            <div class="field bio-linha bio-texto bio-larga"><label for="ectopicaMedida">Medida (cm)</label><input type="text" id="ectopicaMedida" placeholder="ex: 2,5 x 2,0 x 1,8"></div>
-            <div class="field bio-linha"><label for="ectopicaVolume">Volume estimado</label><input type="text" inputmode="decimal" data-decimals="1" id="ectopicaVolume" placeholder=""><span class="bio-un">cm³</span></div>
-            <div class="field bio-linha bio-sel bio-sel-larga"><label for="ectopicaEmbriao">Embrião</label>
-              <select id="ectopicaEmbriao"><option value="ausente">Não identificado</option><option value="bcf">Presente, com batimentos cardíacos</option><option value="sembcf">Presente, sem batimentos cardíacos</option></select>
-            </div>
-            <div class="field bio-linha bio-sel"><label for="ectopicaLiquido">Líquido livre</label>
-              <select id="ectopicaLiquido"><option value="ausente">Ausente</option><option value="presente">Presente</option></select>
-            </div>
-            <div class="conditional" id="wrap_ectopicaLiquidoVolume">
-              <div class="field bio-linha"><label for="ectopicaLiquidoVolume">Volume do líquido<small>opcional</small></label><input type="text" inputmode="decimal" data-decimals="1" id="ectopicaLiquidoVolume" placeholder=""><span class="bio-un">mL</span></div>
-            </div>
-          </div>
-      <div class="bio-grupo conditional show" id="wrap_sacoPresenteBloco"><h4>Saco gestacional</h4>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="conditional show" id="wrap_sacosSection">
+      <div id="sacosContainer"></div>
+      <!-- Campos que pertencem à gestação, não a um saco: moram no 1º card de saco
+         (posicionarCamposSaco); aqui é só o lugar onde esperam quando não há card. -->
+      <div id="sacoCamposHome" hidden>
+<div id="sacoPresenteCampos">
         <div class="field bio-linha bio-sel"><label for="sacoPresente">Saco gestacional</label>
           <select id="sacoPresente"><option value="sim">Presente</option><option value="nao">Ausente</option></select>
         </div>
@@ -822,38 +798,62 @@
           <div class="field bio-linha bio-larga"><label for="perdaSemSacoDescricao">Observações adicionais (opcional)</label><textarea id="perdaSemSacoDescricao" rows="2" placeholder="ex: conteúdo heterogêneo com áreas anecoicas de permeio..."></textarea></div>
         </div>
       </div>
-        </div></div>
-      </div>
-    </div>
-
-    <div class="conditional show" id="wrap_sacosSection">
-      <div id="sacosContainer"></div>
-      <div class="toggle-line"><input type="checkbox" id="chkDescricaoSacos"><label for="chkDescricaoSacos">Reescrever a descrição do(s) saco(s) à mão</label></div>
-      <div class="field conditional" id="wrap_descricaoSacos">
-        <label>Descrição do(s) saco(s) — o texto do laudo já vem escrito aqui; corrija só o que precisa. Uma linha por parágrafo. As tabelas de biometria e os achados continuam automáticos.</label>
-        <textarea id="descricaoSacos" rows="4"></textarea>
-      </div>
+      <div id="emCursoCampos">
       <div class="toggle-line"><input type="checkbox" id="chkEmCurso"><label for="chkEmCurso">Sinais de abortamento em curso (colo entreaberto / saco se exteriorizando)</label></div>
       <div class="field conditional" id="wrap_emCursoDescricao">
         <label>Achado do colo / observações (opcional)</label>
         <textarea id="emCursoDescricao" rows="2" placeholder="ex: colo entreaberto, saco gestacional herniando pelo canal cervical..."></textarea>
       </div>
+      </div>
+      </div>
     </div>
 
-    <div class="card">
-      <div class="card-head"><h2>Bexiga</h2></div>
+    <div class="card" id="cardAlteracoes">
+      <div class="card-head"><h2>Alterações</h2></div>
       <div class="card-body">
-        <div class="bio-grupos"><div class="bio-col">
-          <div class="bio-grupo"><h4>Bexiga</h4>
-            <div class="field bio-linha bio-larga"><label for="bexigaAspecto">Aspecto</label>
-              <select id="bexigaAspecto"><option value="normal">Normal (vazia durante o exame)</option><option value="alterado">Alterado (descrever)</option></select>
+        <div class="bio-grupos alt-tres">
+          <div class="bio-grupo conditional show" id="wrap_hematomas"><h4>Hematoma subcoriônico</h4>
+            <div id="hematomasContainer"></div>
+          </div>
+          <div class="bio-grupo"><h4>Gestação ectópica</h4>
+            <div class="toggle-line"><input type="checkbox" id="chkEctopica"><label for="chkEctopica">Gestação ectópica</label></div>
+            <div class="conditional" id="wrap_ectopicaCampos">
+            <div class="field bio-linha bio-sel"><label for="ectopicaLado">Lado</label>
+              <select id="ectopicaLado"><option value="direita">Direito</option><option value="esquerda">Esquerdo</option></select>
             </div>
-            <div class="field bio-linha bio-larga conditional" id="wrap_bexigaDescricao">
-              <label for="bexigaDescricao">Descreva o achado</label>
-              <textarea id="bexigaDescricao" rows="2" placeholder="ex: conteúdo ecogênico em suspensão..."></textarea>
+            <div class="field bio-linha bio-texto bio-larga"><label for="ectopicaMedida">Medida (cm)</label><input type="text" id="ectopicaMedida" placeholder="ex: 2,5 x 2,0 x 1,8"></div>
+            <div class="field bio-linha"><label for="ectopicaVolume">Volume estimado</label><input type="text" inputmode="decimal" data-decimals="1" id="ectopicaVolume" placeholder=""><span class="bio-un">cm³</span></div>
+            <div class="field bio-linha bio-sel bio-sel-larga"><label for="ectopicaEmbriao">Embrião</label>
+              <select id="ectopicaEmbriao"><option value="ausente">Não identificado</option><option value="bcf">Presente, com batimentos cardíacos</option><option value="sembcf">Presente, sem batimentos cardíacos</option></select>
+            </div>
+            <div class="field bio-linha bio-sel"><label for="ectopicaLiquido">Líquido livre</label>
+              <select id="ectopicaLiquido"><option value="ausente">Ausente</option><option value="presente">Presente</option></select>
+            </div>
+            <div class="conditional" id="wrap_ectopicaLiquidoVolume">
+              <div class="field bio-linha"><label for="ectopicaLiquidoVolume">Volume do líquido<small>opcional</small></label><input type="text" inputmode="decimal" data-decimals="1" id="ectopicaLiquidoVolume" placeholder=""><span class="bio-un">mL</span></div>
             </div>
           </div>
-        </div></div>
+          </div>
+          <div class="bio-grupo"><h4>Gestação molar</h4>
+            <div class="toggle-line"><input type="checkbox" id="chkMola"><label for="chkMola">Achados sugestivos de mola hidatiforme</label></div>
+            <div class="conditional" id="wrap_molaCampos">
+            <div class="field bio-linha bio-texto bio-larga"><label for="molaMedida">Medida (cm)</label><input type="text" id="molaMedida" placeholder="ex: 6,5 x 5,8 x 4,2"></div>
+            <div class="field bio-linha"><label for="molaVolume">Volume estimado</label><input type="text" inputmode="decimal" data-decimals="1" id="molaVolume" placeholder=""><span class="bio-un">cm³</span></div>
+            <div class="toggle-line"><input type="checkbox" id="molaFetoPresente"><label for="molaFetoPresente">Feto/embrião presente</label></div>
+            <div class="toggle-line"><input type="checkbox" id="molaFetoAusente"><label for="molaFetoAusente">Feto/embrião ausente</label></div>
+            <div class="conditional" id="wrap_molaFetoCampos">
+              <div class="field bio-linha"><label for="molaCcn">Comprimento cabeça-nádega (CCN)</label><input type="text" inputmode="decimal" data-decimals="1" id="molaCcn" placeholder=""><span class="bio-un">mm</span></div>
+              <div class="field bio-linha bio-sel bio-sel-larga"><label for="molaVitalidade">Vitalidade</label><select id="molaVitalidade"><option value="presente">Batimentos cardíacos presentes</option><option value="ausente">Batimentos cardíacos ausentes</option></select></div>
+            </div>
+            <div class="conditional" id="wrap_molaFc">
+              <div class="field bio-linha"><label for="molaFc">Frequência cardíaca fetal</label><input type="text" inputmode="numeric" maxlength="3" id="molaFc" placeholder=""><span class="bio-un">bpm</span></div>
+            </div>
+            <div class="conditional" id="wrap_molaIgCampos">
+              <div class="field bio-linha bio-ig"><label for="molaIgSemanas">IG pelo CCN</label><input type="text" inputmode="numeric" id="molaIgSemanas" placeholder="8"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="molaIgDias" placeholder="3" aria-label="IG pelo CCN — dias"><span class="bio-un">dias</span></div>
+            </div>
+          </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1110,7 +1110,6 @@ if(typeof criarMotorLaudo !== 'function'){
   // Atualizada a cada render() e lida pelo checkbox "Reescrever a descrição",
   // que pré-preenche o campo com ela — assim a médica corrige só o trecho que
   // mudou, como nos laudos de medicina interna.
-  let descricaoSacosPadrao = '';
   function textoDeHtml(html){
     const d = document.createElement('div');
     d.innerHTML = html;
@@ -1846,10 +1845,6 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!box || box.value.trim()) return;
     box.value = typeof textoNormal === 'function' ? textoNormal() : textoNormal;
   }
-  $('bexigaAspecto').addEventListener('change', e=>{
-    toggle('wrap_bexigaDescricao', e.target.value==='alterado');
-    if(e.target.value==='alterado') prefillAspectoDescricao('bexigaDescricao', phraseRaw('bexigaNormal'));
-  });
   $('anexosAspecto').addEventListener('change', e=>{
     toggle('wrap_anexosDescricao', e.target.value==='alterado');
     if(e.target.value==='alterado') prefillAspectoDescricao('anexosDescricao', phraseRaw('anexosNormais'));
@@ -1879,8 +1874,9 @@ if(typeof criarMotorLaudo !== 'function'){
   function updateGestacaoModo(){
     const {mola, perda, ectopica} = gestacaoFlags();
     toggle('wrap_gestacaoNormal', !mola && !perda && !ectopica);
-    toggle('wrap_sacoPresenteBloco', !mola && !ectopica);
-    toggle('wrap_sacosSection', !mola && !perda && !ectopica);
+    toggle('wrap_sacosSection', !mola && !ectopica);
+    $('wrap_sacosSection').classList.toggle('sem-saco', perda);
+    toggle('wrap_hematomas', !mola && !ectopica && !perda);
     toggle('wrap_molaCampos', mola);
     toggle('wrap_ectopicaCampos', ectopica);
     toggle('wrap_ectopicaLiquidoVolume', ectopica && v('ectopicaLiquido')==='presente');
@@ -1897,16 +1893,6 @@ if(typeof criarMotorLaudo !== 'function'){
   $('ectopicaLiquido').addEventListener('change', updateGestacaoModo);
   $('sacoPresente').addEventListener('change', updateGestacaoModo);
   $('chkEmCurso').addEventListener('change', e=> toggle('wrap_emCursoDescricao', e.target.checked));
-  // Reescrever a descrição do(s) saco(s): o campo nasce com o texto que o laudo
-  // escreveria sozinho, para ela trocar só o trecho que mudou em vez de
-  // redigitar tudo — mesmo padrão do prefillAlteradoIfEmpty() do abdome-total.
-  // Só pré-preenche quando está vazio: reabrir o checkbox não apaga o que ela
-  // já escreveu.
-  $('chkDescricaoSacos').addEventListener('change', e=>{
-    toggle('wrap_descricaoSacos', e.target.checked);
-    const el = $('descricaoSacos');
-    if(e.target.checked && !el.value.trim()) el.value = descricaoSacosPadrao;
-  });
   // Captação de fluxo ao Doppler só faz sentido no conteúdo residual do
   // incompleto — a cavidade vazia do completo não tem o que captar.
   function updatePerdaSemSacoWraps(){
@@ -2028,22 +2014,28 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'</div>';
   }
-  // ----- Card do saco em barras numeradas, uma aberta por vez (2026-11-02) -----
-  const FSEC_TITULOS = {1:'Saco gestacional, vesícula vitelínica e embrião', 2:'Hematoma subcoriônico'};
-  function fsecAbre(n){
-    return '<div class="fsec'+(n===1?' open':'')+'" data-fsec="'+n+'">'
-      +'<button type="button" class="fsec-bar"><span class="num">'+n+'</span><span class="tit">'+FSEC_TITULOS[n]+'</span><span class="res"></span><span class="chev">▶</span></button>'
-      +'<div class="fsec-body">';
+  // Hematoma subcoriônico: um quadro por saco, no card "Alterações" (2026-11-02).
+  // Os ids continuam saco{uid}Hematoma..., então laudo e rascunho não mudam.
+  function hematomaHTML(uid){
+    return ''
+      +'<div class="hematoma-saco" id="wrap_saco'+uid+'HematomaQuadro" data-uid="'+uid+'">'
+      +'<div class="hematoma-rotulo"></div>'
+      +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'Hematoma"><label for="saco'+uid+'Hematoma">Hematoma subcoriônico</label></div>'
+      +'<div class="conditional" id="wrap_saco'+uid+'HematomaCampos">'
+      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="saco'+uid+'HematomaLocal">Localização</label><select id="saco'+uid+'HematomaLocal"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option><option value="próximo ao colo uterino">Próximo ao colo uterino</option></select></div>'
+      +'<div class="field bio-linha bio-sel"><label for="saco'+uid+'HematomaFace">Face</label><select id="saco'+uid+'HematomaFace"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select></div>'
+      +'<div class="field bio-linha bio-texto bio-larga"><label for="saco'+uid+'HematomaMedida">Medida</label><input type="text" id="saco'+uid+'HematomaMedida" placeholder="ex: 33,2 x 32 mm"></div>'
+      +'</div>'
+      +'</div>';
   }
-  function fsecFecha(){ return '</div></div>'; }
   function sacoCardHTML(uid){
     return ''
       +'<div class="card" id="wrap_saco'+uid+'">'
       +'<div class="card-head"><h2><span class="saco-label"></span></h2></div>'
       +'<div class="card-body">'
-      +fsecAbre(1)
       +'<div class="saco-linha" id="saco'+uid+'Linha">'
       +'<div class="bio-grupo"><h4>Saco gestacional</h4>'
+      +'<div class="saco-presente-slot"></div>'
       +'<div class="field bio-linha bio-sel"><label for="saco'+uid+'Insercao">Onde está o saco gestacional</label><select id="saco'+uid+'Insercao"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option><option value="ístmica">Ístmica</option></select></div>'
       +'<div class="field bio-linha bio-sel"><label for="saco'+uid+'Contorno">Contornos</label><select id="saco'+uid+'Contorno"><option value="regular">Regulares</option><option value="irregular">Irregulares</option></select></div>'
       +'<div class="field bio-linha"><label for="saco'+uid+'DMSG">Tamanho do saco gestacional<small>DMSG</small></label><input type="text" inputmode="decimal" data-decimals="1" id="saco'+uid+'DMSG" placeholder=""><span class="bio-un">mm</span></div>'
@@ -2051,19 +2043,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="saco-embrioes" id="saco'+uid+'Embrioes"></div>'
       +'</div>'
-      +fsecFecha()
-      +fsecAbre(2)
-      +'<div class="bio-grupos"><div class="bio-col">'
-      +'<div class="bio-grupo"><h4>Hematoma subcoriônico</h4>'
-      +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'Hematoma"><label for="saco'+uid+'Hematoma">Hematoma subcoriônico</label></div>'
-      +'<div class="conditional" id="wrap_saco'+uid+'HematomaCampos">'
-      +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="saco'+uid+'HematomaLocal">Localização</label><select id="saco'+uid+'HematomaLocal"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option><option value="próximo ao colo uterino">Próximo ao colo uterino</option></select></div>'
-      +'<div class="field bio-linha bio-sel"><label for="saco'+uid+'HematomaFace">Face</label><select id="saco'+uid+'HematomaFace"><option value="anterior">Anterior</option><option value="posterior">Posterior</option></select></div>'
-      +'<div class="field bio-linha bio-texto bio-larga"><label for="saco'+uid+'HematomaMedida">Medida</label><input type="text" id="saco'+uid+'HematomaMedida" placeholder="ex: 33,2 x 32 mm"></div>'
-      +'</div>'
-      +'</div>'
-      +'</div></div>'
-      +fsecFecha()
+      +'<div class="saco-emcurso-slot"></div>'
       +'<button type="button" class="saco-remove" data-uid="'+uid+'">Remover</button>'
       +'</div>'
       +'</div>';
@@ -2135,7 +2115,38 @@ if(typeof criarMotorLaudo !== 'function'){
   function totalEmbrioes(){
     return sacoUids().reduce((acc, uid)=> acc + embriaoIdxs(uid).length, 0);
   }
+  // Presença do saco e abortamento em curso são da gestação, não de um saco:
+  // vivem no 1º card (pedido da médica, 2026-11-02). Os nós são guardados em
+  // variáveis e voltam para a "casa" escondida antes de qualquer card sumir,
+  // para os listeners e o rascunho nunca perderem os campos.
+  const SACO_PRESENTE_NODE = $('sacoPresenteCampos');
+  const EM_CURSO_NODE = $('emCursoCampos');
+  function estacionarCamposSaco(){
+    const home = $('sacoCamposHome');
+    home.appendChild(SACO_PRESENTE_NODE);
+    home.appendChild(EM_CURSO_NODE);
+  }
+  function posicionarCamposSaco(){
+    const primeiro = $('sacosContainer').firstElementChild;
+    if(!primeiro){ estacionarCamposSaco(); return; }
+    primeiro.querySelector('.saco-presente-slot').appendChild(SACO_PRESENTE_NODE);
+    primeiro.querySelector('.saco-emcurso-slot').appendChild(EM_CURSO_NODE);
+  }
+  // Quadros de hematoma acompanham os cards de saco: some o do saco removido,
+  // a ordem segue a dos cards e o rótulo "Saco N" só aparece com mais de um.
+  function sincronizarHematomas(){
+    const uids = sacoUids(), cont = $('hematomasContainer');
+    Array.from(cont.children).forEach(q=>{ if(uids.indexOf(q.dataset.uid) < 0) q.remove(); });
+    uids.forEach((uid, i)=>{
+      const q = $('wrap_saco'+uid+'HematomaQuadro');
+      if(!q) return;
+      cont.appendChild(q);
+      q.querySelector('.hematoma-rotulo').textContent = uids.length>1 ? 'Saco '+(i+1) : '';
+    });
+  }
   function renumberSacos(){
+    posicionarCamposSaco();
+    sincronizarHematomas();
     const container = $('sacosContainer');
     const cards = Array.from(container.children);
     cards.forEach((el, idx)=>{
@@ -2152,6 +2163,13 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   function wireSacoCard(uid){
     const el = $('wrap_saco'+uid);
+    const velho = $('wrap_saco'+uid+'HematomaQuadro');
+    if(velho) velho.remove();
+    $('hematomasContainer').insertAdjacentHTML('beforeend', hematomaHTML(uid));
+    $('wrap_saco'+uid+'HematomaQuadro').querySelectorAll('input, select, textarea').forEach(field=>{
+      field.addEventListener('input', render);
+      field.addEventListener('change', render);
+    });
     // Roda com o container de embriões ainda vazio: os campos de cada embrião
     // são ligados por wireEmbriaoBloco(), à medida que os blocos nascem.
     el.querySelectorAll('input, select, textarea').forEach(field=>{
@@ -2167,6 +2185,7 @@ if(typeof criarMotorLaudo !== 'function'){
     });
     updateSacoWraps(uid);
     el.querySelector('.saco-remove').addEventListener('click', ()=>{
+      estacionarCamposSaco();
       el.remove();
       renumberSacos();
       render();
@@ -2199,50 +2218,6 @@ if(typeof criarMotorLaudo !== 'function'){
   document.addEventListener('click', e=>{ const h=e.target.closest('.card:not(.card-fixo) > .card-head'); if(h) alternarCard(h); });
   document.addEventListener('keydown', e=>{
     if((e.key==='Enter'||e.key===' ') && e.target.matches && e.target.matches('.card:not(.card-fixo) > .card-head')){ e.preventDefault(); alternarCard(e.target); }
-  });
-  function fsecResumo(uid, n){
-    const val = id=>{ const e=$(id); return e ? (e.value||'').trim() : ''; };
-    const p = [];
-    if(n===1){
-      if(val('saco'+uid+'DMSG')) p.push('DMSG '+val('saco'+uid+'DMSG')+' mm');
-      embriaoIdxs(uid).forEach(i=>{
-        const pre = embPre(uid, i);
-        if(val(pre+'Embriao')==='nao_identificado') p.push('embrião não identificado');
-        else {
-          if(val(pre+'CCN')) p.push('CCN '+val(pre+'CCN')+' mm');
-          p.push(val(pre+'Vitalidade')==='ausente' ? 'BCF ausentes' : (val(pre+'FC') ? 'BCF '+val(pre+'FC')+' bpm' : 'BCF presentes'));
-        }
-      });
-    } else {
-      const chk = $('saco'+uid+'Hematoma');
-      p.push(chk && chk.checked ? 'hematoma'+(val('saco'+uid+'HematomaMedida') ? ' '+val('saco'+uid+'HematomaMedida') : '') : 'ausente');
-    }
-    return p.filter(Boolean).join(' · ');
-  }
-  function fsecAtualizar(){
-    Array.from($('sacosContainer').children).forEach(card=>{
-      const uid = card.id.replace('wrap_saco','');
-      card.querySelectorAll('.fsec').forEach(sec=>{
-        const n = +sec.dataset.fsec;
-        const preenchido = Array.from(sec.querySelectorAll('input[type=text],textarea')).some(e=>e.value && e.value.trim())
-          || Array.from(sec.querySelectorAll('input[type=checkbox]')).some(e=>e.checked);
-        const feita = !!sec.dataset.visto || preenchido;
-        sec.classList.toggle('feita', feita);
-        sec.querySelector('.num').textContent = feita ? '✓' : String(n);
-        sec.querySelector('.res').textContent = feita ? fsecResumo(uid, n) : 'a preencher';
-      });
-    });
-  }
-  $('sacosContainer').addEventListener('click', e=>{
-    const bar = e.target.closest('.fsec-bar'); if(!bar) return;
-    const sec = bar.parentElement, card = sec.closest('.card');
-    if(sec.classList.contains('open')) sec.classList.remove('open');
-    else {
-      card.querySelectorAll('.fsec.open').forEach(o=>{ if(o!==sec) o.classList.remove('open'); });
-      sec.classList.add('open');
-    }
-    sec.dataset.visto = '1';
-    fsecAtualizar();
   });
   function sacoUids(){
     return Array.from($('sacosContainer').children).map(el=> el.id.replace('wrap_saco',''));
@@ -2688,7 +2663,6 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   function render(){
     cardsBarras();
-    fsecAtualizar();
     atualizarUsgCalculos();
     atualizarFivCalculos();
     if(st.draftRestoring) return;
@@ -2859,8 +2833,9 @@ if(typeof criarMotorLaudo !== 'function'){
     const emCursoAtiva = $('chkEmCurso').checked && !molaAtiva && !perdaSemSacoAtiva && !ectopicaAtiva;
     const emCursoDescricao = vNoDot('emCursoDescricao');
 
-    const bexigaAspecto = v('bexigaAspecto');
-    const bexigaDescricao = vNoDot('bexigaDescricao');
+    // Card Bexiga saiu do formulário (2026-11-02, pedido da médica): o laudo sempre leva a frase normal.
+    const bexigaAspecto = 'normal';
+    const bexigaDescricao = '';
 
     const uteroPosicao = v('uteroPosicao');
     const uteroMedida = blankOrValue(req('uteroMedida'));
@@ -3205,11 +3180,10 @@ if(typeof criarMotorLaudo !== 'function'){
     const descricaoPadraoLinhas = parDeSacos
       ? descricaoParLinhas()
       : sacos.reduce((acc, s)=> acc.concat(descricaoSacoLinhas(s)), []);
-    descricaoSacosPadrao = descricaoPadraoLinhas.map(textoDeHtml).join('\n');
     // v() e não vNoDot(): estas linhas saem literais, sem o laudo acrescentar
     // ponto nenhum, então tirar o ponto final comeria o da última frase dela.
-    const descricaoReescrita = sacos.length && $('chkDescricaoSacos').checked
-      ? v('descricaoSacos') : '';
+    // O campo "Reescrever a descrição do(s) saco(s) à mão" saiu (2026-11-02, pedido da médica).
+    const descricaoReescrita = '';
     if(descricaoReescrita){
       blocks.push({id:'sacosDescricao', html:'<div>'
         + descricaoReescrita.split('\n').map(l=> l.trim()).filter(Boolean)
@@ -3581,7 +3555,7 @@ if(typeof criarMotorLaudo !== 'function'){
     document.querySelectorAll('.conditional').forEach(el=>el.classList.remove('show'));
     document.querySelectorAll('.field input, .field select').forEach(el=>el.classList.remove('flag-abnormal', 'field-missing'));
     document.querySelectorAll('.flag-note').forEach(el=>el.classList.remove('show'));
-    $('sacosContainer').innerHTML = '';
+    estacionarCamposSaco(); $('sacosContainer').innerHTML = '';
     // Volta a apenas um nódulo em branco, igual a uma carga pela primeira vez,
     // em vez de deixar quantos tivessem sido adicionados para a paciente anterior.
     $('miomaNodulosContainer').innerHTML = '';
@@ -3662,7 +3636,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // as chaves da checklist de impressões e os ids dos blocos do laudo derivam
       // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.
       const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
-      $('sacosContainer').innerHTML = '';
+      estacionarCamposSaco(); $('sacosContainer').innerHTML = '';
       if(uids.length){
         uids.forEach(uid=>{
           sacoNextUid = Math.max(sacoNextUid, parseInt(uid, 10) + 1);
@@ -3728,7 +3702,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // Rascunho corrompido ou de uma versão antiga deste laudo: melhor abrir em
       // branco do que deixar a tela quebrada.
       st.draftRestoring = false;
-      $('sacosContainer').innerHTML = '';
+      estacionarCamposSaco(); $('sacosContainer').innerHTML = '';
       $('miomaNodulosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
