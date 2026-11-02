@@ -1879,6 +1879,8 @@ Pedido da médica, mesmo padrão do `obstetrico.html` (#425). Os títulos dos ca
 
 Pedido da médica, como no 2º trimestre (#408 a #419) e no obstétrico (#425/#426). Os títulos dos cards viram barras roxo escuro com seta, fechadas por padrão (`cardsBarras()`, chamada no `render()`); "Dados do exame" é `card-fixo`. O card de cada feto tem três barras numeradas, uma aberta por vez (`fsecAbre`/`fsecAtualizar`): Parâmetros biométricos, Avaliação morfológica fetal e Marcadores ultrassonográficos das trissomias. Nomes pelo conteúdo do 1º trimestre, escolha da médica: o card de feto é "Biometria, Morfologia e Marcadores" (o 1º tri não tem apresentação nem líquido amniótico, e o cordão fica na morfologia), o do útero é "Placenta, Colo uterino e Miométrio" (os miomas continuam) e o Doppler segue "Doppler das Artérias Uterinas" (o DV fica no card do feto). A placenta de cada feto (dicoriônica, `feto{uid}PlacentaWrap`) nasce em `#placentasFetos` por `fetoInserir()`, ao lado da placenta única. Ids, laudo, Word e rascunho iguais aos da `main` (`conferir-por-id.mjs`, 5 cenários; só a lista de ids ganhou `placentasFetos`).
 
+
+**Placenta, colo e miométrio lado a lado (2026-11-02, pedido da médica):** o card "Placenta, Colo uterino e Miométrio" tem duas colunas: à esquerda a Placenta (`#placentasFetos`, com a placenta de cada feto na dicoriônica) e, abaixo dela, o Colo uterino; à direita o Miométrio. A classe `.pl-mio` estreita as colunas (230px) para caber lado a lado num card de largura de formulário. Só layout: ids, laudo, Word e rascunho iguais aos da `main`.
 ## Obstétrico de 1º trimestre: card "Alterações", presença do saco no card do saco, sem card Bexiga (2026-11-02)
 
 Pedidos da médica, depois das barras (#427).

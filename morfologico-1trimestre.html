@@ -198,7 +198,9 @@
   .fsec-top{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px;font-size:12px;color:var(--ink-soft);}
   .fsec-top button{background:none;border:0;color:var(--rose-dark);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;}
   @media (max-width:560px){.fsec-bar .res{display:none;}}
-  #placentasFetos > *{flex:1 1 200px;min-width:0;}
+  #placentasFetos{display:flex;flex-direction:column;gap:14px;}
+  .pl-mio .bio-col{flex:1 1 230px;}
+  #placentasFetos > *{min-width:0;}
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
@@ -876,16 +878,15 @@
     <div class="card">
       <div class="card-head"><h2>Placenta, Colo uterino e Miométrio</h2></div>
       <div class="card-body">
-        <!-- Placentas em cima (a única, ou a de cada feto na dicoriônica), como no 2º trimestre. -->
-        <div class="bio-grupos" id="placentasFetos">
+        <div class="bio-grupos pl-mio">
+          <div class="bio-col">
+            <div id="placentasFetos">
             <div class="bio-grupo conditional show" id="wrap_placentaInsercao"><h4>Placenta</h4>
               <div class="field bio-linha bio-larga"><label for="placentaInsercao">Inserção placentária</label>
                 <select id="placentaInsercao"><option value="anterior">Parede anterior</option><option value="posterior">Parede posterior</option><option value="fúndica">Fúndica</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option></select>
               </div>
             </div>
-        </div>
-        <div class="bio-grupos">
-          <div class="bio-col">
+            </div>
             <div class="bio-grupo"><h4>Colo uterino</h4>
               <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
               <div id="coloFields" class="conditional">
