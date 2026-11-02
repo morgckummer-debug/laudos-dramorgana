@@ -1887,3 +1887,8 @@ Pedidos da médica, depois das barras (#427).
 - **Card "Alterações"**, três quadros: Hematoma subcoriônico (um quadro por saco, `wrap_saco{uid}HematomaQuadro` em `#hematomasContainer`, rotulado "Saco N" quando há mais de um; mesmos ids de antes), Gestação ectópica (`chkEctopica`) e Gestação molar (`chkMola`). As barras internas do card do saco (fsec) saíram, porque sobrou uma seção só.
 - **Card Bexiga saiu** do formulário: o laudo sempre leva a frase `bexigaNormal` (o `render()` fixa `bexigaAspecto = 'normal'`).
 Laudo e rascunho iguais aos da `main` (`conferir-por-id.mjs`: só somem os ids retirados).
+
+**Card Alterações em sub-barras (2026-11-02, pedido da médica):** o card Alterações tem três sub-barras numeradas
+(Hematoma subcoriônico, Gestação ectópica, Gestação molar), no molde do morfológico de 1º trimestre (`.fsec`), uma
+aberta por vez e a primeira aberta ao carregar. São marcação e CSS só: o clique é um listener próprio no `#cardAlteracoes`
+(não usa `fsecAbrir`/`fsecAtualizar`, que são do morfológico). O `.fsec-body` do hematoma leva `id="wrap_hematomas"`.

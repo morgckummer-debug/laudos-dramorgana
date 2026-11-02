@@ -194,12 +194,25 @@
   .card.fechado .card-body{display:none;}
 
   /* Card Alterações: hematoma, ectópica e mola lado a lado (2026-11-02, pedido da médica) */
-  .bio-grupos.alt-tres{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;}
-  .alt-tres > .bio-grupo{margin:0;}
+  .fsec{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;background:#fff;overflow:hidden;}
+  .fsec-bar{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;background:#fff;border:0;cursor:pointer;text-align:left;font:inherit;color:inherit;}
+  .fsec-bar .num{width:24px;height:24px;border-radius:50%;background:var(--rose-dark);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
+  .fsec.feita .num{background:#3c8a5a;}
+  .fsec-bar .tit{font-size:12.5px;font-weight:700;color:var(--rose-dark);text-transform:uppercase;letter-spacing:.3px;text-align:left;}
+  .fsec-bar .res{margin-left:auto;font-size:12px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:50%;}
+  .fsec-bar .chev{width:22px;height:22px;border-radius:50%;background:var(--rose-light);color:var(--rose-dark);display:flex;align-items:center;justify-content:center;font-size:12px;transition:transform .2s;flex:none;}
+  .fsec.open{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);}
+  .fsec.open .fsec-bar{background:var(--rose-light);}
+  .fsec.open .fsec-bar .chev{transform:rotate(90deg);}
+  .fsec-body{display:none;padding:12px 14px 14px;border-top:1px solid var(--line);}
+  .fsec.open .fsec-body{display:block;}
+  .fsec-top{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px;font-size:12px;color:var(--ink-soft);}
+  .fsec-top button{background:none;border:0;color:var(--rose-dark);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;}
+  @media (max-width:560px){.fsec-bar .res{display:none;}}
+  .alt-fsecs{margin-top:4px;}
   .hematoma-rotulo:empty{display:none;}
   .hematoma-rotulo{font-size:12px;font-weight:700;color:var(--rose-dark);margin:6px 0 2px;}
   .hematoma-saco + .hematoma-saco{border-top:1px dashed var(--line);margin-top:8px;padding-top:4px;}
-  @media (max-width:900px){ .bio-grupos.alt-tres{grid-template-columns:1fr;} }
   /* Saco gestacional ausente: o 1º card mostra só a presença e os campos da perda */
   .saco-presente-slot:not(:empty){margin-bottom:6px;}
   .sem-saco #sacosContainer > .card:not(:first-child),
@@ -811,12 +824,19 @@
     <div class="card" id="cardAlteracoes">
       <div class="card-head"><h2>Alterações</h2></div>
       <div class="card-body">
-        <div class="bio-grupos alt-tres">
-          <div class="bio-grupo" id="wrap_hematomas"><h4>Hematoma subcoriônico</h4>
+        <div class="alt-fsecs">
+        <div class="fsec-top"><span class="fsec-modo">Uma seção aberta por vez</span></div>
+          <div class="fsec open" data-fsec="1">
+            <button type="button" class="fsec-bar"><span class="num">1</span><span class="tit">Hematoma subcoriônico</span><span class="chev">▶</span></button>
+            <div class="fsec-body" id="wrap_hematomas">
             <div class="conditional show" id="wrap_hematomasCampos"><div id="hematomasContainer"></div></div>
             <p class="conditional hint" id="wrap_hematomasNaoAplica" style="margin:0;font-size:12px;color:var(--ink-soft);">Não se aplica sem saco gestacional na cavidade (mola, ectópica ou saco ausente).</p>
+          
+            </div>
           </div>
-          <div class="bio-grupo"><h4>Gestação ectópica</h4>
+          <div class="fsec" data-fsec="2">
+            <button type="button" class="fsec-bar"><span class="num">2</span><span class="tit">Gestação ectópica</span><span class="chev">▶</span></button>
+            <div class="fsec-body">
             <div class="toggle-line"><input type="checkbox" id="chkEctopica"><label for="chkEctopica">Gestação ectópica</label></div>
             <div class="conditional" id="wrap_ectopicaCampos">
             <div class="field bio-linha bio-sel"><label for="ectopicaLado">Lado</label>
@@ -834,8 +854,12 @@
               <div class="field bio-linha"><label for="ectopicaLiquidoVolume">Volume do líquido<small>opcional</small></label><input type="text" inputmode="decimal" data-decimals="1" id="ectopicaLiquidoVolume" placeholder=""><span class="bio-un">mL</span></div>
             </div>
           </div>
+          
+            </div>
           </div>
-          <div class="bio-grupo"><h4>Gestação molar</h4>
+          <div class="fsec" data-fsec="3">
+            <button type="button" class="fsec-bar"><span class="num">3</span><span class="tit">Gestação molar</span><span class="chev">▶</span></button>
+            <div class="fsec-body">
             <div class="toggle-line"><input type="checkbox" id="chkMola"><label for="chkMola">Achados sugestivos de mola hidatiforme</label></div>
             <div class="conditional" id="wrap_molaCampos">
             <div class="field bio-linha bio-texto bio-larga"><label for="molaMedida">Medida (cm)</label><input type="text" id="molaMedida" placeholder="ex: 6,5 x 5,8 x 4,2"></div>
@@ -853,6 +877,8 @@
               <div class="field bio-linha bio-ig"><label for="molaIgSemanas">IG pelo CCN</label><input type="text" inputmode="numeric" id="molaIgSemanas" placeholder="8"><span class="bio-un">semanas</span><input type="text" inputmode="numeric" id="molaIgDias" placeholder="3" aria-label="IG pelo CCN — dias"><span class="bio-un">dias</span></div>
             </div>
           </div>
+          
+            </div>
           </div>
         </div>
       </div>
@@ -1846,6 +1872,13 @@ if(typeof criarMotorLaudo !== 'function'){
     if(!box || box.value.trim()) return;
     box.value = typeof textoNormal === 'function' ? textoNormal() : textoNormal;
   }
+  // Alterações: sub-barras clicáveis, uma aberta por vez (pedido da médica, 2026-11-02).
+  document.getElementById('cardAlteracoes').addEventListener('click', e=>{
+    const bar = e.target.closest('.fsec-bar'); if(!bar) return;
+    const sec = bar.parentElement, abrir = !sec.classList.contains('open');
+    sec.parentElement.querySelectorAll('.fsec.open').forEach(o=>o.classList.remove('open'));
+    if(abrir) sec.classList.add('open');
+  });
   $('anexosAspecto').addEventListener('change', e=>{
     toggle('wrap_anexosDescricao', e.target.value==='alterado');
     if(e.target.value==='alterado') prefillAspectoDescricao('anexosDescricao', phraseRaw('anexosNormais'));
