@@ -386,6 +386,12 @@
   .bio-grupos{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px;}
   .bio-col{flex:1 1 280px;display:flex;flex-direction:column;gap:14px;min-width:0;}
   #placentasFetos > .bio-col{flex:1 1 200px;}
+  /* Mais de uma placenta: o colo uterino vai para a linha de baixo, inteiro. */
+  #placentasFetos.placentas-multi > #coloCol{flex:1 1 100%;}
+  /* Grau (Grannum): os botões ocupam a linha toda, sem invadir o rótulo; zero em fonte sem serifa. */
+  #placentasFetos .field:has(.grau-btns){grid-template-columns:1fr;}
+  #placentasFetos .grau-btns{justify-self:start;flex-wrap:wrap;}
+  #placentasFetos .grau-btn{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-variant-numeric:tabular-nums;min-width:44px;}
   .bio-grupo{border:1px solid var(--line);border-radius:14px;padding:12px 16px 6px;background:#fff;}
   .bio-grupo h4{margin:0 0 6px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;}
   .field.bio-linha{display:grid;grid-template-columns:1fr 86px 30px;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line-soft);}
@@ -792,7 +798,7 @@
           <div class="bio-col conditional show" id="placentaUnicaCol">
 <div class="bio-grupo conditional show" id="wrap_placentaUnica"><h4>Placenta</h4><div class="field bio-linha bio-larga"><label for="placentaInsercao">Posição / inserção</label><select id="placentaInsercao"><option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option><option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option><option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option></select></div><div class="field bio-linha bio-sel"><label for="placentaTextura">Textura</label><select id="placentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div><div class="field bio-linha bio-sel"><label for="placentaGrau">Grau<small>Grannum</small></label><select id="placentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div><div class="toggle-line"><input type="checkbox" id="placentaDistalCheck"><label for="placentaDistalCheck">Incluir distância da porção distal da placenta ao orifício interno do colo</label></div><div class="field bio-linha conditional" id="wrap_placentaDistalMedida"><label for="placentaDistalMedida">Distância ao orifício interno do colo</label><input type="text" inputmode="decimal" data-decimals="1" id="placentaDistalMedida" placeholder="mm"><span class="bio-un">mm</span></div></div>
           </div>
-          <div class="bio-col">
+          <div class="bio-col" id="coloCol">
 <div class="bio-grupo"><h4>Colo uterino</h4>
           <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
           <div id="coloFields" class="conditional">
@@ -2770,6 +2776,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // campos são os mesmos, então laudo e rascunho não mudam. Fora dessa situação o
     // bloco volta para a seção do feto, onde nasceu.
     const caixaPlacentas = $('placentasFetos');
+    caixaPlacentas.classList.toggle('placentas-multi', placentaPorFeto);
     uids.forEach((uid, idx)=>{
       const col = $('feto'+uid+'PlacentaWrap'), casa = $('feto'+uid+'PlacentaHome');
       if(!col || !casa) return;
@@ -2779,6 +2786,8 @@ if(typeof criarMotorLaudo !== 'function'){
       if(placentaCompart && idx===1) col.classList.remove('show');
       if(h4) h4.textContent = placentaCompart && idx===0 ? 'Placenta — Feto 1 e Feto 2' : placentaPorFeto ? 'Placenta — '+fetoLabel(idx, uids.length) : 'Placenta';
     });
+    // O colo fica sempre por último na caixa (abaixo das placentas, se houver mais de uma).
+    const coloCol = $('coloCol'); if(coloCol && coloCol.parentElement === caixaPlacentas) caixaPlacentas.appendChild(coloCol);
     Array.from(caixaPlacentas.children).forEach(col=>{
       const m = col.id.match(/^feto(.*)PlacentaWrap$/);
       if(m && !uids.includes(m[1])) col.remove();
