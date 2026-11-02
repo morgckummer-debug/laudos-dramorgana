@@ -753,6 +753,23 @@
       </div>
     </div>
 
+    <div class="card">
+      <div class="card-head"><h2>Placenta e Colo uterino</h2></div>
+      <div class="card-body">
+        <div class="bio-grupos" id="placentasFetos"></div>
+        <div class="bio-grupos"><div class="bio-col" id="coloCol">
+        <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
+        <div id="coloFields" class="conditional">
+          <div class="bio-grupos"><div class="bio-col">
+            <div class="bio-grupo"><h4>Colo uterino</h4>
+              <div class="field bio-linha bio-larga"><label for="coloComprimento">Comprimento do colo<small>via transvaginal, mm</small></label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
+            </div>
+          </div></div>
+        </div>
+        </div></div>
+      </div>
+    </div>
+
     <div id="fetosContainer"></div>
 
     <div class="card conditional" id="wrap_discordancia">
@@ -797,20 +814,6 @@
       </div>
     </div>
 
-
-    <div class="card">
-      <div class="card-head"><h2>Medida do colo uterino</h2></div>
-      <div class="card-body">
-        <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
-        <div id="coloFields" class="conditional">
-          <div class="bio-grupos"><div class="bio-col">
-            <div class="bio-grupo"><h4>Colo uterino</h4>
-              <div class="field bio-linha bio-larga"><label for="coloComprimento">Comprimento do colo<small>via transvaginal, mm</small></label><input type="text" inputmode="decimal" data-decimals="1" id="coloComprimento" placeholder="mm"></div>
-            </div>
-          </div></div>
-        </div>
-      </div>
-    </div>
 
     <div class="card">
       <div class="card-head"><h2>Impressões diagnósticas</h2></div>
@@ -1653,7 +1656,7 @@ if(typeof criarMotorLaudo !== 'function'){
   }
   let fetoNextUid = 1;
 
-  const FSEC_TITULOS = {1:'Situação, apresentação e vitalidade', 2:'Parâmetros biométricos', 3:'Placenta, Cordão e Líquido Amniótico'};
+  const FSEC_TITULOS = {1:'Situação, apresentação e vitalidade', 2:'Parâmetros biométricos', 3:'Cordão e Líquido Amniótico'};
   function fsecAbre(n){
     return '<div class="fsec'+(n===1?' open':'')+'" data-fsec="'+n+'">'
       +'<button type="button" class="fsec-bar"><span class="num">'+n+'</span><span class="tit">'+FSEC_TITULOS[n]+'</span><span class="res"></span><span class="chev">▶</span></button>'
@@ -1662,6 +1665,26 @@ if(typeof criarMotorLaudo !== 'function'){
   function fsecFecha(){ return '</div></div>'; }
   function fsecTopo(){
     return '<div class="fsec-top"><span class="fsec-modo">Uma seção aberta por vez</span><button type="button" class="fsec-todas">Abrir todas</button></div>';
+  }
+  // Placenta de cada feto: fica no card "Placenta e Colo uterino", não na seção do feto.
+  function placentaHTML(uid){
+    return ''
+      +'<div class="bio-col" id="feto'+uid+'PlacentaWrap">'
+      +'<div class="bio-grupo"><h4>Placenta</h4>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'PlacentaInsercao">Posição / inserção</label><select id="feto'+uid+'PlacentaInsercao">'
+      +'<option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option>'
+      +'<option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option>'
+      +'<option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option>'
+      +'<option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option>'
+      +'</select></div>'
+      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaTextura">Textura</label><select id="feto'+uid+'PlacentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div>'
+      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaGrau">Grau (Grannum)</label><select id="feto'+uid+'PlacentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div>'
+      +'</div>'
+      +'</div>';
+  }
+  function fetoInserir(uid){
+    $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
+    $('placentasFetos').insertAdjacentHTML('beforeend', placentaHTML(uid));
   }
   function fetoCardHTML(uid){
     return ''
@@ -1703,20 +1726,12 @@ if(typeof criarMotorLaudo !== 'function'){
       +fsecAbre(3)
       +'<div class="bio-grupos">'
       +'<div class="bio-col">'
-      +'<div class="bio-grupo"><h4>Placenta</h4>'
-      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'PlacentaInsercao">Posição / inserção</label><select id="feto'+uid+'PlacentaInsercao">'
-      +'<option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option>'
-      +'<option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option>'
-      +'<option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option>'
-      +'<option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option>'
-      +'</select></div>'
-      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaTextura">Textura</label><select id="feto'+uid+'PlacentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div>'
-      +'<div class="field bio-linha bio-sel"><label for="feto'+uid+'PlacentaGrau">Grau (Grannum)</label><select id="feto'+uid+'PlacentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div>'
-      +'</div>'
       +'<div class="bio-grupo"><h4>Cordão umbilical</h4>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'Cordao">Vasos do cordão</label><select id="feto'+uid+'Cordao"><option value="2 artérias e 1 veia">2 artérias e 1 veia</option><option value="artéria umbilical única">Artéria umbilical única</option></select></div>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'CordaoInsercao">Inserção do cordão</label><select id="feto'+uid+'CordaoInsercao"><option value="central">Central</option><option value="marginal">Marginal</option><option value="velamentosa">Velamentosa</option></select></div>'
       +'</div>'
+      +'</div>'
+      +'<div class="bio-col">'
       +'<div class="bio-grupo"><h4>Líquido amniótico</h4>'
       +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'LaAspecto">Aspecto e volume</label><select id="feto'+uid+'LaAspecto"><option value="normal">Normal</option><option value="reduzido">Volume reduzido (oligoâmnio)</option><option value="aumentado">Volume aumentado (polidrâmnio)</option></select></div>'
       +'<div class="field bio-linha"><label for="feto'+uid+'LaBolsao">Maior bolsão</label><input type="text" inputmode="decimal" data-decimals="1" id="feto'+uid+'LaBolsao" placeholder=""><span class="bio-un">cm</span></div>'
@@ -1820,7 +1835,6 @@ if(typeof criarMotorLaudo !== 'function'){
       ['DBP','CC','CA','CF'].forEach(k=>{ if(val(k)) p.push(k+' '+val(k)); });
       if(val('Peso')) p.push(val('Peso')+' g'+(val('Percentil')?' (P'+val('Percentil')+')':''));
     } else {
-      p.push('placenta '+txt('PlacentaInsercao').toLowerCase());
       p.push(val('Cordao').indexOf('única')>=0 ? 'artéria umbilical única' : '2 artérias e 1 veia');
       p.push('LA '+txt('LaAspecto').toLowerCase());
     }
@@ -1868,7 +1882,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const cards = Array.from($('fetosContainer').children);
     cards.forEach((el, idx)=>{
       const label = el.querySelector('.feto-label');
-      if(label) label.textContent = fetoLabel(idx, cards.length);
+      if(label) label.textContent = (cards.length>1 ? fetoLabel(idx, cards.length)+' — ' : '') + 'Apresentação, Biometria e Líquido Amniótico';
       const removeBtn = el.querySelector('.feto-remove');
       if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
       const uid = el.id.replace('wrap_feto','');
@@ -1903,7 +1917,7 @@ if(typeof criarMotorLaudo !== 'function'){
         render();
       });
     }
-    el.querySelectorAll('input, select, textarea').forEach(field=>{
+    Array.from(el.querySelectorAll('input, select, textarea')).concat(Array.from(($('feto'+uid+'PlacentaWrap')||el).querySelectorAll('input, select, textarea'))).forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
     });
@@ -1938,7 +1952,7 @@ if(typeof criarMotorLaudo !== 'function'){
   function addFeto(){
     if($('fetosContainer').children.length >= MAX_FETOS) return;
     const uid = fetoNextUid++;
-    $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
+    fetoInserir(uid);
     wireFetoCard(uid);
     renumberFetos();
     render();
@@ -2413,6 +2427,9 @@ if(typeof criarMotorLaudo !== 'function'){
     atualizarFivCalculos();
     cardsBarras();
     fsecAtualizar();
+    const uidsP = fetoUids();
+    Array.from($('placentasFetos').children).forEach(col=>{ const m=col.id.match(/^feto(.*)PlacentaWrap$/); if(m && !uidsP.includes(m[1])) col.remove(); });
+    uidsP.forEach((uid, idx)=>{ const col=$('feto'+uid+'PlacentaWrap'); const h4=col && col.querySelector('h4'); if(h4) h4.textContent = uidsP.length>1 ? 'Placenta — '+fetoLabel(idx, uidsP.length) : 'Placenta'; });
     if(st.draftRestoring) return;
     // Durante a impressão o #paper está remontado em folhas e será reposto
     // inteiro pelo 'afterprint': o que fosse renderizado agora seria jogado
@@ -3257,7 +3274,7 @@ if(typeof criarMotorLaudo !== 'function'){
     setDefaultDataExame();
     // Recria a lista de fetos do zero: os cards antigos levavam junto os valores
     // digitados, e o select de nº de fetos acabou de voltar para "Único".
-    $('fetosContainer').innerHTML = '';
+    $('fetosContainer').innerHTML = ''; $('placentasFetos').innerHTML = '';
     const _dffReset = $('dopplerFetalFields'); if(_dffReset) _dffReset.innerHTML = '';
     const _pbfReset = $('pbfFetosFields'); if(_pbfReset) _pbfReset.innerHTML = '';
     // A limpeza acima tirou "show" de todo `.conditional`, inclusive os campos de
@@ -3314,13 +3331,13 @@ if(typeof criarMotorLaudo !== 'function'){
       // as chaves da checklist de impressões e os ids dos blocos do laudo derivam
       // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.
       const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
-      $('fetosContainer').innerHTML = '';
+      $('fetosContainer').innerHTML = ''; $('placentasFetos').innerHTML = '';
       const _dffRestore = $('dopplerFetalFields'); if(_dffRestore) _dffRestore.innerHTML = '';
       const _pbfRestore = $('pbfFetosFields'); if(_pbfRestore) _pbfRestore.innerHTML = '';
       if(uids.length){
         uids.forEach(uid=>{
           fetoNextUid = Math.max(fetoNextUid, parseInt(uid, 10) + 1);
-          $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
+          fetoInserir(uid);
           wireFetoCard(uid);
         });
         renumberFetos();
@@ -3363,7 +3380,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // Rascunho corrompido ou de uma versão antiga deste laudo: melhor abrir em
       // branco do que deixar a tela quebrada.
       st.draftRestoring = false;
-      $('fetosContainer').innerHTML = '';
+      $('fetosContainer').innerHTML = ''; $('placentasFetos').innerHTML = '';
       if($('pbfFetosFields')) $('pbfFetosFields').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
