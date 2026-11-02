@@ -784,16 +784,12 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Útero, Placenta e Colo</h2></div>
+      <div class="card-head"><h2>Placenta e Colo uterino</h2></div>
       <div class="card-body">
-        <div class="bio-grupos">
-          <div class="bio-col">
+        <div class="bio-grupos" id="placentasFetos">
 <div class="bio-grupo conditional show" id="wrap_placentaUnica"><h4>Placenta</h4><div class="field bio-linha bio-larga"><label for="placentaInsercao">Posição / inserção</label><select id="placentaInsercao"><option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option><option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option><option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option></select></div><div class="field bio-linha bio-sel"><label for="placentaTextura">Textura</label><select id="placentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div><div class="field bio-linha bio-sel"><label for="placentaGrau">Grau<small>Grannum</small></label><select id="placentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div><div class="toggle-line"><input type="checkbox" id="placentaDistalCheck"><label for="placentaDistalCheck">Incluir distância da porção distal da placenta ao orifício interno do colo</label></div><div class="field bio-linha conditional" id="wrap_placentaDistalMedida"><label for="placentaDistalMedida">Distância ao orifício interno do colo</label><input type="text" inputmode="decimal" data-decimals="1" id="placentaDistalMedida" placeholder="mm"><span class="bio-un">mm</span></div></div>
-          </div>
-          <div class="bio-col">
-<div class="bio-grupo"><h4>Miométrio</h4>
-          <div class="field bio-linha bio-larga"><label for="miometrioObservacoes">Miomas / achados miometriais<small>opcional · texto livre</small></label><textarea id="miometrioObservacoes" rows="2" placeholder="ex: nódulo sólido hipoecoico em parede anterior do útero, medindo 22 x 20 mm, compatível com mioma."></textarea></div>
         </div>
+        <div class="bio-grupos"><div class="bio-col">
 <div class="bio-grupo"><h4>Colo uterino</h4>
           <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
           <div id="coloFields" class="conditional">
@@ -802,7 +798,6 @@
         </div>
           </div>
         </div>
-        <div class="bio-grupos" id="placentasFetos"></div>
       </div>
     </div>
 
@@ -2715,8 +2710,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const gpaP = v('gpaP');
     const gpaA = v('gpaA');
     const motivoExame = vNoDot('motivoExame');
-    const miometrioObservacoes = vNoDot('miometrioObservacoes');
-
+    
     const cronologiaMetodoRaw = v('cronologiaMetodo');
     const cronologiaMetodo = (cronologiaMetodoRaw==='usg' || cronologiaMetodoRaw==='fiv' || ehDumSemCronologia(cronologiaMetodoRaw)) ? cronologiaMetodoRaw : 'dum';
     const dataBase = computeDataBase(cronologiaMetodo);
@@ -2767,7 +2761,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const placentaPorFeto = isMultiple && !placentaUnica;
     toggle('wrap_placentaUnica', !placentaPorFeto);
     uids.forEach(uid=> toggle('feto'+uid+'PlacentaWrap', placentaPorFeto));
-    // Gemelar dicoriônica: a placenta de cada feto aparece no card "Útero, Placenta e Colo"
+    // Gemelar dicoriônica: a placenta de cada feto aparece no card "Placenta e Colo uterino"
     // (pedido da médica, 2026-11-01). Só muda o lugar do bloco na tela: os ids e os
     // campos são os mesmos, então laudo e rascunho não mudam. Fora dessa situação o
     // bloco volta para a seção do feto, onde nasceu.
@@ -2780,8 +2774,8 @@ if(typeof criarMotorLaudo !== 'function'){
       const h4 = col.querySelector('h4'); if(h4) h4.textContent = placentaPorFeto ? 'Placenta — '+fetoLabel(idx, uids.length) : 'Placenta';
     });
     Array.from(caixaPlacentas.children).forEach(col=>{
-      const uid = col.id.replace(/^feto(.*)PlacentaWrap$/, '$1');
-      if(!uids.includes(uid)) col.remove();
+      const m = col.id.match(/^feto(.*)PlacentaWrap$/);
+      if(m && !uids.includes(m[1])) col.remove();
     });
 
     // ----- Óbito fetal -----
@@ -3078,9 +3072,6 @@ if(typeof criarMotorLaudo !== 'function'){
       blocks.push({id:'relato', html:'<p class="relato">'+escapeHtml(motivoExame)+'.</p>'});
     }
     blocks.push({id:'aoExameLabel', html:'<p class="linha"><strong style="text-decoration:underline;">Ao exame:</strong></p>'});
-    if(miometrioObservacoes){
-      blocks.push({id:'miometrioObs', html:'<p class="linha">'+escapeHtml(miometrioObservacoes)+'.</p>'});
-    }
 
 
     fetos.forEach(f=>{
