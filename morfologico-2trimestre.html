@@ -2106,7 +2106,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const cards = Array.from($('fetosContainer').children);
     cards.forEach((el, idx)=>{
       const label = el.querySelector('.feto-label');
-      if(label) label.textContent = fetoLabel(idx, cards.length);
+      if(label) label.textContent = (cards.length>1 ? fetoLabel(idx, cards.length)+' — ' : '') + 'Apresentação, Biometria, Líquido e Morfologia';
       const removeBtn = el.querySelector('.feto-remove');
       if(removeBtn) removeBtn.style.display = cards.length>1 ? 'inline' : 'none';
       const uid = el.id.replace('wrap_feto','');
