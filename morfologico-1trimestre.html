@@ -168,6 +168,37 @@
   .hint-perfeto{font-size:12px;color:var(--ink-soft);margin:2px 0 0;}
   .feto-sub{font-size:12.5px;font-weight:700;color:var(--rose-dark);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.3px;}
   .feto-sub:first-of-type{margin-top:4px;}
+  /* Títulos dos cards viram barras clicáveis (2026-11-01, pedido da médica; como no 2º trimestre e no obstétrico) */
+  .card-head{cursor:pointer;user-select:none;gap:10px;}
+  .card-head:focus-visible{outline:2px solid var(--rose);outline-offset:-2px;}
+  .card > .card-head{background:var(--rose-dark);border-bottom-color:var(--rose-darker);}
+  .card > .card-head h2{color:#fff;}
+  .card > .card-head::after{background:rgba(255,255,255,.18);color:#fff;}
+  .card > .card-head:hover{background:var(--rose-darker);}
+  .card-head::after{content:'▶';width:22px;height:22px;border-radius:50%;background:var(--rose-light);color:var(--rose-dark);display:flex;align-items:center;justify-content:center;font-size:12px;transition:transform .2s;flex:none;transform:rotate(90deg);}
+  .card.fechado .card-head::after{transform:none;}
+  .card.card-fixo > .card-head{cursor:default;}
+  .card.card-fixo > .card-head::after{display:none;}
+  .card.fechado .card-head{border-bottom:0;}
+  .card.fechado .card-body{display:none;}
+
+  /* Card Feto em barras clicáveis, uma aberta por vez (2026-11-01, pedido da médica; como no 2º trimestre e no obstétrico) */
+  .fsec{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;background:#fff;overflow:hidden;}
+  .fsec-bar{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;background:#fff;border:0;cursor:pointer;text-align:left;font:inherit;color:inherit;}
+  .fsec-bar .num{width:24px;height:24px;border-radius:50%;background:var(--rose-dark);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
+  .fsec.feita .num{background:#3c8a5a;}
+  .fsec-bar .tit{font-size:12.5px;font-weight:700;color:var(--rose-dark);text-transform:uppercase;letter-spacing:.3px;text-align:left;}
+  .fsec-bar .res{margin-left:auto;font-size:12px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:50%;}
+  .fsec-bar .chev{width:22px;height:22px;border-radius:50%;background:var(--rose-light);color:var(--rose-dark);display:flex;align-items:center;justify-content:center;font-size:12px;transition:transform .2s;flex:none;}
+  .fsec.open{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);}
+  .fsec.open .fsec-bar{background:var(--rose-light);}
+  .fsec.open .fsec-bar .chev{transform:rotate(90deg);}
+  .fsec-body{display:none;padding:12px 14px 14px;border-top:1px solid var(--line);}
+  .fsec.open .fsec-body{display:block;}
+  .fsec-top{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px;font-size:12px;color:var(--ink-soft);}
+  .fsec-top button{background:none;border:0;color:var(--rose-dark);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;}
+  @media (max-width:560px){.fsec-bar .res{display:none;}}
+  #placentasFetos > *{flex:1 1 200px;min-width:0;}
   .conditional{display:none;}
   .conditional.show{display:block;}
   .field-row.conditional.show{display:grid;}
@@ -766,7 +797,7 @@
   <!-- FORM COLUMN -->
   <div id="formCol">
 
-    <div class="card">
+    <div class="card card-fixo">
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
         <div class="bio-grupo bio-paciente"><h4>Paciente e exame</h4>
@@ -843,15 +874,18 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>Ao exame — útero, placenta e colo</h2></div>
+      <div class="card-head"><h2>Placenta, Colo uterino e Miométrio</h2></div>
       <div class="card-body">
-        <div class="bio-grupos">
-          <div class="bio-col">
+        <!-- Placentas em cima (a única, ou a de cada feto na dicoriônica), como no 2º trimestre. -->
+        <div class="bio-grupos" id="placentasFetos">
             <div class="bio-grupo conditional show" id="wrap_placentaInsercao"><h4>Placenta</h4>
               <div class="field bio-linha bio-larga"><label for="placentaInsercao">Inserção placentária</label>
                 <select id="placentaInsercao"><option value="anterior">Parede anterior</option><option value="posterior">Parede posterior</option><option value="fúndica">Fúndica</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option></select>
               </div>
             </div>
+        </div>
+        <div class="bio-grupos">
+          <div class="bio-col">
             <div class="bio-grupo"><h4>Colo uterino</h4>
               <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
               <div id="coloFields" class="conditional">
@@ -1981,19 +2015,44 @@ if(typeof criarMotorLaudo !== 'function'){
       '<div class="field bio-linha bio-sel"><label for="feto'+uid+k+'">'+nome+'</label><select id="feto'+uid+k+'"><option value="normal">Aspecto normal</option><option value="alterado">Alterado (descrever)</option></select></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+k+'Descricao"><label>Descreva o achado — '+nome+'</label>'+prontoSelect(uid,k)+'<textarea id="feto'+uid+k+'Descricao" rows="2"></textarea></div>'
       +'<div class="field conditional" id="wrap_feto'+uid+k+'Resumo"><label>Resumo para a conclusão diagnóstica (opcional)</label><textarea id="feto'+uid+k+'Resumo" rows="2" placeholder="frase objetiva — só ela entra na conclusão"></textarea><small class="resumo-aviso" id="feto'+uid+k+'ResumoAviso" hidden>Sem resumo, este achado não entra na conclusão diagnóstica.</small></div>';
-    return '<p class="feto-sub">Avaliação morfológica fetal</p>'
-      +'<div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Segmentos fetais</h4>'
+    return '<div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Segmentos fetais</h4>'
       +seg('Cranio','Crânio / cérebro')+seg('Face','Face')+seg('Torax','Tórax / coração')+seg('Abdome','Abdome')+seg('Coluna','Coluna')+seg('Extremidades','Extremidades')
       +'<div class="field bio-linha bio-sel bio-sel-larga"><label for="feto'+uid+'Cordao">Cordão umbilical</label><select id="feto'+uid+'Cordao"><option value="duas artérias e uma veia">Duas artérias e uma veia</option><option value="artéria umbilical única">Artéria umbilical única</option></select></div>'
       +'</div></div></div>';
+  }
+  // Card do feto em barras numeradas, uma aberta por vez (2026-11-02, como no
+  // 2º trimestre e no obstétrico). Só muda a tela: ids, laudo e rascunho iguais.
+  const FSEC_TITULOS = {1:'Parâmetros biométricos', 2:'Avaliação morfológica fetal', 3:'Marcadores ultrassonográficos das trissomias'};
+  function fsecAbre(n){
+    return '<div class="fsec'+(n===1?' open':'')+'" data-fsec="'+n+'">'
+      +'<button type="button" class="fsec-bar"><span class="num">'+n+'</span><span class="tit">'+FSEC_TITULOS[n]+'</span><span class="res"></span><span class="chev">▶</span></button>'
+      +'<div class="fsec-body">';
+  }
+  function fsecFecha(){ return '</div></div>'; }
+  function fsecTopo(){
+    return '<div class="fsec-top"><span class="fsec-modo">Uma seção aberta por vez</span><button type="button" class="fsec-todas">Abrir todas</button></div>';
+  }
+  // Placenta de cada feto (dicoriônica): fica no card "Placenta, Colo uterino e
+  // Miométrio", não no card do feto. Visibilidade decidida no render().
+  function placentaHTML(uid){
+    return ''
+      +'<div class="conditional" id="feto'+uid+'PlacentaWrap">'
+      +'<div class="bio-grupo"><h4>Placenta</h4>'
+      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'Placenta">Localização placentária</label><select id="feto'+uid+'Placenta"><option value="anterior alta">Anterior alta</option><option value="posterior alta">Posterior alta</option><option value="fúndica">Fúndica</option><option value="baixa">Baixa</option></select></div>'
+      +'</div>'
+      +'</div>';
+  }
+  function fetoInserir(uid){
+    $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
+    $('placentasFetos').insertAdjacentHTML('beforeend', placentaHTML(uid));
   }
   function fetoCardHTML(uid){
     return ''
       +'<div class="card" id="wrap_feto'+uid+'">'
       +'<div class="card-head"><h2><span class="feto-label"></span></h2></div>'
       +'<div class="card-body">'
-
-      +'<p class="feto-sub">Parâmetros biométricos</p>'
+      +fsecTopo()
+      +fsecAbre(1)
       // Quadros por região, como no morfológico de 2º/3º trimestre (2026-10-27,
       // pedido da médica): nome à esquerda, caixa curta e igual para todas,
       // unidade à direita. Os ids não mudaram (rascunho e Curva dependem deles),
@@ -2019,17 +2078,11 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'</div>'
 
-      // Dicoriônica: cada feto tem a própria placenta. Visibilidade decidida no render().
-      +'<div class="conditional" id="feto'+uid+'PlacentaWrap">'
-      +'<p class="feto-sub">Placenta</p>'
-      +'<div class="bio-grupos"><div class="bio-col"><div class="bio-grupo"><h4>Localização</h4>'
-      +'<div class="field bio-linha bio-larga"><label for="feto'+uid+'Placenta">Localização placentária</label><select id="feto'+uid+'Placenta"><option value="anterior alta">Anterior alta</option><option value="posterior alta">Posterior alta</option><option value="fúndica">Fúndica</option><option value="baixa">Baixa</option></select></div>'
-      +'</div></div></div>'
-      +'</div>'
-
+      +fsecFecha()
+      +fsecAbre(2)
       +morfoQuadro(uid)
-
-      +'<p class="feto-sub">Marcadores ultrassonográficos das trissomias</p>'
+      +fsecFecha()
+      +fsecAbre(3)
       +'<div class="bio-grupos">'
       +'<div class="bio-col">'
       +bioGrupo(uid, 'Translucência nucal', [
@@ -2049,6 +2102,8 @@ if(typeof criarMotorLaudo !== 'function'){
         ['Bexiga','Bexiga fetal']])
       +'</div>'
       +'</div>'
+
+      +fsecFecha()
 
       // Dicoriônica/trigemelar: o risco de cada feto é digitado no card final
       // "Cálculo de Risco pela FMF". O bloco nasce aqui (ids feto{uid}Risco*,
@@ -2099,11 +2154,87 @@ if(typeof criarMotorLaudo !== 'function'){
   function fetoLabel(idx, total){
     return total<=1 ? 'Feto' : 'Feto '+(idx+1);
   }
+  // ----- Cards recolhíveis: o título é a barra (como no 2º trimestre e no obstétrico) -----
+  // Começam fechados, menos "Dados do exame" (card-fixo) e os cards de feto. A
+  // classe fica só na tela; campos continuam no DOM, então laudo e rascunho não mudam.
+  function cardsBarras(){
+    document.querySelectorAll('#formCol .card:not(.card-fixo) > .card-head').forEach(h=>{
+      if(h.dataset.barra) return;
+      h.dataset.barra = '1'; h.tabIndex = 0; h.setAttribute('role','button');
+      const card = h.parentElement;
+      if(!card.id.startsWith('wrap_feto')) card.classList.add('fechado');
+    });
+  }
+  function alternarCard(h){
+    const card = h.parentElement, fecha = !card.classList.contains('fechado');
+    card.classList.toggle('fechado', fecha);
+    h.setAttribute('aria-expanded', String(!fecha));
+  }
+  document.addEventListener('click', e=>{ if(e.target.closest('button, input, select, textarea, a')) return; const h=e.target.closest('#formCol .card:not(.card-fixo) > .card-head'); if(h) alternarCard(h); });
+  document.addEventListener('keydown', e=>{
+    if((e.key==='Enter'||e.key===' ') && e.target.matches && e.target.matches('#formCol .card:not(.card-fixo) > .card-head')){ e.preventDefault(); alternarCard(e.target); }
+  });
+  // ----- Barras numeradas do card Feto: uma aberta por vez -----
+  function fsecResumo(uid, n){
+    const val = k=>{ const e=$('feto'+uid+k); return e ? (e.value||'').trim() : ''; };
+    const p = [];
+    if(n===1){
+      ['CCN','DBP','CC','CA','CF'].forEach(k=>{ if(val(k)) p.push(k+' '+val(k)); });
+      if(val('FC')) p.push('FC '+val('FC')+' bpm');
+    } else if(n===2){
+      const alt = ['Cranio','Face','Torax','Abdome','Coluna','Extremidades'].filter(k=> val(k)==='alterado').length;
+      p.push(alt ? alt+' segmento'+(alt>1?'s':'')+' alterado'+(alt>1?'s':'') : 'segmentos normais');
+      if(val('Cordao').indexOf('única')>=0) p.push('artéria umbilical única');
+    } else {
+      if(val('TN')) p.push('TN '+val('TN'));
+      if(val('DuctoVenoso')) p.push('IPV '+val('DuctoVenoso'));
+      if(val('OssoNasal')) p.push('ON '+val('OssoNasal').toLowerCase());
+    }
+    return p.filter(Boolean).join(' · ');
+  }
+  function fsecAtualizar(){
+    Array.from($('fetosContainer').children).forEach(card=>{
+      const uid = card.id.replace('wrap_feto','');
+      card.querySelectorAll('.fsec').forEach(sec=>{
+        const n = +sec.dataset.fsec;
+        const preenchido = Array.from(sec.querySelectorAll('input[type=text]:not([readonly]),textarea')).some(e=>e.value && e.value.trim());
+        const feita = !!sec.dataset.visto || preenchido;
+        sec.classList.toggle('feita', feita);
+        sec.querySelector('.num').textContent = feita ? '✓' : String(n);
+        sec.querySelector('.res').textContent = feita ? fsecResumo(uid, n) : 'a preencher';
+      });
+    });
+  }
+  function fsecAbrir(sec, unica){
+    if(unica) sec.closest('.card').querySelectorAll('.fsec.open').forEach(o=>{ if(o!==sec) o.classList.remove('open'); });
+    sec.classList.add('open');
+    sec.dataset.visto = '1';
+  }
+  $('fetosContainer').addEventListener('click', e=>{
+    const card = e.target.closest('.card'); if(!card) return;
+    const todas = e.target.closest('.fsec-todas');
+    if(todas){
+      const tudo = card.dataset.todas !== '1';
+      card.dataset.todas = tudo ? '1' : '';
+      card.querySelectorAll('.fsec').forEach(s=>{ s.classList.toggle('open', tudo); if(tudo) s.dataset.visto='1'; });
+      if(!tudo) card.querySelector('.fsec').classList.add('open');
+      card.querySelector('.fsec-modo').textContent = tudo ? 'Todas as seções abertas' : 'Uma seção aberta por vez';
+      todas.textContent = tudo ? 'Uma por vez' : 'Abrir todas';
+      fsecAtualizar(); return;
+    }
+    const bar = e.target.closest('.fsec-bar');
+    if(bar){
+      const sec = bar.parentElement;
+      if(sec.classList.contains('open')){ sec.classList.remove('open'); sec.dataset.visto='1'; }
+      else fsecAbrir(sec, card.dataset.todas !== '1');
+      fsecAtualizar();
+    }
+  });
   function renumberFetos(){
     const cards = Array.from($('fetosContainer').children);
     cards.forEach((el, idx)=>{
       const label = el.querySelector('.feto-label');
-      if(label) label.textContent = fetoLabel(idx, cards.length);
+      if(label) label.textContent = (cards.length>1 ? fetoLabel(idx, cards.length)+' — ' : '') + 'Biometria, Morfologia e Marcadores';
       const uidCard = el.id.replace('wrap_feto','');
       const labelRisco = document.querySelector('#feto'+uidCard+'RiscoWrap .feto-label-risco');
       if(labelRisco) labelRisco.textContent = fetoLabel(idx, cards.length);
@@ -2121,7 +2252,7 @@ if(typeof criarMotorLaudo !== 'function'){
     wireDigitsOnlyInput('feto'+uid+'FC', 3);
     wireDigitsOnlyInput('feto'+uid+'RiscoT21', 6);
     wireDigitsOnlyInput('feto'+uid+'RiscoT18', 6);
-    el.querySelectorAll('input, select, textarea').forEach(field=>{
+    Array.from(el.querySelectorAll('input, select, textarea')).concat(Array.from(($('feto'+uid+'PlacentaWrap')||el).querySelectorAll('select'))).forEach(field=>{
       field.addEventListener('input', render);
       field.addEventListener('change', render);
     });
@@ -2160,6 +2291,7 @@ if(typeof criarMotorLaudo !== 'function'){
     updateFetoWraps(uid);
     el.querySelector('.feto-remove').addEventListener('click', ()=>{
       if(riscoWrap) riscoWrap.remove();
+      const pw = $('feto'+uid+'PlacentaWrap'); if(pw) pw.remove();
       el.remove();
       renumberFetos();
       render();
@@ -2168,7 +2300,7 @@ if(typeof criarMotorLaudo !== 'function'){
   function addFeto(){
     if($('fetosContainer').children.length >= MAX_FETOS) return;
     const uid = fetoNextUid++;
-    $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
+    fetoInserir(uid);
     wireFetoCard(uid);
     renumberFetos();
     render();
@@ -2184,6 +2316,7 @@ if(typeof criarMotorLaudo !== 'function'){
       const uid = last.id.replace('wrap_feto','');
       const db = $('wrap_feto'+uid+'Doppler');
       if(db) db.remove();
+      const pw = $('feto'+uid+'PlacentaWrap'); if(pw) pw.remove();
       last.remove();
     }
     renumberFetos();
@@ -3271,6 +3404,8 @@ if(typeof criarMotorLaudo !== 'function'){
   function render(){
     atualizarUsgCalculos();
     atualizarFivCalculos();
+    cardsBarras();
+    fsecAtualizar();
     if(st.draftRestoring) return;
     // Durante a impressão o #paper está remontado em folhas e será reposto
     // inteiro pelo 'afterprint': o que fosse renderizado agora seria jogado
@@ -3557,6 +3692,7 @@ if(typeof criarMotorLaudo !== 'function'){
     const placentaPorFeto = isMultiple && ['dicorionica_diamniotica','tricorionica_triamniotica'].indexOf(v('corionicidade')) !== -1;
     toggle('wrap_placentaInsercao', !placentaPorFeto);
     fetos.forEach(f=> toggle('feto'+f.uid+'PlacentaWrap', placentaPorFeto));
+    fetos.forEach((f, idx)=>{ const h4 = document.querySelector('#feto'+f.uid+'PlacentaWrap h4'); if(h4) h4.textContent = fetos.length>1 ? 'Placenta — '+fetoLabel(idx, fetos.length) : 'Placenta'; });
     toggle('wrap_anexoCalcUnico', riscoUnico());
     fetos.forEach((f, idx)=> toggle('feto'+f.uid+'RiscoWrap', !riscoNaUltimaPagina(f.uid) && !(isMonocorionica && idx > 0)));
     // O único cartão que sobra na monocoriônica (o do 1º feto) é reaproveitado
@@ -4237,7 +4373,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // digitados, e o select de nº de fetos acabou de voltar para "Único".
     // A limpeza tirou "show" de todo `.conditional`: refaz o toggle da cronologia.
     updateCronologiaWraps();
-    $('fetosContainer').innerHTML = ''; $('riscoFetosContainer').innerHTML = '';
+    $('fetosContainer').innerHTML = ''; $('riscoFetosContainer').innerHTML = ''; $('placentasFetos').querySelectorAll('[id$="PlacentaWrap"]').forEach(e=>e.remove());
     const _dffReset = $('dopplerFetalFields'); if(_dffReset) _dffReset.innerHTML = '';
     // Os nódulos da paciente anterior saem junto: o select de miométrio acabou
     // de voltar para "Textura homogênea", e um nódulo preenchido pendurado aí
@@ -4298,12 +4434,12 @@ if(typeof criarMotorLaudo !== 'function'){
       // as chaves da checklist de impressões e os ids dos blocos do laudo derivam
       // deles, então recriá-los com uid novo desalinharia tudo o que vem depois.
       const uids = Array.isArray(d.uids) ? d.uids.filter(u=> /^[0-9]+$/.test(String(u))) : [];
-      $('fetosContainer').innerHTML = ''; $('riscoFetosContainer').innerHTML = '';
+      $('fetosContainer').innerHTML = ''; $('riscoFetosContainer').innerHTML = ''; $('placentasFetos').querySelectorAll('[id$="PlacentaWrap"]').forEach(e=>e.remove());
       const _dffRestore = $('dopplerFetalFields'); if(_dffRestore) _dffRestore.innerHTML = '';
       if(uids.length){
         uids.forEach(uid=>{
           fetoNextUid = Math.max(fetoNextUid, parseInt(uid, 10) + 1);
-          $('fetosContainer').insertAdjacentHTML('beforeend', fetoCardHTML(uid));
+          fetoInserir(uid);
           wireFetoCard(uid);
         });
         renumberFetos();
@@ -4361,7 +4497,7 @@ if(typeof criarMotorLaudo !== 'function'){
       // Rascunho corrompido ou de uma versão antiga deste laudo: melhor abrir em
       // branco do que deixar a tela quebrada.
       st.draftRestoring = false;
-      $('fetosContainer').innerHTML = ''; $('riscoFetosContainer').innerHTML = '';
+      $('fetosContainer').innerHTML = ''; $('riscoFetosContainer').innerHTML = ''; $('placentasFetos').querySelectorAll('[id$="PlacentaWrap"]').forEach(e=>e.remove());
       $('miomaNodulosContainer').innerHTML = '';
       checkedState = {};
       impressaoOverrides = {};
