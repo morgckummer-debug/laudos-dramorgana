@@ -2757,6 +2757,9 @@ if(typeof criarMotorLaudo !== 'function'){
     const placentaUnica = isMultiple && (v('corionicidade')||'').indexOf('monocorionica')===0;
     // Placenta única (feto único ou monocoriônica) fica no card Ao exame; por feto, no card de cada feto.
     const placentaPorFeto = isMultiple && !placentaUnica;
+    // Trigemelar dicoriônica: 2 placentas. Feto 1 e Feto 2 dividem a primeira (pedido da médica, 2026-11-02):
+    // o Feto 2 usa os campos de placenta do Feto 1 e não tem caixa própria.
+    const placentaCompart = placentaPorFeto && uids.length === 3 && v('corionicidade') === 'dicorionica_triamniotica';
     toggle('wrap_placentaUnica', !placentaPorFeto);
     uids.forEach(uid=> toggle('feto'+uid+'PlacentaWrap', placentaPorFeto));
     // Gemelar dicoriônica: a placenta de cada feto aparece no card "Placenta e Colo uterino"
@@ -2769,7 +2772,9 @@ if(typeof criarMotorLaudo !== 'function'){
       if(!col || !casa) return;
       if(placentaPorFeto){ if(col.parentElement !== caixaPlacentas) caixaPlacentas.appendChild(col); }
       else if(col.parentElement === caixaPlacentas) casa.after(col);
-      const h4 = col.querySelector('h4'); if(h4) h4.textContent = placentaPorFeto ? 'Placenta — '+fetoLabel(idx, uids.length) : 'Placenta';
+      const h4 = col.querySelector('h4');
+      if(placentaCompart && idx===1) col.classList.remove('show');
+      if(h4) h4.textContent = placentaCompart && idx===0 ? 'Placenta — Feto 1 e Feto 2' : placentaPorFeto ? 'Placenta — '+fetoLabel(idx, uids.length) : 'Placenta';
     });
     Array.from(caixaPlacentas.children).forEach(col=>{
       const m = col.id.match(/^feto(.*)PlacentaWrap$/);
@@ -2912,8 +2917,9 @@ if(typeof criarMotorLaudo !== 'function'){
       // O estágio aparece também quando o CIUR vem da diástole zero (updateFetoWraps só olha o percentil).
       toggle('wrap_'+pre+'CiurEstagio', pesoKey === 'impPesoCIUR');
 
-      const plPre = placentaPorFeto ? pre+'Placenta' : 'placenta';
-      const ehDonoPlacenta = placentaPorFeto || idx === uids.length-1;
+      const placentaCompartilhada = placentaCompart && idx===1;
+      const plPre = placentaPorFeto ? (placentaCompartilhada ? 'feto'+uids[0] : pre)+'Placenta' : 'placenta';
+      const ehDonoPlacenta = placentaPorFeto ? !placentaCompartilhada : idx === uids.length-1;
       const placentaInsercao = v(plPre+'Insercao');
       const placentaInsercaoTxt = PLACENTA_INSERCAO_TXT[placentaInsercao] || placentaInsercao;
       const placentaTextura = v(plPre+'Textura');
@@ -2968,7 +2974,7 @@ if(typeof criarMotorLaudo !== 'function'){
         cf, ossoNasal, ossoNasalPres, umero, pregaPreNasal, radio, doe, ulna, doi, tibia, fibula,
         peso, pesoNum, percentil, percentilNum, pesoKey, pesoLabel,
         segmentos, alteracoes, morfoAlterado, cordaoTxt, cordaoInsercao, auu: cordaoTxt === 'artéria umbilical única',
-        placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt,
+        placentaHtml, placentaAlterada, placentaDescricao, placentaPrevia, placentaInsercaoTxt, placentaCompartilhada,
         placentaDistalCheck, placentaDistalMedida,
         laAlterado, laOligoamnio, laPolidramnio, laBolsao, laILA, laILAPercentil,
         piUmbilicalVal, piACMVal, cprTxt, cprPercentilVal, cprPercentilNum, dopplerFetalAlterado, auFluxo, auFluxoAlterado};
@@ -3147,7 +3153,7 @@ if(typeof criarMotorLaudo !== 'function'){
 
       const placentaDistalHtml = f.placentaDistalCheck ? ' '+phraseRaw('placentaDistalTexto', {MEDIDA: span(f.placentaDistalMedida)}) : '';
       // Monocoriônica divide uma placenta só: uma frase (a do último feto), "Placenta única".
-      if(!placentaUnica || f===fetos[fetos.length-1]){
+      if((!placentaUnica || f===fetos[fetos.length-1]) && !f.placentaCompartilhada){
         blocks.push({id:'placenta'+sfx, html:'<div><p class="linha tight"><strong style="text-decoration:underline;">'+(placentaUnica ? 'Placenta única' : 'Placenta')+'</strong></p><p class="linha">'+f.placentaHtml+placentaDistalHtml+' '+phraseRaw('cordaoTexto', {VASOS: emSe(f.auu, f.cordaoTxt)})+' '+phraseRaw('cordaoInsercaoTexto', {INSERCAO: emSe(f.cordaoInsercao!=='central', f.cordaoInsercao)})+'</p></div>'});
       }
 
