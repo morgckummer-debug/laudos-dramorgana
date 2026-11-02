@@ -788,9 +788,10 @@
       <div class="card-head"><h2>Placenta e Colo uterino</h2></div>
       <div class="card-body">
         <div class="bio-grupos" id="placentasFetos">
+          <div class="bio-col conditional show" id="placentaUnicaCol">
 <div class="bio-grupo conditional show" id="wrap_placentaUnica"><h4>Placenta</h4><div class="field bio-linha bio-larga"><label for="placentaInsercao">Posição / inserção</label><select id="placentaInsercao"><option value="fúndica">Fúndica</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="lateral direita">Lateral direita</option><option value="lateral esquerda">Lateral esquerda</option><option value="baixa">Placenta baixa</option><option value="marginal">Placenta marginal</option><option value="previa">Placenta prévia</option><option value="sucenturiada">Sucenturiada</option><option value="bilobulada">Bilobulada</option><option value="raquete">Em raquete</option></select></div><div class="field bio-linha bio-sel"><label for="placentaTextura">Textura</label><select id="placentaTextura"><option value="homogênea">Homogênea</option><option value="heterogênea">Heterogênea</option></select></div><div class="field bio-linha bio-sel"><label for="placentaGrau">Grau<small>Grannum</small></label><select id="placentaGrau"><option value="0">0</option><option value="I">I</option><option value="II">II</option><option value="III">III</option></select></div><div class="toggle-line"><input type="checkbox" id="placentaDistalCheck"><label for="placentaDistalCheck">Incluir distância da porção distal da placenta ao orifício interno do colo</label></div><div class="field bio-linha conditional" id="wrap_placentaDistalMedida"><label for="placentaDistalMedida">Distância ao orifício interno do colo</label><input type="text" inputmode="decimal" data-decimals="1" id="placentaDistalMedida" placeholder="mm"><span class="bio-un">mm</span></div></div>
-        </div>
-        <div class="bio-grupos"><div class="bio-col">
+          </div>
+          <div class="bio-col">
 <div class="bio-grupo"><h4>Colo uterino</h4>
           <div class="toggle-line"><input type="checkbox" id="chkColo"><label for="chkColo">Incluir medida do colo uterino neste laudo</label></div>
           <div id="coloFields" class="conditional">
@@ -2758,6 +2759,7 @@ if(typeof criarMotorLaudo !== 'function'){
     // Placenta única (feto único ou monocoriônica) fica no card Ao exame; por feto, no card de cada feto.
     const placentaPorFeto = isMultiple && !placentaUnica;
     toggle('wrap_placentaUnica', !placentaPorFeto);
+    toggle('placentaUnicaCol', !placentaPorFeto);
     uids.forEach(uid=> toggle('feto'+uid+'PlacentaWrap', placentaPorFeto));
     // Gemelar dicoriônica: a placenta de cada feto aparece no card "Placenta e Colo uterino"
     // (pedido da médica, 2026-11-01). Só muda o lugar do bloco na tela: os ids e os
