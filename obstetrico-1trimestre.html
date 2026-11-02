@@ -179,6 +179,35 @@
      bloco do embrião somem do layout (display:contents) e os dois quadros dele
      viram a 2ª e a 3ª coluna. Com mais de um (.saco-multi), o quadro do saco
      fica em cima e cada embrião vira uma coluna com VV e embrião empilhados. */
+  /* Títulos dos cards viram barras clicáveis (2026-11-02, pedido da médica; mesmo padrão do obstetrico.html) */
+  .card-head{cursor:pointer;user-select:none;gap:10px;}
+  .card-head:focus-visible{outline:2px solid var(--rose);outline-offset:-2px;}
+  .card > .card-head{background:var(--rose-dark);border-bottom-color:var(--rose-darker);}
+  .card > .card-head h2{color:#fff;}
+  .card > .card-head::after{background:rgba(255,255,255,.18);color:#fff;}
+  .card > .card-head:hover{background:var(--rose-darker);}
+  .card-head::after{content:'▶';width:22px;height:22px;border-radius:50%;background:var(--rose-light);color:var(--rose-dark);display:flex;align-items:center;justify-content:center;font-size:12px;transition:transform .2s;flex:none;transform:rotate(90deg);}
+  .card.fechado .card-head::after{transform:none;}
+  .card.card-fixo > .card-head{cursor:default;}
+  .card.card-fixo > .card-head::after{display:none;}
+  .card.fechado .card-head{border-bottom:0;}
+  .card.fechado .card-body{display:none;}
+
+  /* Card do saco em barras numeradas, uma aberta por vez (2026-11-02, pedido da médica) */
+  .fsec{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;background:#fff;overflow:hidden;}
+  .fsec-bar{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;background:#fff;border:0;cursor:pointer;text-align:left;font:inherit;color:inherit;}
+  .fsec-bar .num{width:24px;height:24px;border-radius:50%;background:var(--rose-dark);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
+  .fsec.feita .num{background:#3c8a5a;}
+  .fsec-bar .tit{font-size:12.5px;font-weight:700;color:var(--rose-dark);text-transform:uppercase;letter-spacing:.3px;text-align:left;}
+  .fsec-bar .res{margin-left:auto;font-size:12px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:50%;}
+  .fsec-bar .chev{width:22px;height:22px;border-radius:50%;background:var(--rose-light);color:var(--rose-dark);display:flex;align-items:center;justify-content:center;font-size:12px;transition:transform .2s;flex:none;}
+  .fsec.open{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-light);}
+  .fsec.open .fsec-bar{background:var(--rose-light);}
+  .fsec.open .fsec-bar .chev{transform:rotate(90deg);}
+  .fsec-body{display:none;padding:12px 14px 14px;border-top:1px solid var(--line);}
+  .fsec.open .fsec-body{display:block;}
+  .fsec-body > .saco-linha{margin-bottom:0;}
+  @media (max-width:560px){.fsec-bar .res{display:none;}}
   .saco-linha{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start;margin-bottom:14px;}
   .saco-linha:not(.saco-multi) > .saco-embrioes,
   .saco-linha:not(.saco-multi) .emb-bloco{display:contents;}
@@ -678,7 +707,7 @@
   <!-- FORM COLUMN -->
   <div id="formCol">
 
-    <div class="card">
+    <div class="card card-fixo">
       <div class="card-head"><h2>Dados do exame</h2></div>
       <div class="card-body">
         <div class="bio-grupo bio-paciente"><h4>Paciente e exame</h4>
@@ -799,7 +828,6 @@
 
     <div class="conditional show" id="wrap_sacosSection">
       <div id="sacosContainer"></div>
-      <button type="button" class="btn-clear" id="btnAddSaco" style="margin:-8px 0 22px;">+ Adicionar saco gestacional</button>
       <div class="toggle-line"><input type="checkbox" id="chkDescricaoSacos"><label for="chkDescricaoSacos">Reescrever a descrição do(s) saco(s) à mão</label></div>
       <div class="field conditional" id="wrap_descricaoSacos">
         <label>Descrição do(s) saco(s) — o texto do laudo já vem escrito aqui; corrija só o que precisa. Uma linha por parágrafo. As tabelas de biometria e os achados continuam automáticos.</label>
@@ -2000,11 +2028,20 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'</div>';
   }
+  // ----- Card do saco em barras numeradas, uma aberta por vez (2026-11-02) -----
+  const FSEC_TITULOS = {1:'Saco gestacional, vesícula vitelínica e embrião', 2:'Hematoma subcoriônico'};
+  function fsecAbre(n){
+    return '<div class="fsec'+(n===1?' open':'')+'" data-fsec="'+n+'">'
+      +'<button type="button" class="fsec-bar"><span class="num">'+n+'</span><span class="tit">'+FSEC_TITULOS[n]+'</span><span class="res"></span><span class="chev">▶</span></button>'
+      +'<div class="fsec-body">';
+  }
+  function fsecFecha(){ return '</div></div>'; }
   function sacoCardHTML(uid){
     return ''
       +'<div class="card" id="wrap_saco'+uid+'">'
       +'<div class="card-head"><h2><span class="saco-label"></span></h2></div>'
       +'<div class="card-body">'
+      +fsecAbre(1)
       +'<div class="saco-linha" id="saco'+uid+'Linha">'
       +'<div class="bio-grupo"><h4>Saco gestacional</h4>'
       +'<div class="field bio-linha bio-sel"><label for="saco'+uid+'Insercao">Onde está o saco gestacional</label><select id="saco'+uid+'Insercao"><option value="fúndica">Fúndica</option><option value="corporal">Corporal</option><option value="ístmica">Ístmica</option></select></div>'
@@ -2014,6 +2051,8 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'<div class="saco-embrioes" id="saco'+uid+'Embrioes"></div>'
       +'</div>'
+      +fsecFecha()
+      +fsecAbre(2)
       +'<div class="bio-grupos"><div class="bio-col">'
       +'<div class="bio-grupo"><h4>Hematoma subcoriônico</h4>'
       +'<div class="toggle-line"><input type="checkbox" id="saco'+uid+'Hematoma"><label for="saco'+uid+'Hematoma">Hematoma subcoriônico</label></div>'
@@ -2024,6 +2063,7 @@ if(typeof criarMotorLaudo !== 'function'){
       +'</div>'
       +'</div>'
       +'</div></div>'
+      +fsecFecha()
       +'<button type="button" class="saco-remove" data-uid="'+uid+'">Remover</button>'
       +'</div>'
       +'</div>';
@@ -2140,7 +2180,70 @@ if(typeof criarMotorLaudo !== 'function'){
     renumberSacos();
     render();
   }
-  $('btnAddSaco').addEventListener('click', addSaco);
+  // ----- Cards recolhíveis: o título é a barra (como no obstetrico.html) -----
+  // Começam fechados, menos "Dados do exame" (card-fixo) e os cards de saco. A
+  // classe fica só na tela; campos continuam no DOM, então laudo e rascunho não mudam.
+  function cardsBarras(){
+    document.querySelectorAll('.card:not(.card-fixo) > .card-head').forEach(h=>{
+      if(h.dataset.barra) return;
+      h.dataset.barra = '1'; h.tabIndex = 0; h.setAttribute('role','button');
+      const card = h.parentElement;
+      if(!card.id.startsWith('wrap_saco')) card.classList.add('fechado');
+    });
+  }
+  function alternarCard(h){
+    const card = h.parentElement, fecha = !card.classList.contains('fechado');
+    card.classList.toggle('fechado', fecha);
+    h.setAttribute('aria-expanded', String(!fecha));
+  }
+  document.addEventListener('click', e=>{ const h=e.target.closest('.card:not(.card-fixo) > .card-head'); if(h) alternarCard(h); });
+  document.addEventListener('keydown', e=>{
+    if((e.key==='Enter'||e.key===' ') && e.target.matches && e.target.matches('.card:not(.card-fixo) > .card-head')){ e.preventDefault(); alternarCard(e.target); }
+  });
+  function fsecResumo(uid, n){
+    const val = id=>{ const e=$(id); return e ? (e.value||'').trim() : ''; };
+    const p = [];
+    if(n===1){
+      if(val('saco'+uid+'DMSG')) p.push('DMSG '+val('saco'+uid+'DMSG')+' mm');
+      embriaoIdxs(uid).forEach(i=>{
+        const pre = embPre(uid, i);
+        if(val(pre+'Embriao')==='nao_identificado') p.push('embrião não identificado');
+        else {
+          if(val(pre+'CCN')) p.push('CCN '+val(pre+'CCN')+' mm');
+          p.push(val(pre+'Vitalidade')==='ausente' ? 'BCF ausentes' : (val(pre+'FC') ? 'BCF '+val(pre+'FC')+' bpm' : 'BCF presentes'));
+        }
+      });
+    } else {
+      const chk = $('saco'+uid+'Hematoma');
+      p.push(chk && chk.checked ? 'hematoma'+(val('saco'+uid+'HematomaMedida') ? ' '+val('saco'+uid+'HematomaMedida') : '') : 'ausente');
+    }
+    return p.filter(Boolean).join(' · ');
+  }
+  function fsecAtualizar(){
+    Array.from($('sacosContainer').children).forEach(card=>{
+      const uid = card.id.replace('wrap_saco','');
+      card.querySelectorAll('.fsec').forEach(sec=>{
+        const n = +sec.dataset.fsec;
+        const preenchido = Array.from(sec.querySelectorAll('input[type=text],textarea')).some(e=>e.value && e.value.trim())
+          || Array.from(sec.querySelectorAll('input[type=checkbox]')).some(e=>e.checked);
+        const feita = !!sec.dataset.visto || preenchido;
+        sec.classList.toggle('feita', feita);
+        sec.querySelector('.num').textContent = feita ? '✓' : String(n);
+        sec.querySelector('.res').textContent = feita ? fsecResumo(uid, n) : 'a preencher';
+      });
+    });
+  }
+  $('sacosContainer').addEventListener('click', e=>{
+    const bar = e.target.closest('.fsec-bar'); if(!bar) return;
+    const sec = bar.parentElement, card = sec.closest('.card');
+    if(sec.classList.contains('open')) sec.classList.remove('open');
+    else {
+      card.querySelectorAll('.fsec.open').forEach(o=>{ if(o!==sec) o.classList.remove('open'); });
+      sec.classList.add('open');
+    }
+    sec.dataset.visto = '1';
+    fsecAtualizar();
+  });
   function sacoUids(){
     return Array.from($('sacosContainer').children).map(el=> el.id.replace('wrap_saco',''));
   }
@@ -2584,6 +2687,8 @@ if(typeof criarMotorLaudo !== 'function'){
     else dppEl.value = '';
   }
   function render(){
+    cardsBarras();
+    fsecAtualizar();
     atualizarUsgCalculos();
     atualizarFivCalculos();
     if(st.draftRestoring) return;
